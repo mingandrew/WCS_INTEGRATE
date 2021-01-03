@@ -1,0 +1,113 @@
+﻿<hc:SimplePanel x:Class="wcs.window.WaringCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:local="clr-namespace:wcs.window"
+             DataContext="{Binding Warn,Source={StaticResource Locator}}"
+             mc:Ignorable="d">
+    <StackPanel>
+        <Grid>
+            <Grid >
+                <Grid Visibility="{Binding SHOWSTATUSERROR}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Grid >
+                        <hc:SimplePanel >
+                            <ContentPresenter/>
+                            <Ellipse Height="95" Width="95" 
+                                     Fill="Red"
+                                     RenderTransformOrigin="0.1 0.1" Margin="1" HorizontalAlignment="Center" 
+                                     VerticalAlignment="Center">
+                                <Ellipse.OpacityMask>
+                                    <RadialGradientBrush>
+                                        <GradientStop Offset="0" Color="Transparent" />
+                                        <GradientStop Offset="0.1" Color="Red" />
+                                    </RadialGradientBrush>
+                                </Ellipse.OpacityMask>
+                                <Ellipse.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever" DesiredFrameRate="20">
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" BeginTime="0" Duration="0:0:1" From="1" To="2" EasingFunction="{StaticResource SineEaseOut}" />
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" BeginTime="0" Duration="0:0:1" From="1" To="2" EasingFunction="{StaticResource SineEaseOut}" />
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" BeginTime="0" Duration="0:0:1" From="1" To="0" EasingFunction="{StaticResource SineEaseOut}" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Ellipse.Triggers>
+                            </Ellipse>
+                        </hc:SimplePanel>
+                    </Grid>
+                </Grid>
+                <Grid Visibility="{Binding SHOWSTATUSERROR}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Border Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        <Border Background="{DynamicResource AccentBrush}"  Width="80" Height="80" CornerRadius="40" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            BorderBrush="White" BorderThickness="5">
+                            <Grid>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="警告" Foreground="{DynamicResource TextIconBrush}" FontSize="25"/>
+                                <Button Content="" Width="45" Height="30" Background="Transparent"
+                                    Command="{Binding ShowErrorListCmd}" BorderBrush="Transparent"/>
+                                <Label Content="{Binding ERRORCOUNT}" FontSize="20" Foreground="White" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Bottom" Margin="0,0,0,-8"/>
+                            </Grid>
+                        </Border>
+                    </Border>
+                </Grid>
+                <Grid Visibility="{Binding SHOWSTATUSOK}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Border BorderBrush="{StaticResource BorderBrush}"  Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"
+                            BorderThickness="1">
+                        <Border Background="{DynamicResource SuccessBrush}" Width="80" Height="80" CornerRadius="40" HorizontalAlignment="Right" VerticalAlignment="Top"
+                            BorderBrush="White" BorderThickness="5">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="正常" Foreground="{DynamicResource TextIconBrush}" FontSize="25"/>
+                        </Border>
+                    </Border>
+                </Grid>
+
+            </Grid>
+            
+            <hc:SimplePanel Margin="0,100,0,0" VerticalAlignment="Center" MinWidth="380"  Width="380" 
+                    Visibility="{Binding SHOWERRORLIST}">
+                <Border Name="BorderRootEffect" Background="{DynamicResource RegionBrush}" CornerRadius="10" Effect="{StaticResource EffectShadow4}" Margin="16" Visibility="Collapsed"/>
+                <Border Name="BorderRoot" Style="{StaticResource BorderClip}" Margin="16">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.RowSpan="2" Background="{DynamicResource RegionBrush}" CornerRadius="10" Effect="{StaticResource EffectShadow4}"/>
+                        <Border Height="50" Grid.Row="0" CornerRadius="10,10,0,0" Background="{DynamicResource AccentBrush}" Style="{StaticResource BorderClip}">
+                            <hc:SimplePanel>
+                                <hc:Watermark Mark="WARN" MarkMargin="3,0" FontSize="20" FontWeight="Bold" MarkBrush="#0F000000"/>
+                                <TextBlock Style="{StaticResource TextBlockDefault}" Foreground="White" FontSize="25" Text="警告信息"/>
+                                <Button Content="清空" HorizontalAlignment="Right" Background="Transparent" BorderThickness="0" Foreground="White" Command="{Binding ClearnALertCmd}"/>
+                            </hc:SimplePanel>
+                        </Border>
+                        <Border Grid.Row="1" ClipToBounds="True" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
+                            <DataGrid Grid.Row="1" FontSize="20"
+                                  ItemsSource="{Binding WarnList}"
+                                  SelectionUnit="FullRow" SelectionMode="Single"
+                                  CanUserAddRows="False" CanUserResizeColumns="False"
+                                  CanUserDeleteRows="False" CanUserSortColumns="False"
+                                  CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True" 
+                                  MinHeight="200"
+                                  MaxHeight="600" SelectedItem="{Binding SelectedWarn}">
+
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="解决" Tag="1" Command="{Binding WarnActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding ID}" Header="ID" MaxWidth="150" Visibility="Hidden"/>
+                                    <DataGridTextColumn Binding="{Binding CONTENT}" Header="信息"/>
+                                    <DataGridTextColumn Binding="{Binding CREATETIME,Converter={StaticResource Date2StringConverter}}" Header="时间" Visibility="Collapsed"/>
+                                    <DataGridTextColumn Binding="{Binding REMAINTIME}" Header="持续" Visibility="Collapsed"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </hc:SimplePanel>
+        </Grid>
+    </StackPanel>
+</hc:SimplePanel>

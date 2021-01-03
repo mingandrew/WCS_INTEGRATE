@@ -1,0 +1,105 @@
+﻿<Border x:Class="wcs.Dialog.GoodsSelectDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.Dialog"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" DataContext="{Binding GoodSelect,Source={StaticResource Locator}}"
+             MinHeight="600" MinWidth="800" MaxWidth="900" MaxHeight="600"
+            Background="{DynamicResource RegionBrush}" CornerRadius="20">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Orientation="Horizontal" Margin="5"
+                    Visibility="{Binding ShowAreaFilter,Converter={StaticResource Boolean2VisibilityConverter}}">
+            <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10"/>
+            <hc:ButtonGroup Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
+                                ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                        <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+
+                <hc:ButtonGroup.ItemTemplate>
+                    <DataTemplate DataType="mwindow:AreaRadioBtn">
+                        <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="100" Height="40" MinHeight="35" MinWidth="80"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                    </DataTemplate>
+                </hc:ButtonGroup.ItemTemplate>
+            </hc:ButtonGroup>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Left" Orientation="Horizontal" Margin="5"
+                    VerticalAlignment="Center">
+            <hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}" Margin="0,0,20,0" VerticalAlignment="Center">
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                        <hc:EventToCommand Command="{Binding CheckWidthRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+                <RadioButton Content="全部" Tag="0" FontSize="20" Height="30"/>
+                <RadioButton Content="600" Tag="600" FontSize="20" Height="30"/>
+                <RadioButton Content="750" Tag="750" FontSize="20" Height="30"/>
+                <RadioButton Content="800" Tag="800" FontSize="20" Height="30"/>
+                <RadioButton Content="900" Tag="900" FontSize="20" Height="30"/>
+                <RadioButton Content="1200" Tag="1200" FontSize="20" Height="30"/>
+                <RadioButton Content="1600" Tag="1600" FontSize="20" Height="30"/>
+            </hc:ButtonGroup>
+            <TextBlock Text="名称：" Style="{StaticResource TextBlockLarge}"/>
+            <TextBox Width="100" Margin="0,5,5,5" Text="{Binding FilterName, Mode=TwoWay}"/>
+            <Button Content="过滤" Style="{StaticResource ButtonPrimary}" FontSize="20" Height="40" Command="{Binding SearchCmd}"/>
+        </StackPanel>
+        <DataGrid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                      SelectedItem="{Binding SelectGood}" ItemsSource="{Binding GoodListView}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding name}" Header="名称"/>
+                <DataGridTextColumn Binding="{Binding color}" Header="色号"/>
+                <DataGridTextColumn Binding="{Binding width}" Header="宽"/>
+                <DataGridTextColumn Binding="{Binding length}" Header="长"/>
+                <DataGridTemplateColumn Visibility="Collapsed">
+                    <DataGridTemplateColumn.Header>
+                        <TextBlock Text="超限"/>
+                    </DataGridTemplateColumn.Header>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid Margin="5,5,5,5">
+                                <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                    <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                </Border>
+                                <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                            Visibility="{Binding isoversize,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Ellipse Width="25" Height="25" Fill="{DynamicResource PrimaryBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Binding="{Binding CarrierType}" Header="车型" Visibility="Collapsed"/>
+                <DataGridTextColumn Binding="{Binding memo}" Header="备注"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+            <Button HorizontalAlignment="Left" Width="120" Margin="0,0,50,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" />
+            <Button HorizontalAlignment="Left" Width="120" Margin="50,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定"/>
+
+        </StackPanel>
+    </Grid>
+</Border>

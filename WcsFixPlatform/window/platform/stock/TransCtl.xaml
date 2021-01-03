@@ -1,0 +1,194 @@
+﻿<UserControl x:Class="wcs.window.TransCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.window"
+             mc:Ignorable="d" Background="{StaticResource RegionBrush}"
+             xmlns:hc="https://handyorg.github.io/handycontrol" 
+             xmlns:local1="clr-namespace:wcs.ViewModel.platform"
+             DataContext="{Binding Trans,Source={StaticResource Locator}}"
+             MinWidth="800" MinHeight="600">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Height="60"  Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+            <hc:ButtonGroup Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
+                                ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                        <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+
+                <hc:ButtonGroup.ItemTemplate>
+                    <DataTemplate DataType="mwindow:AreaRadioBtn">
+                        <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="100" Height="40" MinHeight="35" MinWidth="80"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                    </DataTemplate>
+                </hc:ButtonGroup.ItemTemplate>
+            </hc:ButtonGroup>
+
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" MinWidth="250">
+                <TabControl>
+                    <hc:Interaction.Triggers>
+                        <hc:RoutedEventTrigger RoutedEvent="TabControl.SelectionChanged">
+                            <hc:EventToCommand Command="{Binding TabSelectedCmd}" PassEventArgsToCommand="True"/>
+                        </hc:RoutedEventTrigger>
+                    </hc:Interaction.Triggers>
+                    <TabItem Header="进行中" FontSize="22" Height="50" Tag="RECENT">
+                        <DataGrid ItemsSource="{Binding TListView}" SelectionUnit="FullRow" SelectionMode="Single"
+                                CanUserAddRows="False" hc:DataGridAttach.ShowRowNumber="False" CanUserDeleteRows="False" 
+                                CanUserSortColumns="False" CanUserReorderColumns="False" IsReadOnly="True" CanUserResizeColumns="False"
+                                HeadersVisibility="Column" AutoGenerateColumns="False"
+                              SelectedItem="{Binding SelectedTask}">
+                            <hc:Interaction.Triggers>
+                                <hc:RoutedEventTrigger RoutedEvent="DataGrid.SelectionChanged">
+                                    <hc:EventToCommand Command="{Binding TaskItemSelectedCmd}" PassEventArgsToCommand="True"/>
+                                </hc:RoutedEventTrigger>
+                            </hc:Interaction.Triggers>
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource DataGridColumnHeaderStyle}">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="取消任务" Tag="1" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    <MenuItem Header="完成任务" Tag="2" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="修改卸货点" Tag="3" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    <MenuItem Header="刷新数据" Tag="4" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding TransType}" Header="任务类型"/>
+                                <DataGridTextColumn Binding="{Binding TransStaus}" Header="任务状态"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem Header="已完成" FontSize="22" Height="50" Tag="FINISH">
+                        <DataGrid ItemsSource="{Binding FTListView}" SelectionUnit="FullRow" SelectionMode="Single"
+                                CanUserAddRows="False" hc:DataGridAttach.ShowRowNumber="False" CanUserDeleteRows="False" 
+                                CanUserSortColumns="False" CanUserReorderColumns="False" IsReadOnly="True" CanUserResizeColumns="False"
+                                HeadersVisibility="Column" AutoGenerateColumns="False"
+                              SelectedItem="{Binding SelectedFTask}">
+                            <hc:Interaction.Triggers>
+                                <hc:RoutedEventTrigger RoutedEvent="DataGrid.SelectionChanged">
+                                    <hc:EventToCommand Command="{Binding TaskItemSelectedCmd}" PassEventArgsToCommand="True"/>
+                                </hc:RoutedEventTrigger>
+                            </hc:Interaction.Triggers>
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource DataGridColumnHeaderStyle}">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding TransType}" Header="任务类型"/>
+                                <DataGridTextColumn Binding="{Binding TransStaus}" Header="任务状态"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </TabItem>
+                </TabControl>
+
+            </Grid>
+            <Grid Grid.Column="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <TextBlock Grid.Row="0" Text="详细信息" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" Margin="10"/>
+                </Grid>
+                <Grid Grid.Row="1"  Background="White">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="ID:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="规格:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="取货轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="卸货轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="上下砖机:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="运输车:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10"/>
+                    </Border>
+                    <Border Grid.Row="3" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="创建时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="3" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="执行时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="4" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                        <TextBlock Text="取货时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="4" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                        <TextBlock Text="卸货时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+
+                    <Border Grid.Row="0" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="{Binding Id}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="0" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                        <TextBlock Text="{Binding Goods_id,Converter={StaticResource GoodId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="{Binding Take_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                        <TextBlock Text="{Binding Give_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="{Binding Tilelifter_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                        <TextBlock Text="{Binding Carrier_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="3" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="3" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                        <TextBlock Text="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="4" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                        <TextBlock Text="{Binding Load_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="4" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
+                        <TextBlock Text="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

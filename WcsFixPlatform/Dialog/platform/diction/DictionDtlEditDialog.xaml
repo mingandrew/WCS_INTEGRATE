@@ -1,0 +1,64 @@
+﻿<Border x:Class="wcs.Dialog.DictionDtlEditDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.Dialog"
+            xmlns:hc="https://handyorg.github.io/handycontrol"
+            CornerRadius="10" Width="300" Height="300"
+            DataContext="{Binding DicDtlEdit, Source={StaticResource Locator}}"
+            Background="{DynamicResource RegionBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+            <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding ACTIONNAME}"/>
+            <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="子字典"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" MinWidth="60"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="名称:" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="值:" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                <TextBlock Text="顺序:" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBox Text="{Binding NAME,Mode=TwoWay}" BorderThickness="1" Margin="10"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <Grid Margin="10">
+                    <TextBox Text="{Binding INTVALUE,Mode=TwoWay}" BorderThickness="1" Visibility="{Binding SHOWINT,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                    <TextBox Text="{Binding STRINGVALUE,Mode=TwoWay}" BorderThickness="1" Visibility="{Binding SHOWSTRING,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                    <TextBox Text="{Binding DOUBLEVALUE,Mode=TwoWay}" BorderThickness="1" Visibility="{Binding SHOWDOUBLE,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                    <CheckBox IsChecked="{Binding BOOLVALUE,Mode=TwoWay}" BorderThickness="1" Visibility="{Binding SHOWBOOL,Converter={StaticResource Boolean2VisibilityConverter}}"
+                              Style="{StaticResource ToggleButtonSwitch}"/>
+                    <TextBox Text="{Binding UINTVALUE,Mode=TwoWay}" BorderThickness="1" Visibility="{Binding SHOWUINT,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                </Grid>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
+                <TextBox Text="{Binding ORDER,Mode=TwoWay}" BorderThickness="1" Margin="10"/>
+            </Border>
+        </Grid>
+
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Width="120" Margin="0,0,5,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消"/>
+            <Button Width="120" Margin="5,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="{Binding ACTIONNAME}"/>
+        </StackPanel>
+    </Grid>
+</Border>

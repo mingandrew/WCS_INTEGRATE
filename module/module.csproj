@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6FC3FFEB-7E5A-425E-9760-1EA8B6CE71EF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>module</RootNamespace>
+    <AssemblyName>module</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="area\Area.cs" />
+    <Compile Include="area\AreaDevice.cs" />
+    <Compile Include="area\AreaDeviceTrack.cs" />
+    <Compile Include="area\AreaTrack.cs" />
+    <Compile Include="device\DevCarrier.cs" />
+    <Compile Include="device\DevFerry.cs" />
+    <Compile Include="device\Device.cs" />
+    <Compile Include="device\DevTileLifter.cs" />
+    <Compile Include="device\IDevice.cs" />
+    <Compile Include="diction\Diction.cs" />
+    <Compile Include="diction\DictionDtl.cs" />
+    <Compile Include="diction\ValueDiction.cs" />
+    <Compile Include="diction\VersionDic.cs" />
+    <Compile Include="goods\Goods.cs" />
+    <Compile Include="goods\Stock.cs" />
+    <Compile Include="goods\StockSum.cs" />
+    <Compile Include="goods\StockTrans.cs" />
+    <Compile Include="msg\MsgAction.cs" />
+    <Compile Include="msg\MsgMod.cs" />
+    <Compile Include="msg\RfMsgMod.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="rf\base\LoginMsg.cs" />
+    <Compile Include="rf\carrier\DevCarrierPack.cs" />
+    <Compile Include="rf\carrier\DevCarrierTaskPack.cs" />
+    <Compile Include="rf\carrier\RfDevCarrier.cs" />
+    <Compile Include="rf\device\RfDevicePack.cs" />
+    <Compile Include="rf\device\RfTileGoodPack.cs" />
+    <Compile Include="rf\device\RfTileShiftPack.cs" />
+    <Compile Include="rf\dic\DictionItem.cs" />
+    <Compile Include="rf\ferry\DevFerryPack.cs" />
+    <Compile Include="rf\ferry\FerryNewPosPack.cs" />
+    <Compile Include="rf\ferry\FerryPosPack.cs" />
+    <Compile Include="rf\ferry\FerryPosUpdatePack.cs" />
+    <Compile Include="rf\ferry\FerrySitePack.cs" />
+    <Compile Include="rf\ferry\FerryTaskPack.cs" />
+    <Compile Include="rf\ferry\RfDevFerry.cs" />
+    <Compile Include="rf\good\GoodsPack.cs" />
+    <Compile Include="rf\base\ModuleView.cs" />
+    <Compile Include="rf\base\RfClient.cs" />
+    <Compile Include="rf\dic\DictionPack.cs" />
+    <Compile Include="rf\base\RfPackage.cs" />
+    <Compile Include="rf\base\UserModelPack.cs" />
+    <Compile Include="rf\good\GoodUpdatePack.cs" />
+    <Compile Include="rf\stock\StockGoodIdsPack.cs" />
+    <Compile Include="rf\stock\StockGoodPack.cs" />
+    <Compile Include="rf\stock\StockSumPack.cs" />
+    <Compile Include="rf\stock\TrackStockPack.cs" />
+    <Compile Include="rf\stock\TrackStockUpdatePack.cs" />
+    <Compile Include="rf\switch\TaskSwitch.cs" />
+    <Compile Include="rf\switch\TaskSwitchPack.cs" />
+    <Compile Include="rf\tilelifter\DevTileLifterPack.cs" />
+    <Compile Include="rf\tilelifter\RfDeviceWorkPack.cs" />
+    <Compile Include="rf\tilelifter\RfDevTileLifter.cs" />
+    <Compile Include="rf\tilelifter\TileGoodUpdatePack.cs" />
+    <Compile Include="rf\tilelifter\TilePack.cs" />
+    <Compile Include="rf\tiletrack\RfTileTrackPack.cs" />
+    <Compile Include="rf\track\RfTrack.cs" />
+    <Compile Include="rf\track\TrackPack.cs" />
+    <Compile Include="rf\track\TrackUpdatePack.cs" />
+    <Compile Include="rf\trans\TransPack.cs" />
+    <Compile Include="rf\warn\WarnPack.cs" />
+    <Compile Include="role\MenuModel.cs" />
+    <Compile Include="role\WcsMenu.cs" />
+    <Compile Include="role\WcsMenuDtl.cs" />
+    <Compile Include="role\WcsModule.cs" />
+    <Compile Include="role\WcsRole.cs" />
+    <Compile Include="role\WcsUser.cs" />
+    <Compile Include="tiletrack\TileTrack.cs" />
+    <Compile Include="track\FerryPos.cs" />
+    <Compile Include="track\Track.cs" />
+    <Compile Include="track\TrackLog.cs" />
+    <Compile Include="track\TrackStoreCount.cs" />
+    <Compile Include="warning\Warning.cs" />
+    <Compile Include="window\DialogResult.cs" />
+    <Compile Include="window\MyRadioBtn.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\enums\enums.csproj">
+      <Project>{E62B0FD1-ECFC-4E47-AC1D-E8535E78A42E}</Project>
+      <Name>enums</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\tool\tool.csproj">
+      <Project>{8C9E88C9-E187-4EEB-B104-AB7D317173CD}</Project>
+      <Name>tool</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

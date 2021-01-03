@@ -1,0 +1,108 @@
+﻿<UserControl x:Class="wcs.window.AreaSwitchCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.window"
+             mc:Ignorable="d" Background="{StaticResource RegionBrush}"
+             xmlns:hc="https://handyorg.github.io/handycontrol" 
+             DataContext="{Binding AreaSwitch,Source={StaticResource Locator}}"
+             MinWidth="600" MinHeight="600">
+    <hc:TransitioningContentControl>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="线路 \ 功能" Style="{StaticResource TextBlockTitleBold}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                <TextBlock Text="#1" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="#2" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show3Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="#3" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show4Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="#4" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+            <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show5Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="#5" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="上砖" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="下砖" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
+                <TextBlock Text="倒库" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+            </Border>
+
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTB}">
+                <ToggleButton  IsChecked="{Binding Up_1,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LTB}">
+                <ToggleButton  IsChecked="{Binding Down_1,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LTRB}">
+                <ToggleButton  IsChecked="{Binding Sort_1,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+
+            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Up_2,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Down_2,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LRB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Sort_2,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+
+            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show3Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Up_3,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="2" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show3Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Down_3,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="3" Style="{StaticResource MBorder_LRB}" Visibility="{Binding Show3Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Sort_3,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+
+            <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show4Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Up_4,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="2" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show4Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Down_4,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="3" Style="{StaticResource MBorder_LRB}" Visibility="{Binding Show4Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Sort_4,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+
+            <Border Grid.Row="5" Grid.Column="1" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show5Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Up_5,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="5" Grid.Column="2" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show5Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Down_5,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="5" Grid.Column="3" Style="{StaticResource MBorder_LRB}" Visibility="{Binding Show5Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ToggleButton  IsChecked="{Binding Sort_5,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+
+        </Grid>
+    </hc:TransitioningContentControl>
+</UserControl>

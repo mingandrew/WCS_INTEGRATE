@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="wcs.window.StockCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" Background="{StaticResource RegionBrush}"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             DataContext="{Binding Stock,Source={StaticResource Locator}}"
+             MinWidth="800" MinHeight="600">
+    <hc:TransitioningContentControl>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="10">
+                <StackPanel  Orientation="Horizontal">
+                    <TextBlock Text="选择轨道：" Width="100" Style="{StaticResource TextBlockTitle}"/>
+                    <TextBlock Text="{Binding SelectTrackName}" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+                    <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding TrackSelectedCmd}" FontSize="16" Height="35"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+
+                    <Button Content="刷新信息" HorizontalAlignment="Right" 
+                            Style="{StaticResource ButtonWarning}" 
+                            Command="{Binding ActionStockCmd}"   Margin="0,0,10,0"
+                            FontSize="16" Height="35" Tag="0" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+
+                    <Button Content="添加" HorizontalAlignment="Right" 
+                            Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionStockCmd}"   Margin="0,0,10,0"
+                            FontSize="16" Height="35" Tag="1" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+
+                    <Button Content="更改规格" HorizontalAlignment="Right" 
+                            Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionStockCmd}" Margin="0,0,10,0"
+                            FontSize="16" Height="35" Tag="2" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+
+                    <Button Content="转移库存" HorizontalAlignment="Right" 
+                            Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionStockCmd}"
+                            FontSize="16" Height="35" Tag="3" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+
+                </StackPanel>
+            </Grid>
+            <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding List}" SelectedItem="{Binding SelectStock}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="往前+库存" Visibility="Visible" Tag="4" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="往后+库存" Visibility="Visible" Tag="5" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="修改" Visibility="Visible" Tag="2" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="删除" Tag="3" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="规格"/>
+                    <DataGridTextColumn Binding="{Binding produce_time,Converter={StaticResource Date2StringLongConverter}}" Header="生产时间"/>
+                    <DataGridTextColumn Binding="{Binding pos}" Header="位置"/>
+                    <DataGridTextColumn Binding="{Binding PosType}" Header="位置"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </hc:TransitioningContentControl>
+</UserControl>

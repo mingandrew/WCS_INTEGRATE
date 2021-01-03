@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="wcs.window.TrackLogCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.window"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             DataContext="{Binding TrackLog,Source={StaticResource Locator}}"
+             mc:Ignorable="d" Background="{DynamicResource RegionBrush}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+
+        <WrapPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="10">
+
+            <hc:ComboBox ItemsSource="{Binding AreaList}"  SelectedItem="{Binding SelectArea,Mode=TwoWay}" 
+                             DisplayMemberPath="name"  VerticalAlignment="Center" Margin="10" FontSize="22" MinWidth="80"/>
+            <hc:ComboBox SelectedItem="{Binding WarnTypeCB}" Margin="10" FontSize="22">
+                <ComboBoxItem Content="全部" IsSelected="True" Tag="0"/>
+                <ComboBoxItem Content="空轨道" Tag="1"/>
+                <ComboBoxItem Content="满轨道"  Tag="2"/>
+            </hc:ComboBox>
+            <TextBlock Text="日期：" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}"/>
+            <hc:DateTimePicker Width="200"  ShowClearButton="True" SelectedDateTime="{Binding STARTDATE,Mode=TwoWay}" Margin="5"/>
+            <TextBlock Text="至" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}"/>
+            <hc:DateTimePicker Width="200" ShowClearButton="True" SelectedDateTime="{Binding STOPDATE,Mode=TwoWay}" Margin="5"/>
+            <TextBlock Text="最大库存数：" Style="{StaticResource TextBlockTitle}"/>
+            <TextBox Text="{Binding MaxCount,Mode=TwoWay}" MinWidth="100" Height="50"/>
+            <Button Content="查询" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                  Tag="1"  Command="{Binding SearchlogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+            <Button Content="今天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                  Tag="2"   Command="{Binding SearchlogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+            <Button Content="昨天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                  Tag="3"  Command="{Binding SearchlogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+
+        </WrapPanel>
+        <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontSize="20" RowHeaderWidth="50"  hc:DataGridAttach.ShowRowNumber="True"
+                      ItemsSource="{Binding LogList}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding id}" Header="id" MaxWidth="150" Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding Type}" Header="类型" />
+                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
+                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道"/>
+                <DataGridTextColumn Binding="{Binding stock_count}" Header="库存数"/>
+                <DataGridTextColumn Binding="{Binding log_time,Converter={StaticResource Date2StringLongConverter}}" Header="开始"/>
+                <DataGridTextColumn Binding="{Binding memo}" Header="备注"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

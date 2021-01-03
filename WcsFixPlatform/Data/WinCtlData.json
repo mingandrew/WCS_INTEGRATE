@@ -1,0 +1,27 @@
+[
+  {
+    "WinCtlList": [
+      [ "Home", "Home", "ConfigGeometry", "DarkPrimaryBrush", "HomeCtl" ],
+      [ "Diction", "Diction", "ConfigGeometry", "DarkPrimaryBrush", "DictionCtl" ],
+      [ "Area", "Area", "ConfigGeometry", "DarkPrimaryBrush", "AreaCtl" ],
+      [ "AreaSwitch", "AreaSwitch", "ConfigGeometry", "DarkPrimaryBrush", "AreaSwitchCtl" ],
+      [ "Ferry", "Ferry", "ConfigGeometry", "DarkPrimaryBrush", "FerryCtl" ],
+      [ "Carrier", "Carrier", "ConfigGeometry", "DarkPrimaryBrush", "CarrierCtl" ],
+      [ "TileLifter", "TileLifter", "ConfigGeometry", "DarkPrimaryBrush", "TileLifterCtl" ],
+      [ "Track", "Track", "ConfigGeometry", "DarkPrimaryBrush", "TrackCtl" ],
+      [ "Goods", "Goods", "ConfigGeometry", "DarkPrimaryBrush", "GoodsCtl" ],
+      [ "TestGood", "TestGood", "ConfigGeometry", "DarkPrimaryBrush", "TestGoodCtl" ],
+      [ "Stock", "Stock", "ConfigGeometry", "DarkPrimaryBrush", "StockCtl" ],
+      [ "Trans", "Trans", "ConfigGeometry", "DarkPrimaryBrush", "TransCtl" ],
+      [ "AddManualTrans", "AddManualTrans", "ConfigGeometry", "DarkPrimaryBrush", "AddManualTransCtl" ],
+      [ "FerryPos", "FerryPos", "ConfigGeometry", "DarkPrimaryBrush", "FerryPosCtl" ],
+      [ "RfClient", "RfClient", "ConfigGeometry", "DarkPrimaryBrush", "RfClientCtl" ],
+      [ "TrackAllocate", "TrackAllocate", "ConfigGeometry", "DarkPrimaryBrush", "TrackAllocateCtl" ],
+      [ "StockSum", "StockSum", "ConfigGeometry", "DarkPrimaryBrush", "StockSumCtl" ],
+      [ "WarnLog", "WarnLog", "ConfigGeometry", "DarkPrimaryBrush", "WarnLogCtl" ],
+      [ "TrackLog", "TrackLog", "ConfigGeometry", "DarkPrimaryBrush", "TrackLogCtl" ],
+      [ "TileTrack", "TileTrack", "ConfigGeometry", "DarkPrimaryBrush", "TileTrackCtl" ],
+      [ "Menu", "Menu", "ConfigGeometry", "DarkPrimaryBrush", "MenuCtl" ]
+    ]
+  }
+]

@@ -1,0 +1,721 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{543E39C9-1B47-4107-9B1E-F3841C20BDBB}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>wcs</RootNamespace>
+    <AssemblyName>wcs</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>wcs.App</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonServiceLocator, Version=2.0.5.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.2.0.5\lib\net46\CommonServiceLocator.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight, Version=5.4.1.0, Culture=neutral, PublicKeyToken=e7570ab207bcb616, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Extras, Version=5.4.1.0, Culture=neutral, PublicKeyToken=669f0b5e8f868abf, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.4.1.0, Culture=neutral, PublicKeyToken=5f873c45e98af8a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="HandyControl, Version=2.5.0.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HandyControl.2.5.0.2\lib\net45\HandyControl.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Data\Model\MenuModel.cs" />
+    <Compile Include="Data\Model\TabItemModel.cs" />
+    <Compile Include="Data\Model\WinCtlModel.cs" />
+    <Compile Include="Data\MyResourceToken.cs" />
+    <Compile Include="Data\View\CarrierView.cs" />
+    <Compile Include="Data\View\FerryPosView.cs" />
+    <Compile Include="Data\View\FerryView.cs" />
+    <Compile Include="Data\View\GoodsView.cs" />
+    <Compile Include="Data\View\RfClientView.cs" />
+    <Compile Include="Data\View\StockSumView.cs" />
+    <Compile Include="Data\View\TileLifterView.cs" />
+    <Compile Include="Data\View\TrackView.cs" />
+    <Compile Include="Data\View\TransView.cs" />
+    <Compile Include="Data\View\WarningView.cs" />
+    <Compile Include="Dialog\platform\device\ChangeStrategyDialog.xaml.cs">
+      <DependentUpon>ChangeStrategyDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\device\DeviceEditDialog.xaml.cs">
+      <DependentUpon>DeviceEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\device\DeviceSelectDialog.xaml.cs">
+      <DependentUpon>DeviceSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\diction\DictionEditDialog.xaml.cs">
+      <DependentUpon>DictionEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\diction\DictionDtlEditDialog.xaml.cs">
+      <DependentUpon>DictionDtlEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\diction\DictionSelectDialog.xaml.cs">
+      <DependentUpon>DictionSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\goods\GoodsSelectDialog.xaml.cs">
+      <DependentUpon>GoodsSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\goods\GoodsEditDialog.xaml.cs">
+      <DependentUpon>GoodsEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\menu\MenuSelectDialog.xaml.cs">
+      <DependentUpon>MenuSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\module\ModuleSelectDialog.xaml.cs">
+      <DependentUpon>ModuleSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\operate\OperateGrandDialog.xaml.cs">
+      <DependentUpon>OperateGrandDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\stock\SingleStockEditDialog.xaml.cs">
+      <DependentUpon>SingleStockEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\stock\StockEditDialog.xaml.cs">
+      <DependentUpon>StockEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\stock\StockGoodEditDialog.xaml.cs">
+      <DependentUpon>StockGoodEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\track\TrackSelectDialog.xaml.cs">
+      <DependentUpon>TrackSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\user\UserEditDialog.xaml.cs">
+      <DependentUpon>UserEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Lang\Lang.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Lang.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Lang\MLang.cs" />
+    <Compile Include="Service\Data\DataService.cs" />
+    <Compile Include="Tools\Converter\Date2StringConverter.cs" />
+    <Compile Include="Tools\Converter\Date2StringLongConverter.cs" />
+    <Compile Include="Tools\Converter\DevId2NameConverter.cs" />
+    <Compile Include="Tools\Converter\GoodId2NameConverter.cs" />
+    <Compile Include="Tools\Converter\RoleId2RoleNameConveter.cs" />
+    <Compile Include="Tools\Converter\String2BrushConverter.cs" />
+    <Compile Include="Tools\Converter\String2GeometryConveter.cs" />
+    <Compile Include="Tools\Converter\AreaId2NameConverter.cs" />
+    <Compile Include="Tools\Converter\TrackCode2NameConverter.cs" />
+    <Compile Include="Tools\Converter\TrackId2NameConverter.cs" />
+    <Compile Include="Tools\Converter\Value2DictionConverter.cs" />
+    <Compile Include="Tools\Helper\AssemblyHelper.cs" />
+    <Compile Include="Tools\Provider\EnumDataProvider.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\MViewModel.cs" />
+    <Compile Include="ViewModel\platform\area\AreaSwitchViewModel.cs" />
+    <Compile Include="ViewModel\platform\area\AreaViewModel.cs" />
+    <Compile Include="ViewModel\platform\BindingProxy.cs" />
+    <Compile Include="ViewModel\platform\device\CarrierViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\DeviceEditViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\DeviceSelectViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\DeviceViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\FerryViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\RfClientViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\TileLifterViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\ChangeStrategyDialogViewModel.cs" />
+    <Compile Include="ViewModel\platform\diction\DictionEditViewModel.cs" />
+    <Compile Include="ViewModel\platform\diction\DictionDtlEditViewModel.cs" />
+    <Compile Include="ViewModel\platform\diction\DictionSelectViewModel.cs" />
+    <Compile Include="ViewModel\platform\diction\DictionViewModel.cs" />
+    <Compile Include="ViewModel\platform\goods\GoodsSelectViewModel.cs" />
+    <Compile Include="ViewModel\platform\goods\GoodsEditViewModel.cs" />
+    <Compile Include="ViewModel\platform\goods\GoodsViewModel.cs" />
+    <Compile Include="ViewModel\platform\goods\TestGoodViewModel.cs" />
+    <Compile Include="ViewModel\platform\home\HomeViewModel.cs" />
+    <Compile Include="ViewModel\platform\operate\OperateGrandDialogViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\AddManualTransViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\StockEditViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\StockGoodEditViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\StockSumViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\StockViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\TileTrackViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\TrackAllocateViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\TransViewModel.cs" />
+    <Compile Include="ViewModel\platform\track\TrackLogViewModel.cs" />
+    <Compile Include="ViewModel\platform\track\TrackSelectViewModel.cs" />
+    <Compile Include="ViewModel\platform\track\TrackViewModel.cs" />
+    <Compile Include="ViewModel\platform\waring\WaringViewModel.cs" />
+    <Compile Include="ViewModel\platform\waring\WarnLogViewModel.cs" />
+    <Compile Include="ViewModel\setting\ferry\FerryPosViewModel.cs" />
+    <Compile Include="ViewModel\setting\menu\MenuSelectViewModel.cs" />
+    <Compile Include="ViewModel\setting\menu\MenuViewModel.cs" />
+    <Compile Include="ViewModel\setting\module\ModuleSelectViewModel.cs" />
+    <Compile Include="ViewModel\setting\toolbar\ToolBarViewModel.cs" />
+    <Compile Include="ViewModel\setting\user\UserEditViewModel.cs" />
+    <Compile Include="ViewModel\setting\user\UserViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="window\platform\area\AreaSwitchCtl.xaml.cs">
+      <DependentUpon>AreaSwitchCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\area\AreaCtl.xaml.cs">
+      <DependentUpon>AreaCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\device\DeviceCtl.xaml.cs">
+      <DependentUpon>DeviceCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\device\TileLifterCtl.xaml.cs">
+      <DependentUpon>TileLifterCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\device\FerryCtl.xaml.cs">
+      <DependentUpon>FerryCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\device\CarrierCtl.xaml.cs">
+      <DependentUpon>CarrierCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\diction\DictionCtl.xaml.cs">
+      <DependentUpon>DictionCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\goods\GoodsCtl.xaml.cs">
+      <DependentUpon>GoodsCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\device\RfClientCtl.xaml.cs">
+      <DependentUpon>RfClientCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\goods\TestGoodCtl.xaml.cs">
+      <DependentUpon>TestGoodCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\home\HomeCtl.xaml.cs">
+      <DependentUpon>HomeCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\stock\AddManualTransCtl.xaml.cs">
+      <DependentUpon>AddManualTransCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\stock\StockSumCtl.xaml.cs">
+      <DependentUpon>StockSumCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\stock\TileTrackCtl.xaml.cs">
+      <DependentUpon>TileTrackCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\stock\TrackAllocateCtl.xaml.cs">
+      <DependentUpon>TrackAllocateCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\stock\TransCtl.xaml.cs">
+      <DependentUpon>TransCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\stock\StockCtl.xaml.cs">
+      <DependentUpon>StockCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\track\TrackCtl.xaml.cs">
+      <DependentUpon>TrackCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\track\TrackLogCtl.xaml.cs">
+      <DependentUpon>TrackLogCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\waring\WaringCtl.xaml.cs">
+      <DependentUpon>WaringCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\waring\WarnLogCtl.xaml.cs">
+      <DependentUpon>WarnLogCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\setting\ferry\FerryPosCtl.xaml.cs">
+      <DependentUpon>FerryPosCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\setting\menu\MenuCtl.xaml.cs">
+      <DependentUpon>MenuCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\setting\toolbar\MainToolBarCtl.xaml.cs">
+      <DependentUpon>MainToolBarCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\setting\user\UserCtl.xaml.cs">
+      <DependentUpon>UserCtl.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Dialog\platform\device\ChangeStrategyDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\device\DeviceEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\device\DeviceSelectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\diction\DictionEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\diction\DictionDtlEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\diction\DictionSelectDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\goods\GoodsSelectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\goods\GoodsEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\menu\MenuSelectDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\module\ModuleSelectDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\operate\OperateGrandDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\stock\SingleStockEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\stock\StockEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\stock\StockGoodEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\track\TrackSelectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\user\UserEditDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Resources\MStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Basic\Basic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Basic\Brushes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Basic\Colors\Colors.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Basic\Colors\ColorsDark.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Basic\Converters.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Basic\Fonts.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Basic\Geometries.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\SkinDark.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\SkinDefault.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Styles\Style.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Themes\Theme.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\area\AreaSwitchCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\area\AreaCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\device\DeviceCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\device\TileLifterCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\device\FerryCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\device\CarrierCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\diction\DictionCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\goods\GoodsCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\device\RfClientCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\goods\TestGoodCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\home\HomeCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\stock\AddManualTransCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\stock\StockSumCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\stock\TileTrackCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\stock\TrackAllocateCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\stock\TransCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\stock\StockCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\track\TrackCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\track\TrackLogCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\platform\waring\WaringCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\waring\WarnLogCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\setting\ferry\FerryPosCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\setting\menu\MenuCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\setting\toolbar\MainToolBarCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\setting\user\UserCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Lang\Lang.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Lang.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Resource Include="Data\WinCtlData.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Resource Include="Resources\BiaoTi.ttf" />
+    <Resource Include="Resources\fabric-icons.ttf" />
+    <Resource Include="Resources\MeiXin.ttf" />
+    <Resource Include="Resources\QingSong.otf" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\apps_dconf.ico" />
+    <Resource Include="Resources\apps_dconf.png" />
+    <Resource Include="Resources\Img\cloud.png" />
+    <Resource Include="Resources\Img\DevOps\DevOps-Boards.png" />
+    <Resource Include="Resources\Img\DevOps\DevOps-Overview.png" />
+    <Resource Include="Resources\Img\DevOps\DevOps-Pipelines.png" />
+    <Resource Include="Resources\Img\DevOps\DevOps-Repos.png" />
+    <Resource Include="Resources\Img\DevOps\DevOps-TestPlans.png" />
+    <Resource Include="Resources\Img\icon-white.ico" />
+    <Resource Include="Resources\Img\icon.ico" />
+    <Resource Include="Resources\Img\KEDA.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Animation_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\BorderElement_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\brackets_Square_16xLG.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Brush_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Bubble_16xLG.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ButtonClick_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ButtonGroup_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Calendar_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Carousel_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\CheckBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ColorPalette_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ColorWheel_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ComboBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ContextMenu_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\DataGenerator_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\DataGrid_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\DatePicker_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\DetailDataView_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Dialog_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\DotLarge_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\DottedSplitter_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Dynamic_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Effects_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Ellipsis_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Expander_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\FlipVertical_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Flow_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\frame_16xLG.png" />
+    <Resource Include="Resources\Img\LeftMainContent\GoToTop_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\GridPane_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\GroupBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\HandyControl.png" />
+    <Resource Include="Resources\Img\LeftMainContent\HoverMenu_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ImageBrowser_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ImageStack_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Label_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\LinearCarousel_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ListBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ListView_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Loading_Blue_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\MainMenuControl_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Message_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\NotificationHub_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\NumericListBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\OutlinedRectangleTool_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Paginator_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Panel_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\PasswordBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Path_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\PolygonHexagon_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\PopupCursor_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Procedure_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ProgressBar_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ProgressButton_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\RadioButton_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\RepeatButton_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\RichTextBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ScrollBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Search_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Shield_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Slider_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\SortAscending_grey_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\SplitButton_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\SplitterControl_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Star.png" />
+    <Resource Include="Resources\Img\LeftMainContent\TabPage_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Tag_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\TextBlock_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\TextBox_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\thumbs_up.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Timeline_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\TimePicker_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Time_color_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Toggle_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\ToolBar_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\Transfer_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\TransformRelative_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\TransitioningContentControl_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\TreeView_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\User_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\View_Portrait_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\VSO_Card_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\WindowScreenshot_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\WindowsForm_16x.png" />
+    <Resource Include="Resources\Img\LeftMainContent\WPFFlowDocument_16x.png" />
+    <Resource Include="Resources\Img\qq_group_1.jpg" />
+    <Resource Include="Resources\Img\qq_group_2.jpg" />
+    <Resource Include="Resources\Img\under_construction.gif" />
+    <Resource Include="Resources\keda.png" />
+    <Resource Include="Resources\Registry.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6 %28x86 和 x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\enums\enums.csproj">
+      <Project>{E62B0FD1-ECFC-4E47-AC1D-E8535E78A42E}</Project>
+      <Name>enums</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\module\module.csproj">
+      <Project>{6FC3FFEB-7E5A-425E-9760-1EA8B6CE71EF}</Project>
+      <Name>module</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\resource\resource.csproj">
+      <Project>{B7A0A97C-24F2-4D84-B6DA-9405BE57F21E}</Project>
+      <Name>resource</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\task\task.csproj">
+      <Project>{02EFC4C8-4B98-4EFE-9777-65B85145D753}</Project>
+      <Name>task</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\tool\tool.csproj">
+      <Project>{8C9E88C9-E187-4EEB-B104-AB7D317173CD}</Project>
+      <Name>tool</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\keda_blue.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

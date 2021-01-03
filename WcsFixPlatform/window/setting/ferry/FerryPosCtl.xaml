@@ -1,0 +1,170 @@
+﻿<UserControl x:Class="wcs.window.FerryPosCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mwindow="clr-namespace:module.window;assembly=module"
+             xmlns:local="clr-namespace:wcs.window" xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" DataContext="{Binding FerryPos,Source={StaticResource Locator}}"
+             d:DesignHeight="450" d:DesignWidth="800" Background="{StaticResource RegionBrush}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="10">
+            <TextBlock Text="摆渡车：" Style="{StaticResource TextBlockTitle}"/>
+            <TextBlock Text="{Binding SelectFerryName}" Width="140" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+            <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding DeviceSelectedCmd}" FontSize="16" Height="35"/>
+            <Button Content="清除" Style="{StaticResource ButtonInfo}" Tag="cleardev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
+            <Button Content="停止" Style="{StaticResource ButtonDanger}" Tag="stopdev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
+
+        </StackPanel>
+        <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="25">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="80"/>
+                <ColumnDefinition MinWidth="80"/>
+                <ColumnDefinition MinWidth="80"/>
+                <ColumnDefinition MinWidth="80"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="35"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="35"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="45"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
+                <TextBlock Text="光电" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0"  BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
+                <TextBlock Text="上砖" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
+                <TextBlock Text="下砖" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
+                <Grid>
+                    <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                        <Ellipse Width="25" Height="25" Fill="{DynamicResource BackgroundBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                    </Border>
+                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                    Visibility="{Binding UpLightCheck,Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                    </Border>
+                </Grid>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,1,0">
+                <Grid>
+                    <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                        <Ellipse Width="25" Height="25" Fill="{DynamicResource BackgroundBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                    </Border>
+                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                    Visibility="{Binding DownLightCheck,Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="实时坐标" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBlock Text="{Binding NowPos}" Style="{StaticResource TextBlockSubTitle}" />
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="刷新时间" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBlock Text="{Binding RefreshTime,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBlock Text="设置" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="5" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="轨道站点" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBlock Text="{Binding FerryCode}" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="6" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="轨道坐标" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBox Text="{Binding SetPos,Mode=TwoWay}" Style="{StaticResource TextBoxBaseStyle}" Margin="5" FontSize="22"/>
+            </Border>
+            <Border Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <Button Content="更新为当前坐标" Style="{StaticResource ButtonPrimary}" Tag="updatenowpos" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+            </Border>
+            <Border Grid.Row="7" Grid.Column="2" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <Button Content="设置" Style="{StaticResource ButtonPrimary}" Tag="updatesetpos" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+            </Border>
+            <Border Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                <Button Content="前进复位" Style="{StaticResource ButtonPrimary}" Tag="leftreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+            </Border>
+            <Border Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
+                <Button Content="后退复位" Style="{StaticResource ButtonPrimary}" Tag="rightreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="0" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10"/>
+                <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
+                                ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
+                    <hc:Interaction.Triggers>
+                        <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                            <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                        </hc:RoutedEventTrigger>
+                    </hc:Interaction.Triggers>
+
+                    <hc:ButtonGroup.ItemTemplate>
+                        <DataTemplate DataType="mwindow:AreaRadioBtn">
+                            <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaID}"  GroupName="Area"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="80" Height="35"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                        </DataTemplate>
+                    </hc:ButtonGroup.ItemTemplate>
+                </hc:ButtonGroup>
+            </StackPanel>
+            <DataGrid Grid.Row="1" RowHeaderWidth="60" FontSize="18"  hc:DataGridAttach.ShowRowNumber="True"
+                      SelectedItem="{Binding SelectPos}" ItemsSource="{Binding List}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                <hc:Interaction.Triggers>
+                    <hc:EventTrigger EventName="SelectionChanged">
+                        <hc:EventToCommand Command="{Binding PosSelectedChangeCmd}"/>
+                    </hc:EventTrigger>
+                </hc:Interaction.Triggers>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="对位" Tag="devtocode" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Track_Id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道名称" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Ferry_Code}" Header="轨道站点" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding Ferry_Pos}" Header="轨道坐标" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="wcs.window.TileTrackCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.window"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" Background="{StaticResource RegionBrush}"
+             DataContext="{Binding TileTrack,Source={StaticResource Locator}}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="10">
+            <StackPanel  Orientation="Horizontal">
+                <TextBlock Text="上下砖机：" Width="100" Style="{StaticResource TextBlockTitle}"/>
+                <TextBlock Text="{Binding TileName}" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+                <Button Content="选择" Style="{StaticResource ButtonPrimary}" Tag="TileSelect"
+                        Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" FontSize="16" Height="35"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button Content="刷新" Style="{StaticResource ButtonPrimary}" 
+                    Tag="RefreshTileTrack"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="0,0,15,0"/>
+                <Button Content="保存" HorizontalAlignment="Right" Style="{StaticResource ButtonDanger}" 
+                    Tag="SaveTileTrack"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35"/>
+            </StackPanel>
+            
+        </Grid>
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="作业轨道列表" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="上移" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Tag="TrackGoUp"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,5,5,5"/>
+                    <Button Content="下移" Style="{StaticResource ButtonPrimary}"  HorizontalAlignment="Right" Tag="TrackGoDown"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,5,5,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="2"  Style="{StaticResource MBorder_LTRB}">
+            <Grid HorizontalAlignment="Left">
+                <TextBlock Text="轨道列表" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
+        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTRB}"/>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MBorder_LTR}"/>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+           
+            <Button Content="加" Style="{StaticResource ButtonPrimary}" Tag="Track2Left"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,5,5,15"/>
+            <Button Content="删" Style="{StaticResource ButtonPrimary}" Tag="Track2Right"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,15,5,5"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" Grid.Column="0" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="0"
+                              ItemsSource="{Binding LeftTrackList}" SelectedItem="{Binding LeftTrack}"
+                              SelectionMode="Single" 
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding track_id, Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        
+        <DataGrid Grid.Row="2" Grid.Column="2" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="0"
+                              ItemsSource="{Binding RightTrackList}" SelectedItem="{Binding RightTrack}"
+                              SelectionMode="Single" 
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding track_id, Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

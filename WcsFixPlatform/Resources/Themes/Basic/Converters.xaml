@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:mconverter="clr-namespace:wcs.Tools.Converter">
+
+
+    <BooleanToVisibilityConverter x:Key="Boolean2VisibilityConverter"/>
+    <MenuScrollingVisibilityConverter x:Key="MenuScrollingVisibilityConverter"/>
+    <mconverter:Date2StringConverter x:Key="Date2StringConverter" />
+    <mconverter:Date2StringLongConverter x:Key="Date2StringLongConverter"/>
+    <mconverter:String2GeometryConveter x:Key="String2GeometryConveter"/>
+    <mconverter:String2BrushConverter x:Key="String2BrushConverter"/>
+    <mconverter:Value2DictionConverter x:Key="Value2DictionConverter"/>
+    <mconverter:TrackId2NameConverter x:Key="TrackId2NameConverter"/>
+    <mconverter:GoodId2NameConverter x:Key="GoodId2NameConverter"/>
+    <mconverter:DevId2NameConverter x:Key="DevId2NameConverter"/>
+    <mconverter:AreaId2NameConverter x:Key="AreaId2NameConverter"/>
+    <mconverter:TrackCode2NameConverter x:Key="TrackCode2NameConverter"/>
+    <mconverter:RoleId2RoleNameConveter x:Key="RoleId2RoleNameConveter"/>
+</ResourceDictionary>

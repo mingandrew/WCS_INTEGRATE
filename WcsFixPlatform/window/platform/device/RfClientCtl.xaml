@@ -1,0 +1,51 @@
+﻿<UserControl x:Class="wcs.window.RfClientCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.window"
+             mc:Ignorable="d" Background="{StaticResource RegionBrush}"
+             xmlns:hc="https://handyorg.github.io/handycontrol" 
+             DataContext="{Binding RfClient,Source={StaticResource Locator}}"
+             MinWidth="800" MinHeight="600">
+    <hc:TransitioningContentControl>
+        <Grid Margin="10">
+            <DataGrid Grid.Row="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                      ItemsSource="{Binding List}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="修改" Tag="1" Command="{Binding RfClientEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Rfid}" Header="设备ID"/>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="在线"/>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Margin="5,5,5,5">
+                                    <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>
+                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                            Visibility="{Binding IsConnect,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource WarningBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Binding="{Binding Ip}" Header="IP"/>
+                    <DataGridTextColumn Binding="{Binding Conn_time,Converter={StaticResource Date2StringLongConverter}}" Header="登陆时间"/>
+                    <DataGridTextColumn Binding="{Binding Disconn_time,Converter={StaticResource Date2StringLongConverter}}" Header="断开时间"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </hc:TransitioningContentControl>
+</UserControl>

@@ -1,0 +1,51 @@
+﻿<Border x:Class="wcs.Dialog.DeviceSelectDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.Dialog"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" DataContext="{Binding DeviceSelect,Source={StaticResource Locator}}"
+            MinHeight="600" MinWidth="600" MaxWidth="600" MaxHeight="600"  CornerRadius="20"
+            Background="{DynamicResource RegionBrush}">
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <hc:ButtonGroup Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"  Style="{StaticResource ButtonGroupSolid}"
+                        Margin="0,10,0,10"
+                        Visibility="Collapsed">
+            <hc:Interaction.Triggers>
+                <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                    <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                </hc:RoutedEventTrigger>
+            </hc:Interaction.Triggers>
+            <RadioButton Content="上下砖机" Tag="tilelifter" IsChecked="{Binding LifterCheck,Mode=TwoWay}" IsEnabled="{Binding LifterEnable}"/>
+            <RadioButton Content="摆渡车" Tag="ferry" IsChecked="{Binding FerryCheck,Mode=TwoWay}" IsEnabled="{Binding FerryEnable}"/>
+            <RadioButton Content="运输车" Tag="carrier" IsChecked="{Binding CarrierCheck,Mode=TwoWay}" IsEnabled="{Binding CarrierEnable}"/>
+        </hc:ButtonGroup>
+
+        <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,10" FontSize="18" RowHeaderWidth="40"  hc:DataGridAttach.ShowRowNumber="True"
+                      SelectedItem="{Binding SelectDev}" ItemsSource="{Binding DevList}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding name}" Header="名称" Width="*"/>
+                <DataGridTextColumn Binding="{Binding Type}" Header="类型" Width="*"/>
+                <DataGridTextColumn Binding="{Binding Type2}" Header="属性" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button Grid.Row="2" Grid.Column="0" Width="120" Margin="0,0,5,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消"/>
+        <Button Grid.Row="2" Grid.Column="1" Width="120" Margin="5,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定"/>
+    </Grid>
+</Border>

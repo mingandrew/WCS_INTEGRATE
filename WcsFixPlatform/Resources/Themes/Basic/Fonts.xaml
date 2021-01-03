@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <FontFamily x:Key="FabricIcons">pack://application:,,,/wcs;component/Resources/fabric-icons.ttf#Fabric MDL2 Assets</FontFamily>
+    <FontFamily x:Key="Meixin">/wcs;component/Resources/MeiXin.ttf</FontFamily>
+    <FontFamily x:Key="QingSong">/wcs;component/Resources/QingSong.otf</FontFamily>
+    <FontFamily x:Key="BiaoTi">/wcs;component/Resources/BiaoTi.ttf</FontFamily>
+</ResourceDictionary>

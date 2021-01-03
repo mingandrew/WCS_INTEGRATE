@@ -1,0 +1,106 @@
+﻿<Border x:Class="wcs.Dialog.DeviceEditDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.Dialog"
+            xmlns:hc="https://handyorg.github.io/handycontrol"
+            CornerRadius="10" Width="700" Height="500"
+            DataContext="{Binding DevEdit, Source={StaticResource Locator}}"
+            Background="{DynamicResource RegionBrush}">
+    <Grid Margin="20" Visibility="Collapsed">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+            <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding ACTIONNAME}"/>
+            <TextBlock Style="{StaticResource TextBlockLarge}" Text="设备"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" MinWidth="60"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto" MinWidth="60"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="名称:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="区域:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="IP:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="端口:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}" Visibility="Collapsed">
+                <TextBlock Text="超限:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="2"  Style="{StaticResource MBorder_LT}" Visibility="Collapsed">
+                <TextBlock Text="车型:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="色号:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="2"  Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="备注:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                <TextBlock Text="垛数:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="2"  Style="{StaticResource MBorder_LTB}">
+                <TextBlock Text="砖数:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LT}">
+                <TextBox Text="{Binding Name, Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}" IsEnabled="{Binding AreaChange}">
+                <hc:ComboBox ItemsSource="{Binding AreaList}"  SelectedItem="{Binding SelectArea,Mode=TwoWay}" 
+                             DisplayMemberPath="name"  VerticalAlignment="Center" FontSize="25" Margin="10"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LT}">
+                <TextBox Text="{Binding Width,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
+                <TextBox Text="{Binding Length,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed">
+                <CheckBox IsChecked="{Binding Isoversize,Mode=TwoWay}" Width="55" Height="45" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed">
+                <ComboBox ItemsSource="{Binding Source={StaticResource CarrierTypeE}}" Margin="10"
+                          SelectedItem="{Binding CarrierType,Mode=TwoWay}" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LT}">
+                <TextBox Text="{Binding Color,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="3" Style="{StaticResource MBorder_LTRB}">
+                <TextBox Text="{Binding Memo,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>            
+            <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTB}">
+                <TextBox Text="{Binding Stack,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="3" Style="{StaticResource MBorder_LTRB}">
+                <TextBox Text="{Binding Pieces,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+        </Grid>
+        
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Width="120" Margin="0,0,55,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消"/>
+            <Button Width="120" Margin="55,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="{Binding ACTIONNAME}"/>
+        </StackPanel>
+    </Grid>
+</Border>
