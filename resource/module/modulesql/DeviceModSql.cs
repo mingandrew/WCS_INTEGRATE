@@ -25,7 +25,7 @@ namespace resource.module.modulesql
                 " t.goods_id, t.left_track_id, t.right_track_id, " +
                 "t.brother_dev_id, t.strategy_in, t.strategy_out, " +
                 "t.memo, t.area, t.offlinetime, t.a_givemisstrack, " +
-                "t.a_takemisstrack, t.a_poweroff, t.a_alert_track, t.do_work, t.work_type, t.ignorearea, t.last_track_id " +
+                "t.a_takemisstrack, t.a_poweroff, t.a_alert_track, t.do_work, t.work_type, t.ignorearea, t.last_track_id, " +
                 "t.old_goodid, t.pre_goodid, t.do_shift, t.left_goods, t.right_goods " +
                 "FROM device AS t ORDER BY t.`order` ASC");
             DataTable dt = mSql.ExecuteQuery(@sql);
