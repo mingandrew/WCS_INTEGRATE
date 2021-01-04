@@ -13,6 +13,7 @@ namespace resource.module
 
         public DictionModSql DicSql { set; get; }
         public DeviceModSql DevSql { set; get; }
+        public DeviceConfigModSql DevConfigSql { set; get; }
         public TrackModSql TraSql { set; get; }
         public AreaModSql AreaSql { set; get; }
         public GoodsModSql GoodSql { set; get; }
@@ -30,6 +31,7 @@ namespace resource.module
 
             DicSql = new DictionModSql(mySQL);
             DevSql = new DeviceModSql(mySQL);
+            DevConfigSql = new DeviceConfigModSql(mySQL);
             TraSql = new TrackModSql(mySQL);
             AreaSql = new AreaModSql(mySQL);
             GoodSql = new GoodsModSql(mySQL);

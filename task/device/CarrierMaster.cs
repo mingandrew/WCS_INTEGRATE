@@ -54,8 +54,11 @@ namespace task.device
             List<Device> carriers = PubMaster.Device.GetDeviceList(DeviceTypeE.运输车);
             foreach (Device dev in carriers)
             {
-                CarrierTask task = new CarrierTask();
-                task.Device = dev;
+                CarrierTask task = new CarrierTask
+                {
+                    Device = dev,
+                    DevConfig = PubMaster.DevConfig.GetCarrier(dev.id)
+                };
                 task.Start("调度启动开始连接");
                 DevList.Add(task);
             }
@@ -294,10 +297,10 @@ namespace task.device
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool HaveInTrack(uint trackid,uint carrierid)
+        internal bool HaveInTrack(uint trackid, uint carrierid)
         {
             Track track = PubMaster.Track.GetTrack(trackid);
-            return DevList.Exists(c =>c.ID != carrierid && track.IsInTrack(c.Site));
+            return DevList.Exists(c => c.ID != carrierid && track.IsInTrack(c.Site));
         }
 
         internal bool IsOperateAuto(uint carrierid)
@@ -342,9 +345,9 @@ namespace task.device
 
         internal bool IsLoad(uint carrier_id)
         {
-            return DevList.Exists(c => c.ID == carrier_id 
-                        && c.ConnStatus == SocketConnectStatusE.通信正常 
-                        && c.Load == DevCarrierLoadE.有货) ;
+            return DevList.Exists(c => c.ID == carrier_id
+                        && c.ConnStatus == SocketConnectStatusE.通信正常
+                        && c.Load == DevCarrierLoadE.有货);
         }
 
         internal bool IsNotLoad(uint carrier_id)
@@ -408,7 +411,7 @@ namespace task.device
                 case SocketConnectStatusE.连接中:
                 case SocketConnectStatusE.连接断开:
                 case SocketConnectStatusE.主动断开:
-                    if(task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
+                    if (task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
                     PubTask.Ping.AddPing(task.Device.ip, task.Device.name);
                     break;
             }
@@ -448,7 +451,7 @@ namespace task.device
             }
             UpdateFerryLoadStatus(task);
             if (task.Status != DevCarrierStatusE.停止) return;
-            if(task.OperateMode == DevOperateModeE.无)
+            if (task.OperateMode == DevOperateModeE.无)
             {
                 task.DoModeUpdate(DevCarrierWorkModeE.生产);
             }
@@ -477,12 +480,12 @@ namespace task.device
             #endregion
 
             #region[空砖]
-            
-            if (task.Task == DevCarrierTaskE.后退取砖 
+
+            if (task.Task == DevCarrierTaskE.后退取砖
                 && task.FinishTask == DevCarrierTaskE.后退取砖)
             {
                 Track track = PubMaster.Track.GetTrack(task.TrackId);
-                if(track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入)
+                if (track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入)
                 {
                     switch (task.Signal)
                     {
@@ -516,7 +519,7 @@ namespace task.device
 
             #region[非空非满]
 
-            if (task.Task == DevCarrierTaskE.前进放砖 
+            if (task.Task == DevCarrierTaskE.前进放砖
                 && task.FinishTask == DevCarrierTaskE.前进放砖
                 && task.Signal == DevCarrierSignalE.非空非满)
             {
@@ -526,7 +529,7 @@ namespace task.device
             #endregion
 
             #region[满砖]
-            if (task.Signal == DevCarrierSignalE.满轨道 
+            if (task.Signal == DevCarrierSignalE.满轨道
                 && task.Task == task.FinishTask)
             {
                 Track givetrack = PubMaster.Track.GetTrackByCode(task.GiveTrackCode);
@@ -758,7 +761,7 @@ namespace task.device
                 try
                 {
                     CarrierTask task = DevList.Find(c => c.ID == devid);
-                    if(task != null)
+                    if (task != null)
                     {
                         if (task.OperateMode == DevOperateModeE.自动)
                         {
@@ -874,7 +877,7 @@ namespace task.device
             if (carrier == null)
             {
                 //3.1获取能到达[空轨道]轨道的上砖摆渡车的轨道ID
-                List<uint> ferrytrackids = PubMaster.Area.GetFerryWithTrackInOut( DeviceTypeE.上摆渡, trans.area_id, 0, trans.give_track_id, 0, true);
+                List<uint> ferrytrackids = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.上摆渡, trans.area_id, 0, trans.give_track_id, 0, true);
                 //3.2获取在摆渡轨道上的车[空闲，无货]
                 List<CarrierTask> carriers = DevList.FindAll(c => ferrytrackids.Contains(c.TrackId) && c.CarrierType == needtype);
                 if (carriers.Count > 0)
@@ -924,7 +927,7 @@ namespace task.device
                     foreach (AreaDevice areatra in areatras)
                     {
                         CarrierTask task = DevList.Find(c => c.ID == areatra.device_id && c.CarrierType == needtype);
-                        if (task != null && CheckCarrierFreeNotLoad(task) 
+                        if (task != null && CheckCarrierFreeNotLoad(task)
                             && PubMaster.Track.IsTrackType(task.TrackId, TrackTypeE.储砖_出))
                         {
                             carrierid = task.ID;
@@ -952,7 +955,7 @@ namespace task.device
         /// <param name="trans"></param>
         /// <param name="carrierid"></param>
         /// <returns></returns>
-        private bool GetTransInOutCarrier(StockTrans trans,DeviceTypeE ferrytype, out uint carrierid, out string result)
+        private bool GetTransInOutCarrier(StockTrans trans, DeviceTypeE ferrytype, out uint carrierid, out string result)
         {
             result = "";
             carrierid = 0;
@@ -990,7 +993,7 @@ namespace task.device
                     List<uint> loadcarferryids = new List<uint>();
                     foreach (uint fetraid in ferrytrackids)
                     {
-                        uint fid = PubMaster.Device.GetFerryIdByFerryTrackId(fetraid);
+                        uint fid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(fetraid);
                         if (PubTask.Ferry.IsLoad(fid))
                         {
                             loadcarferryids.Add(fetraid);
@@ -1183,7 +1186,7 @@ namespace task.device
         {
             if (carrier == null) return false;
             if (!carrier.IsWorking) return false;
-            if (carrier.ConnStatus == SocketConnectStatusE.通信正常 
+            if (carrier.ConnStatus == SocketConnectStatusE.通信正常
                     && carrier.Status == DevCarrierStatusE.停止
                     && carrier.OperateMode == DevOperateModeE.自动
                     //&& carrier.WorkMode == DevCarrierWorkModeE.生产模式
@@ -1231,9 +1234,9 @@ namespace task.device
         private bool GetCarrierInTrack(uint trackid)
         {
             Track track = PubMaster.Track.GetTrack(trackid);
-            
+
             CarrierTask carrier = DevList.Find(c => track.IsInTrack(c.Site));
-            if(carrier != null)
+            if (carrier != null)
             {
 
             }
@@ -1259,15 +1262,15 @@ namespace task.device
             if (carrier != null) return false;
 
             uint brotherid = PubMaster.Track.GetBrotherTrackId(trackid);
-            if(brotherid == 0)
+            if (brotherid == 0)
             {
                 //没有兄弟轨道，不会碰撞？？(可能也是配置漏了)
                 return true;
             }
             carrier = DevList.Find(c => c.TrackId == brotherid);
-            if(carrier != null)
+            if (carrier != null)
             {
-                if((PubMaster.Goods.GetTrackStock(trackid) 
+                if ((PubMaster.Goods.GetTrackStock(trackid)
                     + PubMaster.Goods.GetTrackStock(brotherid)) > 3)
                 {
                     return true;
@@ -1352,7 +1355,7 @@ namespace task.device
             CarrierTask task = DevList.Find(c => c.ID == carrier_id);
             if (task != null)
             {
-                if (task.Task == carriertask &&task.FinishTask == DevCarrierTaskE.终止)
+                if (task.Task == carriertask && task.FinishTask == DevCarrierTaskE.终止)
                 {
                     return true;
                 }

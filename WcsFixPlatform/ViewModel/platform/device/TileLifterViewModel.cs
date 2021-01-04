@@ -154,7 +154,7 @@ namespace wcs.ViewModel
 
                         if (result.p1 is bool rs && result.p2 is Goods good)
                         {
-                            if (PubMaster.Device.SetTileLifterGoods(DeviceSelected.ID, good.id))
+                            if (PubMaster.DevConfig.SetTileLifterGoods(DeviceSelected.ID, good.id))
                             {
                                 PubTask.TileLifter.UpdateTileLifterGoods(DeviceSelected.ID, good.id);
                             }
@@ -187,7 +187,7 @@ namespace wcs.ViewModel
                         {
                             if (isdowntile && strategyrs.o2 is StrategyInE instrategy && strategyrs.o3 is DevWorkTypeE inworktype)
                             {
-                                if (PubMaster.Device.SetInStrategy(DeviceSelected.ID, instrategy, inworktype))
+                                if (PubMaster.DevConfig.SetInStrategy(DeviceSelected.ID, instrategy, inworktype))
                                 {
                                     PubTask.TileLifter.UpdateTileInStrategry(DeviceSelected.ID, instrategy, inworktype);
                                 }
@@ -197,7 +197,7 @@ namespace wcs.ViewModel
                             {
                                 if ((DeviceSelected.OutStrategy != outstrategy
                                     || DeviceSelected.WorkType != worktype)
-                                    && PubMaster.Device.SetOutStrategy(DeviceSelected.ID, outstrategy, worktype))
+                                    && PubMaster.DevConfig.SetOutStrategy(DeviceSelected.ID, outstrategy, worktype))
                                 {
                                     PubTask.TileLifter.UpdateTileOutStrategry(DeviceSelected.ID, outstrategy, worktype);
                                 }

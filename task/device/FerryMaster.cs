@@ -68,7 +68,8 @@ namespace task.device
             {
                 FerryTask task = new FerryTask
                 {
-                    Device = dev
+                    Device = dev,
+                    DevConfig = PubMaster.DevConfig.GetFerry(dev.id)
                 };
                 task.Start("调度启动开始连接");
                 DevList.Add(task);
@@ -223,7 +224,7 @@ namespace task.device
 
         public void UpdateFerryWithTrackId(uint trackid, DevFerryLoadE devFerryLoadE)
         {
-            FerryTask ferry = DevList.Find(c => c.LeftTrackId == trackid);
+            FerryTask ferry = DevList.Find(c => c.DevConfig.track_id == trackid);
             if (ferry != null)
             {
                 ferry.DevStatus.LoadStatus = devFerryLoadE;
@@ -363,7 +364,7 @@ namespace task.device
                 case SocketConnectStatusE.连接中:
                 case SocketConnectStatusE.连接断开:
                 case SocketConnectStatusE.主动断开:
-                    if(task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
+                    if (task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
                     PubTask.Ping.AddPing(task.Device.ip, task.Device.name);
                     break;
             }
@@ -390,7 +391,7 @@ namespace task.device
                 if (task == null) return false;
 
                 //小车在摆渡车上，直接锁定
-                if(task.LeftTrackId == carriertrackid)
+                if (task.DevConfig.track_id == carriertrackid)
                 {
                     if (!task.IsStillLockInTrans(trans.id))
                     {
@@ -529,7 +530,7 @@ namespace task.device
                     if (task.Load == DevFerryLoadE.载车)
                     {
                         //在摆渡车轨道上的运输车是否有状态不是停止的或者是手动的
-                        if (PubTask.Carrier.IsCarrierMoveInTrack(task.LeftTrackId))
+                        if (PubTask.Carrier.IsCarrierMoveInTrack(task.DevConfig.track_id))
                         {
                             result = "摆渡车上的运输车在运动/手动状态中";
                             task.DoStop();
@@ -555,7 +556,7 @@ namespace task.device
         /// <param name="trackid"></param>
         internal void StopFerryByFerryTrackId(uint trackid)
         {
-            uint ferryid = PubMaster.Device.GetFerryIdByFerryTrackId(trackid);
+            uint ferryid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(trackid);
             if (ferryid > 0)
             {
                 StopFerry(ferryid, out string _);
@@ -699,7 +700,7 @@ namespace task.device
 
                         return false;
                     }
-                    
+
                     if (task.DownTrackId == to_track_id && task.IsDownLight)
                     {
                         if (task.DevStatus.CurrentTask == DevFerryTaskE.终止)
@@ -833,7 +834,7 @@ namespace task.device
             try
             {
                 FerryTask task = DevList.Find(c => c.ID == ferryid);
-                if(task != null)
+                if (task != null)
                 {
                     task.SetFerryUnlock(trans.id);
                 }
@@ -890,7 +891,7 @@ namespace task.device
         /// <param name="ferry"></param>
         private void RfPosMsgSend(FerryPosSet set, DevFerry ferry)
         {
-            if(!PubTask.Rf.SendFerryLightPos(set.MEID, ferry.UpSite, ferry.DownSite, ferry.UpLight, ferry.DownLight)
+            if (!PubTask.Rf.SendFerryLightPos(set.MEID, ferry.UpSite, ferry.DownSite, ferry.UpLight, ferry.DownLight)
                 && mTimer.IsOver(TimerTag.RfFerrySiteUpdateSendOffline, ferry.DeviceID, 60))
             {
                 StopRfPosSet(set.MEID);
@@ -900,7 +901,7 @@ namespace task.device
         private void RfPosSiteMsgSend(FerryPosSet set, uint devid, DevFerrySite site)
         {
             //if (site.TrackCode !=0 && site.TrackPos != 0)
-            if (site.TrackCode !=0) // 坐标值允许设0
+            if (site.TrackCode != 0) // 坐标值允许设0
             {
                 PubMaster.Track.UpdateFerryPos(devid, site.TrackCode, site.TrackPos);
                 //PubTask.Rf.SendFerryPos(devid, set.IP);
@@ -911,7 +912,7 @@ namespace task.device
                     StopRfPosSet(set.MEID);
                 }
             }
-            PubTask.Rf.SendFerrySitePos(set.MEID,devid, site);
+            PubTask.Rf.SendFerrySitePos(set.MEID, devid, site);
         }
 
         #endregion
@@ -921,7 +922,7 @@ namespace task.device
         public void StartFerryPosSetting(uint id, ushort code)
         {
             StopFerryPosSetting();
-            if (!_FerryPosSetList.Exists(c=>c.FerryId == id && !c.IsRF))
+            if (!_FerryPosSetList.Exists(c => c.FerryId == id && !c.IsRF))
             {
                 FerryPosSet set = new FerryPosSet();
                 set.FerryId = id;
@@ -1011,7 +1012,7 @@ namespace task.device
 
                     if (isCarInFerry)
                     {
-                        ferryid = DevList.Find(c => c.LeftTrackId == carrierTrack.id)?.ID ?? 0;
+                        ferryid = DevList.Find(c => c.DevConfig.track_id == carrierTrack.id)?.ID ?? 0;
                         return true;
                     }
 
@@ -1137,7 +1138,7 @@ namespace task.device
 
             return false;
         }
-        
+
         #endregion
 
         #region[条件判断]
@@ -1156,7 +1157,7 @@ namespace task.device
                 return false;
             }
 
-            if(task.OperateMode == DevOperateModeE.手动)
+            if (task.OperateMode == DevOperateModeE.手动)
             {
                 result = "摆渡车手动操作中";
                 return false;
@@ -1189,8 +1190,8 @@ namespace task.device
             return DevList.Exists(c => c.ID == ferryid
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.Load == DevFerryLoadE.空);
-        }        
-        
+        }
+
         internal bool IsStop(uint ferryid)
         {
             return DevList.Exists(c => c.ID == ferryid
@@ -1200,7 +1201,7 @@ namespace task.device
 
         internal bool IsStopAndSiteOnTrack(uint id, bool isferryupsite, out string result)
         {
-            FerryTask task = DevList.Find(c => c.LeftTrackId == id);
+            FerryTask task = DevList.Find(c => c.DevConfig.track_id == id);
             if (task == null)
             {
                 result = "找不到摆渡车设备";

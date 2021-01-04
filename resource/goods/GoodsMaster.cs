@@ -420,7 +420,7 @@ namespace resource.goods
 
         public bool DeleteGood(uint goodid, out string result)
         {
-            if (PubMaster.Device.ExistDevByGid(goodid))
+            if (PubMaster.DevConfig.ExistTileLifterByGid(goodid))
             {
                 result = "砖机配置了该规格！";
                 return false;

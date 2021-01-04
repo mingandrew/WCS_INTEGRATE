@@ -54,9 +54,11 @@ namespace task.device
             List<Device> tilelifters = PubMaster.Device.GetTileLifters();
             foreach (Device dev in tilelifters)
             {
-                TileLifterTask task = new TileLifterTask();
-                task.Device = dev;
-                //task.AreaId = PubMaster.Area.GetAreaId(dev.id);
+                TileLifterTask task = new TileLifterTask
+                {
+                    Device = dev,
+                    DevConfig = PubMaster.DevConfig.GetTileLifter(dev.id)
+                };
                 task.Start("调度启动开始连接");
                 DevList.Add(task);
             }
@@ -157,14 +159,14 @@ namespace task.device
                                 {
                                     case TileShiftStatusE.复位:
                                         #region [复位]
-                                        if (task.Device.do_shift)
+                                        if (task.DevConfig.do_shift)
                                         {
                                             Thread.Sleep(500);
                                             task.DoShift(TileShiftStatusE.转产中, count);
                                             break;
                                         }
 
-                                        if (!task.Device.do_shift)
+                                        if (!task.DevConfig.do_shift)
                                         {
                                             if (task.DevStatus.ShiftAccept)
                                             {
@@ -172,10 +174,10 @@ namespace task.device
                                                 task.DoShift(TileShiftStatusE.复位);
                                             }
 
-                                            if (task.Device.LeftGoods != task.DevStatus.Goods1 ||
-                                                task.Device.RightGoods != task.DevStatus.Goods2)
+                                            if (task.DevConfig.LeftGoods != task.DevStatus.Goods1 ||
+                                                task.DevConfig.RightGoods != task.DevStatus.Goods2)
                                             {
-                                                PubMaster.Device.SetTileLifterGoods(task.ID, task.DevStatus.Goods1, task.DevStatus.Goods2);
+                                                PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevStatus.Goods1, task.DevStatus.Goods2);
                                             }
                                             break;
                                         }
@@ -183,7 +185,7 @@ namespace task.device
                                         break;
                                     case TileShiftStatusE.转产中:
                                         #region [转产中]
-                                        if (task.Device.do_shift)
+                                        if (task.DevConfig.do_shift)
                                         {
                                             if (!task.DevStatus.ShiftAccept)
                                             {
@@ -193,7 +195,7 @@ namespace task.device
                                             }
                                         }
 
-                                        if (!task.Device.do_shift)
+                                        if (!task.DevConfig.do_shift)
                                         {
                                             if (task.DevStatus.ShiftAccept)
                                             {
@@ -206,16 +208,16 @@ namespace task.device
                                         break;
                                     case TileShiftStatusE.完成:
                                         #region [完成]
-                                        if (task.Device.do_shift && task.DevStatus.ShiftAccept &&
-                                            task.Device.LeftGoods != task.DevStatus.Goods1 &&
-                                            task.Device.RightGoods != task.DevStatus.Goods2 &&
+                                        if (task.DevConfig.do_shift && task.DevStatus.ShiftAccept &&
+                                            task.DevConfig.LeftGoods != task.DevStatus.Goods1 &&
+                                            task.DevConfig.RightGoods != task.DevStatus.Goods2 &&
                                             task.DevStatus.Goods1 == task.DevStatus.Goods2)
                                         {
                                             Thread.Sleep(500);
                                             task.DoShift(TileShiftStatusE.复位);
 
-                                            task.Device.do_shift = false;
-                                            PubMaster.Device.SetTileLifterGoods(task.ID, task.DevStatus.Goods1, task.DevStatus.Goods2);
+                                            task.DevConfig.do_shift = false;
+                                            PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevStatus.Goods1, task.DevStatus.Goods2);
                                             break;
                                         }
                                         #endregion
@@ -239,7 +241,7 @@ namespace task.device
             }
         }
 
-        public void DoInv(uint devid,bool isone, DevLifterInvolE type)
+        public void DoInv(uint devid, bool isone, DevLifterInvolE type)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
             {
@@ -286,7 +288,7 @@ namespace task.device
                             bro = DevList.Find(c => c.BrotherId == task.ID);
                         }
 
-                        if (task.LeftTrackId == leavetrackid)
+                        if (task.DevConfig.left_track_id == leavetrackid)
                         {
                             if (task.HaveBrother)
                             {
@@ -324,7 +326,7 @@ namespace task.device
                         }
 
 
-                        if(task.RigthTrackId == leavetrackid)
+                        if (task.DevConfig.right_track_id == leavetrackid)
                         {
                             if (task.HaveBrother)
                             {
@@ -376,12 +378,12 @@ namespace task.device
                     TileLifterTask task = DevList.Find(c => c.ID == tileid);
                     if (task != null)
                     {
-                        if (task.LeftTrackId == trackid && task.IsEmpty_1)
+                        if (task.DevConfig.left_track_id == trackid && task.IsEmpty_1)
                         {
                             return true;
                         }
 
-                        if (task.RigthTrackId == trackid && task.IsEmpty_2)
+                        if (task.DevConfig.right_track_id == trackid && task.IsEmpty_2)
                         {
                             return true;
                         }
@@ -483,31 +485,28 @@ namespace task.device
 
         #region[获取信息]
 
+        public TileLifterTask GetTileLifter(uint id)
+        {
+            return DevList.Find(c => c.ID == id);
+        }
+
         public uint GetTileCurrentTake(uint id)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            uint take = 0;
+            TileLifterTask task = DevList.Find(c => c.ID == id);
+            if (task != null)
             {
-                try
+                if (!PubMaster.Track.IsEmtpy(task.CurrentTakeId) &&
+                    !PubMaster.Track.IsStopUsing(task.CurrentTakeId, TransTypeE.出库))
                 {
-                    uint take = 0;
-                    TileLifterTask task = DevList.Find(c => c.ID == id);
-                    if (task != null)
-                    {
-                        if (!PubMaster.Track.IsEmtpy(task.CurrentTakeId) &&
-                            !PubMaster.Track.IsStopUsing(task.CurrentTakeId, TransTypeE.出库))
-                        {
-                            take = task.CurrentTakeId;
-                        }
-                        else
-                        {
-                            PubMaster.Device.SetCurrentTake(id, 0);
-                        }
-                    }
-                    return take;
+                    take = task.CurrentTakeId;
                 }
-                finally { Monitor.Exit(_obj); }
+                else
+                {
+                    PubMaster.Device.SetCurrentTake(id, 0);
+                }
             }
-            return 0;
+            return take;
         }
 
         #endregion
@@ -531,9 +530,9 @@ namespace task.device
                             {
                                 task.ReSetRefreshTime();
                                 task.DevStatus = tilelifter;
-                                CheckDev(task); 
-                                
-                                if(tilelifter.IsUpdate
+                                CheckDev(task);
+
+                                if (tilelifter.IsUpdate
                                     || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, tilelifter.ID, 10))
                                     MsgSend(task, tilelifter);
                             }
@@ -564,7 +563,7 @@ namespace task.device
                 case SocketConnectStatusE.连接中:
                 case SocketConnectStatusE.连接断开:
                 case SocketConnectStatusE.主动断开:
-                    if(task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
+                    if (task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
                     PubTask.Ping.AddPing(task.Device.ip, task.Device.name);
                     break;
             }
@@ -611,18 +610,18 @@ namespace task.device
 
             #region[检查基础信息]
 
-            if (task.GoodsId == 0)
+            if (task.DevConfig.goods_id == 0)
             {
                 return;
             }
 
-            if (task.LeftTrackId == 0)
+            if (task.DevConfig.left_track_id == 0)
             {
                 return;
             }
 
-            if (PubTask.Trans.HaveInTileTrack(task.LeftTrackId) ||
-                PubTask.Trans.HaveInTileTrack(task.RigthTrackId))
+            if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id) ||
+                PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id))
             {
                 return;
             }
@@ -660,17 +659,17 @@ namespace task.device
 
                     #region [转产品种]
 
-                    uint gid = task.GoodsId;
-                    if (task.Device.do_shift)
+                    uint gid = task.DevConfig.goods_id;
+                    if (task.DevConfig.do_shift)
                     {
                         if (!task.DevStatus.ShiftAccept || task.DevStatus.ShiftStatus == TileShiftStatusE.复位)
                         {
                             return;
                         }
 
-                        if (task.Device.LeftGoods == task.DevStatus.Goods1)
+                        if (task.DevConfig.LeftGoods == task.DevStatus.Goods1)
                         {
-                            if (task.Device.old_goodid != 0) gid = task.Device.old_goodid;
+                            if (task.DevConfig.old_goodid != 0) gid = task.DevConfig.old_goodid;
                         }
                     }
 
@@ -684,15 +683,15 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.规格作业:
-                                AddAndGetStockId(task.ID, task.LeftTrackId, gid, task.FullQty, out uint stockid);
-                                TileAddInTransTask(task.AreaId, task.ID, task.LeftTrackId, gid, stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.FullQty, out uint stockid);
+                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid);
                                 break;
                             case DevWorkTypeE.轨道作业:
 
                                 break;
                             case DevWorkTypeE.混砖作业:
-                                AddAndGetStockId(task.ID, task.LeftTrackId, gid, task.FullQty, out stockid);
-                                AddMixTrackTransTask(task.AreaId, task.ID, task.LeftTrackId, gid, stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.FullQty, out stockid);
+                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid);
                                 break;
                         }
 
@@ -749,7 +748,7 @@ namespace task.device
                 else if (task.Type == DeviceTypeE.上砖机 && task.IsEmpty_1)
                 {
                     if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.上砖)) return;
-                    
+
                     #region[介入]
                     if (!task.IsInvo_1)
                     {
@@ -767,16 +766,16 @@ namespace task.device
                     if (!iseffect)
                     {
                         #region[清空轨道上砖轨道库存]
-                        PubMaster.Goods.ClearTrackEmtpy(task.LeftTrackId);
+                        PubMaster.Goods.ClearTrackEmtpy(task.DevConfig.left_track_id);
                         #endregion
 
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.规格作业:
-                                TileAddOutTransTask(task.AreaId, task.ID, task.LeftTrackId, task.GoodsId, task.CurrentTakeId);
+                                TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.CurrentTakeId);
                                 break;
                             case DevWorkTypeE.轨道作业:
-                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.LeftTrackId, task.GoodsId);
+                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id);
                                 break;
                         }
 
@@ -842,10 +841,10 @@ namespace task.device
                 switch (task.Type)
                 {
                     case DeviceTypeE.上砖机:
-                        isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.LeftTrackId);
+                        isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.left_track_id);
                         break;
                     case DeviceTypeE.下砖机:
-                        isOK = !PubTask.Carrier.HaveInTrack(task.LeftTrackId);
+                        isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id);
                         break;
                     default:
                         break;
@@ -875,7 +874,7 @@ namespace task.device
             #region[工位2有需求]
             if (task.IsNeed_2 && task.IsTwoTrack)
             {
-                if (task.RigthTrackId == 0) return;
+                if (task.DevConfig.right_track_id == 0) return;
 
                 #region[下砖机-满砖]
                 if (task.Type == DeviceTypeE.下砖机)
@@ -904,17 +903,17 @@ namespace task.device
 
                     #region [转产品种]
 
-                    uint gid = task.GoodsId;
-                    if (task.Device.do_shift)
+                    uint gid = task.DevConfig.goods_id;
+                    if (task.DevConfig.do_shift)
                     {
                         if (!task.DevStatus.ShiftAccept || task.DevStatus.ShiftStatus == TileShiftStatusE.复位)
                         {
                             return;
                         }
 
-                        if (task.Device.RightGoods == task.DevStatus.Goods2)
+                        if (task.DevConfig.RightGoods == task.DevStatus.Goods2)
                         {
-                            if (task.Device.old_goodid != 0) gid = task.Device.old_goodid;
+                            if (task.DevConfig.old_goodid != 0) gid = task.DevConfig.old_goodid;
                         }
                     }
 
@@ -928,15 +927,15 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.规格作业:
-                                AddAndGetStockId(task.ID, task.RigthTrackId, gid, task.FullQty, out uint stockid);
-                                TileAddInTransTask(task.AreaId, task.ID, task.RigthTrackId, gid, stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.FullQty, out uint stockid);
+                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
                                 break;
                             case DevWorkTypeE.轨道作业:
 
                                 break;
                             case DevWorkTypeE.混砖作业:
-                                AddAndGetStockId(task.ID, task.RigthTrackId, gid, task.FullQty, out stockid);
-                                AddMixTrackTransTask(task.AreaId, task.ID, task.RigthTrackId, gid, stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.FullQty, out stockid);
+                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
                                 break;
                         }
 
@@ -1009,16 +1008,16 @@ namespace task.device
                     if (!iseffect)
                     {
                         #region[清空轨道上砖轨道库存]
-                        PubMaster.Goods.ClearTrackEmtpy(task.RigthTrackId);
+                        PubMaster.Goods.ClearTrackEmtpy(task.DevConfig.right_track_id);
                         #endregion
 
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.规格作业:
-                                TileAddOutTransTask(task.AreaId, task.ID, task.RigthTrackId, task.GoodsId, task.CurrentTakeId);
+                                TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.CurrentTakeId);
                                 break;
                             case DevWorkTypeE.轨道作业:
-                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.RigthTrackId, task.GoodsId);
+                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id);
                                 break;
                         }
 
@@ -1080,7 +1079,7 @@ namespace task.device
             else if (task.IsInvo_2)
             {
                 bool isOK = false;
-                if (task.RigthTrackId == 0)
+                if (task.DevConfig.right_track_id == 0)
                 {
                     isOK = true;
                 }
@@ -1089,17 +1088,17 @@ namespace task.device
                     switch (task.Type)
                     {
                         case DeviceTypeE.上砖机:
-                            isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.RigthTrackId);
+                            isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.right_track_id);
                             break;
                         case DeviceTypeE.下砖机:
-                            isOK = !PubTask.Carrier.HaveInTrack(task.RigthTrackId);
+                            isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id);
                             break;
                         default:
                             break;
                     }
                 }
                 //没有需求但是介入状态 同时:轨道没有车/有车无货
-                if (task.RigthTrackId == 0
+                if (task.DevConfig.right_track_id == 0
                     || (isOK && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_2, 15, 10)))
                 {
                     if (task.HaveBrother)
@@ -1132,7 +1131,7 @@ namespace task.device
         private void AddMixTrackTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid)
         {
             if (stockid == 0) return;
-            uint lasttrack = PubMaster.Device.GetLastWorkTrack(tileid);
+            uint lasttrack = PubMaster.DevConfig.GetLastTrackId(tileid);
             if (lasttrack != 0 && PubMaster.Track.IsStatusOkToGive(lasttrack))
             {
                 if (PubTask.Trans.IsTraInTransWithLock(lasttrack))
@@ -1204,7 +1203,7 @@ namespace task.device
 
                 if (givetrackid != 0)
                 {
-                    PubMaster.Device.SetDeviceLastTrack(tileid, givetrackid);
+                    PubMaster.DevConfig.SetLastTrackId(tileid, givetrackid);
                     PubMaster.Track.UpdateRecentGood(givetrackid, goodid);
                     PubMaster.Track.UpdateRecentTile(givetrackid, tileid);
                     //生成入库交易
@@ -1292,7 +1291,7 @@ namespace task.device
             foreach (TileTrack tt in tracks)
             {
                 Track track = PubMaster.Track.GetTrack(tt.track_id);
-                if (track.StockStatus == TrackStockStatusE.空砖 || 
+                if (track.StockStatus == TrackStockStatusE.空砖 ||
                     (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖))
                 {
                     PubMaster.TileTrack.DeleteTileTrack(tt);
@@ -1342,12 +1341,12 @@ namespace task.device
             TileLifterTask tile = DevList.Find(c => c.ID == tileid);
             if (tile != null)
             {
-                if (tile.LeftTrackId == track)
+                if (tile.DevConfig.left_track_id == track)
                 {
                     return (isload ? tile.IsLoad_1 : tile.IsEmpty_1) && (isneed ? tile.IsNeed_1 : !tile.IsNeed_1);
                 }
 
-                if (tile.RigthTrackId == track)
+                if (tile.DevConfig.right_track_id == track)
                 {
                     return (isload ? tile.IsLoad_2 : tile.IsEmpty_2) && (isneed ? tile.IsNeed_2 : !tile.IsNeed_2);
                 }
@@ -1406,7 +1405,7 @@ namespace task.device
                     iseffect = PubTask.Trans.HaveInLifter(task.ID);
                     break;
                 case StrategyInE.同轨同轨://双下砖机，同时只作业一台砖机作业【间接限制了会下不同轨道】
-                    iseffect = PubTask.Trans.HaveInTileTrack(task.LeftTrackId, task.RigthTrackId);
+                    iseffect = PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id, task.DevConfig.right_track_id);
                     break;
                 case StrategyInE.优先下砖:
 
@@ -1436,7 +1435,7 @@ namespace task.device
                     iseffect = PubTask.Trans.HaveInLifter(task.ID);
                     break;
                 case StrategyOutE.同规同轨:
-                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.GoodsId, TransTypeE.出库);
+                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.DevConfig.goods_id, TransTypeE.出库);
                     break;
                 case StrategyOutE.优先上砖:
 
@@ -1462,7 +1461,7 @@ namespace task.device
             if (checkleft)
             {
                 if (brotask.IsNeed_1) return false;
-                if(!brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1))
+                if (!brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1))
                 {
                     Thread.Sleep(1000);
                     brotask.Do1Invo(DevLifterInvolE.介入);
@@ -1484,7 +1483,7 @@ namespace task.device
         #region[发送信息]
         private void MsgSend(TileLifterTask task, DevTileLifter tilelifter)
         {
-            if(Monitor.TryEnter(_objmsg, TimeSpan.FromSeconds(5)))
+            if (Monitor.TryEnter(_objmsg, TimeSpan.FromSeconds(5)))
             {
                 try
                 {
@@ -1492,7 +1491,7 @@ namespace task.device
                     mMsg.Name = task.Device.name;
                     mMsg.o1 = tilelifter;
                     mMsg.o2 = task.ConnStatus;
-                    mMsg.o3 = task.GoodsId;
+                    mMsg.o3 = task.DevConfig.goods_id;
                     mMsg.o4 = task.InStrategy;
                     mMsg.o5 = task.OutStrategy;
                     mMsg.o6 = task.IsWorking;
@@ -1544,22 +1543,22 @@ namespace task.device
             try
             {
                 TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
-                if(!CheckTileLifterStatus(task, out result))
+                if (!CheckTileLifterStatus(task, out result))
                 {
                     return false;
                 }
 
-                if(!CheckBrotherIsReady(task, false, task.LeftTrackId == taketrackid))
+                if (!CheckBrotherIsReady(task, false, task.DevConfig.left_track_id == taketrackid))
                 {
                     return false;
                 }
 
-                if(task.LeftTrackId == taketrackid)
+                if (task.DevConfig.left_track_id == taketrackid)
                 {
                     return task.IsNeed_1 && task.IsLoad_1 && task.IsInvo_1;
                 }
-                
-                if(task.RigthTrackId == taketrackid)
+
+                if (task.DevConfig.right_track_id == taketrackid)
                 {
                     return task.IsNeed_2 && task.IsLoad_2 && task.IsInvo_2;
                 }
@@ -1568,7 +1567,7 @@ namespace task.device
             finally { Monitor.Exit(_obj); }
             return false;
         }
-        
+
         /// <summary>
         /// 判断上砖机是否可以放砖
         /// </summary>
@@ -1586,17 +1585,17 @@ namespace task.device
             try
             {
                 TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
-                if(!CheckTileLifterStatus(task, out result))
+                if (!CheckTileLifterStatus(task, out result))
                 {
                     return false;
                 }
 
-                if(task.LeftTrackId == givetrackid)
+                if (task.DevConfig.left_track_id == givetrackid)
                 {
                     return task.IsNeed_1 && task.IsEmpty_1 && task.IsInvo_1;
                 }
-                
-                if(task.RigthTrackId == givetrackid)
+
+                if (task.DevConfig.right_track_id == givetrackid)
                 {
                     return task.IsNeed_2 && task.IsEmpty_2 && task.IsInvo_2;
                 }
@@ -1608,7 +1607,7 @@ namespace task.device
 
         internal bool IsAnyoneNeeds(uint area, DeviceTypeE dt)
         {
-            return DevList.Exists(c=>c.AreaId == area && c.Type == dt && (c.IsNeed_1 || c.IsNeed_2));
+            return DevList.Exists(c => c.AreaId == area && c.Type == dt && (c.IsNeed_1 || c.IsNeed_2));
         }
 
         #endregion
@@ -1623,7 +1622,7 @@ namespace task.device
                     TileLifterTask task = DevList.Find(c => c.ID == devid);
                     if (task != null)
                     {
-                        task.Device.goods_id = goodid;
+                        task.DevConfig.goods_id = goodid;
                         MsgSend(task, task.DevStatus);
                     }
                 }

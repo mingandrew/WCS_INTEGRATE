@@ -58,12 +58,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="area\AreaMaster.cs" />
+    <Compile Include="device\DevConfigMaster.cs" />
     <Compile Include="device\DeviceMaster.cs" />
     <Compile Include="diction\DictionMaster.cs" />
     <Compile Include="goods\GoodsMaster.cs" />
     <Compile Include="module\ModuleMaster.cs" />
     <Compile Include="module\modulesql\AreaModSql.cs" />
     <Compile Include="module\modulesql\BaseModSql.cs" />
+    <Compile Include="module\modulesql\DeviceConfigModSql.cs" />
     <Compile Include="module\modulesql\DeviceModSql.cs" />
     <Compile Include="module\modulesql\DictionModSql.cs" />
     <Compile Include="module\modulesql\GoodsModSql.cs" />

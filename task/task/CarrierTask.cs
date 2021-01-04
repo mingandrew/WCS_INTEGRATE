@@ -2,6 +2,7 @@
 using enums.track;
 using enums.warning;
 using module.device;
+using module.deviceconfig;
 using resource;
 using socket.tcp;
 using System;
@@ -23,11 +24,6 @@ namespace task.device
         public CarrierTypeE CarrierType
         {
             get => Device.CarrierType;
-        }
-
-        public CarrierDutyE CarrierDuty
-        {
-            get => Device.CarrierDuty;
         }
 
         public ushort Site
@@ -91,10 +87,12 @@ namespace task.device
         public CarrierTcp DevTcp { set; get; }
         public DevCarrier DevStatus { set; get; }
         public DevCarrierResetE DevReset { set; get; }
+        public ConfigCarrier DevConfig { set; get; }
 
         public CarrierTask() : base()
         {
             DevStatus = new DevCarrier();
+            DevConfig = new ConfigCarrier();
         }
 
         public void Start(string memo = "开始连接")
@@ -379,50 +377,43 @@ namespace task.device
         {
             switch (type)
             {
-                case CarrierAlertE.PowerOff:
-                    Device.a_poweroff = isalert;
-                    break;
                 case CarrierAlertE.GiveMissTrack:
-                    Device.a_givemisstrack = isalert;
+                    DevConfig.a_givemisstrack = isalert;
                     break;
                 case CarrierAlertE.TakeMissTrack:
-                    Device.a_takemisstrack = isalert;
+                    DevConfig.a_takemisstrack = isalert;
                     break;
             }
-            Device.a_alert_track = trackid;
-            PubMaster.Mod.DevSql.EditDeviceAlert(Device, type);
+            DevConfig.a_alert_track = trackid;
+            PubMaster.Mod.DevConfigSql.EditCarrierAlert(DevConfig, type);
         }
 
         //特殊逻辑报警
         internal void CheckLogicAlert()
         {
-            if (Device.a_givemisstrack)
+            if (DevConfig.a_givemisstrack)
             {
                 if (PubMaster.Track.IsStoreType(TrackId))
                 {
-                    PubMaster.Track.SetTrackStatus(Device.a_alert_track, TrackStatusE.启用, out string _);
-                    PubMaster.Track.SetTrackAlert(Device.a_alert_track, 0, 0, TrackAlertE.正常);
+                    PubMaster.Track.SetTrackStatus(DevConfig.a_alert_track, TrackStatusE.启用, out string _);
+                    PubMaster.Track.SetTrackAlert(DevConfig.a_alert_track, 0, 0, TrackAlertE.正常);
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierGiveMissTrack, (ushort)ID);
-                    Device.a_givemisstrack = false;
-                    Device.a_alert_track = 0;
-                    PubMaster.Mod.DevSql.EditDeviceAlert(Device, CarrierAlertE.GiveMissTrack);
+                    DevConfig.a_givemisstrack = false;
+                    DevConfig.a_alert_track = 0;
+                    PubMaster.Mod.DevConfigSql.EditCarrierAlert(DevConfig, CarrierAlertE.GiveMissTrack);
                 }
             }
 
-            if (Device.a_takemisstrack)
+            if (DevConfig.a_takemisstrack)
             {
 
             }
 
-            if (Device.a_poweroff)
-            {
-
-            }
         }
 
         internal bool IsLogicAlert()
         {
-            return Device.a_givemisstrack || Device.a_poweroff || Device.a_takemisstrack;
+            return DevConfig.a_givemisstrack || DevConfig.a_takemisstrack;
         }
 
         #endregion

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using task;
+using task.task;
 using wcs.Dialog;
 
 namespace wcs.ViewModel
@@ -175,24 +176,25 @@ namespace wcs.ViewModel
                         if (inresult.p1 is bool rs && inresult.p2 is Device indev)
                         {
                             ClearInTaskInput();
-                            if (indev.goods_id == 0)
+                            TileLifterTask inTile = PubTask.TileLifter.GetTileLifter(indev.id);
+                            if (inTile.DevConfig.goods_id == 0)
                             {
                                 Growl.Warning("请先设置砖机规格！");
                                 return;
                             }
                             in_dev = indev;
                             In_Tilelifter_id = indev.id;
-                            In_Goods_id = indev.goods_id;
+                            In_Goods_id = inTile.DevConfig.goods_id;
 
                             if(indev.Type2 == DeviceType2E.单轨)
                             {
-                                In_Take_track_id = indev.left_track_id;
+                                In_Take_track_id = inTile.DevConfig.left_track_id;
                                 Is_In_Double_Track = false;
                             }
                             else
                             {
-                                In_Take_Left_TrackId = indev.left_track_id;
-                                In_Take_Right_TrackId = indev.right_track_id;
+                                In_Take_Left_TrackId = inTile.DevConfig.left_track_id;
+                                In_Take_Right_TrackId = inTile.DevConfig.right_track_id;
                                 Is_In_Double_Track = true;
                             }
                         }
@@ -241,23 +243,24 @@ namespace wcs.ViewModel
                         if (outresult.p1 is bool outrs && outresult.p2 is Device outdev)
                         {
                             ClearOutTaskInput();
-                            if(outdev.goods_id == 0)
+                            TileLifterTask outTile = PubTask.TileLifter.GetTileLifter(outdev.id);
+                            if(outTile.DevConfig.goods_id == 0)
                             {
                                 Growl.Warning("请先设置砖机规格！");
                                 return;
                             }
                             out_dev = outdev;
                             Out_Tilelifter_id = outdev.id;
-                            Out_Goods_id = outdev.goods_id;
+                            Out_Goods_id = outTile.DevConfig.goods_id;
                             if(outdev.Type2 == DeviceType2E.单轨)
                             {
-                                Out_Give_track_id = outdev.left_track_id;
+                                Out_Give_track_id = outTile.DevConfig.left_track_id;
                                 Is_Out_Double_Track = false;
                             }
                             else
                             {
-                                Out_Give_Left_TrackId = outdev.left_track_id;
-                                Out_Give_Right_TrackId = outdev.right_track_id;
+                                Out_Give_Left_TrackId = outTile.DevConfig.left_track_id;
+                                Out_Give_Right_TrackId = outTile.DevConfig.right_track_id;
                                 Is_Out_Double_Track = true;
                             }
                         }
@@ -303,14 +306,15 @@ namespace wcs.ViewModel
                 }
             }
 
-            uint taketracid = in_dev.left_track_id;
+            TileLifterTask tile = PubTask.TileLifter.GetTileLifter(in_dev.id);
+            uint taketracid = tile.DevConfig.left_track_id;
             if(in_dev.Type2 == DeviceType2E.双轨 && In_Right_Track_Check) 
             {
-                taketracid = in_dev.right_track_id;
+                taketracid = tile.DevConfig.right_track_id;
             }
 
-            if (!PubTask.Trans.AddManualTrans(in_dev.area, in_dev.id, TransTypeE.手动入库, 
-                in_dev.goods_id, taketracid, in_give_track_id, TransStatusE.调度设备, out string result))
+            if (!PubTask.Trans.AddManualTrans(in_dev.area, in_dev.id, TransTypeE.手动入库,
+                tile.DevConfig.goods_id, taketracid, in_give_track_id, TransStatusE.调度设备, out string result))
             {
                 Growl.Warning(result);
             }
@@ -333,14 +337,15 @@ namespace wcs.ViewModel
                 }
             }
 
-            uint givetrack = out_dev.left_track_id;
+            TileLifterTask tile = PubTask.TileLifter.GetTileLifter(out_dev.id);
+            uint givetrack = tile.DevConfig.left_track_id;
             if (out_dev.Type2 == DeviceType2E.双轨 && In_Right_Track_Check)
             {
-                givetrack = out_dev.right_track_id;
+                givetrack = tile.DevConfig.right_track_id;
             }
 
             if (!PubTask.Trans.AddManualTrans(out_dev.area, out_dev.id, TransTypeE.手动出库,
-                out_dev.goods_id, out_take_track_id, givetrack, TransStatusE.调度设备, out string result))
+                tile.DevConfig.goods_id, out_take_track_id, givetrack, TransStatusE.调度设备, out string result))
             {
                 Growl.Warning(result);
             }

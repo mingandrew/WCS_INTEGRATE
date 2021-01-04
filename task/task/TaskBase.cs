@@ -35,27 +35,6 @@ namespace task.task
             set => Device.do_work = value;
         }
 
-        public uint GoodsId
-        {
-            get => Device?.goods_id ?? 0;
-        }
-
-        /// <summary>
-        /// [单轨/双轨]上下砖机左侧轨道ID
-        /// </summary>
-        public uint LeftTrackId
-        {
-            get => Device?.left_track_id ?? 0;
-        }
-
-        /// <summary>
-        /// [双轨]上下砖机右侧轨道ID
-        /// </summary>
-        public uint RigthTrackId
-        {
-            get => Device?.right_track_id ?? 0;
-        }
-
         public Device Device { set; get; }
         private SocketConnectStatusE mconn;
         internal bool MConChange;

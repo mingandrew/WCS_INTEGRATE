@@ -1011,7 +1011,7 @@ namespace task.trans
                                         else
                                         {
                                             bool isallocate = false;
-                                            DevWorkTypeE type = PubMaster.Device.GetDeviceWorkType(trans.tilelifter_id);
+                                            DevWorkTypeE type = PubMaster.DevConfig.GetWorkType(trans.tilelifter_id);
                                             switch (type)
                                             {
                                                 case DevWorkTypeE.规格作业:
@@ -1988,7 +1988,7 @@ namespace task.trans
 
                 case TrackTypeE.摆渡车_入://小车在摆渡车上(已经在摆渡车上)
 
-                    uint tferryid = PubMaster.Device.GetFerryIdByFerryTrackId(track.id);
+                    uint tferryid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(track.id);
                     if (tferryid != 0)
                     {
                         if (allotogiveferry)
@@ -2019,7 +2019,7 @@ namespace task.trans
                     }
                     break;
                 case TrackTypeE.摆渡车_出:
-                    uint outtferryid = PubMaster.Device.GetFerryIdByFerryTrackId(track.id);
+                    uint outtferryid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(track.id);
                     if (outtferryid != 0)
                     {
                         if (allotogiveferry)
@@ -2438,7 +2438,7 @@ namespace task.trans
             //在动则返回false，不给摆渡车发任务
             if (PubTask.Ferry.IsLoad(ferryid))
             {
-                uint trackid = PubMaster.Device.GetFerryTrackId(ferryid);
+                uint trackid = PubMaster.DevConfig.GetFerryTrackId(ferryid);
                 //在摆渡车轨道上的运输车是否有状态不是停止的或者是手动的
                 if (PubTask.Carrier.IsCarrierMoveInTrack(trackid))
                 {

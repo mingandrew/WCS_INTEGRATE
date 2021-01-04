@@ -1080,7 +1080,7 @@ namespace task.rf
             TileGoodUpdatePack pack = JsonTool.Deserialize<TileGoodUpdatePack>(msg.Pack.Data);
             if (pack != null)
             {
-                if (PubMaster.Device.SetTileLifterGoods(pack.TileId, pack.GoodId))
+                if (PubMaster.DevConfig.SetTileLifterGoods(pack.TileId, pack.GoodId))
                 {
                     PubTask.TileLifter.UpdateTileLifterGoods(pack.TileId, pack.GoodId);
                     SendSucc2Rf(msg.MEID, FunTag.UpdateTileGood, pack.GoodId+"");
@@ -1475,7 +1475,7 @@ namespace task.rf
             RfTileShiftPack pack = new RfTileShiftPack();
             foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters())
             {
-                pack.AddTileShift(item.Device, item.TileShiftStatus);
+                pack.AddTileShift(item.Device, item.DevConfig, item.TileShiftStatus);
             }
 
             if(pack.TileShift != null)
@@ -1493,7 +1493,7 @@ namespace task.rf
                 RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
                 if (pack != null)
                 {
-                    if(PubMaster.Device.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, out string result))
+                    if(PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdatePreGood, "ok");
                     }
@@ -1511,7 +1511,7 @@ namespace task.rf
             RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
             if (pack != null)
             {
-                if (PubMaster.Device.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
+                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
                 {
                     //发送砖机转产信号
                     SendSucc2Rf(msg.MEID, FunTag.ShiftTileGood, "ok");

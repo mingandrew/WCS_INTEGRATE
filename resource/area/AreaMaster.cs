@@ -206,7 +206,7 @@ namespace resource.area
                     {
                         if (istrackid)
                         {
-                            uint trackid = PubMaster.Device.GetFerryTrackId(device.device_id);
+                            uint trackid = PubMaster.DevConfig.GetFerryTrackId(device.device_id);
                             if (trackid > 0)
                                 list.Add(trackid);
                         }
@@ -269,7 +269,7 @@ namespace resource.area
                     {
                         if (istrackid)
                         {
-                            uint trackid = PubMaster.Device.GetFerryTrackId(device.device_id);
+                            uint trackid = PubMaster.DevConfig.GetFerryTrackId(device.device_id);
                             if(trackid > 0)
                                 list.Add(trackid);
                         }

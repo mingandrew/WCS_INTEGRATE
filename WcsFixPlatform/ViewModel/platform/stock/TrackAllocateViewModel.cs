@@ -75,7 +75,7 @@ namespace wcs.ViewModel
                         {
                             device = dev;
                             TileName = dev.name;
-                            GoodsId = dev.goods_id;
+                            GoodsId = PubMaster.DevConfig.GetTileLifter(dev.id).goods_id;
                             CheckUpdate(false);
                         }
                         break;

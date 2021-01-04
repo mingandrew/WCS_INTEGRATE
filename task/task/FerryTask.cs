@@ -1,5 +1,6 @@
 ﻿using enums;
 using module.device;
+using module.deviceconfig;
 using resource;
 using socket.tcp;
 using System;
@@ -56,10 +57,12 @@ namespace task.task
         public FerryTcp DevTcp { set; get; }
         public DevFerry DevStatus { set; get; }
         public DevFerrySite DevSite { set; get; }
+        public ConfigFerry DevConfig { set; get; }
 
         public FerryTask() : base()
         {
             DevStatus = new DevFerry();
+            DevConfig = new ConfigFerry();
         }
 
         public void Start(string memo = "开始连接")

@@ -48,6 +48,9 @@
     <Compile Include="area\AreaDevice.cs" />
     <Compile Include="area\AreaDeviceTrack.cs" />
     <Compile Include="area\AreaTrack.cs" />
+    <Compile Include="deviceconfig\ConfigCarrier.cs" />
+    <Compile Include="deviceconfig\ConfigFerry.cs" />
+    <Compile Include="deviceconfig\ConfigTileLifter.cs" />
     <Compile Include="device\DevCarrier.cs" />
     <Compile Include="device\DevFerry.cs" />
     <Compile Include="device\Device.cs" />

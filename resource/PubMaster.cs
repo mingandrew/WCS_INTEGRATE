@@ -18,6 +18,7 @@ namespace resource
         public static AreaMaster Area { set; get; }
         public static TrackMaster Track { set; get; }
         public static DeviceMaster Device { set; get; }
+        public static DevConfigMaster DevConfig { set; get; }
         public static GoodsMaster Goods { set; get; }
         public static WarningMaster Warn { set; get; }
         public static TileTrackMaster TileTrack { set; get; }
@@ -30,6 +31,7 @@ namespace resource
             Area = new AreaMaster();
             Track = new TrackMaster();
             Device = new DeviceMaster();
+            DevConfig = new DevConfigMaster();
             Goods = new GoodsMaster();
             Warn = new WarningMaster();
             TileTrack = new TileTrackMaster();
@@ -50,6 +52,7 @@ namespace resource
             Area.Start();
             Track.Start();
             Device.Start();
+            DevConfig.Start();
             Goods.Start();
             TileTrack.Start();
             _isready = true;
@@ -62,6 +65,7 @@ namespace resource
             Role?.Stop();
             Dic.Stop();
             Device.Stop();
+            DevConfig.Stop();
             Track.Stop();
             Area.Stop();
             Goods.Stop();

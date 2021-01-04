@@ -11,7 +11,7 @@
  Target Server Version : 80016
  File Encoding         : 65001
 
- Date: 03/01/2021 09:51:23
+ Date: 04/01/2021 17:43:07
 */
 
 SET NAMES utf8mb4;
@@ -535,6 +535,94 @@ INSERT INTO `area_track` VALUES (49, 1, 49, 0);
 INSERT INTO `area_track` VALUES (50, 1, 50, 0);
 
 -- ----------------------------
+-- Table structure for config_carrier
+-- ----------------------------
+DROP TABLE IF EXISTS `config_carrier`;
+CREATE TABLE `config_carrier`  (
+  `id` int(11) UNSIGNED NOT NULL COMMENT '运输车设备ID',
+  `a_takemisstrack` bit(1) NULL DEFAULT NULL COMMENT '后退取货扫不到点',
+  `a_givemisstrack` bit(1) NULL DEFAULT NULL COMMENT '前进放货扫不到点',
+  `a_alert_track` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '所在轨道',
+  `stock_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '库存ID',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `carrier_stock_id_index`(`stock_id`) USING BTREE,
+  CONSTRAINT `carrier_id_fk` FOREIGN KEY (`id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `carrier_stock_id_fk` FOREIGN KEY (`stock_id`) REFERENCES `stock` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '运输车配置' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of config_carrier
+-- ----------------------------
+INSERT INTO `config_carrier` VALUES (15, NULL, NULL, NULL, NULL);
+INSERT INTO `config_carrier` VALUES (16, NULL, NULL, NULL, NULL);
+INSERT INTO `config_carrier` VALUES (17, NULL, NULL, NULL, NULL);
+INSERT INTO `config_carrier` VALUES (18, NULL, NULL, NULL, NULL);
+INSERT INTO `config_carrier` VALUES (19, NULL, NULL, NULL, NULL);
+
+-- ----------------------------
+-- Table structure for config_ferry
+-- ----------------------------
+DROP TABLE IF EXISTS `config_ferry`;
+CREATE TABLE `config_ferry`  (
+  `id` int(11) UNSIGNED NOT NULL COMMENT '摆渡车设备ID',
+  `track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '摆渡车轨道ID',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `ferry_track_id_index`(`track_id`) USING BTREE,
+  CONSTRAINT `ferry__id_fk` FOREIGN KEY (`id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `ferry_track_id_fk` FOREIGN KEY (`track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '摆渡车配置' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of config_ferry
+-- ----------------------------
+INSERT INTO `config_ferry` VALUES (11, 45);
+INSERT INTO `config_ferry` VALUES (12, 46);
+INSERT INTO `config_ferry` VALUES (13, 47);
+
+-- ----------------------------
+-- Table structure for config_tilelifter
+-- ----------------------------
+DROP TABLE IF EXISTS `config_tilelifter`;
+CREATE TABLE `config_tilelifter`  (
+  `id` int(11) UNSIGNED NOT NULL COMMENT '砖机设备ID',
+  `brother_dev_id` int(10) UNSIGNED NULL DEFAULT NULL COMMENT '前设备ID[兄弟砖机ID]',
+  `left_track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '上下砖机：左轨道ID',
+  `right_track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '上下砖机：右轨道ID',
+  `strategy_in` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '下砖策略',
+  `strategy_out` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '上砖策略',
+  `work_type` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '作业类型\r\n砖机：0按规格 1按轨道',
+  `last_track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '砖机上次作业轨道',
+  `old_goodid` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '上一个品种',
+  `goods_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '品种ID',
+  `pre_goodid` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '预设品种',
+  `do_shift` bit(1) NULL DEFAULT NULL COMMENT '开启转产',
+  `left_goods` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '左轨道品种',
+  `right_goods` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '右轨道品种',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `tile_goods_id_index`(`goods_id`) USING BTREE,
+  INDEX `tile_ltrack_id_index`(`left_track_id`) USING BTREE,
+  INDEX `tile_rtrack_id_index`(`right_track_id`) USING BTREE,
+  CONSTRAINT `tile_goods_id_fk` FOREIGN KEY (`goods_id`) REFERENCES `goods` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `tile_id_fk` FOREIGN KEY (`id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `tile_ltrack_id_fk` FOREIGN KEY (`left_track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `tile_rtrack_id_fk` FOREIGN KEY (`right_track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '砖机配置' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of config_tilelifter
+-- ----------------------------
+INSERT INTO `config_tilelifter` VALUES (1, 0, 1, 2, 4, 0, 0, 0, 0, 192, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (2, 0, 3, 4, 4, 0, 0, 0, 0, 193, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (3, 0, 5, 6, 4, 0, 0, 0, 0, 192, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (4, 0, 7, 8, 4, 0, 0, 0, 0, 192, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (5, 0, 9, 10, 4, 0, 0, 0, 0, 194, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (6, 0, 11, 12, 4, 0, 0, 0, 0, 194, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (7, 0, 13, 14, 4, 0, 0, 0, 0, 195, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (8, 0, 15, 16, 4, 0, 0, 0, 0, 194, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (9, 0, 17, 18, 0, 1, 0, 0, 0, 192, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (10, 0, 49, 50, 0, 1, 0, 0, 0, 188, 0, b'0', 1, 1);
+
+-- ----------------------------
 -- Table structure for device
 -- ----------------------------
 DROP TABLE IF EXISTS `device`;
@@ -548,60 +636,34 @@ CREATE TABLE `device`  (
   `enable` bit(1) NULL DEFAULT NULL COMMENT '可用',
   `att1` tinyint(3) UNSIGNED NULL DEFAULT NULL,
   `att2` tinyint(3) UNSIGNED NULL DEFAULT NULL,
-  `goods_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '品种ID',
-  `left_track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '上下砖机：左轨道ID',
-  `right_track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '上下砖机：右轨道ID',
-  `brother_dev_id` int(10) UNSIGNED NULL DEFAULT NULL COMMENT '前设备ID[兄弟砖机ID]',
-  `strategy_in` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '下砖策略',
-  `strategy_out` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '上砖策略',
   `memo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   `area` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '区域值用于过滤',
-  `order` smallint(5) UNSIGNED NULL DEFAULT NULL COMMENT '排序',
-  `offlinetime` datetime(0) NULL DEFAULT NULL COMMENT '离线时间',
-  `a_givemisstrack` bit(1) NULL DEFAULT NULL COMMENT '前进放货扫不到点',
-  `a_takemisstrack` bit(1) NULL DEFAULT NULL COMMENT '后退取货扫不到点',
-  `a_poweroff` bit(1) NULL DEFAULT NULL COMMENT '轨道掉电',
-  `a_alert_track` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '所在轨道',
   `do_work` bit(1) NULL DEFAULT NULL COMMENT '开启作业',
-  `work_type` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '作业类型\r\n砖机：0按规格 1按轨道',
-  `ignorearea` bit(1) NULL DEFAULT NULL COMMENT '砖机上砖机是否忽略区域的规格',
-  `last_track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '砖机上次作业轨道',
-  `old_goodid` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '上一个品种',
-  `pre_goodid` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '预设品种',
-  `do_shift` bit(1) NULL DEFAULT NULL COMMENT '开启转产',
-  `left_goods` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '左轨道品种',
-  `right_goods` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '右轨道品种',
-  PRIMARY KEY (`id`) USING BTREE,
-  INDEX `dev_goods_id_fk`(`goods_id`) USING BTREE,
-  INDEX `dev_ltrack_id_fk`(`left_track_id`) USING BTREE,
-  INDEX `dev_rtrack_id_fk`(`right_track_id`) USING BTREE,
-  CONSTRAINT `dev_goods_id_fk` FOREIGN KEY (`goods_id`) REFERENCES `goods` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `dev_ltrack_id_fk` FOREIGN KEY (`left_track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `dev_rtrack_id_fk` FOREIGN KEY (`right_track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '设备' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of device
 -- ----------------------------
-INSERT INTO `device` VALUES (1, 'A01', '192.168.0.31', 2000, 1, 2, b'1', 0, 0, 192, 1, 2, 0, 4, 0, '161', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (2, 'A02', '192.168.0.36', 2000, 1, 2, b'1', 0, 0, 193, 3, 4, 0, 4, 0, '162', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (3, 'A03', '192.168.0.41', 2000, 1, 2, b'1', 0, 0, 192, 5, 6, 0, 4, 0, '163', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (4, 'A04', '192.168.0.46', 2000, 1, 2, b'1', 0, 0, 192, 7, 8, 0, 4, 0, '164', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (5, 'A05', '192.168.0.51', 2000, 1, 2, b'1', 0, 0, 194, 9, 10, 0, 4, 0, '165', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (6, 'A06', '192.168.0.56', 2000, 1, 2, b'1', 0, 0, 194, 11, 12, 0, 4, 0, '166', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (7, 'A07', '192.168.0.61', 2000, 1, 2, b'1', 0, 0, 195, 13, 14, 0, 4, 0, '167', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (8, 'A08', '192.168.0.66', 2000, 1, 2, b'1', 0, 0, 194, 15, 16, 0, 4, 0, '168', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (9, 'D01', '192.168.0.81', 2000, 0, 2, b'1', 0, 0, 192, 17, 18, 0, 0, 1, '209', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (10, 'D02', '192.168.0.86', 2000, 0, 2, b'1', 0, 0, 188, 49, 50, 0, 0, 1, '210', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (11, 'B01', '192.168.0.131', 2000, 3, 0, b'1', 0, 0, NULL, 45, NULL, 0, 0, 0, '177', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (12, 'B02', '192.168.0.132', 2000, 3, 0, b'1', 0, 0, NULL, 46, NULL, 0, 0, 0, '178', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (13, 'B05', '192.168.0.135', 2000, 2, 0, b'1', 0, 0, NULL, 47, NULL, 0, 0, 0, '181', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (14, '1_B6', NULL, NULL, 9, 0, b'0', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (15, 'C01', '192.168.0.151', 2000, 4, 0, b'1', 0, 0, NULL, NULL, NULL, 0, 0, 0, '193', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (16, 'C02', '192.168.0.152', 2000, 4, 0, b'1', 0, 0, NULL, NULL, NULL, 0, 0, 0, '194', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (17, 'C03', '192.168.0.153', 2000, 4, 0, b'1', 0, 0, NULL, NULL, NULL, 0, 0, 0, '195', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (18, 'C04', '192.168.0.154', 2000, 4, 0, b'1', 0, 0, NULL, NULL, NULL, 0, 0, 0, '196', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
-INSERT INTO `device` VALUES (19, 'C05', '192.168.0.155', 2000, 4, 0, b'1', 0, 0, NULL, NULL, NULL, 0, 0, 0, '197', 1, NULL, NULL, NULL, NULL, NULL, NULL, b'1', 0, NULL, 0, 0, 0, b'0', 1, 1);
+INSERT INTO `device` VALUES (1, 'A01', '192.168.0.31', 2000, 1, 2, b'1', 0, 0, '161', 1, b'1');
+INSERT INTO `device` VALUES (2, 'A02', '192.168.0.36', 2000, 1, 2, b'1', 0, 0, '162', 1, b'1');
+INSERT INTO `device` VALUES (3, 'A03', '192.168.0.41', 2000, 1, 2, b'1', 0, 0, '163', 1, b'1');
+INSERT INTO `device` VALUES (4, 'A04', '192.168.0.46', 2000, 1, 2, b'1', 0, 0, '164', 1, b'1');
+INSERT INTO `device` VALUES (5, 'A05', '192.168.0.51', 2000, 1, 2, b'1', 0, 0, '165', 1, b'1');
+INSERT INTO `device` VALUES (6, 'A06', '192.168.0.56', 2000, 1, 2, b'1', 0, 0, '166', 1, b'1');
+INSERT INTO `device` VALUES (7, 'A07', '192.168.0.61', 2000, 1, 2, b'1', 0, 0, '167', 1, b'1');
+INSERT INTO `device` VALUES (8, 'A08', '192.168.0.66', 2000, 1, 2, b'1', 0, 0, '168', 1, b'1');
+INSERT INTO `device` VALUES (9, 'D01', '192.168.0.81', 2000, 0, 2, b'1', 0, 0, '209', 1, b'1');
+INSERT INTO `device` VALUES (10, 'D02', '192.168.0.86', 2000, 0, 2, b'1', 0, 0, '210', 1, b'1');
+INSERT INTO `device` VALUES (11, 'B01', '192.168.0.131', 2000, 3, 0, b'1', 0, 0, '177', 1, b'1');
+INSERT INTO `device` VALUES (12, 'B02', '192.168.0.132', 2000, 3, 0, b'1', 0, 0, '178', 1, b'1');
+INSERT INTO `device` VALUES (13, 'B05', '192.168.0.135', 2000, 2, 0, b'1', 0, 0, '181', 1, b'1');
+INSERT INTO `device` VALUES (14, '1_B6', NULL, NULL, 9, 0, b'0', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `device` VALUES (15, 'C01', '192.168.0.151', 2000, 4, 0, b'1', 0, 0, '193', 1, b'1');
+INSERT INTO `device` VALUES (16, 'C02', '192.168.0.152', 2000, 4, 0, b'1', 0, 0, '194', 1, b'1');
+INSERT INTO `device` VALUES (17, 'C03', '192.168.0.153', 2000, 4, 0, b'1', 0, 0, '195', 1, b'1');
+INSERT INTO `device` VALUES (18, 'C04', '192.168.0.154', 2000, 4, 0, b'1', 0, 0, '196', 1, b'1');
+INSERT INTO `device` VALUES (19, 'C05', '192.168.0.155', 2000, 4, 0, b'1', 0, 0, '197', 1, b'1');
 
 -- ----------------------------
 -- Table structure for diction
@@ -658,7 +720,7 @@ CREATE TABLE `diction_dtl`  (
 -- ----------------------------
 INSERT INTO `diction_dtl` VALUES (1, 1, 'NewStockId', '生成库存ID', NULL, NULL, '', NULL, 5323, NULL, '2020-12-31 16:59:49');
 INSERT INTO `diction_dtl` VALUES (2, 1, 'NewTranId', '生成交易ID', NULL, NULL, '', NULL, 8294, NULL, '2020-12-17 10:11:46');
-INSERT INTO `diction_dtl` VALUES (3, 1, 'NewWarnId', '生成警告ID', NULL, NULL, '', NULL, 6799, NULL, '2020-12-21 12:05:24');
+INSERT INTO `diction_dtl` VALUES (3, 1, 'NewWarnId', '生成警告ID', NULL, NULL, '', NULL, 6817, NULL, '2021-01-04 14:50:19');
 INSERT INTO `diction_dtl` VALUES (4, 1, 'NewGoodId', '生成品种ID', NULL, NULL, '', NULL, 198, NULL, '2020-12-17 06:38:23');
 INSERT INTO `diction_dtl` VALUES (5, 2, 'Area1Down', '1号线下砖', NULL, b'0', '', NULL, NULL, NULL, '2020-12-31 16:58:51');
 INSERT INTO `diction_dtl` VALUES (6, 2, 'Area1Up', '1号线上砖', NULL, b'0', '', NULL, NULL, NULL, '2020-12-31 16:58:52');
@@ -3023,6 +3085,24 @@ INSERT INTO `warning` VALUES (7424, 0, 0, b'1', 12, 0, 0, 'B02: 设备离线', '
 INSERT INTO `warning` VALUES (7472, 0, 0, b'1', 12, 0, 0, 'B02: 设备离线', '2020-12-19 16:36:55', '2020-12-19 16:36:55');
 INSERT INTO `warning` VALUES (7473, 0, 0, b'1', 12, 0, 0, 'B02: 设备离线', '2020-12-19 16:38:00', '2020-12-19 16:38:00');
 INSERT INTO `warning` VALUES (7492, 0, 0, b'1', 12, 0, 0, 'B02: 设备离线', '2020-12-19 17:30:14', '2020-12-19 17:30:14');
+INSERT INTO `warning` VALUES (6799, 0, 0, b'0', 2, 0, 0, 'A02: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6800, 0, 0, b'0', 1, 0, 0, 'A01: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6801, 0, 0, b'0', 10, 0, 0, 'D02: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6802, 0, 0, b'0', 11, 0, 0, 'B01: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6803, 0, 0, b'0', 17, 0, 0, 'C03: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6804, 0, 0, b'0', 3, 0, 0, 'A03: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6805, 0, 0, b'0', 12, 0, 0, 'B02: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6806, 0, 0, b'0', 18, 0, 0, 'C04: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6807, 0, 0, b'0', 9, 0, 0, 'D01: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6808, 0, 0, b'0', 13, 0, 0, 'B05: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6809, 0, 0, b'0', 15, 0, 0, 'C01: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6810, 0, 0, b'0', 6, 0, 0, 'A06: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6811, 0, 0, b'0', 16, 0, 0, 'C02: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6812, 0, 0, b'0', 19, 0, 0, 'C05: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6813, 0, 0, b'0', 4, 0, 0, 'A04: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6814, 0, 0, b'0', 5, 0, 0, 'A05: 设备离线', '2021-01-04 14:50:19', NULL);
+INSERT INTO `warning` VALUES (6815, 0, 0, b'0', 8, 0, 0, 'A08: 设备离线', '2021-01-04 14:50:19', NULL);
+INSERT INTO `warning` VALUES (6816, 0, 0, b'0', 7, 0, 0, 'A07: 设备离线', '2021-01-04 14:50:19', NULL);
 
 -- ----------------------------
 -- Table structure for wcs_menu

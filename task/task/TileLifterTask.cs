@@ -1,5 +1,6 @@
 ﻿using enums;
 using module.device;
+using module.deviceconfig;
 using socket.tcp;
 
 namespace task.task
@@ -13,12 +14,12 @@ namespace task.task
         /// </summary>
         public bool HaveBrother
         {
-            get => Device?.HaveBrother ?? true;
+            get => DevConfig?.HaveBrother ?? true;
         }
 
         public uint BrotherId
         {
-            get => Device.brother_dev_id;
+            get => DevConfig.brother_dev_id;
         }
 
         public bool IsTwoTrack
@@ -28,14 +29,14 @@ namespace task.task
 
         public StrategyInE InStrategy
         {
-            get => Device?.InStrategey ?? StrategyInE.同机同轨;
-            set => Device.InStrategey = value;
+            get => DevConfig?.InStrategey ?? StrategyInE.同机同轨;
+            set => DevConfig.InStrategey = value;
         }
 
         public StrategyOutE OutStrategy
         {
-            get => Device?.OutStrategey ?? StrategyOutE.同规同轨;
-            set => Device.OutStrategey = value;
+            get => DevConfig?.OutStrategey ?? StrategyOutE.同规同轨;
+            set => DevConfig.OutStrategey = value;
         }
 
         #endregion
@@ -108,8 +109,8 @@ namespace task.task
         /// </summary>
         public StrategyInE StrategyIn
         {
-            get => Device.InStrategey;
-            set => Device.InStrategey = value;
+            get => DevConfig.InStrategey;
+            set => DevConfig.InStrategey = value;
         }
 
         /// <summary>
@@ -117,8 +118,8 @@ namespace task.task
         /// </summary>
         public StrategyOutE StrategyOut
         {
-            get => Device.OutStrategey;
-            set => Device.OutStrategey = value;
+            get => DevConfig.OutStrategey;
+            set => DevConfig.OutStrategey = value;
         }
 
         /// <summary>
@@ -131,8 +132,8 @@ namespace task.task
 
         public DevWorkTypeE WorkType
         {
-            get => Device.WorkType;
-            set => Device.WorkType = value;
+            get => DevConfig.WorkType;
+            set => DevConfig.WorkType = value;
         }
 
         #endregion
@@ -140,10 +141,12 @@ namespace task.task
         #region[构造/启动/停止]
         public TileLifterTcp DevTcp { set; get; }
         public DevTileLifter DevStatus { set; get; }
+        public ConfigTileLifter DevConfig { set; get; }
 
         public TileLifterTask()
         {
             DevStatus = new DevTileLifter();
+            DevConfig = new ConfigTileLifter();
         }
 
         public void Start(string memo = "开始连接")
