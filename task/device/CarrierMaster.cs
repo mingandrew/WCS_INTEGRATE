@@ -73,21 +73,6 @@ namespace task.device
             _mRefresh.Start();
         }
 
-        public void GetAllCarrier()
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                try
-                {
-                    foreach (CarrierTask task in DevList)
-                    {
-                        MsgSend(task, task.DevStatus);
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-        }
-
         public void Stop()
         {
             Refreshing = false;
@@ -249,9 +234,25 @@ namespace task.device
             }
 
         }
+
         #endregion
 
         #region[获取信息]
+
+        public void GetAllCarrier()
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    foreach (CarrierTask task in DevList)
+                    {
+                        MsgSend(task, task.DevStatus);
+                    }
+                }
+                finally { Monitor.Exit(_obj); }
+            }
+        }
 
         /// <summary>
         /// 查找是否存在运输车在指定的轨道
@@ -646,6 +647,7 @@ namespace task.device
                     mMsg.Name = task.Device.name;
                     mMsg.o1 = carrier;
                     mMsg.o2 = task.ConnStatus;
+                    mMsg.o3 = task.IsWorking;
                     Messenger.Default.Send(mMsg, MsgToken.CarrierStatusUpdate);
                 }
                 finally
@@ -1393,7 +1395,9 @@ namespace task.device
         }
         #endregion
 
-        internal void UpdateWorking(uint devId, bool working)
+        #region[启动/停止]
+
+        public void UpdateWorking(uint devId, bool working)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -1412,5 +1416,6 @@ namespace task.device
 
         }
 
+        #endregion
     }
 }

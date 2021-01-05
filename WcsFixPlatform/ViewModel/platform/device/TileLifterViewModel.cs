@@ -123,19 +123,27 @@ namespace wcs.ViewModel
             {
                 switch (stype)
                 {
-                    case 1:
-                        PubTask.TileLifter.DoInv(DeviceSelected.ID, true, DevLifterInvolE.介入);
+                    case 1://连接通讯
+                        PubTask.TileLifter.StartStopTileLifter(DeviceSelected.ID, true);
                         break;
-                    case 2:
-                        PubTask.TileLifter.DoInv(DeviceSelected.ID, true, DevLifterInvolE.离开);
+                    case 2://中断通讯
+                        PubTask.TileLifter.StartStopTileLifter(DeviceSelected.ID, false);
                         break;
-                    case 3:
-                        PubTask.TileLifter.DoInv(DeviceSelected.ID, false, DevLifterInvolE.介入);
+
+                    case 3://启用
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _))
+                        {
+                            PubTask.TileLifter.UpdateWorking(DeviceSelected.ID, true, 255);
+                        }
                         break;
-                    case 4:
-                        PubTask.TileLifter.DoInv(DeviceSelected.ID, false, DevLifterInvolE.离开);
+                    case 4://停用
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _))
+                        {
+                            PubTask.TileLifter.UpdateWorking(DeviceSelected.ID, false, 255);
+                        }
                         break;
-                    case 5://修改规格
+
+                    case 5://变更品种
                         uint area = PubMaster.Device.GetDeviceArea(DeviceSelected.ID);
                         bool isuptilelifter = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.上砖机);
                         DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
@@ -159,15 +167,22 @@ namespace wcs.ViewModel
                                 PubTask.TileLifter.UpdateTileLifterGoods(DeviceSelected.ID, good.id);
                             }
                         }
+                        break;
 
+                    case 6:
+                        PubTask.TileLifter.DoInv(DeviceSelected.ID, true, DevLifterInvolE.介入);
                         break;
-                    case 6://启动
-                        PubTask.TileLifter.StartStopTileLifter(DeviceSelected.ID, true);
+                    case 7:
+                        PubTask.TileLifter.DoInv(DeviceSelected.ID, true, DevLifterInvolE.离开);
                         break;
-                    case 7://停止
-                        PubTask.TileLifter.StartStopTileLifter(DeviceSelected.ID, false);
+                    case 8:
+                        PubTask.TileLifter.DoInv(DeviceSelected.ID, false, DevLifterInvolE.介入);
                         break;
-                    case 8://修改策略
+                    case 9:
+                        PubTask.TileLifter.DoInv(DeviceSelected.ID, false, DevLifterInvolE.离开);
+                        break;
+
+                    case 10://修改策略
                         bool isdowntile = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.下砖机);
                         MsgAction strategyrs = await HandyControl.Controls.Dialog.Show<ChangeStrategyDialog>()
                             .Initialize<ChangeStrategyDialogViewModel>((vm) => {
@@ -202,20 +217,6 @@ namespace wcs.ViewModel
                                     PubTask.TileLifter.UpdateTileOutStrategry(DeviceSelected.ID, outstrategy, worktype);
                                 }
                             }
-                        }
-                        break;
-
-                    case 9://开始作业
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _))
-                        {
-                            PubTask.TileLifter.UpdateWorking(DeviceSelected.ID, true, 255);
-                        }
-                        break;
-
-                    case 10://结束作业
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _))
-                        {
-                            PubTask.TileLifter.UpdateWorking(DeviceSelected.ID, false, 255);
                         }
                         break;
 
@@ -261,7 +262,6 @@ namespace wcs.ViewModel
                             Growl.Success("设置成功！");
                         }
                         break;
-
                     case 12://清除优先上砖轨道
                         PubMaster.Device.SetCurrentTake(DeviceSelected.ID, 0);
                         Growl.Success("清除成功！");

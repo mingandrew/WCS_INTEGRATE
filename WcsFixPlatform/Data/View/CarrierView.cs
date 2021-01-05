@@ -9,6 +9,8 @@ namespace wcs.Data.View
     {
         public uint ID { set; get; }
         public string Name { set; get; }
+        private bool working;
+
         #region[逻辑字段]
         private SocketConnectStatusE connstatus;
         private bool isconnect;
@@ -22,6 +24,12 @@ namespace wcs.Data.View
         {
             get => connstatus;
             set => Set(ref connstatus, value);
+        }
+
+        public bool Working
+        {
+            get => working;
+            set => Set(ref working, value);
         }
 
         #region[字段]
@@ -198,7 +206,7 @@ namespace wcs.Data.View
 
         #endregion
 
-        internal void Update(DevCarrier st, SocketConnectStatusE conn)
+        internal void Update(DevCarrier st, SocketConnectStatusE conn, bool working)
         {
             DeviceID = st.DeviceID;
             DeviceStatus = st.DeviceStatus;
@@ -228,6 +236,7 @@ namespace wcs.Data.View
             Reserve2 = st.Reserve2;
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
+            Working = working;
         }
     }
 }

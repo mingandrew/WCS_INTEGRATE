@@ -70,8 +70,8 @@ namespace socket.process
             mDev.Involve1 = st.Involve1 == 1;
             mDev.Involve2 = st.Involve2 == 1;
             mDev.OperateMode = (DevOperateModeE)st.OperateMode;
-            mDev.Goods1 = (DevLifterGoodsE)st.Goods1;
-            mDev.Goods2 = (DevLifterGoodsE)st.Goods2;
+            mDev.Goods1 = st.Goods1;
+            mDev.Goods2 = st.Goods2;
             mDev.ShiftStatus = (TileShiftStatusE)st.ShiftStatus;
             mDev.ShiftAccept = st.ShiftAccept == 1;
 

@@ -112,24 +112,39 @@ namespace wcs.ViewModel
             {
                 switch (stype)
                 {
-                    case 10:
-                        PubTask.Carrier.DoReset(DeviceSelected.ID);
-                        break;
-                    case 11:
-                        PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
-                        break;
-                    case 12:
-                        PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
-                        break;
-                    case 13://启动
+                    case 20://连接通讯
                         PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, true);
                         break;
-                    case 14://停止
+                    case 21://中断通讯
                         PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, false);
                         break;
-                    case 15://清空设备信息
+
+                    case 22://启用
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _))
+                        {
+                            PubTask.Carrier.UpdateWorking(DeviceSelected.ID, true);
+                        }
+                        break;
+                    case 23://停用
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _))
+                        {
+                            PubTask.Carrier.UpdateWorking(DeviceSelected.ID, false);
+                        }
+                        break;
+
+                    case 24://复位空满信号
+                        PubTask.Carrier.DoReset(DeviceSelected.ID);
+                        break;
+                    case 25:
+                        PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
+                        break;
+                    case 26:
+                        PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
+                        break;
+                    case 27://清空设备信息
                         PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
                         break;
+
                     default:
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
                         if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false))
@@ -143,7 +158,9 @@ namespace wcs.ViewModel
 
         private void CarrierStatusUpdate(MsgAction msg)
         {
-            if (msg.o1 is DevCarrier dev && msg.o2 is SocketConnectStatusE conn)
+            if (msg.o1 is DevCarrier dev 
+                && msg.o2 is SocketConnectStatusE conn
+                && msg.o3 is bool working)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -157,7 +174,7 @@ namespace wcs.ViewModel
                         };
                         DeviceList.Add(view);
                     }
-                    view.Update(dev, conn);
+                    view.Update(dev, conn, working);
                 });
             }
         }

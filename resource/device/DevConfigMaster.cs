@@ -236,14 +236,14 @@ namespace resource.device
         /// <param name="goods1"></param>
         /// <param name="goods2"></param>
         /// <returns></returns>
-        public bool SetTileLifterGoods(uint devid, DevLifterGoodsE goods1, DevLifterGoodsE goods2)
+        public bool SetTileLifterGoods(uint devid, byte goods1, byte goods2)
         {
             ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
             if (dev != null)
             {
                 dev.old_goodid = 0;
-                dev.LeftGoods = goods1;
-                dev.RightGoods = goods2;
+                dev.left_goods = goods1;
+                dev.right_goods = goods2;
                 PubMaster.Mod.DevConfigSql.EditGoods(dev);
                 return true;
             }

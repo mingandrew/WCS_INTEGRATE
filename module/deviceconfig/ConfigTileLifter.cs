@@ -63,45 +63,17 @@ namespace module.deviceconfig
         /// </summary>
         public bool do_shift { set; get; }
 
-        // 左 工位品种
+        /// <summary>
+        /// 左 工位品种
+        /// </summary>
         public byte left_goods { set; get; }
-
-        // 右 工位品种
-        public byte right_goods { set; get; }
-
-
-
-
-        /// <summary>
-        /// [单轨/双轨]上下砖机左侧轨道ID
-        /// </summary>
-        public uint LeftTrackId
-        {
-            get => left_track_id;
-        }
-
-        /// <summary>
-        /// [双轨]上下砖机右侧轨道ID
-        /// </summary>
-        public uint RigthTrackId
-        {
-            get => right_track_id;
-        }
-
-        public DevLifterGoodsE LeftGoods
-        {
-            get => (DevLifterGoodsE)left_goods;
-            set => left_goods = (byte)value;
-        }
 
         /// <summary>
         /// 右 工位品种
         /// </summary>
-        public DevLifterGoodsE RightGoods
-        {
-            get => (DevLifterGoodsE)right_goods;
-            set => right_goods = (byte)value;
-        }
+        public byte right_goods { set; get; }
+
+
 
         /// <summary>
         /// 入库策略

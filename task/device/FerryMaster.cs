@@ -202,6 +202,40 @@ namespace task.device
             }
         }
 
+        public void StartStopFerry(uint ferryid, bool isstart)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    FerryTask task = DevList.Find(c => c.ID == ferryid);
+                    if (task != null)
+                    {
+                        if (isstart)
+                        {
+                            if (!task.IsEnable)
+                            {
+                                task.SetEnable(isstart);
+                            }
+                            task.Start("手动启动");
+                        }
+                        else
+                        {
+                            if (task.IsEnable)
+                            {
+                                task.SetEnable(isstart);
+                            }
+                            task.Stop("手动停止");
+                            PubMaster.Warn.RemoveDevWarn((ushort)task.ID);
+                            PubTask.Ping.RemovePing(task.Device.ip);
+                        }
+                    }
+                }
+                finally { Monitor.Exit(_obj); }
+            }
+
+        }
+
         #endregion
 
         #region[获取信息]
@@ -220,6 +254,11 @@ namespace task.device
                 }
             }
             finally { Monitor.Exit(_obj); }
+        }
+
+        internal List<FerryTask> GetDevFerrys()
+        {
+            return DevList;
         }
 
         public void UpdateFerryWithTrackId(uint trackid, DevFerryLoadE devFerryLoadE)
@@ -859,6 +898,7 @@ namespace task.device
                     mMsg.Name = task.Device.name;
                     mMsg.o1 = ferry;
                     mMsg.o2 = task.ConnStatus;
+                    mMsg.o3 = task.IsWorking;
                     Messenger.Default.Send(mMsg, MsgToken.FerryStatusUpdate);
                 }
                 finally
@@ -1239,51 +1279,7 @@ namespace task.device
 
         #region[启动/停止]
 
-        /// <summary>
-        /// 启动/停止摆渡车
-        /// </summary>
-        /// <param name="ferryid"></param>
-        /// <param name="isstart"></param>
-        public void StartStopFerry(uint ferryid, bool isstart)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                try
-                {
-                    FerryTask task = DevList.Find(c => c.ID == ferryid);
-                    if (task != null)
-                    {
-                        if (isstart)
-                        {
-                            if (!task.IsEnable)
-                            {
-                                task.SetEnable(isstart);
-                            }
-                            task.Start("手动启动");
-                        }
-                        else
-                        {
-                            if (task.IsEnable)
-                            {
-                                task.SetEnable(isstart);
-                            }
-                            task.Stop("手动停止");
-                            PubMaster.Warn.RemoveDevWarn((ushort)task.ID);
-                            PubTask.Ping.RemovePing(task.Device.ip);
-                        }
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-
-        }
-
-        internal List<FerryTask> GetDevFerrys()
-        {
-            return DevList;
-        }
-
-        internal void UpdateWorking(uint devId, bool working)
+        public void UpdateWorking(uint devId, bool working)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {

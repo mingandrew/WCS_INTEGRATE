@@ -50,16 +50,16 @@
                       CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="1介入" Tag="1" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="1离开" Tag="2" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="2介入" Tag="3" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="2离开" Tag="4" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="修改规格" Tag="5" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="启用" Tag="6" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="停用" Tag="7" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="修改策略" Tag="8" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="允许作业" Tag="9" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="禁止作业" Tag="10" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="连接通讯" Tag="1" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="中断通讯" Tag="2" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="启用" Tag="3" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="停用" Tag="4" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="变更品种" Tag="5" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="介入-1" Tag="6" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="离开-1" Tag="7" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="介入-2" Tag="8" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="离开-2" Tag="9" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="修改策略" Tag="10" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="设置优先上砖轨道" Tag="11" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="清除优先上砖轨道" Tag="12" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         
@@ -69,7 +69,7 @@
                     <DataGridTextColumn Binding="{Binding Name}" Header="设备"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="在线"/>
+                            <TextBlock Text="通讯"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -87,7 +87,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="作业"/>
+                            <TextBlock Text="启用"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -103,7 +103,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding GoodsId, Converter={StaticResource GoodId2NameConverter}}" Header="规格"/>
+                    <DataGridTextColumn Binding="{Binding GoodsId, Converter={StaticResource GoodId2NameConverter}}" Header="品种"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="货物1"/>
@@ -176,8 +176,8 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding FullQty}" Header="满砖数量"/>
-                    <DataGridTextColumn Binding="{Binding RecentQty}" Header="当前数量"/>
+                    <DataGridTextColumn Binding="{Binding FullQty}" Header="满砖层数"/>
+                    <DataGridTextColumn Binding="{Binding RecentQty}" Header="当前层数"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="介入1"/>

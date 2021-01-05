@@ -75,22 +75,6 @@ namespace task.device
 
         }
 
-        public void GetAllTileLifter()
-        {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                return;
-            }
-            try
-            {
-                foreach (TileLifterTask task in DevList)
-                {
-                    MsgSend(task, task.DevStatus);
-                }
-            }
-            finally { Monitor.Exit(_obj); }
-        }
-
         public void Stop()
         {
             Refreshing = false;
@@ -174,8 +158,8 @@ namespace task.device
                                                 task.DoShift(TileShiftStatusE.复位);
                                             }
 
-                                            if (task.DevConfig.LeftGoods != task.DevStatus.Goods1 ||
-                                                task.DevConfig.RightGoods != task.DevStatus.Goods2)
+                                            if (task.DevConfig.left_goods != task.DevStatus.Goods1 ||
+                                                task.DevConfig.right_goods != task.DevStatus.Goods2)
                                             {
                                                 PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevStatus.Goods1, task.DevStatus.Goods2);
                                             }
@@ -209,8 +193,8 @@ namespace task.device
                                     case TileShiftStatusE.完成:
                                         #region [完成]
                                         if (task.DevConfig.do_shift && task.DevStatus.ShiftAccept &&
-                                            task.DevConfig.LeftGoods != task.DevStatus.Goods1 &&
-                                            task.DevConfig.RightGoods != task.DevStatus.Goods2 &&
+                                            task.DevConfig.left_goods != task.DevStatus.Goods1 &&
+                                            task.DevConfig.right_goods != task.DevStatus.Goods2 &&
                                             task.DevStatus.Goods1 == task.DevStatus.Goods2)
                                         {
                                             Thread.Sleep(500);
@@ -485,6 +469,22 @@ namespace task.device
 
         #region[获取信息]
 
+        public void GetAllTileLifter()
+        {
+            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            {
+                return;
+            }
+            try
+            {
+                foreach (TileLifterTask task in DevList)
+                {
+                    MsgSend(task, task.DevStatus);
+                }
+            }
+            finally { Monitor.Exit(_obj); }
+        }
+
         public TileLifterTask GetTileLifter(uint id)
         {
             return DevList.Find(c => c.ID == id);
@@ -667,7 +667,7 @@ namespace task.device
                             return;
                         }
 
-                        if (task.DevConfig.LeftGoods == task.DevStatus.Goods1)
+                        if (task.DevConfig.left_goods == task.DevStatus.Goods1)
                         {
                             if (task.DevConfig.old_goodid != 0) gid = task.DevConfig.old_goodid;
                         }
@@ -911,7 +911,7 @@ namespace task.device
                             return;
                         }
 
-                        if (task.DevConfig.RightGoods == task.DevStatus.Goods2)
+                        if (task.DevConfig.right_goods == task.DevStatus.Goods2)
                         {
                             if (task.DevConfig.old_goodid != 0) gid = task.DevConfig.old_goodid;
                         }
@@ -1632,6 +1632,8 @@ namespace task.device
 
         #endregion
 
+        #region[启动/停止]
+
         public void UpdateWorking(uint devId, bool working, byte worktype)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -1652,5 +1654,7 @@ namespace task.device
             finally { Monitor.Exit(_obj); }
 
         }
+
+        #endregion
     }
 }

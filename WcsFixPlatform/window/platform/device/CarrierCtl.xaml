@@ -50,6 +50,10 @@
                       CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="连接通讯" Tag="20" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="中断通讯" Tag="21" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="启用" Tag="22" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="停用" Tag="23" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="后退取砖" Tag="1" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="前进放砖" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="后退至摆渡车" Tag="3" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
@@ -60,19 +64,18 @@
                         <MenuItem Header="顶升取货" Tag="8" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="下降放货" Tag="9" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="终止" Tag="127" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="复位" Tag="10" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <!--<MenuItem Header="调试" Tag="11" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
-                        <!--<MenuItem Header="生产" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
-                        <MenuItem Header="启用" Tag="13" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="停用" Tag="14" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="清空信息" Tag="15" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="复位空满信号" Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <!--<MenuItem Header="调试" Tag="25" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
+                        <!--<MenuItem Header="生产" Tag="26" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
+                        <MenuItem Header="清空信息" Tag="27" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Name}" Header="设备"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="在线"/>
+                            <TextBlock Text="通讯"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -88,10 +91,28 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="启用"/>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Margin="5,5,5,5">
+                                    <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkAccentBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>
+                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                            Visibility="{Binding Working,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding DeviceStatus}" Header="状态"/>
                     <DataGridTextColumn Binding="{Binding LoadStatus}" Header="货物"/>
-                    <DataGridTextColumn Binding="{Binding CurrentSite, Converter={StaticResource TrackCode2NameConverter}}" Header="当前站点"/>
-                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="任务"/>
+                    <DataGridTextColumn Binding="{Binding CurrentSite, Converter={StaticResource TrackCode2NameConverter}}" Header="当前位置"/>
+                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="指令"/>
                     <DataGridTextColumn Binding="{Binding CurrentOverSize}" Header="超限" Visibility="Collapsed"/>
                     <DataGridTextColumn Binding="{Binding FinishTask}" Header="完成"/>
                     <DataGridTextColumn Binding="{Binding WorkMode}" Header="作业" Visibility="Collapsed"/>

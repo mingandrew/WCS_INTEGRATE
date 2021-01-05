@@ -52,10 +52,12 @@
 
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="中止" Tag="1" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="定位" Tag="2" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="连接通讯" Tag="1" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="中断通讯" Tag="2" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="启用" Tag="3" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="停用" Tag="4" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="中止" Tag="5" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="定位" Tag="6" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
 
                     </ContextMenu>
                 </DataGrid.ContextMenu>
@@ -64,7 +66,7 @@
                     <DataGridTextColumn Binding="{Binding Name}" Header="设备"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="在线"/>
+                            <TextBlock Text="通讯"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -80,15 +82,33 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="启用"/>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid Margin="5,5,5,5">
+                                    <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkAccentBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>
+                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                            Visibility="{Binding Working,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding DeviceStatus}" Header="状态"/>
                     <DataGridTextColumn Binding="{Binding LoadStatus}" Header="载车"/>
                     <DataGridTextColumn Binding="{Binding TargetSite,Converter={StaticResource TrackCode2NameConverter}}" Header="目标点" />
-                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="任务"/>
+                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="指令"/>
                     <DataGridTextColumn Binding="{Binding FinishTask}" Header="完成"/>
-                    <DataGridTextColumn Binding="{Binding UpSite,Converter={StaticResource TrackCode2NameConverter}}" Header="上侧站点"/>
+                    <DataGridTextColumn Binding="{Binding UpSite,Converter={StaticResource TrackCode2NameConverter}}" Header="前侧站点"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="上侧光电"/>
+                            <TextBlock Text="前侧光电"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -104,10 +124,10 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding DownSite,Converter={StaticResource TrackCode2NameConverter}}" Header="下侧站点"/>
+                    <DataGridTextColumn Binding="{Binding DownSite,Converter={StaticResource TrackCode2NameConverter}}" Header="后侧站点"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="下侧光电"/>
+                            <TextBlock Text="后侧光电"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

@@ -81,16 +81,16 @@ namespace module.device
             get => (DevOperateModeE)operatemode;
         }
 
-        public DevLifterGoodsE Goods1//工位1品种 左
+        public byte Goods1//工位1品种 左
         {
-            set => Set(ref goods1, (byte)value);
-            get => (DevLifterGoodsE)goods1;
+            set => Set(ref goods1, value);
+            get => goods1;
         }
 
-        public DevLifterGoodsE Goods2//工位2品种 右
+        public byte Goods2//工位2品种 右
         {
-            set => Set(ref goods2, (byte)value);
-            get => (DevLifterGoodsE)goods2;
+            set => Set(ref goods2, value);
+            get => goods2;
         }
 
         public TileShiftStatusE ShiftStatus//转产状态

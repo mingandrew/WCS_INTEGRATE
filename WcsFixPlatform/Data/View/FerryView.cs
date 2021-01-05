@@ -8,6 +8,7 @@ namespace module.window.device
     {
         public uint ID { set; get; }
         public string Name { set; get; }
+        private bool working;
 
         #region[逻辑字段]
         private SocketConnectStatusE connstatus;
@@ -22,6 +23,12 @@ namespace module.window.device
         {
             get => connstatus;
             set => Set(ref connstatus, value);
+        }
+
+        public bool Working
+        {
+            get => working;
+            set => Set(ref working, value);
         }
 
         #region[通信字段]
@@ -113,7 +120,7 @@ namespace module.window.device
 
         #region[更新数据]
 
-        internal void Update(DevFerry st, SocketConnectStatusE conn)
+        internal void Update(DevFerry st, SocketConnectStatusE conn, bool working)
         {
             DeviceID = st.DeviceID;
             DeviceStatus = st.DeviceStatus;
@@ -129,6 +136,7 @@ namespace module.window.device
             Reserve = st.Reserve;
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
+            Working = working;
         }
         #endregion
     }
