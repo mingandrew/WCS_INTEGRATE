@@ -39,6 +39,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<TrackViewModel>();
             SimpleIoc.Default.Register<TrackSelectViewModel>();
             SimpleIoc.Default.Register<ChangeStrategyDialogViewModel>();
+            SimpleIoc.Default.Register<FerryAutoPosDialogViewModel>();
 
             SimpleIoc.Default.Register<GoodsViewModel>();
             SimpleIoc.Default.Register<GoodsEditViewModel>();
@@ -97,6 +98,7 @@ namespace wcs.ViewModel
         public TrackLogViewModel TrackLog => ServiceLocator.Current.GetInstance<TrackLogViewModel>();
         public TrackSelectViewModel TrackSelect => ServiceLocator.Current.GetInstance<TrackSelectViewModel>();
         public ChangeStrategyDialogViewModel StrategyChange => ServiceLocator.Current.GetInstance<ChangeStrategyDialogViewModel>();
+        public FerryAutoPosDialogViewModel FerryAutoPos => ServiceLocator.Current.GetInstance<FerryAutoPosDialogViewModel>();
         #endregion
 
         #region[品种/库存/交易]

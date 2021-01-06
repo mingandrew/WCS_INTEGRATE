@@ -121,6 +121,7 @@
                     <DataGridTextColumn Binding="{Binding GiveTrackCode,Converter={StaticResource TrackCode2NameConverter}}" Header="卸货轨" Visibility="Collapsed"/>
                     <DataGridTextColumn Binding="{Binding ActionType}" Header="信号"/>
                     <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
+                    <DataGridTextColumn Binding="{Binding CarrierPosition}" Header="运输车位置"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

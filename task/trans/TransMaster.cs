@@ -311,6 +311,12 @@ namespace task.trans
                                     {
                                         PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
                                     }
+
+                                    //判断小车是否已上轨道，是则解锁摆渡车
+                                    if (PubTask.Carrier.IsCarrierInTrack(trans))
+                                    {
+                                        PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id);
+                                    }
                                 }
                             }
                             break;
@@ -1090,6 +1096,11 @@ namespace task.trans
                                             {
                                                 PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
                                             }
+                                        }
+                                        //判断小车是否已上轨道，是则解锁摆渡车
+                                        if (PubTask.Carrier.IsCarrierInTrack(trans))
+                                        {
+                                            PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id);
                                         }
                                     }
                                 }

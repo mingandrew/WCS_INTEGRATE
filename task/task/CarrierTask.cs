@@ -41,9 +41,9 @@ namespace task.device
             get => DevStatus?.OperateMode ?? DevOperateModeE.手动;
         }
 
-        public DevCarrierWorkModeE WorkMode
+        public DevCarrierPositionE CarrierPosition
         {
-            get => DevStatus?.WorkMode ?? DevCarrierWorkModeE.调试;
+            get => DevStatus?.CarrierPosition ?? DevCarrierPositionE.未知;
         }
 
         public DevCarrierLoadE Load
@@ -127,10 +127,10 @@ namespace task.device
             DevTcp?.SendCmd(DevCarrierCmdE.执行任务, (byte)task, (byte)oversize, DevReset);
         }
 
-        internal void DoModeUpdate(DevCarrierWorkModeE mode)
-        {
-            DevTcp?.SendCmd(DevCarrierCmdE.模式调整, (byte)mode, 0, DevReset);
-        }
+        //internal void DoModeUpdate(DevCarrierWorkModeE mode)
+        //{
+        //    DevTcp?.SendCmd(DevCarrierCmdE.模式调整, (byte)mode, 0, DevReset);
+        //}
 
         internal void DoStop()
         {

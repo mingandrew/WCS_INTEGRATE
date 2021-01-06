@@ -87,8 +87,11 @@
             <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
                 <TextBlock Text="{Binding RefreshTime,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockSubTitle}"/>
             </Border>
-            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
                 <TextBlock Text="设置" Style="{StaticResource TextBlockLarge}"/>
+            </Border>            
+            <Border Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <Button Content="自动对位" Style="{StaticResource ButtonPrimary}" Command="{Binding AutoPosCmd}" MinWidth="80" FontSize="15"  Height="35"/>
             </Border>
             <Border Grid.Row="5" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
                 <TextBlock Text="轨道站点" Style="{StaticResource TextBlockSubTitle}"/>

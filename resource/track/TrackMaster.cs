@@ -681,6 +681,12 @@ namespace resource.track
             return TrackList.Exists(c => c.id == traid && c.Type == type);
         }
 
+        public bool IsFerryTrackType(uint traid)
+        {
+            return TrackList.Exists(c => c.id == traid && (c.Type == TrackTypeE.摆渡车_入 || c.Type == TrackTypeE.摆渡车_出));
+        }
+
+
         private void SendMsg(Track track)
         {
             MsgAction msg = new MsgAction();

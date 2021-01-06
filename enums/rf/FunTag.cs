@@ -46,6 +46,7 @@
         public const string FerrySiteUpdate = nameof(FerrySiteUpdate);//当前站点，光电状态
         public const string FerryPosUpdate = nameof(FerryPosUpdate);//当前地标，
         public const string UpdateFerryPos = nameof(UpdateFerryPos);//更新摆渡车
+        public const string TaskFerryAutoPos = nameof(TaskFerryAutoPos);//摆渡车自动对位
 
         #endregion
 
