@@ -31,6 +31,7 @@
             <prov:EnumDataProvider x:Key="StrategyInE" Type="enums:StrategyInE"/>
             <prov:EnumDataProvider x:Key="StrategyOutE" Type="enums:StrategyOutE"/>
             <prov:EnumDataProvider x:Key="DevWorkTypeE" Type="enums:DevWorkTypeE"/>
+            <prov:EnumDataProvider x:Key="DevFerryAutoPosE" Type="enums:DevFerryAutoPosE"/>
 
         </ResourceDictionary>
     </Application.Resources>

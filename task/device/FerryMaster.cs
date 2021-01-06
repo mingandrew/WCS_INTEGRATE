@@ -571,13 +571,13 @@ namespace task.device
                         //在摆渡车轨道上的运输车是否有状态不是停止的或者是手动的
                         if (PubTask.Carrier.IsCarrierMoveInTrack(task.DevConfig.track_id))
                         {
-                            result = "摆渡车上的运输车在运动/手动状态中";
+                            result = "摆渡车上的运输车在运动/手动状态中/上下摆渡中状态";
                             task.DoStop();
                             return false;
                         }
                     }
 
-                    task.DoLocate(ferrycode);
+                    task.DoLocate(ferrycode, task.DevConfig.track_id);
                     return true;
                 }
                 finally
@@ -622,7 +622,7 @@ namespace task.device
                     return false;
                 }
 
-                task.DoLocate(ferry_code);
+                task.DoLocate(ferry_code,task.DevConfig.track_id);
                 return true;
             }
             finally
@@ -669,6 +669,13 @@ namespace task.device
                 {
                     return false;
                 }
+                if (PubTask.Carrier.HaveCarrierTaskInFerry(task.DevConfig.track_id)
+                    || (task.IsUpLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
+                    || (task.IsDownLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车)))
+                {
+                    result = "小车正在上下摆渡！";
+                    return false;
+                }
                 task.DoReSet(resettype);
                 return true;
             }
@@ -708,6 +715,14 @@ namespace task.device
 
                 if (!IsLoadOrEmpty(task, out result))
                 {
+                    return false;
+                }
+
+                if (PubTask.Carrier.HaveCarrierTaskInFerry(task.DevConfig.track_id)
+                    || (task.IsUpLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
+                    || (task.IsDownLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车)))
+                {
+                    result = "小车正在上下摆渡！";
                     return false;
                 }
 
@@ -829,7 +844,7 @@ namespace task.device
                                         }
                                         if (PubMaster.Track.GetTrackFerryCode(avoidTrackId, task.Type, out ushort newtrackferrycode, out result))
                                         {
-                                            taskB.DoLocate(newtrackferrycode);
+                                            taskB.DoLocate(newtrackferrycode, task.DevConfig.track_id);
                                             return false;
                                         }
                                     }
@@ -852,7 +867,7 @@ namespace task.device
 
                     if (PubMaster.Track.GetTrackFerryCode(to_track_id, task.Type, out ushort trackferrycode, out result))
                     {
-                        task.DoLocate(trackferrycode);
+                        task.DoLocate(trackferrycode, task.DevConfig.track_id);
                     }
                 }
             }
@@ -1002,6 +1017,13 @@ namespace task.device
             _FerryPosSetList.RemoveAll(c => meid.Equals(c.MEID));
             _IsSetting = _FerryPosSetList.Count != 0;
         }
+
+        public void AutoPosMsgSend(uint ferryid, DevFerryAutoPosE posside, int starttrack, byte tracknumber)
+        {
+            FerryTask task = DevList.Find(c => c.ID == ferryid);
+            task.DoAutoPos(posside, starttrack, tracknumber);
+        }
+
 
         #endregion
 

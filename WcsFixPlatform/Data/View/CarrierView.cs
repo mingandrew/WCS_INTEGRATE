@@ -41,7 +41,7 @@ namespace wcs.Data.View
         private DevCarrierSizeE currentoversize;//超限
         //private byte finishoversize; //超限
         private DevCarrierLoadE loadstatus;     //载货状态
-        private DevCarrierWorkModeE workmode;       //系统模式
+        private DevCarrierPositionE carrierposition;       //系统模式
         private DevOperateModeE operatemode;    //操作模式
         private ushort actiontime;     //取放时间
         private ushort taketrackcode;//取货轨道号
@@ -112,10 +112,10 @@ namespace wcs.Data.View
             get => loadstatus;
         }
 
-        public DevCarrierWorkModeE WorkMode//系统模式
+        public DevCarrierPositionE CarrierPosition//系统模式
         {
-            set => Set(ref workmode, value);
-            get => workmode;
+            set => Set(ref carrierposition, value);
+            get => carrierposition;
         }
 
         public DevOperateModeE OperateMode//操作模式
@@ -216,7 +216,7 @@ namespace wcs.Data.View
             FinishTask = st.FinishTask;
             //FinishOverSize = (DevCarrierSizeE)st.FinishOverSize;
             LoadStatus = st.LoadStatus;
-            WorkMode = st.WorkMode;
+            CarrierPosition = st.CarrierPosition;
             OperateMode = st.OperateMode;
             ActionTime = st.ActionTime;
             TakeTrackCode = st.TakeTrackCode;

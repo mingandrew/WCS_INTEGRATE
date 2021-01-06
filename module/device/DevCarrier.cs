@@ -20,7 +20,7 @@ namespace module.device
         private byte currentoversize;//超限
         //private byte finishoversize; //超限
         private byte loadstatus;     //载货状态
-        private byte workmode;       //系统模式
+        private byte carrierposition;       //运输车位置
         private byte operatemode;    //操作模式
         private ushort actiontime;     //取放时间
         private ushort taketrackcode;//取货轨道号
@@ -97,10 +97,10 @@ namespace module.device
             get => (DevCarrierLoadE)loadstatus;
         }
 
-        public DevCarrierWorkModeE WorkMode//系统模式
+        public DevCarrierPositionE CarrierPosition//系统模式
         {
-            set => Set(ref workmode, (byte)value);
-            get => (DevCarrierWorkModeE)workmode;
+            set => Set(ref carrierposition, (byte)value);
+            get => (DevCarrierPositionE)carrierposition;
         }
 
         public DevOperateModeE OperateMode//操作模式
@@ -198,7 +198,7 @@ namespace module.device
             return string.Format("设备：{0} ,状态：{1}, 站点：{2}, 任务：{3}, 完成：{4}, 超限：{5}," +
                 " 载货：{6}, 作业：{7}, 操作：{8}, 时间：{9}, 取货点：{10}, 卸货点：{11}, 空满砖：{12} ",
                 DeviceID, DeviceStatus, CurrentSite, CurrentTask, FinishTask, CurrentOverSize,
-                LoadStatus, WorkMode, OperateMode, ActionTime, TakeTrackCode, GiveTrackCode, ActionType);
+                LoadStatus, CarrierPosition, OperateMode, ActionTime, TakeTrackCode, GiveTrackCode, ActionType);
         }
 
         public string AlertToString()

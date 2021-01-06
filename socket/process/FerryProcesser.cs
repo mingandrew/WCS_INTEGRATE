@@ -86,6 +86,21 @@ namespace socket.process
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
+    public struct FerryAutoPosCmdStruct
+    {
+        public ushort Head; //命令字头【0x94,0x01】
+        public byte DeviceID;      //设备号
+        public byte Commond; //控制码
+        public byte Value1;  //值1
+        public byte Value2;  //值2
+        public byte Value3;//值3
+        public byte Value4;
+        public byte Value5;
+        public byte Value6;
+        public ushort Tail; //命令字尾【0xFF,0xFE】
+    }
+
+
     #endregion
 
     public class FerryProcesser : ProcesserBase
@@ -155,5 +170,20 @@ namespace socket.process
             cmd.Tail = ShiftBytes(SocketConst.TAIL_KEY);
             return StructToBuffer(cmd);
         }
+
+        internal byte[] GetAutoPosCmd(string devid, DevFerryCmdE type, byte b1, byte b2, byte b3, byte b4)
+        {
+            FerryAutoPosCmdStruct cmd = new FerryAutoPosCmdStruct();
+            cmd.Head = ShiftBytes(SocketConst.FERRY_CMD_HEAD_KEY);
+            cmd.DeviceID = byte.Parse(devid);
+            cmd.Commond = (byte)type;
+            cmd.Value1 = b1;
+            cmd.Value2 = b2;
+            cmd.Value3 = b3;
+            cmd.Value4 = b4;
+            cmd.Tail = ShiftBytes(SocketConst.TAIL_KEY);
+            return StructToBuffer(cmd);
+        }
+
     }
 }

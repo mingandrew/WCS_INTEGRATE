@@ -377,6 +377,9 @@ namespace task.rf
                     case FunTag.TaskFerryReset:
                         TaskFerryReset(msg);
                         break;
+                    case FunTag.TaskFerryAutoPos:
+                        TaskFerryAutoPos(msg);
+                        break;
 
                     #endregion
 
@@ -805,11 +808,13 @@ namespace task.rf
                 mDicPack.AddEnum(typeof(DevCarrierSignalE), "运输车作业结果信号", nameof(DevCarrierSignalE));
                 mDicPack.AddEnum(typeof(CarrierTypeE), "运输车类型", nameof(CarrierTypeE));
                 mDicPack.AddEnum(typeof(DevCarrierCmdE), "运输车指令", nameof(DevCarrierCmdE));
+                mDicPack.AddEnum(typeof(DevCarrierPositionE), "运输车位置", nameof(DevCarrierPositionE));
 
                 mDicPack.AddEnum(typeof(DevFerryStatusE), "摆渡车状态", nameof(DevFerryStatusE));
                 mDicPack.AddEnum(typeof(DevFerryLoadE), "摆渡车载车状态", nameof(DevFerryLoadE));
                 mDicPack.AddEnum(typeof(DevFerryTaskE), "摆渡车载车状态", nameof(DevFerryTaskE));
                 mDicPack.AddEnum(typeof(DevFerryCmdE), "摆渡车指令", nameof(DevFerryCmdE));
+                mDicPack.AddEnum(typeof(DevFerryAutoPosE), "摆渡车对位侧", nameof(DevFerryAutoPosE));
 
                 mDicPack.AddEnum(typeof(DevLifterNeedE), "砖机需求状态", nameof(DevLifterNeedE));
                 mDicPack.AddEnum(typeof(DevLifterLoadE), "砖机货物状态", nameof(DevLifterLoadE));
@@ -1020,6 +1025,19 @@ namespace task.rf
                 }
             }
         }
+
+        private void TaskFerryAutoPos(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                FerryAutoPosPack pack = JsonTool.Deserialize<FerryAutoPosPack>(msg.Pack.Data);
+                if (pack != null && pack.DevId > 0)
+                {
+                    PubTask.Ferry.AutoPosMsgSend(pack.DevId, pack.PosSide, pack.StartTrack, (byte)pack.TrackQty);
+                }
+            }
+        }
+
 
         #endregion
 

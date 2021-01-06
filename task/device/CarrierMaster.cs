@@ -320,7 +320,8 @@ namespace task.device
                         && c.ConnStatus == SocketConnectStatusE.通信正常
                         && c.OperateMode == DevOperateModeE.自动
                         && c.Status == DevCarrierStatusE.停止
-                        && (c.Task == c.FinishTask || c.Task == DevCarrierTaskE.无));
+                        && (c.Task == c.FinishTask || c.Task == DevCarrierTaskE.无)
+                        && (c.CarrierPosition != DevCarrierPositionE.上下摆渡中 || c.CarrierPosition != DevCarrierPositionE.未知));
         }
 
         /// <summary>
@@ -350,6 +351,15 @@ namespace task.device
                         && c.ConnStatus == SocketConnectStatusE.通信正常
                         && c.Load == DevCarrierLoadE.有货);
         }
+
+        internal bool IsLoadInFerry(uint ltrack)
+        {
+            return DevList.Exists(c => c.TrackId == ltrack
+                         && c.ConnStatus == SocketConnectStatusE.通信正常
+                         && c.Load == DevCarrierLoadE.有货
+                         && c.CarrierPosition == DevCarrierPositionE.在摆渡上);
+        }
+
 
         internal bool IsNotLoad(uint carrier_id)
         {
@@ -452,10 +462,10 @@ namespace task.device
             }
             UpdateFerryLoadStatus(task);
             if (task.Status != DevCarrierStatusE.停止) return;
-            if (task.OperateMode == DevOperateModeE.无)
-            {
-                task.DoModeUpdate(DevCarrierWorkModeE.生产);
-            }
+            //if (task.OperateMode == DevOperateModeE.无)
+            //{
+            //    task.DoModeUpdate(DevCarrierWorkModeE.生产);
+            //}
             if (task.DevReset == DevCarrierResetE.复位
                 && task.DevStatus.ActionType == DevCarrierSignalE.复位)
             {
@@ -612,9 +622,17 @@ namespace task.device
         {
             return DevList.Exists(c => c.TrackId == trackid
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
-                                    && c.OperateMode == DevOperateModeE.自动
-                                    && c.Task == carriertype
-                                    && c.Task != c.FinishTask);
+                                    && (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
+                                    && ((c.Task == carriertype
+                                    && c.Task != c.FinishTask) || c.CarrierPosition == DevCarrierPositionE.上下摆渡中));
+        }
+
+        internal bool HaveCarrierTaskInFerry(uint trackid)
+        {
+            return DevList.Exists(c => c.TrackId == trackid
+                                    && c.ConnStatus == SocketConnectStatusE.通信正常
+                                    && (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
+                                    && (c.Task != c.FinishTask || c.CarrierPosition == DevCarrierPositionE.上下摆渡中));
         }
 
         internal bool CheckStatus(uint carrier_id)
@@ -633,6 +651,26 @@ namespace task.device
             }
             return false;
         }
+
+        internal bool IsCarrierInTrack(StockTrans trans)
+        {
+            if (!trans.IsReleaseGiveFerry)
+            {
+                CarrierTask carrier = DevList.Find(c => c.ID == trans.carrier_id);
+                if (carrier.Task == DevCarrierTaskE.前进放砖)
+                {
+                    mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
+                }
+                else if (carrier.Task == DevCarrierTaskE.后退取砖)
+                {
+                    mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
+                }
+            }
+            return DevList.Exists(c => c.ID == trans.carrier_id
+                                    && c.CarrierPosition == DevCarrierPositionE.在轨道上
+                                    && PubMaster.Track.IsFerryTrackType(c.TrackId));
+        }
+
 
         #endregion
 
@@ -784,17 +822,17 @@ namespace task.device
             }
         }
 
-        public void DoSetMode(uint devid, DevCarrierWorkModeE mode)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    DevList.Find(c => c.ID == devid)?.DoModeUpdate(mode);
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-        }
+        //public void DoSetMode(uint devid, DevCarrierWorkModeE mode)
+        //{
+        //    if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+        //    {
+        //        try
+        //        {
+        //            DevList.Find(c => c.ID == devid)?.DoModeUpdate(mode);
+        //        }
+        //        finally { Monitor.Exit(_obj); }
+        //    }
+        //}
 
         #endregion
 
@@ -1370,7 +1408,8 @@ namespace task.device
         {
             List<CarrierTask> carriers = DevList.FindAll(c => c.TrackId == trackid
                                 && (c.Status != DevCarrierStatusE.停止 || c.OperateMode == DevOperateModeE.手动 ||
-                                (c.Task != c.FinishTask && c.Task != DevCarrierTaskE.无)));
+                                (c.Task != c.FinishTask && c.Task != DevCarrierTaskE.无) || c.CarrierPosition == DevCarrierPositionE.上下摆渡中));
+
             return carriers.Count > 0;
         }
 

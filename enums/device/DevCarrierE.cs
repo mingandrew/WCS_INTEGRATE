@@ -45,16 +45,18 @@
     }
 
     /// <summary>
-    /// 运行模式
+    /// 运输车位置
     /// </summary>
-    public enum DevCarrierWorkModeE
+    public enum DevCarrierPositionE
     {
         未知,
-        调试 = 1,
-        生产 = 2
+        在轨道上 = 1,
+        在摆渡上 = 2,
+        上下摆渡中 = 3
     }
 
-    
+
+
     /// <summary>
     /// 运输车取货放货后信号
     /// </summary>

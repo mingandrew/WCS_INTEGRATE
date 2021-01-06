@@ -104,7 +104,7 @@ namespace socket.process
             mDev.FinishTask = (DevCarrierTaskE)st.FinishTask;
             //mDev.FinishOverSize = (DevCarrierSizeE)st.FinishOverSize;
             mDev.LoadStatus = (DevCarrierLoadE)st.LoadStatus;
-            mDev.WorkMode = (DevCarrierWorkModeE)st.WorkMode;
+            mDev.CarrierPosition = (DevCarrierPositionE)st.WorkMode;
             mDev.OperateMode = (DevOperateModeE)st.OperateMode;
             mDev.ActionTime = ShiftBytes(st.ActionTime);
             mDev.TakeTrackCode = ShiftBytes(st.TakeTrackCode);

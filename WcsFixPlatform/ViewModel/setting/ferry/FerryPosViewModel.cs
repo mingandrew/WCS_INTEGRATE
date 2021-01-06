@@ -111,6 +111,7 @@ namespace wcs.ViewModel
         public RelayCommand PosSelectedChangeCmd => new Lazy<RelayCommand>(() => new RelayCommand(PosSelectedChange)).Value;
         public RelayCommand<string> BtnSelectCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(BtnSelect)).Value; 
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
+        public RelayCommand AutoPosCmd => new Lazy<RelayCommand>(() => new RelayCommand(AutoPos)).Value;
 
         #endregion
 
@@ -266,6 +267,28 @@ namespace wcs.ViewModel
                     break;
             }
         }
+
+        private async void AutoPos()
+        {
+            if (_selectferry == null)
+            {
+                Growl.Warning("请先选择摆渡车！");
+                return;
+            }
+            if (_selectpos == null)
+            {
+                Growl.Warning("请先选择轨道！");
+                return;
+            }
+            MsgAction autopos = await HandyControl.Controls.Dialog.Show<FerryAutoPosDialog>()
+                .Initialize<FerryAutoPosDialogViewModel>((vm) =>
+                {
+                    vm.SELECTFERRY = _selectferry;
+                    vm.SetDialog(_selectferry.name, _selectpos.Ferry_Code);
+                }).GetResultAsync<MsgAction>();
+        }
+
+
         private void SetFerryPos()
         {
             if(SelectPos == null)

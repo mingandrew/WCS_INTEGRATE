@@ -81,6 +81,24 @@ namespace socket.tcp
             }
         }
 
+        public void SendAutoPosCmd(DevFerryCmdE type, byte b1, byte b2, byte b3, byte b4)
+        {
+            if (Monitor.TryEnter(mMsgMod, TimeSpan.FromMilliseconds(500)))
+            {
+
+                try
+                {
+                    byte[] data = mProcess.GetAutoPosCmd(mDev.memo, type, b1, b2, b3, b4);
+                    SendMessage(data);
+                }
+                finally
+                {
+                    Monitor.Exit(mMsgMod);
+                }
+            }
+        }
+
+
         #endregion
 
         #region[连接成功和数据处理]

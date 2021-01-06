@@ -100,11 +100,23 @@ namespace task.task
             DevTcp?.SendCmd(DevFerryCmdE.查询, 0, 0, 0);
         }
 
-        internal void DoLocate(ushort trackcode)
+        internal void DoLocate(ushort trackcode, uint ltrack)
         {
+            int speed = 2; // 快速移动
+
+            if (DevStatus.LoadStatus != DevFerryLoadE.空)
+            {
+                if (PubTask.Carrier.IsLoadInFerry(ltrack))
+                {
+                    speed = 1; // 慢速移动
+                }
+
+            }
+
             byte[] b = BitConverter.GetBytes(trackcode);
-            DevTcp?.SendCmd(DevFerryCmdE.定位, b[1], b[0], 0);
+            DevTcp?.SendCmd(DevFerryCmdE.定位, b[1], b[0], speed);
         }
+
 
         internal void DoSiteQuery(ushort trackcode)
         {
@@ -126,6 +138,12 @@ namespace task.task
         internal void DoStop()
         {
             DevTcp?.SendCmd(DevFerryCmdE.终止任务, 0, 0, 0);
+        }
+
+        internal void DoAutoPos(DevFerryAutoPosE posside, int starttrack, byte tracknumber)
+        {
+            byte[] b = BitConverter.GetBytes(starttrack);
+            DevTcp?.SendAutoPosCmd(DevFerryCmdE.自动对位, b[1], b[0], (byte)posside, tracknumber);
         }
 
 
