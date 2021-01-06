@@ -39,7 +39,7 @@
 
         internal const ushort TILELIFTER_STATUS_HEAD_KEY = 0x9101;
         internal const ushort TILELIFTER_CMD_HEAD_KEY = 0x9001;
-        internal const byte TILELIFTER_STATUS_SIZE = 18;
+        internal const byte TILELIFTER_STATUS_SIZE = 30;
 
         #endregion
     }

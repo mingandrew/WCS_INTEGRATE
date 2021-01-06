@@ -15,94 +15,168 @@ namespace module.device
         private bool isinvolve1;      //介入状态1 左
         private bool isinvolve2;      //介入状态2 右
         private byte operatemode;   //作业模式
-        private byte goods1;   //工位1品种
-        private byte goods2;   //工位2品种
+        private uint goods1;   //工位1品种
+        private uint goods2;   //工位2品种
         private byte shiftstatus;   //转产状态
         private bool shiftaccept;   //转产接收状态
+        private byte workmode;   //作业模式
+        private uint setgoods;   //设定品种
+        private byte setlevel;   //设定等级
         #endregion
 
         #region[属性]
-        public byte DeviceID//设备号
+
+        /// <summary>
+        /// 设备号
+        /// </summary>
+        public byte DeviceID
         {
             set => Set(ref deviceid, value);
             get => deviceid;
         }
 
-        public bool Load1//货物状态1 左
+        /// <summary>
+        /// 货物状态1 左
+        /// </summary>
+        public bool Load1
         {
             set => Set(ref loadstatus1, value);
             get => loadstatus1;
         }
 
-        public bool Load2//货物状态2 右
+        /// <summary>
+        /// 货物状态2 右
+        /// </summary>
+        public bool Load2
         {
             set => Set(ref isload2,value);
             get => isload2;
         }
 
-        public bool Need1//需求信号1 左
+        /// <summary>
+        /// 需求信号1 左
+        /// </summary>
+        public bool Need1
         {
             set => Set(ref isneed1,value);
             get => isneed1;
         }
 
-        public bool Need2//需求信号2 右
+        /// <summary>
+        /// 需求信号2 右
+        /// </summary>
+        public bool Need2
         {
             set => Set(ref isneed2, value);
             get => isneed2;
         }
 
-        public byte FullQty//满砖数量
+        /// <summary>
+        /// 满砖层数
+        /// </summary>
+        public byte FullQty
         {
             set => Set(ref fullqty, value);
             get => fullqty;
         }
-        public byte RecentQty//当前数量
+
+        /// <summary>
+        /// 当前层数
+        /// </summary>
+        public byte RecentQty
         {
             set => Set(ref recentqty, value);
             get => recentqty;
         }
 
-        public bool Involve1//介入状态1 左
+        /// <summary>
+        /// 介入状态1 左
+        /// </summary>
+        public bool Involve1
         {
             set => Set(ref isinvolve1, value);
             get => isinvolve1;
         }
 
-        public bool Involve2//介入状态2 右
+        /// <summary>
+        /// 介入状态2 右
+        /// </summary>
+        public bool Involve2
         {
             set => Set(ref isinvolve2, value);
             get => isinvolve2;
         }
 
-        public DevOperateModeE OperateMode//作业模式
+        /// <summary>
+        /// 操作模式
+        /// </summary>
+        public DevOperateModeE OperateMode
         {
             set => Set(ref operatemode, (byte)value);
             get => (DevOperateModeE)operatemode;
         }
 
-        public byte Goods1//工位1品种 左
+        /// <summary>
+        /// 工位1品种 左
+        /// </summary>
+        public uint Goods1
         {
             set => Set(ref goods1, value);
             get => goods1;
         }
 
-        public byte Goods2//工位2品种 右
+        /// <summary>
+        /// 工位2品种 右
+        /// </summary>
+        public uint Goods2
         {
             set => Set(ref goods2, value);
             get => goods2;
         }
 
-        public TileShiftStatusE ShiftStatus//转产状态
+        /// <summary>
+        /// 转产状态
+        /// </summary>
+        public TileShiftStatusE ShiftStatus
         {
             set => Set(ref shiftstatus, (byte)value);
             get => (TileShiftStatusE)shiftstatus;
         }
 
-        public bool ShiftAccept//转产接收状态
+        /// <summary>
+        /// 转产接收
+        /// </summary>
+        public bool ShiftAccept
         {
             set => Set(ref shiftaccept, value);
             get => shiftaccept;
+        }
+
+        /// <summary>
+        /// 作业模式
+        /// </summary>
+        public TileWorkModeE WorkMode
+        {
+            set => Set(ref workmode, (byte)value);
+            get => (TileWorkModeE)workmode;
+        }
+
+        /// <summary>
+        /// 设定品种
+        /// </summary>
+        public uint SetGoods
+        {
+            set => Set(ref setgoods, value);
+            get => setgoods;
+        }
+
+        /// <summary>
+        /// 设定等级
+        /// </summary>
+        public byte SetLevel
+        {
+            set => Set(ref setlevel, value);
+            get => setlevel;
         }
 
         #endregion
@@ -111,8 +185,10 @@ namespace module.device
 
         public override string ToString()
         {
-            return string.Format("货物1：{0}, 货物2：{1}, 需求1：{2}, 需求2：{3}, 满砖：{4}, 现有：{5}, 介入1：{6}, 介入2：{7}, 模式：{8}, 工位1：{9}, 工位2：{10}, 转产：{11}, 转产接收：{12}"
-                   , S(Load1), S(Load2), S(Need1), S(Need2), FullQty, RecentQty, S(Involve1), S(Involve2), OperateMode, Goods1, Goods2, ShiftStatus, S(ShiftAccept));
+            return string.Format("货物1：{0}, 货物2：{1}, 需求1：{2}, 需求2：{3}, 满砖：{4}, 现有：{5}, 介入1：{6}, 介入2：{7}, 操作：{8}, " +
+                "工位1：{9}, 工位2：{10}, 转产：{11}, 转产接收：{12}, 模式：{13}, 设定品种：{14}, 设定等级：{15}",
+                S(Load1), S(Load2), S(Need1), S(Need2), FullQty, RecentQty, S(Involve1), S(Involve2), OperateMode,  
+                Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel);
         }
 
         private string S(bool v)

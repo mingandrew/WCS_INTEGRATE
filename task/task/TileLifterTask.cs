@@ -174,22 +174,32 @@ namespace task.task
 
         internal void DoQuery()
         {
-            DevTcp?.SendCmd(DevLifterCmdTypeE.查询, 0, 0);
+            DevTcp?.SendCmd(DevLifterCmdTypeE.查询, 0, 0, 0);
         }
 
         internal void Do1Invo(DevLifterInvolE invo)
         {
-            DevTcp?.SendCmd(DevLifterCmdTypeE.介入1, (byte)invo, 0);
+            DevTcp?.SendCmd(DevLifterCmdTypeE.介入1, (byte)invo, 0, 0);
         }
 
         internal void Do2Invo(DevLifterInvolE invo)
         {
-            DevTcp?.SendCmd(DevLifterCmdTypeE.介入2, (byte)invo, 0);
+            DevTcp?.SendCmd(DevLifterCmdTypeE.介入2, (byte)invo, 0, 0);
         }
 
-        internal void DoShift(TileShiftStatusE ts, int count = 0)
+        internal void DoShift(TileShiftCmdE ts, byte count = 0, int goods = 0)
         {
-            DevTcp?.SendCmd(DevLifterCmdTypeE.转产, (byte)ts, (byte)count);
+            DevTcp?.SendCmd(DevLifterCmdTypeE.转产, (byte)ts,  count, goods);
+        }
+
+        internal void DoChangeModel(TileWorkModeE mode, TileFullE full)
+        {
+            DevTcp?.SendCmd(DevLifterCmdTypeE.模式, (byte)mode, (byte)full, 0);
+        }
+
+        internal void DoUpdateLevel(byte level)
+        {
+            DevTcp?.SendCmd(DevLifterCmdTypeE.等级, (byte)level, 0, 0);
         }
 
         internal void SetInTaskStatus(bool status)

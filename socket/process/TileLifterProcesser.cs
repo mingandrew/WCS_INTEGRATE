@@ -19,11 +19,14 @@ namespace socket.process
         public byte RecentQty;     //当前数量
         public byte Involve1;      //介入状态1 左
         public byte Involve2;      //介入状态2 右
-        public byte OperateMode;   //作业模式
-        public byte Goods1;   //工位1品种
-        public byte Goods2;   //工位2品种
+        public byte OperateMode;   //操作模式
+        public uint Goods1;   //工位1品种
+        public uint Goods2;   //工位2品种
         public byte ShiftStatus;   //转产状态
         public byte ShiftAccept;   //转产接收状态
+        public byte WorkMode;   //作业模式
+        public uint SetGoods;   //设定品种
+        public byte SetLevel;   //设定等级
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
@@ -36,9 +39,10 @@ namespace socket.process
     {
         public ushort Head; //命令字头【0x90,0x01】
         public byte DeviceID;      //设备号
-        public byte Command;       //控制码
-        public byte Value1;        //值1
+        public byte Command;   //控制码
+        public byte Value1;         //值1
         public byte Value2;        //值2
+        public int Value3;          //值3
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
@@ -74,11 +78,14 @@ namespace socket.process
             mDev.Goods2 = st.Goods2;
             mDev.ShiftStatus = (TileShiftStatusE)st.ShiftStatus;
             mDev.ShiftAccept = st.ShiftAccept == 1;
+            mDev.WorkMode = (TileWorkModeE)st.WorkMode;
+            mDev.SetGoods = st.SetGoods;
+            mDev.SetLevel = st.SetLevel;
 
             return mDev;
         }
 
-        internal byte[] GetCmd(string devid, DevLifterCmdTypeE type, byte value1, byte value2)
+        internal byte[] GetCmd(string devid, DevLifterCmdTypeE type, byte value1, byte value2, int value3)
         {
             TileCmdStruct cmd = new TileCmdStruct();
             cmd.Head = ShiftBytes(SocketConst.TILELIFTER_CMD_HEAD_KEY);
@@ -86,6 +93,7 @@ namespace socket.process
             cmd.Command = (byte)type;
             cmd.Value1 = value1;
             cmd.Value2 = value2;
+            cmd.Value3 = ShiftBytes(value3);
             cmd.Tail = ShiftBytes(SocketConst.TAIL_KEY);
 
             return StructToBuffer(cmd);

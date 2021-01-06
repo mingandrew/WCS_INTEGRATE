@@ -18,6 +18,15 @@ namespace module.device
             }
         }
 
+        protected void Set(ref uint obj, uint value)
+        {
+            if (obj != value && !obj.Equals(value))
+            {
+                IsUpdate = true;
+                obj = value;
+            }
+        }
+
         protected void Set(ref int obj, int value)
         {
             if(obj != value && !obj.Equals(value))

@@ -146,7 +146,7 @@ namespace task.device
                                         if (task.DevConfig.do_shift)
                                         {
                                             Thread.Sleep(500);
-                                            task.DoShift(TileShiftStatusE.转产中, count);
+                                            task.DoShift(TileShiftCmdE.执行转产, (byte)count);
                                             break;
                                         }
 
@@ -155,13 +155,7 @@ namespace task.device
                                             if (task.DevStatus.ShiftAccept)
                                             {
                                                 Thread.Sleep(500);
-                                                task.DoShift(TileShiftStatusE.复位);
-                                            }
-
-                                            if (task.DevConfig.left_goods != task.DevStatus.Goods1 ||
-                                                task.DevConfig.right_goods != task.DevStatus.Goods2)
-                                            {
-                                                PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevStatus.Goods1, task.DevStatus.Goods2);
+                                                task.DoShift(TileShiftCmdE.复位);
                                             }
                                             break;
                                         }
@@ -174,7 +168,7 @@ namespace task.device
                                             if (!task.DevStatus.ShiftAccept)
                                             {
                                                 Thread.Sleep(500);
-                                                task.DoShift(TileShiftStatusE.转产中, count);
+                                                task.DoShift(TileShiftCmdE.执行转产, (byte)count);
                                                 break;
                                             }
                                         }
@@ -184,7 +178,7 @@ namespace task.device
                                             if (task.DevStatus.ShiftAccept)
                                             {
                                                 Thread.Sleep(500);
-                                                task.DoShift(TileShiftStatusE.复位);
+                                                task.DoShift(TileShiftCmdE.复位);
                                                 break;
                                             }
                                         }
@@ -192,16 +186,14 @@ namespace task.device
                                         break;
                                     case TileShiftStatusE.完成:
                                         #region [完成]
-                                        if (task.DevConfig.do_shift && task.DevStatus.ShiftAccept &&
-                                            task.DevConfig.left_goods != task.DevStatus.Goods1 &&
-                                            task.DevConfig.right_goods != task.DevStatus.Goods2 &&
-                                            task.DevStatus.Goods1 == task.DevStatus.Goods2)
+                                        if (task.DevConfig.do_shift && task.DevStatus.ShiftAccept)
                                         {
                                             Thread.Sleep(500);
-                                            task.DoShift(TileShiftStatusE.复位);
+                                            task.DoShift(TileShiftCmdE.复位);
 
                                             task.DevConfig.do_shift = false;
-                                            PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevStatus.Goods1, task.DevStatus.Goods2);
+                                            task.DevConfig.old_goodid = 0;
+                                            PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevConfig.goods_id);
                                             break;
                                         }
                                         #endregion
@@ -667,9 +659,14 @@ namespace task.device
                             return;
                         }
 
-                        if (task.DevConfig.left_goods == task.DevStatus.Goods1)
+                        if (task.DevStatus.Goods1 == 0)
                         {
-                            if (task.DevConfig.old_goodid != 0) gid = task.DevConfig.old_goodid;
+                            // TODO 报警
+                            return;
+                        }
+                        else
+                        {
+                            gid = task.DevStatus.Goods1;
                         }
                     }
 
@@ -911,9 +908,14 @@ namespace task.device
                             return;
                         }
 
-                        if (task.DevConfig.right_goods == task.DevStatus.Goods2)
+                        if (task.DevStatus.Goods2 == 0)
                         {
-                            if (task.DevConfig.old_goodid != 0) gid = task.DevConfig.old_goodid;
+                            // TODO 报警
+                            return;
+                        }
+                        else
+                        {
+                            gid = task.DevStatus.Goods2;
                         }
                     }
 

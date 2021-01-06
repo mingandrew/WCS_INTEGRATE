@@ -98,10 +98,10 @@ t.old_goodid, t.goods_id, t.pre_goodid, t.do_shift, t.left_goods, t.right_goods 
         internal bool AddConfigTileLifter(ConfigTileLifter dev)
         {
             string sql = string.Format(@"INSERT INTO config_tilelifter(id, brother_dev_id, left_track_id, right_track_id, 
-strategy_in, strategy_out, work_type, last_track_id, old_goodid, goods_id, pre_goodid, do_shift, left_goods, right_goods)
-VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13})",
+strategy_in, strategy_out, work_type, last_track_id, old_goodid, goods_id, pre_goodid, do_shift)
+VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11})",
                 dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), dev.strategy_in, dev.strategy_out, dev.work_type,
-                dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift, dev.left_goods, dev.right_goods);
+                dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -161,17 +161,17 @@ WHERE id = {0}", dev.id, dev.a_takemisstrack, dev.a_givemisstrack, dev.a_alert_t
         internal bool EditConfigTileLifter(ConfigTileLifter dev)
         {
             string sql = string.Format(@"UPDATE config_tilelifter SET brother_dev_id = {1}, left_track_id = {2}, right_track_id = {3}, strategy_in = {4}, strategy_out = {5}, 
-work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11}, left_goods = {12}, right_goods = {13} WHERE id = {0}",
+work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11} WHERE id = {0}",
                 dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), dev.strategy_in, dev.strategy_out, dev.work_type,
-                dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift, dev.left_goods, dev.right_goods);
+                dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
 
         internal bool EditGoods(ConfigTileLifter dev)
         {
-            string sql = string.Format(@"UPDATE config_tilelifter SET old_goodid = {1}, goods_id = {2}, pre_goodid = {3}, do_shift = {4}, left_goods = {5}, right_goods = {6} 
-WHERE id = {0}", dev.id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift, dev.left_goods, dev.right_goods);
+            string sql = string.Format(@"UPDATE config_tilelifter SET old_goodid = {1}, goods_id = {2}, pre_goodid = {3}, do_shift = {4} 
+WHERE id = {0}", dev.id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

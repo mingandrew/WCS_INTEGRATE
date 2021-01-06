@@ -230,27 +230,6 @@ namespace resource.device
         }
 
         /// <summary>
-        /// 设置砖机工位品种
-        /// </summary>
-        /// <param name="devid"></param>
-        /// <param name="goods1"></param>
-        /// <param name="goods2"></param>
-        /// <returns></returns>
-        public bool SetTileLifterGoods(uint devid, byte goods1, byte goods2)
-        {
-            ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
-            if (dev != null)
-            {
-                dev.old_goodid = 0;
-                dev.left_goods = goods1;
-                dev.right_goods = goods2;
-                PubMaster.Mod.DevConfigSql.EditGoods(dev);
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
         /// 设置砖机入库策略
         /// </summary>
         /// <param name="devid"></param>

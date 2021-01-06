@@ -63,16 +63,6 @@ namespace module.deviceconfig
         /// </summary>
         public bool do_shift { set; get; }
 
-        /// <summary>
-        /// 左 工位品种
-        /// </summary>
-        public byte left_goods { set; get; }
-
-        /// <summary>
-        /// 右 工位品种
-        /// </summary>
-        public byte right_goods { set; get; }
-
 
 
         /// <summary>
