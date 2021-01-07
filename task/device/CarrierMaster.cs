@@ -256,8 +256,6 @@ namespace task.device
 
         /// <summary>
         /// 查找是否存在运输车在指定的轨道
-        /// 1.ID对应的轨道
-        /// 2.轨道的兄弟轨道
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
@@ -266,9 +264,26 @@ namespace task.device
             return DevList.Exists(c => c.TrackId == trackid);
         }
 
+        /// <summary>
+        /// 查找是否存在运输车在指定的轨道载货
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         internal bool HaveInTrackAndLoad(uint trackid)
         {
             return DevList.Exists(c => c.TrackId == trackid && c.Load == DevCarrierLoadE.有货);
+        }
+
+        internal bool HaveInTrackButCarrier(uint trackid, uint trackid2, uint cid, out uint carrierid)
+        {
+            CarrierTask task = DevList.Find(c => (c.TrackId == trackid || c.TrackId == trackid2) && c.ID != cid);
+            if (task != null)
+            {
+                carrierid = task.ID;
+                return true;
+            }
+            carrierid = 0;
+            return false;
         }
 
         internal bool OnlyOneCarrierInTrack(uint trackid)
@@ -291,6 +306,18 @@ namespace task.device
             return carrier != null;
         }
 
+        internal bool HaveDifTypeInTrack(uint trackid, CarrierTypeE carriertype, out uint carrierid)
+        {
+            CarrierTask carrier = DevList.Find(c => c.TrackId == trackid);
+            if (carrier != null && carrier.CarrierType != carriertype)
+            {
+                carrierid = carrier.ID;
+                return true;
+            }
+            carrierid = 0;
+            return false;
+        }
+
         /// <summary>
         /// 查找是否存在运输车在指定的轨道
         /// 1.ID对应的轨道
@@ -302,6 +329,21 @@ namespace task.device
         {
             Track track = PubMaster.Track.GetTrack(trackid);
             return DevList.Exists(c => c.ID != carrierid && track.IsInTrack(c.Site));
+        }
+
+        /// <summary>
+        /// 判断小车在指定的地标
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="carrierid"></param>
+        /// <param name="isdownsite"></param>
+        /// <returns></returns>
+        internal bool HaveInTrackTopSide(uint trackid, uint carrierid, bool isdownsite)
+        {
+            Track track = PubMaster.Track.GetTrack(trackid);
+            return DevList.Exists(c => c.ID != carrierid
+            && ((isdownsite && c.Site == track.ferry_down_code)
+                    || (!isdownsite && c.Site == track.ferry_up_code)));
         }
 
         internal bool IsOperateAuto(uint carrierid)
@@ -505,7 +547,7 @@ namespace task.device
                             {
                                 PubMaster.Track.UpdateStockStatus(track.id, TrackStockStatusE.空砖, "上砖取空");
                                 PubMaster.Goods.ClearTrackEmtpy(track.id);
-                                PubTask.TileLifter.ResetileCurrentTake(track.id);
+                                PubTask.TileLifter.ReseTileCurrentTake(track.id);
                                 PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, track.id, TrackLogE.空轨道, "无货");
                             }
                             else

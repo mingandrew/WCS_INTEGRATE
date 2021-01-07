@@ -240,9 +240,9 @@ namespace wcs.ViewModel
                          }).GetResultAsync<DialogResult>();
                         if (res.p1 is Track tra)
                         {
-                            if (tra.Type != TrackTypeE.储砖_出入)
+                            if (tra.Type != TrackTypeE.储砖_出 && tra.Type != TrackTypeE.储砖_出入)
                             {
-                                Growl.Warning("请选择上砖区域的轨道！");
+                                Growl.Warning("请选择能上砖作业的轨道！");
                                 return;
                             }
 
@@ -258,13 +258,9 @@ namespace wcs.ViewModel
                                 return;
                             }
                             
-                            PubMaster.Device.SetCurrentTake(DeviceSelected.ID, tra.id);
+                            PubMaster.DevConfig.SetLastTrackId(DeviceSelected.ID, tra.id);
                             Growl.Success("设置成功！");
                         }
-                        break;
-                    case 12://清除优先上砖轨道
-                        PubMaster.Device.SetCurrentTake(DeviceSelected.ID, 0);
-                        Growl.Success("清除成功！");
                         break;
 
                 }

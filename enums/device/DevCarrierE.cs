@@ -20,6 +20,9 @@
         后退至点 = 7,
         顶升取货 = 8,
         下降放货 = 9,
+        后退至外放砖 = 10,
+        后退至内放砖 = 11,
+        前进取砖 = 12,
         终止 = 0x7F,
         其他
     }
@@ -54,8 +57,6 @@
         在摆渡上 = 2,
         上下摆渡中 = 3
     }
-
-
 
     /// <summary>
     /// 运输车取货放货后信号
@@ -95,18 +96,8 @@
 
     public enum CarrierAlertE
     {
-        PowerOff,
-        GiveMissTrack,
         TakeMissTrack,
+        GiveMissTrack,
+    }
 
-    }
-    /// <summary>
-    /// 小车职责
-    /// </summary>
-    public enum CarrierDutyE
-    {
-        未知,
-        上砖,
-        下砖
-    }
 }

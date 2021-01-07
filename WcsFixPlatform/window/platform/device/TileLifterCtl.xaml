@@ -61,7 +61,6 @@
                         <MenuItem Header="离开-2" Tag="9" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="修改策略" Tag="10" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="设置优先上砖轨道" Tag="11" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="清除优先上砖轨道" Tag="12" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         
                     </ContextMenu>
                 </DataGrid.ContextMenu>
@@ -214,7 +213,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding CurrentTrackId}" Header="设置优先"/>
+                    <DataGridTextColumn Binding="{Binding LastTrackId}" Header="当前作业"/>
                     <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
                     <DataGridTextColumn Binding="{Binding InStrategy}" Header="入库策略"/>
                     <DataGridTextColumn Binding="{Binding OutStrategy}" Header="出库策略"/>

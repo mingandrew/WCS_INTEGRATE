@@ -43,7 +43,7 @@ namespace wcs.Data.View
             set => Set(ref working, value);
         }
 
-        public string CurrentTrackId
+        public string LastTrackId
         {
             get => trackid;
             set => Set(ref trackid, value);
@@ -164,7 +164,7 @@ namespace wcs.Data.View
             InStrategy = instrategy;
             OutStrategy = outstrategy;
             Working = working;
-            CurrentTrackId = tid;
+            LastTrackId = tid;
             WorkType = wtype;
         }
         #endregion

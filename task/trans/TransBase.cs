@@ -431,7 +431,6 @@ namespace task.trans
             {
                 try
                 {
-                    //return TransList.Exists(c => !c.finish && (c.take_track_id == trackid|| c.give_track_id == trackid) && c.TransStaus == TransStatusE.放砖流程);
                     return TransList.Exists(c => !c.finish && (c.take_track_id == trackid || c.give_track_id == trackid || c.finish_track_id == trackid));
                 }
                 finally
@@ -441,6 +440,14 @@ namespace task.trans
             }
             return true;
         }
+
+        internal bool ExistInTileTrack(uint devid, uint trackid)
+        {
+            return TransList.Exists(c => !c.finish
+            && c.tilelifter_id == devid
+            && (c.take_track_id == trackid || c.give_track_id == trackid));
+        }
+
         #endregion
 
         #endregion

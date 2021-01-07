@@ -1079,31 +1079,6 @@ namespace resource.goods
         {
             List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
             traids = new List<uint>();
-
-            ////1.查看是否有最近下砖规格轨道
-            //List<Track> recentusetracks = PubMaster.Track.GetRecentGoodTracks(list, devid);
-            //foreach (Track track in recentusetracks)
-            //{
-            //    if(track.StockStatus == TrackStockStatusE.满砖
-            //        || track.TrackStatus == TrackStatusE.倒库中
-            //        || track.TrackStatus == TrackStatusE.停用
-            //        || track.TrackStatus == TrackStatusE.仅上砖)
-            //    {
-            //        PubMaster.Track.UpdateRecentTile(track.id, 0);
-            //        PubMaster.Track.UpdateRecentGood(track.id, 0);
-            //        continue;
-            //    }
-
-            //    if (PubMaster.Goods.HaveStockInTrack(track.id, goodsid, out uint stockid))
-            //    {
-            //        traids.Add(track.id);
-            //    }
-            //    else
-            //    {
-            //        PubMaster.Track.UpdateRecentGood(track.id, 0);
-            //    }
-            //}
-
             List<uint> emptylist = new List<uint>();
             List<TrackStoreCount> trackstores = new List<TrackStoreCount>();
             uint storecount = 0;
@@ -1118,22 +1093,17 @@ namespace resource.goods
                 //轨道满否
                 if (PubMaster.Track.IsTrackFull(adt.track_id)) continue;
 
-                //轨道是否被用
-                //if (PubMaster.Track.IsOccupy(adt.track_id)) continue;
-
                 //[可以放任何品种] 空轨道，轨道没有库存
                 if (PubMaster.Track.IsEmtpy(adt.track_id)
                     && IsTrackStockEmpty(adt.track_id)
                     && IsTrackOkForGoods(adt.track_id, goodsid))
                 {
-                    //traids.Add(adt.track_id);
                     emptylist.Add(adt.track_id);
                 }
 
                 //是否已存同品种并且未满
                 if (IsTrackFineToStore(adt.track_id, goodsid, out storecount))
                 {
-                    //traids.Add(adt.track_id);
                     trackstores.Add(new TrackStoreCount()
                     {
                         trackid = adt.track_id,

@@ -56,7 +56,7 @@ namespace resource.module.modulesql
         {
             List<ConfigTileLifter> list = new List<ConfigTileLifter>();
             string sql = string.Format(@"SELECT t.id, t.brother_dev_id, t.left_track_id, t.right_track_id, t.strategy_in, t.strategy_out, t.work_type, t.last_track_id, 
-t.old_goodid, t.goods_id, t.pre_goodid, t.do_shift, t.left_goods, t.right_goods FROM config_tilelifter AS t");
+t.old_goodid, t.goods_id, t.pre_goodid, t.do_shift FROM config_tilelifter AS t");
             DataTable dt = mSql.ExecuteQuery(sql);
             if (!mSql.IsNoData(dt))
             {

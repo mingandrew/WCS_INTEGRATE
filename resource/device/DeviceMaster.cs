@@ -121,16 +121,6 @@ namespace resource.device
             return DeviceList.Find(c => c.id == iD)?.area ?? 0;
         }
 
-        public void SetCurrentTake(uint id, uint trackid)
-        {
-            Device device = GetDevice(id);
-            if (device != null && device.Type == DeviceTypeE.上砖机)
-            {
-                device.CurrentTakeId = trackid;
-                PubMaster.Mod.DevSql.EditDevice(device);
-            }
-        }
-
         public bool SetDevWorking(uint devid, bool working, out DeviceTypeE type)
         {
             Device dev = DeviceList.Find(c => c.id == devid);

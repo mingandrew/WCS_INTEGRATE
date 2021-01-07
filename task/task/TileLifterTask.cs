@@ -122,14 +122,6 @@ namespace task.task
             set => DevConfig.OutStrategey = value;
         }
 
-        /// <summary>
-        /// 当前优先取砖轨道
-        /// </summary>
-        public uint CurrentTakeId
-        {
-            get => Device.CurrentTakeId;
-        }
-
         public DevWorkTypeE WorkType
         {
             get => DevConfig.WorkType;

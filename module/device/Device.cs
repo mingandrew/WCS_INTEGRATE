@@ -41,13 +41,5 @@ namespace module.device
             set => att1 = (byte)value;
         }
 
-        /// <summary>
-        /// 上砖机取轨
-        /// </summary>
-        public uint CurrentTakeId
-        {
-            get => att2;
-            set => att2 = (byte)value;
-        }
     }
 }

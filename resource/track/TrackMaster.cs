@@ -874,7 +874,7 @@ namespace resource.track
             foreach (Track track in recentusetracks)
             {
                 if (track.StockStatus != TrackStockStatusE.有砖
-                    || track.TrackStatus != TrackStatusE.启用
+                    || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
                     || track.AlertStatus != TrackAlertE.正常)
                 {
                     UpdateRecentTile(track.id, 0);
@@ -887,7 +887,7 @@ namespace resource.track
             return trackids.Count > 0;
         }
 
-        public bool HaveTrackInGoodButNotStock(uint areaid, uint tilelifterid, uint goodsid, uint currentTake, out uint trackid)
+        public bool HaveTrackInGoodFrist(uint areaid, uint tilelifterid, uint goodsid, uint currentTake, out uint trackid)
         {
             List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
 
@@ -904,7 +904,8 @@ namespace resource.track
                 else
                 {
                     if (track.StockStatus == TrackStockStatusE.空砖
-                        || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖))
+                        || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
+                        || track.AlertStatus != TrackAlertE.正常)
                     {
                         UpdateRecentTile(track.id, 0);
                         UpdateRecentGood(track.id, 0);
