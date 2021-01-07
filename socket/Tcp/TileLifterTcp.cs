@@ -25,7 +25,7 @@ namespace socket.tcp
 
         #region[发送信息]
 
-        public void SendCmd(DevLifterCmdTypeE type, byte value1, byte value2, int value3)
+        public void SendCmd(DevLifterCmdTypeE type, byte value1, byte value2, uint value3)
         {
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {

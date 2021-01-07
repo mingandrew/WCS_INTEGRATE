@@ -136,7 +136,6 @@ namespace task.device
                                 #region 下砖-转产
 
                                 if (task.Type != DeviceTypeE.下砖机) continue;
-                                if (task.DevStatus.Goods1 == 0 || task.DevStatus.Goods2 == 0) continue;
 
                                 int count = PubMaster.Dic.GetDtlIntCode("TileLifterShiftCount");
                                 switch (task.DevStatus.ShiftStatus)
@@ -145,9 +144,12 @@ namespace task.device
                                         #region [复位]
                                         if (task.DevConfig.do_shift)
                                         {
-                                            Thread.Sleep(500);
-                                            task.DoShift(TileShiftCmdE.执行转产, (byte)count);
-                                            break;
+                                            if (!task.DevStatus.ShiftAccept)
+                                            {
+                                                Thread.Sleep(500);
+                                                task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
+                                                break;
+                                            }
                                         }
 
                                         if (!task.DevConfig.do_shift)
@@ -156,8 +158,8 @@ namespace task.device
                                             {
                                                 Thread.Sleep(500);
                                                 task.DoShift(TileShiftCmdE.复位);
+                                                break;
                                             }
-                                            break;
                                         }
                                         #endregion
                                         break;
@@ -168,7 +170,7 @@ namespace task.device
                                             if (!task.DevStatus.ShiftAccept)
                                             {
                                                 Thread.Sleep(500);
-                                                task.DoShift(TileShiftCmdE.执行转产, (byte)count);
+                                                task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
                                                 break;
                                             }
                                         }
@@ -186,7 +188,7 @@ namespace task.device
                                         break;
                                     case TileShiftStatusE.完成:
                                         #region [完成]
-                                        if (task.DevConfig.do_shift && task.DevStatus.ShiftAccept)
+                                        if (task.DevConfig.do_shift)
                                         {
                                             Thread.Sleep(500);
                                             task.DoShift(TileShiftCmdE.复位);
@@ -407,20 +409,6 @@ namespace task.device
 
         }
 
-
-        //public void DoSetMode(uint tilelifter_id)
-        //{
-        //    if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-        //    {
-        //        try
-        //        {
-        //            DevList.Find(c => c.ID == tilelifter_id)?.Do(type);
-        //        }
-        //        finally { Monitor.Exit(_obj); }
-        //    }
-        //}
-
-
         public void UpdateTileInStrategry(uint id, StrategyInE instrategy, DevWorkTypeE worktype)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
@@ -489,7 +477,7 @@ namespace task.device
             if (task != null)
             {
                 if (!PubMaster.Track.IsEmtpy(task.CurrentTakeId) &&
-                    !PubMaster.Track.IsStopUsing(task.CurrentTakeId, TransTypeE.出库))
+                    !PubMaster.Track.IsStopUsing(task.CurrentTakeId, TransTypeE.上砖任务))
                 {
                     take = task.CurrentTakeId;
                 }
@@ -649,32 +637,12 @@ namespace task.device
 
                     #region[生成入库交易]
 
-                    #region [转产品种]
+                    if (!IsAllowToBeTaskGoods(task.ID, task.DevStatus.Goods1)) return;
 
-                    uint gid = task.DevConfig.goods_id;
-                    if (task.DevConfig.do_shift)
-                    {
-                        if (!task.DevStatus.ShiftAccept || task.DevStatus.ShiftStatus == TileShiftStatusE.复位)
-                        {
-                            return;
-                        }
-
-                        if (task.DevStatus.Goods1 == 0)
-                        {
-                            // TODO 报警
-                            return;
-                        }
-                        else
-                        {
-                            gid = task.DevStatus.Goods1;
-                        }
-                    }
-
-                    #endregion
+                    uint gid = task.DevStatus.Goods1;
 
                     bool iseffect = CheckInStrategy(task, gid);
 
-                    //if (!iseffect && mTimer.IsOver(TimerTag.DownTileLifterHaveGoods, task.ID, Site_1, 3))
                     if (!iseffect)
                     {
                         switch (task.WorkType)
@@ -691,49 +659,6 @@ namespace task.device
                                 AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid);
                                 break;
                         }
-
-                        #region old
-
-                        ////[已有库存]
-                        //if (!PubMaster.Goods.HaveStockInTrack(task.LeftTrackId, task.GoodsId, out uint stockid))
-                        //{
-                        //    ////[生成库存]
-                        //    stockid = PubMaster.Goods.AddStock(task.ID, task.LeftTrackId, task.GoodsId, task.FullQty);
-                        //    if (stockid > 0)
-                        //    {
-                        //        PubMaster.Track.UpdateStockStatus(task.LeftTrackId, TrackStockStatusE.有砖, "下砖");
-                        //        PubMaster.Goods.AddStockInLog(stockid);
-                        //    }
-                        //}
-
-                        ////分配放货点
-                        //if (stockid != 0 && PubMaster.Goods.AllocateGiveTrack(task.AreaId, task.ID, task.GoodsId, out List<uint> traids))
-                        //{
-                        //    uint givetrackid = 0;
-                        //    foreach (uint traid in traids)
-                        //    {
-                        //        if (!PubTask.Trans.IsTraInTransWithLock(traid))
-                        //        {
-                        //            givetrackid = traid;
-                        //            break;
-                        //        }
-                        //    }
-                        //    if (givetrackid != 0)
-                        //    {
-                        //        PubMaster.Track.UpdateRecentGood(givetrackid, task.GoodsId);
-                        //        PubMaster.Track.UpdateRecentTile(givetrackid, task.ID);
-                        //        //生成入库交易
-                        //        PubTask.Trans.AddTrans(task.AreaId, task.ID, TransTypeE.入库, task.GoodsId, stockid, task.LeftTrackId, givetrackid);
-                        //    }
-
-                        //    PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)task.ID);
-                        //}
-                        //else if (stockid != 0)
-                        //{
-                        //    PubMaster.Warn.AddDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)task.ID);
-                        //}
-
-                        #endregion
                     }
 
                     #endregion
@@ -898,32 +823,12 @@ namespace task.device
 
                     #region[生成入库交易]
 
-                    #region [转产品种]
+                    if (!IsAllowToBeTaskGoods(task.ID, task.DevStatus.Goods2)) return;
 
-                    uint gid = task.DevConfig.goods_id;
-                    if (task.DevConfig.do_shift)
-                    {
-                        if (!task.DevStatus.ShiftAccept || task.DevStatus.ShiftStatus == TileShiftStatusE.复位)
-                        {
-                            return;
-                        }
-
-                        if (task.DevStatus.Goods2 == 0)
-                        {
-                            // TODO 报警
-                            return;
-                        }
-                        else
-                        {
-                            gid = task.DevStatus.Goods2;
-                        }
-                    }
-
-                    #endregion
+                    uint gid = task.DevStatus.Goods2;
 
                     bool iseffect = CheckInStrategy(task, gid);
 
-                    //if (!iseffect && mTimer.IsOver(TimerTag.DownTileLifterHaveGoods, task.ID, Site_2, 3))
                     if (!iseffect)
                     {
                         switch (task.WorkType)
@@ -940,49 +845,6 @@ namespace task.device
                                 AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
                                 break;
                         }
-
-                        #region old
-
-                        ////[已有库存]
-                        //if (!PubMaster.Goods.HaveStockInTrack(task.RigthTrackId, task.GoodsId, out uint stockid))
-                        //{
-                        //    ////[生成库存]
-                        //    stockid = PubMaster.Goods.AddStock(task.ID, task.RigthTrackId, task.GoodsId, task.FullQty);
-                        //    if (stockid > 0)
-                        //    {
-                        //        PubMaster.Track.UpdateStockStatus(task.RigthTrackId, TrackStockStatusE.有砖, "下砖");
-                        //        PubMaster.Goods.AddStockInLog(stockid);
-                        //    }
-                        //}
-
-                        ////分配放货点
-                        //if (stockid != 0 && PubMaster.Goods.AllocateGiveTrack(task.AreaId, task.ID, task.GoodsId, out List<uint> traids))
-                        //{
-                        //    uint givetrackid = 0;
-                        //    foreach (uint traid in traids)
-                        //    {
-                        //        if (!PubTask.Trans.IsTraInTransWithLock(traid))
-                        //        {
-                        //            givetrackid = traid;
-                        //            break;
-                        //        }
-                        //    }
-                        //    if (givetrackid != 0)
-                        //    {
-                        //        PubMaster.Track.UpdateRecentGood(givetrackid, task.GoodsId);
-                        //        PubMaster.Track.UpdateRecentTile(givetrackid, task.ID);
-                        //        //生成入库交易
-                        //        PubTask.Trans.AddTrans(task.AreaId, task.ID, TransTypeE.入库, task.GoodsId, stockid, task.RigthTrackId, givetrackid);
-                        //    }
-
-                        //    PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)task.ID);
-                        //}
-                        //else if (stockid != 0)
-                        //{
-                        //    PubMaster.Warn.AddDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)task.ID);
-                        //}
-
-                        #endregion
                     }
                     #endregion
                 }
@@ -1123,6 +985,32 @@ namespace task.device
         }
 
         /// <summary>
+        /// 是否允许作为任务品种
+        /// </summary>
+        /// <param name="goodsid"></param>
+        /// <returns></returns>
+        private bool IsAllowToBeTaskGoods(uint tileid, uint goodsid)
+        {
+            // 无品种反馈
+            if (goodsid == 0)
+            {
+                PubMaster.Warn.AddDevWarn(WarningTypeE.TileGoodsIsZero, (ushort)tileid);
+                return false;
+            }
+
+            // 无品种数据
+            if (PubMaster.Goods.GetGoods(goodsid) == null)
+            {
+                PubMaster.Warn.AddDevWarn(WarningTypeE.TileGoodsIsNull, (ushort)tileid);
+                return false;
+            }
+
+            PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileGoodsIsZero, (ushort)tileid);
+            PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileGoodsIsNull, (ushort)tileid);
+            return true;
+        }
+
+        /// <summary>
         /// 混砖下砖策略
         /// </summary>
         /// <param name="areaid"></param>
@@ -1147,7 +1035,7 @@ namespace task.device
                 PubMaster.Track.UpdateRecentGood(lasttrack, goodid);
                 PubMaster.Track.UpdateRecentTile(lasttrack, tileid);
                 //生成入库交易
-                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.入库, goodid, stockid, tiletrackid, lasttrack);
+                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, lasttrack);
             }
             else
             {
@@ -1209,7 +1097,7 @@ namespace task.device
                     PubMaster.Track.UpdateRecentGood(givetrackid, goodid);
                     PubMaster.Track.UpdateRecentTile(givetrackid, tileid);
                     //生成入库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.入库, goodid, stockid, tiletrackid, givetrackid);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid);
                 }
 
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
@@ -1246,7 +1134,7 @@ namespace task.device
                         return;
                     }
                     //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.出库, goodid, stockid, trackid, tiletrackid);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, trackid, tiletrackid);
                     PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                     isallocate = true;
                 }
@@ -1261,7 +1149,7 @@ namespace task.device
                         PubMaster.Track.UpdateRecentGood(stock.track_id, goodid);
                         PubMaster.Track.UpdateRecentTile(stock.track_id, tileid);
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.出库, goodid, stock.id, stock.track_id, tiletrackid);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid);
                         PubMaster.Goods.AddStockOutLog(stock.id, tiletrackid, tileid);
                         isallocate = true;
                         break;
@@ -1320,7 +1208,7 @@ namespace task.device
                 }
 
                 //生成出库交易
-                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.出库, goodid, stockid, tt.track_id, tiletrackid);
+                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tt.track_id, tiletrackid);
                 PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileHaveNoTrackToOut, (ushort)tileid);
                 isallocate = true;
@@ -1377,7 +1265,7 @@ namespace task.device
             return IsTileLoadAndNeed(tileid, track, false, true);
         }
 
-        internal byte getTileFullQty(uint devid, uint goodid)
+        internal byte GetTileFullQty(uint devid, uint goodid)
         {
             TileLifterTask tile = DevList.Find(c => c.ID == devid);
             if (tile != null && tile.FullQty > 0)
@@ -1413,7 +1301,7 @@ namespace task.device
 
                     break;
                 case StrategyInE.同规同轨:
-                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, goodsId, TransTypeE.入库);
+                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, goodsId, TransTypeE.下砖任务);
                     break;
             }
             return iseffect;
@@ -1437,7 +1325,7 @@ namespace task.device
                     iseffect = PubTask.Trans.HaveInLifter(task.ID);
                     break;
                 case StrategyOutE.同规同轨:
-                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.DevConfig.goods_id, TransTypeE.出库);
+                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.DevConfig.goods_id, TransTypeE.上砖任务);
                     break;
                 case StrategyOutE.优先上砖:
 

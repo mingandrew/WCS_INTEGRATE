@@ -1060,7 +1060,7 @@ namespace task.device
                         isCarInFerry = true;
                     }
 
-                    if (trans.TransType == TransTypeE.倒库)
+                    if (trans.TransType == TransTypeE.倒库任务)
                     {
                         ferryids = PubMaster.Area.GetFerryWithTrackInOut(ferrytype, trans.area_id, 0, trans.give_track_id, isCarInFerry ? 0 : carrierTrack.id, false);
                     }

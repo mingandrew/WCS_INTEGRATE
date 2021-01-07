@@ -882,13 +882,13 @@ namespace task.device
 
                     switch (trans.TransType)
                     {
-                        case TransTypeE.入库:
+                        case TransTypeE.下砖任务:
                         case TransTypeE.手动入库:
                             return GetTransInOutCarrier(trans, DeviceTypeE.下摆渡, out carrierid, out result);
-                        case TransTypeE.出库:
+                        case TransTypeE.上砖任务:
                         case TransTypeE.手动出库:
                             return GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
-                        case TransTypeE.倒库:
+                        case TransTypeE.倒库任务:
                             return GetTransSortCarrier(trans, out carrierid, out result);
                     }
                 }
@@ -1010,7 +1010,7 @@ namespace task.device
             CarrierTask carrier = DevList.Find(c => c.TrackId == trans.take_track_id && c.CarrierType == needtype);
             //CarrierTask carrier = DevList.Find(c => c.TrackId == trans.take_track_id && c.CarrierType == needtype && c.CarrierDuty == needduty);
 
-            if (carrier == null && (trans.TransType == TransTypeE.出库 || trans.TransType == TransTypeE.手动出库))
+            if (carrier == null && (trans.TransType == TransTypeE.上砖任务 || trans.TransType == TransTypeE.手动出库))
             {
                 uint brothertra = PubMaster.Track.GetBrotherTrackId(trans.take_track_id);
                 carrier = DevList.Find(c => c.TrackId == brothertra
@@ -1052,7 +1052,7 @@ namespace task.device
                             {
                                 switch (trans.TransType)
                                 {
-                                    case TransTypeE.入库:
+                                    case TransTypeE.下砖任务:
                                         //空闲,没货，没任务
                                         if (CheckCarrierFreeNotLoad(car))
                                         {
@@ -1060,7 +1060,7 @@ namespace task.device
                                             return true;
                                         }
                                         break;
-                                    case TransTypeE.出库:
+                                    case TransTypeE.上砖任务:
                                         //空闲，没任务
                                         if (CheckCarrierFreeNoTask(car))
                                         {
@@ -1068,7 +1068,7 @@ namespace task.device
                                             return true;
                                         }
                                         break;
-                                    case TransTypeE.倒库:
+                                    case TransTypeE.倒库任务:
                                         break;
                                     case TransTypeE.其他:
                                         break;
@@ -1087,7 +1087,7 @@ namespace task.device
             {
                 switch (trans.TransType)
                 {
-                    case TransTypeE.入库:
+                    case TransTypeE.下砖任务:
                     case TransTypeE.手动入库:
                         if (CheckCarrierFreeNotLoad(carrier))
                         {
@@ -1095,7 +1095,7 @@ namespace task.device
                             return true;
                         }
                         break;
-                    case TransTypeE.出库:
+                    case TransTypeE.上砖任务:
                     case TransTypeE.手动出库:
                         if (!carrier.IsWorking)
                         {
@@ -1126,7 +1126,7 @@ namespace task.device
                             return true;
                         }
                         break;
-                    case TransTypeE.倒库:
+                    case TransTypeE.倒库任务:
                         break;
                     case TransTypeE.其他:
                         break;

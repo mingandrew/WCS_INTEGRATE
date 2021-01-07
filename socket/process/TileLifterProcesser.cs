@@ -42,7 +42,7 @@ namespace socket.process
         public byte Command;   //控制码
         public byte Value1;         //值1
         public byte Value2;        //值2
-        public int Value3;          //值3
+        public uint Value3;          //值3
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
@@ -85,7 +85,7 @@ namespace socket.process
             return mDev;
         }
 
-        internal byte[] GetCmd(string devid, DevLifterCmdTypeE type, byte value1, byte value2, int value3)
+        internal byte[] GetCmd(string devid, DevLifterCmdTypeE type, byte value1, byte value2, uint value3)
         {
             TileCmdStruct cmd = new TileCmdStruct();
             cmd.Head = ShiftBytes(SocketConst.TILELIFTER_CMD_HEAD_KEY);

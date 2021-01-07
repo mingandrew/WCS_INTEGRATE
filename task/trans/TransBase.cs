@@ -86,16 +86,16 @@ namespace task.trans
                                 StockTrans trans = TransList[i];
                                 switch (trans.TransType)
                                 {
-                                    case TransTypeE.入库:
+                                    case TransTypeE.下砖任务:
                                         DoInTrans(trans);
                                         break;
-                                    case TransTypeE.出库:
+                                    case TransTypeE.上砖任务:
                                         DoOutTrans(trans);
                                         break;
-                                    case TransTypeE.倒库:
+                                    case TransTypeE.倒库任务:
                                         DoSortTrans(trans);
                                         break;
-                                    case TransTypeE.移车:
+                                    case TransTypeE.移车任务:
                                         DoMoveCarrier(trans);
                                         break;
                                     case TransTypeE.手动入库:

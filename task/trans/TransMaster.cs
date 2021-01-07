@@ -1679,7 +1679,7 @@ namespace task.trans
                     PubMaster.Track.SetTrackEaryFull(track.id, false, null);
 
                     PubMaster.Track.SetSortTrackStatus(track.id, track.brother_track_id, TrackStatusE.启用, TrackStatusE.倒库中);
-                    AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库, goodsid, stockid, track.id, track.brother_track_id
+                    AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, stockid, track.id, track.brother_track_id
                         , TransStatusE.检查轨道);
                 }
             }
@@ -1687,7 +1687,7 @@ namespace task.trans
 
         private int HaveAreaSortTask(ushort area)
         {
-            return TransList.Count(c => !c.finish && c.area_id == area && c.TransType == TransTypeE.倒库);
+            return TransList.Count(c => !c.finish && c.area_id == area && c.TransType == TransTypeE.倒库任务);
         }
 
         #endregion
@@ -1742,7 +1742,7 @@ namespace task.trans
 
                 if (givetrackid != 0)
                 {
-                    AddTransWithoutLock(track.area, 0, TransTypeE.移车, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid);
+                    AddTransWithoutLock(track.area, 0, TransTypeE.移车任务, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid);
                 }
             }
         }
@@ -1764,7 +1764,7 @@ namespace task.trans
                 //[已有库存]
                 if (!PubMaster.Goods.HaveStockInTrack(taketrackid, goods_id, out uint stockid))
                 {
-                    byte fullqty = PubTask.TileLifter.getTileFullQty(devid, goods_id);
+                    byte fullqty = PubTask.TileLifter.GetTileFullQty(devid, goods_id);
                     ////[生成库存]
                     stockid = PubMaster.Goods.AddStock(devid, taketrackid, goods_id, fullqty);
                     if (stockid > 0)
@@ -2303,7 +2303,7 @@ namespace task.trans
                         }
                         switch (trans.TransType)
                         {
-                            case TransTypeE.入库:
+                            case TransTypeE.下砖任务:
                             case TransTypeE.手动入库:
                                 switch (trans.TransStaus)
                                 {
@@ -2334,7 +2334,7 @@ namespace task.trans
                                 }
 
                                 break;
-                            case TransTypeE.出库:
+                            case TransTypeE.上砖任务:
                             case TransTypeE.手动出库:
                                 switch (trans.TransStaus)
                                 {
@@ -2364,7 +2364,7 @@ namespace task.trans
                                         break;
                                 }
                                 break;
-                            case TransTypeE.倒库:
+                            case TransTypeE.倒库任务:
                                 if(trans.TransStaus == TransStatusE.调度设备 
                                     && trans.carrier_id == 0)
                                 {
@@ -2373,7 +2373,7 @@ namespace task.trans
                                 }
 
                                 break;
-                            case TransTypeE.移车:
+                            case TransTypeE.移车任务:
                                 SetStatus(trans, TransStatusE.取消);
                                 break;
                             case TransTypeE.其他:
@@ -2522,7 +2522,7 @@ namespace task.trans
                                 Console.WriteLine(e.StackTrace);
                             }
 
-                            if (item.TransType == TransTypeE.倒库)
+                            if (item.TransType == TransTypeE.倒库任务)
                             {
 
                             }
@@ -2538,17 +2538,17 @@ namespace task.trans
 
         internal void StopAreaUp(uint areaid)
         {
-            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.出库, TransTypeE.手动出库 });
+            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.上砖任务, TransTypeE.手动出库 });
         }
 
         internal void StopAreaDown(uint areaid)
         {
-            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.入库, TransTypeE.手动入库 });
+            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.下砖任务, TransTypeE.手动入库 });
         }
 
         internal void StopAreaSort(uint areaid)
         {
-            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.倒库 });
+            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.倒库任务 });
         }
 
         #endregion

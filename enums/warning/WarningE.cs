@@ -29,6 +29,9 @@
         HaveOtherCarrierInSortTrack,//有别的小车在倒库轨道，倒库车已经停止
         CarrierSortButStop,//倒库小车任务终止，需要手动发送倒库
         TileMixLastTrackInTrans,//砖机混砖作业，轨道被占用
+
+        TileGoodsIsZero,  //砖机工位品种反馈异常
+        TileGoodsIsNull,  //砖机工位品种没有配置
     }
 
     public enum CarrierWarnE

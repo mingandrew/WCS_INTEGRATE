@@ -187,7 +187,7 @@ namespace task.task
             DevTcp?.SendCmd(DevLifterCmdTypeE.介入2, (byte)invo, 0, 0);
         }
 
-        internal void DoShift(TileShiftCmdE ts, byte count = 0, int goods = 0)
+        internal void DoShift(TileShiftCmdE ts, byte count = 0, uint goods = 0)
         {
             DevTcp?.SendCmd(DevLifterCmdTypeE.转产, (byte)ts,  count, goods);
         }

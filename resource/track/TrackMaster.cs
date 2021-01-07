@@ -503,13 +503,13 @@ namespace resource.track
             List<uint> list = new List<uint>();
             switch (transType)
             {
-                case TransTypeE.入库:
+                case TransTypeE.下砖任务:
                     list.AddRange(TrackList.FindAll(c => c.Type == TrackTypeE.摆渡车_入).Select(c => c.id));
                     break;
-                case TransTypeE.出库:
+                case TransTypeE.上砖任务:
                     list.AddRange(TrackList.FindAll(c => c.Type == TrackTypeE.摆渡车_出).Select(c => c.id));
                     break;
-                case TransTypeE.倒库:
+                case TransTypeE.倒库任务:
                     list.AddRange(TrackList.FindAll(c => c.Type == TrackTypeE.摆渡车_出).Select(c => c.id));
                     break;
                 case TransTypeE.其他:
@@ -600,9 +600,9 @@ namespace resource.track
         {
             switch (transType)
             {
-                case TransTypeE.入库:
+                case TransTypeE.下砖任务:
                     return TrackList.Exists(c => c.id == track_id && (c.TrackStatus == TrackStatusE.停用 || c.TrackStatus == TrackStatusE.仅上砖));
-                case TransTypeE.出库:
+                case TransTypeE.上砖任务:
                     return TrackList.Exists(c => c.id == track_id && (c.TrackStatus == TrackStatusE.停用 || c.TrackStatus == TrackStatusE.仅下砖));
                 default:
                     return TrackList.Exists(c => c.id == track_id && c.TrackStatus == TrackStatusE.停用);
