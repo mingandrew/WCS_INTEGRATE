@@ -486,6 +486,7 @@ namespace task.device
         private void CheckDev(CarrierTask task)
         {
             task.CheckAlert();
+
             if (task.OperateMode == DevOperateModeE.手动)
             {
                 if (task.Task != DevCarrierTaskE.终止 && task.Task != DevCarrierTaskE.无)
@@ -502,21 +503,16 @@ namespace task.device
                     }
                 }
             }
+
             UpdateFerryLoadStatus(task);
+
             if (task.Status != DevCarrierStatusE.停止) return;
-            //if (task.OperateMode == DevOperateModeE.无)
-            //{
-            //    task.DoModeUpdate(DevCarrierWorkModeE.生产);
-            //}
+
             if (task.DevReset == DevCarrierResetE.复位
                 && task.DevStatus.ActionType == DevCarrierSignalE.复位)
             {
                 task.DevReset = DevCarrierResetE.无动作;
             }
-
-            //if (task.OperateMode == DevOperateModeE.手动模式) return;
-
-            //if (task.WorkMode != DevCarrierWorkModeE.生产模式) return;
 
             #region[检查任务]
 
@@ -554,8 +550,6 @@ namespace task.device
                             {
                                 PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, track.id, TrackLogE.空轨道, "有货");
                             }
-                            break;
-                        default:
                             break;
                     }
 
@@ -713,7 +707,6 @@ namespace task.device
                                     && PubMaster.Track.IsFerryTrackType(c.TrackId));
         }
 
-
         #endregion
 
         #region[发送信息]
@@ -752,16 +745,29 @@ namespace task.device
             switch (carriertask)
             {
                 case DevCarrierTaskE.后退取砖:
+                case DevCarrierTaskE.后退至内放砖:
+                case DevCarrierTaskE.后退至外放砖:
                     if (IsLoad(devid))
                     {
                         result = "运输车有货不能后退取砖！";
                         return false;
                     }
+                    if ((trackcode >= 200 && trackcode < 300) || (trackcode >= 600 && trackcode < 700))
+                    {
+                        result = "小车不能在入库轨道或上砖轨道执行！";
+                        return false;
+                    }
                     break;
+                case DevCarrierTaskE.前进取砖:
                 case DevCarrierTaskE.前进放砖:
                     if (IsNotLoad(devid))
                     {
                         result = "运输车没有货不能前进放货！";
+                        return false;
+                    }
+                    if ((trackcode < 200) || (trackcode >= 500 && trackcode < 600))
+                    {
+                        result = "小车不能在出库轨道或下砖轨道执行！";
                         return false;
                     }
                     isferryupsite = true;
@@ -787,9 +793,6 @@ namespace task.device
                     }
                     #endregion
                     break;
-                case DevCarrierTaskE.后退至轨道倒库:
-                    result = "当前无法使用！";
-                    return false;
                 case DevCarrierTaskE.前进至点:
                     if (!((trackcode >= 100 && trackcode < 400) || (trackcode >= 700 && trackcode < 740)))
                     {
@@ -798,6 +801,7 @@ namespace task.device
                     }
                     isferryupsite = true;
                     break;
+                case DevCarrierTaskE.后退至轨道倒库:
                 case DevCarrierTaskE.后退至点:
                     if (!((trackcode >= 300 && trackcode < 600) || trackcode >= 740))
                     {
