@@ -11,7 +11,7 @@
  Target Server Version : 80016
  File Encoding         : 65001
 
- Date: 04/01/2021 17:43:07
+ Date: 09/01/2021 10:52:21
 */
 
 SET NAMES utf8mb4;
@@ -31,12 +31,13 @@ CREATE TABLE `area`  (
   `carriertype` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '运输车类型',
   `full_qty` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '轨道未达到满砖警告数',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '区域' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '区域表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of area
 -- ----------------------------
-INSERT INTO `area` VALUES (1, '1#', b'1', b'1', '1号线', 3, 0, 5);
+INSERT INTO `area` VALUES (1, '包装前#', b'1', b'1', '包装前', 3, 0, 5);
+INSERT INTO `area` VALUES (2, '窑后#', b'1', b'1', '窑后', 3, 0, 5);
 
 -- ----------------------------
 -- Table structure for area_device
@@ -53,7 +54,7 @@ CREATE TABLE `area_device`  (
   INDEX `at_area_id_fk`(`area_id`) USING BTREE,
   CONSTRAINT `at_area_id_fk` FOREIGN KEY (`area_id`) REFERENCES `area` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `at_tile_id_fk` FOREIGN KEY (`device_id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '区域内设备' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of area_device
@@ -82,7 +83,7 @@ INSERT INTO `area_device` VALUES (19, 1, 19, 4, NULL);
 -- ----------------------------
 DROP TABLE IF EXISTS `area_device_track`;
 CREATE TABLE `area_device_track`  (
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '标识',
+  `id` int(11) UNSIGNED NOT NULL COMMENT '标识',
   `area_id` int(11) UNSIGNED NOT NULL COMMENT '区域ID',
   `device_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '设备ID',
   `track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '轨道ID',
@@ -94,7 +95,7 @@ CREATE TABLE `area_device_track`  (
   CONSTRAINT `adt_area_id_fk` FOREIGN KEY (`area_id`) REFERENCES `area` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `adt_device_id_fk` FOREIGN KEY (`device_id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `adt_track_id_fk` FOREIGN KEY (`track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 577 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '区域内设备作业的轨道' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 577 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of area_device_track
@@ -478,7 +479,7 @@ CREATE TABLE `area_track`  (
   INDEX `atra_track_id_fk`(`track_id`) USING BTREE,
   CONSTRAINT `atra_area_id_fk` FOREIGN KEY (`area_id`) REFERENCES `area` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `atra_track_id_fk` FOREIGN KEY (`track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 51 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '区域内轨道' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 51 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of area_track
@@ -548,7 +549,7 @@ CREATE TABLE `config_carrier`  (
   INDEX `carrier_stock_id_index`(`stock_id`) USING BTREE,
   CONSTRAINT `carrier_id_fk` FOREIGN KEY (`id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `carrier_stock_id_fk` FOREIGN KEY (`stock_id`) REFERENCES `stock` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '运输车配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of config_carrier
@@ -557,7 +558,6 @@ INSERT INTO `config_carrier` VALUES (15, NULL, NULL, NULL, NULL);
 INSERT INTO `config_carrier` VALUES (16, NULL, NULL, NULL, NULL);
 INSERT INTO `config_carrier` VALUES (17, NULL, NULL, NULL, NULL);
 INSERT INTO `config_carrier` VALUES (18, NULL, NULL, NULL, NULL);
-INSERT INTO `config_carrier` VALUES (19, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for config_ferry
@@ -570,7 +570,7 @@ CREATE TABLE `config_ferry`  (
   INDEX `ferry_track_id_index`(`track_id`) USING BTREE,
   CONSTRAINT `ferry__id_fk` FOREIGN KEY (`id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ferry_track_id_fk` FOREIGN KEY (`track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '摆渡车配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of config_ferry
@@ -596,8 +596,6 @@ CREATE TABLE `config_tilelifter`  (
   `goods_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '品种ID',
   `pre_goodid` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '预设品种',
   `do_shift` bit(1) NULL DEFAULT NULL COMMENT '开启转产',
-  `left_goods` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '左轨道品种',
-  `right_goods` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '右轨道品种',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `tile_goods_id_index`(`goods_id`) USING BTREE,
   INDEX `tile_ltrack_id_index`(`left_track_id`) USING BTREE,
@@ -606,21 +604,21 @@ CREATE TABLE `config_tilelifter`  (
   CONSTRAINT `tile_id_fk` FOREIGN KEY (`id`) REFERENCES `device` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `tile_ltrack_id_fk` FOREIGN KEY (`left_track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `tile_rtrack_id_fk` FOREIGN KEY (`right_track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '砖机配置' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of config_tilelifter
 -- ----------------------------
-INSERT INTO `config_tilelifter` VALUES (1, 0, 1, 2, 4, 0, 0, 0, 0, 192, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (2, 0, 3, 4, 4, 0, 0, 0, 0, 193, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (3, 0, 5, 6, 4, 0, 0, 0, 0, 192, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (4, 0, 7, 8, 4, 0, 0, 0, 0, 192, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (5, 0, 9, 10, 4, 0, 0, 0, 0, 194, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (6, 0, 11, 12, 4, 0, 0, 0, 0, 194, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (7, 0, 13, 14, 4, 0, 0, 0, 0, 195, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (8, 0, 15, 16, 4, 0, 0, 0, 0, 194, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (9, 0, 17, 18, 0, 1, 0, 0, 0, 192, 0, b'0', 1, 1);
-INSERT INTO `config_tilelifter` VALUES (10, 0, 49, 50, 0, 1, 0, 0, 0, 188, 0, b'0', 1, 1);
+INSERT INTO `config_tilelifter` VALUES (1, 0, 1, 2, 4, 0, 0, 0, 0, 33, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (2, 0, 3, 4, 4, 0, 0, 0, 0, 193, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (3, 0, 5, 6, 4, 0, 0, 0, 0, 192, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (4, 0, 7, 8, 4, 0, 0, 0, 0, 192, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (5, 0, 9, 10, 4, 0, 0, 0, 0, 194, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (6, 0, 11, 12, 4, 0, 0, 0, 0, 194, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (7, 0, 13, 14, 4, 0, 0, 0, 0, 195, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (8, 0, 15, 16, 4, 0, 0, 0, 0, 194, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (9, 0, 17, 18, 0, 1, 0, 0, 0, 192, 0, b'0');
+INSERT INTO `config_tilelifter` VALUES (10, 0, 49, 50, 0, 1, 0, 0, 0, 188, 0, b'0');
 
 -- ----------------------------
 -- Table structure for device
@@ -640,30 +638,30 @@ CREATE TABLE `device`  (
   `area` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '区域值用于过滤',
   `do_work` bit(1) NULL DEFAULT NULL COMMENT '开启作业',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '设备' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of device
 -- ----------------------------
-INSERT INTO `device` VALUES (1, 'A01', '192.168.0.31', 2000, 1, 2, b'1', 0, 0, '161', 1, b'1');
-INSERT INTO `device` VALUES (2, 'A02', '192.168.0.36', 2000, 1, 2, b'1', 0, 0, '162', 1, b'1');
-INSERT INTO `device` VALUES (3, 'A03', '192.168.0.41', 2000, 1, 2, b'1', 0, 0, '163', 1, b'1');
-INSERT INTO `device` VALUES (4, 'A04', '192.168.0.46', 2000, 1, 2, b'1', 0, 0, '164', 1, b'1');
-INSERT INTO `device` VALUES (5, 'A05', '192.168.0.51', 2000, 1, 2, b'1', 0, 0, '165', 1, b'1');
-INSERT INTO `device` VALUES (6, 'A06', '192.168.0.56', 2000, 1, 2, b'1', 0, 0, '166', 1, b'1');
-INSERT INTO `device` VALUES (7, 'A07', '192.168.0.61', 2000, 1, 2, b'1', 0, 0, '167', 1, b'1');
-INSERT INTO `device` VALUES (8, 'A08', '192.168.0.66', 2000, 1, 2, b'1', 0, 0, '168', 1, b'1');
-INSERT INTO `device` VALUES (9, 'D01', '192.168.0.81', 2000, 0, 2, b'1', 0, 0, '209', 1, b'1');
-INSERT INTO `device` VALUES (10, 'D02', '192.168.0.86', 2000, 0, 2, b'1', 0, 0, '210', 1, b'1');
-INSERT INTO `device` VALUES (11, 'B01', '192.168.0.131', 2000, 3, 0, b'1', 0, 0, '177', 1, b'1');
-INSERT INTO `device` VALUES (12, 'B02', '192.168.0.132', 2000, 3, 0, b'1', 0, 0, '178', 1, b'1');
-INSERT INTO `device` VALUES (13, 'B05', '192.168.0.135', 2000, 2, 0, b'1', 0, 0, '181', 1, b'1');
+INSERT INTO `device` VALUES (1, 'A01', '192.168.0.31', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (2, 'A02', '192.168.0.36', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (3, 'A03', '192.168.0.41', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (4, 'A04', '192.168.0.46', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (5, 'A05', '192.168.0.51', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (6, 'A06', '192.168.0.56', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (7, 'A07', '192.168.0.61', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (8, 'A08', '192.168.0.66', 2000, 1, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (9, 'D01', '192.168.0.81', 2000, 0, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (10, 'D02', '192.168.0.86', 2000, 0, 2, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (11, 'B01', '192.168.0.131', 2000, 3, 0, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (12, 'B02', '192.168.0.132', 2000, 3, 0, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (13, 'B05', '192.168.0.135', 2000, 2, 0, b'0', 0, 0, NULL, 1, b'1');
 INSERT INTO `device` VALUES (14, '1_B6', NULL, NULL, 9, 0, b'0', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `device` VALUES (15, 'C01', '192.168.0.151', 2000, 4, 0, b'1', 0, 0, '193', 1, b'1');
-INSERT INTO `device` VALUES (16, 'C02', '192.168.0.152', 2000, 4, 0, b'1', 0, 0, '194', 1, b'1');
-INSERT INTO `device` VALUES (17, 'C03', '192.168.0.153', 2000, 4, 0, b'1', 0, 0, '195', 1, b'1');
-INSERT INTO `device` VALUES (18, 'C04', '192.168.0.154', 2000, 4, 0, b'1', 0, 0, '196', 1, b'1');
-INSERT INTO `device` VALUES (19, 'C05', '192.168.0.155', 2000, 4, 0, b'1', 0, 0, '197', 1, b'1');
+INSERT INTO `device` VALUES (15, 'C01', '192.168.0.151', 2000, 4, 0, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (16, 'C02', '192.168.0.152', 2000, 4, 0, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (17, 'C03', '192.168.0.153', 2000, 4, 0, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (18, 'C04', '192.168.0.154', 2000, 4, 0, b'0', 0, 0, NULL, 1, b'1');
+INSERT INTO `device` VALUES (19, 'C05', '192.168.0.155', 2000, 4, 0, b'0', 0, 0, NULL, 1, b'1');
 
 -- ----------------------------
 -- Table structure for diction
@@ -680,7 +678,7 @@ CREATE TABLE `diction`  (
   `authorizelevel` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '权限等级',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `type_idx`(`type`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '字典' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of diction
@@ -693,6 +691,7 @@ INSERT INTO `diction` VALUES (5, 0, 0, '安全距离', b'0', b'1', b'0', 1);
 INSERT INTO `diction` VALUES (6, 0, 0, '版本信息', b'0', b'1', b'0', 1);
 INSERT INTO `diction` VALUES (7, 0, 0, '转产差值', b'0', b'1', b'0', 1);
 INSERT INTO `diction` VALUES (8, 0, 1, '配置开关', b'0', b'1', b'0', 100);
+INSERT INTO `diction` VALUES (10, 0, 0, '等级字典', b'1', b'1', b'0', 100);
 
 -- ----------------------------
 -- Table structure for diction_dtl
@@ -713,17 +712,17 @@ CREATE TABLE `diction_dtl`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `dic_id_fk`(`diction_id`) USING BTREE,
   CONSTRAINT `dic_id_fk` FOREIGN KEY (`diction_id`) REFERENCES `diction` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 61 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 65 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of diction_dtl
 -- ----------------------------
-INSERT INTO `diction_dtl` VALUES (1, 1, 'NewStockId', '生成库存ID', NULL, NULL, '', NULL, 5323, NULL, '2020-12-31 16:59:49');
-INSERT INTO `diction_dtl` VALUES (2, 1, 'NewTranId', '生成交易ID', NULL, NULL, '', NULL, 8294, NULL, '2020-12-17 10:11:46');
-INSERT INTO `diction_dtl` VALUES (3, 1, 'NewWarnId', '生成警告ID', NULL, NULL, '', NULL, 6817, NULL, '2021-01-04 14:50:19');
-INSERT INTO `diction_dtl` VALUES (4, 1, 'NewGoodId', '生成品种ID', NULL, NULL, '', NULL, 198, NULL, '2020-12-17 06:38:23');
-INSERT INTO `diction_dtl` VALUES (5, 2, 'Area1Down', '1号线下砖', NULL, b'0', '', NULL, NULL, NULL, '2020-12-31 16:58:51');
-INSERT INTO `diction_dtl` VALUES (6, 2, 'Area1Up', '1号线上砖', NULL, b'0', '', NULL, NULL, NULL, '2020-12-31 16:58:52');
+INSERT INTO `diction_dtl` VALUES (1, 1, 'NewStockId', '生成库存ID', NULL, NULL, '', NULL, 5325, NULL, '2021-01-09 09:01:46');
+INSERT INTO `diction_dtl` VALUES (2, 1, 'NewTranId', '生成交易ID', NULL, NULL, '', NULL, 8294, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (3, 1, 'NewWarnId', '生成警告ID', NULL, NULL, '', NULL, 6817, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (4, 1, 'NewGoodId', '生成品种ID', NULL, NULL, '', NULL, 198, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (5, 2, 'Area1Down', '1号线下砖', NULL, b'0', '', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (6, 2, 'Area1Up', '1号线上砖', NULL, b'0', '', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (20, 3, 'DeviceOffline', '设备离线提示', NULL, NULL, '设备离线', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (21, 3, 'TrackFullButNoneStock', '满砖无库存', NULL, NULL, '满砖无库存', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (22, 3, 'CarrierLoadSortTask', '小车倒库中但是小车有货', NULL, NULL, '小车倒库中但是小车有货', NULL, NULL, NULL, NULL);
@@ -756,13 +755,24 @@ INSERT INTO `diction_dtl` VALUES (48, 3, 'CarrierGiveMissTrack', '前进放货�
 INSERT INTO `diction_dtl` VALUES (49, 3, 'DownTileHaveNotTrackToStore', '砖机找不到合适轨道存砖', NULL, NULL, '砖机找不到合适轨道存砖', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (50, 3, 'UpTileHaveNotStockToOut', '砖机找不到合适库存出库', NULL, NULL, '砖机找不到合适库存出库', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (51, 3, 'TrackEarlyFull', '请检查轨道是否提前满砖了', NULL, NULL, '请检查轨道是否提前满砖了', NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl` VALUES (52, 4, 'MinStockTime', '最小存放时间(小时)', 0, NULL, NULL, NULL, NULL, NULL, '2020-11-18 21:26:18');
-INSERT INTO `diction_dtl` VALUES (53, 5, 'FerryAvoidNumber', '摆渡车(轨道数)', 2, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (52, 4, 'MinStockTime', '最小存放时间(小时)', 0, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (53, 5, 'FerryAvoidNumber', '摆渡车(轨道数)', 3, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (54, 3, 'UpTileHaveNoTrackToOut', '砖机找不到合适轨道上砖', NULL, NULL, '砖机找不到合适轨道上砖', NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl` VALUES (57, 6, 'PDA_INIT_VERSION', 'PDA基础字典版本', 9, NULL, '', NULL, NULL, NULL, '2020-12-17 14:00:05');
-INSERT INTO `diction_dtl` VALUES (58, 6, 'PDA_GOOD_VERSION', 'PDA规格字典版本', 5, NULL, '', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (57, 6, 'PDA_INIT_VERSION', 'PDA基础字典版本', 9, NULL, '', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (58, 6, 'PDA_GOOD_VERSION', 'PDA规格字典版本', 8, NULL, '', NULL, NULL, NULL, '2021-01-09 09:05:43');
 INSERT INTO `diction_dtl` VALUES (59, 7, 'TileLifterShiftCount', '下砖机转产差值(层数)', 99, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl` VALUES (60, 8, 'UserLoginFunction', 'PDA登陆功能开关', NULL, b'1', 'PDA登陆功能开关', NULL, NULL, NULL, '2020-12-18 11:20:06');
+INSERT INTO `diction_dtl` VALUES (60, 8, 'UserLoginFunction', 'PDA登陆功能开关', NULL, b'1', 'PDA登陆功能开关', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (61, 3, 'TileGoodsIsZero', '砖机工位品种反馈异常', NULL, NULL, '砖机工位品种反馈异常', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (62, 3, 'TileGoodsIsNull', '砖机工位品种无数据', NULL, NULL, '砖机工位品种无数据', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (101, 10, 'GoodLevel', '优等品', 1, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (102, 10, 'GoodLevel', '一级品', 2, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (103, 10, 'GoodLevel', 'A', 3, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (104, 10, 'GoodLevel', 'B', 4, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (105, 10, 'GoodLevel', 'C', 5, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (106, 10, 'GoodLevel', 'D', 6, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (107, 10, 'GoodLevel', 'E', 7, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (108, 10, 'GoodLevel', 'F', 8, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (109, 10, 'GoodLevel', 'G', 9, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for ferry_pos
@@ -777,7 +787,7 @@ CREATE TABLE `ferry_pos`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `fepos_traid_idx`(`track_id`) USING BTREE,
   INDEX `fepos_devid_idx`(`device_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 155 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '摆渡对位' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 155 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of ferry_pos
@@ -924,6 +934,64 @@ INSERT INTO `ferry_pos` VALUES (153, 19, 12, 201, 0);
 INSERT INTO `ferry_pos` VALUES (154, 20, 12, 202, 0);
 
 -- ----------------------------
+-- Table structure for good_size
+-- ----------------------------
+DROP TABLE IF EXISTS `good_size`;
+CREATE TABLE `good_size`  (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '规格ID',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `length` smallint(5) UNSIGNED NULL DEFAULT NULL COMMENT '长',
+  `width` smallint(5) NULL DEFAULT NULL COMMENT '宽',
+  `stack` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '垛',
+  `car_lenght` int(11) UNSIGNED NULL DEFAULT NULL,
+  `car_space` int(11) UNSIGNED NULL DEFAULT NULL,
+  `pub` bit(1) NULL DEFAULT NULL,
+  `oversize` bit(1) NULL DEFAULT NULL COMMENT '是否超限',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of good_size
+-- ----------------------------
+INSERT INTO `good_size` VALUES (1, '600x600', 600, 600, 6, NULL, NULL, b'1', b'0');
+INSERT INTO `good_size` VALUES (2, '800x400', 800, 400, 8, NULL, NULL, b'1', b'0');
+INSERT INTO `good_size` VALUES (3, '800x400', 800, 400, 5, NULL, NULL, b'1', b'0');
+INSERT INTO `good_size` VALUES (4, '800x800', 800, 800, 4, NULL, NULL, b'1', b'0');
+INSERT INTO `good_size` VALUES (5, '800x2600', 2600, 800, 1, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (6, '1200x2400', 2400, 1200, 1, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (7, '1200x2700', 2700, 1200, 1, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (8, '1600x3200', 3200, 1600, 1, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (9, '1200x2400', 2400, 1200, 3, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (10, '600x600', 600, 600, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (11, '600x900', 900, 600, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (12, '600x1200', 1200, 600, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (13, '700x1300', 1300, 700, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (14, '750x1500', 1500, 750, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (15, '800x1400', 1400, 800, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (16, '800x1600', 1600, 800, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (17, '800x2000', 2000, 800, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (18, '700x1300', 1300, 700, 3, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (19, '750x1500', 1500, 750, 3, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (20, '900x1800', 1800, 900, 2, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (21, '800x2000', 2000, 800, 1, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (22, '800x2600', 2600, 800, 1, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (23, '1200x2400', 2400, 1200, 1, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (24, '1200x2700', 2700, 1200, 1, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (25, '1600x3200', 3200, 1600, 1, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (26, '1200x2400', 2400, 1200, 3, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (27, '1200x2700', 2700, 1200, 3, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (28, '1000x3000', 3000, 1000, 3, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (29, '800x2600', 2600, 800, 3, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (30, '600x700', 700, 600, 2, NULL, NULL, NULL, b'1');
+INSERT INTO `good_size` VALUES (31, '800x800', 800, 800, 4, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (32, '600x600', 600, 600, 4, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (33, '1600x800', 800, 1600, 1, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (34, '1400x800', 800, 1400, 2, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (35, '800x800', 800, 800, 6, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (36, '600x1200', 1200, 600, 4, NULL, NULL, NULL, b'0');
+INSERT INTO `good_size` VALUES (37, '2000x1200', 1200, 2000, 3, NULL, NULL, NULL, b'0');
+
+-- ----------------------------
 -- Table structure for goods
 -- ----------------------------
 DROP TABLE IF EXISTS `goods`;
@@ -932,61 +1000,64 @@ CREATE TABLE `goods`  (
   `area_id` int(10) UNSIGNED NULL DEFAULT NULL COMMENT '区域',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '品种名称',
   `color` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '色号',
-  `width` smallint(5) UNSIGNED NULL DEFAULT NULL COMMENT '宽',
-  `length` smallint(5) UNSIGNED NULL DEFAULT NULL COMMENT '长',
-  `oversize` bit(1) NULL DEFAULT NULL COMMENT '是否超限',
-  `stack` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '垛数',
   `pieces` smallint(5) UNSIGNED NULL DEFAULT NULL COMMENT '满砖数',
   `carriertype` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '运输车类型',
   `memo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
   `updatetime` datetime(0) NULL DEFAULT NULL,
   `minstack` smallint(5) UNSIGNED NULL DEFAULT NULL COMMENT '最少托数',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 198 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '品种' ROW_FORMAT = Dynamic;
+  `size_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '规格ID',
+  `level` tinyint(3) UNSIGNED NOT NULL COMMENT '等级',
+  `createtime` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `top` bit(1) NULL DEFAULT NULL COMMENT '是否置顶',
+  `empty` bit(1) NULL DEFAULT NULL COMMENT '是否是空品种',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `g_createtime_idx`(`createtime`) USING BTREE,
+  INDEX `g_top_idx`(`top`) USING BTREE,
+  INDEX `fk_size_id`(`size_id`) USING BTREE,
+  CONSTRAINT `fk_size_id` FOREIGN KEY (`size_id`) REFERENCES `good_size` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 198 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of goods
 -- ----------------------------
-INSERT INTO `goods` VALUES (33, 1, '881062', '881062', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (35, 1, '88103', '88103', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (36, 1, '8208', '8208', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (37, 1, '88307', '88307', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (38, 1, '88306', '88306', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (39, 1, '88711', '88711', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (40, 1, '88112', '88112', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (49, 1, '1:800x800-88116', '88116', 800, 800, b'0', 4, 51, 0, '', '2020-12-15 09:32:33', NULL);
-INSERT INTO `goods` VALUES (50, 1, '88116一级', '88116一级', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (51, 1, '88311', '88311', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (60, 1, '3H092色', '3H092色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (61, 1, '5833', '5833', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (66, 1, '5833二色', '5833二色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (72, 1, '88311二色', '88311二色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (76, 1, '8106   3色', '8106  3色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (87, 1, '8812', '8812', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (100, 1, '88112L2色', '88112L2色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (113, 1, '88108  1色', '88108  1色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (164, 1, '6802一级', '6802一级', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (174, 1, '6859   一色', '6859   一色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (175, 1, '6859      一级', '6859    一级', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (176, 1, '6805一色', '6805一色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (177, 1, '6805一级', '6805一级', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (178, 1, '6808一色', '6808一色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (179, 1, '1:800x800-6808二色', '6808二色', 800, 800, b'0', 4, 51, 0, '', '2020-12-16 16:29:08', NULL);
-INSERT INTO `goods` VALUES (180, 1, '6805二色', '6805二色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (181, 1, '88306一色', '88306一色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (182, 1, '88306一级', '88306一级', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (183, 1, '6859一色', '6859一色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (184, 1, '1:800x800-6808二色', '6808二色', 800, 800, b'0', 4, 51, 0, '', '2020-12-16 16:23:31', NULL);
-INSERT INTO `goods` VALUES (185, 1, '6808二色一级', '6808二色一级', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (186, 1, '12702  一色', '12702  一色', 600, 1200, b'0', 3, 54, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (187, 1, '12702一级', '12702一级', 600, 1200, b'0', 3, 54, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (188, 1, '1.2*800-12702 一色', '1.2*800-12702 一色', 600, 1200, b'0', 3, 54, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (192, 1, '88702     一色', '88702   一色', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (193, 1, '88702    一级', '88702    一级', 800, 800, b'0', 4, 51, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (194, 1, '1.2*600-12702  二色', '1.2*600-12702  二色', 600, 1200, b'0', 3, 54, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (195, 1, '1.2*600-12702  二色一级', '1.2*600-12702  二色一级', 600, 1200, b'0', 3, 54, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (196, 1, '1.2*600-12702  一色', '1.2*600-12702  一色', 600, 1200, b'0', 3, 54, 0, '', NULL, NULL);
-INSERT INTO `goods` VALUES (197, 1, '1.2*600-12702  一色一级', '1.2*600-12702  一色一级', 600, 1200, b'0', 3, 54, 0, '', NULL, NULL);
+INSERT INTO `goods` VALUES (33, 1, '881062', '881062', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (35, 1, '88103', '88103', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (36, 1, '8208', '8208', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (37, 1, '88307', '88307', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (38, 1, '88306', '88306', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (39, 1, '88711', '88711', 51, 0, '', NULL, NULL, 2, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (40, 1, '88112', '88112', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (49, 1, '1:800x800-88116', '88116', 51, 0, '', '2020-12-15 09:32:33', NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (50, 1, '88116一级', '88116一级', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (51, 1, '88311', '88311', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (60, 1, '3H092色', '3H092色', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (61, 1, '5833', '5833', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (66, 1, '5833二色', '5833二色', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (72, 1, '88311二色', '88311二色', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (76, 1, '8106   3色', '8106  3色', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (87, 1, '8812', '8812', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (100, 1, '88112L2色', '88112L2色', 51, 0, '', NULL, NULL, 4, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (113, 1, '88108  1色', '88108  1色', 51, 0, '', NULL, NULL, 4, 0, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (164, 1, '6802一级', '6802一级', 51, 0, '', NULL, NULL, 4, 2, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (174, 1, '6859   一色', '6859   一色', 51, 0, '', NULL, NULL, 4, 2, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (175, 1, '6859      一级', '6859    一级', 51, 0, '', NULL, NULL, 4, 2, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (176, 1, '6805一色', '6805一色', 51, 0, '', NULL, NULL, 3, 2, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (177, 1, '6805一级', '6805一级', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (178, 1, '6808一色', '6808一色', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (180, 1, '6805二色', '6805二色', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (181, 1, '88306一色', '88306一色', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (182, 1, '88306一级', '88306一级', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (183, 1, '6859一色', '6859一色', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (185, 1, '6808二色一级', '6808二色一级', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (186, 1, '12702  一色', '12702', 54, 0, '', '2021-01-09 09:05:43', NULL, 1, 1, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (187, 1, '12702一级', '12702一级', 54, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (188, 1, '1.2*800-12702 一色', '1.2*800-12702 一色', 54, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (192, 1, '88702     一色', '88702   一色', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (193, 1, '88702    一级', '88702    一级', 51, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (194, 1, '1.2*600-12702  二色', '1.2*600-12702  二色', 54, 0, '', NULL, NULL, 3, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (195, 1, '1.2*600-12702  二色一级', '1.2*600-12702  二色一级', 54, 0, '', NULL, NULL, 5, 3, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (196, 1, '1.2*600-12702  一色', '1.2*600-12702  一色', 54, 0, '', NULL, NULL, 5, 5, NULL, NULL, NULL);
+INSERT INTO `goods` VALUES (197, 1, '1.2*600-12702  一色一级', '1.2*600-12702  一色一级', 54, 0, '', NULL, NULL, 5, 5, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for rf_client
@@ -999,7 +1070,7 @@ CREATE TABLE `rf_client`  (
   `conn_time` datetime(0) NULL DEFAULT NULL COMMENT '最近连接时间',
   `disconn_time` datetime(0) NULL DEFAULT NULL COMMENT '最近离线时间',
   PRIMARY KEY (`rfid`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '平板' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of rf_client
@@ -1029,7 +1100,7 @@ CREATE TABLE `stock`  (
   INDEX `sto_track_id_fk`(`track_id`) USING BTREE,
   CONSTRAINT `sto_goods_id_fk` FOREIGN KEY (`goods_id`) REFERENCES `goods` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `sto_track_id_fk` FOREIGN KEY (`track_id`) REFERENCES `track` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '库存' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of stock
@@ -1148,6 +1219,8 @@ INSERT INTO `stock` VALUES (5319, 194, 3, 162, 15, '2020-12-17 10:11:26', 0, 0, 
 INSERT INTO `stock` VALUES (5320, 192, 4, 204, 1, '2020-12-17 10:11:46', 0, 0, 1, 1, 1);
 INSERT INTO `stock` VALUES (5321, 33, 4, 204, 19, '2020-12-31 16:59:38', 5, 1, 0, 1, 4);
 INSERT INTO `stock` VALUES (5322, 49, 4, 204, 19, '2020-12-31 16:59:48', 6, 1, 0, 1, 4);
+INSERT INTO `stock` VALUES (5323, 36, 4, 204, 19, '2021-01-09 09:01:28', 7, 1, 0, 1, 4);
+INSERT INTO `stock` VALUES (5324, 36, 4, 204, 19, '2021-01-09 09:01:43', 8, 1, 0, 1, 4);
 
 -- ----------------------------
 -- Table structure for stock_log
@@ -1162,7 +1235,7 @@ CREATE TABLE `stock_log`  (
   `tilelifter_id` int(10) UNSIGNED NULL DEFAULT NULL COMMENT '下砖机ID',
   `create_time` datetime(0) NULL DEFAULT NULL COMMENT '生产时间/消耗时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 10420 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '库存出入记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 10420 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of stock_log
@@ -1948,7 +2021,7 @@ CREATE TABLE `stock_trans`  (
   INDEX `tran_type_idx`(`trans_type`) USING BTREE,
   INDEX `tran_status_idx`(`trans_status`) USING BTREE,
   INDEX `tran_finish_idx`(`finish`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '库存任务' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of stock_trans
@@ -2718,6 +2791,10 @@ CREATE TABLE `tile_track`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
+-- Records of tile_track
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for track
 -- ----------------------------
 DROP TABLE IF EXISTS `track`;
@@ -2753,61 +2830,61 @@ CREATE TABLE `track`  (
   `early_full` bit(1) NULL DEFAULT NULL COMMENT '提前满砖',
   `full_time` datetime(0) NULL DEFAULT NULL COMMENT '满砖时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 51 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '轨道' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 75 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of track
 -- ----------------------------
-INSERT INTO `track` VALUES (1, '01_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 101, 100, 0, 0, 0, NULL, 101, NULL, NULL, NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (2, '02_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 102, 100, 0, 0, 0, NULL, 102, NULL, NULL, NULL, NULL, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (3, '03_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 103, 100, 0, 0, 0, NULL, 103, NULL, NULL, NULL, NULL, NULL, 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (4, '04_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 104, 100, 0, 0, 0, NULL, 104, NULL, NULL, NULL, NULL, NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (5, '05_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 105, 100, 0, 0, 0, NULL, 105, NULL, NULL, NULL, NULL, NULL, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (6, '06_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 106, 100, 0, 0, 0, NULL, 106, NULL, NULL, NULL, NULL, NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (7, '07_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 107, 100, 0, 0, 0, NULL, 107, NULL, NULL, NULL, NULL, NULL, 12, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (8, '08_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 108, 100, 0, 0, 0, NULL, 108, NULL, NULL, NULL, NULL, NULL, 13, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (9, '09_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 109, 100, 0, 0, 0, NULL, 109, NULL, NULL, NULL, NULL, NULL, 15, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (10, '10_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 110, 100, 0, 0, 0, NULL, 110, NULL, NULL, NULL, NULL, NULL, 16, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (11, '11_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 111, 100, 0, 0, 0, NULL, 111, NULL, NULL, NULL, NULL, NULL, 18, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (12, '12_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 112, 100, 0, 0, 0, NULL, 112, NULL, NULL, NULL, NULL, NULL, 19, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (13, '13_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 113, 100, 0, 0, 0, NULL, 113, NULL, NULL, NULL, NULL, NULL, 21, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (14, '14_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 114, 100, 0, 0, 0, NULL, 114, NULL, NULL, NULL, NULL, NULL, 22, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (15, '15_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 115, 100, 0, 0, 0, NULL, 115, NULL, NULL, NULL, NULL, NULL, 24, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (16, '16_下砖轨', 1, 1, 1, 1, 0, 0, 0, 0, 116, 100, 0, 0, 0, NULL, 116, NULL, NULL, NULL, NULL, NULL, 25, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (17, '01_上砖轨', 1, 0, 1, 1, 0, 0, 0, 601, 0, 100, 0, 0, 0, NULL, 601, NULL, NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (18, '02_上砖轨', 1, 0, 1, 1, 0, 0, 0, 602, 0, 100, 0, 0, 0, NULL, 602, NULL, NULL, NULL, NULL, NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (19, '01_储砖轨', 1, 4, 2, 1, 700, 350, 350, 201, 501, 100, 0, 0, 20, NULL, 201, 501, NULL, NULL, NULL, NULL, 1, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (20, '02_储砖轨', 1, 4, 2, 1, 700, 350, 350, 202, 502, 100, 0, 19, 21, NULL, 202, 502, NULL, NULL, NULL, NULL, 2, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (21, '03_储砖轨', 1, 4, 2, 1, 700, 350, 350, 203, 503, 100, 0, 20, 22, NULL, 203, 503, NULL, NULL, NULL, NULL, 3, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (22, '04_储砖轨', 1, 4, 2, 1, 700, 350, 350, 204, 504, 100, 0, 21, 23, NULL, 204, 504, NULL, NULL, NULL, NULL, 4, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (23, '05_储砖轨', 1, 4, 1, 1, 700, 350, 350, 205, 505, 100, 0, 22, 24, NULL, 205, 505, NULL, NULL, NULL, NULL, 5, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (24, '06_储砖轨', 1, 4, 2, 1, 700, 350, 350, 206, 506, 100, 0, 23, 25, NULL, 206, 506, NULL, NULL, NULL, NULL, 6, 192, 9, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (25, '07_储砖轨', 1, 4, 2, 1, 700, 350, 350, 207, 507, 100, 0, 24, 26, NULL, 207, 507, NULL, NULL, NULL, NULL, 7, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (26, '08_储砖轨', 1, 4, 2, 1, 700, 350, 350, 208, 508, 100, 0, 25, 27, NULL, 208, 508, NULL, NULL, NULL, NULL, 8, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (27, '09_储砖轨', 1, 4, 2, 1, 700, 350, 350, 209, 509, 100, 0, 26, 28, NULL, 209, 509, NULL, NULL, NULL, NULL, 9, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (28, '10_储砖轨', 1, 4, 2, 1, 700, 350, 350, 210, 510, 100, 0, 27, 29, NULL, 210, 510, NULL, NULL, NULL, NULL, 10, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (29, '11_储砖轨', 1, 4, 1, 1, 700, 350, 350, 211, 511, 100, 0, 28, 30, NULL, 211, 511, NULL, NULL, NULL, NULL, 11, 192, 1, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (30, '12_储砖轨', 1, 4, 0, 1, 700, 350, 350, 212, 512, 100, 0, 29, 31, NULL, 212, 512, NULL, NULL, NULL, NULL, 12, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (31, '13_储砖轨', 1, 4, 2, 1, 700, 350, 350, 213, 513, 100, 0, 30, 32, NULL, 213, 513, NULL, NULL, NULL, NULL, 13, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (32, '14_储砖轨', 1, 4, 2, 1, 700, 350, 350, 214, 514, 100, 0, 31, 33, NULL, 214, 514, NULL, NULL, NULL, NULL, 14, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (33, '15_储砖轨', 1, 4, 2, 1, 700, 350, 350, 215, 515, 100, 0, 32, 34, NULL, 215, 515, NULL, NULL, NULL, NULL, 15, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (34, '16_储砖轨', 1, 4, 0, 1, 700, 350, 350, 216, 516, 100, 0, 33, 35, NULL, 216, 516, NULL, NULL, NULL, NULL, 16, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (35, '17_储砖轨', 1, 4, 2, 1, 700, 350, 350, 217, 517, 100, 0, 34, 36, NULL, 217, 517, NULL, NULL, NULL, NULL, 17, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (36, '18_储砖轨', 1, 4, 2, 1, 700, 350, 350, 218, 518, 100, 0, 35, 37, NULL, 218, 518, NULL, NULL, NULL, NULL, 18, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (37, '19_储砖轨', 1, 4, 2, 1, 700, 350, 350, 219, 519, 100, 0, 36, 38, NULL, 219, 519, NULL, NULL, NULL, NULL, 19, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (38, '20_储砖轨', 1, 4, 2, 1, 700, 350, 350, 220, 520, 100, 0, 37, 39, NULL, 220, 520, NULL, NULL, NULL, NULL, 20, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (39, '21_储砖轨', 1, 4, 2, 1, 700, 350, 350, 221, 521, 100, 0, 38, 40, NULL, 221, 521, NULL, NULL, NULL, NULL, 21, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (40, '22_储砖轨', 1, 4, 2, 1, 700, 350, 350, 222, 522, 100, 0, 39, 41, NULL, 222, 522, NULL, NULL, NULL, NULL, 22, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (41, '23_储砖轨', 1, 4, 0, 1, 700, 350, 350, 223, 523, 100, 0, 40, 42, NULL, 223, 523, NULL, NULL, NULL, NULL, 23, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (42, '24_储砖轨', 1, 4, 2, 1, 700, 350, 350, 224, 524, 100, 0, 41, 43, NULL, 224, 524, NULL, NULL, NULL, NULL, 24, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (43, '25_储砖轨', 1, 4, 0, 1, 700, 350, 350, 225, 525, 100, 0, 42, 44, NULL, 225, 525, NULL, NULL, NULL, NULL, 25, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (44, '26_储砖轨', 1, 4, 1, 1, 700, 350, 350, 226, 526, 100, 0, 43, 0, NULL, 226, 526, NULL, NULL, NULL, NULL, 26, 0, 0, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (45, 'B1_摆渡轨', 1, 5, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL, 701, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (46, 'B2_摆渡轨', 1, 5, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL, 702, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (47, 'B5_摆渡轨', 1, 6, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL, 741, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (1, '01_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 101, 100, 0, 0, 0, NULL, 101, NULL, NULL, NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (2, '02_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 102, 100, 0, 0, 0, NULL, 102, NULL, NULL, NULL, NULL, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (3, '03_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 103, 100, 0, 0, 0, NULL, 103, NULL, NULL, NULL, NULL, NULL, 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (4, '04_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 104, 100, 0, 0, 0, NULL, 104, NULL, NULL, NULL, NULL, NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (5, '05_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 105, 100, 0, 0, 0, NULL, 105, NULL, NULL, NULL, NULL, NULL, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (6, '06_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 106, 100, 0, 0, 0, NULL, 106, NULL, NULL, NULL, NULL, NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (7, '07_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 107, 100, 0, 0, 0, NULL, 107, NULL, NULL, NULL, NULL, NULL, 12, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (8, '08_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 108, 100, 0, 0, 0, NULL, 108, NULL, NULL, NULL, NULL, NULL, 13, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (9, '09_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 109, 100, 0, 0, 0, NULL, 109, NULL, NULL, NULL, NULL, NULL, 15, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (10, '10_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 110, 100, 0, 0, 0, NULL, 110, NULL, NULL, NULL, NULL, NULL, 16, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (11, '11_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 111, 100, 0, 0, 0, NULL, 111, NULL, NULL, NULL, NULL, NULL, 18, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (12, '12_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 112, 100, 0, 0, 0, NULL, 112, NULL, NULL, NULL, NULL, NULL, 19, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (13, '13_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 113, 100, 0, 0, 0, NULL, 113, NULL, NULL, NULL, NULL, NULL, 21, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (14, '14_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 114, 100, 0, 0, 0, NULL, 114, NULL, NULL, NULL, NULL, NULL, 22, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (15, '15_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 115, 100, 0, 0, 0, NULL, 115, NULL, NULL, NULL, NULL, NULL, 24, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (16, '16_下砖轨', 1, 1, 1, 0, 0, 0, 0, 0, 116, 100, 0, 0, 0, NULL, 116, NULL, NULL, NULL, NULL, NULL, 25, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (17, '01_上砖轨', 1, 0, 1, 0, 0, 0, 0, 601, 0, 100, 0, 0, 0, NULL, 601, NULL, NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (18, '02_上砖轨', 1, 0, 1, 0, 0, 0, 0, 602, 0, 100, 0, 0, 0, NULL, 602, NULL, NULL, NULL, NULL, NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (19, '01_储砖轨', 1, 4, 2, 0, 700, 350, 350, 201, 501, 100, 0, 0, 20, NULL, 201, 501, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (20, '02_储砖轨', 1, 4, 2, 0, 700, 350, 350, 202, 502, 100, 0, 19, 21, NULL, 202, 502, NULL, NULL, NULL, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (21, '03_储砖轨', 1, 4, 2, 0, 700, 350, 350, 203, 503, 100, 0, 20, 22, NULL, 203, 503, NULL, NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (22, '04_储砖轨', 1, 4, 2, 0, 700, 350, 350, 204, 504, 100, 0, 21, 23, NULL, 204, 504, NULL, NULL, NULL, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (23, '05_储砖轨', 1, 4, 1, 0, 700, 350, 350, 205, 505, 100, 0, 22, 24, NULL, 205, 505, NULL, NULL, NULL, NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (24, '06_储砖轨', 1, 4, 2, 0, 700, 350, 350, 206, 506, 100, 0, 23, 25, NULL, 206, 506, NULL, NULL, NULL, NULL, 6, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (25, '07_储砖轨', 1, 4, 2, 0, 700, 350, 350, 207, 507, 100, 0, 24, 26, NULL, 207, 507, NULL, NULL, NULL, NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (26, '08_储砖轨', 1, 4, 2, 0, 700, 350, 350, 208, 508, 100, 0, 25, 27, NULL, 208, 508, NULL, NULL, NULL, NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (27, '09_储砖轨', 1, 4, 2, 0, 700, 350, 350, 209, 509, 100, 0, 26, 28, NULL, 209, 509, NULL, NULL, NULL, NULL, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (28, '10_储砖轨', 1, 4, 2, 0, 700, 350, 350, 210, 510, 100, 0, 27, 29, NULL, 210, 510, NULL, NULL, NULL, NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (29, '11_储砖轨', 1, 4, 1, 0, 700, 350, 350, 211, 511, 100, 0, 28, 30, NULL, 211, 511, NULL, NULL, NULL, NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (30, '12_储砖轨', 1, 4, 0, 0, 700, 350, 350, 212, 512, 100, 0, 29, 31, NULL, 212, 512, NULL, NULL, NULL, NULL, 12, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (31, '13_储砖轨', 1, 4, 2, 0, 700, 350, 350, 213, 513, 100, 0, 30, 32, NULL, 213, 513, NULL, NULL, NULL, NULL, 13, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (32, '14_储砖轨', 1, 4, 2, 0, 700, 350, 350, 214, 514, 100, 0, 31, 33, NULL, 214, 514, NULL, NULL, NULL, NULL, 14, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (33, '15_储砖轨', 1, 4, 2, 0, 700, 350, 350, 215, 515, 100, 0, 32, 34, NULL, 215, 515, NULL, NULL, NULL, NULL, 15, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (34, '16_储砖轨', 1, 4, 0, 0, 700, 350, 350, 216, 516, 100, 0, 33, 35, NULL, 216, 516, NULL, NULL, NULL, NULL, 16, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (35, '17_储砖轨', 1, 4, 2, 0, 700, 350, 350, 217, 517, 100, 0, 34, 36, NULL, 217, 517, NULL, NULL, NULL, NULL, 17, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (36, '18_储砖轨', 1, 4, 2, 0, 700, 350, 350, 218, 518, 100, 0, 35, 37, NULL, 218, 518, NULL, NULL, NULL, NULL, 18, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (37, '19_储砖轨', 1, 4, 2, 0, 700, 350, 350, 219, 519, 100, 0, 36, 38, NULL, 219, 519, NULL, NULL, NULL, NULL, 19, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (38, '20_储砖轨', 1, 4, 2, 0, 700, 350, 350, 220, 520, 100, 0, 37, 39, NULL, 220, 520, NULL, NULL, NULL, NULL, 20, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (39, '21_储砖轨', 1, 4, 2, 0, 700, 350, 350, 221, 521, 100, 0, 38, 40, NULL, 221, 521, NULL, NULL, NULL, NULL, 21, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (40, '22_储砖轨', 1, 4, 2, 0, 700, 350, 350, 222, 522, 100, 0, 39, 41, NULL, 222, 522, NULL, NULL, NULL, NULL, 22, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (41, '23_储砖轨', 1, 4, 0, 0, 700, 350, 350, 223, 523, 100, 0, 40, 42, NULL, 223, 523, NULL, NULL, NULL, NULL, 23, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (42, '24_储砖轨', 1, 4, 2, 0, 700, 350, 350, 224, 524, 100, 0, 41, 43, NULL, 224, 524, NULL, NULL, NULL, NULL, 24, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (43, '25_储砖轨', 1, 4, 0, 0, 700, 350, 350, 225, 525, 100, 0, 42, 44, NULL, 225, 525, NULL, NULL, NULL, NULL, 25, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (44, '26_储砖轨', 1, 4, 1, 0, 700, 350, 350, 226, 526, 100, 0, 43, 0, NULL, 226, 526, NULL, NULL, NULL, NULL, 26, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (45, 'B1_摆渡轨', 1, 5, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL, 701, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (46, 'B2_摆渡轨', 1, 5, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL, 702, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (47, 'B5_摆渡轨', 1, 6, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL, 741, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `track` VALUES (48, 'B6_摆渡轨', 1, 6, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL, 742, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (49, '03_上砖轨', 1, 0, 1, 1, 0, 0, 0, 603, 0, 100, 0, 0, 0, NULL, 603, NULL, NULL, NULL, NULL, NULL, 14, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `track` VALUES (50, '04_上砖轨', 1, 0, 1, 1, 0, 0, 0, 604, 0, 100, 0, 0, 0, NULL, 604, NULL, NULL, NULL, NULL, NULL, 17, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (49, '03_上砖轨', 1, 0, 1, 0, 0, 0, 0, 603, 0, 100, 0, 0, 0, NULL, 603, NULL, NULL, NULL, NULL, NULL, 14, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `track` VALUES (50, '04_上砖轨', 1, 0, 1, 0, 0, 0, 0, 604, 0, 100, 0, 0, 0, NULL, 604, NULL, NULL, NULL, NULL, NULL, 17, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for track_log
@@ -2823,7 +2900,7 @@ CREATE TABLE `track_log`  (
   `memo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `area` smallint(5) UNSIGNED NULL DEFAULT NULL COMMENT '区域',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3095 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '轨道空满记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3095 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of track_log
@@ -3049,7 +3126,7 @@ CREATE TABLE `warning`  (
   `createtime` datetime(0) NULL DEFAULT NULL COMMENT '报警时间',
   `resolvetime` datetime(0) NULL DEFAULT NULL COMMENT '解决时间',
   INDEX `w_createtime_idx`(`createtime`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '报警' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of warning
@@ -3086,7 +3163,7 @@ INSERT INTO `warning` VALUES (7472, 0, 0, b'1', 12, 0, 0, 'B02: 设备离线', '
 INSERT INTO `warning` VALUES (7473, 0, 0, b'1', 12, 0, 0, 'B02: 设备离线', '2020-12-19 16:38:00', '2020-12-19 16:38:00');
 INSERT INTO `warning` VALUES (7492, 0, 0, b'1', 12, 0, 0, 'B02: 设备离线', '2020-12-19 17:30:14', '2020-12-19 17:30:14');
 INSERT INTO `warning` VALUES (6799, 0, 0, b'0', 2, 0, 0, 'A02: 设备离线', '2021-01-04 14:50:18', NULL);
-INSERT INTO `warning` VALUES (6800, 0, 0, b'0', 1, 0, 0, 'A01: 设备离线', '2021-01-04 14:50:18', NULL);
+INSERT INTO `warning` VALUES (6800, 0, 0, b'1', 1, 0, 0, 'A01: 设备离线', '2021-01-04 14:50:18', '2021-01-05 10:26:03');
 INSERT INTO `warning` VALUES (6801, 0, 0, b'0', 10, 0, 0, 'D02: 设备离线', '2021-01-04 14:50:18', NULL);
 INSERT INTO `warning` VALUES (6802, 0, 0, b'0', 11, 0, 0, 'B01: 设备离线', '2021-01-04 14:50:18', NULL);
 INSERT INTO `warning` VALUES (6803, 0, 0, b'0', 17, 0, 0, 'C03: 设备离线', '2021-01-04 14:50:18', NULL);
@@ -3342,20 +3419,20 @@ INSERT INTO `wcs_user` VALUES (3, 'supervisor', 'supervisor', '超级管理员',
 -- View structure for active_dev
 -- ----------------------------
 DROP VIEW IF EXISTS `active_dev`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `active_dev` AS select `t`.`id` AS `id`,`t`.`name` AS `name`,`t`.`ip` AS `ip`,`t`.`port` AS `port`,`t`.`type` AS `type`,`t`.`type2` AS `type2`,`t`.`enable` AS `enable`,`t`.`att1` AS `att1`,`t`.`att2` AS `att2`,`t`.`goods_id` AS `goods_id`,`t`.`left_track_id` AS `left_track_id`,`t`.`right_track_id` AS `right_track_id`,`t`.`brother_dev_id` AS `brother_dev_id`,`t`.`strategy_in` AS `strategy_in`,`t`.`strategy_out` AS `strategy_out`,`t`.`memo` AS `memo` from `device` `t` where (`t`.`enable` = 1);
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `active_dev` AS select `t`.`id` AS `id`,`t`.`name` AS `name`,`t`.`ip` AS `ip`,`t`.`port` AS `port`,`t`.`type` AS `type`,`t`.`type2` AS `type2`,`t`.`enable` AS `enable`,`t`.`att1` AS `att1`,`t`.`att2` AS `att2`,`t`.`memo` AS `memo` from `device` `t` where (`t`.`enable` = 1);
 
 -- ----------------------------
 -- View structure for stock_sum
 -- ----------------------------
 DROP VIEW IF EXISTS `stock_sum`;
-CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `stock_sum` AS select `t`.`goods_id` AS `goods_id`,`t`.`track_id` AS `track_id`,min(`t`.`produce_time`) AS `produce_time`,count(`t`.`id`) AS `count`,sum(`t`.`pieces`) AS `pieces`,sum(`t`.`stack`) AS `stack`,`t`.`area` AS `area`,`t`.`track_type` AS `track_type` from `stock` `t` where (`t`.`track_type` in (2,3,4)) group by `t`.`track_id`,`t`.`goods_id` order by `t`.`area`,`t`.`goods_id`,`produce_time`,`t`.`track_id`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `stock_sum` AS select `t`.`goods_id` AS `goods_id`,`t`.`track_id` AS `track_id`,min(`t`.`produce_time`) AS `produce_time`,count(`t`.`id`) AS `count`,sum(`t`.`pieces`) AS `pieces`,sum(`t`.`stack`) AS `stack`,`t`.`area` AS `area`,`t`.`track_type` AS `track_type` from `stock` `t` where (`t`.`track_type` in (2,3,4)) group by `t`.`track_id`,`t`.`goods_id` order by `t`.`area`,`t`.`goods_id`,`produce_time`,`t`.`track_id`;
 
 -- ----------------------------
 -- Procedure structure for DELETE_DATA
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `DELETE_DATA`;
 delimiter ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `DELETE_DATA`()
+CREATE PROCEDURE `DELETE_DATA`()
 BEGIN
 	/*仅保留 31 天的报警数据*/
 	delete from warning where resolve = 1 and DATEDIFF(CURRENT_DATE,createtime) >= 31;
@@ -3373,7 +3450,7 @@ delimiter ;
 -- ----------------------------
 DROP EVENT IF EXISTS `DELETE_EVEN`;
 delimiter ;;
-CREATE DEFINER = `root`@`localhost` EVENT `DELETE_EVEN`
+CREATE EVENT `DELETE_EVEN`
 ON SCHEDULE
 EVERY '1' DAY STARTS '2020-10-02 01:00:00'
 DO CALL DELETE_DATA()
