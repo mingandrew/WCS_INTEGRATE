@@ -100,6 +100,10 @@ namespace task.task
 
         public bool StopOneTime { set; get; }
 
+        public bool Ignore_1 = false;//忽略1
+
+        public bool Ignore_2 = false;//忽略2
+
         #endregion
 
         #region[下砖/上砖策略]

@@ -63,6 +63,10 @@ namespace module.deviceconfig
         /// </summary>
         public bool do_shift { set; get; }
 
+        /// <summary>
+        /// 砖机类型 前进放砖/后退放砖
+        /// </summary>
+        public uint att2 { set; get; }
 
 
         /// <summary>
@@ -100,5 +104,13 @@ namespace module.deviceconfig
             get => brother_dev_id != 0;
         }
 
+        /// <summary>
+        /// 是否为后退放砖类型的砖机
+        /// </summary>
+        public TileLifterTypeE TileLifterType
+        {
+            get => (TileLifterTypeE)att2;
+            set => att2 = (byte)value;
+        }
     }
 }

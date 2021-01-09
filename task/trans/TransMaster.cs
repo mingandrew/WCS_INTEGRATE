@@ -977,9 +977,39 @@ namespace task.trans
                                         //小车到达摆渡车后短暂等待再开始定位
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out string _))
                                         {
-                                            if (PubTask.TileLifter.IsGiveReady(trans.tilelifter_id, trans.give_track_id, out _))
+                                            /**
+                                             * 1.判断砖机是否是单个砖机
+                                             * 2.
+                                             */
+                                            if (PubMaster.DevConfig.IsBrother(trans.tilelifter_id)
+                                                && PubTask.TileLifter.IsInSideTileNeed(trans.tilelifter_id, trans.give_track_id))
                                             {
-                                                PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
+                                                uint bro = PubMaster.DevConfig.GetBrotherId(trans.tilelifter_id);
+                                                SetTile(trans, bro);
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                if (PubTask.TileLifter.IsGiveReady(trans.tilelifter_id, trans.give_track_id, out _))
+                                                {
+                                                    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
+                                                    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                                    if (PubMaster.DevConfig.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
+                                                    {
+                                                        if (PubMaster.DevConfig.HaveBrother(trans.tilelifter_id))
+                                                        {
+                                                            PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至内放砖);
+                                                        }
+                                                        else
+                                                        {
+                                                            PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至外放砖);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -1060,7 +1090,22 @@ namespace task.trans
                                     //没有任务并且停止
                                     if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
-                                        PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
+                                        if (PubMaster.DevConfig.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
+                                        {
+                                            if (PubMaster.DevConfig.HaveBrother(trans.tilelifter_id))
+                                            {
+                                                PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至内放砖);
+                                            }
+                                            else
+                                            {
+                                                PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至外放砖);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
+                                        }
+                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
                                     }
                                 }
                                 else
@@ -1122,7 +1167,15 @@ namespace task.trans
                                     if (LockFerryAndAction(trans, trans.give_ferry_id, track.id, track.id, out string _, true)
                                         && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
-                                        PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
+                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
+                                        if (PubMaster.DevConfig.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
+                                        {
+                                            PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
+                                        }
+                                        else
+                                        {
+                                            PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
+                                        }
                                     }
                                 }
                             }

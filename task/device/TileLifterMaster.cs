@@ -254,6 +254,35 @@ namespace task.device
         }
 
         /// <summary>
+        /// 忽略兄弟砖机工位介入
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="isone"></param>
+        /// <returns></returns>
+        public void DoIgnore(uint devid, bool isone)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    TileLifterTask task = DevList.Find(c => c.ID == devid);
+                    if (task == null) return;
+                    if (isone)
+                    {
+                        task.Ignore_1 = true;
+                    }
+                    else
+                    {
+                        task.Ignore_2 = true;
+                    }
+
+
+                }
+                finally { Monitor.Exit(_obj); }
+            }
+        }
+
+        /// <summary>
         /// 发送给砖机离开工位
         /// 1.如果兄弟砖机需要，则不离开
         /// 2.如果兄弟砖机离开，则全部离开
@@ -705,6 +734,8 @@ namespace task.device
 
                     #endregion
 
+                    if (!CheckUpBrotherIsReady(task, true, false)) return;
+
                     #region[生成出库交易]
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.left_track_id);
@@ -852,6 +883,8 @@ namespace task.device
 
                     #endregion
 
+                    if (!CheckUpBrotherIsReady(task, true, false)) return;
+
                     #region[生成出库交易]
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.right_track_id);
@@ -925,7 +958,7 @@ namespace task.device
             #endregion
 
         }
-
+    
         /// <summary>
         /// 是否允许作为任务品种
         /// </summary>
@@ -1275,6 +1308,23 @@ namespace task.device
             return iseffect;
         }
 
+        internal bool IsInSideTileNeed(uint tileid, uint trackid)
+        {
+            TileLifterTask task = DevList.Find(c => c.BrotherId == tileid);
+            if (task != null)
+            {
+                if (task.ConnStatus == SocketConnectStatusE.通信正常)
+                {
+                    if (task.DevConfig.left_track_id == trackid)
+                    {
+                        return task.IsNeed_1 && task.IsInvo_1 && !task.IsLoad_1;
+                    }
+                    return task.IsNeed_2 && task.IsInvo_2 && !task.IsLoad_2;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// 检查出库策略
         /// </summary>
@@ -1298,6 +1348,9 @@ namespace task.device
                 case StrategyOutE.优先上砖:
                     iseffect = PubTask.Trans.ExistInTileTrack(task.ID, trackid);
                     break;
+                case StrategyOutE.同轨同轨://双下砖机，同时只作业一台砖机作业【间接限制了会下不同轨道】
+                    iseffect = PubTask.Trans.HaveOutTileTrack(task.DevConfig.left_track_id, task.DevConfig.right_track_id);
+                    break;
                 default:
                     break;
             }
@@ -1305,7 +1358,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 检查兄弟砖机是否满砖状态
+        /// 检查下砖机兄弟砖机是否满砖状态
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
@@ -1316,24 +1369,92 @@ namespace task.device
 
             TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
             if (brotask == null) return false;
-            if (checkleft)
+            if (brotask.ConnStatus == SocketConnectStatusE.通信正常)
             {
-                if (brotask.IsNeed_1) return false;
-                if (!brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1))
+                if (checkleft)
                 {
-                    Thread.Sleep(1000);
-                    brotask.Do1Invo(DevLifterInvolE.介入);
+                    if (brotask.IsNeed_1) return false;
+                    if (!brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1))
+                    {
+                        Thread.Sleep(1000);
+                        brotask.Do1Invo(DevLifterInvolE.介入);
+                    }
+                    return brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1);
                 }
-                return brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1);
+
+                if (!brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2))
+                {
+                    if (brotask.IsNeed_2) return false;
+                    Thread.Sleep(1000);
+                    brotask.Do2Invo(DevLifterInvolE.介入);
+                }
+                return brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2);
+            }
+            else
+            {
+                if (checkleft)
+                {
+                    return brotask.Ignore_1;
+                }
+                else
+                {
+                    return brotask.Ignore_2;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 检查上砖机兄弟砖机是否满砖状态
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        private bool CheckUpBrotherIsReady(TileLifterTask task, bool checkfull, bool checkleft)
+        {
+            //外侧上砖机          
+            if (!task.HaveBrother)
+            {
+                TileLifterTask brotaskin = DevList.Find(c => c.BrotherId == task.ID);//查找有BrotherId是该砖机ID的砖机(及并联内侧上砖机)
+                if (brotaskin == null) return true;
+                if (task.IsWorking && brotaskin.ConnStatus == SocketConnectStatusE.通信正常)
+                {
+                    if (checkleft)
+                    {
+                        if (brotaskin.IsNeed_1) return false;//左轨道检查需求1
+                    }
+                    else
+                    {
+                        if (brotaskin.IsNeed_2) return false;//右轨道检查需求2
+                    }
+                    return true;
+                }
+                return true;
             }
 
-            if (!brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2))
+            TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);//DevList.Find(c => c.BrotherId == task.ID)
+            if (brotask == null) return false;
+            if (brotask.ConnStatus == SocketConnectStatusE.通信正常)
             {
-                if (brotask.IsNeed_2) return false;
-                Thread.Sleep(1000);
-                brotask.Do2Invo(DevLifterInvolE.介入);
+                if (checkleft)
+                {
+                    if ((brotask.IsNeed_1 || brotask.IsInvo_1) && brotask.IsEmpty_1) return true;//如果兄弟砖机左工位有需求或介入且无砖，就可以生成出库任务                       
+                }
+                else
+                {
+                    if ((brotask.IsNeed_2 || brotask.IsInvo_2) && brotask.IsEmpty_2) return true;//如果兄弟砖机右工位有需求或介入且无砖，就可以生成出库任务
+                }
+                return false;
             }
-            return brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2);
+            else
+            {
+                if (checkleft)
+                {
+                    return brotask.Ignore_1;
+                }
+                else
+                {
+                    return brotask.Ignore_2;
+                }
+            }
         }
 
         #endregion
@@ -1448,13 +1569,26 @@ namespace task.device
                     return false;
                 }
 
+                if (!CheckUpBrotherIsReady(task, false, task.DevConfig.left_track_id == givetrackid))
+                {
+                    return false;
+                }
+
                 if (task.DevConfig.left_track_id == givetrackid)
                 {
+                    if (!task.IsInvo_1 && task.IsNeed_1 && task.IsEmpty_1)
+                    {
+                        task.Do1Invo(DevLifterInvolE.介入);
+                    }
                     return task.IsNeed_1 && task.IsEmpty_1 && task.IsInvo_1;
                 }
 
                 if (task.DevConfig.right_track_id == givetrackid)
                 {
+                    if (!task.IsInvo_2 && task.IsNeed_2 && task.IsEmpty_2)
+                    {
+                        task.Do2Invo(DevLifterInvolE.介入);
+                    }
                     return task.IsNeed_2 && task.IsEmpty_2 && task.IsInvo_2;
                 }
 

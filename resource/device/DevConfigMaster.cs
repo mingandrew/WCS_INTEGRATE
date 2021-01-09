@@ -352,6 +352,47 @@ namespace resource.device
             return false;
         }
 
+        /// <summary>
+        /// 判断上砖机类型
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="tileLifterType"></param>
+        /// <returns></returns>
+        public bool IsTileLifterType(uint devid, TileLifterTypeE tileLifterType)
+        {
+            return ConfigTileLifter.Exists(c => c.id == devid && c.TileLifterType == tileLifterType);
+        }
+
+        /// <summary>
+        /// 判断是否有兄弟砖机
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public bool HaveBrother(uint devid)
+        {
+            return ConfigTileLifter.Exists(c => c.id == devid && c.HaveBrother);
+        }
+
+        /// <summary>
+        /// 判断是不是外面的砖机
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <returns></returns>
+        public bool IsBrother(uint tileid)
+        {
+            return ConfigTileLifter.Exists(c => c.brother_dev_id == tileid);
+        }
+
+        /// <summary>
+        /// 获取内侧砖机的ID
+        /// </summary>
+        /// <param name="tilelifter_id"></param>
+        /// <returns></returns>
+        public uint GetBrotherId(uint tilelifter_id)
+        {
+            return ConfigTileLifter.Find(c => c.brother_dev_id == tilelifter_id).id;
+        }
+
         #endregion
 
         #endregion
