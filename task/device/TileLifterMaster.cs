@@ -108,6 +108,21 @@ namespace task.device
                                     task.DoQuery();
                                 }
 
+                                #region 同步当前品种/等级
+                                if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
+                                {
+                                    Thread.Sleep(500);
+                                    task.DoShift(TileShiftCmdE.变更品种, 0, task.DevConfig.goods_id);
+                                }
+
+                                byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
+                                if (level != task.DevStatus.SetLevel)
+                                {
+                                    Thread.Sleep(500);
+                                    task.DoUpdateLevel(level);
+                                }
+                                #endregion
+
                                 #region 断线重连
 
                                 ///离线住够长时间，自动断开重连
@@ -1466,6 +1481,22 @@ namespace task.device
                     if (task != null)
                     {
                         task.DevConfig.goods_id = goodid;
+
+                        #region 同步当前品种/等级
+                        if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
+                        {
+                            Thread.Sleep(500);
+                            task.DoShift(TileShiftCmdE.变更品种, 0, task.DevConfig.goods_id);
+                        }
+
+                        byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
+                        if (level != task.DevStatus.SetLevel)
+                        {
+                            Thread.Sleep(500);
+                            task.DoUpdateLevel(level);
+                        }
+                        #endregion
+
                         MsgSend(task, task.DevStatus);
                     }
                 }
