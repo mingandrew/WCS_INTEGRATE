@@ -157,6 +157,7 @@ namespace task.device
             Alert1();
             Alert2();
             Alert3();
+            Alert4();
         }
         private void Alert1()
         {
@@ -362,6 +363,38 @@ namespace task.device
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.SortTaskOverTime, (ushort)ID);
             }
+
+            if (On(DevStatus.Aler3, 5))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.TriggerEmergencyStop, (ushort)ID, 3);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.TriggerEmergencyStop, (ushort)ID);
+            }
+        }
+
+        private void Alert4()
+        {
+            if (DevStatus.Aler4 == 0)
+            {
+                PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 4);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Aler4, 0))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.CheckUpAndLoadIsNormal, (ushort)ID, 4);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.CheckUpAndLoadIsNormal, (ushort)ID);
+
+            if (On(DevStatus.Aler4, 1))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.CheckGoDecelerateIsNormal, (ushort)ID, 4);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.CheckGoDecelerateIsNormal, (ushort)ID);
+
         }
 
         private bool On(byte b,byte p)

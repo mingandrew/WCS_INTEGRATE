@@ -57,7 +57,10 @@
         Back2PointCannotDo,
         NotGoodToGoUp,
         SortTaskOverTime,
-        FunctinSwitchOverTime
+        FunctinSwitchOverTime,
+        CheckUpAndLoadIsNormal, //检查上位和有砖信号是否正常
+        CheckGoDecelerateIsNormal,  //检查前进存砖减速信号是否正常
+        TriggerEmergencyStop //急停触发
     }
 
 }
