@@ -160,11 +160,11 @@ namespace wcs.ViewModel
                              }
                          }).GetResultAsync<DialogResult>();
 
-                        if (result.p1 is bool rs && result.p2 is Goods good)
+                        if (result.p1 is bool rs && result.p2 is GoodsView good)
                         {
-                            if (PubMaster.DevConfig.SetTileLifterGoods(DeviceSelected.ID, good.id))
+                            if (PubMaster.DevConfig.SetTileLifterGoods(DeviceSelected.ID, good.ID))
                             {
-                                PubTask.TileLifter.UpdateTileLifterGoods(DeviceSelected.ID, good.id);
+                                PubTask.TileLifter.UpdateTileLifterGoods(DeviceSelected.ID, good.ID);
                             }
                         }
                         break;

@@ -1,7 +1,6 @@
 ﻿using enums.track;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.goods;
 using module.track;
@@ -9,6 +8,7 @@ using module.window;
 using resource;
 using System;
 using System.Collections.Generic;
+using wcs.Data.View;
 using wcs.Dialog;
 
 namespace wcs.ViewModel
@@ -24,7 +24,8 @@ namespace wcs.ViewModel
         #region[字段]
 
         private Track lefttrack, righttrack;
-        private Goods leftgood, rightgood;
+        private GoodsView leftgood, rightgood;
+        private GoodSize lsize, rsize;
 
         private string lefttraname, righttraname;
         private string leftgoname, rightgoname;
@@ -95,11 +96,11 @@ namespace wcs.ViewModel
         private void CheckIsOk4Good()
         {
             //检查左轨道是否能放砖
-            if(lefttrack != null && leftgood != null)
+            if(lefttrack != null && leftgood != null && lsize !=null)
             {
                 if(lefttrack.left_track_id == 0)
                 {
-                    if (CheckTrackAndGood(lefttrack.width, leftgood.width, lefttrack.left_distance))
+                    if (CheckTrackAndGood(lefttrack.width, lsize.width, lefttrack.left_distance))
                     {
                         IsSite1Ok = false;
                         Result1 = "距离左轨道间距小于100";
@@ -114,7 +115,7 @@ namespace wcs.ViewModel
 
                 if(lefttrack.right_track_id == 0)
                 {
-                    if (CheckTrackAndGood(lefttrack.width, leftgood.width, lefttrack.right_distance))
+                    if (CheckTrackAndGood(lefttrack.width, lsize.width, lefttrack.right_distance))
                     {
                         IsSite1Ok = false;
                         Result1 = "距离右轨道间距小于100";
@@ -129,11 +130,11 @@ namespace wcs.ViewModel
             }
             
             //检查右轨道是否能放砖
-            if(righttrack != null && rightgood != null)
+            if(righttrack != null && rightgood != null && rsize != null)
             {
                 if (righttrack.left_track_id == 0)
                 {
-                    if (CheckTrackAndGood(righttrack.width, rightgood.width, righttrack.left_distance))
+                    if (CheckTrackAndGood(righttrack.width, rsize.width, righttrack.left_distance))
                     {
                         IsSite2Ok = false;
                         Result2 = "距离左轨道间距小于100";
@@ -143,7 +144,7 @@ namespace wcs.ViewModel
 
                 if (righttrack.right_track_id == 0)
                 {
-                    if (CheckTrackAndGood(righttrack.width, rightgood.width, righttrack.right_distance))
+                    if (CheckTrackAndGood(righttrack.width, rsize.width, righttrack.right_distance))
                     {
                         IsSite2Ok = false;
                         Result2 = "距离右轨道间距小于100";
@@ -154,8 +155,8 @@ namespace wcs.ViewModel
 
             if (lefttrack == null || righttrack == null
                 || leftgood == null || rightgood == null) return;
-            int ld = Math.Abs(leftgood.width - lefttrack.width) / 2;
-            int rd = Math.Abs(rightgood.width - righttrack.width) / 2;
+            int ld = Math.Abs(lsize.width - lefttrack.width) / 2;
+            int rd = Math.Abs(rsize.width - righttrack.width) / 2;
 
             if (lefttrack.right_distance == righttrack.left_distance)
             {
@@ -227,17 +228,19 @@ namespace wcs.ViewModel
                                 vm.QueryGood();
                             }).GetResultAsync<DialogResult>();
 
-                if (result.p1 is bool rs && result.p2 is Goods good)
+                if (result.p1 is bool rs && result.p2 is GoodsView good)
                 {
                     if (tag.Contains("left"))
                     {
                         leftgood = good;
-                        LeftGoName = good.name;
+                        lsize = PubMaster.Goods.GetGoodSize(good.SizeId);
+                        LeftGoName = good.Name;
                     }
                     else
                     {
                         rightgood = good;
-                        RightGoName = good.name;
+                        rsize = PubMaster.Goods.GetGoodSize(good.SizeId);
+                        RightGoName = good.Name;
                     }
                     CheckIsOk4Good();
                 }

@@ -29,72 +29,68 @@
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
-                <RowDefinition Height="auto"/>
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="名称:" Style="{StaticResource TextBlockLarge}"/>
+                <TextBlock Text="名称:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
             </Border>
-            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="区域:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
+            <Border Grid.Row="0" Grid.Column="2"  Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="等级:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="宽度:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
-            </Border>
-            <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="长度:" Style="{StaticResource TextBlockLarge}"/>
-            </Border>
-            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}" Visibility="Collapsed">
-                <TextBlock Text="超限:" Style="{StaticResource TextBlockLarge}"/>
-            </Border>
-            <Border Grid.Row="2" Grid.Column="2"  Style="{StaticResource MBorder_LT}" Visibility="Collapsed">
-                <TextBlock Text="车型:" Style="{StaticResource TextBlockLarge}"/>
-            </Border>
-            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}">
                 <TextBlock Text="色号:" Style="{StaticResource TextBlockLarge}"/>
             </Border>
-            <Border Grid.Row="3" Grid.Column="2"  Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="备注:" Style="{StaticResource TextBlockLarge}"/>
-            </Border>
-            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                <TextBlock Text="垛数:" Style="{StaticResource TextBlockLarge}"/>
-            </Border>
-            <Border Grid.Row="4" Grid.Column="2"  Style="{StaticResource MBorder_LTB}">
+            <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}">
                 <TextBlock Text="砖数:" Style="{StaticResource TextBlockLarge}"/>
             </Border>
 
+            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="区域:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+
+            <Border Grid.Row="2" Grid.Column="2"  Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="车型:" Style="{StaticResource TextBlockLarge}" Visibility="Collapsed"/>
+            </Border>
+            
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                <TextBlock Text="规格:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
+            </Border>
+            
+            <!-- input-->
             <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LT}">
                 <TextBox Text="{Binding Name, Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
             </Border>
-            <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}" IsEnabled="{Binding AreaChange}">
+
+            <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
+                <hc:ComboBox ItemsSource="{Binding LevelList}"  SelectedItem="{Binding SelectLevel,Mode=TwoWay}" 
+                             DisplayMemberPath="name"  VerticalAlignment="Center" FontSize="25" Margin="10"/>
+            </Border>
+
+            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LT}" IsEnabled="{Binding AreaChange}">
                 <hc:ComboBox ItemsSource="{Binding AreaList}"  SelectedItem="{Binding SelectArea,Mode=TwoWay}" 
                              DisplayMemberPath="name"  VerticalAlignment="Center" FontSize="25" Margin="10"/>
             </Border>
-            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-                <TextBox Text="{Binding Width,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-            </Border>
-            <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
-                <TextBox Text="{Binding Length,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-            </Border>
-            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed">
-                <CheckBox IsChecked="{Binding Isoversize,Mode=TwoWay}" Width="55" Height="45" Style="{StaticResource ToggleButtonSwitch}"/>
-            </Border>
-            <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed">
+
+            <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
                 <ComboBox ItemsSource="{Binding Source={StaticResource CarrierTypeE}}" Margin="10"
-                          SelectedItem="{Binding CarrierType,Mode=TwoWay}" FontSize="25"/>
+                          SelectedItem="{Binding CarrierType,Mode=TwoWay}" FontSize="25" Visibility="Collapsed"/>
             </Border>
-            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LT}">
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LT}">
                 <TextBox Text="{Binding Color,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
             </Border>
-            <Border Grid.Row="3" Grid.Column="3" Style="{StaticResource MBorder_LTRB}">
-                <TextBox Text="{Binding Memo,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-            </Border>
-            <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTB}">
-                <TextBox Text="{Binding Stack,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-            </Border>
-            <Border Grid.Row="4" Grid.Column="3" Style="{StaticResource MBorder_LTRB}">
+            <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
                 <TextBox Text="{Binding Pieces,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" Grid.ColumnSpan="3">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="{Binding SizeInfo,Mode=TwoWay}" Margin="10" FontSize="25"/>
+                    <Button Grid.Column="1" Width="80" Margin="0,0,10,0" Command="{Binding SelectSizeCmd}" Style="{StaticResource ButtonPrimary}" Content="选择"/>
+                </Grid>
             </Border>
         </Grid>
 

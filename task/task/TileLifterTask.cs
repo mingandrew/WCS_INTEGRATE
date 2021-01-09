@@ -124,7 +124,7 @@ namespace task.task
 
         public DevWorkTypeE WorkType
         {
-            get => DevConfig.WorkType;
+            get => DevConfig?.WorkType ?? DevWorkTypeE.规格作业;
             set => DevConfig.WorkType = value;
         }
 

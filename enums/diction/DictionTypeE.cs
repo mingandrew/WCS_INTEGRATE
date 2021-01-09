@@ -28,6 +28,7 @@
 
         public const string UserLoginFunction = nameof(UserLoginFunction);//是否开启登陆功能
 
+        public static string GoodLevel = nameof(GoodLevel);//品种等级
     }
 
     public static class DicSwitchTag

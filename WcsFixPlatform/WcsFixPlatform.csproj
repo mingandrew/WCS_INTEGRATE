@@ -141,6 +141,9 @@
     <Compile Include="Dialog\platform\diction\DictionSelectDialog.xaml.cs">
       <DependentUpon>DictionSelectDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\goods\GoodSizeSelectDialog.xaml.cs">
+      <DependentUpon>GoodSizeSelectDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\goods\GoodsSelectDialog.xaml.cs">
       <DependentUpon>GoodsSelectDialog.xaml</DependentUpon>
     </Compile>
@@ -185,6 +188,7 @@
     <Compile Include="Tools\Converter\Date2StringLongConverter.cs" />
     <Compile Include="Tools\Converter\DevId2NameConverter.cs" />
     <Compile Include="Tools\Converter\GoodId2NameConverter.cs" />
+    <Compile Include="Tools\Converter\LevelValue2NameConverter.cs" />
     <Compile Include="Tools\Converter\RoleId2RoleNameConveter.cs" />
     <Compile Include="Tools\Converter\String2BrushConverter.cs" />
     <Compile Include="Tools\Converter\String2GeometryConveter.cs" />
@@ -212,6 +216,7 @@
     <Compile Include="ViewModel\platform\diction\DictionSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\diction\DictionViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsSelectViewModel.cs" />
+    <Compile Include="ViewModel\platform\goods\GoodSizeSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsEditViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\TestGoodViewModel.cs" />
@@ -337,6 +342,10 @@
     <Page Include="Dialog\platform\diction\DictionSelectDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\goods\GoodSizeSelectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\goods\GoodsSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

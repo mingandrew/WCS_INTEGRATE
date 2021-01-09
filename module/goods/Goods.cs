@@ -9,11 +9,8 @@ namespace module.goods
         public uint area_id { set; get; }
         public string name { set; get; }
         public string color { set; get; }
-        public ushort length { set; get; }
-        public ushort width { set; get; }
-        public byte stack { set; get; }
+        public uint size_id { set; get; }
         public ushort pieces { set; get; }
-        public bool oversize { set; get; }
         public byte carriertype { set; get; }
         public string memo { set; get; }
         public DateTime? updatetime { set; get; }
@@ -23,5 +20,9 @@ namespace module.goods
             get => (CarrierTypeE)carriertype;
             set => carriertype = (byte)value;
         }
+        public byte level { set; get; }
+        public DateTime? createtime { set; get; }
+        public bool top { set; get; }
+        public bool empty { set; get; }
     }
 }

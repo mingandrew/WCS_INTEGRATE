@@ -523,9 +523,13 @@ namespace task.rf
                 {
                     byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
                     if(PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
-                        picese, pack.ProduceTime, pack.AddQty, "平板添加库存"))
+                        picese, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.AddTrackStock, "添加成功！");
+                    }
+                    else
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.AddTrackStock, rs);
                     }
                 }
             }
@@ -586,7 +590,13 @@ namespace task.rf
                 TrackStockUpdatePack pack = JsonTool.Deserialize<TrackStockUpdatePack>(msg.Pack.Data);
                 if (pack != null)
                 {
-                    if(!PubMaster.Goods.HaveStockInTrack(pack.TrackId, pack.GoodId, out uint stockid))
+                    if (PubMaster.Goods.IsGoodEmpty(pack.GoodId))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.UpdateStockGood, "不能更新为空品种信息");
+                        return;
+                    }
+
+                    if (!PubMaster.Goods.HaveStockInTrack(pack.TrackId, pack.GoodId, out uint stockid))
                     {
                         SendFail2Rf(msg.MEID, FunTag.UpdateStockGood, "没有原库信息，请刷新后再试！");
                         return;

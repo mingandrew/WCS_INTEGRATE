@@ -20,8 +20,7 @@ namespace resource.module.modulesql
         public List<Goods> QueryGoodsList()
         {
             List<Goods> list = new List<Goods>();
-            string sql = string.Format("SELECT t.id, t.area_id, t.`name`, t.color, t.length, t.width, t.oversize," +
-                " t.stack, t.pieces, t.carriertype, t.memo, t.updatetime,t.minstack FROM goods AS t ");
+            string sql = string.Format("SELECT * FROM goods AS t ORDER BY t.top desc, t.createtime DESC, t.updatetime DESC ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -94,6 +93,18 @@ namespace resource.module.modulesql
             return list;
         }
 
+        public List<GoodSize> QueryGoodSize()
+        {
+            List<GoodSize> list = new List<GoodSize>();
+            string sql = string.Format("SELECT t.* FROM good_size AS t ");
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<GoodSize>();
+            }
+            return list;
+        }
+
         #endregion
 
         #region[添加]
@@ -101,10 +112,10 @@ namespace resource.module.modulesql
 
         internal bool AddGoods(Goods goods)
         {
-            string str = "INSERT INTO `goods`(`id`, `area_id`, `name`, `color`, `length`, `width`, `stack`, `pieces`, `oversize`, `carriertype`, `memo`, `updatetime`) " +
-                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', {8}, '{9}', '{10}', {11})";
-            string sql = string.Format(@str,goods.id, goods.area_id, goods.name, goods.color, goods.length, goods.width, 
-                goods.stack, goods.pieces, goods.oversize,goods.carriertype, goods.memo, GetTimeOrNull(goods.updatetime));
+            string str = "INSERT INTO `goods`(`id`, `area_id`, `name`, `color`, `pieces`, `carriertype`, `memo`, `updatetime`,`size_id`,`level`) " +
+                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', {7}, {8}, {9})";
+            string sql = string.Format(@str, goods.id, goods.area_id, goods.name, goods.color, goods.pieces,
+                goods.carriertype, goods.memo, GetTimeOrNull(goods.updatetime),goods.size_id, goods.level);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -157,12 +168,10 @@ namespace resource.module.modulesql
 
         internal bool EditGoods(Goods goods)
         {
-            string sql = "UPDATE `goods` SET `name` = '{0}', `color` = '{1}', `length` = {2}," +
-                " `width` = {3}, `oversize` = {4}, `memo` = '{5}', `stack` = '{6}', `pieces` = '{7}'" +
-                ", `carriertype` = '{8}', `updatetime` = {9} WHERE `id` = '{10}'";
-            sql = string.Format(sql, goods.name, goods.color, goods.length
-                , goods.width, goods.oversize, goods.memo, goods.stack, goods.pieces
-                , goods.carriertype, GetTimeOrNull(goods.updatetime), goods.id);
+            string sql = "UPDATE `goods` SET `name` = '{0}', `color` = '{1}', `size_id` = {2}, `memo` = '{3}', " +
+                " `pieces` = '{4}', `carriertype` = '{5}', `updatetime` = {6},`level` = {7} WHERE `id` = '{8}'";
+            sql = string.Format(sql, goods.name, goods.color, goods.size_id, goods.memo, goods.pieces
+                , goods.carriertype, GetTimeOrNull(goods.updatetime),goods.level, goods.id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

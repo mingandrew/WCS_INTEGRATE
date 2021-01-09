@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using wcs.Data.View;
 
 namespace wcs.ViewModel
 {
@@ -22,7 +23,7 @@ namespace wcs.ViewModel
             filtername = string.Empty;
             _result = new DialogResult();
             Param = new DialogResult();
-            GoodsList = new ObservableCollection<Goods>();
+            GoodsList = new ObservableCollection<GoodsView>();
             AreaRadio = PubMaster.Area.GetAreaRadioList(true);
 
             GoodListView = System.Windows.Data.CollectionViewSource.GetDefaultView(GoodsList);
@@ -32,7 +33,7 @@ namespace wcs.ViewModel
         #region[字段]
 
         private DialogResult _result;
-        private Goods selectdic;
+        private GoodsView selectdic;
 
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0, filterwidth = 0;
@@ -49,9 +50,9 @@ namespace wcs.ViewModel
         }
         public ICollectionView GoodListView { set; get; }
 
-        private ObservableCollection<Goods> GoodsList { set; get; }
+        private ObservableCollection<GoodsView> GoodsList { set; get; }
 
-        public Goods SelectGood
+        public GoodsView SelectGood
         {
             get => selectdic;
             set => Set(ref selectdic, value);
@@ -113,11 +114,13 @@ namespace wcs.ViewModel
         {
             if (filterareaid == 0 && filterwidth == 0) return true;
 
-            if (item is Goods view)
+            if (item is GoodsView view)
             {
-                return (filterareaid == 0 || filterareaid == view.area_id)
-                    && (filterwidth == 0 || filterwidth == view.width)
-                    && (string.IsNullOrEmpty(FilterName) || view.name.Contains(FilterName));
+                if (view.empty && (filterareaid == 0 || filterareaid == view.AreaId)) return true;
+
+                return (filterareaid == 0 || filterareaid == view.AreaId)
+                    && (filterwidth == 0 || filterwidth == view.Width)
+                    && (string.IsNullOrEmpty(FilterName) || view.Name.Contains(FilterName));
             }
             return true;
         }
@@ -133,7 +136,7 @@ namespace wcs.ViewModel
                 GoodsList.Clear();
                 foreach (Goods mod in list)
                 {
-                    GoodsList.Add(mod);
+                    GoodsList.Add(new GoodsView(mod));
                 }
             });
         }
@@ -149,7 +152,7 @@ namespace wcs.ViewModel
                 GoodsList.Clear();
                 foreach (Goods mod in list)
                 {
-                    GoodsList.Add(mod);
+                    GoodsList.Add(new GoodsView(mod));
                 }
             });
         }

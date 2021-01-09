@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using wcs.Data.View;
 using wcs.Dialog;
 
 namespace wcs.ViewModel
@@ -94,9 +95,9 @@ namespace wcs.ViewModel
                              vm.QueryGood();
                          }).GetResultAsync<DialogResult>();
 
-                        if (result.p1 is bool rs2 && result.p2 is Goods good)
+                        if (result.p1 is bool rs2 && result.p2 is GoodsView good)
                         {
-                            GoodsId = good.id;
+                            GoodsId = good.ID;
                             CheckUpdate();
                         }
                         break;

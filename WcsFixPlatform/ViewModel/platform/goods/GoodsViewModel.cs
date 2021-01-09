@@ -151,6 +151,13 @@ namespace wcs.ViewModel
                         Growl.Warning("请先选择规格！");
                         return;
                     }
+
+                    if (SelectGood.empty)
+                    {
+                        Growl.Warning("不能编辑空品种！");
+                        return;
+                    }
+
                     result = await HandyControl.Controls.Dialog.Show<GoodsEditDialog>()
                               .Initialize<GoodsEditViewModel>((vm) =>
                               {
@@ -166,6 +173,12 @@ namespace wcs.ViewModel
                     if (SelectGood == null)
                     {
                         Growl.Warning("请先选择规格！");
+                        return;
+                    }
+
+                    if (SelectGood.empty)
+                    {
+                        Growl.Warning("不能删除空品种！");
                         return;
                     }
 

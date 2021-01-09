@@ -41,11 +41,11 @@
             </hc:ButtonGroup>
         </Grid>
         <StackPanel Grid.Row="1" Margin="10,5,10,10" Orientation="Horizontal">
-            <Button Content="添加规格" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
+            <Button Content="添加" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
                         Tag="add" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-            <Button Content="修改规格" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
+            <Button Content="修改" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
                         Tag="edite" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-            <Button Content="删除规格" Margin="5" Style="{StaticResource ButtonDanger}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
+            <Button Content="删除" Margin="5" Style="{StaticResource ButtonDanger}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
                         Tag ="delete" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
         </StackPanel>
         <DataGrid Grid.Row="2" Grid.Column="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
@@ -79,10 +79,11 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding CarrierType}" Header="车型" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding Stack}" Header="垛数"/>
-                <DataGridTextColumn Binding="{Binding Pieces}" Header="满砖数"/>
+                <DataGridTextColumn Binding="{Binding Stack}" Header="垛数" Visibility="Collapsed"/>
+                <DataGridTextColumn Binding="{Binding Pieces}" Header="满砖数" Visibility="Collapsed"/>
                 <DataGridTextColumn Binding="{Binding MinStack}" Header="最少车数" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding Memo}" Header="备注"/>
+                <DataGridTextColumn Binding="{Binding Memo}" Header="备注" Visibility="Collapsed"/>
+                <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

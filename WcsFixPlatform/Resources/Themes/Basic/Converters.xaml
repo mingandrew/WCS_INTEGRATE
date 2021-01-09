@@ -16,4 +16,5 @@
     <mconverter:AreaId2NameConverter x:Key="AreaId2NameConverter"/>
     <mconverter:TrackCode2NameConverter x:Key="TrackCode2NameConverter"/>
     <mconverter:RoleId2RoleNameConveter x:Key="RoleId2RoleNameConveter"/>
+    <mconverter:LevelValue2NameConverter x:Key="LevelValue2NameConverter"/>
 </ResourceDictionary>

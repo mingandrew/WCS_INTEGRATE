@@ -9,7 +9,6 @@ using module.track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace resource.goods
@@ -25,6 +24,7 @@ namespace resource.goods
             GoodsList = new List<Goods>();
             StockList = new List<Stock>();
             StockSumList = new List<StockSum>();
+            GoodSizeList = new List<GoodSize>();
             mMsg = new MsgAction();
         }
 
@@ -33,7 +33,7 @@ namespace resource.goods
             Refresh();
         }
 
-        public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true)
+        public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true, bool refr_4 = true)
         {
 
             if (refr_1)
@@ -53,6 +53,12 @@ namespace resource.goods
                 StockSumList.Clear();
                 StockSumList.AddRange(PubMaster.Mod.GoodSql.QueryStockSumList());
             }
+
+            if (refr_4)
+            {
+                GoodSizeList.Clear();
+                GoodSizeList.AddRange(PubMaster.Mod.GoodSql.QueryGoodSize());
+            }
         }
 
         public void Stop()
@@ -66,6 +72,7 @@ namespace resource.goods
         private List<Goods> GoodsList { set; get; }
         private List<Stock> StockList { set; get; }
         private List<StockSum> StockSumList { set; get; }
+        private List<GoodSize> GoodSizeList { set; get; }
         private MsgAction mMsg;
         #endregion
 
@@ -109,6 +116,24 @@ namespace resource.goods
 
         #endregion
 
+        #region[规格]
+
+        public GoodSize GetSize(uint id)
+        {
+            return GoodSizeList.Find(c => c.id == id);
+        }
+
+        public GoodSize GetGoodSize(uint gid)
+        {
+            return GetSize(GetGoods(gid)?.size_id ?? 0);
+        }
+
+        public List<GoodSize> GetGoodSizes()
+        {
+            return GoodSizeList;
+        }
+
+        #endregion
         #endregion
 
         #region[获取/判断属性]
@@ -119,6 +144,11 @@ namespace resource.goods
             return GoodsList.Find(c => c.id == Goods_id)?.name ?? "";
         }
 
+
+        public bool IsGoodEmpty(uint goodsId)
+        {
+            return GoodsList.Exists(c => c.id == goodsId && c.empty);
+        }
         #endregion
 
         #region[库存]
@@ -133,12 +163,19 @@ namespace resource.goods
             return StockSumList.Find(c => c.track_id == trackid)?.count ?? 0;
         }
 
-        public bool AddTrackStocks(uint tileid, uint trackid, uint goodsid, byte pieces, DateTime? produceTime, byte stockqty, string memo)
+        public bool AddTrackStocks(uint tileid, uint trackid, uint goodsid, byte pieces, DateTime? produceTime, byte stockqty, string memo, out string rs)
         {
             if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
             {
                 try
                 {
+                    Goods addgood = GoodsList.Find(c => c.id == goodsid);
+                    if (addgood == null || addgood.empty)
+                    {
+                        rs = "添加的品种不能为空品种！";
+                        return false;
+                    }
+
                     for (int i = 0; i < stockqty; i++)
                     {
                         AddStock(tileid, trackid, goodsid, pieces, produceTime);
@@ -147,6 +184,7 @@ namespace resource.goods
                     CheckStockTop(trackid);
                     CheckTrackSum(trackid);
                     PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.有砖, memo);
+                    rs = "";
                     return true;
                 }
                 finally
@@ -154,6 +192,7 @@ namespace resource.goods
                     Monitor.Exit(_so);
                 }
             }
+            rs = "";
             return false;
         }
 
@@ -167,8 +206,10 @@ namespace resource.goods
         {
             List<uint> goodsids = StockList.FindAll(c => c.area == filterarea
                 && (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入)).Select(t => t.goods_id).ToList();
-
-            return GoodsList.FindAll(c => c.area_id == filterarea && goodsids.Contains(c.id));
+            List<Goods> glist = new List<Goods>();
+            glist.AddRange(GoodsList.FindAll(c => c.area_id == filterarea && (goodsids.Contains(c.id) || c.empty)));
+            return glist;
+            //return GoodsList.FindAll(c => c.area_id == filterarea && goodsids.Contains(c.id));
         }
 
         public List<StockGoodPack> GetStockOutGoodsInsList()
@@ -184,6 +225,15 @@ namespace resource.goods
                         GoodsId = stock.goods_id
                     });
                 }
+            }
+            List<Goods> goods = GoodsList.FindAll(c => c.empty);
+            foreach (var item in goods)
+            {
+                list.Add(new StockGoodPack()
+                {
+                    Area = item.area_id,
+                    GoodsId = item.id
+                });
             }
             return list;
         }
@@ -246,9 +296,10 @@ namespace resource.goods
         public bool AddGoods(Goods good, out string result)
         {
             if (GoodsList.Exists(c => c.area_id == good.area_id
-                                    && c.width == good.width
-                                    && c.length == good.length
-                                    && (c.color.Equals(good.color) || c.name.Equals(good.name))))
+                                    && c.size_id == good.size_id
+                                    && c.level == good.level
+                                    && c.color.Equals(good.color) 
+                                    && c.name.Equals(good.name)))
             {
                 result = "已经存在一样的规格的信息了！";
                 return false;
@@ -397,14 +448,12 @@ namespace resource.goods
                 {
                     g.name = good.name;
                     g.color = good.color;
-                    g.width = good.width;
-                    g.length = good.length;
-                    g.oversize = good.oversize;
+                    g.size_id = good.size_id;
                     g.memo = good.memo;
-                    g.stack = good.stack;
                     g.pieces = good.pieces;
                     g.carriertype = good.carriertype;
                     g.updatetime = DateTime.Now;
+                    g.level = good.level;
                     PubMaster.Mod.GoodSql.EditGoods(g);
                     SendMsg(g, ActionTypeE.Update);
                     PubMaster.Dic.UpdateVersion(DicTag.PDA_GOOD_VERSION);
@@ -543,7 +592,7 @@ namespace resource.goods
 
         private byte GetGoodStack(uint goodid)
         {
-            return GoodsList.Find(c => c.id == goodid)?.stack ?? 1;
+            return GetGoodSize(goodid)?.stack ?? 1;
         }
 
         //检查并更新轨道库存为空
@@ -1031,8 +1080,9 @@ namespace resource.goods
                 Goods goods = GoodsList.Find(c => c.id == goodsid);
                 if (goods != null)
                 {
+                    GoodSize size = GetSize(goods.size_id);
                     sum.count = (uint)StockList.Count(c => c.track_id == trackId);
-                    sum.stack = sum.count * goods.stack;
+                    sum.stack = sum.count * size?.stack ?? 1;
                     sum.pieces = sum.stack * goods.pieces;
                     SendSumMsg(sum, ActionTypeE.Update);
                 }
@@ -1180,8 +1230,9 @@ namespace resource.goods
         public bool IsTrackOkForGoods(uint trackid, uint goodsid)
         {
             Goods goods = GoodsList.Find(c => c.id == goodsid);
-            if (goods == null) return false;
-
+            if (goods == null || goods.size_id == 0) return false;
+            GoodSize size = GoodSizeList.Find(c => c.id == goods.size_id);
+            if (size == null) return false;
             Track track = PubMaster.Track.GetTrack(trackid);
             if (track == null) return false;
 
@@ -1191,7 +1242,7 @@ namespace resource.goods
 
             if (track.left_track_id == 0)
             {
-                if (CheckTrackAndGood(track.width, goods.width, track.left_distance))
+                if (CheckTrackAndGood(track.width, size.width, track.left_distance))
                 {
                     return false;
                 }
@@ -1199,7 +1250,7 @@ namespace resource.goods
 
             if (track.right_track_id == 0)
             {
-                if (CheckTrackAndGood(track.width, goods.width, track.right_distance))
+                if (CheckTrackAndGood(track.width, size.width, track.right_distance))
                 {
                     return false;
                 }
@@ -1285,11 +1336,11 @@ namespace resource.goods
 
         private bool CampareGoodWidth(uint one, uint two)
         {
-            Goods goodonw = GoodsList.Find(c => c.id == one);
-            Goods goodtwo = GoodsList.Find(c => c.id == two);
-            if (goodonw != null && goodtwo != null)
+            GoodSize sizeone = GetGoodSize(one);
+            GoodSize sizetwo = GetGoodSize(two);
+            if (sizeone != null && sizeone != null)
             {
-                return goodonw.width < goodtwo.width;
+                return sizeone.width < sizetwo.width;
             }
             return false;
         }
@@ -1303,8 +1354,10 @@ namespace resource.goods
         /// <returns></returns>
         public bool IsGoodsDistanceOk(Track lefttrack, Goods leftgoods, Track righttrack, Goods rightgoods)
         {
-            int ld = Math.Abs(leftgoods.width - lefttrack.width) / 2;
-            int rd = Math.Abs(rightgoods.width - righttrack.width) / 2;
+            GoodSize lsize = GetGoodSize(leftgoods.size_id);
+            GoodSize rsize = GetGoodSize(rightgoods.size_id);
+            int ld = Math.Abs(lsize.width - lefttrack.width) / 2;
+            int rd = Math.Abs(rsize.width - righttrack.width) / 2;
 
             if(lefttrack.right_distance == righttrack.left_distance)
             {
@@ -1358,7 +1411,7 @@ namespace resource.goods
 
         public bool IsGoodsOverSize(uint goods_id)
         {
-            return GoodsList.Find(c => c.id == goods_id)?.oversize ?? true;
+            return GetGoodSize(goods_id)?.oversize ?? true;
         }
 
         #endregion

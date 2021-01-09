@@ -61,6 +61,7 @@
     <Compile Include="diction\ValueDiction.cs" />
     <Compile Include="diction\VersionDic.cs" />
     <Compile Include="goods\Goods.cs" />
+    <Compile Include="goods\GoodSize.cs" />
     <Compile Include="goods\Stock.cs" />
     <Compile Include="goods\StockSum.cs" />
     <Compile Include="goods\StockTrans.cs" />
@@ -134,6 +135,8 @@
       <Name>tool</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

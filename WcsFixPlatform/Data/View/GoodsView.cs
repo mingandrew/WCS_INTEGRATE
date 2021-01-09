@@ -1,6 +1,7 @@
 ﻿using enums;
 using GalaSoft.MvvmLight;
 using module.goods;
+using resource;
 using System;
 
 namespace wcs.Data.View
@@ -22,6 +23,9 @@ namespace wcs.Data.View
         private CarrierTypeE carriertype;
         private DateTime? updatetime;
         private ushort minstack;
+        private uint sizeid;
+        public bool empty { set; get; }
+        private byte level;
         #endregion
 
         #region[属性]
@@ -87,6 +91,7 @@ namespace wcs.Data.View
             get => memo;
             set => Set(ref memo, value);
         }
+
         public DateTime? UpdateTime
         {
             get => updatetime;
@@ -98,6 +103,19 @@ namespace wcs.Data.View
             get => minstack;
             set => Set(ref minstack, value);
         }
+
+        public uint SizeId
+        {
+            get => sizeid;
+            set => Set(ref sizeid, value);
+        }
+
+        public byte Level
+        {
+            get => level;
+            set => Set(ref level, value);
+        }
+
         #endregion
         public GoodsView(Goods goods)
         {
@@ -111,15 +129,25 @@ namespace wcs.Data.View
             ID = goods.id;
             Name = goods.name;
             Color = goods.color;
-            Length = goods.length;
-            Width = goods.width;
-            Isoversize = goods.oversize;
-            Stack = goods.stack;
+            Level = goods.level;
+            if(sizeid != goods.size_id)
+            {
+                SizeId = goods.size_id;
+                GoodSize size = PubMaster.Goods.GetSize(goods.size_id);
+                if (size != null)
+                {
+                    Length = size.length;
+                    Width = size.width;
+                    Isoversize = size.oversize;
+                    Stack = size.stack;
+                }
+            }
             Pieces = goods.pieces;
             Memo = goods.memo;
             AreaId = goods.area_id;
             CarrierType = goods.GoodCarrierType;
             MinStack = goods.minstack;
+            empty = goods.empty;
         }
 
         #endregion

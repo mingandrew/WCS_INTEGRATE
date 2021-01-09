@@ -119,7 +119,7 @@ namespace wcs.ViewModel
                     return;
                 }
 
-                if (PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, pieces, ProduceTime, StockQty, "PC添加库存"))
+                if (PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, pieces, ProduceTime, StockQty, "PC添加库存", out string rs))
                 {
                     Result.p1 = true;
                 }

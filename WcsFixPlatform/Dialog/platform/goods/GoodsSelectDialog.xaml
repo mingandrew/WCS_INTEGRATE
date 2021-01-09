@@ -70,10 +70,10 @@
                       CanUserDeleteRows="False" CanUserSortColumns="False"
                       CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding name}" Header="名称"/>
-                <DataGridTextColumn Binding="{Binding color}" Header="色号"/>
-                <DataGridTextColumn Binding="{Binding width}" Header="宽"/>
-                <DataGridTextColumn Binding="{Binding length}" Header="长"/>
+                <DataGridTextColumn Binding="{Binding Name}" Header="名称" />
+                <DataGridTextColumn Binding="{Binding Color}" Header="色号"/>
+                <DataGridTextColumn Binding="{Binding Width}" Header="宽"/>
+                <DataGridTextColumn Binding="{Binding Length}" Header="长"/>
                 <DataGridTemplateColumn Visibility="Collapsed">
                     <DataGridTemplateColumn.Header>
                         <TextBlock Text="超限"/>
@@ -85,15 +85,19 @@
                                     <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
                                 </Border>
                                 <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
-                                            Visibility="{Binding isoversize,Converter={StaticResource Boolean2VisibilityConverter}}">
-                                    <Ellipse Width="25" Height="25" Fill="{DynamicResource PrimaryBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                            Visibility="{Binding Isoversize,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkWarningBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
                                 </Border>
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding CarrierType}" Header="车型" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding memo}" Header="备注"/>
+                <DataGridTextColumn Binding="{Binding Stack}" Header="垛数" Visibility="Collapsed"/>
+                <DataGridTextColumn Binding="{Binding Pieces}" Header="满砖数" Visibility="Collapsed"/>
+                <DataGridTextColumn Binding="{Binding MinStack}" Header="最少车数" Visibility="Collapsed"/>
+                <DataGridTextColumn Binding="{Binding Memo}" Header="备注" Visibility="Collapsed"/>
+                <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级"/>
             </DataGrid.Columns>
         </DataGrid>
         <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">

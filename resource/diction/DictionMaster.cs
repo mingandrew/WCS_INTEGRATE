@@ -96,6 +96,11 @@ namespace resource.diction
             return DicDtlList.FindAll(c => c.diction_id == dicid);
         }
 
+        public List<DictionDtl> GetDicDtls(string code)
+        {
+            return DicDtlList.FindAll(c => c.code.Equals(code));
+        }
+
         #endregion
 
         #region[获取/判断属性]
@@ -136,7 +141,6 @@ namespace resource.diction
             return DicDtlList.Find(c => c.diction_id == dicid && stringvalue.Equals(c.string_value))?.name ?? "" + stringvalue;
         }
 
-
         public object GetDictionName(ValueDiction valuedic)
         {
             return GetDtlIntName(valuedic.DictionID, (int)valuedic.Value);
@@ -151,12 +155,15 @@ namespace resource.diction
         {
             return DicDtlList.Find(c => c.code.Equals(code))?.string_value ?? code;
         }
+        public string GetDtlStrCode(string code, int int_v)
+        {
+            return DicDtlList.Find(c => c.code.Equals(code) && c.int_value == int_v)?.name ?? "字典未配置";
+        }
 
         public uint GetDtlUIntCode(string code)
         {
             return DicDtlList.Find(c => c.code.Equals(code))?.uint_value ?? 0;
         }
-
 
 
         public uint GenerateID(string dictag)

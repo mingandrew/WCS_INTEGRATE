@@ -587,7 +587,18 @@ namespace task.device
 
             #region[检查基础信息]
 
+            if(task.DevConfig == null)
+            {
+                return;
+            }
+
             if (task.DevConfig.goods_id == 0)
+            {
+                return;
+            }
+
+            //品种是空品种
+            if (PubMaster.Goods.IsGoodEmpty(task.DevConfig.goods_id))
             {
                 return;
             }
@@ -1323,7 +1334,7 @@ namespace task.device
                     mMsg.Name = task.Device.name;
                     mMsg.o1 = tilelifter;
                     mMsg.o2 = task.ConnStatus;
-                    mMsg.o3 = task.DevConfig.goods_id;
+                    mMsg.o3 = task.DevConfig?.goods_id;
                     mMsg.o4 = task.InStrategy;
                     mMsg.o5 = task.OutStrategy;
                     mMsg.o6 = task.IsWorking;

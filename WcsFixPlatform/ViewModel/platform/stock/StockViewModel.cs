@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using task;
+using wcs.Data.View;
 using wcs.Dialog;
 
 namespace wcs.ViewModel
@@ -208,15 +209,15 @@ namespace wcs.ViewModel
                  vm.QueryGood();
              }).GetResultAsync<DialogResult>();
 
-            if (result.p1 is bool rs && result.p2 is Goods good)
+            if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
                 Stock stock = List[0];
-                if (stock.goods_id == good.id)
+                if (stock.goods_id == good.ID)
                 {
                     Growl.Warning("库存规格相同，不用修改！");
                     return;
                 }
-                ShowStockGoodEditDialog(_selecttrack.id, stock.goods_id, good.id);
+                ShowStockGoodEditDialog(_selecttrack.id, stock.goods_id, good.ID);
             }
         }
 
@@ -281,9 +282,9 @@ namespace wcs.ViewModel
                      vm.SetAreaFilter(_selecttrack.area, false);
                      vm.QueryGood();
                  }).GetResultAsync<DialogResult>();
-            if (result.p1 is bool rs && result.p2 is Goods good)
+            if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
-                TrackStockAdd(good.id, good.pieces);
+                TrackStockAdd(good.ID, good.Pieces);
             }
         }
 
@@ -344,9 +345,9 @@ namespace wcs.ViewModel
                      vm.SetAreaFilter(_selecttrack.area, false);
                      vm.QueryGood();
                  }).GetResultAsync<DialogResult>();
-            if (result.p1 is bool rs && result.p2 is Goods good)
+            if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
-                TrackStockAdd(good.id, good.pieces);
+                TrackStockAdd(good.ID, good.Pieces);
             }
         }
 
@@ -359,9 +360,9 @@ namespace wcs.ViewModel
                      vm.SetAreaFilter(_selecttrack.area, false);
                      vm.QueryGood();
                  }).GetResultAsync<DialogResult>();
-            if (result.p1 is bool rs && result.p2 is Goods good)
+            if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
-                TrackStockAdd(good.id, good.pieces);
+                TrackStockAdd(good.ID, good.Pieces);
             }
         }
 
@@ -374,9 +375,9 @@ namespace wcs.ViewModel
                      vm.SetAreaFilter(_selecttrack.area, false);
                      vm.QueryGood();
                  }).GetResultAsync<DialogResult>();
-            if (result.p1 is bool rs && result.p2 is Goods good)
+            if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
-                TrackStockAdd(good.id, good.pieces);
+                TrackStockAdd(good.ID, good.Pieces);
             }
         }
 
