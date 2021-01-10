@@ -28,10 +28,10 @@
                 <TextBlock Text="线路 \ 功能" Style="{StaticResource TextBlockTitleBold}"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                <TextBlock Text="#1" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+                <TextBlock Text="窑后2#" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
             </Border>
             <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
-                <TextBlock Text="#2" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+                <TextBlock Text="包装线" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
             </Border>
             <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show3Area,Converter={StaticResource Boolean2VisibilityConverter}}">
                 <TextBlock Text="#3" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
@@ -66,12 +66,12 @@
             <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ToggleButton  IsChecked="{Binding Up_2,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
             </Border>
-            <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+            <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MBorder_LRB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ToggleButton  IsChecked="{Binding Down_2,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
             </Border>
-            <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LRB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
+            <!--<Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LRB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ToggleButton  IsChecked="{Binding Sort_2,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
-            </Border>
+            </Border>-->
 
             <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show3Area,Converter={StaticResource Boolean2VisibilityConverter}}">
                 <ToggleButton  IsChecked="{Binding Up_3,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
