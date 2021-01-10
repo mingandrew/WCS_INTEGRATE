@@ -59,6 +59,7 @@ namespace task.device
             _obj = new object();
             DevList = new List<FerryTask>();
             _FerryPosSetList = new List<FerryPosSet>();
+            PosList = new List<FerryPos>();
 
             Messenger.Default.Register<SocketMsgMod>(this, MsgToken.FerryMsgUpdate, FerryMsgUpdate);
         }
