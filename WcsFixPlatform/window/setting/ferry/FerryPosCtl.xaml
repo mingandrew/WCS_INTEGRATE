@@ -23,6 +23,7 @@
             <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding DeviceSelectedCmd}" FontSize="16" Height="35"/>
             <Button Content="清除" Style="{StaticResource ButtonInfo}" Tag="cleardev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
             <Button Content="停止" Style="{StaticResource ButtonDanger}" Tag="stopdev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
+            <Button Content="刷新轨道坐标" Style="{StaticResource ButtonPrimary}" Command="{Binding QueryPosCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"  FontSize="16" Height="35"/>
 
         </StackPanel>
         <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="25">

@@ -112,6 +112,7 @@ namespace wcs.ViewModel
         public RelayCommand<string> BtnSelectCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(BtnSelect)).Value; 
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
         public RelayCommand AutoPosCmd => new Lazy<RelayCommand>(() => new RelayCommand(AutoPos)).Value;
+        public RelayCommand QueryPosCmd => new Lazy<RelayCommand>(() => new RelayCommand(QueryPosList)).Value;
 
         #endregion
 
@@ -331,6 +332,17 @@ namespace wcs.ViewModel
             List.Clear();
 
         }
+
+        private void QueryPosList()
+        {
+            if (_selectferry == null)
+            {
+                Growl.Warning("请选择摆渡车");
+                return;
+            }
+            PubTask.Ferry.RefreshPosList(_selectferry.id);
+        }
+
         #endregion
 
         #region[刷新]

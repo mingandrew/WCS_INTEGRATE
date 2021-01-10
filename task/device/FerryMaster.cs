@@ -35,9 +35,11 @@ namespace task.device
 
         #region[摆渡对位]
         private bool _IsSetting;
+        private bool _IsRefreshPos;
         private List<FerryPosSet> _FerryPosSetList;
         private Log mlog;
         private bool isWcsStoping = false;
+        private List<FerryPos> PosList { set; get; }
         #endregion
 
         #endregion
@@ -122,6 +124,16 @@ namespace task.device
                                 {
                                     Thread.Sleep(1000);
                                     task.DoSiteQuery(set.QueryPos);
+                                }
+                                if (_IsRefreshPos)
+                                {
+                                    foreach (FerryPos fp in PosList)
+                                    {
+                                        PubTask.Ferry.QueryPosList(fp.device_id, fp.ferry_code);
+                                        Thread.Sleep(100);
+
+                                    }
+                                    EndRefreshPosList();
                                 }
 
                                 if (task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
@@ -1024,6 +1036,24 @@ namespace task.device
             task.DoAutoPos(posside, starttrack, tracknumber);
         }
 
+        public void QueryPosList(uint ferryid, ushort trackcode)
+        {
+            FerryTask task = DevList.Find(c => c.ID == ferryid);
+            task.DoSiteQuery(trackcode);
+        }
+
+        public void RefreshPosList(uint ferryid)
+        {
+            EndRefreshPosList();
+            PosList.AddRange(PubMaster.Mod.TraSql.QueryFerryPosList(ferryid));
+            _IsRefreshPos = true;
+        }
+
+        public void EndRefreshPosList()
+        {
+            PosList.Clear();
+            _IsRefreshPos = false;
+        }
 
         #endregion
 
