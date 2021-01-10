@@ -233,7 +233,18 @@ namespace task.trans
                 SendMsg(trans);
             }
         }
-        
+
+        internal void SetTile(StockTrans trans, uint tileid)
+        {
+            if (trans.tilelifter_id != tileid)
+            {
+                mLog.Status(true, string.Format("任务：{0}，重新分配砖机：{1}", trans.id, PubMaster.Device.GetDeviceName(tileid)));
+                trans.tilelifter_id = tileid;
+                PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TileId);
+                SendMsg(trans);
+            }
+        }
+
         internal void SetLoadTime(StockTrans trans)
         {
             if (trans.load_time == null)
@@ -407,6 +418,27 @@ namespace task.trans
             return true;
         }
 
+        /// <summary>
+        /// 同轨道不同上砖机限制一个
+        /// </summary>
+        /// <param name="ltrack"></param>
+        /// <param name="rtrack"></param>
+        /// <returns></returns>
+        public bool HaveOutTileTrack(uint ltrack, uint rtrack)
+        {
+            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    return TransList.Exists(c => !c.finish && (c.give_track_id == ltrack || c.give_track_id == rtrack));
+                }
+                finally
+                {
+                    Monitor.Exit(_to);
+                }
+            }
+            return true;
+        }
 
         internal bool HaveInGoods(uint areaId, uint goodsId, TransTypeE tasktype)
         {

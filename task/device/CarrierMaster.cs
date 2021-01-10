@@ -759,6 +759,18 @@ namespace task.device
                     }
                     break;
                 case DevCarrierTaskE.前进取砖:
+                    if (IsLoad(devid))
+                    {
+                        result = "运输车有货不能前进取砖！";
+                        return false;
+                    }
+                    if ((trackcode < 200) || (trackcode >= 500 && trackcode < 600))
+                    {
+                        result = "小车不能在出库轨道或下砖轨道执行！";
+                        return false;
+                    }
+                    isferryupsite = true;
+                    break;
                 case DevCarrierTaskE.前进放砖:
                     if (IsNotLoad(devid))
                     {

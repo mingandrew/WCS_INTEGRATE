@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : TEST
+ Source Server         : bs
  Source Server Type    : MySQL
- Source Server Version : 80016
+ Source Server Version : 80013
  Source Host           : localhost:3306
- Source Schema         : 2.0wcs
+ Source Schema         : wcs_yme_yh3
 
  Target Server Type    : MySQL
- Target Server Version : 80016
+ Target Server Version : 80013
  File Encoding         : 65001
 
- Date: 09/01/2021 10:52:21
+ Date: 09/01/2021 11:48:25
 */
 
 SET NAMES utf8mb4;
@@ -678,7 +678,7 @@ CREATE TABLE `diction`  (
   `authorizelevel` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '权限等级',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `type_idx`(`type`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of diction
@@ -712,7 +712,7 @@ CREATE TABLE `diction_dtl`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `dic_id_fk`(`diction_id`) USING BTREE,
   CONSTRAINT `dic_id_fk` FOREIGN KEY (`diction_id`) REFERENCES `diction` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 65 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 113 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of diction_dtl
@@ -764,6 +764,9 @@ INSERT INTO `diction_dtl` VALUES (59, 7, 'TileLifterShiftCount', '下砖机转�
 INSERT INTO `diction_dtl` VALUES (60, 8, 'UserLoginFunction', 'PDA登陆功能开关', NULL, b'1', 'PDA登陆功能开关', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (61, 3, 'TileGoodsIsZero', '砖机工位品种反馈异常', NULL, NULL, '砖机工位品种反馈异常', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (62, 3, 'TileGoodsIsNull', '砖机工位品种无数据', NULL, NULL, '砖机工位品种无数据', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (63, 3, 'CheckUpAndLoadIsNormal', '检查上位和有砖信号是否正常', NULL, NULL, '检查上位和有砖信号是否正常', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (64, 3, 'CheckGoDecelerateIsNormal', '检查前进存砖减速信号是否正常', NULL, NULL, '检查前进存砖减速信号是否正常', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl` VALUES (65, 3, 'TriggerEmergencyStop', '急停触发', NULL, NULL, '急停触发', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (101, 10, 'GoodLevel', '优等品', 1, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (102, 10, 'GoodLevel', '一级品', 2, NULL, NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl` VALUES (103, 10, 'GoodLevel', 'A', 3, NULL, NULL, NULL, NULL, NULL, NULL);
@@ -948,7 +951,7 @@ CREATE TABLE `good_size`  (
   `pub` bit(1) NULL DEFAULT NULL,
   `oversize` bit(1) NULL DEFAULT NULL COMMENT '是否超限',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 38 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of good_size
@@ -2791,10 +2794,6 @@ CREATE TABLE `tile_track`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of tile_track
--- ----------------------------
-
--- ----------------------------
 -- Table structure for track
 -- ----------------------------
 DROP TABLE IF EXISTS `track`;
@@ -3419,20 +3418,20 @@ INSERT INTO `wcs_user` VALUES (3, 'supervisor', 'supervisor', '超级管理员',
 -- View structure for active_dev
 -- ----------------------------
 DROP VIEW IF EXISTS `active_dev`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `active_dev` AS select `t`.`id` AS `id`,`t`.`name` AS `name`,`t`.`ip` AS `ip`,`t`.`port` AS `port`,`t`.`type` AS `type`,`t`.`type2` AS `type2`,`t`.`enable` AS `enable`,`t`.`att1` AS `att1`,`t`.`att2` AS `att2`,`t`.`memo` AS `memo` from `device` `t` where (`t`.`enable` = 1);
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `active_dev` AS select `t`.`id` AS `id`,`t`.`name` AS `name`,`t`.`ip` AS `ip`,`t`.`port` AS `port`,`t`.`type` AS `type`,`t`.`type2` AS `type2`,`t`.`enable` AS `enable`,`t`.`att1` AS `att1`,`t`.`att2` AS `att2`,`t`.`memo` AS `memo` from `device` `t` where (`t`.`enable` = 1);
 
 -- ----------------------------
 -- View structure for stock_sum
 -- ----------------------------
 DROP VIEW IF EXISTS `stock_sum`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `stock_sum` AS select `t`.`goods_id` AS `goods_id`,`t`.`track_id` AS `track_id`,min(`t`.`produce_time`) AS `produce_time`,count(`t`.`id`) AS `count`,sum(`t`.`pieces`) AS `pieces`,sum(`t`.`stack`) AS `stack`,`t`.`area` AS `area`,`t`.`track_type` AS `track_type` from `stock` `t` where (`t`.`track_type` in (2,3,4)) group by `t`.`track_id`,`t`.`goods_id` order by `t`.`area`,`t`.`goods_id`,`produce_time`,`t`.`track_id`;
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `stock_sum` AS select `t`.`goods_id` AS `goods_id`,`t`.`track_id` AS `track_id`,min(`t`.`produce_time`) AS `produce_time`,count(`t`.`id`) AS `count`,sum(`t`.`pieces`) AS `pieces`,sum(`t`.`stack`) AS `stack`,`t`.`area` AS `area`,`t`.`track_type` AS `track_type` from `stock` `t` where (`t`.`track_type` in (2,3,4)) group by `t`.`track_id`,`t`.`goods_id` order by `t`.`area`,`t`.`goods_id`,`produce_time`,`t`.`track_id`;
 
 -- ----------------------------
 -- Procedure structure for DELETE_DATA
 -- ----------------------------
 DROP PROCEDURE IF EXISTS `DELETE_DATA`;
 delimiter ;;
-CREATE PROCEDURE `DELETE_DATA`()
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DELETE_DATA`()
 BEGIN
 	/*仅保留 31 天的报警数据*/
 	delete from warning where resolve = 1 and DATEDIFF(CURRENT_DATE,createtime) >= 31;
@@ -3450,7 +3449,7 @@ delimiter ;
 -- ----------------------------
 DROP EVENT IF EXISTS `DELETE_EVEN`;
 delimiter ;;
-CREATE EVENT `DELETE_EVEN`
+CREATE DEFINER = `root`@`localhost` EVENT `DELETE_EVEN`
 ON SCHEDULE
 EVERY '1' DAY STARTS '2020-10-02 01:00:00'
 DO CALL DELETE_DATA()

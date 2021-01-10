@@ -13,7 +13,8 @@
         Stock,
         Finish,
         Cancel,
-        ReTake
+        ReTake,
+        TileId
     }
 
     public enum TransTypeE

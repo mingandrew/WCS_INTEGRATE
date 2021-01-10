@@ -262,7 +262,12 @@ namespace wcs.ViewModel
                             Growl.Success("设置成功！");
                         }
                         break;
-
+                    case 12:  //忽略1工位
+                        PubTask.TileLifter.DoIgnore(DeviceSelected.ID, true);
+                        break;
+                    case 13:  //忽略2工位
+                        PubTask.TileLifter.DoIgnore(DeviceSelected.ID, false);
+                        break;
                 }
             }
         }

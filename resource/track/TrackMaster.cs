@@ -255,7 +255,7 @@ namespace resource.track
                 return false;
             }
 
-            UpdateStockStatus(track, goodstatus, memo);
+            UpdateStockStatus(track, goodstatus, memo, true);
 
             result = "";
             return true;
@@ -302,14 +302,14 @@ namespace resource.track
         public void UpdateStockStatus(uint trackid, TrackStockStatusE status, string memo)
         {
             Track track = TrackList.Find(c => c.id == trackid);
-            UpdateStockStatus(track, status, memo);
+            UpdateStockStatus(track, status, memo, false);
         }
 
-        internal void UpdateStockStatus(Track track, TrackStockStatusE status, string memo)
+        internal void UpdateStockStatus(Track track, TrackStockStatusE status, string memo, bool isAllow)
         {
             if (track != null)
             {
-                if (track.Type == TrackTypeE.储砖_出入 && track.StockStatus == TrackStockStatusE.满砖 && status == TrackStockStatusE.有砖)
+                if (!isAllow && track.Type == TrackTypeE.储砖_出入 && track.StockStatus == TrackStockStatusE.满砖 && status == TrackStockStatusE.有砖)
                 {
                     return;
                 }

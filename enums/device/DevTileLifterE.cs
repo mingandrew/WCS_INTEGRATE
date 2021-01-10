@@ -55,4 +55,9 @@
         设为满砖
     }
 
+    public enum TileLifterTypeE
+    {
+        前进放砖,
+        后退放砖,
+    }
 }

@@ -249,6 +249,9 @@ namespace resource.module.modulesql
                     sql += string.Format("`take_track_id` = {0}, `stock_id` = {1}, " +
                         "`carrier_id` = {2}, `trans_status` = {3}", trans.take_track_id, trans.stock_id, trans.carrier_id, trans.trans_status);
                     break;
+                case TransUpdateE.TileId:
+                    sql += string.Format("`tilelifter_id` = {0}", trans.tilelifter_id);
+                    break;
             }
             sql += string.Format(" WHERE `id` = {0}", trans.id);
             int row = mSql.ExcuteSql(sql);

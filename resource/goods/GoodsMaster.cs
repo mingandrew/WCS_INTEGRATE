@@ -144,7 +144,10 @@ namespace resource.goods
             return GoodsList.Find(c => c.id == Goods_id)?.name ?? "";
         }
 
-
+        public byte GetGoodsLevel(uint Goods_id)
+        {
+            return GoodsList.Find(c => c.id == Goods_id)?.level ?? 0;
+        }
         public bool IsGoodEmpty(uint goodsId)
         {
             return GoodsList.Exists(c => c.id == goodsId && c.empty);
