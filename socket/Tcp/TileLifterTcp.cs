@@ -186,12 +186,14 @@ namespace socket.tcp
                 }
                 catch (IOException e)
                 {
+                    Console.WriteLine(e.ToString());
                     // unclean disconnect from service
                     Reconnect();
                     break;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     // don't handle error, just wait for end signal
                 }
             }

@@ -108,21 +108,6 @@ namespace task.device
                                     task.DoQuery();
                                 }
 
-                                #region 同步当前品种/等级
-                                if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
-                                {
-                                    Thread.Sleep(500);
-                                    task.DoShift(TileShiftCmdE.变更品种, 0, task.DevConfig.goods_id);
-                                }
-
-                                byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
-                                if (level != task.DevStatus.SetLevel)
-                                {
-                                    Thread.Sleep(500);
-                                    task.DoUpdateLevel(level);
-                                }
-                                #endregion
-
                                 #region 断线重连
 
                                 ///离线住够长时间，自动断开重连
@@ -144,9 +129,18 @@ namespace task.device
                                         task.SetDevConnOnBreak(false);
                                         task.Start("休息5秒后开始连接");
                                     }
+
+                                    continue;
                                 }
 
                                 #endregion
+
+                                if (!task.IsEnable || 
+                                    task.ConnStatus != SocketConnectStatusE.通信正常 || 
+                                    task.ConnStatus != SocketConnectStatusE.连接成功)
+                                {
+                                    continue;
+                                }
 
                                 #region 下砖-转产
 
@@ -219,6 +213,21 @@ namespace task.device
                                         break;
                                 }
 
+                                #endregion
+
+                                #region 同步当前品种/等级
+                                if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
+                                {
+                                    Thread.Sleep(500);
+                                    task.DoShift(TileShiftCmdE.变更品种, 0, task.DevConfig.goods_id);
+                                }
+
+                                byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
+                                if (level != task.DevStatus.SetLevel)
+                                {
+                                    Thread.Sleep(500);
+                                    task.DoUpdateLevel(level);
+                                }
                                 #endregion
 
                             }

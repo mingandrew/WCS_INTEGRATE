@@ -74,12 +74,12 @@ namespace socket.process
             mDev.Involve1 = st.Involve1 == 1;
             mDev.Involve2 = st.Involve2 == 1;
             mDev.OperateMode = (DevOperateModeE)st.OperateMode;
-            mDev.Goods1 = st.Goods1;
-            mDev.Goods2 = st.Goods2;
+            mDev.Goods1 = ShiftBytes(st.Goods1);
+            mDev.Goods2 = ShiftBytes(st.Goods2);
             mDev.ShiftStatus = (TileShiftStatusE)st.ShiftStatus;
             mDev.ShiftAccept = st.ShiftAccept == 1;
             mDev.WorkMode = (TileWorkModeE)st.WorkMode;
-            mDev.SetGoods = st.SetGoods;
+            mDev.SetGoods = ShiftBytes(st.SetGoods);
             mDev.SetLevel = st.SetLevel;
 
             return mDev;

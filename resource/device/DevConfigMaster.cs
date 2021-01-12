@@ -15,9 +15,9 @@ namespace resource.device
         public DevConfigMaster()
         {
             _obj = new object();
-            ConfigCarrier = new List<ConfigCarrier>();
-            ConfigFerry = new List<ConfigFerry>();
-            ConfigTileLifter = new List<ConfigTileLifter>();
+            ConfigCarrierList = new List<ConfigCarrier>();
+            ConfigFerryList = new List<ConfigFerry>();
+            ConfigTileLifterList = new List<ConfigTileLifter>();
         }
 
         public void Start()
@@ -29,20 +29,20 @@ namespace resource.device
         {
             if (refr_1)
             {
-                ConfigCarrier.Clear();
-                ConfigCarrier.AddRange(PubMaster.Mod.DevConfigSql.QueryConfigCarrier());
+                ConfigCarrierList.Clear();
+                ConfigCarrierList.AddRange(PubMaster.Mod.DevConfigSql.QueryConfigCarrier());
             }
 
             if (refr_2)
             {
-                ConfigFerry.Clear();
-                ConfigFerry.AddRange(PubMaster.Mod.DevConfigSql.QueryConfigFerry());
+                ConfigFerryList.Clear();
+                ConfigFerryList.AddRange(PubMaster.Mod.DevConfigSql.QueryConfigFerry());
             }
 
             if (refr_3)
             {
-                ConfigTileLifter.Clear();
-                ConfigTileLifter.AddRange(PubMaster.Mod.DevConfigSql.QueryConfigTileLifter());
+                ConfigTileLifterList.Clear();
+                ConfigTileLifterList.AddRange(PubMaster.Mod.DevConfigSql.QueryConfigTileLifter());
             }
         }
 
@@ -60,17 +60,17 @@ namespace resource.device
         /// <summary>
         /// 运输车 配置LIST
         /// </summary>
-        private List<ConfigCarrier> ConfigCarrier { set; get; }
+        private List<ConfigCarrier> ConfigCarrierList { set; get; }
 
         /// <summary>
         /// 摆渡车 配置LIST
         /// </summary>
-        private List<ConfigFerry> ConfigFerry { set; get; }
+        private List<ConfigFerry> ConfigFerryList { set; get; }
 
         /// <summary>
         /// 砖机 配置LIST
         /// </summary>
-        private List<ConfigTileLifter> ConfigTileLifter { set; get; }
+        private List<ConfigTileLifter> ConfigTileLifterList { set; get; }
 
         #endregion
 
@@ -84,7 +84,7 @@ namespace resource.device
         /// <returns></returns>
         public List<ConfigCarrier> GetConfigCarrier()
         {
-            return ConfigCarrier;
+            return ConfigCarrierList;
         }
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace resource.device
         /// <returns></returns>
         public ConfigCarrier GetCarrier(uint devid)
         {
-            return ConfigCarrier.Find(c => c.id == devid);
+            return ConfigCarrierList.Find(c => c.id == devid) ?? new ConfigCarrier();
         }
 
         #endregion
@@ -107,7 +107,7 @@ namespace resource.device
         /// <returns></returns>
         public List<ConfigFerry> GetConfigFerry()
         {
-            return ConfigFerry;
+            return ConfigFerryList;
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace resource.device
         /// <returns></returns>
         public ConfigFerry GetFerry(uint devid)
         {
-            return ConfigFerry.Find(c => c.id == devid);
+            return ConfigFerryList.Find(c => c.id == devid) ?? new ConfigFerry();
         }
 
         #endregion
@@ -130,7 +130,7 @@ namespace resource.device
         /// <returns></returns>
         public List<ConfigTileLifter> GetConfigTileLifter()
         {
-            return ConfigTileLifter;
+            return ConfigTileLifterList;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace resource.device
         /// <returns></returns>
         public ConfigTileLifter GetTileLifter(uint devid)
         {
-            return ConfigTileLifter.Find(c => c.id == devid);
+            return ConfigTileLifterList.Find(c => c.id == devid) ?? new ConfigTileLifter();
         }
 
         #endregion
@@ -162,7 +162,7 @@ namespace resource.device
         /// <returns></returns>
         public uint GetFerryTrackId(uint devid)
         {
-            return ConfigFerry.Find(c => c.id == devid)?.track_id ?? 0;
+            return ConfigFerryList.Find(c => c.id == devid)?.track_id ?? 0;
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace resource.device
         /// <returns></returns>
         public uint GetFerryIdByFerryTrackId(uint ferrytrackid)
         {
-            return ConfigFerry.Find(c => c.track_id == ferrytrackid)?.id ?? 0;
+            return ConfigFerryList.Find(c => c.track_id == ferrytrackid)?.id ?? 0;
         }
 
         #endregion
@@ -207,7 +207,7 @@ namespace resource.device
         /// <returns></returns>
         public bool ExistTileLifterByGid(uint goodid)
         {
-            return ConfigTileLifter.Exists(c => c.goods_id == goodid || c.old_goodid == goodid || c.pre_goodid == goodid);
+            return ConfigTileLifterList.Exists(c => c.goods_id == goodid || c.old_goodid == goodid || c.pre_goodid == goodid);
         }
 
 
@@ -219,7 +219,7 @@ namespace resource.device
         /// <returns></returns>
         public bool SetTileLifterGoods(uint devid, uint goodid)
         {
-            ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
                 dev.goods_id = goodid;
@@ -238,7 +238,7 @@ namespace resource.device
         /// <returns></returns>
         public bool SetInStrategy(uint devid, StrategyInE instrategy, DevWorkTypeE worktype)
         {
-            ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null && (dev.InStrategey != instrategy || dev.WorkType != worktype))
             {
                 dev.InStrategey = instrategy;
@@ -258,7 +258,7 @@ namespace resource.device
         /// <returns></returns>
         public bool SetOutStrategy(uint devid, StrategyOutE outstrategy, DevWorkTypeE worktype)
         {
-            ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null && (dev.OutStrategey != outstrategy || dev.WorkType != worktype))
             {
                 dev.OutStrategey = outstrategy;
@@ -277,7 +277,7 @@ namespace resource.device
         /// <returns></returns>
         public bool SetLastTrackId(uint devid, uint trackid)
         {
-            ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null && dev.last_track_id != trackid)
             {
                 dev.last_track_id = trackid;
@@ -300,7 +300,7 @@ namespace resource.device
         /// <returns></returns>
         public bool UpdateTilePreGood(uint devid, uint nowgoodid, uint pregoodid, out string result)
         {
-            ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
                 if (dev.goods_id != nowgoodid)
@@ -327,7 +327,7 @@ namespace resource.device
         /// <returns></returns>
         public bool UpdateShiftTileGood(uint devid, uint nowgoodid, out string result)
         {
-            ConfigTileLifter dev = ConfigTileLifter.Find(c => c.id == devid);
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
                 if (dev.goods_id != nowgoodid)
@@ -360,7 +360,7 @@ namespace resource.device
         /// <returns></returns>
         public bool IsTileLifterType(uint devid, TileLifterTypeE tileLifterType)
         {
-            return ConfigTileLifter.Exists(c => c.id == devid && c.TileLifterType == tileLifterType);
+            return ConfigTileLifterList.Exists(c => c.id == devid && c.TileLifterType == tileLifterType);
         }
 
         /// <summary>
@@ -370,7 +370,7 @@ namespace resource.device
         /// <returns></returns>
         public bool HaveBrother(uint devid)
         {
-            return ConfigTileLifter.Exists(c => c.id == devid && c.HaveBrother);
+            return ConfigTileLifterList.Exists(c => c.id == devid && c.HaveBrother);
         }
 
         /// <summary>
@@ -380,7 +380,7 @@ namespace resource.device
         /// <returns></returns>
         public bool IsBrother(uint tileid)
         {
-            return ConfigTileLifter.Exists(c => c.brother_dev_id == tileid);
+            return ConfigTileLifterList.Exists(c => c.brother_dev_id == tileid);
         }
 
         /// <summary>
@@ -390,7 +390,7 @@ namespace resource.device
         /// <returns></returns>
         public uint GetBrotherId(uint tilelifter_id)
         {
-            return ConfigTileLifter.Find(c => c.brother_dev_id == tilelifter_id).id;
+            return ConfigTileLifterList.Find(c => c.brother_dev_id == tilelifter_id).id;
         }
 
         #endregion

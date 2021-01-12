@@ -142,9 +142,9 @@ namespace socket.tcp
 
                 _mLog.Status(true, "连接中");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //Console.WriteLine("连接失败" + DateTime.Now.ToString() + e.StackTrace);
+                Console.WriteLine("连接失败" + DateTime.Now.ToString() + e.StackTrace);
             }
         }
 
