@@ -39,6 +39,14 @@ namespace task.task
             set => DevConfig.OutStrategey = value;
         }
 
+        /// <summary>
+        /// 砖机类型
+        /// </summary>
+        public TileLifterTypeE TileLifterType
+        {
+            get => Device.TileLifterType;
+        }
+
         #endregion
 
         #region[属性]
@@ -188,7 +196,7 @@ namespace task.task
             DevTcp?.SendCmd(DevLifterCmdTypeE.转产, (byte)ts,  count, goods);
         }
 
-        internal void DoChangeModel(TileWorkModeE mode, TileFullE full)
+        internal void DoCutover(TileWorkModeE mode, TileFullE full)
         {
             DevTcp?.SendCmd(DevLifterCmdTypeE.模式, (byte)mode, (byte)full, 0);
         }

@@ -46,7 +46,8 @@
     {
         过砖,
         上砖,
-        下砖
+        下砖,
+        无 = 255
     }
 
     public enum TileFullE

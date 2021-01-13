@@ -56,7 +56,7 @@ namespace resource.module.modulesql
         {
             List<ConfigTileLifter> list = new List<ConfigTileLifter>();
             string sql = string.Format(@"SELECT t.id, t.brother_dev_id, t.left_track_id, t.right_track_id, t.strategy_in, t.strategy_out, t.work_type, t.last_track_id, 
-t.old_goodid, t.goods_id, t.pre_goodid, t.do_shift FROM config_tilelifter AS t");
+t.old_goodid, t.goods_id, t.pre_goodid, t.do_shift, t.can_cutover, t.work_mode, t.work_mode_next, t.do_cutover FROM config_tilelifter AS t");
             DataTable dt = mSql.ExecuteQuery(sql);
             if (!mSql.IsNoData(dt))
             {
@@ -98,10 +98,13 @@ t.old_goodid, t.goods_id, t.pre_goodid, t.do_shift FROM config_tilelifter AS t")
         internal bool AddConfigTileLifter(ConfigTileLifter dev)
         {
             string sql = string.Format(@"INSERT INTO config_tilelifter(id, brother_dev_id, left_track_id, right_track_id, 
-strategy_in, strategy_out, work_type, last_track_id, old_goodid, goods_id, pre_goodid, do_shift)
-VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11})",
-                dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), dev.strategy_in, dev.strategy_out, dev.work_type,
-                dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift);
+strategy_in, strategy_out, work_type, last_track_id, old_goodid, goods_id, pre_goodid, do_shift, 
+can_cutover, work_mode, work_mode_next, do_cutover)
+VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15})",
+                dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), 
+                dev.strategy_in, dev.strategy_out, dev.work_type, dev.last_track_id, 
+                dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift,
+                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -161,9 +164,11 @@ WHERE id = {0}", dev.id, dev.a_takemisstrack, dev.a_givemisstrack, dev.a_alert_t
         internal bool EditConfigTileLifter(ConfigTileLifter dev)
         {
             string sql = string.Format(@"UPDATE config_tilelifter SET brother_dev_id = {1}, left_track_id = {2}, right_track_id = {3}, strategy_in = {4}, strategy_out = {5}, 
-work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11} WHERE id = {0}",
-                dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), dev.strategy_in, dev.strategy_out, dev.work_type,
-                dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift);
+work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11},
+can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15} WHERE id = {0}",
+                dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), dev.strategy_in, dev.strategy_out, 
+                dev.work_type, dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift,
+                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -180,6 +185,15 @@ WHERE id = {0}", dev.id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goo
         {
             string sql = string.Format("UPDATE config_tilelifter SET last_track_id = {0}  WHERE id = {1}", dev.last_track_id, dev.id);
             mSql.ExcuteSql(sql);
+        }
+
+        internal bool EditWorkMode(ConfigTileLifter dev)
+        {
+            string sql = string.Format(@"UPDATE config_tilelifter SET can_cutover = {1}, work_mode = {2}, work_mode_next = {3}, do_cutover = {4}, 
+goods_id = {5}, old_goodid = {6} WHERE id = {0}", 
+                dev.id, dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, GetIntOrNull(dev.goods_id), dev.old_goodid);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
         }
 
         #endregion
