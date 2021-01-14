@@ -12,13 +12,13 @@
     /// </summary>
     public enum DeviceTypeE
     {
-        砖机,
         上砖机,
         下砖机,
         上摆渡,
         下摆渡,
         运输车,
-        其他
+        其他,
+        砖机,
     }
 
     public enum DeviceType2E

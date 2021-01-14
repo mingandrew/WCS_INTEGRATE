@@ -6,6 +6,7 @@ namespace module.rf
     public class GoodsPack
     {
         public List<Goods> GoodsList { set; get; }
+        public List<GoodSize> SizeList { set; get; }
 
         public void AddGoodList(List<Goods> list)
         {
@@ -15,6 +16,15 @@ namespace module.rf
             }
             
             GoodsList.AddRange(list);
+        }
+        public void AddGoodSizeList(List<GoodSize> list)
+        {
+            if (SizeList == null)
+            {
+                SizeList = new List<GoodSize>();
+            }
+
+            SizeList.AddRange(list);
         }
     }
 }

@@ -1073,6 +1073,7 @@ namespace task.rf
         {
             GoodsPack gmsg = new GoodsPack();
             gmsg.AddGoodList(PubMaster.Goods.GetGoodsList());
+            gmsg.AddGoodSizeList(PubMaster.Goods.GetGoodSizes());
 
             SendSucc2Rf(msg.MEID, FunTag.QueryGoods, JsonTool.Serialize(gmsg));
         }
