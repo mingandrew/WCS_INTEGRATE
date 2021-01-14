@@ -72,7 +72,7 @@ namespace resource.device
 
         public List<Device> GetTileLifters()
         {
-            return DeviceList.FindAll(c => c.Type == DeviceTypeE.上砖机 || c.Type == DeviceTypeE.下砖机);
+            return DeviceList.FindAll(c => c.Type == DeviceTypeE.上砖机 || c.Type == DeviceTypeE.下砖机 || c.Type == DeviceTypeE.砖机);
         }
 
         public List<Device> GetTileLifters(uint areaid)

@@ -55,7 +55,7 @@
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
                             <hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}" >
-                                <RadioButton Content="上下砖机" IsChecked="True" Tag="tilelifter" Command="{Binding DeviceTypeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                <RadioButton Content="砖机" IsChecked="True" Tag="tilelifter" Command="{Binding DeviceTypeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                                 <RadioButton Content="摆渡车"  Tag="ferry" Command="{Binding DeviceTypeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 <RadioButton Content="运输车"  Tag="carrier" Command="{Binding DeviceTypeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                             </hc:ButtonGroup>
@@ -149,7 +149,7 @@
                         </DataGrid>
                     </Grid>
                 </TabItem>
-                <TabItem Header="上下砖机-轨道" Tag="tiletrack">
+                <TabItem Header="砖机-轨道" Tag="tiletrack">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -157,7 +157,7 @@
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="10">
                             <StackPanel  Orientation="Horizontal">
-                                <TextBlock Text="上下砖机：" Width="100" Style="{StaticResource TextBlockTitle}"/>
+                                <TextBlock Text="砖机：" Width="100" Style="{StaticResource TextBlockTitle}"/>
                                 <TextBlock Text="{Binding TileName}" Width="150" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
                                 <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding TileSelectedCmd}" FontSize="16" Height="35"/>
 

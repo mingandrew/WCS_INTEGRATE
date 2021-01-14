@@ -184,9 +184,19 @@ namespace resource.device
         /// </summary>
         /// <param name="devid"></param>
         /// <returns></returns>
-        public DevWorkTypeE GetWorkType(uint devid)
+        public DevWorkTypeE GetTileWorkType(uint devid)
         {
             return GetTileLifter(devid)?.WorkType ?? DevWorkTypeE.规格作业;
+        }
+
+        /// <summary>
+        /// 获取砖机作业模式
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public TileWorkModeE GetTileWorkMode(uint devid)
+        {
+            return GetTileLifter(devid)?.WorkMode ?? TileWorkModeE.无;
         }
 
         /// <summary>
@@ -199,6 +209,17 @@ namespace resource.device
             return GetTileLifter(devid)?.last_track_id ?? 0;
         }
 
+
+        /// <summary>
+        /// 是否符合砖机作业模式
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public bool IsTileWorkMod(uint devid, TileWorkModeE mode)
+        {
+            return ConfigTileLifterList.Exists(c => c.id == devid && c.WorkMode == mode);
+        }
 
         /// <summary>
         /// 是否存在该品种的砖机
@@ -409,6 +430,12 @@ namespace resource.device
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
+                if (!dev.can_cutover)
+                {
+                    result = "该砖机不允许切换模式！";
+                    return false;
+                }
+
                 if (dev.do_shift)
                 {
                     result = "转产中，无法切换模式！";
@@ -462,7 +489,6 @@ namespace resource.device
         #endregion
 
         #endregion
-
 
         #endregion
 

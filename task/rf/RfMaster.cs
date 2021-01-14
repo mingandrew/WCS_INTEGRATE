@@ -1308,6 +1308,7 @@ namespace task.rf
                 {
                     switch (type)
                     {
+                        case DeviceTypeE.砖机:
                         case DeviceTypeE.上砖机:
                         case DeviceTypeE.下砖机:
                             PubTask.TileLifter.UpdateWorking(pack.DevId, pack.Working, pack.WorkType);

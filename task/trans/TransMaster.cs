@@ -1208,7 +1208,7 @@ namespace task.trans
                                         else
                                         {
                                             bool isallocate = false;
-                                            DevWorkTypeE type = PubMaster.DevConfig.GetWorkType(trans.tilelifter_id);
+                                            DevWorkTypeE type = PubMaster.DevConfig.GetTileWorkType(trans.tilelifter_id);
                                             switch (type)
                                             {
                                                 case DevWorkTypeE.规格作业:
@@ -1358,7 +1358,8 @@ namespace task.trans
                     tileemptyneed = PubTask.TileLifter.IsHaveEmptyNeed(trans.tilelifter_id, trans.give_track_id);
 
                     //有需求，取货了，回去取砖流程
-                    if (isload
+                    if (!PubTask.TileLifter.IsTileCutover(trans.tilelifter_id)
+                        && isload
                         && tileemptyneed
                         && PubTask.Carrier.IsStopFTask(trans.carrier_id)
                         && mTimer.IsOver(TimerTag.UpTileReStoreEmtpyNeed, trans.give_track_id, 5, 5))
@@ -1372,33 +1373,34 @@ namespace task.trans
                         #region[小车在储砖轨道]
                         case TrackTypeE.储砖_出入:
                         case TrackTypeE.储砖_出:
-                            if (isnotload)
+                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
-                                {
-                                    SetStatus(trans, TransStatusE.完成);
-                                }
+                                SetStatus(trans, TransStatusE.完成);
                             }
-
                             break;
                         #endregion
 
                         #region[小车在摆渡车]
                         case TrackTypeE.摆渡车_出:
-
-                            if (isnotload)
+                            if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
+                                && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
-                                if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
-                                    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                //小车回到原轨道
+                                if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out string _))
                                 {
-                                    //小车回到原轨道
-                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out string _))
+                                    if (isload)
                                     {
-                                        PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                        PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
+                                        break;
+                                    }
+
+                                    if (isnotload)
+                                    {
+                                        PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                        break;
                                     }
                                 }
                             }
-
                             break;
                         #endregion
 

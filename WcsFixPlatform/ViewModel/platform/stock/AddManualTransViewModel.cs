@@ -171,7 +171,7 @@ namespace wcs.ViewModel
                            .Initialize<DeviceSelectViewModel>((vm) =>
                            {
                                vm.FilterArea = false;
-                               vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.下砖机 });
+                               vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.下砖机 , DeviceTypeE.砖机 });
                            }).GetResultAsync<DialogResult>();
                         if (inresult.p1 is bool rs && inresult.p2 is Device indev)
                         {
@@ -238,7 +238,7 @@ namespace wcs.ViewModel
                            .Initialize<DeviceSelectViewModel>((vm) =>
                            {
                                vm.FilterArea = false;
-                               vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上砖机 });
+                               vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上砖机, DeviceTypeE.砖机 });
                            }).GetResultAsync<DialogResult>();
                         if (outresult.p1 is bool outrs && outresult.p2 is Device outdev)
                         {

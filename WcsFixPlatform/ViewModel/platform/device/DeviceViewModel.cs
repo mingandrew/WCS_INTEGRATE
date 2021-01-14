@@ -297,6 +297,7 @@ namespace wcs.ViewModel
             {
                 switch (view.DevType)
                 {
+                    case DeviceTypeE.砖机:
                     case DeviceTypeE.上砖机:
                     case DeviceTypeE.下砖机:
                         return _filterdevtype == DeviceTypeE.上砖机;
@@ -569,7 +570,7 @@ namespace wcs.ViewModel
                 {
                     vm.AreaId = SelectAreaId;
                     vm.FilterArea = true;
-                    vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上砖机, DeviceTypeE.下砖机 });
+                    vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上砖机, DeviceTypeE.下砖机, DeviceTypeE.砖机 });
                 }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)
             {

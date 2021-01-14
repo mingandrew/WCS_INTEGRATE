@@ -173,6 +173,7 @@ namespace module.rf
 
                 switch (item.Type)
                 {
+                    case DeviceTypeE.砖机:
                     case DeviceTypeE.上砖机:
                     case DeviceTypeE.下砖机:
                         tilelifterdic.AddDtl(new RfDictionDtl()

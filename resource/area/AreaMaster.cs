@@ -94,7 +94,7 @@ namespace resource.area
         internal List<uint> GetAreaTileIds(uint areaid)
         {
             return AreaDevList.FindAll(c => c.area_id == areaid 
-                                && (c.DevType == DeviceTypeE.上砖机 || c.DevType == DeviceTypeE.下砖机))
+                                && (c.DevType == DeviceTypeE.上砖机 || c.DevType == DeviceTypeE.下砖机 || c.DevType == DeviceTypeE.砖机))
                                     .Select(c=>c.device_id).ToList();
         }
 

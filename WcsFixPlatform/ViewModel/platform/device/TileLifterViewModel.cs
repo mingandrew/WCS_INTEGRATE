@@ -145,7 +145,7 @@ namespace wcs.ViewModel
 
                     case 5://变更品种
                         uint area = PubMaster.Device.GetDeviceArea(DeviceSelected.ID);
-                        bool isuptilelifter = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.上砖机);
+                        bool isuptilelifter = PubMaster.DevConfig.IsTileWorkMod(DeviceSelected.ID, TileWorkModeE.上砖);
                         DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
                          .Initialize<GoodsSelectViewModel>((vm) =>
                          {
@@ -183,7 +183,7 @@ namespace wcs.ViewModel
                         break;
 
                     case 10://修改策略
-                        bool isdowntile = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.下砖机);
+                        bool isdowntile = PubMaster.DevConfig.IsTileWorkMod(DeviceSelected.ID, TileWorkModeE.下砖);
                         MsgAction strategyrs = await HandyControl.Controls.Dialog.Show<ChangeStrategyDialog>()
                             .Initialize<ChangeStrategyDialogViewModel>((vm) => {
 
@@ -221,7 +221,7 @@ namespace wcs.ViewModel
                         break;
 
                     case 11://设置优先上砖轨道
-                        bool isupTL = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.上砖机);
+                        bool isupTL = PubMaster.DevConfig.IsTileWorkMod(DeviceSelected.ID, TileWorkModeE.上砖);
                         if (!isupTL)
                         {
                             Growl.Info("只有上砖机可用此功能！");
