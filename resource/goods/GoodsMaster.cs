@@ -1314,7 +1314,7 @@ namespace resource.goods
         private bool CheckTrackAndGood(ushort trackwidth, ushort goodwidth, ushort trackdistance)
         {
             //(trackdistance - (goodwidth - trackwidth) / 2)
-            return trackdistance-((goodwidth - trackwidth)/2) < 100;
+            return trackdistance-(Math.Abs((goodwidth - trackwidth)/2)) < 100;
         }
 
         public byte GetGoodsPieces(uint goodid)
@@ -1373,10 +1373,19 @@ namespace resource.goods
         {
             GoodSize lsize = GetSize(leftgoods.size_id);
             GoodSize rsize = GetSize(rightgoods.size_id);
-            int ld = Math.Abs(lsize.width - lefttrack.width) / 2;
-            int rd = Math.Abs(rsize.width - righttrack.width) / 2;
 
-            if(lefttrack.right_distance == righttrack.left_distance)
+            int ld = 0;
+            if (lefttrack.width <= lsize.width)
+            {
+                ld = Math.Abs(lsize.width - lefttrack.width) / 2;
+            }
+            int rd = 0;
+            if (righttrack.width <= rsize.width)
+            {
+                rd = Math.Abs(rsize.width - righttrack.width) / 2;
+            }
+
+            if (lefttrack.right_distance == righttrack.left_distance)
             {
                 return (righttrack.left_distance - ld - rd) >= 150;
             }

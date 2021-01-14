@@ -90,7 +90,7 @@ namespace wcs.ViewModel
 
         private bool CheckTrackAndGood(ushort trackwidth, ushort goodwidth, ushort trackdistance)
         {
-            return (trackdistance -(goodwidth - trackwidth)/2) < 100;
+            return (trackdistance - Math.Abs((goodwidth - trackwidth)/2)) < 100;
         }
 
         private void CheckIsOk4Good()
@@ -155,8 +155,16 @@ namespace wcs.ViewModel
 
             if (lefttrack == null || righttrack == null
                 || leftgood == null || rightgood == null) return;
-            int ld = Math.Abs(lsize.width - lefttrack.width) / 2;
-            int rd = Math.Abs(rsize.width - righttrack.width) / 2;
+            int ld = 0;
+            if(lefttrack.width <= lsize.width)
+            {
+                ld = Math.Abs(lsize.width - lefttrack.width) / 2;
+            }
+            int rd = 0; 
+            if (righttrack.width <= rsize.width)
+            {
+                rd = Math.Abs(rsize.width - righttrack.width) / 2;
+            }
 
             if (lefttrack.right_distance == righttrack.left_distance)
             {
@@ -233,13 +241,13 @@ namespace wcs.ViewModel
                     if (tag.Contains("left"))
                     {
                         leftgood = good;
-                        lsize = PubMaster.Goods.GetGoodSize(good.SizeId);
+                        lsize = PubMaster.Goods.GetSize(good.SizeId);
                         LeftGoName = good.Name;
                     }
                     else
                     {
                         rightgood = good;
-                        rsize = PubMaster.Goods.GetGoodSize(good.SizeId);
+                        rsize = PubMaster.Goods.GetSize(good.SizeId);
                         RightGoName = good.Name;
                     }
                     CheckIsOk4Good();

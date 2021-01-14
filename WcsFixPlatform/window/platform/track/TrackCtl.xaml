@@ -95,8 +95,8 @@
                     <DataGridTextColumn Binding="{Binding Status}" Header="状态"/>
                     <DataGridTextColumn Binding="{Binding Width}" Header="宽" Visibility="Collapsed"/>
                     <DataGridTextColumn Binding="{Binding Max_store}" Header="最大存" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding AlertStatus}" Header="故障"/>
-                    <DataGridTemplateColumn >
+                    <DataGridTextColumn Binding="{Binding AlertStatus}" Header="故障" Visibility="Collapsed"/>
+                    <DataGridTemplateColumn Visibility="Collapsed">
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="提前满砖"/>
                         </DataGridTemplateColumn.Header>
@@ -111,7 +111,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding FullTime,Converter={StaticResource Date2StringConverter}}" Header="满砖时间"/>
+                    <DataGridTextColumn Binding="{Binding FullTime,Converter={StaticResource Date2StringConverter}}" Header="满砖时间" Visibility="Collapsed"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
