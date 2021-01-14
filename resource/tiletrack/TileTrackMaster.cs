@@ -98,7 +98,7 @@ namespace resource.tiletrack
         }
 
         /// <summary>
-        /// 砖机规格排序更新
+        /// 砖机品种排序更新
         /// </summary>
         public void SortTileTrackList()
         {
@@ -113,7 +113,7 @@ namespace resource.tiletrack
         }
 
         /// <summary>
-        /// 获取砖机配置的规格进行出库
+        /// 获取砖机配置的品种进行出库
         /// </summary>
         /// <param name="tileid"></param>
         /// <returns></returns>

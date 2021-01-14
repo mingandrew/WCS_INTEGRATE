@@ -148,7 +148,7 @@ namespace wcs.ViewModel
                 case "edite":
                     if (SelectGood == null)
                     {
-                        Growl.Warning("请先选择规格！");
+                        Growl.Warning("请先选择品种！");
                         return;
                     }
 
@@ -172,7 +172,7 @@ namespace wcs.ViewModel
                 case "delete":
                     if (SelectGood == null)
                     {
-                        Growl.Warning("请先选择规格！");
+                        Growl.Warning("请先选择品种！");
                         return;
                     }
 

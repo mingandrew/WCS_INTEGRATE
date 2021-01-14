@@ -1211,7 +1211,7 @@ namespace task.trans
                                             DevWorkTypeE type = PubMaster.DevConfig.GetTileWorkType(trans.tilelifter_id);
                                             switch (type)
                                             {
-                                                case DevWorkTypeE.规格作业:
+                                                case DevWorkTypeE.品种作业:
                                                     // 1.查看当前作业轨道是否能作业
                                                     if (PubMaster.Track.HaveTrackInGoodFrist(trans.area_id, trans.tilelifter_id,
                                                         trans.goods_id, PubTask.TileLifter.GetTileCurrentTake(trans.tilelifter_id), out uint trackid)
@@ -2032,7 +2032,7 @@ namespace task.trans
                 {
                     if (!PubMaster.Goods.IsTrackOkForGoods(givetrackid, goods_id))
                     {
-                        result = "该轨道放置该规格会碰撞！";
+                        result = "该轨道放置该品种会碰撞！";
                         return false;
                     }
 
@@ -2085,7 +2085,7 @@ namespace task.trans
                     if (!PubMaster.Track.IsRecentGoodId(taketrackid, goods_id)
                         && !PubMaster.Goods.ExistStockInTrack(taketrackid, goods_id))
                     {
-                        result = "该轨道中没有砖机需要的规格！";
+                        result = "该轨道中没有砖机需要的品种！";
                         return false;
                     }
 
@@ -2102,7 +2102,7 @@ namespace task.trans
                         }
                         //生成出库交易
                         AddTrans(area, devid, transtype, goods_id, stockid, taketrackid, givetrackid);
-                        PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
+                        //PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
 
                         return true;
                     }
@@ -2131,7 +2131,7 @@ namespace task.trans
                             }
                             //生成出库交易
                             AddTrans(area, devid, transtype, goods_id, stockid, trackid, givetrackid);
-                            PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
+                            //PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
                             return true;
                         }
                     }
@@ -2149,7 +2149,7 @@ namespace task.trans
                             //生成出库交易
                             AddTrans(area, devid, transtype, goods_id, stock.id, stock.track_id, givetrackid);
 
-                            PubMaster.Goods.AddStockOutLog(stock.id, givetrackid, devid);
+                            //PubMaster.Goods.AddStockOutLog(stock.id, givetrackid, devid);
                             break;
                         }
                     }

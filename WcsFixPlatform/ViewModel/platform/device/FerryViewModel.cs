@@ -164,13 +164,13 @@ namespace wcs.ViewModel
                         break;
 
                     case 3://启用
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _))
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC"))
                         {
                             PubTask.Ferry.UpdateWorking(DeviceSelected.ID, true);
                         }
                         break;
                     case 4://停用
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _))
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _, "PC"))
                         {
                             PubTask.Ferry.UpdateWorking(DeviceSelected.ID, false);
                         }

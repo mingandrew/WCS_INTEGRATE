@@ -298,13 +298,16 @@ namespace task.rf
                         break;
                     #endregion
 
-                    #region[规格]
+                    #region[品种]
 
                     case FunTag.QueryGoods:
                         GetGoodsList(msg);
                         break;
                     case FunTag.UpdateGood:
                         UpdateGood(msg);
+                        break;
+                    case FunTag.QueryGoodSizes:
+                        GetGoodSizesList(msg);
                         break;
 
                     #endregion
@@ -809,7 +812,7 @@ namespace task.rf
                 mDicPack.AddEnum(typeof(TrackTypeE), "轨道类型", nameof(TrackTypeE));
                 mDicPack.AddEnum(typeof(RfFilterTrackTypeE), "轨道过滤类型", nameof(RfFilterTrackTypeE));
                 mDicPack.AddEnum(typeof(TrackStockStatusE), "轨道库存状态", nameof(TrackStockStatusE));
-                mDicPack.AddEnum(typeof(TrackStatusE), "轨道状态", nameof(TrackStatusE));
+                mDicPack.AddEnum(typeof(TrackRfStatusE), "轨道状态", nameof(TrackStatusE));
                 mDicPack.AddEnum(typeof(SocketConnectStatusE), "通信状态", nameof(SocketConnectStatusE));
                 mDicPack.AddEnum(typeof(DevCarrierStatusE), "运输车状态", nameof(DevCarrierStatusE));
                 mDicPack.AddEnum(typeof(DevCarrierTaskE), "运输车任务状态", nameof(DevCarrierTaskE));
@@ -840,6 +843,7 @@ namespace task.rf
                 mDicPack.AddTrack(PubMaster.Track.GetTrackList());
                 mDicPack.AddDevice(PubMaster.Device.GetDeviceList());
                 mDicPack.AddGood(PubMaster.Goods.GetGoodsList());
+                mDicPack.AddGoodLevel(PubMaster.Dic.GetDicDtls(DicTag.GoodLevel));
                 //mDicPack.AddFerry(PubMaster.Device.GetFerrys());
 
                 #endregion
@@ -1055,7 +1059,16 @@ namespace task.rf
 
         #endregion
 
-        #region[规格]
+        #region[品种]
+
+        private void GetGoodSizesList(RfMsgMod msg)
+        {
+            GoodSizePack gmsg = new GoodSizePack();
+            gmsg.AddGoodSizeList(PubMaster.Goods.GetGoodSizes());
+
+            SendSucc2Rf(msg.MEID, FunTag.QueryGoodSizes, JsonTool.Serialize(gmsg));
+        }
+
         private void GetGoodsList(RfMsgMod msg)
         {
             GoodsPack gmsg = new GoodsPack();
@@ -1304,7 +1317,7 @@ namespace task.rf
             RfDeviceWorkPack pack = JsonTool.Deserialize<RfDeviceWorkPack>(msg.Pack.Data);
             if (pack != null)
             {
-                if (PubMaster.Device.SetDevWorking(pack.DevId, pack.Working, out DeviceTypeE type))
+                if (PubMaster.Device.SetDevWorking(pack.DevId, pack.Working, out DeviceTypeE type, "平板"))
                 {
                     switch (type)
                     {
@@ -1386,7 +1399,7 @@ namespace task.rf
             {
                 if (pack.CarrierTask == 128) return;
                 DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
-                if(!PubTask.Carrier.DoManualTask(pack.DevId, type, out string result))
+                if(!PubTask.Carrier.DoManualTask(pack.DevId, type, out string result, false, "平板手动"))
                 {
                     SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, result);
                     return;
@@ -1496,7 +1509,7 @@ namespace task.rf
         }
         #endregion
 
-        #region[砖机转规格]
+        #region[砖机转品种]
 
         //查询砖机品种，转产状态
         private void QueryTileShift(RfMsgMod msg) 

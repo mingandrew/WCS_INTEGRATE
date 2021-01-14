@@ -112,13 +112,14 @@ namespace resource.module.modulesql
 
         internal bool AddGoods(Goods goods)
         {
-            string str = "INSERT INTO `goods`(`id`, `area_id`, `name`, `color`, `pieces`, `carriertype`, `memo`, `updatetime`,`size_id`,`level`) " +
-                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', {7}, {8}, {9})";
+            string str = "INSERT INTO `goods`(`id`, `area_id`, `name`, `color`, `pieces`, `carriertype`, `memo`, `updatetime`, `info`, `size_id`, `level`, `createtime`) " +
+                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', {7}, '{8}', {9}, {10}, {11})";
             string sql = string.Format(@str, goods.id, goods.area_id, goods.name, goods.color, goods.pieces,
-                goods.carriertype, goods.memo, GetTimeOrNull(goods.updatetime),goods.size_id, goods.level);
+                goods.carriertype, goods.memo, GetTimeOrNull(goods.updatetime), goods.info, goods.size_id, goods.level, GetTimeOrNull(goods.createtime));
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
+
 
         internal bool AddStock(Stock stock)
         {
@@ -146,9 +147,9 @@ namespace resource.module.modulesql
 
         public bool AddStockInLog(Stock stock)
         {
-            string str = "INSERT INTO `stock_log`(`goods_id`, `stack`, `pieces`, `track_id`, `tilelifter_id`, `create_time`) " +
-                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', {5})";
-            string sql = string.Format(@str, stock.goods_id, stock.stack, stock.pieces, stock.track_id, stock.tilelifter_id, GetTimeOrNull(stock.produce_time));
+            string str = "INSERT INTO `stock_log`(`goods_id`, `stack`, `pieces`, `track_id`, `tilelifter_id`, `create_time`,`area_id`) " +
+                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', {5}, {6})";
+            string sql = string.Format(@str, stock.goods_id, stock.stack, stock.pieces, stock.track_id, stock.tilelifter_id, GetTimeOrNull(stock.produce_time), stock.area);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -162,20 +163,37 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        /// <summary>
+        /// 记录上砖机消耗记录
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="tileid"></param>
+        internal void AddConsumeLog(Stock stock, uint tileid)
+        {
+            string str = "INSERT INTO `consume_log`(`goods_id`, `area`, `stack`, `pieces`, `track_id`, `produce_tile_id`," +
+                " `produce_time`, `consume_tile_id`, `consume_time`)" +
+                " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', {6}, '{7}', {8})";
+            string sql = string.Format(@str, stock.goods_id, stock.area, stock.stack, stock.pieces, stock.track_id, stock.tilelifter_id,
+                GetTimeOrNull(stock.produce_time), tileid, GetTimeOrNull(DateTime.Now));
+            mSql.ExcuteSql(sql);
+        }
+
         #endregion
 
         #region[修改]
 
         internal bool EditGoods(Goods goods)
         {
-            string sql = "UPDATE `goods` SET `name` = '{0}', `color` = '{1}', `size_id` = {2}, `memo` = '{3}', " +
-                " `pieces` = '{4}', `carriertype` = '{5}', `updatetime` = {6},`level` = {7} WHERE `id` = '{8}'";
-            sql = string.Format(sql, goods.name, goods.color, goods.size_id, goods.memo, goods.pieces
-                , goods.carriertype, GetTimeOrNull(goods.updatetime),goods.level, goods.id);
+            string sql = "UPDATE `goods` SET `name` = '{0}', `color` = '{1}', `size_id` = {2}," +
+                " `info` = '{3}', `level` = {4}, `memo` = '{5}', `pieces` = '{6}'" +
+                ", `carriertype` = '{7}', `updatetime` = {8} WHERE `id` = '{9}'";
+            sql = string.Format(sql, goods.name, goods.color, goods.size_id
+                , goods.info, goods.level, goods.memo, goods.pieces
+                , goods.carriertype, GetTimeOrNull(goods.updatetime), goods.id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
-        
+
         internal bool EditStock(Stock stock, StockUpE type)
         {
             string sql = "UPDATE `stock` SET ";

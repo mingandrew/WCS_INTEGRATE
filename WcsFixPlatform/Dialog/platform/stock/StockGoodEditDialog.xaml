@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
             <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding ActionTile}"/>
-            <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="更改库存规格"/>
+            <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="更改库存品种"/>
         </StackPanel>
 
         <Grid Grid.Row="1">
@@ -35,10 +35,10 @@
                 <TextBlock Text="轨道:" Style="{StaticResource TextBlockSubTitle}" FontSize="22"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="原规格:" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Margin="3"/>
+                <TextBlock Text="原品种:" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Margin="10"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="新规格:" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Margin="3"/>
+                <TextBlock Text="新品种:" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Margin="10"/>
             </Border>
             <Border Grid.Row="2" Grid.Column="0"  Style="{StaticResource MBorder_LTB}">
                 <TextBlock Text="改时间:" Style="{StaticResource TextBlockSubTitle}" FontSize="22"/>

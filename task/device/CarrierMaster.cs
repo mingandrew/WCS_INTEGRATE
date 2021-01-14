@@ -40,7 +40,7 @@ namespace task.device
 
         public CarrierMaster()
         {
-            mlog = (Log)new LogFactory().GetLog("Carrier", false);
+            mlog = (Log)new LogFactory().GetLog("小车日志", false);
             mTimer = new MTimer();
             _objmsg = new object();
             mMsg = new MsgAction();
@@ -735,7 +735,7 @@ namespace task.device
 
         #region[执行任务]
 
-        public bool DoManualTask(uint devid, DevCarrierTaskE carriertask, out string result, bool isoversize = false)
+        public bool DoManualTask(uint devid, DevCarrierTaskE carriertask, out string result, bool isoversize = false, string memo = "")
         {
             bool isferryupsite = false;
             ushort trackcode = PubTask.Carrier.GetCarrierSite(devid);
@@ -746,9 +746,15 @@ namespace task.device
             }
             switch (carriertask)
             {
-                case DevCarrierTaskE.后退取砖:
                 case DevCarrierTaskE.后退至内放砖:
                 case DevCarrierTaskE.后退至外放砖:
+                    if (IsNotLoad(devid))
+                    {
+                        result = "运输车无货货不能后退放砖！";
+                        return false;
+                    }
+                    break;
+                case DevCarrierTaskE.后退取砖:
                     if (IsLoad(devid))
                     {
                         result = "运输车有货不能后退取砖！";
@@ -850,6 +856,12 @@ namespace task.device
             }
 
             DoTask(devid, carriertask, isoversize);
+            try
+            {
+                mlog.Status(true, string.Format("运输车：{0}，任务：{1},备注：{2}", 
+                    PubMaster.Device.GetDeviceName(devid, devid + ""), carriertask, memo));
+            }
+            catch { }
             result = "";
             return true;
         }
@@ -1061,7 +1073,7 @@ namespace task.device
             carrierid = 0;
             if (trans.goods_id == 0)
             {
-                result = "任务没有规格id";
+                result = "任务没有品种id";
                 return false;
             }
             CarrierTypeE needtype = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);

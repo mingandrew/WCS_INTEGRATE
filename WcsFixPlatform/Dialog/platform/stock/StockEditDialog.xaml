@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:wcs.Dialog"
             xmlns:hc="https://handyorg.github.io/handycontrol"
-            CornerRadius="10" Width="400" Height="430"
+            CornerRadius="10" Width="500" Height="430"
             DataContext="{Binding StockEdit, Source={StaticResource Locator}}"
             Background="{DynamicResource RegionBrush}">
     <Grid Margin="20">
@@ -31,10 +31,10 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
-                <TextBlock Text="轨道:" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Padding="5"/>
+                <TextBlock Text="轨道:" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Padding="15"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
-                <TextBlock Text="规格:" Style="{StaticResource TextBlockSubTitle}" FontSize="22"/>
+                <TextBlock Text="品种:" Style="{StaticResource TextBlockSubTitle}" FontSize="22"/>
             </Border>
             <Border Grid.Row="2" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
                 <TextBlock Text="时间:" Style="{StaticResource TextBlockSubTitle}" FontSize="22"/>

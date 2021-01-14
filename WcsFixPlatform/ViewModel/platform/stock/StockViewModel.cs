@@ -175,7 +175,7 @@ namespace wcs.ViewModel
                             TrackStockAdd(stock.goods_id, pis);
                         }
                         break;
-                    case 2://更换规格
+                    case 2://更换品种
                         ChangeGoodAsync();
                         break;
                     case 3://转移库存
@@ -214,7 +214,7 @@ namespace wcs.ViewModel
                 Stock stock = List[0];
                 if (stock.goods_id == good.ID)
                 {
-                    Growl.Warning("库存规格相同，不用修改！");
+                    Growl.Warning("库存品种相同，不用修改！");
                     return;
                 }
                 ShowStockGoodEditDialog(_selecttrack.id, stock.goods_id, good.ID);
@@ -231,7 +231,7 @@ namespace wcs.ViewModel
 
             if (result.p1 is bool rs && rs && result.p2 is bool changedate)
             {
-                string msg = "确定要更改规格吗？";
+                string msg = "确定要更改品种吗？";
                 DateTime? nd = null;
                 if (changedate && result.p3 is DateTime newdate)
                 {
@@ -272,7 +272,7 @@ namespace wcs.ViewModel
         }
 
         /// <summary>
-        /// 选择规格
+        /// 选择品种
         /// </summary>
         private async void TrackGoodsSelected()
         {

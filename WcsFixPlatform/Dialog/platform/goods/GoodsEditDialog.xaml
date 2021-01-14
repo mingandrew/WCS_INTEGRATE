@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
             <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding ACTIONNAME}"/>
-            <TextBlock Style="{StaticResource TextBlockLarge}" Text="规格"/>
+            <TextBlock Style="{StaticResource TextBlockLarge}" Text="品种"/>
         </StackPanel>
 
         <Grid Grid.Row="1">

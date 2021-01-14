@@ -1,0 +1,34 @@
+
+
+ALTER TABLE `goods` ADD COLUMN `info` varchar(255) NULL COMMENT '品种长信息' AFTER `empty`;
+
+-- 更新之前的名称为info
+update goods set 
+info = `name`;
+
+ALTER TABLE `stock_log` ADD COLUMN `use` bit(1) NOT NULL COMMENT '是否被使用' AFTER `create_time`;
+ALTER TABLE `stock_log` ADD COLUMN `area_id` int UNSIGNED NULL COMMENT '区域ID' AFTER `use`;
+
+CREATE TABLE `consume_log` (
+  `id` int(10) unsigned NOT NULL COMMENT '标识',
+  `goods_id` int(10) unsigned DEFAULT NULL COMMENT '品种ID',
+  `area` tinyint(3) unsigned DEFAULT NULL COMMENT '区域',
+  `stack` tinyint(3) unsigned DEFAULT NULL COMMENT '垛数',
+  `pieces` smallint(5) unsigned DEFAULT NULL COMMENT '片数',
+  `track_id` int(10) unsigned DEFAULT NULL COMMENT '储砖轨道ID',
+  `produce_tile_id` int(10) unsigned DEFAULT NULL COMMENT '下砖机ID',
+  `produce_time` datetime DEFAULT NULL COMMENT '生产时间',
+  `consume_tile_id` int(10) unsigned DEFAULT NULL COMMENT '上砖机ID',
+  `consume_time` datetime DEFAULT NULL COMMENT '上砖消耗时间',
+  `use` bit(1) DEFAULT NULL COMMENT '数据处理标志',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+
+ALTER TABLE `config_tilelifter` ADD COLUMN `can_cutover` bit(1) NULL DEFAULT NULL COMMENT '可切换模式' AFTER `do_shift`;
+
+ALTER TABLE `config_tilelifter` ADD COLUMN `work_mode` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '作业模式\r\n0：过砖模式\r\n1：上砖模式\r\n2：下砖模式' AFTER `can_cutover`;
+
+ALTER TABLE `config_tilelifter` ADD COLUMN `work_mode_next` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '下一个作业模式' AFTER `work_mode`;
+
+ALTER TABLE `config_tilelifter` ADD COLUMN `do_cutover` bit(1) NULL DEFAULT NULL COMMENT '开启切换模式' AFTER `work_mode_next`;

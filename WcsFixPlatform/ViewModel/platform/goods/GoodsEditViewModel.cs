@@ -230,7 +230,8 @@ namespace wcs.ViewModel
                 pieces = Pieces,
                 GoodCarrierType = CarrierType,
                 size_id = size_id,
-                level = (byte)SelectLevel.int_value
+                level = (byte)SelectLevel.int_value,
+                info = name + "/" + color + PubMaster.Goods.GetGoodSizeSimpleName(size_id, "/") + "/" + selectlevel.name
             };
 
             if (mIsAdd)

@@ -31,7 +31,7 @@
                             Command="{Binding ActionStockCmd}"   Margin="0,0,10,0"
                             FontSize="16" Height="35" Tag="1" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
 
-                    <Button Content="更改规格" HorizontalAlignment="Right" 
+                    <Button Content="更改品种" HorizontalAlignment="Right" 
                             Style="{StaticResource ButtonDanger}" 
                             Command="{Binding ActionStockCmd}" Margin="0,0,10,0"
                             FontSize="16" Height="35" Tag="2" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
@@ -58,7 +58,7 @@
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="规格"/>
+                    <DataGridTextColumn Binding="{Binding goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="品种"/>
                     <DataGridTextColumn Binding="{Binding produce_time,Converter={StaticResource Date2StringLongConverter}}" Header="生产时间"/>
                     <DataGridTextColumn Binding="{Binding pos}" Header="位置"/>
                     <DataGridTextColumn Binding="{Binding PosType}" Header="位置"/>

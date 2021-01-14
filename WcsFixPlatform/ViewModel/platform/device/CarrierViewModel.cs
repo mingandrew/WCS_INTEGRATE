@@ -120,13 +120,13 @@ namespace wcs.ViewModel
                         break;
 
                     case 22://启用
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _))
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC"))
                         {
                             PubTask.Carrier.UpdateWorking(DeviceSelected.ID, true);
                         }
                         break;
                     case 23://停用
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _))
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _, "PC"))
                         {
                             PubTask.Carrier.UpdateWorking(DeviceSelected.ID, false);
                         }
@@ -147,7 +147,7 @@ namespace wcs.ViewModel
 
                     default:
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
-                        if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false))
+                        if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
                         {
                             Growl.Warning(result);
                         }

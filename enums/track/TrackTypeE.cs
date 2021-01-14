@@ -41,6 +41,17 @@
         仅下砖
     }
 
+    /// <summary>
+    /// RF轨道修改状态
+    /// </summary>
+    public enum TrackRfStatusE
+    {
+        停用,
+        启用,
+        仅上砖 = 3,
+        仅下砖 = 4
+    }
+
     public enum TrackUpdateE
     {
         StockStatus,

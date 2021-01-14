@@ -4,6 +4,7 @@ using module.goods;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using tool.mlog;
 
 namespace resource.device
 {
@@ -15,6 +16,7 @@ namespace resource.device
         {
             _obj = new object();
             DeviceList = new List<Device>();
+            mLog = (Log)new LogFactory().GetLog("设备配置", false);
         }
 
         public void Start()
@@ -40,7 +42,7 @@ namespace resource.device
         #region[字段]
         private readonly object _obj;
         private List<Device> DeviceList { set; get; }
-
+        private Log mLog;
         #endregion
 
         #region[获取对象]
@@ -101,9 +103,9 @@ namespace resource.device
 
         #region[获取/判断属性]
 
-        public string GetDeviceName(uint device_id)
+        public string GetDeviceName(uint device_id, string defaultstr = "")
         {
-            return DeviceList.Find(c => c.id == device_id)?.name ?? "";
+            return DeviceList.Find(c => c.id == device_id)?.name ?? defaultstr;
         }
 
         public void SetEnable(uint id, bool isenable)
@@ -121,11 +123,17 @@ namespace resource.device
             return DeviceList.Find(c => c.id == iD)?.area ?? 0;
         }
 
-        public bool SetDevWorking(uint devid, bool working, out DeviceTypeE type)
+        public bool SetDevWorking(uint devid, bool working, out DeviceTypeE type, string memo = "")
         {
             Device dev = DeviceList.Find(c => c.id == devid);
             if (dev != null)
             {
+                try
+                {
+                    mLog.Status(true, string.Format("[作业状态]设备：{0}，类型：{1}，原:{2}，新:{3}, 备注：{4}", 
+                        dev.name, dev.type, dev.do_work, working, memo));
+                }
+                catch { }
                 dev.do_work = working;
                 PubMaster.Mod.DevSql.EditDevice(dev);
                 type = dev.Type;

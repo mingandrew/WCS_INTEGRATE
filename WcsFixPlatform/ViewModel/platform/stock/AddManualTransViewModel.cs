@@ -179,7 +179,7 @@ namespace wcs.ViewModel
                             TileLifterTask inTile = PubTask.TileLifter.GetTileLifter(indev.id);
                             if (inTile.DevConfig.goods_id == 0)
                             {
-                                Growl.Warning("请先设置砖机规格！");
+                                Growl.Warning("请先设置砖机品种！");
                                 return;
                             }
                             in_dev = indev;
@@ -246,7 +246,7 @@ namespace wcs.ViewModel
                             TileLifterTask outTile = PubTask.TileLifter.GetTileLifter(outdev.id);
                             if(outTile.DevConfig.goods_id == 0)
                             {
-                                Growl.Warning("请先设置砖机规格！");
+                                Growl.Warning("请先设置砖机品种！");
                                 return;
                             }
                             out_dev = outdev;

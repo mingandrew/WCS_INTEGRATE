@@ -445,7 +445,7 @@ namespace resource.role
                 {
                     new MenuModel()
                     {
-                        Name = "规格",
+                        Name = "品种",
                         IKey = "Goods",
                         OpenPage = true
                     },new MenuModel()

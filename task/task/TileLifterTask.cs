@@ -136,10 +136,14 @@ namespace task.task
 
         public DevWorkTypeE WorkType
         {
-            get => DevConfig?.WorkType ?? DevWorkTypeE.规格作业;
+            get => DevConfig?.WorkType ?? DevWorkTypeE.品种作业;
             set => DevConfig.WorkType = value;
         }
 
+        public bool IsConnect
+        {
+            get => DevTcp?.IsConnected ?? false;
+        }
         #endregion
 
         #region[构造/启动/停止]

@@ -205,6 +205,12 @@ namespace resource.track
                 return false;
             }
 
+            if (track.Type != TrackTypeE.储砖_出入 && (trackstatus == TrackStatusE.仅上砖 || trackstatus == TrackStatusE.仅下砖))
+            {
+                result = "储砖_出入轨道才能修改！";
+                return false;
+            }
+
             //if (track.TrackStatus == TrackStatusE.倒库中)
             //{
             //    result = "倒库中不能修改";
@@ -316,7 +322,11 @@ namespace resource.track
 
                 //if (track.Status == TrackGoodStatusE.满砖 && status == TrackGoodStatusE.有砖) return;
                 if (track.StockStatus == status) return;
-                mLog.Status(true, string.Format("轨道；{0}，原货：{1}，新货：{2} , {3}", track.name, track.StockStatus, status, memo));
+                try
+                {
+                    mLog.Status(true, string.Format("轨道；{0}，原货：{1}，新货：{2} , {3}", track.name, track.StockStatus, status, memo));
+                }
+                catch { }
                 track.StockStatus = status;
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.StockStatus);
                 if (status == TrackStockStatusE.有砖 && track.early_full)
@@ -840,6 +850,7 @@ namespace resource.track
                 return false;
             }
 
+
             if(!pack.IsStockStatusChange() && !pack.IsStatusChange())
             {
                 result = "不需要更改，请刷新！";
@@ -869,7 +880,7 @@ namespace resource.track
             trackids = new List<uint>();
             List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
 
-            //1.查看是否有最近下砖规格轨道
+            //1.查看是否有最近下砖品种轨道
             List<Track> recentusetracks = GetRecentGoodTracks(devtrack, goodsid);
             foreach (Track track in recentusetracks)
             {
@@ -891,7 +902,7 @@ namespace resource.track
         {
             List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
 
-            //1.查看是否有最近下砖规格轨道
+            //1.查看是否有最近下砖品种轨道
             List<Track> recentusetracks = GetRecentTileTracks(devtrack, tilelifterid);
             foreach (Track track in recentusetracks)
             {

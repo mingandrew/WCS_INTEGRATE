@@ -141,7 +141,7 @@ namespace resource.goods
         #region[品种]
         public string GetGoodsName(uint Goods_id)
         {
-            return GoodsList.Find(c => c.id == Goods_id)?.name ?? "";
+            return GoodsList.Find(c => c.id == Goods_id)?.info ?? "";
         }
 
         public byte GetGoodsLevel(uint Goods_id)
@@ -213,6 +213,16 @@ namespace resource.goods
             glist.AddRange(GoodsList.FindAll(c => c.area_id == filterarea && (goodsids.Contains(c.id) || c.empty)));
             return glist;
             //return GoodsList.FindAll(c => c.area_id == filterarea && goodsids.Contains(c.id));
+        }
+
+        public string GetGoodSizeSimpleName(uint size_id, string prefix)
+        {
+            GoodSize size = GetSize(size_id);
+            if (size != null)
+            {
+                return prefix + size.name;
+            }
+            return "";
         }
 
         public List<StockGoodPack> GetStockOutGoodsInsList()
@@ -304,7 +314,7 @@ namespace resource.goods
                                     && c.color.Equals(good.color) 
                                     && c.name.Equals(good.name)))
             {
-                result = "已经存在一样的规格的信息了！";
+                result = "已经存在一样的品种的信息了！";
                 return false;
             }
 
@@ -319,8 +329,11 @@ namespace resource.goods
                 uint goodid = PubMaster.Dic.GenerateID(DicTag.NewGoodId);
                 good.id = goodid;
                 good.GoodCarrierType = PubMaster.Area.GetCarrierType(good.area_id);
+                good.createtime = DateTime.Now;
+                good.updatetime = DateTime.Now;
                 PubMaster.Mod.GoodSql.AddGoods(good);
                 GoodsList.Add(good);
+                GoodsList = GoodsList.OrderByDescending(c => c.updatetime).ToList();
                 SendMsg(good, ActionTypeE.Add);
                 PubMaster.Dic.UpdateVersion(DicTag.PDA_GOOD_VERSION);
                 result = "";
@@ -452,11 +465,12 @@ namespace resource.goods
                     g.name = good.name;
                     g.color = good.color;
                     g.size_id = good.size_id;
+                    g.level = good.level;
+                    g.info = good.info;
                     g.memo = good.memo;
                     g.pieces = good.pieces;
                     g.carriertype = good.carriertype;
                     g.updatetime = DateTime.Now;
-                    g.level = good.level;
                     PubMaster.Mod.GoodSql.EditGoods(g);
                     SendMsg(g, ActionTypeE.Update);
                     PubMaster.Dic.UpdateVersion(DicTag.PDA_GOOD_VERSION);
@@ -474,13 +488,13 @@ namespace resource.goods
         {
             if (PubMaster.DevConfig.ExistTileLifterByGid(goodid))
             {
-                result = "砖机配置了该规格！";
+                result = "砖机配置了该品种！";
                 return false;
             }
 
             if (PubMaster.Goods.ExistStockInTrackByGid(goodid))
             {
-                result = "储砖库存内有该规格";
+                result = "储砖库存内有该品种";
                 return false;
             }
 
@@ -1228,7 +1242,7 @@ namespace resource.goods
 
         #endregion
 
-        #region[轨道能否放该规格砖]
+        #region[轨道能否放该品种砖]
 
         public bool IsTrackOkForGoods(uint trackid, uint goodsid)
         {
@@ -1309,7 +1323,7 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 获取轨道库存最大规格
+        /// 获取轨道库存最大品种
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
@@ -1318,7 +1332,7 @@ namespace resource.goods
             uint goodsid = StockList.Find(c => c.track_id == trackid)?.goods_id ?? 0;
             if (goodsid != 0)
             {
-                //是否存在不同规格的库存在同一个轨道
+                //是否存在不同品种的库存在同一个轨道
                 if (StockList.Exists(c => c.track_id == trackid && c.goods_id != goodsid))
                 {
                     var goodsids = StockList.FindAll(c => c.track_id == trackid)
@@ -1396,7 +1410,7 @@ namespace resource.goods
         /// 空砖信号后，情况轨道库存
         /// </summary>
         /// <param name="take_track_id"></param>
-        public void ClearTrackEmtpy(uint take_track_id)
+        public void ClearTrackEmtpy(uint take_track_id, bool isuptiletrack = false, uint tileid = 0)
         {
             List<Stock> stocks = StockList.FindAll(c => c.track_id == take_track_id);
             if (stocks.Count > 0)
@@ -1404,6 +1418,11 @@ namespace resource.goods
                 PubMaster.Mod.GoodSql.DeleteStock(take_track_id);
                 StockList.RemoveAll(c => c.track_id == take_track_id);
                 RemoveTrackSum(take_track_id);
+
+                if (isuptiletrack)
+                {
+                    AddTileConsumLog(stocks, tileid);
+                }
             }
         }
 
@@ -1415,6 +1434,19 @@ namespace resource.goods
         public bool IsGoodsOverSize(uint goods_id)
         {
             return GetGoodSize(goods_id)?.oversize ?? true;
+        }
+
+        #endregion
+
+
+        #region[上砖消除库存记录]
+
+        private void AddTileConsumLog(List<Stock> stocks, uint tileid)
+        {
+            foreach (var item in stocks)
+            {
+                PubMaster.Mod.GoodSql.AddConsumeLog(item, tileid);
+            }
         }
 
         #endregion

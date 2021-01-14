@@ -24,6 +24,7 @@
         public const string QueryWarn = nameof(QueryWarn);
 
         public const string QueryGoods = nameof(QueryGoods);
+        public const string QueryGoodSizes = nameof(QueryGoodSizes);
         public const string QueryStock = nameof(QueryStock);
         public const string QueryTrack = nameof(QueryTrack);
         public const string QuerySingleTrack = nameof(QuerySingleTrack);
@@ -31,7 +32,7 @@
         public const string QueryTileGood = nameof(QueryTileGood);
         #endregion
 
-        #region[规格]
+        #region[品种]
 
         public const string AddGoods = nameof(AddGoods);
 
@@ -63,7 +64,7 @@
         public const string UpdateGood = nameof(UpdateGood);
         public const string UpdateTrackStatus = nameof(UpdateTrackStatus);
         public const string UpdateTileGood = nameof(UpdateTileGood);
-        public const string QueryTileStockGood = nameof(QueryTileStockGood);//获取库存规格
+        public const string QueryTileStockGood = nameof(QueryTileStockGood);//获取库存品种
 
         public const string UpdateAbmSet = nameof(UpdateAbmSet);
         public const string UpdateRgvSet = nameof(UpdateRgvSet);
@@ -118,11 +119,11 @@
         #endregion
 
 
-        #region[转规格]
+        #region[转品种]
         public const string QueryTileShift = nameof(QueryTileShift);//查询砖机转产信息
 
         public const string UpdatePreGood = nameof(UpdatePreGood);//更新预设品种
-        public const string ShiftTileGood = nameof(ShiftTileGood);//转规格
+        public const string ShiftTileGood = nameof(ShiftTileGood);//转品种
 
         #endregion
     }

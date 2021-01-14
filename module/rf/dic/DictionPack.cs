@@ -218,7 +218,7 @@ namespace module.rf
         {
             RfDiction dic = new RfDiction
             {
-                DicName = "规格字典",
+                DicName = "品种字典",
                 DicCode = "GoodDic"
             };
 
@@ -229,7 +229,7 @@ namespace module.rf
                 {
                     DtlOrder = order,
                     DtlValue = (int)item.id,
-                    DtlName = item.name
+                    DtlName = item.info
                 });
                 order++;
             }
@@ -281,6 +281,27 @@ namespace module.rf
                 {
                     DtlOrder = order,
                     DtlValue = (int)item.id,
+                    DtlName = item.name
+                });
+                order++;
+            }
+            AddDic(dic);
+        }
+        public void AddGoodLevel(List<DictionDtl> lists)
+        {
+            RfDiction dic = new RfDiction
+            {
+                DicName = "品种等级字典",
+                DicCode = "GoodLevel"
+            };
+
+            int order = 0;
+            foreach (DictionDtl item in lists)
+            {
+                dic.AddDtl(new RfDictionDtl()
+                {
+                    DtlOrder = order,
+                    DtlValue = (int)item.int_value,
                     DtlName = item.name
                 });
                 order++;

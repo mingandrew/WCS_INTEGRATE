@@ -80,7 +80,7 @@ namespace wcs.ViewModel
                             CheckUpdate(false);
                         }
                         break;
-                    case 2://选择规格
+                    case 2://选择品种
 
                         if (device == null)
                         {
@@ -119,7 +119,7 @@ namespace wcs.ViewModel
 
             if(goodsid == 0)
             {
-                if(isalertinfo) Growl.Warning("选择规格");
+                if(isalertinfo) Growl.Warning("选择品种");
                 return;
             }
 

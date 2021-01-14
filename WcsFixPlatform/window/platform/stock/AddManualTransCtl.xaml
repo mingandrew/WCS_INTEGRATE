@@ -43,7 +43,7 @@
                                 <TextBlock Text="下砖机:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="规格:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                                <TextBlock Text="品种:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                             </Border>
                             <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">
                                 <TextBlock Text="取砖轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
@@ -131,7 +131,7 @@
                                 <TextBlock Text="上砖机:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="规格:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                                <TextBlock Text="品种:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                             </Border>
                             <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">
                                 <TextBlock Text="取砖轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>

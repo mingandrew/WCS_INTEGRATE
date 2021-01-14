@@ -99,7 +99,7 @@ namespace wcs.ViewModel
             {
                 if (goodsid == 0)
                 {
-                    Growl.Warning("规格信息为空");
+                    Growl.Warning("品种信息为空");
                 }
 
                 if (trackid == 0)

@@ -85,6 +85,7 @@
     <Compile Include="rf\ferry\FerrySitePack.cs" />
     <Compile Include="rf\ferry\FerryTaskPack.cs" />
     <Compile Include="rf\ferry\RfDevFerry.cs" />
+    <Compile Include="rf\good\GoodSizePack.cs" />
     <Compile Include="rf\good\GoodsPack.cs" />
     <Compile Include="rf\base\ModuleView.cs" />
     <Compile Include="rf\base\RfClient.cs" />

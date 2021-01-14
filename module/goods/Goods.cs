@@ -14,13 +14,14 @@ namespace module.goods
         public byte carriertype { set; get; }
         public string memo { set; get; }
         public DateTime? updatetime { set; get; }
-        public ushort minstack { set; get; }//该规格最少库存数
+        public ushort minstack { set; get; }//该品种最少库存数
         public CarrierTypeE GoodCarrierType
         {
             get => (CarrierTypeE)carriertype;
             set => carriertype = (byte)value;
         }
         public byte level { set; get; }
+        public string info { set; get; }
         public DateTime? createtime { set; get; }
         public bool top { set; get; }
         public bool empty { set; get; }

@@ -1,15 +1,33 @@
 ﻿using enums;
 using module.deviceconfig;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using tool.mlog;
 
 namespace resource.device
 {
     public class DevConfigMaster
     {
+        #region[字段]
+        private Log mLog;
+        private readonly object _obj;
+
+        /// <summary>
+        /// 运输车 配置LIST
+        /// </summary>
+        private List<ConfigCarrier> ConfigCarrierList { set; get; }
+
+        /// <summary>
+        /// 摆渡车 配置LIST
+        /// </summary>
+        private List<ConfigFerry> ConfigFerryList { set; get; }
+
+        /// <summary>
+        /// 砖机 配置LIST
+        /// </summary>
+        private List<ConfigTileLifter> ConfigTileLifterList { set; get; }
+
+        #endregion
+
         #region[构造/初始化]
 
         public DevConfigMaster()
@@ -18,6 +36,7 @@ namespace resource.device
             ConfigCarrierList = new List<ConfigCarrier>();
             ConfigFerryList = new List<ConfigFerry>();
             ConfigTileLifterList = new List<ConfigTileLifter>();
+            mLog = (Log)new LogFactory().GetLog("砖机配置", false);
         }
 
         public void Start()
@@ -53,26 +72,6 @@ namespace resource.device
 
         #endregion
 
-        #region[字段]
-
-        private readonly object _obj;
-
-        /// <summary>
-        /// 运输车 配置LIST
-        /// </summary>
-        private List<ConfigCarrier> ConfigCarrierList { set; get; }
-
-        /// <summary>
-        /// 摆渡车 配置LIST
-        /// </summary>
-        private List<ConfigFerry> ConfigFerryList { set; get; }
-
-        /// <summary>
-        /// 砖机 配置LIST
-        /// </summary>
-        private List<ConfigTileLifter> ConfigTileLifterList { set; get; }
-
-        #endregion
 
         #region[获取对象]
 
@@ -186,7 +185,7 @@ namespace resource.device
         /// <returns></returns>
         public DevWorkTypeE GetTileWorkType(uint devid)
         {
-            return GetTileLifter(devid)?.WorkType ?? DevWorkTypeE.规格作业;
+            return GetTileLifter(devid)?.WorkType ?? DevWorkTypeE.品种作业;
         }
 
         /// <summary>
@@ -243,6 +242,14 @@ namespace resource.device
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
+                try
+                {
+                    mLog.Status(true, string.Format("[品种修改]砖机：{0}，原：{1}，新：{2}【{3} , {4}】",
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        PubMaster.Goods.GetGoodsName(dev.goods_id),
+                        PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid));
+                }
+                catch { }
                 dev.goods_id = goodid;
                 PubMaster.Mod.DevConfigSql.EditGoods(dev);
                 return true;
@@ -262,6 +269,13 @@ namespace resource.device
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null && (dev.InStrategey != instrategy || dev.WorkType != worktype))
             {
+                try
+                {
+                    mLog.Status(true, string.Format("[入库逻辑]砖机：{0}，原:{1}，新:{2}", 
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        dev.InStrategey, instrategy));
+                }
+                catch { }
                 dev.InStrategey = instrategy;
                 dev.WorkType = worktype;
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev);
@@ -282,6 +296,13 @@ namespace resource.device
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null && (dev.OutStrategey != outstrategy || dev.WorkType != worktype))
             {
+                try
+                {
+                    mLog.Status(true, string.Format("[出库逻辑]砖机：{0}，原:{1}，新:{2}",
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        dev.OutStrategey, outstrategy));
+                }
+                catch { }
                 dev.OutStrategey = outstrategy;
                 dev.WorkType = worktype;
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev);
@@ -301,6 +322,12 @@ namespace resource.device
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null && dev.last_track_id != trackid)
             {
+                try
+                {
+                    mLog.Status(true, string.Format("[最后作业轨道]砖机：{0}，轨道:{1}",
+                        PubMaster.Device.GetDeviceName(dev.id), trackid));
+                }
+                catch { }
                 dev.last_track_id = trackid;
                 PubMaster.Mod.DevConfigSql.EditLastTrackId(dev);
                 return true;
@@ -363,7 +390,13 @@ namespace resource.device
                     result = "请刷新设备信息！";
                     return false;
                 }
-
+                try
+                {
+                    mLog.Status(true, string.Format("[预设品种]砖机：{0}，预设品种:{1}【{2}】",
+                        PubMaster.Device.GetDeviceName(dev.id), 
+                        PubMaster.Goods.GetGoodsName(pregoodid), pregoodid));
+                }
+                catch { }
                 dev.pre_goodid = pregoodid;
                 PubMaster.Mod.DevConfigSql.EditGoods(dev);
                 result = "";
@@ -406,6 +439,14 @@ namespace resource.device
                 dev.pre_goodid = 0;
                 dev.do_shift = true;
                 PubMaster.Mod.DevConfigSql.EditGoods(dev);
+                try
+                {
+                    mLog.Status(true, string.Format("[开始转产]砖机：{0}，原品种:{1}，新品种:{2}, 【{3} , {4}】",
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        PubMaster.Goods.GetGoodsName(dev.old_goodid),
+                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id));
+                }
+                catch { }
                 result = "";
                 return true;
             }
@@ -453,12 +494,19 @@ namespace resource.device
                     result = "请刷新设备信息！";
                     return false;
                 }
+                try
+                {
+                    mLog.Status(true, string.Format("[开始切换模式]砖机：{0}，当前模式:{1}，切换模式:{2}",
+                       PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode));
+                }
+                catch { }
 
                 dev.WorkModeNext = nextmode;
                 dev.old_goodid = dev.goods_id;
                 dev.goods_id = newgoodid;
                 dev.do_cutover = true;
-                PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
+                PubMaster.Mod.DevConfigSql.EditWorkMode(dev); 
+                
                 result = "";
                 return true;
             }
@@ -476,6 +524,12 @@ namespace resource.device
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
+                try
+                {
+                    mLog.Status(true, string.Format("[完成切换模式]砖机：{0}，原模式:{1}，新模式:{2}",
+                       PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode));
+                }
+                catch { }
                 dev.WorkMode = nextmode;
                 dev.WorkModeNext = TileWorkModeE.无;
                 dev.old_goodid = 0;
