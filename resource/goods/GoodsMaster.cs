@@ -1357,8 +1357,8 @@ namespace resource.goods
         /// <returns></returns>
         public bool IsGoodsDistanceOk(Track lefttrack, Goods leftgoods, Track righttrack, Goods rightgoods)
         {
-            GoodSize lsize = GetGoodSize(leftgoods.size_id);
-            GoodSize rsize = GetGoodSize(rightgoods.size_id);
+            GoodSize lsize = GetSize(leftgoods.size_id);
+            GoodSize rsize = GetSize(rightgoods.size_id);
             int ld = Math.Abs(lsize.width - lefttrack.width) / 2;
             int rd = Math.Abs(rsize.width - righttrack.width) / 2;
 

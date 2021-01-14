@@ -112,7 +112,7 @@ namespace task.trans
                             }
                         }
 
-                        //CheckTrackSort();  //包装前无需倒库
+                        CheckTrackSort();  //包装前无需倒库
                     }
                     catch (Exception e)
                     {

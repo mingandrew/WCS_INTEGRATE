@@ -530,8 +530,10 @@ namespace task.device
 
             #region[空砖]
 
-            if (task.Task == DevCarrierTaskE.后退取砖
+            if ((task.Task == DevCarrierTaskE.后退取砖
                 && task.FinishTask == DevCarrierTaskE.后退取砖)
+                || (task.Task == DevCarrierTaskE.前进取砖
+                && task.FinishTask == DevCarrierTaskE.前进取砖))
             {
                 Track track = PubMaster.Track.GetTrack(task.TrackId);
                 if (track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入)
@@ -557,7 +559,7 @@ namespace task.device
                 }
             }
 
-            if (task.Signal == DevCarrierSignalE.空轨道 && task.Task != DevCarrierTaskE.后退取砖)
+            if (task.Signal == DevCarrierSignalE.空轨道 && task.Task != DevCarrierTaskE.后退取砖 && task.Task != DevCarrierTaskE.前进取砖)
             {
                 task.DevReset = DevCarrierResetE.复位;
             }
