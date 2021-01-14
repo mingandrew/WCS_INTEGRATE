@@ -268,6 +268,10 @@ namespace wcs.ViewModel
                     case 13:  //忽略2工位
                         PubTask.TileLifter.DoIgnore(DeviceSelected.ID, false);
                         break;
+                    case 14:  //切换作业模式
+                        
+
+                        break;
                 }
             }
         }

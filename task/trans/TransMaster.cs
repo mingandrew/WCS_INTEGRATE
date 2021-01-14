@@ -994,7 +994,7 @@ namespace task.trans
                                                 {
                                                     //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
                                                     //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
-                                                    if (PubMaster.DevConfig.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
+                                                    if (PubTask.TileLifter.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
                                                     {
                                                         if (PubMaster.DevConfig.HaveBrother(trans.tilelifter_id))
                                                         {
@@ -1090,7 +1090,7 @@ namespace task.trans
                                     //没有任务并且停止
                                     if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
-                                        if (PubMaster.DevConfig.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
+                                        if (PubTask.TileLifter.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
                                         {
                                             if (PubMaster.DevConfig.HaveBrother(trans.tilelifter_id))
                                             {
@@ -1168,7 +1168,7 @@ namespace task.trans
                                         && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
                                         //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
-                                        if (PubMaster.DevConfig.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
+                                        if (PubTask.TileLifter.IsTileLifterType(trans.tilelifter_id, TileLifterTypeE.后退放砖))
                                         {
                                             PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
                                         }
@@ -2643,6 +2643,73 @@ namespace task.trans
             }
             result = "";
             return false;
+        }
+
+        /// <summary>
+        /// 切换模式取消任务
+        /// </summary>
+        /// <param name="tilelifterid"></param>
+        /// <param name="goodsid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool CancelTaskForCutover(uint tilelifterid, uint goodsid, out string result)
+        {
+            result = "";
+            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    List<StockTrans> trans = TransList.FindAll(c => !c.finish && !c.cancel && c.tilelifter_id == tilelifterid);
+                    if (trans != null && trans.Count != 0)
+                    {
+                        foreach (StockTrans t in trans)
+                        {
+                            switch (t.TransType)
+                            {
+                                case TransTypeE.下砖任务:
+                                case TransTypeE.手动入库:
+                                    if (PubTask.Carrier.IsLoad(t.carrier_id))
+                                    {
+                                        result = "运输车已取砖，不能取消任务！";
+                                        return false;
+                                    }
+
+                                    if (t.goods_id == goodsid)
+                                    {
+                                        SetStatus(t, TransStatusE.取消);
+                                    }
+                                    break;
+
+                                case TransTypeE.上砖任务:
+                                case TransTypeE.手动出库:
+                                    if (t.TransStaus == TransStatusE.取砖流程)
+                                    {
+                                        Track nowtrack = PubTask.Carrier.GetCarrierTrack(t.carrier_id);
+                                        if (PubTask.Carrier.IsLoad(t.carrier_id)
+                                            && (PubTask.Carrier.IsCarrierInTask(t.carrier_id, DevCarrierTaskE.前进放砖) ||
+                                                    PubTask.Carrier.IsCarrierInTask(t.carrier_id, DevCarrierTaskE.后退至内放砖) ||
+                                                    PubTask.Carrier.IsCarrierInTask(t.carrier_id, DevCarrierTaskE.后退至外放砖))
+                                            && (nowtrack.Type == TrackTypeE.摆渡车_入 ||
+                                                   nowtrack.Type == TrackTypeE.摆渡车_出 ||
+                                                   nowtrack.Type == TrackTypeE.上砖轨道))
+                                        {
+                                            result = "运输车正在上砖，不能取消任务！";
+                                            return false;
+                                        }
+                                    }
+
+                                    SetStatus(t, TransStatusE.取消);
+                                    break;
+                            }
+                        }
+                    }
+                }
+                finally
+                {
+                    Monitor.Exit(_to);
+                }
+            }
+            return true;
         }
 
         #endregion

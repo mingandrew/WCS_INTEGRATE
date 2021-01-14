@@ -288,80 +288,7 @@ namespace resource.device
         }
 
 
-        #region[砖机转产]
-
-        /// <summary>
-        /// 预设砖机品种
-        /// </summary>
-        /// <param name="devid"></param>
-        /// <param name="nowgoodid"></param>
-        /// <param name="pregoodid"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        public bool UpdateTilePreGood(uint devid, uint nowgoodid, uint pregoodid, out string result)
-        {
-            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
-            if (dev != null)
-            {
-                if (dev.goods_id != nowgoodid)
-                {
-                    result = "请刷新设备信息！";
-                    return false;
-                }
-
-                dev.pre_goodid = pregoodid;
-                PubMaster.Mod.DevConfigSql.EditGoods(dev);
-                result = "";
-                return true;
-            }
-            result = "找不到砖机信息！";
-            return false;
-        }
-
-        /// <summary>
-        /// 开始砖机转产作业
-        /// </summary>
-        /// <param name="devid"></param>
-        /// <param name="nowgoodid"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, out string result)
-        {
-            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
-            if (dev != null)
-            {
-                if (dev.goods_id != nowgoodid)
-                {
-                    result = "请刷新设备信息！";
-                    return false;
-                }
-                if (dev.do_shift)
-                {
-                    result = "正在转产中！";
-                    return false;
-                }
-                dev.old_goodid = dev.goods_id;
-                dev.goods_id = dev.pre_goodid;
-                dev.pre_goodid = 0;
-                dev.do_shift = true;
-                PubMaster.Mod.DevConfigSql.EditGoods(dev);
-                result = "";
-                return true;
-            }
-            result = "找不到砖机信息！";
-            return false;
-        }
-
-        /// <summary>
-        /// 判断上砖机类型
-        /// </summary>
-        /// <param name="devid"></param>
-        /// <param name="tileLifterType"></param>
-        /// <returns></returns>
-        public bool IsTileLifterType(uint devid, TileLifterTypeE tileLifterType)
-        {
-            return ConfigTileLifterList.Exists(c => c.id == devid && c.TileLifterType == tileLifterType);
-        }
+        #region [串联砖机]
 
         /// <summary>
         /// 判断是否有兄弟砖机
@@ -395,7 +322,147 @@ namespace resource.device
 
         #endregion
 
+        #region[砖机转产]
+
+        /// <summary>
+        /// 预设砖机品种
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="nowgoodid"></param>
+        /// <param name="pregoodid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool UpdateTilePreGood(uint devid, uint nowgoodid, uint pregoodid, out string result)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null)
+            {
+                if (dev.goods_id != nowgoodid)
+                {
+                    result = "请刷新设备信息！";
+                    return false;
+                }
+
+                dev.pre_goodid = pregoodid;
+                PubMaster.Mod.DevConfigSql.EditGoods(dev);
+                result = "";
+                return true;
+            }
+            result = "找不到砖机配置信息！";
+            return false;
+        }
+
+        /// <summary>
+        /// 开始砖机转产作业
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="nowgoodid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, out string result)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null)
+            {
+                if (dev.do_cutover)
+                {
+                    result = "切换模式中，无法转产！";
+                    return false;
+                }
+
+                if (dev.goods_id != nowgoodid)
+                {
+                    result = "请刷新设备信息！";
+                    return false;
+                }
+                if (dev.do_shift)
+                {
+                    result = "正在转产中！";
+                    return false;
+                }
+                dev.old_goodid = dev.goods_id;
+                dev.goods_id = dev.pre_goodid;
+                dev.pre_goodid = 0;
+                dev.do_shift = true;
+                PubMaster.Mod.DevConfigSql.EditGoods(dev);
+                result = "";
+                return true;
+            }
+            result = "找不到砖机配置信息！";
+            return false;
+        }
+
         #endregion
+
+        #region [切换模式]
+
+        /// <summary>
+        /// 开始切换
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="nextmode"></param>
+        /// <param name="newgoodid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool DoCutover(uint devid, TileWorkModeE nextmode, uint newgoodid, out string result)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null)
+            {
+                if (dev.do_shift)
+                {
+                    result = "转产中，无法切换模式！";
+                    return false;
+                }
+
+                if (dev.do_cutover)
+                {
+                    result = "正在切换模式中！";
+                    return false;
+                }
+
+                if (dev.WorkMode == nextmode)
+                {
+                    result = "请刷新设备信息！";
+                    return false;
+                }
+
+                dev.WorkModeNext = nextmode;
+                dev.old_goodid = dev.goods_id;
+                dev.goods_id = newgoodid;
+                dev.do_cutover = true;
+                PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
+                result = "";
+                return true;
+            }
+            result = "找不到砖机配置信息！";
+            return false;
+        }
+
+        /// <summary>
+        /// 完成切换
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public bool FinishCutover(uint devid, TileWorkModeE nextmode)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null)
+            {
+                dev.WorkMode = nextmode;
+                dev.WorkModeNext = TileWorkModeE.无;
+                dev.old_goodid = 0;
+                dev.do_cutover = false;
+                PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
+
+        #endregion
+
 
         #endregion
 

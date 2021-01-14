@@ -363,7 +363,7 @@ namespace task.device
                         && c.OperateMode == DevOperateModeE.自动
                         && c.Status == DevCarrierStatusE.停止
                         && (c.Task == c.FinishTask || c.Task == DevCarrierTaskE.无)
-                        && (c.CarrierPosition != DevCarrierPositionE.上下摆渡中 || c.CarrierPosition != DevCarrierPositionE.未知));
+                        && (c.CarrierPosition != DevCarrierPositionE.上下摆渡中 && c.CarrierPosition != DevCarrierPositionE.未知));
         }
 
         /// <summary>

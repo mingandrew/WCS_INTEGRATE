@@ -13,8 +13,8 @@ namespace module.device
         public byte type { set; get; }
         public byte type2 { set; get; }
         public bool enable { set; get; }
-        public byte att1 { set; get; }//用于区分运输车类型  窄 宽
-        public byte att2 { set; get; }//用于上砖机优先清空轨道使用
+        public byte att1 { set; get; }//用于区分 运输车类型  窄 宽
+        public byte att2 { set; get; }//用于区分 砖机类型 前进放砖/后退放砖
         public string memo { set; get; }
         public ushort area { set; get; }
         public bool do_work { set; get; }//是否作业
@@ -39,6 +39,15 @@ namespace module.device
         {
             get => (CarrierTypeE)att1;
             set => att1 = (byte)value;
+        }
+
+        /// <summary>
+        /// 砖机类型
+        /// </summary>
+        public TileLifterTypeE TileLifterType
+        {
+            get => (TileLifterTypeE)att2;
+            set => att2 = (byte)value;
         }
 
     }

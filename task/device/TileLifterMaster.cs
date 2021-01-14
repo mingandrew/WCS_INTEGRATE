@@ -144,78 +144,80 @@ namespace task.device
 
                                 #region 下砖-转产
 
-                                if (task.Type != DeviceTypeE.下砖机) continue;
-
-                                int count = PubMaster.Dic.GetDtlIntCode("TileLifterShiftCount");
-                                switch (task.DevStatus.ShiftStatus)
+                                if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
                                 {
-                                    case TileShiftStatusE.复位:
-                                        #region [复位]
-                                        if (task.DevConfig.do_shift)
-                                        {
-                                            if (!task.DevStatus.ShiftAccept)
+                                    int count = PubMaster.Dic.GetDtlIntCode("TileLifterShiftCount");
+                                    switch (task.DevStatus.ShiftStatus)
+                                    {
+                                        case TileShiftStatusE.复位:
+                                            #region [复位]
+                                            if (task.DevConfig.do_shift)
                                             {
-                                                Thread.Sleep(500);
-                                                task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
-                                                break;
+                                                if (!task.DevStatus.ShiftAccept)
+                                                {
+                                                    Thread.Sleep(500);
+                                                    task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
+                                                    break;
+                                                }
                                             }
-                                        }
 
-                                        if (!task.DevConfig.do_shift)
-                                        {
-                                            if (task.DevStatus.ShiftAccept)
+                                            if (!task.DevConfig.do_shift)
                                             {
-                                                Thread.Sleep(500);
-                                                task.DoShift(TileShiftCmdE.复位);
-                                                break;
+                                                if (task.DevStatus.ShiftAccept)
+                                                {
+                                                    Thread.Sleep(500);
+                                                    task.DoShift(TileShiftCmdE.复位);
+                                                    break;
+                                                }
                                             }
-                                        }
-                                        #endregion
-                                        break;
-                                    case TileShiftStatusE.转产中:
-                                        #region [转产中]
-                                        if (task.DevConfig.do_shift)
-                                        {
-                                            if (!task.DevStatus.ShiftAccept)
-                                            {
-                                                Thread.Sleep(500);
-                                                task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
-                                                break;
-                                            }
-                                        }
-
-                                        if (!task.DevConfig.do_shift)
-                                        {
-                                            if (task.DevStatus.ShiftAccept)
-                                            {
-                                                Thread.Sleep(500);
-                                                task.DoShift(TileShiftCmdE.复位);
-                                                break;
-                                            }
-                                        }
-                                        #endregion
-                                        break;
-                                    case TileShiftStatusE.完成:
-                                        #region [完成]
-                                        if (task.DevConfig.do_shift)
-                                        {
-                                            Thread.Sleep(500);
-                                            task.DoShift(TileShiftCmdE.复位);
-
-                                            task.DevConfig.do_shift = false;
-                                            task.DevConfig.old_goodid = 0;
-                                            PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevConfig.goods_id);
+                                            #endregion
                                             break;
-                                        }
-                                        #endregion
-                                        break;
-                                    default:
-                                        break;
+                                        case TileShiftStatusE.转产中:
+                                            #region [转产中]
+                                            if (task.DevConfig.do_shift)
+                                            {
+                                                if (!task.DevStatus.ShiftAccept)
+                                                {
+                                                    Thread.Sleep(500);
+                                                    task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!task.DevConfig.do_shift)
+                                            {
+                                                if (task.DevStatus.ShiftAccept)
+                                                {
+                                                    Thread.Sleep(500);
+                                                    task.DoShift(TileShiftCmdE.复位);
+                                                    break;
+                                                }
+                                            }
+                                            #endregion
+                                            break;
+                                        case TileShiftStatusE.完成:
+                                            #region [完成]
+                                            if (task.DevConfig.do_shift)
+                                            {
+                                                Thread.Sleep(500);
+                                                task.DoShift(TileShiftCmdE.复位);
+
+                                                task.DevConfig.do_shift = false;
+                                                task.DevConfig.old_goodid = 0;
+                                                PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevConfig.goods_id);
+                                                break;
+                                            }
+                                            #endregion
+                                            break;
+                                        default:
+                                            break;
+                                    }
                                 }
 
                                 #endregion
 
                                 #region 同步当前品种/等级
+
                                 if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
                                 {
                                     Thread.Sleep(500);
@@ -228,6 +230,87 @@ namespace task.device
                                     Thread.Sleep(500);
                                     task.DoUpdateLevel(level);
                                 }
+
+                                #endregion
+
+                                #region 切换模式
+
+                                if (!task.DevConfig.do_cutover &&
+                                    task.DevConfig.WorkMode == task.DevStatus.WorkMode)
+                                {
+                                    // 复位
+                                    PubMaster.DevConfig.FinishCutover(task.ID, task.DevStatus.WorkMode);
+                                    break;
+                                }
+
+                                if (task.DevConfig.do_cutover)
+                                {
+                                    if (task.DevConfig.WorkModeNext == TileWorkModeE.无 || 
+                                        task.DevConfig.WorkModeNext == task.DevStatus.WorkMode)
+                                    {
+                                        // 复位
+                                        PubMaster.DevConfig.FinishCutover(task.ID, task.DevStatus.WorkMode);
+                                        break;
+                                    }
+
+                                    switch (task.DevConfig.WorkModeNext)
+                                    {
+                                        case TileWorkModeE.过砖: // xxx => 过砖
+                                            Thread.Sleep(500);
+                                            task.DoCutover(TileWorkModeE.过砖, TileFullE.忽略);
+                                            break;
+
+                                        case TileWorkModeE.下砖: // xxx => 下砖
+                                            if (!PubTask.Trans.CancelTaskForCutover(task.ID, task.DevConfig.goods_id, out string res))
+                                            {
+                                                mlog.Info(true, res);
+                                                break;
+                                            }
+
+                                            if (task.DevConfig.goods_id == task.DevConfig.old_goodid ||
+                                                (!task.DevStatus.Load1 && !task.DevStatus.Load2))
+                                            {
+                                                Thread.Sleep(500);
+                                                task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
+                                            }
+                                            break;
+
+                                        case TileWorkModeE.上砖: // xxx => 上砖
+                                            if (task.DevConfig.goods_id != task.DevConfig.old_goodid &&
+                                                (task.DevStatus.Load1 || task.DevStatus.Load2) &&
+                                                (!task.DevStatus.Need1 && !task.DevStatus.Need2))
+                                            {
+                                                Thread.Sleep(500);
+                                                task.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
+                                            }
+
+                                            if (!task.DevStatus.Load1 && !task.DevStatus.Load2)
+                                            {
+                                                Thread.Sleep(500);
+                                                task.DoCutover(TileWorkModeE.上砖, TileFullE.忽略);
+                                                break;
+                                            }
+
+                                            if (!PubTask.Trans.CancelTaskForCutover(task.ID, task.DevConfig.goods_id, out res))
+                                            {
+                                                mlog.Info(true, res);
+                                                break;
+                                            }
+
+                                            if (task.DevConfig.goods_id == task.DevConfig.old_goodid)
+                                            {
+                                                Thread.Sleep(500);
+                                                task.DoCutover(TileWorkModeE.上砖, TileFullE.忽略);
+                                            }
+                                            break;
+
+                                        case TileWorkModeE.无:
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+
                                 #endregion
 
                             }
@@ -669,7 +752,7 @@ namespace task.device
             {
                 #region[下砖机-满砖]
 
-                if (task.Type == DeviceTypeE.下砖机)
+                if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
                 {
                     if (task.IsEmpty_1 && task.IsInvo_1)
                     {
@@ -701,6 +784,10 @@ namespace task.device
 
                     uint gid = task.DevStatus.Goods1;
 
+                    if (task.DevConfig.do_cutover &&
+                        !IsAllowToWorkForCutover(gid, task.DevConfig.old_goodid, 
+                                task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
+
                     bool iseffect = CheckInStrategy(task, task.DevConfig.left_track_id, gid);
 
                     if (!iseffect)
@@ -728,7 +815,7 @@ namespace task.device
 
                 #region[上砖机-空砖]
 
-                else if (task.Type == DeviceTypeE.上砖机 && task.IsEmpty_1)
+                else if (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.IsEmpty_1)
                 {
                     if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.上砖)) return;
 
@@ -746,6 +833,10 @@ namespace task.device
                     if (!CheckUpBrotherIsReady(task, true, false)) return;
 
                     #region[生成出库交易]
+
+                    if (task.DevConfig.do_cutover &&
+                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.old_goodid, 
+                                task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.left_track_id);
 
@@ -778,12 +869,12 @@ namespace task.device
             else
             {
                 bool isOK = false;
-                switch (task.Type)
+                switch (task.DevConfig.WorkMode)
                 {
-                    case DeviceTypeE.上砖机:
+                    case TileWorkModeE.上砖:
                         isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.left_track_id);
                         break;
-                    case DeviceTypeE.下砖机:
+                    case TileWorkModeE.下砖:
                         isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id);
                         break;
                     default:
@@ -819,7 +910,7 @@ namespace task.device
 
                 #region[下砖机-满砖]
 
-                if (task.Type == DeviceTypeE.下砖机)
+                if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
                 {
                     if (task.IsEmpty_2 && task.IsInvo_2)
                     {
@@ -851,6 +942,10 @@ namespace task.device
 
                     uint gid = task.DevStatus.Goods2;
 
+                    if (task.DevConfig.do_cutover &&
+                        !IsAllowToWorkForCutover(gid, task.DevConfig.old_goodid,
+                                task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
+
                     bool iseffect = CheckInStrategy(task, task.DevConfig.right_track_id, gid);
 
                     if (!iseffect)
@@ -877,7 +972,7 @@ namespace task.device
                 #endregion
 
                 #region[上砖机-空砖]
-                else if (task.Type == DeviceTypeE.上砖机 && task.IsEmpty_2)
+                else if (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.IsEmpty_2)
                 {
                     if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.上砖)) return;
 
@@ -895,6 +990,10 @@ namespace task.device
                     if (!CheckUpBrotherIsReady(task, true, false)) return;
 
                     #region[生成出库交易]
+
+                    if (task.DevConfig.do_cutover &&
+                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.old_goodid,
+                                task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.right_track_id);
 
@@ -931,12 +1030,12 @@ namespace task.device
                 }
                 else
                 {
-                    switch (task.Type)
+                    switch (task.DevConfig.WorkMode)
                     {
-                        case DeviceTypeE.上砖机:
+                        case TileWorkModeE.上砖:
                             isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.right_track_id);
                             break;
-                        case DeviceTypeE.下砖机:
+                        case TileWorkModeE.下砖:
                             isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id);
                             break;
                         default:
@@ -991,6 +1090,33 @@ namespace task.device
 
             PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileGoodsIsZero, (ushort)tileid);
             PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileGoodsIsNull, (ushort)tileid);
+            return true;
+        }
+
+        /// <summary>
+        /// 是否允许切换中继续作业
+        /// </summary>
+        /// <param name="goodsid"></param>
+        /// <param name="oldgoodsid"></param>
+        /// <param name="mode"></param>
+        /// <param name="nextmode"></param>
+        /// <returns></returns>
+        private bool IsAllowToWorkForCutover(uint goodsid, uint oldgoodsid, TileWorkModeE mode, TileWorkModeE nextmode)
+        {
+            if (mode == TileWorkModeE.上砖 && nextmode == TileWorkModeE.下砖)
+            {
+                // 上 -> 下 ，直接停止任务
+                return false;
+            }
+
+            if (mode == TileWorkModeE.下砖 && nextmode == TileWorkModeE.上砖)
+            {
+                // 下 -> 上，品种一致不拉走，直接等着上
+                if (goodsid == oldgoodsid)
+                {
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -1609,6 +1735,17 @@ namespace task.device
         internal bool IsAnyoneNeeds(uint area, DeviceTypeE dt)
         {
             return DevList.Exists(c => c.AreaId == area && c.Type == dt && (c.IsNeed_1 || c.IsNeed_2));
+        }
+
+        /// <summary>
+        /// 判断砖机类型
+        /// </summary>
+        /// <param name="tilelifter_id"></param>
+        /// <param name="tileLifterType"></param>
+        /// <returns></returns>
+        public bool IsTileLifterType(uint tilelifter_id, TileLifterTypeE tileLifterType)
+        {
+            return DevList.Exists(c => c.ID == tilelifter_id && c.TileLifterType == tileLifterType);
         }
 
         #endregion

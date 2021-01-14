@@ -64,9 +64,20 @@ namespace module.deviceconfig
         public bool do_shift { set; get; }
 
         /// <summary>
-        /// 砖机类型 前进放砖/后退放砖
+        /// 能否切换模式
         /// </summary>
-        public uint att2 { set; get; }
+        public bool can_cutover { set; get; }
+
+        // 作业模式
+        public byte work_mode { set; get; }
+
+        // 下一个作业模式
+        public byte work_mode_next { set; get; }
+
+        /// <summary>
+        /// 是否切换模式
+        /// </summary>
+        public bool do_cutover { set; get; }
 
 
         /// <summary>
@@ -97,6 +108,24 @@ namespace module.deviceconfig
         }
 
         /// <summary>
+        /// 作业模式
+        /// </summary>
+        public TileWorkModeE WorkMode
+        {
+            get => (TileWorkModeE)work_mode;
+            set => work_mode = (byte)value;
+        }
+
+        /// <summary>
+        /// 下一个作业模式
+        /// </summary>
+        public TileWorkModeE WorkModeNext
+        {
+            get => (TileWorkModeE)work_mode_next;
+            set => work_mode_next = (byte)value;
+        }
+
+        /// <summary>
         /// 是否存在干预砖机
         /// </summary>
         public bool HaveBrother
@@ -104,13 +133,5 @@ namespace module.deviceconfig
             get => brother_dev_id != 0;
         }
 
-        /// <summary>
-        /// 是否为后退放砖类型的砖机
-        /// </summary>
-        public TileLifterTypeE TileLifterType
-        {
-            get => (TileLifterTypeE)att2;
-            set => att2 = (byte)value;
-        }
     }
 }
