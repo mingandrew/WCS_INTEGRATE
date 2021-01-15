@@ -62,9 +62,25 @@ namespace wcs.ViewModel
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0;
         private bool showareafilter = true;
+
+        private bool configdrawopen;
+        #region[运输车配置]
+        private string devname;
+        #endregion
+
         #endregion
 
         #region[属性]
+
+        #region[运输车配置]
+        public string DevName
+        {
+            get => devname;
+            set => Set(ref devname, value);
+        }
+
+        #endregion
+
         public bool ShowAreaFileter
         {
             get => showareafilter;
@@ -91,12 +107,27 @@ namespace wcs.ViewModel
             set => Set(ref _devicselected, value);
         }
 
+        public bool ConfigDrawOpen
+        {
+            get => configdrawopen;
+            set => Set(ref configdrawopen, value);
+        }
+
         #endregion
 
         #region[命令]
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
         public RelayCommand<string> SendCarrierTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendCarrierTask)).Value;
+        public RelayCommand<CarrierView> DevConfigCmd => new Lazy<RelayCommand<CarrierView>>(() => new RelayCommand<CarrierView>(DevConfig)).Value;
 
+        private void DevConfig(CarrierView dev)
+        {
+            if (dev != null)
+            {
+                ConfigDrawOpen = true;
+                DevName = dev.Name;
+            }
+        }
         #endregion
 
         #region[方法]
@@ -104,7 +135,7 @@ namespace wcs.ViewModel
         {
             if (DeviceSelected == null)
             {
-                Growl.Warning("请先选择设备");
+                Growl.WarningGlobal("请先选择设备");
                 return;
             }
 
@@ -149,7 +180,11 @@ namespace wcs.ViewModel
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
                         if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
                         {
-                            Growl.Warning(result);
+                            Growl.WarningGlobal(result);
+                        }
+                        else
+                        {
+                            Growl.SuccessGlobal("发送成功！");
                         }
                         break;
                 }

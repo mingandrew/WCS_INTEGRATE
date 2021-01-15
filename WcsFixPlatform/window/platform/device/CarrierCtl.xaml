@@ -9,124 +9,184 @@
              DataContext="{Binding Carrier,Source={StaticResource Locator}}"
              MinWidth="800" MinHeight="600">
     <hc:TransitioningContentControl>
-        <Grid Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0"  Margin="0,0,0,10" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
-                <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+        <hc:SimplePanel Margin="0">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0"  Margin="0,0,0,10" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
+                    <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
                                 ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
-                    <hc:Interaction.Triggers>
-                        <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
-                            <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
-                        </hc:RoutedEventTrigger>
-                    </hc:Interaction.Triggers>
+                        <hc:Interaction.Triggers>
+                            <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                                <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                            </hc:RoutedEventTrigger>
+                        </hc:Interaction.Triggers>
 
-                    <hc:ButtonGroup.ItemTemplate>
-                        <DataTemplate DataType="mwindow:AreaRadioBtn">
-                            <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
+                        <hc:ButtonGroup.ItemTemplate>
+                            <DataTemplate DataType="mwindow:AreaRadioBtn">
+                                <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
                                          Style="{StaticResource RadioGroupItemBaseStyle}" 
                                          Width="100" Height="40" MinHeight="35" MinWidth="80"
                                          BorderBrush="{StaticResource BorderBrush}"
                                          Background="{StaticResource RegionBrush}"
                                          BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
-                        </DataTemplate>
-                    </hc:ButtonGroup.ItemTemplate>
-                </hc:ButtonGroup>
-            </Grid>
+                            </DataTemplate>
+                        </hc:ButtonGroup.ItemTemplate>
+                    </hc:ButtonGroup>
+                </Grid>
 
-            <DataGrid Grid.Row="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                <DataGrid Grid.Row="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
                       ItemsSource="{Binding DeviceView}" SelectedItem="{Binding DeviceSelected}"
                       SelectionUnit="FullRow" SelectionMode="Single"
                       CanUserAddRows="False" CanUserResizeColumns="False"
                       CanUserDeleteRows="False" CanUserSortColumns="False"
                       CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
-                <DataGrid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="连接通讯" Tag="20" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="中断通讯" Tag="21" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="启用" Tag="22" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="停用" Tag="23" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="后退取砖" Tag="1" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="前进放砖" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="后退至摆渡车" Tag="3" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="前进至摆渡车" Tag="4" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="后退至轨道倒库" Tag="5" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="前进至点" Tag="6" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="后退至点" Tag="7" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="顶升取货" Tag="8" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="下降放货" Tag="9" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="后退至外放砖" Tag="10" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="后退至内放砖" Tag="11" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="前进取砖" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="终止" Tag="127" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="复位空满信号" Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <!--<MenuItem Header="调试" Tag="25" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
-                        <!--<MenuItem Header="生产" Tag="26" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
-                        <MenuItem Header="清空信息" Tag="27" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Name}" Header="设备"/>
-                    <DataGridTemplateColumn>
-                        <DataGridTemplateColumn.Header>
-                            <TextBlock Text="通讯"/>
-                        </DataGridTemplateColumn.Header>
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid Margin="5,5,5,5">
-                                    <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkAccentBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                    </Border>
-                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock Text="设备"/>
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="5,5,5,5">
+                                        <Button Content="{Binding Name}" FontSize="20" Margin="0" Padding="15,0,15,0"
+                                                Command="{Binding DataContext.DevConfigCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock Text="通讯"/>
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="5,5,5,5">
+                                        <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                            <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkAccentBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        </Border>
+                                        <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
                                             Visibility="{Binding IsConnect,Converter={StaticResource Boolean2VisibilityConverter}}">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                    </Border>
-                                </Grid>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn>
-                        <DataGridTemplateColumn.Header>
-                            <TextBlock Text="启用"/>
-                        </DataGridTemplateColumn.Header>
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid Margin="5,5,5,5">
-                                    <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkAccentBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                    </Border>
-                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                            <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn>
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock Text="启用"/>
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="5,5,5,5">
+                                        <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                            <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkAccentBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        </Border>
+                                        <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
                                             Visibility="{Binding Working,Converter={StaticResource Boolean2VisibilityConverter}}">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                    </Border>
-                                </Grid>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding DeviceStatus}" Header="状态"/>
-                    <DataGridTextColumn Binding="{Binding LoadStatus}" Header="货物"/>
-                    <DataGridTextColumn Binding="{Binding CurrentSite, Converter={StaticResource TrackCode2NameConverter}}" Header="当前位置"/>
-                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="指令"/>
-                    <DataGridTextColumn Binding="{Binding CurrentOverSize}" Header="超限" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding FinishTask}" Header="完成"/>
-                    <DataGridTextColumn Binding="{Binding WorkMode}" Header="作业" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding ActionTime}" Header="取放时间" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding TakeTrackCode,Converter={StaticResource TrackCode2NameConverter}}" Header="取货轨" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding GiveTrackCode,Converter={StaticResource TrackCode2NameConverter}}" Header="卸货轨" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding ActionType}" Header="信号"/>
-                    <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
-                    <DataGridTextColumn Binding="{Binding CarrierPosition}" Header="运输车位置"/>
-                </DataGrid.Columns>
-            </DataGrid>
-        </Grid>
+                                            <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkSuccessBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Binding="{Binding DeviceStatus}" Header="状态"/>
+                        <DataGridTextColumn Binding="{Binding LoadStatus}" Header="货物"/>
+                        <DataGridTextColumn Binding="{Binding CurrentSite, Converter={StaticResource TrackCode2NameConverter}}" Header="当前位置"/>
+                        <DataGridTextColumn Binding="{Binding CurrentTask}" Header="指令"/>
+                        <DataGridTextColumn Binding="{Binding CurrentOverSize}" Header="超限" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding FinishTask}" Header="完成"/>
+                        <DataGridTextColumn Binding="{Binding WorkMode}" Header="作业" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding ActionTime}" Header="取放时间" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding TakeTrackCode,Converter={StaticResource TrackCode2NameConverter}}" Header="取货轨" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding GiveTrackCode,Converter={StaticResource TrackCode2NameConverter}}" Header="卸货轨" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding ActionType}" Header="信号"/>
+                        <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
+                        <DataGridTextColumn Binding="{Binding CarrierPosition}" Header="运输车位置"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+
+            <hc:Drawer Name="DrawerRight" MaskCanClose="True" ShowMode="Cover" IsOpen="{Binding ConfigDrawOpen}">
+                <Border Background="{DynamicResource RegionBrush}" Width="300" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderBrush}">
+                    <hc:SimplePanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid Background="{StaticResource RegionBrush}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Margin="10" Text="{Binding DevName}" Style="{StaticResource TextBlockLargeBold}" HorizontalAlignment="Left"/>
+                                <Button Grid.Column="0" Command="hc:ControlCommands.Close"  HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryTextBrush}"
+                                Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource DeleteFillCircleGeometry}"/>
+                            </Grid>
+                            <ScrollViewer Grid.Row="1" Margin="5">
+                                <WrapPanel>
+                                    <GroupBox Header="配置" FontSize="20" Width="290" Margin="0,5">
+                                        <Border CornerRadius="4">
+                                            <WrapPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Center">
+                                                <Button Content="连接通讯" Style="{StaticResource MButton_CMD_White}" Tag="20" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="中断通讯" Style="{StaticResource MButton_CMD_White}" Tag="21" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="启用" Style="{StaticResource MButton_CMD_White}" Tag="22" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="停用" Style="{StaticResource MButton_CMD_White}" Tag="23" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            </WrapPanel>
+                                        </Border>
+                                    </GroupBox>
+                                    <GroupBox  Header="指令"  FontSize="20" Width="290"  Margin="0,5">
+                                        <Border CornerRadius="4">
+                                            <WrapPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Center">
+                                                <Button Content="后退取砖" Tag="1" Command="{Binding SendCarrierTaskCmd}" 
+                                                        CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"  
+                                                        Style="{StaticResource MButton_CMD_White}"/>
+                                                <Button Content="前进放砖" Style="{StaticResource MButton_CMD_White}" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                                <Button Content="后退至摆渡车" Style="{StaticResource MButton_CMD_White}" Tag="3" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="前进至摆渡车" Style="{StaticResource MButton_CMD_White}" Tag="4" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="后退至轨道倒库" Style="{StaticResource MButton_CMD_White}" Tag="5" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="前进至点" Style="{StaticResource MButton_CMD_White}" Tag="6" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="后退至点" Style="{StaticResource MButton_CMD_White}" Tag="7" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="顶升取货" Style="{StaticResource MButton_CMD_White}" Tag="8" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="下降放货" Style="{StaticResource MButton_CMD_White}" Tag="9" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="后退至外放砖" Style="{StaticResource MButton_CMD_White}" Tag="10" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="后退至内放砖" Style="{StaticResource MButton_CMD_White}" Tag="11" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="前进取砖" Style="{StaticResource MButton_CMD_White}" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="终止" Style="{StaticResource MButton_CMD_White}" Tag="127" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="复位空满信号" Style="{StaticResource MButton_CMD_White}"  Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+
+                                            </WrapPanel>
+                                        </Border>
+                                    </GroupBox>
+
+                                    <GroupBox Header="其他" FontSize="20" Height="50"  Width="290" MinHeight="100" Padding="0" Margin="0,5">
+                                        <Border CornerRadius="4">
+                                            <WrapPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Center">
+                                                <Button Content="清空信息" Style="{StaticResource MButton_CMD_White}"  Tag="27" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            </WrapPanel>
+                                        </Border>
+                                    </GroupBox>
+
+                                </WrapPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </hc:SimplePanel>
+                    
+                </Border>
+            </hc:Drawer>
+        </hc:SimplePanel>
     </hc:TransitioningContentControl>
 </UserControl>
