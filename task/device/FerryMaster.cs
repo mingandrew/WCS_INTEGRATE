@@ -784,8 +784,8 @@ namespace task.device
                     }
 
                     //定位前检查同轨道的摆渡车
-                    //List<AreaDevice> areatras = PubMaster.Area.GetAreaDevList(task.AreaId, task.Type);
-                    List<AreaDevice> areatras = PubMaster.Area.GetAreaDevListWithType(task.Type);
+                    List<AreaDevice> areatras = PubMaster.Area.GetAreaDevList(task.AreaId, task.Type);
+                    //List<AreaDevice> areatras = PubMaster.Area.GetAreaDevListWithType(task.Type);
                     uint taskTrackId;
                     short trackOrder;
                     short takeTrackOrder = PubMaster.Track.GetTrack(to_track_id)?.order ?? 0;
