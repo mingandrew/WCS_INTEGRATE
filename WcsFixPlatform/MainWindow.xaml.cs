@@ -1,4 +1,5 @@
-﻿using HandyControl.Controls;
+﻿using enums;
+using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.msg;
 using module.role;
@@ -26,7 +27,9 @@ namespace wcs
         public MainWindow()
         {
             InitializeComponent();
-            mLog = (Log)new LogFactory().GetLog("系统", false);
+            mLog = (Log)new LogFactory().GetLog("系统", false); 
+
+            HandyControl.Controls.Dialog.SetToken(this, MsgToken.MainDialog);
         }
 
 
@@ -61,12 +64,15 @@ namespace wcs
 
         private async void ShowQuitDialogAsync()
         {
+            if (OperateGrandDialogConst.IsOprerateDialogOpen) return;
             if (IsShowCloseDialog) return;
             IsShowCloseDialog = true;
-            MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>()
+            OperateGrandDialogConst.IsOprerateDialogOpen = true;
+            MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>(MsgToken.MainDialog)
                     .Initialize<OperateGrandDialogViewModel>((vm) => { vm.Clear(); vm.SetDialog(true); }).GetResultAsync<MsgAction>();
 
             IsShowCloseDialog = false;
+            OperateGrandDialogConst.IsOprerateDialogOpen = false;
             if (result.o1 is null)
             {
                 Growl.Error("退出失败，认证错误！");

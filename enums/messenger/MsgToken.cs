@@ -4,6 +4,7 @@ namespace enums
 {
     public static class MsgToken
     {
+        public static string MainDialog = nameof(MainDialog);
         public const string OperateGrandUpdate = nameof(OperateGrandUpdate);
 
         public const string WarningUpdate = nameof(WarningUpdate);
@@ -31,5 +32,6 @@ namespace enums
         public const string TransUpdate = nameof(TransUpdate);
         public const string GoodsUpdate = nameof(GoodsUpdate);
         public const string TaskSwitchUpdate = nameof(TaskSwitchUpdate);
+
     }
 }

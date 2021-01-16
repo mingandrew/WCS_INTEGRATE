@@ -69,12 +69,15 @@ namespace wcs.ViewModel
             //登陆
             if (!islogin)
             {
+                if (OperateGrandDialogConst.IsOprerateDialogOpen) return;
                 if (IsLoginDialogShow) return;
+                OperateGrandDialogConst.IsOprerateDialogOpen = true;
                 IsLoginDialogShow = true;
-                MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>()
+                MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>(MsgToken.MainDialog)
                        .Initialize<OperateGrandDialogViewModel>((vm) => { vm.Clear(); vm.SetDialog(false); })
                        .GetResultAsync<MsgAction>();
                 IsLoginDialogShow = false;
+                OperateGrandDialogConst.IsOprerateDialogOpen = false;
                 if (result.o1 is null)
                 {
                     Growl.Error("用户密码错误，认证失败！");

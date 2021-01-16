@@ -9,6 +9,11 @@ using System.Windows;
 
 namespace wcs.ViewModel
 {
+    public static class OperateGrandDialogConst
+    {
+        public static bool IsOprerateDialogOpen { set; get; }
+    }
+
     public class OperateGrandDialogViewModel : ViewModelBase, IDialogResultable<MsgAction>
     {
         public OperateGrandDialogViewModel()
