@@ -1,6 +1,9 @@
 ﻿using enums;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
+using HandyControl.Tools.Extension;
+using HandyControlDemo.UserControl;
+using wcs.ViewModel.setting.toolbar;
 
 namespace wcs.ViewModel
 {
@@ -70,5 +73,24 @@ namespace wcs.ViewModel
                 IsViewActive = false;
             }
         }
+        private bool IsShowingDialog = false;
+        /// <summary>
+        /// 弹框提示 [ 1s ]
+        /// </summary>
+        /// <param name="msg"></param>
+        public async void ShowMsg(string msg, bool isOK)
+        {
+            // Messenger.Default.Send(msg, MsgToken.DialogMsgShow);
+            if (IsShowingDialog) return;
+            IsShowingDialog = true;
+            await HandyControl.Controls.Dialog.Show<TextDialogWithTimer>()
+                    .Initialize<InteractiveDialogViewModel>((vm) => 
+                    {
+                        vm.SetMsg(msg, isOK);
+                    }).GetResultAsync<string>();
+            IsShowingDialog = false;
+            //await HandyControl.Controls.Dialog.Show<TextDialogWithTimer>(msg).GetResultAsync<string>();
+        }
+
     }
 }

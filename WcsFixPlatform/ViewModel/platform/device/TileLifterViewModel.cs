@@ -70,9 +70,29 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0;
+
+        #region[配置]
+        private string devname;
+        private bool configdrawopen;
+        #endregion
+
         #endregion
 
         #region[属性]
+
+        #region[配置]
+        public string DevName
+        {
+            get => devname;
+            set => Set(ref devname, value);
+        }
+
+        public bool ConfigDrawOpen
+        {
+            get => configdrawopen;
+            set => Set(ref configdrawopen, value);
+        }
+        #endregion
 
         public bool ShowAreaFileter
         {
@@ -106,8 +126,16 @@ namespace wcs.ViewModel
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
 
         public RelayCommand<string> SendTileLifterTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendTileLifterTask)).Value;
+        public RelayCommand<TileLifterView> DevConfigCmd => new Lazy<RelayCommand<TileLifterView>>(() => new RelayCommand<TileLifterView>(DevConfig)).Value;
 
-
+        private void DevConfig(TileLifterView dev)
+        {
+            if (dev != null)
+            {
+                ConfigDrawOpen = true;
+                DevName = dev.Name;
+            }
+        }
         #endregion
 
         #region[方法]
@@ -119,6 +147,8 @@ namespace wcs.ViewModel
                 return;
             }
 
+            string resultMsg = "";
+            bool isOK = true;
             if (byte.TryParse(tag, out byte stype))
             {
                 switch (stype)
@@ -224,13 +254,15 @@ namespace wcs.ViewModel
                         bool isupTL = PubMaster.DevConfig.IsTileWorkMod(DeviceSelected.ID, TileWorkModeE.上砖);
                         if (!isupTL)
                         {
-                            Growl.Info("只有上砖机可用此功能！");
-                            return;
+                            resultMsg = "只有上砖机可用此功能！";
+                            isOK = false;
+                            break;
                         }
                         if (DeviceSelected.WorkType == DevWorkTypeE.轨道作业)
                         {
-                            Growl.Info("轨道作业中，无法设置！");
-                            return;
+                            resultMsg = "轨道作业中，无法设置！";
+                            isOK = false;
+                            break;
                         }
                         DialogResult res = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
                          .Initialize<TrackSelectViewModel>((vm) =>
@@ -242,24 +274,27 @@ namespace wcs.ViewModel
                         {
                             if (tra.Type != TrackTypeE.储砖_出 && tra.Type != TrackTypeE.储砖_出入)
                             {
-                                Growl.Warning("请选择能上砖作业的轨道！");
-                                return;
+                                resultMsg = "请选择能上砖类型的轨道！";
+                                isOK = false;
+                                break;
                             }
 
                             if (tra.TrackStatus != TrackStatusE.启用 && tra.TrackStatus != TrackStatusE.仅上砖)
                             {
-                                Growl.Warning("请选择能上砖作业的轨道！");
-                                return;
+                                resultMsg = "请选择能上砖状态的轨道！";
+                                isOK = false;
+                                break;
                             }
 
                             if (tra.StockStatus == TrackStockStatusE.空砖)
                             {
-                                Growl.Warning("请选择不为空砖的轨道！");
-                                return;
+                                resultMsg = "请选择不为空砖的轨道！";
+                                isOK = false;
+                                break;
                             }
                             
                             PubMaster.DevConfig.SetLastTrackId(DeviceSelected.ID, tra.id);
-                            Growl.Success("设置成功！");
+                            resultMsg = "设置成功！";
                         }
                         break;
                     case 12:  //忽略1工位
@@ -274,6 +309,9 @@ namespace wcs.ViewModel
                         break;
                 }
             }
+
+            // 提示信息
+            ShowMsg(resultMsg, isOK);
         }
 
         

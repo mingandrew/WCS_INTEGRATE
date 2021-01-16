@@ -69,9 +69,30 @@ namespace wcs.ViewModel
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0;
         private bool showareafilter = true;
+
+        #region[配置]
+        private string devname;
+        private bool configdrawopen;
+        #endregion
+
         #endregion
 
         #region[属性]
+
+        #region[配置]
+        public string DevName
+        {
+            get => devname;
+            set => Set(ref devname, value);
+        }
+
+        public bool ConfigDrawOpen
+        {
+            get => configdrawopen;
+            set => Set(ref configdrawopen, value);
+        }
+        #endregion
+
         public bool ShowAreaFileter
         {
             get => showareafilter;
@@ -102,7 +123,16 @@ namespace wcs.ViewModel
         #region[命令]
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
         public RelayCommand<string> SendFerryTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendFerryTask)).Value;
+        public RelayCommand<FerryView> DevConfigCmd => new Lazy<RelayCommand<FerryView>>(() => new RelayCommand<FerryView>(DevConfig)).Value;
 
+        private void DevConfig(FerryView dev)
+        {
+            if (dev != null)
+            {
+                ConfigDrawOpen = true;
+                DevName = dev.Name;
+            }
+        }
         #endregion
 
         #region[方法]
@@ -152,6 +182,8 @@ namespace wcs.ViewModel
                 return;
             }
 
+            string resultMsg = "";
+            bool isOK = true;
             if (byte.TryParse(tag, out byte stype))
             {
                 switch (stype)
@@ -177,12 +209,14 @@ namespace wcs.ViewModel
                         break;
 
                     case 5://中止
-                        if (!PubTask.Ferry.StopFerry(DeviceSelected.ID, out string rs))
+                        if (PubTask.Ferry.StopFerry(DeviceSelected.ID, out resultMsg))
                         {
-                            Growl.Info(rs);
-                            return;
+                            resultMsg = "发送成功！";
                         }
-                        Growl.Success("发送成功！");
+                        else
+                        {
+                            isOK = false;
+                        }
                         break;
 
                     case 6://定位
@@ -195,16 +229,21 @@ namespace wcs.ViewModel
                          }).GetResultAsync<DialogResult>();
                         if (result.p1 is Track tra)
                         {
-                            if (!PubTask.Ferry.DoManualLocate(DeviceSelected.ID, tra.id, isdownferry, out string locateresult))
+                            if (PubTask.Ferry.DoManualLocate(DeviceSelected.ID, tra.id, isdownferry, out resultMsg))
                             {
-                                Growl.Warning(locateresult);
-                                return;
+                                resultMsg = "发送成功！";
                             }
-                            Growl.Success("发送成功！");
+                            else
+                            {
+                                isOK = false;
+                            }
                         }
                         break;
                 }
             }
+
+            // 提示信息
+            ShowMsg(resultMsg, isOK);
         }
 
         #endregion

@@ -138,7 +138,7 @@
                             </Grid>
                             <ScrollViewer Grid.Row="1" Margin="5">
                                 <WrapPanel>
-                                    <GroupBox Header="配置" FontSize="20" Width="290" Margin="0,5">
+                                    <GroupBox Header="基础功能" FontSize="20" Width="290" Margin="0,5">
                                         <Border CornerRadius="4">
                                             <WrapPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Center">
                                                 <Button Content="连接通讯" Style="{StaticResource MButton_CMD_White}" Tag="20" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
@@ -148,12 +148,10 @@
                                             </WrapPanel>
                                         </Border>
                                     </GroupBox>
-                                    <GroupBox  Header="指令"  FontSize="20" Width="290"  Margin="0,5">
+                                    <GroupBox  Header="指令发送"  FontSize="20" Width="290"  Margin="0,5">
                                         <Border CornerRadius="4">
                                             <WrapPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Center">
-                                                <Button Content="后退取砖" Tag="1" Command="{Binding SendCarrierTaskCmd}" 
-                                                        CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"  
-                                                        Style="{StaticResource MButton_CMD_White}"/>
+                                                <Button Content="后退取砖" Style="{StaticResource MButton_CMD_White}" Tag="1" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                                                 <Button Content="前进放砖" Style="{StaticResource MButton_CMD_White}" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                                                 <Button Content="后退至摆渡车" Style="{StaticResource MButton_CMD_White}" Tag="3" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                                 <Button Content="前进至摆渡车" Style="{StaticResource MButton_CMD_White}" Tag="4" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
@@ -172,10 +170,10 @@
                                         </Border>
                                     </GroupBox>
 
-                                    <GroupBox Header="其他" FontSize="20" Height="50"  Width="290" MinHeight="100" Padding="0" Margin="0,5">
+                                    <GroupBox Header="操作处理" FontSize="20" Width="290" Margin="0,5">
                                         <Border CornerRadius="4">
                                             <WrapPanel Orientation="Vertical" Margin="5" HorizontalAlignment="Center">
-                                                <Button Content="清空信息" Style="{StaticResource MButton_CMD_White}"  Tag="27" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                                <Button Content="清空信息" Style="{StaticResource MButton_CMD_White}"  Tag="25" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                             </WrapPanel>
                                         </Border>
                                     </GroupBox>

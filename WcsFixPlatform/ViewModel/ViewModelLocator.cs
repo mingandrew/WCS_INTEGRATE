@@ -7,6 +7,7 @@ using task;
 using wcs.Service;
 using wcs.ViewModel.platform.area;
 using wcs.ViewModel.platform.stock;
+using wcs.ViewModel.setting.toolbar;
 
 namespace wcs.ViewModel
 {
@@ -17,6 +18,7 @@ namespace wcs.ViewModel
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default); 
             SimpleIoc.Default.Register<DataService>();
 
+            SimpleIoc.Default.Register<InteractiveDialogViewModel>();
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<HomeViewModel>();
             SimpleIoc.Default.Register<WaringViewModel>();
@@ -71,6 +73,7 @@ namespace wcs.ViewModel
 
         public static ViewModelLocator Instance => new Lazy<ViewModelLocator>(() => Application.Current.TryFindResource("Locator") as ViewModelLocator).Value;
 
+        public InteractiveDialogViewModel InteractiveDialog => ServiceLocator.Current.GetInstance<InteractiveDialogViewModel>();
         public MainViewModel Main =>ServiceLocator.Current.GetInstance<MainViewModel>();
         public HomeViewModel Home => ServiceLocator.Current.GetInstance<HomeViewModel>();
         public WaringViewModel Warn => ServiceLocator.Current.GetInstance<WaringViewModel>();

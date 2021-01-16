@@ -156,6 +156,9 @@
     <Compile Include="Dialog\platform\module\ModuleSelectDialog.xaml.cs">
       <DependentUpon>ModuleSelectDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\msg\TextDialogWithTimer.xaml.xaml.cs">
+      <DependentUpon>TextDialogWithTimer.xaml.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\operate\OperateGrandDialog.xaml.cs">
       <DependentUpon>OperateGrandDialog.xaml</DependentUpon>
     </Compile>
@@ -240,6 +243,7 @@
     <Compile Include="ViewModel\setting\menu\MenuSelectViewModel.cs" />
     <Compile Include="ViewModel\setting\menu\MenuViewModel.cs" />
     <Compile Include="ViewModel\setting\module\ModuleSelectViewModel.cs" />
+    <Compile Include="ViewModel\setting\toolbar\InteractiveDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\toolbar\ToolBarViewModel.cs" />
     <Compile Include="ViewModel\setting\user\UserEditViewModel.cs" />
     <Compile Include="ViewModel\setting\user\UserViewModel.cs" />
@@ -362,6 +366,10 @@
     <Page Include="Dialog\platform\module\ModuleSelectDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\msg\TextDialogWithTimer.xaml.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\operate\OperateGrandDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

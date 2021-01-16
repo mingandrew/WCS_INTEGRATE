@@ -63,22 +63,27 @@ namespace wcs.ViewModel
         private uint filterareaid = 0;
         private bool showareafilter = true;
 
-        private bool configdrawopen;
-        #region[运输车配置]
+        #region[配置]
         private string devname;
+        private bool configdrawopen;
         #endregion
 
         #endregion
 
         #region[属性]
 
-        #region[运输车配置]
+        #region[配置]
         public string DevName
         {
             get => devname;
             set => Set(ref devname, value);
         }
 
+        public bool ConfigDrawOpen
+        {
+            get => configdrawopen;
+            set => Set(ref configdrawopen, value);
+        }
         #endregion
 
         public bool ShowAreaFileter
@@ -107,12 +112,6 @@ namespace wcs.ViewModel
             set => Set(ref _devicselected, value);
         }
 
-        public bool ConfigDrawOpen
-        {
-            get => configdrawopen;
-            set => Set(ref configdrawopen, value);
-        }
-
         #endregion
 
         #region[命令]
@@ -139,6 +138,8 @@ namespace wcs.ViewModel
                 return;
             }
 
+            string resultMsg = "";
+            bool isOK = true;
             if (byte.TryParse(tag, out byte stype))
             {
                 switch (stype)
@@ -166,29 +167,27 @@ namespace wcs.ViewModel
                     case 24://复位空满信号
                         PubTask.Carrier.DoReset(DeviceSelected.ID);
                         break;
-                    //case 25:
-                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
-                    //    break;
-                    //case 26:
-                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
-                    //    break;
-                    case 27://清空设备信息
+
+                    case 25://清空设备信息
                         PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
                         break;
 
                     default:
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
-                        if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
+                        if (PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out resultMsg, false, "PC手动"))
                         {
-                            Growl.WarningGlobal(result);
+                            resultMsg = "发送成功！";
                         }
                         else
                         {
-                            Growl.SuccessGlobal("发送成功！");
+                            isOK = false;
                         }
                         break;
                 }
             }
+
+            // 提示信息
+            ShowMsg(resultMsg, isOK);
         }
 
         private void CarrierStatusUpdate(MsgAction msg)
