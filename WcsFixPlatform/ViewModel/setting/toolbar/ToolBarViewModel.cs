@@ -35,6 +35,7 @@ namespace wcs.ViewModel
         private Style btnstyle;
         private bool islogin;
         private Style Danger, Primary;
+        private bool IsLoginDialogShow = false;
         #endregion
 
         #region[属性]
@@ -68,9 +69,12 @@ namespace wcs.ViewModel
             //登陆
             if (!islogin)
             {
+                if (IsLoginDialogShow) return;
+                IsLoginDialogShow = true;
                 MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>()
                        .Initialize<OperateGrandDialogViewModel>((vm) => { vm.Clear(); vm.SetDialog(false); })
                        .GetResultAsync<MsgAction>();
+                IsLoginDialogShow = false;
                 if (result.o1 is null)
                 {
                     Growl.Error("用户密码错误，认证失败！");

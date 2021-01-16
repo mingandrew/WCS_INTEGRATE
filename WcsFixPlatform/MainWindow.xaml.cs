@@ -22,6 +22,7 @@ namespace wcs
     {
 
         private Log mLog;
+        private bool IsShowCloseDialog = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -60,9 +61,13 @@ namespace wcs
 
         private async void ShowQuitDialogAsync()
         {
+            if (IsShowCloseDialog) return;
+            IsShowCloseDialog = true;
             MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>()
                     .Initialize<OperateGrandDialogViewModel>((vm) => { vm.Clear(); vm.SetDialog(true); }).GetResultAsync<MsgAction>();
-            if(result.o1 is null)
+
+            IsShowCloseDialog = false;
+            if (result.o1 is null)
             {
                 Growl.Error("退出失败，认证错误！");
                 return;
