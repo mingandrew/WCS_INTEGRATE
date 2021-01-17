@@ -313,7 +313,7 @@ namespace wcs.ViewModel
                 taketracid = tile.DevConfig.right_track_id;
             }
 
-            if (!PubTask.Trans.AddManualTrans(in_dev.area, in_dev.id, TransTypeE.手动入库,
+            if (!PubTask.Trans.AddManualTrans(in_dev.area, in_dev.id, TransTypeE.手动下砖,
                 tile.DevConfig.goods_id, taketracid, in_give_track_id, TransStatusE.调度设备, out string result))
             {
                 Growl.Warning(result);
@@ -344,7 +344,7 @@ namespace wcs.ViewModel
                 givetrack = tile.DevConfig.right_track_id;
             }
 
-            if (!PubTask.Trans.AddManualTrans(out_dev.area, out_dev.id, TransTypeE.手动出库,
+            if (!PubTask.Trans.AddManualTrans(out_dev.area, out_dev.id, TransTypeE.手动上砖,
                 tile.DevConfig.goods_id, out_take_track_id, givetrack, TransStatusE.调度设备, out string result))
             {
                 Growl.Warning(result);

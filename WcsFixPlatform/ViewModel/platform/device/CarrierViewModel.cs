@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using task;
@@ -131,64 +132,66 @@ namespace wcs.ViewModel
         #endregion
 
         #region[方法]
-        private void SendCarrierTask(string tag)
+        private async void SendCarrierTask(string tag)
         {
             if (DeviceSelected == null)
             {
-                Growl.WarningGlobal("请先选择设备");
+                Growl.Warning("请先选择设备");
                 return;
             }
-
-            if (byte.TryParse(tag, out byte stype))
+            await Task.Run(() =>
             {
-                switch (stype)
+                if (byte.TryParse(tag, out byte stype))
                 {
-                    case 20://连接通讯
-                        PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, true);
-                        break;
-                    case 21://中断通讯
-                        PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, false);
-                        break;
+                    switch (stype)
+                    {
+                        case 20://连接通讯
+                            PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, true);
+                            break;
+                        case 21://中断通讯
+                            PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, false);
+                            break;
 
-                    case 22://启用
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC"))
-                        {
-                            PubTask.Carrier.UpdateWorking(DeviceSelected.ID, true);
-                        }
-                        break;
-                    case 23://停用
-                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _, "PC"))
-                        {
-                            PubTask.Carrier.UpdateWorking(DeviceSelected.ID, false);
-                        }
-                        break;
+                        case 22://启用
+                            if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC"))
+                            {
+                                PubTask.Carrier.UpdateWorking(DeviceSelected.ID, true);
+                            }
+                            break;
+                        case 23://停用
+                            if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _, "PC"))
+                            {
+                                PubTask.Carrier.UpdateWorking(DeviceSelected.ID, false);
+                            }
+                            break;
 
-                    case 24://复位空满信号
-                        PubTask.Carrier.DoReset(DeviceSelected.ID);
-                        break;
-                    //case 25:
-                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
-                    //    break;
-                    //case 26:
-                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
-                    //    break;
-                    case 27://清空设备信息
-                        PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
-                        break;
+                        case 24://复位空满信号
+                            PubTask.Carrier.DoReset(DeviceSelected.ID);
+                            break;
+                        //case 25:
+                        //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
+                        //    break;
+                        //case 26:
+                        //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
+                        //    break;
+                        case 27://清空设备信息
+                            PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
+                            break;
 
-                    default:
-                        DevCarrierTaskE type = (DevCarrierTaskE)stype;
-                        if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
-                        {
-                            Growl.WarningGlobal(result);
-                        }
-                        else
-                        {
-                            Growl.SuccessGlobal("发送成功！");
-                        }
-                        break;
+                        default:
+                            DevCarrierTaskE type = (DevCarrierTaskE)stype;
+                            if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
+                            {
+                                Growl.Warning(result);
+                            }
+                            else
+                            {
+                                Growl.Success("发送成功！");
+                            }
+                            break;
+                    }
                 }
-            }
+            });
         }
 
         private void CarrierStatusUpdate(MsgAction msg)

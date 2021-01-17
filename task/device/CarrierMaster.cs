@@ -955,13 +955,17 @@ namespace task.device
                     switch (trans.TransType)
                     {
                         case TransTypeE.下砖任务:
-                        case TransTypeE.手动入库:
+                        case TransTypeE.手动下砖:
                             return GetTransInOutCarrier(trans, DeviceTypeE.下摆渡, out carrierid, out result);
                         case TransTypeE.上砖任务:
-                        case TransTypeE.手动出库:
+                        case TransTypeE.手动上砖:
                             return GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
                         case TransTypeE.倒库任务:
                             return GetTransSortCarrier(trans, out carrierid, out result);
+                        case TransTypeE.同向上砖:
+                            return GetTransInOutCarrier(trans, DeviceTypeE.下摆渡, out carrierid, out result);
+                        case TransTypeE.同向下砖:
+                            return GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
                     }
                 }
                 finally { Monitor.Exit(_obj); }
@@ -1082,7 +1086,7 @@ namespace task.device
             CarrierTask carrier = DevList.Find(c => c.TrackId == trans.take_track_id && c.CarrierType == needtype);
             //CarrierTask carrier = DevList.Find(c => c.TrackId == trans.take_track_id && c.CarrierType == needtype && c.CarrierDuty == needduty);
 
-            if (carrier == null && (trans.TransType == TransTypeE.上砖任务 || trans.TransType == TransTypeE.手动出库))
+            if (carrier == null && (trans.TransType == TransTypeE.上砖任务 || trans.TransType == TransTypeE.手动上砖))
             {
                 uint brothertra = PubMaster.Track.GetBrotherTrackId(trans.take_track_id);
                 carrier = DevList.Find(c => c.TrackId == brothertra
@@ -1133,6 +1137,7 @@ namespace task.device
                                         }
                                         break;
                                     case TransTypeE.上砖任务:
+                                    case TransTypeE.同向上砖:
                                         //空闲，没任务
                                         if (CheckCarrierFreeNoTask(car))
                                         {
@@ -1160,7 +1165,7 @@ namespace task.device
                 switch (trans.TransType)
                 {
                     case TransTypeE.下砖任务:
-                    case TransTypeE.手动入库:
+                    case TransTypeE.手动下砖:
                         if (CheckCarrierFreeNotLoad(carrier))
                         {
                             carrierid = carrier.ID;
@@ -1168,7 +1173,7 @@ namespace task.device
                         }
                         break;
                     case TransTypeE.上砖任务:
-                    case TransTypeE.手动出库:
+                    case TransTypeE.手动上砖:
                         if (!carrier.IsWorking)
                         {
                             result = "运输车没有作业";
@@ -1190,6 +1195,38 @@ namespace task.device
                                 carrierid = carrier.ID;
                                 return true;
                             }
+
+                        }
+
+                        if (CheckCarrierFreeNoTask(carrier))
+                        {
+                            carrierid = carrier.ID;
+                            return true;
+                        }
+                        break;
+                    case TransTypeE.同向上砖:
+                        if (!carrier.IsWorking)
+                        {
+                            result = "运输车没有作业";
+                            return false;
+                        }
+                        if (carrier.ConnStatus == SocketConnectStatusE.通信正常
+                            && carrier.OperateMode == DevOperateModeE.自动)
+                        {
+                            if (carrier.Status == DevCarrierStatusE.停止
+                                //&& carrier.WorkMode == DevCarrierWorkModeE.生产模式
+                                && (carrier.Task == carrier.FinishTask || carrier.Task == DevCarrierTaskE.无))
+                            {
+                                carrierid = carrier.ID;
+                                return true;
+                            }
+
+                            if (carrier.Task == DevCarrierTaskE.前进取砖 && carrier.FinishTask == DevCarrierTaskE.无)
+                            {
+                                carrierid = carrier.ID;
+                                return true;
+                            }
+
                         }
 
                         if (CheckCarrierFreeNoTask(carrier))

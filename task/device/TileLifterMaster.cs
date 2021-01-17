@@ -1247,8 +1247,17 @@ namespace task.device
                         PubTask.TileLifter.ReseTileCurrentTake(trackid);
                         return;
                     }
-                    //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, trackid, tiletrackid);
+
+                    if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
+                    {
+                        //生成出库交易
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, trackid, tiletrackid);
+                    }
+                    else
+                    {
+                        //生成出库交易
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, trackid, tiletrackid);
+                    }
                     //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                     isallocate = true;
                 }
@@ -1269,8 +1278,18 @@ namespace task.device
                             PubMaster.Track.UpdateRecentGood(tra, 0);
                             return;
                         }
-                        //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tra, tiletrackid);
+
+                        if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
+                        {
+                            //生成出库交易
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tra, tiletrackid);
+                        }
+                        else
+                        {
+                            //生成出库交易
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tra, tiletrackid);
+                        }
+
                         //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                         isallocate = true;
                         break;
@@ -1287,8 +1306,18 @@ namespace task.device
                     {
                         PubMaster.Track.UpdateRecentGood(stock.track_id, goodid);
                         PubMaster.Track.UpdateRecentTile(stock.track_id, tileid);
-                        //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid);
+
+                        if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
+                        {
+                            //生成出库交易
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, stock.track_id, tiletrackid);
+                        }
+                        else
+                        {
+                            //生成出库交易
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid);
+                        }
+
                         //PubMaster.Goods.AddStockOutLog(stock.id, tiletrackid, tileid);
                         isallocate = true;
                         break;
@@ -1345,9 +1374,16 @@ namespace task.device
                         goodid = tilegoodid;
                     }
                 }
-
-                //生成出库交易
-                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tt.track_id, tiletrackid);
+                if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
+                {
+                    //生成出库交易
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tt.track_id, tiletrackid);
+                }
+                else
+                {
+                    //生成出库交易
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tt.track_id, tiletrackid);
+                }
                 //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileHaveNoTrackToOut, (ushort)tileid);
                 isallocate = true;

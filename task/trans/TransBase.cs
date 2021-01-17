@@ -98,11 +98,14 @@ namespace task.trans
                                     case TransTypeE.移车任务:
                                         DoMoveCarrier(trans);
                                         break;
-                                    case TransTypeE.手动入库:
+                                    case TransTypeE.手动下砖:
                                         DoManualInTrans(trans);
                                         break;
-                                    case TransTypeE.手动出库:
+                                    case TransTypeE.手动上砖:
                                         DoManualOutTrans(trans);
+                                        break;
+                                    case TransTypeE.同向上砖:
+                                        DoSameSideOutTrans(trans);
                                         break;
                                 }
                             }
@@ -128,8 +131,9 @@ namespace task.trans
             }
         }
 
-        public abstract void DoInTrans(StockTrans trans);//入库
-        public abstract void DoOutTrans(StockTrans trans);//出库
+        public abstract void DoInTrans(StockTrans trans);//下砖任务
+        public abstract void DoOutTrans(StockTrans trans);//上砖任务
+        public abstract void DoSameSideOutTrans(StockTrans trans);//同向出库
         public abstract void DoSortTrans(StockTrans trans);//倒库
         public abstract void DoMoveCarrier(StockTrans trans);//移车
         public abstract void DoManualInTrans(StockTrans trans);//手动入库
@@ -234,6 +238,11 @@ namespace task.trans
             }
         }
 
+        /// <summary>
+        /// 重新分配转机
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="tileid"></param>
         internal void SetTile(StockTrans trans, uint tileid)
         {
             if (trans.tilelifter_id != tileid)
