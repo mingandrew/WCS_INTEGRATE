@@ -122,7 +122,7 @@ namespace task.trans
                             if (isload)
                             {
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
-                                    PubTask.Carrier.GetCarrierSite(trans.carrier_id) == track.rfid_2)
+                                    PubTask.Carrier.GetCarrierSite(trans.carrier_id) == track.rfid_1)
                                 {
                                     PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
                                     return;
@@ -1997,7 +1997,7 @@ namespace task.trans
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out string _, true))
                                         {
                                             if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
-                                                PubTask.Carrier.GetCarrierSite(trans.carrier_id) == track.rfid_2)
+                                                PubTask.Carrier.GetCarrierSite(trans.carrier_id) == track.rfid_1)
                                             {
                                                 PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
                                                 return;
@@ -2032,7 +2032,7 @@ namespace task.trans
                                         //摆渡车接车
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out string _, true))
                                         {
-                                            if (PubTask.Carrier.GetCarrierSite(trans.carrier_id) == track.rfid_2)
+                                            if (PubTask.Carrier.GetCarrierSite(trans.carrier_id) == track.rfid_1)
                                             {
                                                 PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
                                                 return;

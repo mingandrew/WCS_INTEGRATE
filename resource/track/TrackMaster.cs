@@ -924,11 +924,11 @@ namespace resource.track
                     }
 
                     // 只上满砖轨道
-                    if (track.StockStatus == TrackStockStatusE.满砖)
-                    {
-                        trackid = track.id;
-                        return true;
-                    }
+                    //if (track.StockStatus == TrackStockStatusE.满砖)
+                    //{
+                    trackid = track.id;
+                    return true;
+                    //}
                 }
             }
 

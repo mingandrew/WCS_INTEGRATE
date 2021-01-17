@@ -757,7 +757,7 @@ namespace task.device
 
                 if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
                 {
-                    if (task.IsEmpty_1 && task.IsInvo_1)
+                    if (task.IsEmpty_1 && task.IsInvo_1 && !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id))
                     {
                         Thread.Sleep(1000);
                         task.Do1Invo(DevLifterInvolE.离开);
@@ -915,7 +915,7 @@ namespace task.device
 
                 if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
                 {
-                    if (task.IsEmpty_2 && task.IsInvo_2)
+                    if (task.IsEmpty_2 && task.IsInvo_2 && !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id))
                     {
                         Thread.Sleep(1000);
                         task.Do2Invo(DevLifterInvolE.离开);
