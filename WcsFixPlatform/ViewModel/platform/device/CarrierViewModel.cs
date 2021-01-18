@@ -63,25 +63,9 @@ namespace wcs.ViewModel
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0;
         private bool showareafilter = true;
-
-        private bool configdrawopen;
-        #region[运输车配置]
-        private string devname;
-        #endregion
-
         #endregion
 
         #region[属性]
-
-        #region[运输车配置]
-        public string DevName
-        {
-            get => devname;
-            set => Set(ref devname, value);
-        }
-
-        #endregion
-
         public bool ShowAreaFileter
         {
             get => showareafilter;
@@ -108,27 +92,12 @@ namespace wcs.ViewModel
             set => Set(ref _devicselected, value);
         }
 
-        public bool ConfigDrawOpen
-        {
-            get => configdrawopen;
-            set => Set(ref configdrawopen, value);
-        }
-
         #endregion
 
         #region[命令]
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
         public RelayCommand<string> SendCarrierTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendCarrierTask)).Value;
-        public RelayCommand<CarrierView> DevConfigCmd => new Lazy<RelayCommand<CarrierView>>(() => new RelayCommand<CarrierView>(DevConfig)).Value;
 
-        private void DevConfig(CarrierView dev)
-        {
-            if (dev != null)
-            {
-                ConfigDrawOpen = true;
-                DevName = dev.Name;
-            }
-        }
         #endregion
 
         #region[方法]
@@ -139,64 +108,58 @@ namespace wcs.ViewModel
                 Growl.Warning("请先选择设备");
                 return;
             }
-            await Task.Run(() =>
+
+            if (byte.TryParse(tag, out byte stype))
             {
-                if (byte.TryParse(tag, out byte stype))
+                switch (stype)
                 {
-                    switch (stype)
-                    {
-                        case 20://连接通讯
-                            PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, true);
-                            break;
-                        case 21://中断通讯
-                            PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, false);
-                            break;
+                    case 20://连接通讯
+                        PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, true);
+                        break;
+                    case 21://中断通讯
+                        PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, false);
+                        break;
 
-                        case 22://启用
-                            if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC"))
-                            {
-                                PubTask.Carrier.UpdateWorking(DeviceSelected.ID, true);
-                            }
-                            break;
-                        case 23://停用
-                            if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _, "PC"))
-                            {
-                                PubTask.Carrier.UpdateWorking(DeviceSelected.ID, false);
-                            }
-                            break;
+                    case 22://启用
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC手动"))
+                        {
+                            PubTask.Carrier.UpdateWorking(DeviceSelected.ID, true);
+                        }
+                        break;
+                    case 23://停用
+                        if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _, "PC手动"))
+                        {
+                            PubTask.Carrier.UpdateWorking(DeviceSelected.ID, false);
+                        }
+                        break;
 
-                        case 24://复位空满信号
-                            PubTask.Carrier.DoReset(DeviceSelected.ID);
-                            break;
-                        //case 25:
-                        //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
-                        //    break;
-                        //case 26:
-                        //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
-                        //    break;
-                        case 27://清空设备信息
-                            PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
-                            break;
+                    case 24://复位空满信号
+                        PubTask.Carrier.DoReset(DeviceSelected.ID);
+                        break;
+                    //case 25:
+                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
+                    //    break;
+                    //case 26:
+                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
+                    //    break;
+                    case 27://清空设备信息
+                        PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
+                        break;
 
-                        default:
-                            DevCarrierTaskE type = (DevCarrierTaskE)stype;
-                            if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
-                            {
-                                Growl.Warning(result);
-                            }
-                            else
-                            {
-                                Growl.Success("发送成功！");
-                            }
-                            break;
-                    }
+                    default:
+                        DevCarrierTaskE type = (DevCarrierTaskE)stype;
+                        if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
+                        {
+                            Growl.Warning(result);
+                        }
+                        break;
                 }
-            });
+            }
         }
 
         private void CarrierStatusUpdate(MsgAction msg)
         {
-            if (msg.o1 is DevCarrier dev 
+            if (msg.o1 is DevCarrier dev
                 && msg.o2 is SocketConnectStatusE conn
                 && msg.o3 is bool working)
             {
