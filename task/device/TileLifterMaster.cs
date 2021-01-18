@@ -1405,6 +1405,11 @@ namespace task.device
             return DevList;
         }
 
+        internal List<TileLifterTask> GetCanCutoverTiles()
+        {
+            return DevList.FindAll(c => c.IsCanCutover);
+        }
+
         /// <summary>
         /// 砖机是否切换模式中
         /// </summary>

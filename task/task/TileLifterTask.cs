@@ -7,7 +7,7 @@ namespace task.task
 {
     public class TileLifterTask : TaskBase
     {
-        #region[兄弟砖机]
+        #region[砖机配置信息]
 
         /// <summary>
         /// 需要根据兄弟砖机状态才能作业
@@ -46,7 +46,11 @@ namespace task.task
         {
             get => Device.TileLifterType;
         }
-
+        
+        public bool IsCanCutover
+        {
+            get => DevConfig?.can_cutover ?? false;
+        }
         #endregion
 
         #region[属性]

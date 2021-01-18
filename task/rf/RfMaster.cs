@@ -470,6 +470,21 @@ namespace task.rf
 
                         break;
                     #endregion
+
+                    #region[砖机切换模式]
+
+                    case FunTag.QueryTileMode:
+                        //查询砖机模型信息
+                        QueryTileMode(msg);
+                        break;
+
+                    case FunTag.ShiftTileMode:
+                        //切换模式
+                        ShiftTileMode(msg);
+
+                        break;
+
+                    #endregion
                 }
 
                 _mLog?.Cmd(true, msg?.MEID + " : " + msg?.Pack?.Function);
@@ -783,6 +798,14 @@ namespace task.rf
                         ModulePic = "updowndev.png",
                         ModuleEntry="com.keda.wcsfixplatformapp.screen.rftiletrack.RfTileTrackScreen"
                     }
+                    ,
+                    new ModuleView()
+                    {
+                        ModuleName="切换模式",
+                        ModuleId = "RFTILEMODESHIFT",
+                        ModulePic = "updowndev.png",
+                        ModuleEntry="com.keda.wcsfixplatformapp.screen.rfworkmodechange.RfChangeWorkModeScreen"
+                    }
                 }
             };
 
@@ -835,6 +858,9 @@ namespace task.rf
                 mDicPack.AddEnum(typeof(DevLifterCmdTypeE), "砖机指令", nameof(DevLifterCmdTypeE));
                 mDicPack.AddEnum(typeof(TileShiftStatusE), "转产状态", nameof(TileShiftStatusE));
 
+
+                mDicPack.AddEnum(typeof(RfTileWorkModeE), "平板可选模式", nameof(RfTileWorkModeE));//平板可选模式
+                mDicPack.AddEnum(typeof(TileWorkModeE), "砖机模式", nameof(TileWorkModeE));//砖机模式
                 #endregion
 
                 #region[List]
@@ -1565,8 +1591,64 @@ namespace task.rf
                 }
             }
         }
-                    
+
         #endregion
+
+        #region[切换模式]
+
+        /// <summary>
+        /// 查询砖机模型信息
+        /// </summary>
+        /// <param name="msg"></param>
+        private void QueryTileMode(RfMsgMod msg)
+        {
+            RfTileWorkModePack pack = new RfTileWorkModePack();
+            foreach (TileLifterTask item in PubTask.TileLifter.GetCanCutoverTiles())
+            {
+                pack.AddDevice(new RfTileModePack()
+                {
+                    tile_id = item.ID,
+                    type = item.Device.type,
+                    area = item.AreaId,
+                    goods_id = item.DevConfig.goods_id,
+                    pregood_id = item.DevConfig.pre_goodid,
+                    work_mode = item.DevConfig.work_mode,
+                    work_mode_next = item.DevConfig.work_mode_next,
+                    do_cutover = item.DevConfig.do_cutover,
+                }) ;
+            }
+
+            if (pack.TileWorkMode != null)
+            {
+                SendSucc2Rf(msg.MEID, FunTag.QueryTileMode, JsonTool.Serialize(pack));
+            }
+        }
+
+
+        /// <summary>
+        /// 平板发送切换模式请求
+        /// </summary>
+        /// <param name="msg"></param>
+        private void ShiftTileMode(RfMsgMod msg)
+        {
+            RfTileModePack pack = JsonTool.Deserialize<RfTileModePack>(msg.Pack.Data);
+            if (pack != null)
+            {
+                if (PubMaster.DevConfig.DoCutover(pack.tile_id, pack.goods_id, pack.WorkModeNext, pack.pregood_id, out string result))
+                {
+                    //发送砖机转产信号
+                    SendSucc2Rf(msg.MEID, FunTag.ShiftTileMode, "ok");
+                }
+                else
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileMode, result);
+                }
+            }
+        }
+
+        #endregion
+
+
         #endregion
     }
 }

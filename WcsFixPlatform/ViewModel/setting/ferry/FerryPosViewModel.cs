@@ -244,7 +244,8 @@ namespace wcs.ViewModel
 
                         if (rs == MessageBoxResult.Yes)
                         {
-                            if(!PubTask.Ferry.DoLocateFerry(_selectferry.id, SelectPos.Ferry_Code, out result))
+                            bool isdownferry = _selectferry.Type == DeviceTypeE.下摆渡;
+                            if (!PubTask.Ferry.DoManualLocate(_selectferry.id, SelectPos.Track_Id, isdownferry, out result))
                             {
                                 Growl.Info(result);
                                 return;

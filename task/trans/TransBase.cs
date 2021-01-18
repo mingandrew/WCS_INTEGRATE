@@ -186,6 +186,17 @@ namespace task.trans
             PubMaster.Mod.GoodSql.AddStockTrans(trans);
 
             SendMsg(trans);
+
+            try
+            {
+                mLog.Status(true, string.Format("任务：{0}, {1}任务, 状态：{2}, 砖机：{8}, 货物：{3}, 库存:{4}, 取货轨道:{5}, 卸货轨道:{6}, 运输车：{7}",
+                    trans.id, type, initstatus, goodsid, stocksid,
+                    PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
+                    PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""), carrierid,
+                    PubMaster.Device.GetDeviceName(lifterid, lifterid + "")));
+            }
+            catch { }
+
         }
 
         internal void SetStatus(StockTrans trans, TransStatusE status, string memo = "")

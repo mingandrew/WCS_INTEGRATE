@@ -96,9 +96,9 @@ namespace resource.track
 
         #region[获取属性]
 
-        public string GetTrackName(uint trackid)
+        public string GetTrackName(uint trackid, string defaultstr = "")
         {
-            return TrackList.Find(c => c.id == trackid)?.name ?? "";
+            return TrackList.Find(c => c.id == trackid)?.name ?? defaultstr;
         }
 
         public uint GetTrackId(ushort site)

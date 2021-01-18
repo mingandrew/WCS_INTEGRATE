@@ -50,6 +50,16 @@
         无 = 255
     }
 
+    /// <summary>
+    /// 平板
+    /// </summary>
+    public enum RfTileWorkModeE
+    {
+        上砖 = 1,
+        下砖 = 2
+    }
+
+
     public enum TileFullE
     {
         忽略,

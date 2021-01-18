@@ -288,7 +288,7 @@ namespace wcs.ViewModel
 
                         if (workmode.o1 is bool r && workmode.o2 is TileWorkModeE wm && workmode.o3 is uint goodsid)
                         {
-                            if (!PubMaster.DevConfig.DoCutover(DeviceSelected.ID, wm, goodsid, out msg))
+                            if (!PubMaster.DevConfig.DoCutover(DeviceSelected.ID, DeviceSelected.GoodsId, wm, goodsid, out msg))
                             {
                                 Growl.Warning(msg);
                                 return;

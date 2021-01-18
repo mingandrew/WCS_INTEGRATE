@@ -490,6 +490,14 @@ namespace task.device
             }
         }
 
+        /// <summary>
+        /// 定位摆渡车
+        /// </summary>
+        /// <param name="ferryid">摆渡车ID</param>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="isdownferry">是否是下砖摆渡</param>
+        /// <param name="result">结果</param>
+        /// <returns></returns>
         public bool DoManualLocate(uint ferryid, uint trackid, bool isdownferry, out string result)
         {
             Track tra = PubMaster.Track.GetTrack(trackid);
@@ -562,14 +570,14 @@ namespace task.device
                         return false;
                     }
 
-                    if (task.IsUpLight
+                    if ((task.IsUpLight || task.IsLocateUpGood)
                         && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
                     {
                         result = "小车正在上摆渡车";
                         return false;
                     }
 
-                    if (task.IsDownLight
+                    if ((task.IsDownLight || task.IsLocateDownGood)
                         && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车))
                     {
                         result = "小车正在上摆渡车";
@@ -612,35 +620,6 @@ namespace task.device
             if (ferryid > 0)
             {
                 StopFerry(ferryid, out string _);
-            }
-        }
-
-        public bool DoLocateFerry(uint id, ushort ferry_code, out string result)
-        {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                result = "稍后再试！";
-                return false;
-            }
-            try
-            {
-                FerryTask task = DevList.Find(c => c.ID == id);
-                if (!CheckFerryStatus(task, out result))
-                {
-                    return false;
-                }
-
-                if (!IsLoadOrEmpty(task, out result))
-                {
-                    return false;
-                }
-
-                task.DoLocate(ferry_code,task.DevConfig.track_id);
-                return true;
-            }
-            finally
-            {
-                Monitor.Exit(_obj);
             }
         }
 
@@ -732,8 +711,8 @@ namespace task.device
                 }
 
                 if (PubTask.Carrier.HaveCarrierTaskInFerry(task.DevConfig.track_id)
-                    || (task.IsUpLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
-                    || (task.IsDownLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车)))
+                    || ((task.IsUpLight || task.IsLocateUpGood) && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
+                    || ((task.IsDownLight || task.IsLocateDownGood) && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车)))
                 {
                     result = "小车正在上下摆渡！";
                     return false;

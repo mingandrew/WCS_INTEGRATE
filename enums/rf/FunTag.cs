@@ -126,5 +126,12 @@
         public const string ShiftTileGood = nameof(ShiftTileGood);//转品种
 
         #endregion
+
+        #region[转模式]
+
+        public const string QueryTileMode = nameof(QueryTileMode);//查询砖机模型信息
+        public const string ShiftTileMode = nameof(ShiftTileMode);//转模式
+
+        #endregion
     }
 }

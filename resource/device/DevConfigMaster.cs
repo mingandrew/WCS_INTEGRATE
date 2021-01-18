@@ -449,6 +449,19 @@ namespace resource.device
                     result = "请刷新设备信息！";
                     return false;
                 }
+
+                if (dev.do_shift)
+                {
+                    result = "正在转产不能修改！";
+                    return false;
+                }
+
+                if (dev.do_cutover)
+                {
+                    result = "正在切换模式不能修改！";
+                    return false;
+                }
+
                 try
                 {
                     mLog.Status(true, string.Format("[预设品种]砖机：{0}，预设品种:{1}【{2}】",
@@ -525,11 +538,17 @@ namespace resource.device
         /// <param name="newgoodid"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool DoCutover(uint devid, TileWorkModeE nextmode, uint newgoodid, out string result)
+        public bool DoCutover(uint devid, uint goodid, TileWorkModeE nextmode, uint newgoodid, out string result)
         {
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
+                if(dev.goods_id != goodid)
+                {
+                    result = "请刷新后再试！";
+                    return false;
+                }
+
                 if (!dev.can_cutover)
                 {
                     result = "该砖机不允许切换模式！";
