@@ -225,6 +225,20 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        /// <summary>
+        /// 更新库存的具体位置和位置信息
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="qty"></param>
+        /// <returns></returns>
+        internal bool EditStock(Stock s, byte qty)
+        {
+            string sql = string.Format("UPDATE `stock` SET `pos` = (`pos` + {0}), `pos_type` = {1} WHERE `id`  = {2}",
+                                            qty, s.pos_type, s.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
         public bool EditStockTrans(StockTrans trans, TransUpdateE updateE)
         {
             string sql = "UPDATE `stock_trans` SET ";

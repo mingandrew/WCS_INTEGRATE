@@ -28,11 +28,12 @@ namespace wcs.ViewModel
         private byte stockqty = 0;
         private Stock oldstock;
         private string actiontitle;
-        private bool isadd, qtyenable;
+        private bool isadd, qtyenable, isinsert;
+        private short pos; //插入的位置
         #endregion
 
         #region[属性]
-        
+
         public uint GoodsId
         {
             get => goodsid;
@@ -95,7 +96,7 @@ namespace wcs.ViewModel
         private void Comfirm()
         {
             Result.p1 = false;
-            if (isadd)
+            if (isadd || isinsert)
             {
                 if (goodsid == 0)
                 {
@@ -119,7 +120,14 @@ namespace wcs.ViewModel
                     return;
                 }
 
-                if (PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, pieces, ProduceTime, StockQty, "PC添加库存", out string rs))
+                if (isinsert)
+                {
+                    PubMaster.Goods.UpdateStockTrackPos(TrackId, pos, StockQty);
+                    PubMaster.Goods.InsertStock(TrackId, GoodsId, pieces, ProduceTime, StockQty, "PC插入库存", out string rrs, pos);
+                    Result.p1 = true;
+                }
+
+                if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, pieces, ProduceTime, StockQty, "PC添加库存", out string rs))
                 {
                     Result.p1 = true;
                 }
@@ -139,6 +147,8 @@ namespace wcs.ViewModel
                 }
             }
 
+            isadd = false;
+            isinsert = false;
             CloseAction?.Invoke();
         }
 
@@ -170,6 +180,26 @@ namespace wcs.ViewModel
             QtyEnable = false;
             StockQty = 1;
             oldstock = stock;
+        }
+
+        /// <summary>
+        /// 设置插入的数据
+        /// </summary>
+        /// <param name="gid"></param>
+        /// <param name="tid"></param>
+        /// <param name="pis"></param>
+        /// <param name="oldpos"></param>
+        public void SetInsertInput(uint gid, uint tid, ushort pis, short oldpos)
+        {
+            isinsert = true;
+            ActionTile = "插入";
+            GoodsId = gid;
+            TrackId = tid;
+            pieces = (byte)pis;
+            QtyEnable = true;
+            StockQty = 1;
+            ProduceTime = DateTime.Now;
+            pos = oldpos;
         }
         #endregion
     }

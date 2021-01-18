@@ -96,10 +96,10 @@ namespace wcs.ViewModel
                         DeleteStock();
                         break;
                     case 4://往前 + 库存
-                        AddFrontStock();
+                        InsertStock(true);
                         break;
                     case 5://往后 + 库存
-                        AddBackStock();
+                        InsertStock(false);
                         break;
                 }
             }
@@ -158,6 +158,7 @@ namespace wcs.ViewModel
                     case 0://刷新
                         List.Clear();
                         List<Stock> stocks = PubMaster.Goods.GetStocks(_selecttrack.id);
+                        stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
                         foreach (Stock stock in stocks)
                         {
                             List.Add(stock);
@@ -336,24 +337,14 @@ namespace wcs.ViewModel
             }
         }
 
-        private async void AddFrontStock()
+        private async void InsertStock(bool isUpInsert)
         {
-            if (!CheckSelectItem()) return;
-            DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
-                 .Initialize<GoodsSelectViewModel>((vm) =>
-                 {
-                     vm.SetAreaFilter(_selecttrack.area, false);
-                     vm.QueryGood();
-                 }).GetResultAsync<DialogResult>();
-            if (result.p1 is bool rs && result.p2 is GoodsView good)
+            if (SelectStock == null)
             {
-                TrackStockAdd(good.ID, good.Pieces);
+                Growl.Warning("请先选择库存记录");
+                return;
             }
-        }
 
-        private async void AddBackStock()
-        {
-            if (!CheckSelectItem()) return;
             DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
                  .Initialize<GoodsSelectViewModel>((vm) =>
                  {
@@ -362,9 +353,66 @@ namespace wcs.ViewModel
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
-                TrackStockAdd(good.ID, good.Pieces);
+                if (good.empty)
+                {
+                    Growl.Warning("不能选择空品种！");
+                    return;
+                }
+
+                short pos = SelectStock.pos;
+                if (!isUpInsert)
+                {
+                    pos = PubMaster.Goods.GetNextStockPos(SelectStock.track_id, SelectStock.pos);
+                }
+
+                if (!isUpInsert && pos == 0)
+                {
+                    TrackStockAdd(good.ID, good.Pieces);
+                }
+                else
+                {
+                    DialogResult result2 = await HandyControl.Controls.Dialog.Show<StockEditDialog>()
+                     .Initialize<StockEditViewModel>((vm) =>
+                     {
+                         vm.SetInsertInput(good.ID, _selecttrack.id, good.Pieces, pos);
+                     }).GetResultAsync<DialogResult>();
+                    if (result2.p1 is bool rss && rss)
+                    {
+                        Growl.Success("插入成功！");
+                        ActionStock("0");
+                    }
+                }
             }
         }
+        //private async void AddFrontStock()
+        //{
+        //    if (!CheckSelectItem()) return;
+        //    DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
+        //         .Initialize<GoodsSelectViewModel>((vm) =>
+        //         {
+        //             vm.SetAreaFilter(_selecttrack.area, false);
+        //             vm.QueryGood();
+        //         }).GetResultAsync<DialogResult>();
+        //    if (result.p1 is bool rs && result.p2 is GoodsView good)
+        //    {
+        //        TrackStockAdd(good.ID, good.Pieces);
+        //    }
+        //}
+
+        //private async void AddBackStock()
+        //{
+        //    if (!CheckSelectItem()) return;
+        //    DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
+        //         .Initialize<GoodsSelectViewModel>((vm) =>
+        //         {
+        //             vm.SetAreaFilter(_selecttrack.area, false);
+        //             vm.QueryGood();
+        //         }).GetResultAsync<DialogResult>();
+        //    if (result.p1 is bool rs && result.p2 is GoodsView good)
+        //    {
+        //        TrackStockAdd(good.ID, good.Pieces);
+        //    }
+        //}
 
         private async void EditStock()
         {

@@ -53,7 +53,7 @@
                     <ContextMenu>
                         <MenuItem Header="往前+库存" Visibility="Visible" Tag="4" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="往后+库存" Visibility="Visible" Tag="5" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="修改" Visibility="Visible" Tag="2" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="修改" Visibility="Collapsed" Tag="2" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="删除" Tag="3" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                     </ContextMenu>
                 </DataGrid.ContextMenu>
