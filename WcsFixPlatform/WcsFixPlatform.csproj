@@ -126,6 +126,9 @@
     <Compile Include="Dialog\platform\device\ChangeStrategyDialog.xaml.cs">
       <DependentUpon>ChangeStrategyDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\device\CutoverDialog.xaml.cs">
+      <DependentUpon>CutoverDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\device\DeviceEditDialog.xaml.cs">
       <DependentUpon>DeviceEditDialog.xaml</DependentUpon>
     </Compile>
@@ -204,6 +207,7 @@
     <Compile Include="ViewModel\platform\area\AreaViewModel.cs" />
     <Compile Include="ViewModel\platform\BindingProxy.cs" />
     <Compile Include="ViewModel\platform\device\CarrierViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\CutoverDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceEditViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceViewModel.cs" />
@@ -322,6 +326,10 @@
     <Page Include="Dialog\platform\device\ChangeStrategyDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\device\CutoverDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\platform\device\DeviceEditDialog.xaml">
       <SubType>Designer</SubType>

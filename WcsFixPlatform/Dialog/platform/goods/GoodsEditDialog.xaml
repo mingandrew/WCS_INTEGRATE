@@ -42,7 +42,7 @@
                 <TextBlock Text="色号:" Style="{StaticResource TextBlockLarge}"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}">
-                <TextBlock Text="砖数:" Style="{StaticResource TextBlockLarge}"/>
+                <TextBlock Text="层数:" Style="{StaticResource TextBlockLarge}"/>
             </Border>
 
             <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">

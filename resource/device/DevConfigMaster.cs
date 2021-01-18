@@ -370,6 +370,65 @@ namespace resource.device
 
         #endregion
 
+
+        /// <summary>
+        /// 是否允许处理转换类的指令作业
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="cmd"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool IsAllowToDo(uint devid, DevLifterCmdTypeE cmd, out string result)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null)
+            {
+                switch (cmd)
+                {
+                    case DevLifterCmdTypeE.转产:
+                        if (dev.do_cutover)
+                        {
+                            result = "切换模式中，无法转产！";
+                            return false;
+                        }
+
+                        if (dev.do_shift)
+                        {
+                            result = "正在转产中！";
+                            return false;
+                        }
+                        break;
+
+                    case DevLifterCmdTypeE.模式:
+                        if (!dev.can_cutover)
+                        {
+                            result = "该砖机不具备切换功能！";
+                            return false;
+                        }
+
+                        if (dev.do_shift)
+                        {
+                            result = "转产中，无法切换模式！";
+                            return false;
+                        }
+
+                        if (dev.do_cutover)
+                        {
+                            result = "正在切换模式中！";
+                            return false;
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                result = "";
+                return true;
+            }
+            result = "找不到砖机配置信息！";
+            return false;
+        }
+
         #region[砖机转产]
 
         /// <summary>
@@ -531,8 +590,11 @@ namespace resource.device
                 catch { }
                 dev.WorkMode = nextmode;
                 dev.WorkModeNext = TileWorkModeE.无;
-                dev.goods_id = dev.pre_goodid;
-                dev.pre_goodid = 0;
+                if (dev.pre_goodid != 0)
+                {
+                    dev.goods_id = dev.pre_goodid;
+                    dev.pre_goodid = 0;
+                }
                 dev.do_cutover = false;
                 PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
                 return true;

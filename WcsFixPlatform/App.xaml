@@ -32,6 +32,7 @@
             <prov:EnumDataProvider x:Key="StrategyOutE" Type="enums:StrategyOutE"/>
             <prov:EnumDataProvider x:Key="DevWorkTypeE" Type="enums:DevWorkTypeE"/>
             <prov:EnumDataProvider x:Key="DevFerryAutoPosE" Type="enums:DevFerryAutoPosE"/>
+            <prov:EnumDataProvider x:Key="TileWorkModeE" Type="enums:TileWorkModeE"/>
 
         </ResourceDictionary>
     </Application.Resources>

@@ -233,8 +233,11 @@ namespace task.device
                                     if (!task.DevConfig.do_cutover &&
                                         task.DevConfig.WorkMode != task.DevStatus.WorkMode)
                                     {
-                                        // 强行让砖机改
-                                        task.DoCutover(task.DevConfig.WorkMode, TileFullE.忽略);
+                                        // 以砖机为准？
+                                        PubMaster.DevConfig.FinishCutover(task.ID, task.DevStatus.WorkMode);
+
+                                        // 以调度为准？
+                                        //task.DoCutover(task.DevConfig.WorkMode, TileFullE.忽略);
                                         break;
                                     }
 

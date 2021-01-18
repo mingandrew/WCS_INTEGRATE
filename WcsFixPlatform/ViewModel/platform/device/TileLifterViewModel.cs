@@ -20,6 +20,8 @@ using System.Windows.Controls;
 using task;
 using wcs.Data.View;
 using wcs.Dialog;
+using wcs.Dialog.platform.device;
+using wcs.ViewModel.platform.device;
 
 namespace wcs.ViewModel
 {
@@ -149,7 +151,7 @@ namespace wcs.ViewModel
                         DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
                          .Initialize<GoodsSelectViewModel>((vm) =>
                          {
-                             vm.SetAreaFilter(area, false);
+                             vm.SetAreaFilter(area, true);
                              if (isuptilelifter)
                              {
                                  vm.QueryStockGood();
@@ -185,7 +187,8 @@ namespace wcs.ViewModel
                     case 10://修改策略
                         bool isdowntile = PubMaster.DevConfig.IsTileWorkMod(DeviceSelected.ID, TileWorkModeE.下砖);
                         MsgAction strategyrs = await HandyControl.Controls.Dialog.Show<ChangeStrategyDialog>()
-                            .Initialize<ChangeStrategyDialogViewModel>((vm) => {
+                            .Initialize<ChangeStrategyDialogViewModel>((vm) =>
+                            {
 
                                 vm.SetShow(isdowntile);
                                 if (isdowntile)
@@ -257,7 +260,7 @@ namespace wcs.ViewModel
                                 Growl.Warning("请选择不为空砖的轨道！");
                                 return;
                             }
-                            
+
                             PubMaster.DevConfig.SetLastTrackId(DeviceSelected.ID, tra.id);
                             Growl.Success("设置成功！");
                         }
@@ -269,21 +272,42 @@ namespace wcs.ViewModel
                         PubTask.TileLifter.DoIgnore(DeviceSelected.ID, false);
                         break;
                     case 14:  //切换作业模式
-                        
+                        if (!PubMaster.DevConfig.IsAllowToDo(DeviceSelected.ID, DevLifterCmdTypeE.模式, out string msg))
+                        {
+                            Growl.Warning(msg);
+                            return;
+                        }
 
+                        area = PubMaster.Device.GetDeviceArea(DeviceSelected.ID);
+                        MsgAction workmode = await HandyControl.Controls.Dialog.Show<CutoverDialog>()
+                            .Initialize<CutoverDialogViewModel>((vm) =>
+                            {
+                                vm.SetArea(area, DeviceSelected.Name);
+                                vm.SetWorkMode(PubMaster.DevConfig.GetTileWorkMode(DeviceSelected.ID));
+                            }).GetResultAsync<MsgAction>();
+
+                        if (workmode.o1 is bool r && workmode.o2 is TileWorkModeE wm && workmode.o3 is uint goodsid)
+                        {
+                            if (!PubMaster.DevConfig.DoCutover(DeviceSelected.ID, wm, goodsid, out msg))
+                            {
+                                Growl.Warning(msg);
+                                return;
+                            }
+                            Growl.Success("开始切换~");
+                        }
                         break;
                 }
             }
         }
 
-        
+
 
         private void TileLifterStatusUpdate(MsgAction msg)
         {
-            if (msg.o1 is DevTileLifter dev 
-                && msg.o2 is SocketConnectStatusE conn 
-                && msg.o3 is uint gid 
-                && msg.o4 is StrategyInE instrategy 
+            if (msg.o1 is DevTileLifter dev
+                && msg.o2 is SocketConnectStatusE conn
+                && msg.o3 is uint gid
+                && msg.o4 is StrategyInE instrategy
                 && msg.o5 is StrategyOutE outstrategy
                 && msg.o6 is bool working
                 && msg.o7 is string tid
