@@ -231,10 +231,10 @@ namespace task.device
                                 if (task.DevConfig.can_cutover)
                                 {
                                     if (!task.DevConfig.do_cutover &&
-                                        task.DevConfig.WorkMode == task.DevStatus.WorkMode)
+                                        task.DevConfig.WorkMode != task.DevStatus.WorkMode)
                                     {
-                                        // 复位
-                                        PubMaster.DevConfig.FinishCutover(task.ID, task.DevStatus.WorkMode);
+                                        // 强行让砖机改
+                                        task.DoCutover(task.DevConfig.WorkMode, TileFullE.忽略);
                                         break;
                                     }
 
@@ -262,7 +262,7 @@ namespace task.device
                                                     break;
                                                 }
 
-                                                if (task.DevConfig.goods_id == task.DevConfig.old_goodid ||
+                                                if (task.DevConfig.goods_id == task.DevConfig.pre_goodid ||
                                                     (!task.DevStatus.Load1 && !task.DevStatus.Load2))
                                                 {
                                                     task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
@@ -271,7 +271,7 @@ namespace task.device
                                                 break;
 
                                             case TileWorkModeE.上砖: // xxx => 上砖
-                                                if (task.DevConfig.goods_id != task.DevConfig.old_goodid &&
+                                                if (task.DevConfig.goods_id != task.DevConfig.pre_goodid &&
                                                     (task.DevStatus.Load1 || task.DevStatus.Load2) &&
                                                     (!task.DevStatus.Need1 && !task.DevStatus.Need2))
                                                 {
@@ -292,7 +292,7 @@ namespace task.device
                                                     break;
                                                 }
 
-                                                if (task.DevConfig.goods_id == task.DevConfig.old_goodid)
+                                                if (task.DevConfig.goods_id == task.DevConfig.pre_goodid)
                                                 {
                                                     task.DoCutover(TileWorkModeE.上砖, TileFullE.忽略);
                                                     Thread.Sleep(500);
@@ -788,7 +788,7 @@ namespace task.device
                     uint gid = task.DevStatus.Goods1;
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(gid, task.DevConfig.old_goodid, 
+                        !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid, 
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckInStrategy(task, task.DevConfig.left_track_id, gid);
@@ -838,7 +838,7 @@ namespace task.device
                     #region[生成出库交易]
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.old_goodid, 
+                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.pre_goodid, 
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.left_track_id);
@@ -946,7 +946,7 @@ namespace task.device
                     uint gid = task.DevStatus.Goods2;
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(gid, task.DevConfig.old_goodid,
+                        !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid,
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckInStrategy(task, task.DevConfig.right_track_id, gid);
@@ -995,7 +995,7 @@ namespace task.device
                     #region[生成出库交易]
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.old_goodid,
+                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.pre_goodid,
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.right_track_id);
@@ -1100,11 +1100,11 @@ namespace task.device
         /// 是否允许切换中继续作业
         /// </summary>
         /// <param name="goodsid"></param>
-        /// <param name="oldgoodsid"></param>
+        /// <param name="nextgoodsid"></param>
         /// <param name="mode"></param>
         /// <param name="nextmode"></param>
         /// <returns></returns>
-        private bool IsAllowToWorkForCutover(uint goodsid, uint oldgoodsid, TileWorkModeE mode, TileWorkModeE nextmode)
+        private bool IsAllowToWorkForCutover(uint goodsid, uint nextgoodsid, TileWorkModeE mode, TileWorkModeE nextmode)
         {
             if (mode == TileWorkModeE.上砖 && nextmode == TileWorkModeE.下砖)
             {
@@ -1115,11 +1115,12 @@ namespace task.device
             if (mode == TileWorkModeE.下砖 && nextmode == TileWorkModeE.上砖)
             {
                 // 下 -> 上，品种一致不拉走，直接等着上
-                if (goodsid == oldgoodsid)
+                if (goodsid == nextgoodsid)
                 {
                     return false;
                 }
             }
+
             return true;
         }
 

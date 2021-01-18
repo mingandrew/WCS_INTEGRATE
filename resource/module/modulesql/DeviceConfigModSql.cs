@@ -190,8 +190,8 @@ WHERE id = {0}", dev.id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goo
         internal bool EditWorkMode(ConfigTileLifter dev)
         {
             string sql = string.Format(@"UPDATE config_tilelifter SET can_cutover = {1}, work_mode = {2}, work_mode_next = {3}, do_cutover = {4}, 
-goods_id = {5}, old_goodid = {6} WHERE id = {0}", 
-                dev.id, dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, GetIntOrNull(dev.goods_id), dev.old_goodid);
+goods_id = {5}, pre_goodid = {6} WHERE id = {0}", 
+                dev.id, dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, GetIntOrNull(dev.goods_id), dev.pre_goodid);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

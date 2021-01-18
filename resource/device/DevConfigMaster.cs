@@ -502,8 +502,7 @@ namespace resource.device
                 catch { }
 
                 dev.WorkModeNext = nextmode;
-                dev.old_goodid = dev.goods_id;
-                dev.goods_id = newgoodid;
+                dev.pre_goodid = newgoodid;
                 dev.do_cutover = true;
                 PubMaster.Mod.DevConfigSql.EditWorkMode(dev); 
                 
@@ -532,7 +531,8 @@ namespace resource.device
                 catch { }
                 dev.WorkMode = nextmode;
                 dev.WorkModeNext = TileWorkModeE.无;
-                dev.old_goodid = 0;
+                dev.goods_id = dev.pre_goodid;
+                dev.pre_goodid = 0;
                 dev.do_cutover = false;
                 PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
                 return true;
