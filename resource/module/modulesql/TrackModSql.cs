@@ -20,13 +20,7 @@ namespace resource.module.modulesql
         public List<Track> QueryTrackList()
         {
             List<Track> list = new List<Track>();
-            string sql = string.Format("SELECT t.id, t.`name`, t.area, t.type, t.`stock_status`," +
-                " t.`track_status`, t.width, t.left_distance, t.right_distance," +
-                " t.ferry_up_code, t.ferry_down_code, t.max_store, t.brother_track_id," +
-                " t.left_track_id, t.right_track_id, t.memo," +
-                " t.rfid_1, t.rfid_2, t.rfid_3, t.rfid_4, t.rfid_5, t.rfid_6," +
-                " t.`order`, t.`recent_goodid`, t.`recent_tileid`, t.`alert_status`, t.`alert_carrier`," +
-                " t.`alert_trans`, t.`early_full`, t.`full_time` FROM track AS t ORDER BY t.`order`");
+            string sql = string.Format("SELECT t.* FROM track AS t ORDER BY t.`order`");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {

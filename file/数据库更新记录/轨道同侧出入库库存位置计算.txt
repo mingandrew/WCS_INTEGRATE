@@ -1,0 +1,2 @@
+-- 默认空或者0   需要同侧出入的轨道配置为 1
+ALTER TABLE `track` ADD COLUMN `same_side_inout` bit(1) NULL COMMENT '是否同侧出入库' AFTER `full_time`;

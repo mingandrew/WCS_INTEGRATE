@@ -92,22 +92,43 @@ namespace resource.goods
 
         #region[库存]
 
+        /// <summary>
+        /// 获取当个库存信息
+        /// </summary>
+        /// <param name="id">库存ID</param>
+        /// <returns></returns>
         public Stock GetStock(int id)
         {
             return StockList.Find(c => c.id == id);
         }
 
+        /// <summary>
+        /// 获取轨道上的所有库存信息
+        /// </summary>
+        /// <param name="traid">指定的轨道ID</param>
+        /// <returns></returns>
         public List<Stock> GetStocks(uint traid)
         {
             return StockList.FindAll(c => c.track_id == traid);
         }
 
+        /// <summary>
+        /// 获取库存统计信息
+        /// 1.重新排序
+        /// 2.返回库存信息
+        /// </summary>
+        /// <returns></returns>
         public List<StockSum> GetStockSums()
         {
             SortSumList();
             return StockSumList;
         }
 
+        /// <summary>
+        /// 获取指定区域的库存信息
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <returns></returns>
         public List<StockSum> GetStockSums(int areaid)
         {
             if (areaid == 0) return StockSumList;
@@ -547,7 +568,7 @@ namespace resource.goods
         #region[库存]
 
         /// <summary>
-        /// 添加库存
+        /// 添加库存在指定的轨道
         /// </summary>
         /// <param name="trackid"></param>
         /// <param name="goodid"></param>
@@ -575,7 +596,7 @@ namespace resource.goods
                         track_type = track.type
                     };
 
-                    UpdateTrackPos(stock);
+                    UpdateTrackPos(stock, track);
                     StockList.Add(stock);
                     PubMaster.Mod.GoodSql.AddStock(stock);
                     return newid;
@@ -806,10 +827,10 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 转移库存
+        /// 将库存转移到指定的轨道
         /// </summary>
-        /// <param name="stock_id"></param>
-        /// <param name="to_track_id"></param>
+        /// <param name="stock_id">库存ID</param>
+        /// <param name="to_track_id">被转移到的轨道ID</param>
         public void MoveStock(uint stock_id, uint to_track_id)
         {
             Stock stock = StockList.Find(c => c.id == stock_id);
@@ -820,7 +841,10 @@ namespace resource.goods
                 bool istostore = PubMaster.Track.IsStoreTrack(to_track_id);
                 bool isfromstore = PubMaster.Track.IsStoreTrack(from_track_id);
 
+                //更新库存统计信息
                 StockSumChange(stock, to_track_id);
+
+                //更新轨道被转移后的轨道信息(区域，轨道ID，轨道类型)
                 Track totrack = PubMaster.Track.GetTrack(to_track_id);
                 stock.track_id = to_track_id;
                 stock.area = totrack.area;
@@ -828,12 +852,14 @@ namespace resource.goods
 
                 #region[更新储砖轨道]
 
+                //将库存 移入 储砖轨道
                 if (istostore)
                 {
-                    UpdateTrackPos(stock);
+                    UpdateTrackPos(stock, totrack);
                     PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Pos);
                 }
 
+                //从储砖轨道 移出 库存
                 if (isfromstore)
                 {
                     CheckStockTop(from_track_id);
@@ -861,23 +887,42 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 更新库存的Pos
+        /// 更新库存的位置信息(pos)
         /// </summary>
-        /// <param name="stock"></param>
-        public void UpdateTrackPos(Stock stock)
+        /// <param name="stock">库存信息</param>
+        /// <param name="track">库存所在轨道</param>
+        public void UpdateTrackPos(Stock stock, Track track)
         {
+            //轨道当前库存信息
             short storecount = (short)StockList.Count(c => c.track_id == stock.track_id && c.id != stock.id);
 
             if (storecount == 0)
             {
                 stock.PosType = StockPosE.顶部;
-                stock.pos = 0;
+                stock.pos = (short)(track.same_side_inout ? 50 : 0);
             }
             else
             {
-                short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id).Max(c => c.pos);
-                stock.pos = (short)(FinalStockPos + 1);
-                stock.PosType = StockPosE.其他;
+                //如轨道是同向出入，则将后面添加的库存放在第一位
+                if (track.same_side_inout)
+                {
+                    Stock topStock = GetTrackTopStock(stock.track_id);
+                    if (topStock != null)
+                    {
+                        topStock.PosType = StockPosE.其他;
+                        PubMaster.Mod.GoodSql.EditStock(topStock, StockUpE.PosType);
+                    }
+
+                    short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id).Min(c => c.pos);
+                    stock.pos = (short)(FinalStockPos - 1);
+                    stock.PosType = StockPosE.顶部;
+                }
+                else
+                {
+                    short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id).Max(c => c.pos);
+                    stock.pos = (short)(FinalStockPos + 1);
+                    stock.PosType = StockPosE.其他;
+                }
             }
         }
 
@@ -1069,27 +1114,33 @@ namespace resource.goods
         #endregion
 
         #region[库存统计]
+
+        /// <summary>
+        /// 更新轨道的统计库存信息
+        /// </summary>
+        /// <param name="stock">单个库存信息</param>
+        /// <param name="totrackid">库存的去向轨道ID</param>
         private void StockSumChange(Stock stock, uint totrackid)
         {
-            bool isadd;
+            //该库存是否去向储砖轨道
             bool istostore = PubMaster.Track.IsStoreTrack(totrackid);
+            //该库存是否来源于储砖轨道
             bool isfromstore = PubMaster.Track.IsStoreTrack(stock.track_id);
             if (istostore || isfromstore)
             {
-                isadd = istostore;
                 StockSum sum;
                 if (istostore)
-                {
+                {   //库存放置 => 储砖轨道(加)
                     sum = StockSumList.Find(c => c.track_id == totrackid && c.goods_id == stock.goods_id);
                 }
                 else
-                {
+                {   //库存 从 储砖轨道 => 出(减)
                     sum = StockSumList.Find(c => c.track_id == stock.track_id && c.goods_id == stock.goods_id);
                 }
 
                 if(sum != null)
                 {
-                    if (isadd)
+                    if (istostore)
                     {
                         sum.count += 1;
                         sum.stack += stock.stack;
@@ -1117,7 +1168,7 @@ namespace resource.goods
                     }
                 }
 
-                if (sum == null && isadd)
+                if (sum == null && istostore)
                 {
                     Track track = PubMaster.Track.GetTrack(totrackid);
                     sum = new StockSum()
@@ -1138,11 +1189,23 @@ namespace resource.goods
             }
         }
 
+        /// <summary>
+        /// 判断库存是否是对应的品种
+        /// </summary>
+        /// <param name="stockid">库存ID</param>
+        /// <param name="goodsId">品种ID</param>
+        /// <returns></returns>
         public bool IsStockWithGood(uint stockid, uint goodsId)
         {
             return StockList.Exists(c => c.id == stockid && c.goods_id == goodsId);
         }
 
+        /// <summary>
+        /// 轨道转移库存，同时刷新界面统计数据
+        /// </summary>
+        /// <param name="taketrackid">原轨道ID</param>
+        /// <param name="givetrackid">转移的轨道ID</param>
+        /// <param name="type">转移后的轨道类型</param>
         private void UpdateShiftStockSum(uint taketrackid, uint givetrackid, byte type)
         {
             List<StockSum> takesums = StockSumList.FindAll(c => c.track_id == taketrackid);
@@ -1155,16 +1218,31 @@ namespace resource.goods
                 SendSumMsg(sum, ActionTypeE.Add);
             }
         }
+       
+        /// <summary>
+        /// 获取库存的砖机ID
+        /// </summary>
+        /// <param name="stock_id">库存ID</param>
+        /// <returns></returns>
         public uint GetStockTileId(uint stock_id)
         {
             return StockList.Find(c => c.id == stock_id && c.tilelifter_id != 0)?.tilelifter_id ?? 0;
         }
 
+        /// <summary>
+        /// 获取品种车型
+        /// </summary>
+        /// <param name="goods_id">品种ID</param>
+        /// <returns></returns>
         public CarrierTypeE GetGoodsCarrierType(uint goods_id)
         {
             return GoodsList.Find(c => c.id == goods_id).GoodCarrierType;
         }
 
+        /// <summary>
+        /// 清空轨道的所有统计信息
+        /// </summary>
+        /// <param name="trackid">被清空的轨道ID</param>
         private void RemoveTrackSum(uint trackid)
         {
             List<StockSum> sums = StockSumList.FindAll(c => c.track_id == trackid);
@@ -1178,6 +1256,11 @@ namespace resource.goods
             }
         }
 
+        /// <summary>
+        /// 发送消息给界面更新统计信息
+        /// </summary>
+        /// <param name="sum"></param>
+        /// <param name="type"></param>
         private void SendSumMsg(StockSum sum , ActionTypeE type)
         {
             mMsg.o1 = sum;
@@ -1520,6 +1603,11 @@ namespace resource.goods
 
         #region[发送信息]
 
+        /// <summary>
+        /// 发送品种更改消息-给品种界面用于更新数据
+        /// </summary>
+        /// <param name="goods"></param>
+        /// <param name="type"></param>
         private void SendMsg(Goods goods, ActionTypeE type)
         {
             MsgAction msg = new MsgAction()
@@ -1532,7 +1620,7 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 空砖信号后，情况轨道库存
+        /// 空砖信号后，清空轨道库存
         /// </summary>
         /// <param name="take_track_id"></param>
         public void ClearTrackEmtpy(uint take_track_id, bool isuptiletrack = false, uint tileid = 0)
@@ -1551,11 +1639,21 @@ namespace resource.goods
             }
         }
 
+        /// <summary>
+        /// 获取库存上面的品种ID
+        /// </summary>
+        /// <param name="id">库存ID</param>
+        /// <returns></returns>
         public uint GetGoodsId(uint id)
         {
             return StockList.Find(c => c.track_id == id)?.goods_id ?? 0;
         }
 
+        /// <summary>
+        /// 判断品种是否是超限
+        /// </summary>
+        /// <param name="goods_id"></param>
+        /// <returns></returns>
         public bool IsGoodsOverSize(uint goods_id)
         {
             return GetGoodSize(goods_id)?.oversize ?? true;
@@ -1563,9 +1661,13 @@ namespace resource.goods
 
         #endregion
 
-
         #region[上砖消除库存记录]
 
+        /// <summary>
+        /// 添加砖机的消耗信息-用于给统计看板统计信息
+        /// </summary>
+        /// <param name="stocks">被消耗的库存</param>
+        /// <param name="tileid">消耗库存的砖机ID</param>
         private void AddTileConsumLog(List<Stock> stocks, uint tileid)
         {
             foreach (var item in stocks)
