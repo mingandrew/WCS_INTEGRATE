@@ -35,6 +35,7 @@ namespace module.track
         public uint alert_trans { set; get; }//故障任务
         public bool early_full { set; get; }//提前满砖
         public DateTime? full_time { set; get; }//满砖时间
+        public bool same_side_inout { set; get; }//是否同侧出入库
 
         public TrackTypeE Type
         {
