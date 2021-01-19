@@ -332,6 +332,11 @@ namespace task.device
             }
         }
 
+        public TileShiftStatusE GetTileShiftStatus(uint devid)
+        {
+            return DevList.Find(c => c.ID == devid)?.TileShiftStatus ?? TileShiftStatusE.复位;
+        }
+
         public void DoInv(uint devid, bool isone, DevLifterInvolE type)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
@@ -1437,6 +1442,16 @@ namespace task.device
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 判断砖机是否在线
+        /// </summary>
+        /// <param name="tile_id"></param>
+        /// <returns></returns>
+        public bool IsOnline(uint tile_id)
+        {
+            return DevList.Exists(c => c.ID == tile_id && c.IsConnect);
         }
 
         public bool IsHaveLoadNoNeed(uint tileid, uint track)
