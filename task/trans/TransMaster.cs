@@ -124,7 +124,7 @@ namespace task.trans
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
                                     PubTask.Carrier.GetCarrierSite(trans.carrier_id) == track.rfid_1)
                                 {
-                                    PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
+                                    PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
                                     return;
                                 }
                             }

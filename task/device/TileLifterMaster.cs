@@ -259,14 +259,28 @@ namespace task.device
                                                 break;
 
                                             case TileWorkModeE.下砖: // xxx => 下砖
-                                                if (!PubTask.Trans.CancelTaskForCutover(task.ID, task.DevConfig.goods_id, out string res))
+                                                if (!PubTask.Trans.CancelTaskForCutover(task.ID, task.DevConfig.pre_goodid, out string res))
                                                 {
                                                     mlog.Info(true, res);
                                                     break;
                                                 }
 
+                                                if (!task.DevStatus.Load1 && !task.DevStatus.Need1 && task.DevStatus.Involve1)
+                                                {
+                                                    Thread.Sleep(1000);
+                                                    task.Do1Invo(DevLifterInvolE.离开);
+                                                    break;
+                                                }
+
+                                                if (!task.DevStatus.Load2 && !task.DevStatus.Need2 && task.DevStatus.Involve2)
+                                                {
+                                                    Thread.Sleep(1000);
+                                                    task.Do2Invo(DevLifterInvolE.离开);
+                                                    break;
+                                                }
+
                                                 if (task.DevConfig.goods_id == task.DevConfig.pre_goodid ||
-                                                    (!task.DevStatus.Load1 && !task.DevStatus.Load2))
+                                                   (!task.DevStatus.Load1 && !task.DevStatus.Load2))
                                                 {
                                                     task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
                                                     Thread.Sleep(500);
@@ -289,7 +303,7 @@ namespace task.device
                                                     break;
                                                 }
 
-                                                if (!PubTask.Trans.CancelTaskForCutover(task.ID, task.DevConfig.goods_id, out res))
+                                                if (!PubTask.Trans.CancelTaskForCutover(task.ID, task.DevConfig.pre_goodid, out res))
                                                 {
                                                     mlog.Info(true, res);
                                                     break;
