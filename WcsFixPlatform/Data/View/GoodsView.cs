@@ -26,6 +26,7 @@ namespace wcs.Data.View
         private uint sizeid;
         public bool empty { set; get; }
         private byte level;
+        public string info { set; get; }
         #endregion
 
         #region[属性]
@@ -148,6 +149,7 @@ namespace wcs.Data.View
             CarrierType = goods.GoodCarrierType;
             MinStack = goods.minstack;
             empty = goods.empty;
+            info = goods.info;
         }
 
         #endregion

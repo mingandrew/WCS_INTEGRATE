@@ -5,17 +5,19 @@ using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.msg;
 using module.window;
+using resource;
 using System;
+using task;
 using wcs.Data.View;
 using wcs.Dialog;
 
-namespace wcs.ViewModel.platform.device
+namespace wcs.ViewModel
 {
     public class CutoverDialogViewModel : ViewModelBase, IDialogResultable<MsgAction>
     {
         public CutoverDialogViewModel()
         {
-            _goodsname = "";
+            _pregoodsname = "";
             _result = new MsgAction();
         }
 
@@ -26,8 +28,8 @@ namespace wcs.ViewModel.platform.device
         }
         public Action CloseAction { get; set; }
 
-        private uint _area, _goodsid;
-        private string _devname, _goodsname;
+        private uint _area, _devid, _goodsid, _pregoodid;
+        private string _devname, _pregoodsname;
         private TileWorkModeE _workmode;
         public TileWorkModeE WORKMODE
         {
@@ -41,16 +43,16 @@ namespace wcs.ViewModel.platform.device
             set => Set(ref _area, value);
         }
 
-        public uint GOODSID
+        public uint PREGOODSID
         {
-            get => _goodsid;
-            set => Set(ref _goodsid, value);
+            get => _pregoodid;
+            set => Set(ref _pregoodid, value);
         }
 
-        public string GOODSNAME
+        public string PREGOODSNAME
         {
-            get => _goodsname;
-            set => Set(ref _goodsname, value);
+            get => _pregoodsname;
+            set => Set(ref _pregoodsname, value);
         }
 
         public string DEVNAME
@@ -89,8 +91,8 @@ namespace wcs.ViewModel.platform.device
 
             if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
-                GOODSID = good.ID;
-                GOODSNAME = good.Name;
+                PREGOODSID = good.ID;
+                PREGOODSNAME = good.Name;
             }
         }
 
@@ -101,27 +103,39 @@ namespace wcs.ViewModel.platform.device
                 Growl.Info("请选择新模式！");
                 return;
             }
-            if (GOODSID == 0)
+            if (PREGOODSID == 0)
             {
                 Growl.Info("请选择新品种！");
                 return;
             }
-            Result.o1 = true;
-            Result.o2 = WORKMODE;
-            Result.o3 = GOODSID;
+
+            if (!PubTask.TileLifter.IsOnline(_devid))
+            {
+                Growl.Warning("砖机离线！不能执行切换操作！");
+                return;
+            }
+
+            if (!PubMaster.DevConfig.DoCutover(_devid, _goodsid, WORKMODE, PREGOODSID, out string msg))
+            {
+                Growl.Warning(msg);
+                return;
+            }
+            Growl.Success("开始切换~");
+
             CloseAction?.Invoke();
         }
 
         private void CancelChange()
         {
-            Result.o1 = false;
             CloseAction?.Invoke();
         }
 
-        public void SetArea(uint area, string devname)
+        public void SetArea(uint area, uint devid, string devname, uint goodid)
         {
             AREA = area;
             DEVNAME = devname;
+            _devid = devid;
+            _goodsid = goodid;
         }
 
         public void SetWorkMode(TileWorkModeE workmode)

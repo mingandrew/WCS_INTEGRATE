@@ -5,7 +5,6 @@ using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.device;
-using module.goods;
 using module.msg;
 using module.track;
 using module.window;
@@ -20,8 +19,6 @@ using System.Windows.Controls;
 using task;
 using wcs.Data.View;
 using wcs.Dialog;
-using wcs.Dialog.platform.device;
-using wcs.ViewModel.platform.device;
 
 namespace wcs.ViewModel
 {
@@ -271,7 +268,16 @@ namespace wcs.ViewModel
                     case 13:  //忽略2工位
                         PubTask.TileLifter.DoIgnore(DeviceSelected.ID, false);
                         break;
-                    case 14:  //切换作业模式
+                    case 14:  //转产操作
+
+                        area = PubMaster.Device.GetDeviceArea(DeviceSelected.ID);
+                        await HandyControl.Controls.Dialog.Show<GoodShiftDialog>()
+                            .Initialize<GoodShiftDialogViewModel>((vm) =>
+                            {
+                                vm.SetArea(area, DeviceSelected.ID, DeviceSelected.Name, DeviceSelected.GoodsId);
+                            }).GetResultAsync<MsgAction>();
+                        break;
+                    case 15:  //切换作业模式
                         if (!PubMaster.DevConfig.IsAllowToDo(DeviceSelected.ID, DevLifterCmdTypeE.模式, out string msg))
                         {
                             Growl.Warning(msg);
@@ -282,18 +288,13 @@ namespace wcs.ViewModel
                         MsgAction workmode = await HandyControl.Controls.Dialog.Show<CutoverDialog>()
                             .Initialize<CutoverDialogViewModel>((vm) =>
                             {
-                                vm.SetArea(area, DeviceSelected.Name);
+                                vm.SetArea(area, DeviceSelected.ID, DeviceSelected.Name, DeviceSelected.GoodsId);
                                 vm.SetWorkMode(PubMaster.DevConfig.GetTileWorkMode(DeviceSelected.ID));
                             }).GetResultAsync<MsgAction>();
 
                         if (workmode.o1 is bool r && workmode.o2 is TileWorkModeE wm && workmode.o3 is uint goodsid)
                         {
-                            if (!PubMaster.DevConfig.DoCutover(DeviceSelected.ID, DeviceSelected.GoodsId, wm, goodsid, out msg))
-                            {
-                                Growl.Warning(msg);
-                                return;
-                            }
-                            Growl.Success("开始切换~");
+                           
                         }
                         break;
                 }

@@ -2,12 +2,10 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using module.diction;
-using module.msg;
 using resource;
-using System;
 using System.Windows;
 
-namespace wcs.ViewModel.platform.area
+namespace wcs.ViewModel
 {
     public class AreaSwitchViewModel : ViewModelBase
     {

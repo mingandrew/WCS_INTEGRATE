@@ -5,9 +5,6 @@ using System;
 using System.Windows;
 using task;
 using wcs.Service;
-using wcs.ViewModel.platform.area;
-using wcs.ViewModel.platform.device;
-using wcs.ViewModel.platform.stock;
 
 namespace wcs.ViewModel
 {
@@ -42,6 +39,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<ChangeStrategyDialogViewModel>();
             SimpleIoc.Default.Register<FerryAutoPosDialogViewModel>();
             SimpleIoc.Default.Register<CutoverDialogViewModel>();
+            SimpleIoc.Default.Register<GoodShiftDialogViewModel>();
 
             SimpleIoc.Default.Register<GoodsViewModel>();
             SimpleIoc.Default.Register<GoodsEditViewModel>();
@@ -103,6 +101,7 @@ namespace wcs.ViewModel
         public ChangeStrategyDialogViewModel StrategyChange => ServiceLocator.Current.GetInstance<ChangeStrategyDialogViewModel>();
         public FerryAutoPosDialogViewModel FerryAutoPos => ServiceLocator.Current.GetInstance<FerryAutoPosDialogViewModel>();
         public CutoverDialogViewModel Cutover => ServiceLocator.Current.GetInstance<CutoverDialogViewModel>();
+        public GoodShiftDialogViewModel GoodShift => ServiceLocator.Current.GetInstance<GoodShiftDialogViewModel>();
         #endregion
 
         #region[品种/库存/交易]

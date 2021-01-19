@@ -126,6 +126,9 @@
     <Compile Include="Dialog\platform\device\ChangeStrategyDialog.xaml.cs">
       <DependentUpon>ChangeStrategyDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\device\GoodShiftDialog.xaml.cs">
+      <DependentUpon>GoodShiftDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\device\CutoverDialog.xaml.cs">
       <DependentUpon>CutoverDialog.xaml</DependentUpon>
     </Compile>
@@ -207,6 +210,7 @@
     <Compile Include="ViewModel\platform\area\AreaViewModel.cs" />
     <Compile Include="ViewModel\platform\BindingProxy.cs" />
     <Compile Include="ViewModel\platform\device\CarrierViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\GoodShiftDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\CutoverDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceEditViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceSelectViewModel.cs" />
@@ -324,6 +328,10 @@
       <DependentUpon>UserCtl.xaml</DependentUpon>
     </Compile>
     <Page Include="Dialog\platform\device\ChangeStrategyDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\device\GoodShiftDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

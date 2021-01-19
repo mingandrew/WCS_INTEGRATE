@@ -1562,7 +1562,7 @@ namespace task.rf
                 RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
                 if (pack != null)
                 {
-                    if(PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, out string result))
+                    if (PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdatePreGood, "ok");
                     }
@@ -1580,6 +1580,12 @@ namespace task.rf
             RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
             if (pack != null)
             {
+                if (!PubTask.TileLifter.IsOnline(pack.tile_id))
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机离线！不能执行转产操作！");
+                    return;
+                }
+
                 if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
                 {
                     //发送砖机转产信号
@@ -1634,6 +1640,12 @@ namespace task.rf
             RfTileModePack pack = JsonTool.Deserialize<RfTileModePack>(msg.Pack.Data);
             if (pack != null)
             {
+                if (!PubTask.TileLifter.IsOnline(pack.tile_id))
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机离线！不能执行模式切换！");
+                    return;
+                }
+
                 if (PubMaster.DevConfig.DoCutover(pack.tile_id, pack.goods_id, pack.WorkModeNext, pack.pregood_id, out string result))
                 {
                     //发送砖机转产信号

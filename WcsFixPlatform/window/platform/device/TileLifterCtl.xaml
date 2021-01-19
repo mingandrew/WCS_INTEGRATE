@@ -63,7 +63,8 @@
                         <MenuItem Header="设置优先上砖轨道" Tag="11" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="忽略-1" Tag="12" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="忽略-2" Tag="13" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="切换作业模式" Tag="14" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="转产操作" Tag="14" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="切换作业模式" Tag="15" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         
                     </ContextMenu>
                 </DataGrid.ContextMenu>

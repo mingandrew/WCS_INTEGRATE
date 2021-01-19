@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using wcs.Dialog;
 
-namespace wcs.ViewModel.platform.stock
+namespace wcs.ViewModel
 {
     public class TileTrackViewModel: ViewModelBase
     {

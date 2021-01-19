@@ -1,43 +1,49 @@
-﻿<Border x:Class="wcs.Dialog.platform.device.CutoverDialog"
+﻿<Border x:Class="wcs.Dialog.CutoverDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:wcs.Dialog"
             xmlns:hc="https://handyorg.github.io/handycontrol"
-            CornerRadius="10"
+            CornerRadius="10" MinWidth="500"
             DataContext="{Binding Cutover, Source={StaticResource Locator}}"
             Background="{DynamicResource RegionBrush}">
-    <StackPanel Margin="30">
-        <TextBlock Text="{Binding DEVNAME}" Style="{StaticResource TextBlockTitleBold}"/>
-        <Grid  Margin="0,10,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
+    <hc:SimplePanel>
+        <Button hc:IconElement.Geometry="{StaticResource CloseGeometry}" Style="{StaticResource ButtonDanger}" 
+                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0" Command="{Binding CancelCmd}" />
 
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
+        <StackPanel Margin="30">
+            <TextBlock Text="{Binding DEVNAME}" Style="{StaticResource TextBlockTitleBold}"/>
+            <Grid  Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Row="0" Grid.Column="0" Text="新模式："  Style="{StaticResource TextBlockTitleBold}" Margin="10"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
-            <hc:ComboBox Grid.Row="0" Grid.Column="1" Width="100"
-                         ItemsSource="{Binding Source={StaticResource TileWorkModeE}}" 
-                         SelectedItem="{Binding WORKMODE}" Margin="10" FontSize="22"/>
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}"/>
+                <Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTR}"/>
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}"/>
+                <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTRB}"/>
 
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="新品种："  Style="{StaticResource TextBlockTitleBold}" Margin="10"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="新模式："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
 
-            <hc:TextBox Grid.Row="1" Grid.Column="1" Margin="10" FontSize="22" IsReadOnly="True" Text="{Binding GOODSNAME}"/>
+                <hc:ComboBox Grid.Row="0" Grid.Column="1" MinWidth="220" HorizontalContentAlignment="Center"
+                         ItemsSource="{Binding Source={StaticResource TileWorkModeE}}"  VerticalAlignment="Center"
+                         SelectedItem="{Binding WORKMODE}" FontSize="22" HorizontalAlignment="Left" Margin="10,0,0,0"/>
 
-            <Button Grid.Row="1" Grid.Column="2" Margin="0,10,10,10" Command="{Binding ChooseCmd}" Style="{StaticResource ButtonPrimary}" Content="选择" FontSize="15"/>
-        </Grid>
-        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,30,0,0">
-            <Button Width="120" Height="35" Margin="0,0,5,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" FontSize="18"/>
-            <Button Width="120" Height="35" Margin="5,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定" FontSize="18"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="新品种："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="1" Margin="10,0,0,0" FontSize="22" Text="{Binding PREGOODSNAME}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+                <Button Grid.Row="1" Grid.Column="2" Margin="0,10,10,10" Command="{Binding ChooseCmd}" Style="{StaticResource ButtonPrimary}" Content="选择" FontSize="15"/>
+            </Grid>
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,30,0,0">
+                <Button Width="120" Height="35" Margin="5,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="切换模式" FontSize="18"/>
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+    </hc:SimplePanel>
 </Border>
 
