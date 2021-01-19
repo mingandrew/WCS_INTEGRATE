@@ -96,7 +96,6 @@ namespace socket.rf
 
             listener = new TcpListener(IPAddress.Any, Port);
             listener.AllowNatTraversal(true);
-
         }
 
 
@@ -179,14 +178,21 @@ namespace socket.rf
                     NetworkStream networkStream = client.NetworkStream;
                     networkStream.BeginRead(client.Buffer, 0, client.Buffer.Length, HandleDatagramReceived, client);
 
-                    tcpListener.BeginAcceptTcpClient(new AsyncCallback(HandleTcpClientAccepted), ar.AsyncState);
+                    //tcpListener.BeginAcceptTcpClient(new AsyncCallback(HandleTcpClientAccepted), ar.AsyncState);
                 }
             }
             catch (Exception e)
             {
                 _mLog.Error(true, e.Message, e);
             }
-
+            finally
+            {
+                if(listener != null && IsRunning)
+                {
+                    listener.BeginAcceptTcpClient(
+                      new AsyncCallback(HandleTcpClientAccepted), listener);
+                }
+            }
         }
 
         /// <summary>

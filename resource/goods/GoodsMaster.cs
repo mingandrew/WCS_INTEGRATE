@@ -825,6 +825,7 @@ namespace resource.goods
                 stock.track_id = to_track_id;
                 stock.area = totrack.area;
                 stock.track_type = totrack.type;
+
                 #region[更新储砖轨道]
 
                 if (istostore)
