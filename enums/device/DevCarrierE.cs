@@ -5,7 +5,21 @@
         停止 = 0,
         前进 = 1,
         后退 = 2,
-        设备故障 = 0xFE
+        异常
+    }
+
+    /// <summary>
+    /// 运输车指令
+    /// </summary>
+    public enum DevCarrierOrderE
+    {
+        无 = 0,
+        定位指令 = 1,
+        取砖指令 = 2,
+        放砖指令 = 3,
+        前进倒库 = 4,
+        后退倒库 = 5,
+        异常
     }
 
     public enum DevCarrierTaskE
@@ -42,7 +56,7 @@
     /// </summary>
     public enum DevCarrierLoadE
     {
-        未知,
+        异常,
         无货 = 1,
         有货 = 2
     }
@@ -52,7 +66,7 @@
     /// </summary>
     public enum DevCarrierPositionE
     {
-        未知,
+        异常,
         在轨道上 = 1,
         在摆渡上 = 2,
         上下摆渡中 = 3
@@ -74,8 +88,7 @@
     {
         查询 = 0x00,
         执行任务 = 0x01,
-        速度操作 = 0x02,
-        模式调整 = 0x03,
+        设复位点 = 0x02,
         终止任务 = 0x7F
     }
 

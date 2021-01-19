@@ -24,13 +24,30 @@ namespace socket.tcp
 
 
         #region[发送信息]        
-        public void SendCmd(DevCarrierCmdE type, byte v1, byte v2, DevCarrierResetE reset)
+        public void SendCmd(DevCarrierCmdE type)
         {
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try
                 {
-                    byte[] data = mProcess.GetCmd(mDev.memo, type, v1, v2, reset);
+                    byte[] data = mProcess.GetCmd(mDev.memo, type);
+                    SendMessage(data);
+                }
+                finally
+                {
+                    Monitor.Exit(_senobj);
+                }
+            }
+        }
+
+        public void SendCmd(DevCarrierCmdE type, DevCarrierOrderE order,
+            ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, byte v6)
+        {
+            if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    byte[] data = mProcess.GetCmd(mDev.memo, type, order, v1, v2, v3, v4, v5, v6);
                     SendMessage(data);
                 }
                 finally

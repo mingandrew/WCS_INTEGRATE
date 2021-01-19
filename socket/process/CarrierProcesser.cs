@@ -12,18 +12,22 @@ namespace socket.process
         public ushort Head;  //命令字头【0x97,0x01】
         public byte DeviceID;       //设备号
         public byte DeviceStatus;   //设备状态
-        public ushort CurrentSite;  //当前值
-        public byte CurrentTask;    //当前任务
-        public byte CurrentOverSize;//超限
-        public byte FinishTask;     //完成任务
-        //public byte FinishOverSize; //超限
+        public ushort CurrentPoint;  //当前RFID
+        public ushort CurrentSite;  //当前坐标
+        public ushort TargetPoint;  //目的RFID
+        public ushort TargetSite;  //目的坐标
+        public byte CurrentOrder;    //当前指令
+        public byte FinishOrder;     //完成指令
         public byte LoadStatus;     //载货状态
-        public byte WorkMode;       //系统模式
+        public byte Position;       //所在位置
         public byte OperateMode;    //操作模式
-        public ushort ActionTime;     //取放时间
-        public ushort TakeTrackCode;//取货轨道号
-        public ushort GiveTrackCode;//取货轨道号
-        public byte ActionType;     // 空满砖信息
+        public ushort TakePoint;  //取货RFID
+        public ushort TakeSite;  //取货坐标
+        public ushort GivePoint;  //卸货RFID
+        public ushort GiveSite;  //卸货坐标
+        public byte MoveCount;  //倒库数量
+        public byte Reserve1;        //预留1
+        public byte Reserve2;        //预留2
         public byte Aler1;          //报警1
         public byte Aler2;          //报警2
         public byte Aler3;          //报警3
@@ -34,33 +38,20 @@ namespace socket.process
         public byte Aler8;          //报警8
         public byte Aler9;          //报警9
         public byte Aler10;          //报警10
-        public byte Reserve1;        //预留1
-        public byte Reserve2;        //预留2
+        public byte Reserve3;        //预留3
+        public byte Reserve4;        //预留4
         public ushort Tail; //命令字尾【0xFF,0xFE】
 
-    }
-    #endregion
-
-    #region[速度结果]
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct CarrierSpeedStruct
-    {
-        public ushort Head; //命令字头【0x97,0x02】
-        public byte DeviceID;      //设备号
-        public byte ManualFast;    //手动快速
-        public byte ManualSlow;    //手动慢速
-        public byte AutoFast;      //自动快速
-        public byte AutoSlow;      //自动慢速
-        public byte Reserve;       //预留
-        public ushort Tail; //命令字尾【0xFF,0xFE】
     }
     #endregion
 
     #region[指令发送]
 
+    /// <summary>
+    /// 基础指令
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct CarrierCmdStruct
+    public struct CarrierBaseCmdStruct
     {
         public ushort Head; //命令字头【0x96,0x01】
         public byte DeviceID;      //设备号
@@ -68,9 +59,38 @@ namespace socket.process
         public byte Value1;        //值1
         public byte Value2;        //值2
         public byte Value3;        //值3
+        public byte Value4;        //值4
+        public byte Value5;        //值5
+        public byte Value6;        //值6
+        public byte Value7;        //值7
+        public byte Value8;        //值8
+        public byte Value9;        //值9
+        public byte Value10;        //值10
+        public byte Value11;        //值11
+        public byte Value12;        //值12
         public ushort Tail; //命令字尾【0xFF,0xFE】
 
     }
+
+    /// <summary>
+    /// 动作指令
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct CarrierActionCmdStruct
+    {
+        public ushort Head; //命令字头【0x96,0x01】
+        public byte DeviceID;      //设备号
+        public byte Command;       //控制码
+        public ushort Value1_2;        //值1-2
+        public ushort Value3_4;        //值3-4
+        public ushort Value5_6;        //值5-6
+        public byte Value7;        //值7
+        public ushort Value8_9;        //值8-9
+        public ushort Value10_11;        //值10-11
+        public byte Value12;        //值12
+        public ushort Tail; //命令字尾【0xFF,0xFE】
+    }
+
     #endregion
 
     /// <summary>
@@ -98,18 +118,22 @@ namespace socket.process
             mDev.ReSetUpdate();
             mDev.DeviceID = st.DeviceID;
             mDev.DeviceStatus = (DevCarrierStatusE)st.DeviceStatus;
+            mDev.CurrentPoint = ShiftBytes(st.CurrentPoint);
             mDev.CurrentSite = ShiftBytes(st.CurrentSite);
-            mDev.CurrentTask = (DevCarrierTaskE)st.CurrentTask;
-            mDev.CurrentOverSize = (DevCarrierSizeE)st.CurrentOverSize;
-            mDev.FinishTask = (DevCarrierTaskE)st.FinishTask;
-            //mDev.FinishOverSize = (DevCarrierSizeE)st.FinishOverSize;
+            mDev.TargetPoint = ShiftBytes(st.TargetPoint);
+            mDev.TargetSite = ShiftBytes(st.TargetSite);
+            mDev.CurrentOrder = (DevCarrierOrderE)st.CurrentOrder;
+            mDev.FinishOrder = (DevCarrierOrderE)st.FinishOrder;
             mDev.LoadStatus = (DevCarrierLoadE)st.LoadStatus;
-            mDev.CarrierPosition = (DevCarrierPositionE)st.WorkMode;
+            mDev.Position = (DevCarrierPositionE)st.Position;
             mDev.OperateMode = (DevOperateModeE)st.OperateMode;
-            mDev.ActionTime = ShiftBytes(st.ActionTime);
-            mDev.TakeTrackCode = ShiftBytes(st.TakeTrackCode);
-            mDev.GiveTrackCode = ShiftBytes(st.GiveTrackCode);
-            mDev.ActionType = (DevCarrierSignalE)st.ActionType;
+            mDev.TakePoint = ShiftBytes(st.TakePoint);
+            mDev.TakeSite = ShiftBytes(st.TakeSite);
+            mDev.GivePoint = ShiftBytes(st.GivePoint);
+            mDev.GiveSite = ShiftBytes(st.GiveSite);
+            mDev.MoveCount = st.MoveCount;
+            mDev.Reserve1 = st.Reserve1;
+            mDev.Reserve2 = st.Reserve2;
             mDev.Aler1 = st.Aler1;
             mDev.Aler2 = st.Aler2;
             mDev.Aler3 = st.Aler3;
@@ -120,25 +144,68 @@ namespace socket.process
             mDev.Aler8 = st.Aler8;
             mDev.Aler9 = st.Aler9;
             mDev.Aler10 = st.Aler10;
-            mDev.Reserve1 = st.Reserve1;
-            mDev.Reserve2 = st.Reserve2;
-            return mDev; 
+            mDev.Reserve3 = st.Reserve3;
+            mDev.Reserve4 = st.Reserve4;
+            return mDev;
         }
 
-
-        internal byte[] GetCmd(string devid, DevCarrierCmdE type, byte v1, byte v2, DevCarrierResetE reset)
+        /// <summary>
+        /// 获取指令（值全为 0 ）
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal byte[] GetCmd(string devid, DevCarrierCmdE type)
         {
-            CarrierCmdStruct cmd = new CarrierCmdStruct();
-
-            cmd.Head = ShiftBytes(SocketConst.CARRIER_CMD_HEAD_KEY);
-            cmd.DeviceID = byte.Parse(devid);
-            cmd.Command = (byte)type;
-            cmd.Value1 = v1;
-            cmd.Value2 = v2;
-            cmd.Value3 = (byte)reset;
-            cmd.Tail = ShiftBytes(SocketConst.TAIL_KEY);
+            CarrierBaseCmdStruct cmd = new CarrierBaseCmdStruct
+            {
+                Head = ShiftBytes(SocketConst.CARRIER_CMD_HEAD_KEY),
+                DeviceID = byte.Parse(devid),
+                Command = (byte)type,
+                Tail = ShiftBytes(SocketConst.TAIL_KEY)
+            };
 
             return StructToBuffer(cmd);
         }
+
+        /// <summary>
+        /// 获取指令（逐个赋值）
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="type"></param>
+        /// <param name="v1"></param>
+        /// <param name="v2"></param>
+        /// <param name="v3"></param>
+        /// <param name="v4"></param>
+        /// <param name="v5"></param>
+        /// <param name="v6"></param>
+        /// <param name="v7"></param>
+        /// <param name="v8"></param>
+        /// <param name="v9"></param>
+        /// <param name="v10"></param>
+        /// <param name="v11"></param>
+        /// <param name="v12"></param>
+        /// <returns></returns>
+        internal byte[] GetCmd(string devid, DevCarrierCmdE type, DevCarrierOrderE order, 
+            ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, byte v6)
+        {
+            CarrierActionCmdStruct cmd = new CarrierActionCmdStruct
+            {
+                Head = ShiftBytes(SocketConst.CARRIER_CMD_HEAD_KEY),
+                DeviceID = byte.Parse(devid),
+                Command = (byte)type,
+                Value1_2 = ShiftBytes(v1),
+                Value3_4 = ShiftBytes(v2),
+                Value5_6 = ShiftBytes(v3),
+                Value7 = (byte)order,
+                Value8_9 = ShiftBytes(v4),
+                Value10_11 = ShiftBytes(v5),
+                Value12 = v6,
+                Tail = ShiftBytes(SocketConst.TAIL_KEY)
+            };
+
+            return StructToBuffer(cmd);
+        }
+
     }
 }

@@ -18,7 +18,7 @@
         #region[运输车]
 
         internal const ushort CARRIER_HEAD_KEY = 0x9701;
-        internal const ushort CARRIER_STATUS_SIZE = 33;
+        internal const ushort CARRIER_STATUS_SIZE = 42;
         internal const ushort CARRIER_CMD_HEAD_KEY = 0x9601;
         #endregion
 

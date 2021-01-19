@@ -5,7 +5,6 @@ using module.device;
 using module.deviceconfig;
 using resource;
 using socket.tcp;
-using System;
 using task.task;
 
 namespace task.device
@@ -33,7 +32,7 @@ namespace task.device
 
         public DevCarrierStatusE Status
         {
-            get => DevStatus?.DeviceStatus ?? DevCarrierStatusE.设备故障;
+            get => DevStatus?.DeviceStatus ?? DevCarrierStatusE.异常;
         }
 
         public DevOperateModeE OperateMode
@@ -43,12 +42,12 @@ namespace task.device
 
         public DevCarrierPositionE CarrierPosition
         {
-            get => DevStatus?.CarrierPosition ?? DevCarrierPositionE.未知;
+            get => DevStatus?.Position ?? DevCarrierPositionE.异常;
         }
 
         public DevCarrierLoadE Load
         {
-            get => DevStatus?.LoadStatus ?? DevCarrierLoadE.未知;
+            get => DevStatus?.LoadStatus ?? DevCarrierLoadE.异常;
         }
 
         public DevCarrierTaskE FinishTask
@@ -61,23 +60,14 @@ namespace task.device
             get => DevStatus?.CurrentTask ?? DevCarrierTaskE.其他;
         }
 
-        public DevCarrierSignalE Signal
+        public DevCarrierOrderE FinishOrder
         {
-            get => DevStatus?.ActionType ?? DevCarrierSignalE.其他;
+            get => DevStatus?.FinishOrder ?? DevCarrierOrderE.异常;
         }
 
-        public ushort SignalTime
+        public DevCarrierOrderE CurrentOrder
         {
-            get => DevStatus?.ActionTime ?? 0;
-        }
-
-        public ushort TakeTrackCode
-        {
-            get => DevStatus?.TakeTrackCode ?? 0;
-        }
-        public ushort GiveTrackCode
-        {
-            get => DevStatus?.GiveTrackCode ?? 0;
+            get => DevStatus?.CurrentOrder ?? DevCarrierOrderE.异常;
         }
 
         #endregion
@@ -99,7 +89,7 @@ namespace task.device
         {
             if (!IsEnable) return;
 
-            if(DevTcp == null)
+            if (DevTcp == null)
             {
                 DevTcp = new CarrierTcp(Device);
             }
@@ -117,34 +107,62 @@ namespace task.device
         #endregion
 
         #region[发送指令]
+
+        /// <summary>
+        /// 查询指令
+        /// </summary>
         internal void DoQuery()
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.查询, 0, 0, DevReset);
+            DevTcp?.SendCmd(DevCarrierCmdE.查询);
+        }
+
+        /// <summary>
+        /// 执行指令
+        /// </summary>
+        /// <param name="order">指令类型</param>
+        /// <param name="checkTrack">校验轨道号</param>
+        /// <param name="toRFID">定位RFID</param>
+        /// <param name="toSite">定位坐标</param>
+        /// <param name="overRFID">结束RFID</param>
+        /// <param name="overSite">结束坐标</param>
+        /// <param name="moveCount">倒库数量</param>
+        internal void DoOrder(DevCarrierOrderE order, ushort checkTra, ushort toRFID = 0, ushort toSite = 0, ushort overRFID = 0, ushort overSite = 0, byte moveCount = 0)
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.执行任务, order, checkTra, toRFID, toSite, overRFID, overSite, moveCount);
+        }
+
+        /// <summary>
+        /// 设置复位点
+        /// </summary>
+        /// <param name="RFID">RFID</param>
+        /// <param name="Site">坐标</param>
+        internal void DoResetSite(ushort RFID, ushort Site)
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.设复位点, 0, 0, RFID, Site, 0, 0, 0);
+        }
+
+        /// <summary>
+        /// 终止指令
+        /// </summary>
+        internal void DoStop()
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.终止任务);
         }
 
         internal void DoTask(DevCarrierTaskE task, DevCarrierSizeE oversize)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.执行任务, (byte)task, (byte)oversize, DevReset);
+            DevTcp?.SendCmd(DevCarrierCmdE.执行任务);
         }
 
-        //internal void DoModeUpdate(DevCarrierWorkModeE mode)
-        //{
-        //    DevTcp?.SendCmd(DevCarrierCmdE.模式调整, (byte)mode, 0, DevReset);
-        //}
-
-        internal void DoStop()
-        {
-            DevTcp?.SendCmd(DevCarrierCmdE.终止任务, 0, 0, DevReset);
-        }
         #endregion
 
         #region[更新轨道信息]
 
         internal void UpdateInfo()
         {
-            if(Site != 0)
+            if (Site != 0)
             {
-                TrackId = PubMaster.Track.GetTrackId(Site) ;
+                TrackId = PubMaster.Track.GetTrackId(Site);
             }
         }
 
@@ -161,7 +179,7 @@ namespace task.device
         }
         private void Alert1()
         {
-            if(DevStatus.Aler1 == 0)
+            if (DevStatus.Aler1 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 1);
                 return;
@@ -179,7 +197,7 @@ namespace task.device
                 PubMaster.Warn.AddCarrierWarn(CarrierWarnE.StoreSlowOverTimeCheckLight, (ushort)ID, 1);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.StoreSlowOverTimeCheckLight, (ushort)ID);
-            
+
             if (On(DevStatus.Aler1, 2) && mTimer.IsOver(12, 15, 10))
             {
                 PubMaster.Warn.AddCarrierWarn(CarrierWarnE.FrontAvoidAlert, (ushort)ID, 1);
@@ -397,7 +415,7 @@ namespace task.device
 
         }
 
-        private bool On(byte b,byte p)
+        private bool On(byte b, byte p)
         {
             return (b >> p) % 2 == 1;
         }

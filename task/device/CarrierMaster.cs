@@ -363,7 +363,7 @@ namespace task.device
                         && c.OperateMode == DevOperateModeE.自动
                         && c.Status == DevCarrierStatusE.停止
                         && (c.Task == c.FinishTask || c.Task == DevCarrierTaskE.无)
-                        && (c.CarrierPosition != DevCarrierPositionE.上下摆渡中 && c.CarrierPosition != DevCarrierPositionE.未知));
+                        && (c.CarrierPosition != DevCarrierPositionE.上下摆渡中 && c.CarrierPosition != DevCarrierPositionE.异常));
         }
 
         /// <summary>
@@ -508,116 +508,12 @@ namespace task.device
 
             if (task.Status != DevCarrierStatusE.停止) return;
 
-            if (task.DevReset == DevCarrierResetE.复位
-                && task.DevStatus.ActionType == DevCarrierSignalE.复位)
+            if (task.DevReset == DevCarrierResetE.复位)
             {
                 task.DevReset = DevCarrierResetE.无动作;
             }
 
             #region[检查任务]
-
-            #region[倒库完成]
-            //倒库完成后小车回到空轨道今天等待，倒库任务完成，同时有空轨道信息
-            //if (task.Task == DevCarrierTaskE.后退至轨道倒库
-            //    && task.FinishTask == DevCarrierTaskE.后退至轨道倒库)
-            //{
-            //    if(task.Signal == DevCarrierSignalE.空轨道)
-            //    {
-            //        PubTask.Trans.ShiftTrans(task.ID, task.TrackId);
-            //    }
-            //}
-            #endregion
-
-            #region[空砖]
-
-            if ((task.Task == DevCarrierTaskE.后退取砖
-                && task.FinishTask == DevCarrierTaskE.后退取砖)
-                || (task.Task == DevCarrierTaskE.前进取砖
-                && task.FinishTask == DevCarrierTaskE.前进取砖))
-            {
-                Track track = PubMaster.Track.GetTrack(task.TrackId);
-                if (track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入)
-                {
-                    switch (task.Signal)
-                    {
-                        case DevCarrierSignalE.空轨道:
-                            if (task.Load == DevCarrierLoadE.无货)
-                            {
-                                PubMaster.Track.UpdateStockStatus(track.id, TrackStockStatusE.空砖, "上砖取空");
-                                PubMaster.Goods.ClearTrackEmtpy(track.id);
-                                PubTask.TileLifter.ReseTileCurrentTake(track.id);
-                                PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, track.id, TrackLogE.空轨道, "无货");
-                            }
-                            else
-                            {
-                                PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, track.id, TrackLogE.空轨道, "有货");
-                            }
-                            break;
-                    }
-
-                    task.DevReset = DevCarrierResetE.复位;
-                }
-            }
-
-            if (task.Signal == DevCarrierSignalE.空轨道 && task.Task != DevCarrierTaskE.后退取砖 && task.Task != DevCarrierTaskE.前进取砖)
-            {
-                task.DevReset = DevCarrierResetE.复位;
-            }
-
-            #endregion
-
-            #region[非空非满]
-
-            if (task.Task == DevCarrierTaskE.前进放砖
-                && task.FinishTask == DevCarrierTaskE.前进放砖
-                && task.Signal == DevCarrierSignalE.非空非满)
-            {
-                task.DevReset = DevCarrierResetE.复位;
-            }
-
-            #endregion
-
-            #region[满砖]
-            if (task.Signal == DevCarrierSignalE.满轨道
-                && task.Task == task.FinishTask)
-            {
-                Track givetrack = PubMaster.Track.GetTrackByCode(task.GiveTrackCode);
-                if (givetrack != null
-                    && (givetrack.Type == TrackTypeE.储砖_入 || givetrack.Type == TrackTypeE.储砖_出入))
-                {
-                    ushort storecount = PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, givetrack.id, TrackLogE.满轨道, "运输车反馈信号-满");
-                    ushort areafullqty = PubMaster.Area.GetAreaFullQty(task.AreaId);
-                    if (storecount >= (areafullqty - 1)) // 少一个 安全保底
-                    {
-                        //PubMaster.Track.SetTrackEaryFull(givetrack.id, true, DateTime.Now);
-
-                        PubMaster.Track.UpdateStockStatus(givetrack.id, TrackStockStatusE.满砖, "下砖放满");
-                        PubMaster.Track.UpdateRecentGood(givetrack.id, 0);
-                        PubMaster.Track.UpdateRecentTile(givetrack.id, 0);
-                    }
-                }
-                else if (givetrack != null)
-                {
-                    PubMaster.Warn.AddDevWarn(WarningTypeE.CarrierFullSignalFullNotOnStoreTrack, (ushort)task.ID);
-                    PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, givetrack.id, TrackLogE.满轨道, "非储砖轨道");
-                }
-
-                task.DevReset = DevCarrierResetE.复位;
-            }
-
-            #endregion
-
-            #region[倒库]
-
-            if (task.Task == DevCarrierTaskE.后退至轨道倒库
-                && task.Signal == DevCarrierSignalE.非空非满
-                && task.Status == DevCarrierStatusE.停止
-                && mTimer.IsOver(TimerTag.CarrierSortTakeGive, (ushort)task.ID, 5, 10))
-            {
-                task.DevReset = DevCarrierResetE.复位;
-            }
-
-            #endregion
 
             #region[逻辑警告]
 
@@ -1311,19 +1207,6 @@ namespace task.device
             #endregion
 
             return false;
-        }
-
-        internal DevCarrierSignalE GetCarrierSignal(uint carrier_id)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    return DevList.Find(c => c.ID == carrier_id)?.Signal ?? DevCarrierSignalE.其他;
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-            return DevCarrierSignalE.其他;
         }
 
         /// <summary>
