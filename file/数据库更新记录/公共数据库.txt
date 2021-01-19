@@ -1,0 +1,4 @@
+
+
+-- 平板新增功能：数据库模块相对应的添加，才能在菜单中配置
+INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (33, '切换模式', 1, 'RFTILEMODESHIFT', 'com.keda.wcsfixplatformapp.screen.rfworkmodechange.RfChangeWorkModeScreen', '', 'updowndev.png', '', '平板-切换模式')
