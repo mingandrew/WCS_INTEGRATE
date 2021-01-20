@@ -263,27 +263,25 @@ namespace task.device
                                                 {
                                                     mlog.Info(true, res);
                                                     break;
-                                                }
-
-                                                if (!task.DevStatus.Load1 && !task.DevStatus.Need1 && task.DevStatus.Involve1)
-                                                {
-                                                    Thread.Sleep(1000);
-                                                    task.Do1Invo(DevLifterInvolE.离开);
-                                                    break;
-                                                }
-
-                                                if (!task.DevStatus.Load2 && !task.DevStatus.Need2 && task.DevStatus.Involve2)
-                                                {
-                                                    Thread.Sleep(1000);
-                                                    task.Do2Invo(DevLifterInvolE.离开);
-                                                    break;
-                                                }
+                                                }                                            
 
                                                 if (task.DevConfig.goods_id == task.DevConfig.pre_goodid ||
                                                    (!task.DevStatus.Load1 && !task.DevStatus.Load2))
                                                 {
                                                     task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
                                                     Thread.Sleep(500);
+                                                }
+
+                                                if (task.DevStatus.Involve1)
+                                                {
+                                                    Thread.Sleep(1000);
+                                                    task.Do1Invo(DevLifterInvolE.离开);
+                                                }
+
+                                                if (task.DevStatus.Involve2)
+                                                {
+                                                    Thread.Sleep(1000);
+                                                    task.Do2Invo(DevLifterInvolE.离开);
                                                 }
                                                 break;
 
@@ -300,6 +298,18 @@ namespace task.device
                                                 {
                                                     task.DoCutover(TileWorkModeE.上砖, TileFullE.忽略);
                                                     Thread.Sleep(500);
+
+                                                    if (task.DevStatus.Involve1)
+                                                    {
+                                                        Thread.Sleep(1000);
+                                                        task.Do1Invo(DevLifterInvolE.离开);
+                                                    }
+
+                                                    if (task.DevStatus.Involve2)
+                                                    {
+                                                        Thread.Sleep(1000);
+                                                        task.Do2Invo(DevLifterInvolE.离开);
+                                                    }
                                                     break;
                                                 }
 
@@ -310,9 +320,21 @@ namespace task.device
                                                 }
 
                                                 if (task.DevConfig.goods_id == task.DevConfig.pre_goodid)
-                                                {
+                                                {                                                
                                                     task.DoCutover(TileWorkModeE.上砖, TileFullE.忽略);
                                                     Thread.Sleep(500);
+
+                                                    if (task.DevStatus.Involve1)
+                                                    {
+                                                        Thread.Sleep(1000);
+                                                        task.Do1Invo(DevLifterInvolE.离开);                                                      
+                                                    }
+
+                                                    if (task.DevStatus.Involve2)
+                                                    {
+                                                        Thread.Sleep(1000);
+                                                        task.Do2Invo(DevLifterInvolE.离开);
+                                                    }
                                                 }
                                                 break;
 
