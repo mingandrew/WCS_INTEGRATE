@@ -114,17 +114,14 @@
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding DeviceStatus}" Header="状态"/>
                     <DataGridTextColumn Binding="{Binding LoadStatus}" Header="货物"/>
-                    <DataGridTextColumn Binding="{Binding CurrentSite, Converter={StaticResource TrackCode2NameConverter}}" Header="当前位置"/>
-                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="指令"/>
-                    <DataGridTextColumn Binding="{Binding CurrentOverSize}" Header="超限" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding FinishTask}" Header="完成"/>
-                    <DataGridTextColumn Binding="{Binding WorkMode}" Header="作业" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding ActionTime}" Header="取放时间" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding TakeTrackCode,Converter={StaticResource TrackCode2NameConverter}}" Header="取货轨" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding GiveTrackCode,Converter={StaticResource TrackCode2NameConverter}}" Header="卸货轨" Visibility="Collapsed"/>
-                    <DataGridTextColumn Binding="{Binding ActionType}" Header="信号"/>
+                    <DataGridTextColumn Binding="{Binding CurrentPoint}" Header="当前地标"/>
+                    <DataGridTextColumn Binding="{Binding CurrentSite}" Header="当前坐标"/>
+                    <DataGridTextColumn Binding="{Binding CurrentOrder}" Header="指令"/>
+                    <DataGridTextColumn Binding="{Binding FinishOrder}" Header="完成"/>
+                    <DataGridTextColumn Binding="{Binding TargetPoint}" Header="目的地标"/>
+                    <DataGridTextColumn Binding="{Binding TargetSite}" Header="目的坐标"/>
                     <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
-                    <DataGridTextColumn Binding="{Binding CarrierPosition}" Header="运输车位置"/>
+                    <DataGridTextColumn Binding="{Binding Position}" Header="位置"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

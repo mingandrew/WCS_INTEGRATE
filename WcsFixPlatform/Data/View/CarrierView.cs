@@ -1,7 +1,6 @@
 ﻿using enums;
 using GalaSoft.MvvmLight;
 using module.device;
-using System;
 
 namespace wcs.Data.View
 {
@@ -35,18 +34,22 @@ namespace wcs.Data.View
         #region[字段]
         private byte deviceid;       //设备号
         private DevCarrierStatusE devicestatus;   //设备状态
-        private ushort currentsite;  //当前值
-        private DevCarrierTaskE currenttask;    //当前任务
-        private DevCarrierTaskE finishtask;     //完成任务
-        private DevCarrierSizeE currentoversize;//超限
-        //private byte finishoversize; //超限
+        private ushort currentpoint;  //当前RFID
+        private ushort currentsite;  //当前坐标
+        private ushort targetpoint;  //目的RFID
+        private ushort targetsite;  //目的坐标
+        private DevCarrierOrderE currentorder;    //当前指令
+        private DevCarrierOrderE finishorder;     //完成指令
         private DevCarrierLoadE loadstatus;     //载货状态
-        private DevCarrierPositionE carrierposition;       //系统模式
+        private DevCarrierPositionE position;       //所在位置
         private DevOperateModeE operatemode;    //操作模式
-        private ushort actiontime;     //取放时间
-        private ushort taketrackcode;//取货轨道号
-        private ushort givetrackcode;//取货轨道号
-        private DevCarrierSignalE actiontype;     // 空满砖信息
+        private ushort takepoint;  //取货RFID
+        private ushort takesite;  //取货坐标
+        private ushort givepoint;  //卸货RFID
+        private ushort givesite;  //卸货坐标
+        private byte movecount;  //倒库数量
+        private byte reserve1;        //预留1
+        private byte reserve2;        //预留2
         private byte aler1;          //报警1
         private byte aler2;          //报警2
         private byte aler3;          //报警3
@@ -57,151 +60,254 @@ namespace wcs.Data.View
         private byte aler8;          //报警8
         private byte aler9;          //报警9
         private byte aler10;          //报警10
-        private byte reserve1;        //预留1
-        private byte reserve2;        //预留2
+        private byte reserve3;        //预留3
+        private byte reserve4;        //预留4
         #endregion
-
 
         #region[更新属性]
 
+        /// <summary>
+        /// 设备号
+        /// </summary>
         public byte DeviceID
         {
             set => Set(ref deviceid, value);
             get => deviceid;
         }
 
+        /// <summary>
+        /// 设备状态
+        /// </summary>
         public DevCarrierStatusE DeviceStatus
         {
             set => Set(ref devicestatus, value);
             get => devicestatus;
         }
 
-        public ushort CurrentSite//当前站点
+        /// <summary>
+        /// 当前RFID
+        /// </summary>
+        public ushort CurrentPoint
+        {
+            set => Set(ref currentpoint, value);
+            get => currentpoint;
+        }
+
+        /// <summary>
+        /// 当前坐标
+        /// </summary>
+        public ushort CurrentSite
         {
             set => Set(ref currentsite, value);
             get => currentsite;
         }
 
-        public DevCarrierTaskE CurrentTask//当前任务   
+        /// <summary>
+        /// 目的RFID
+        /// </summary>
+        public ushort TargetPoint
         {
-            set => Set(ref currenttask, value);
-            get => currenttask;
+            set => Set(ref targetpoint, value);
+            get => targetpoint;
         }
 
-        public DevCarrierSizeE CurrentOverSize//超限
+        /// <summary>
+        /// 目的坐标
+        /// </summary>
+        public ushort TargetSite
         {
-            set => Set(ref currentoversize, value);
-            get => currentoversize;
+            set => Set(ref targetsite, value);
+            get => targetsite;
         }
 
-        public DevCarrierTaskE FinishTask//完成任务
+        /// <summary>
+        /// 当前指令
+        /// </summary>
+        public DevCarrierOrderE CurrentOrder
         {
-            set => Set(ref finishtask, value);
-            get => finishtask;
+            set => Set(ref currentorder, value);
+            get => currentorder;
         }
 
-        //public DevCarrierSizeE FinishOverSize//超限
-        //{
-        //    set => Set(ref finishoversize, (byte)value);
-        //    get => (DevCarrierSizeE)finishoversize;
-        //}
+        /// <summary>
+        /// 目的指令
+        /// </summary>
+        public DevCarrierOrderE FinishOrder
+        {
+            set => Set(ref finishorder, value);
+            get => finishorder;
+        }
 
-        public DevCarrierLoadE LoadStatus//载货状态
+        /// <summary>
+        /// 载货状态
+        /// </summary>
+        public DevCarrierLoadE LoadStatus
         {
             set => Set(ref loadstatus, value);
             get => loadstatus;
         }
 
-        public DevCarrierPositionE CarrierPosition//系统模式
+        /// <summary>
+        /// 所在位置
+        /// </summary>
+        public DevCarrierPositionE Position
         {
-            set => Set(ref carrierposition, value);
-            get => carrierposition;
+            set => Set(ref position, value);
+            get => position;
         }
 
-        public DevOperateModeE OperateMode//操作模式
+        /// <summary>
+        /// 操作模式
+        /// </summary>
+        public DevOperateModeE OperateMode
         {
             set => Set(ref operatemode, value);
             get => operatemode;
         }
-        public ushort ActionTime//取放时间
+
+        /// <summary>
+        /// 取货RFID
+        /// </summary>
+        public ushort TakePoint
         {
-            set => Set(ref actiontime, value);
-            get => actiontime;
+            set => Set(ref takepoint, value);
+            get => takepoint;
         }
-        public ushort TakeTrackCode//取货轨道号
+
+        /// <summary>
+        /// 取货坐标
+        /// </summary>
+        public ushort TakeSite
         {
-            set => Set(ref taketrackcode, value);
-            get => taketrackcode;
+            set => Set(ref takesite, value);
+            get => takesite;
         }
-        public ushort GiveTrackCode//卸货轨道号
+
+        /// <summary>
+        /// 卸货RFID
+        /// </summary>
+        public ushort GivePoint
         {
-            set => Set(ref givetrackcode, value);
-            get => givetrackcode;
+            set => Set(ref givepoint, value);
+            get => givepoint;
         }
-        public DevCarrierSignalE ActionType// 空满砖信息
+
+        /// <summary>
+        /// 卸货坐标
+        /// </summary>
+        public ushort GiveSite
         {
-            set => Set(ref actiontype, value);
-            get => actiontype;
+            set => Set(ref givesite, value);
+            get => givesite;
         }
+
+        /// <summary>
+        /// 倒库数量
+        /// </summary>
+        public byte MoveCount
+        {
+            set => Set(ref movecount, value);
+            get => movecount;
+        }
+
+        #region 报警
+
         public byte Aler1//报警1
         {
             set => Set(ref aler1, value);
             get => aler1;
         }
+
         public byte Aler2//报警2
         {
             set => Set(ref aler2, value);
             get => aler2;
         }
+
         public byte Aler3//报警3
         {
             set => Set(ref aler3, value);
             get => aler3;
         }
+
         public byte Aler4//报警4
         {
             set => Set(ref aler4, value);
             get => aler4;
         }
+
         public byte Aler5//报警5
         {
             set => Set(ref aler5, value);
             get => aler5;
         }
+
         public byte Aler6//报警6
         {
             set => Set(ref aler6, value);
             get => aler6;
         }
+
         public byte Aler7//报警7
         {
             set => Set(ref aler7, value);
             get => aler7;
         }
+
         public byte Aler8//报警8
         {
             set => Set(ref aler8, value);
             get => aler8;
         }
+
         public byte Aler9//报警9
         {
             set => Set(ref aler9, value);
             get => aler9;
         }
+
         public byte Aler10//报警10
         {
             set => Set(ref aler10, value);
             get => aler10;
         }
-        public byte Reserve1//预留1
+
+        #endregion
+
+        /// <summary>
+        /// 预留1
+        /// </summary>
+        public byte Reserve1
         {
             set => Set(ref reserve1, value);
             get => reserve1;
         }
-        public byte Reserve2//预留2
+
+        /// <summary>
+        /// 预留2
+        /// </summary>
+        public byte Reserve2
         {
             set => Set(ref reserve2, value);
             get => reserve2;
+        }
+
+        /// <summary>
+        /// 预留3
+        /// </summary>
+        public byte Reserve3
+        {
+            set => Set(ref reserve3, value);
+            get => reserve3;
+        }
+
+        /// <summary>
+        /// 预留4
+        /// </summary>
+        public byte Reserve4
+        {
+            set => Set(ref reserve4, value);
+            get => reserve4;
         }
 
         #endregion
@@ -210,18 +316,20 @@ namespace wcs.Data.View
         {
             DeviceID = st.DeviceID;
             DeviceStatus = st.DeviceStatus;
+            CurrentPoint = st.CurrentPoint;
             CurrentSite = st.CurrentSite;
-            CurrentTask =st.CurrentTask;
-            CurrentOverSize = st.CurrentOverSize;
-            FinishTask = st.FinishTask;
-            //FinishOverSize = (DevCarrierSizeE)st.FinishOverSize;
+            TargetPoint = st.TargetPoint;
+            TargetSite = st.TargetSite;
+            CurrentOrder = st.CurrentOrder;
+            FinishOrder = st.FinishOrder;
             LoadStatus = st.LoadStatus;
-            CarrierPosition = st.CarrierPosition;
+            Position = st.Position;
             OperateMode = st.OperateMode;
-            ActionTime = st.ActionTime;
-            TakeTrackCode = st.TakeTrackCode;
-            GiveTrackCode = st.GiveTrackCode;
-            ActionType = st.ActionType;
+            TakePoint = st.TakePoint;
+            TakeSite = st.TakeSite;
+            GivePoint = st.GivePoint;
+            GiveSite = st.GiveSite;
+            MoveCount = st.MoveCount;
             Aler1 = st.Aler1;
             Aler2 = st.Aler2;
             Aler3 = st.Aler3;
@@ -234,6 +342,8 @@ namespace wcs.Data.View
             Aler10 = st.Aler10;
             Reserve1 = st.Reserve1;
             Reserve2 = st.Reserve2;
+            Reserve3 = st.Reserve3;
+            Reserve4 = st.Reserve4;
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
             Working = working;
