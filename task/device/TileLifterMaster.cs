@@ -877,7 +877,7 @@ namespace task.device
 
                     #endregion
 
-                    if (!CheckUpBrotherIsReady(task, true, false)) return;
+                    if (!CheckUpBrotherIsReady(task, true, true)) return;
 
                     #region[生成出库交易]
 

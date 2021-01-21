@@ -769,7 +769,7 @@ namespace resource.goods
             {
                 if ((DateTime.Now - (DateTime)stock1.produce_time).TotalHours >= minStockTime)
                 {
-                    if (PubMaster.Track.IsTrackFull(stock1.track_id) && 
+                    if (!PubMaster.Track.IsEmtpy(stock1.track_id) && 
                         PubMaster.Track.IsTrackEnable(stock1.track_id, TrackStatusE.仅上砖))
                     {
                         allocatstocks.Add(stock1);
