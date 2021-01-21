@@ -132,6 +132,11 @@ namespace resource.area
             return AreaList;
         }
 
+        public List<Area> GetAreaList(List<uint> ids)
+        {
+            return AreaList.FindAll(c=>ids.Contains(c.id));
+        }
+
         public bool HaveArea(int id)
         {
             return AreaList.Exists(c => c.id == id);

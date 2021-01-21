@@ -34,7 +34,7 @@ namespace resource.module.modulesql
         public List<RfClient> QueryRfClientList()
         {
             List<RfClient> list = new List<RfClient>();
-            string sql = string.Format("SELECT t.rfid, t.`name`, t.ip, t.conn_time, t.disconn_time FROM rf_client AS t ");
+            string sql = string.Format("SELECT t.* FROM rf_client AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -45,7 +45,6 @@ namespace resource.module.modulesql
         #endregion
 
         #region[添加]
-
 
         internal bool AddDevice(Device dev)
         {

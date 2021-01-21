@@ -360,6 +360,11 @@ namespace task.trans
         {
             return TransList;
         }
+        public List<StockTrans> GetTransList(List<uint> areaids)
+        {
+            return TransList.FindAll(c=>areaids.Contains(c.area_id));
+        }
+
 
         public StockTrans GetTrans(int transid)
         {

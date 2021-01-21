@@ -1,0 +1,20 @@
+0. 关闭调度
+
+1.首先更新数据库表结构
+
+ALTER TABLE `rf_client` ADD COLUMN `filter_area` bit(1) NULL COMMENT '是否过滤区域' AFTER `disconn_time`;
+ALTER TABLE `rf_client` ADD COLUMN `filter_areaids` varchar(50) NULL COMMENT '过滤的区域ID们' AFTER `filter_area`;
+
+2.在rf_client 表中，查看平板网络设置里面显示的设备ID与表中对应的rfid值对应的数据，
+	a.需要过滤的 配置 
+		filter_area  设置为 1
+		rf_client 设置为 区域的ID，如果需要多个则用 符号 :  隔开
+	b.不需要过区域的
+		filter_area  设置为 0  或  NULL
+
+3. 在字典diction_dtl里面修改 全部开关的数据
+	如：Area1Down  2号线下砖  这条数据  的 uint_value这个值 配置为对应的区域ID  
+
+4. 基础信息字典版本 加1
+
+5.打开调度

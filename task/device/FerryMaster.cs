@@ -273,6 +273,12 @@ namespace task.device
         {
             return DevList;
         }
+        
+        internal List<FerryTask> GetDevFerrys(List<uint> areaids)
+        {
+            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+        }
+
 
         public void UpdateFerryWithTrackId(uint trackid, DevFerryLoadE devFerryLoadE)
         {
