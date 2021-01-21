@@ -19,6 +19,7 @@
         放砖指令 = 3,
         前进倒库 = 4,
         后退倒库 = 5,
+        终止指令 = 0x7F,
         异常
     }
 
@@ -87,15 +88,9 @@
     public enum DevCarrierCmdE
     {
         查询 = 0x00,
-        执行任务 = 0x01,
+        执行指令 = 0x01,
         设复位点 = 0x02,
-        终止任务 = 0x7F
-    }
-
-    public enum DevCarrierResetE
-    {
-        无动作 = 0,
-        复位 = 1
+        终止指令 = 0x7F
     }
 
     /// <summary>

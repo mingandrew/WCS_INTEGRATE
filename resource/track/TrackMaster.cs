@@ -36,6 +36,13 @@ namespace resource.track
             {
                 TrackList.Clear();
                 TrackList.AddRange(PubMaster.Mod.TraSql.QueryTrackList());
+                if (TrackList != null && TrackList.Count != 0)
+                {
+                    foreach (Track item in TrackList)
+                    {
+                        item.GetAllRFID();
+                    }
+                }
             }
         }
 
@@ -70,7 +77,7 @@ namespace resource.track
 
         public List<Track> GetTrackList(List<TrackTypeE> types, List<uint> areaids)
         {
-            return TrackList.FindAll(c=> types.Contains(c.Type) && areaids.Contains(c.area));
+            return TrackList.FindAll(c => types.Contains(c.Type) && areaids.Contains(c.area));
         }
 
         public List<Track> GetTrackList(List<TrackTypeE> types)
@@ -88,9 +95,14 @@ namespace resource.track
             return TrackList.Find(c => c.id == trackid);
         }
 
-        public Track GetTrackByCode(ushort trackcode)
+        public Track GetTrackByPoint(ushort trackrfid)
         {
-            return TrackList.Find(c => c.IsInTrack(trackcode));
+            return TrackList.Find(c => c.IsInTrack(trackrfid));
+        }
+
+        public TrackTypeE GetTrackType(ushort trackrfid)
+        {
+            return TrackList.Find(c => c.IsInTrack(trackrfid)).Type;
         }
 
         public TrackTypeE GetTrackType(uint track_id)
@@ -114,7 +126,12 @@ namespace resource.track
         public uint GetTrackId(ushort site)
         {
             if (site == 0) return 0;
-            return GetTrackByCode(site)?.id ?? 0;
+            return GetTrackByPoint(site)?.id ?? 0;
+        }
+
+        public ushort GetTrackRFID1(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.rfid_1 ?? 0;
         }
 
         public bool IsTrackWithCode(uint take_track_id, ushort taketrackcode)
@@ -421,7 +438,7 @@ namespace resource.track
         /// <returns></returns>
         public bool SetTrackEmtpy(ushort taketrackcode)
         {
-            Track track = GetTrackByCode(taketrackcode);
+            Track track = GetTrackByPoint(taketrackcode);
             if (track != null)
             {
                 if (track.StockStatus != TrackStockStatusE.空砖)
@@ -494,7 +511,7 @@ namespace resource.track
         /// <returns></returns>
         public bool SetTrackFull(ushort givetrackcode)
         {
-            Track track = GetTrackByCode(givetrackcode);
+            Track track = GetTrackByPoint(givetrackcode);
             if (track != null)
             {
                 if (track.StockStatus != TrackStockStatusE.满砖)

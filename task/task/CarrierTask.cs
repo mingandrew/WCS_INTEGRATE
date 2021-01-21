@@ -13,58 +13,135 @@ namespace task.device
     {
         #region[属性]
 
-        public uint TrackId { set; get; }
+        public uint CurrentTrackId { set; get; }
+        public uint TargetTrackId { set; get; }
 
         /// <summary>
         /// 上一次的摆渡车轨道id
         /// </summary>
         public uint LastTrackId { set; get; }
 
+        /// <summary>
+        /// 小车类型
+        /// </summary>
         public CarrierTypeE CarrierType
         {
             get => Device.CarrierType;
         }
 
-        public ushort Site
+        #region 位置信息
+
+        /// <summary>
+        /// 所在位置
+        /// </summary>
+        public DevCarrierPositionE Position
+        {
+            get => DevStatus?.Position ?? DevCarrierPositionE.异常;
+        }
+
+        /// <summary>
+        /// 当前RFID
+        /// </summary>
+        public ushort CurrentPoint
+        {
+            get => DevStatus?.CurrentPoint ?? 0;
+        }
+
+        /// <summary>
+        /// 当前坐标
+        /// </summary>
+        public ushort CurrentSite
         {
             get => DevStatus?.CurrentSite ?? 0;
         }
 
+        /// <summary>
+        /// 目的RFID
+        /// </summary>
+        public ushort TargetPoint
+        {
+            get => DevStatus?.TargetPoint ?? 0;
+        }
+
+        /// <summary>
+        /// 目的坐标
+        /// </summary>
+        public ushort TargetSite
+        {
+            get => DevStatus?.TargetSite ?? 0;
+        }
+
+        /// <summary>
+        /// 取货RFID
+        /// </summary>
+        public ushort TakePoint
+        {
+            get => DevStatus?.TakePoint ?? 0;
+        }
+
+        /// <summary>
+        /// 取货坐标
+        /// </summary>
+        public ushort TakeSite
+        {
+            get => DevStatus?.TakeSite ?? 0;
+        }
+
+        /// <summary>
+        /// 卸货RFID
+        /// </summary>
+        public ushort GivePoint
+        {
+            get => DevStatus?.GivePoint ?? 0;
+        }
+
+        /// <summary>
+        /// 卸货坐标
+        /// </summary>
+        public ushort GiveSite
+        {
+            get => DevStatus?.GiveSite ?? 0;
+        }
+
+        #endregion
+
+        #region 状态信息
+
+        /// <summary>
+        /// 设备状态
+        /// </summary>
         public DevCarrierStatusE Status
         {
             get => DevStatus?.DeviceStatus ?? DevCarrierStatusE.异常;
         }
 
+        /// <summary>
+        /// 操作模式
+        /// </summary>
         public DevOperateModeE OperateMode
         {
             get => DevStatus?.OperateMode ?? DevOperateModeE.手动;
         }
 
-        public DevCarrierPositionE CarrierPosition
-        {
-            get => DevStatus?.Position ?? DevCarrierPositionE.异常;
-        }
-
+        /// <summary>
+        /// 载货状态
+        /// </summary>
         public DevCarrierLoadE Load
         {
             get => DevStatus?.LoadStatus ?? DevCarrierLoadE.异常;
         }
 
-        public DevCarrierTaskE FinishTask
-        {
-            get => DevStatus?.FinishTask ?? DevCarrierTaskE.其他;
-        }
-
-        public DevCarrierTaskE Task
-        {
-            get => DevStatus?.CurrentTask ?? DevCarrierTaskE.其他;
-        }
-
+        /// <summary>
+        /// 当前指令
+        /// </summary>
         public DevCarrierOrderE FinishOrder
         {
             get => DevStatus?.FinishOrder ?? DevCarrierOrderE.异常;
         }
 
+        /// <summary>
+        /// 完成指令
+        /// </summary>
         public DevCarrierOrderE CurrentOrder
         {
             get => DevStatus?.CurrentOrder ?? DevCarrierOrderE.异常;
@@ -72,11 +149,12 @@ namespace task.device
 
         #endregion
 
+        #endregion
+
         #region[构造/启动/停止]
 
         public CarrierTcp DevTcp { set; get; }
         public DevCarrier DevStatus { set; get; }
-        public DevCarrierResetE DevReset { set; get; }
         public ConfigCarrier DevConfig { set; get; }
 
         public CarrierTask() : base()
@@ -126,9 +204,9 @@ namespace task.device
         /// <param name="overRFID">结束RFID</param>
         /// <param name="overSite">结束坐标</param>
         /// <param name="moveCount">倒库数量</param>
-        internal void DoOrder(DevCarrierOrderE order, ushort checkTra, ushort toRFID = 0, ushort toSite = 0, ushort overRFID = 0, ushort overSite = 0, byte moveCount = 0)
+        internal void DoOrder(CarrierActionOrder cao)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.执行任务, order, checkTra, toRFID, toSite, overRFID, overSite, moveCount);
+            DevTcp?.SendCmd(DevCarrierCmdE.执行指令, cao.Order, cao.CheckTra, cao.ToRFID, cao.ToSite, cao.OverRFID, cao.OverSite, cao.MoveCount);
         }
 
         /// <summary>
@@ -146,12 +224,12 @@ namespace task.device
         /// </summary>
         internal void DoStop()
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.终止任务);
+            DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
         }
 
         internal void DoTask(DevCarrierTaskE task, DevCarrierSizeE oversize)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.执行任务);
+            DevTcp?.SendCmd(DevCarrierCmdE.执行指令);
         }
 
         #endregion
@@ -160,9 +238,14 @@ namespace task.device
 
         internal void UpdateInfo()
         {
-            if (Site != 0)
+            if (CurrentPoint != 0)
             {
-                TrackId = PubMaster.Track.GetTrackId(Site);
+                CurrentTrackId = PubMaster.Track.GetTrackId(CurrentPoint);
+            }
+
+            if (TargetPoint != 0)
+            {
+                TargetTrackId = PubMaster.Track.GetTrackId(TargetPoint);
             }
         }
 
@@ -256,9 +339,14 @@ namespace task.device
         {
             if (DevStatus != null)
             {
+                DevStatus.CurrentPoint = 0;
                 DevStatus.CurrentSite = 0;
-                DevStatus.CurrentTask = DevCarrierTaskE.其他;
-                TrackId = 0;
+                DevStatus.TargetPoint = 0;
+                DevStatus.TargetSite = 0;
+                DevStatus.CurrentOrder = DevCarrierOrderE.无;
+                DevStatus.FinishOrder = DevCarrierOrderE.无;
+                CurrentTrackId = 0;
+                TargetTrackId = 0;
             }
         }
 
@@ -444,7 +532,7 @@ namespace task.device
         {
             if (DevConfig.a_givemisstrack)
             {
-                if (PubMaster.Track.IsStoreType(TrackId))
+                if (PubMaster.Track.IsStoreType(CurrentTrackId))
                 {
                     PubMaster.Track.SetTrackStatus(DevConfig.a_alert_track, TrackStatusE.启用, out string _);
                     PubMaster.Track.SetTrackAlert(DevConfig.a_alert_track, 0, 0, TrackAlertE.正常);
@@ -469,4 +557,5 @@ namespace task.device
 
         #endregion
     }
+
 }

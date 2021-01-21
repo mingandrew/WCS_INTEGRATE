@@ -105,26 +105,18 @@ namespace task.device
                                 {
                                     task.DoQuery();
 
-                                    if (task.Task != task.FinishTask)
+                                    if (task.TargetPoint != 0)
                                     {
-                                        switch (task.Task)
+                                        TrackTypeE tt = PubMaster.Track.GetTrackType(task.TargetPoint);
+                                        if (tt == TrackTypeE.摆渡车_入 || tt == TrackTypeE.摆渡车_出)
                                         {
-                                            case DevCarrierTaskE.后退至摆渡车:
-                                            case DevCarrierTaskE.前进至摆渡车:
-                                                #region[判断是否有摆渡车]
-                                                //ushort trackcode = PubTask.Carrier.GetCarrierSite(task.ID);
-                                                ushort trackcode = task.DevStatus.CurrentSite;
-                                                if (!PubTask.Ferry.HaveFerryOnTrack(trackcode, task.Task, out string result, true))
-                                                {
-                                                    DoTask(task.ID, DevCarrierTaskE.终止);
-                                                }
-                                                #endregion
-                                                break;
-                                            default:
-                                                break;
+                                            // 判断是否有摆渡车
+                                            if (!PubTask.Ferry.HaveFerryOnTrack(task.CurrentPoint, task.TargetPoint, out string result, true))
+                                            {
+                                                task.DoStop();
+                                            }
                                         }
                                     }
-
                                 }
 
                                 #region 断线重连
@@ -189,18 +181,6 @@ namespace task.device
             }
         }
 
-        public void DoReset(uint iD)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    DevList.Find(c => c.ID == iD).DevReset = DevCarrierResetE.复位;
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-        }
-
         public void StartStopCarrier(uint carrierid, bool isstart)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -261,7 +241,7 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveInTrack(uint trackid)
         {
-            return DevList.Exists(c => c.TrackId == trackid);
+            return DevList.Exists(c => c.CurrentTrackId == trackid);
         }
 
         /// <summary>
@@ -271,12 +251,12 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveInTrackAndLoad(uint trackid)
         {
-            return DevList.Exists(c => c.TrackId == trackid && c.Load == DevCarrierLoadE.有货);
+            return DevList.Exists(c => c.CurrentTrackId == trackid && c.Load == DevCarrierLoadE.有货);
         }
 
         internal bool HaveInTrackButCarrier(uint trackid, uint trackid2, uint cid, out uint carrierid)
         {
-            CarrierTask task = DevList.Find(c => (c.TrackId == trackid || c.TrackId == trackid2) && c.ID != cid);
+            CarrierTask task = DevList.Find(c => (c.CurrentTrackId == trackid || c.CurrentTrackId == trackid2) && c.ID != cid);
             if (task != null)
             {
                 carrierid = task.ID;
@@ -284,11 +264,6 @@ namespace task.device
             }
             carrierid = 0;
             return false;
-        }
-
-        internal bool OnlyOneCarrierInTrack(uint trackid)
-        {
-            return DevList.Count(c => c.TrackId == trackid) == 1;
         }
 
         /// <summary>
@@ -301,14 +276,14 @@ namespace task.device
         internal bool HaveInTrack(uint trackid, out uint carrierid)
         {
             //Track track = PubMaster.Track.GetTrack(trackid);
-            CarrierTask carrier = DevList.Find(c => c.TrackId == trackid);
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
             carrierid = carrier?.ID ?? 0;
             return carrier != null;
         }
 
         internal bool HaveDifTypeInTrack(uint trackid, CarrierTypeE carriertype, out uint carrierid)
         {
-            CarrierTask carrier = DevList.Find(c => c.TrackId == trackid);
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
             if (carrier != null && carrier.CarrierType != carriertype)
             {
                 carrierid = carrier.ID;
@@ -328,7 +303,7 @@ namespace task.device
         internal bool HaveInTrack(uint trackid, uint carrierid)
         {
             Track track = PubMaster.Track.GetTrack(trackid);
-            return DevList.Exists(c => c.ID != carrierid && track.IsInTrack(c.Site));
+            return DevList.Exists(c => c.ID != carrierid && track.IsInTrack(c.CurrentPoint));
         }
 
         /// <summary>
@@ -342,13 +317,8 @@ namespace task.device
         {
             Track track = PubMaster.Track.GetTrack(trackid);
             return DevList.Exists(c => c.ID != carrierid
-            && ((isdownsite && c.Site == track.ferry_down_code)
-                    || (!isdownsite && c.Site == track.ferry_up_code)));
-        }
-
-        internal bool IsOperateAuto(uint carrierid)
-        {
-            return DevList.Exists(c => c.OperateMode == DevOperateModeE.自动);
+            && ((isdownsite && c.CurrentPoint == track.ferry_down_code)
+                    || (!isdownsite && c.CurrentPoint == track.ferry_up_code)));
         }
 
         /// <summary>
@@ -362,28 +332,14 @@ namespace task.device
                         && c.ConnStatus == SocketConnectStatusE.通信正常
                         && c.OperateMode == DevOperateModeE.自动
                         && c.Status == DevCarrierStatusE.停止
-                        && (c.Task == c.FinishTask || c.Task == DevCarrierTaskE.无)
-                        && (c.CarrierPosition != DevCarrierPositionE.上下摆渡中 && c.CarrierPosition != DevCarrierPositionE.异常));
-        }
-
-        /// <summary>
-        /// 停止但是任务未完成
-        /// </summary>
-        /// <param name="carrier_id"></param>
-        /// <returns></returns>
-        internal bool IsStopHaveTask(uint carrier_id)
-        {
-            return DevList.Exists(c => c.ID == carrier_id
-                        && c.ConnStatus == SocketConnectStatusE.通信正常
-                        && c.OperateMode == DevOperateModeE.自动
-                        && c.Status == DevCarrierStatusE.停止
-                        && c.Task != c.FinishTask
-                        && c.Task != DevCarrierTaskE.无);
+                        && (c.CurrentOrder == c.FinishOrder || c.CurrentOrder == DevCarrierOrderE.无)
+                        //&& (c.Position != DevCarrierPositionE.上下摆渡中 && c.Position != DevCarrierPositionE.异常) //小车冲过头？
+                        );
         }
 
         internal Track GetCarrierTrack(uint carrier_id)
         {
-            uint trackid = DevList.Find(c => c.ID == carrier_id)?.TrackId ?? 0;
+            uint trackid = DevList.Find(c => c.ID == carrier_id)?.CurrentTrackId ?? 0;
             return trackid > 0 ? PubMaster.Track.GetTrack(trackid) : null;
         }
 
@@ -396,10 +352,10 @@ namespace task.device
 
         internal bool IsLoadInFerry(uint ltrack)
         {
-            return DevList.Exists(c => c.TrackId == ltrack
+            return DevList.Exists(c => c.CurrentTrackId == ltrack
                          && c.ConnStatus == SocketConnectStatusE.通信正常
                          && c.Load == DevCarrierLoadE.有货
-                         && c.CarrierPosition == DevCarrierPositionE.在摆渡上);
+                         && c.Position == DevCarrierPositionE.在摆渡上);
         }
 
 
@@ -489,12 +445,12 @@ namespace task.device
 
             if (task.OperateMode == DevOperateModeE.手动)
             {
-                if (task.Task != DevCarrierTaskE.终止 && task.Task != DevCarrierTaskE.无)
+                if (task.CurrentOrder != DevCarrierOrderE.终止指令 && task.CurrentOrder != DevCarrierOrderE.无)
                 {
-                    DoTask(task.ID, DevCarrierTaskE.终止);
+                    task.DoStop();
                 }
 
-                Track track = PubMaster.Track.GetTrack(task.TrackId);
+                Track track = PubMaster.Track.GetTrack(task.CurrentTrackId);
                 if (track != null)
                 {
                     if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
@@ -508,12 +464,11 @@ namespace task.device
 
             if (task.Status != DevCarrierStatusE.停止) return;
 
-            if (task.DevReset == DevCarrierResetE.复位)
-            {
-                task.DevReset = DevCarrierResetE.无动作;
-            }
-
             #region[检查任务]
+
+            #region [取卸货]
+
+            #endregion
 
             #region[逻辑警告]
 
@@ -529,15 +484,15 @@ namespace task.device
 
         private static void UpdateFerryLoadStatus(CarrierTask task)
         {
-            Track tt = PubMaster.Track.GetTrack(task.TrackId);
+            Track tt = PubMaster.Track.GetTrack(task.CurrentTrackId);
             if (tt != null)
             {
                 switch (tt.Type)
                 {
                     case TrackTypeE.摆渡车_入:
                     case TrackTypeE.摆渡车_出:
-                        PubTask.Ferry.UpdateFerryWithTrackId(task.TrackId, DevFerryLoadE.载车);
-                        task.LastTrackId = task.TrackId;
+                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, DevFerryLoadE.载车);
+                        task.LastTrackId = task.CurrentTrackId;
                         break;
                     default:
                         if (task.LastTrackId != 0)
@@ -552,38 +507,21 @@ namespace task.device
 
         #endregion
 
-        internal bool HaveCarrierTaskInTrack(uint trackid, DevCarrierTaskE carriertype)
+        /// <summary>
+        /// 是否在上下摆渡相关任务
+        /// </summary>
+        /// <param name="ferrytraid"></param>
+        /// <returns></returns>
+        internal bool HaveTaskForFerry(uint ferrytraid)
         {
-            return DevList.Exists(c => c.TrackId == trackid
+            return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid)
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
-                                    && ((c.Task == carriertype
-                                    && c.Task != c.FinishTask) || c.CarrierPosition == DevCarrierPositionE.上下摆渡中));
-        }
-
-        internal bool HaveCarrierTaskInFerry(uint trackid)
-        {
-            return DevList.Exists(c => c.TrackId == trackid
-                                    && c.ConnStatus == SocketConnectStatusE.通信正常
-                                    && (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
-                                    && (c.Task != c.FinishTask || c.CarrierPosition == DevCarrierPositionE.上下摆渡中));
-        }
-
-        internal bool CheckStatus(uint carrier_id)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                try
-                {
-                    CarrierTask task = DevList.Find(c => c.ID == carrier_id);
-                    if (task != null)
-                    {
-                        return task.OperateMode != DevOperateModeE.自动;
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-            return false;
+                                    && c.Status != DevCarrierStatusE.停止
+                                    && c.Status != DevCarrierStatusE.异常
+                                    && c.CurrentOrder != c.FinishOrder
+                                    //&& c.Position == DevCarrierPositionE.上下摆渡中  //冲过头？
+                                    );
         }
 
         internal bool IsCarrierInTrack(StockTrans trans)
@@ -591,18 +529,26 @@ namespace task.device
             if (!trans.IsReleaseGiveFerry)
             {
                 CarrierTask carrier = DevList.Find(c => c.ID == trans.carrier_id);
-                if (carrier.Task == DevCarrierTaskE.前进放砖)
+                //if (carrier.Task == DevCarrierTaskE.前进放砖)
+                //{
+                //    mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
+                //}
+                //else if (carrier.Task == DevCarrierTaskE.后退取砖)
+                //{
+                //    mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
+                //}
+                if (carrier.CurrentOrder == DevCarrierOrderE.放砖指令)
                 {
                     mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
                 }
-                else if (carrier.Task == DevCarrierTaskE.后退取砖)
+                else if (carrier.CurrentOrder == DevCarrierOrderE.取砖指令)
                 {
                     mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
                 }
             }
             return DevList.Exists(c => c.ID == trans.carrier_id
-                                    && c.CarrierPosition == DevCarrierPositionE.在轨道上
-                                    && PubMaster.Track.IsFerryTrackType(c.TrackId));
+                                    && c.Position == DevCarrierPositionE.在轨道上
+                                    && PubMaster.Track.IsFerryTrackType(c.CurrentTrackId));
         }
 
         #endregion
@@ -629,12 +575,12 @@ namespace task.device
         }
         #endregion
 
-        #region[执行任务]
+        #region[执行指令]
 
         public bool DoManualTask(uint devid, DevCarrierTaskE carriertask, out string result, bool isoversize = false, string memo = "")
         {
             bool isferryupsite = false;
-            ushort trackcode = PubTask.Carrier.GetCarrierSite(devid);
+            ushort trackcode = PubTask.Carrier.GetCurrentPoint(devid);
             if (trackcode == 0)
             {
                 result = "小车当前站点为0";
@@ -703,10 +649,10 @@ namespace task.device
                         result = "小车需要在出库轨道头或者下砖轨道";
                         return false;
                     }
-                    if (!PubTask.Ferry.HaveFerryOnTrack(trackcode, carriertask, out result, false))
-                    {
-                        return false;
-                    }
+                    //if (!PubTask.Ferry.HaveFerryOnTrack(trackcode, carriertask, out result, false))
+                    //{
+                    //    return false;
+                    //}
                     #endregion
                     break;
                 case DevCarrierTaskE.前进至点:
@@ -751,10 +697,15 @@ namespace task.device
                 }
             }
 
-            DoTask(devid, carriertask, isoversize);
+            // 发送指令
+            DoOrder(devid, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.终止指令
+            });
+
             try
             {
-                mlog.Status(true, string.Format("运输车：{0}，任务：{1},备注：{2}", 
+                mlog.Status(true, string.Format("运输车：{0}，任务：{1},备注：{2}",
                     PubMaster.Device.GetDeviceName(devid, devid + ""), carriertask, memo));
             }
             catch { }
@@ -762,7 +713,7 @@ namespace task.device
             return true;
         }
 
-        public void DoTask(uint devid, DevCarrierTaskE carriertask, bool isoversize = false)
+        public void DoOrder(uint devid, CarrierActionOrder cao)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -771,36 +722,18 @@ namespace task.device
                     CarrierTask task = DevList.Find(c => c.ID == devid);
                     if (task != null)
                     {
-                        if (task.OperateMode == DevOperateModeE.自动)
+                        if (task.OperateMode == DevOperateModeE.手动 || cao.Order == DevCarrierOrderE.终止指令)
                         {
-                            if (task.Status == DevCarrierStatusE.停止 && task.Task == carriertask && task.FinishTask == carriertask)
-                            {
-                                carriertask = DevCarrierTaskE.终止;
-                            }
-                        }
-                        else
-                        {
-                            carriertask = DevCarrierTaskE.终止;
+                            task.DoStop();
+                            return;
                         }
 
-                        task.DoTask(carriertask, isoversize ? DevCarrierSizeE.超限 : DevCarrierSizeE.非超限);
+                        task.DoOrder(cao);
                     }
                 }
                 finally { Monitor.Exit(_obj); }
             }
         }
-
-        //public void DoSetMode(uint devid, DevCarrierWorkModeE mode)
-        //{
-        //    if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-        //    {
-        //        try
-        //        {
-        //            DevList.Find(c => c.ID == devid)?.DoModeUpdate(mode);
-        //        }
-        //        finally { Monitor.Exit(_obj); }
-        //    }
-        //}
 
         #endregion
 
@@ -814,40 +747,6 @@ namespace task.device
             {
                 try
                 {
-                    #region 分配职责
-
-                    //if (DevList.Exists(c => c.IsEnable && c.CarrierDuty == CarrierDutyE.未知))
-                    //{
-                    //    foreach (CarrierTask car in DevList.FindAll(c => c.IsEnable))
-                    //    {
-                    //        Track t = PubTask.Carrier.GetCarrierTrack(car.ID);
-                    //        if (t == null)
-                    //        {
-                    //            PubMaster.Device.SetDuty(car.ID, CarrierDutyE.未知);
-                    //        }
-                    //        else
-                    //        {
-                    //            switch (t.Type)
-                    //            {
-                    //                case TrackTypeE.上砖轨道:
-                    //                case TrackTypeE.储砖_出:
-                    //                case TrackTypeE.摆渡车_出:
-                    //                    PubMaster.Device.SetDuty(car.ID, CarrierDutyE.上砖);
-                    //                    break;
-                    //                case TrackTypeE.下砖轨道:
-                    //                case TrackTypeE.储砖_入:
-                    //                case TrackTypeE.摆渡车_入:
-                    //                    PubMaster.Device.SetDuty(car.ID, CarrierDutyE.下砖);
-                    //                    break;
-                    //                default:
-                    //                    break;
-                    //            }
-                    //        }
-                    //    }
-                    //}
-
-                    #endregion
-
                     switch (trans.TransType)
                     {
                         case TransTypeE.下砖任务:
@@ -884,14 +783,14 @@ namespace task.device
             CarrierTypeE needtype = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
 
             // 1.倒库空轨道是否有车[空闲，无货]
-            CarrierTask carrier = DevList.Find(c => c.TrackId == trans.give_track_id && c.CarrierType == needtype);
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.CarrierType == needtype);
             #region[2.摆渡车上是否有车[空闲，无货]
             if (carrier == null)
             {
                 //3.1获取能到达[空轨道]轨道的上砖摆渡车的轨道ID
                 List<uint> ferrytrackids = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.上摆渡, trans.area_id, 0, trans.give_track_id, 0, true);
                 //3.2获取在摆渡轨道上的车[空闲，无货]
-                List<CarrierTask> carriers = DevList.FindAll(c => ferrytrackids.Contains(c.TrackId) && c.CarrierType == needtype);
+                List<CarrierTask> carriers = DevList.FindAll(c => ferrytrackids.Contains(c.CurrentTrackId) && c.CarrierType == needtype);
                 if (carriers.Count > 0)
                 {
                     //如何判断哪个摆渡车最右
@@ -940,7 +839,7 @@ namespace task.device
                     {
                         CarrierTask task = DevList.Find(c => c.ID == areatra.device_id && c.CarrierType == needtype);
                         if (task != null && CheckCarrierFreeNotLoad(task)
-                            && PubMaster.Track.IsTrackType(task.TrackId, TrackTypeE.储砖_出))
+                            && PubMaster.Track.IsTrackType(task.CurrentTrackId, TrackTypeE.储砖_出))
                         {
                             carrierid = task.ID;
                             return true;
@@ -977,23 +876,22 @@ namespace task.device
                 return false;
             }
             CarrierTypeE needtype = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
-            //CarrierDutyE needduty = ferrytype == DeviceTypeE.上摆渡 ? CarrierDutyE.上砖 : CarrierDutyE.下砖;
             // 1.取货轨道是否有车[空闲，无货]
-            CarrierTask carrier = DevList.Find(c => c.TrackId == trans.take_track_id && c.CarrierType == needtype);
-            //CarrierTask carrier = DevList.Find(c => c.TrackId == trans.take_track_id && c.CarrierType == needtype && c.CarrierDuty == needduty);
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.take_track_id && c.CarrierType == needtype);
 
-            if (carrier == null && (trans.TransType == TransTypeE.上砖任务 || trans.TransType == TransTypeE.手动上砖))
-            {
-                uint brothertra = PubMaster.Track.GetBrotherTrackId(trans.take_track_id);
-                carrier = DevList.Find(c => c.TrackId == brothertra
-                                        && c.CarrierType == needtype
-                                        && c.Task == DevCarrierTaskE.后退取砖);
-            }
+            //if (carrier == null && (trans.TransType == TransTypeE.上砖任务 || trans.TransType == TransTypeE.手动上砖))
+            //{
+            //    //3xx归 入库轨，获取 入库轨 取砖任务的车
+            //    uint brothertra = PubMaster.Track.GetBrotherTrackId(trans.take_track_id);
+            //    carrier = DevList.Find(c => c.TrackId == brothertra
+            //                            && c.CarrierType == needtype
+            //                            && c.Task == DevCarrierTaskE.后退取砖);
+            //}
 
             if (carrier == null)
             {
                 #region[2.卸货轨道是否有车[空闲，无货]]
-                carrier = DevList.Find(c => c.TrackId == trans.give_track_id && c.CarrierType == needtype);
+                carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.CarrierType == needtype);
                 #endregion
 
                 #region[3.摆渡车上是否有车[空闲，无货]
@@ -1013,7 +911,7 @@ namespace task.device
                     }
 
                     //3.2获取在摆渡车上的车[空闲，无货]
-                    List<CarrierTask> carriers = DevList.FindAll(c => loadcarferryids.Contains(c.TrackId) && c.CarrierType == needtype);
+                    List<CarrierTask> carriers = DevList.FindAll(c => loadcarferryids.Contains(c.CurrentTrackId) && c.CarrierType == needtype);
                     if (carriers.Count > 0)
                     {
                         //如何判断哪个摆渡车最右
@@ -1072,26 +970,24 @@ namespace task.device
                     case TransTypeE.手动上砖:
                         if (!carrier.IsWorking)
                         {
-                            result = "运输车没有作业";
+                            result = "运输车已停用！";
                             return false;
                         }
                         if (carrier.ConnStatus == SocketConnectStatusE.通信正常
                             && carrier.OperateMode == DevOperateModeE.自动)
                         {
                             if (carrier.Status == DevCarrierStatusE.停止
-                                //&& carrier.WorkMode == DevCarrierWorkModeE.生产模式
-                                && (carrier.Task == carrier.FinishTask || carrier.Task == DevCarrierTaskE.无))
+                                && (carrier.CurrentOrder == carrier.FinishOrder || carrier.CurrentOrder == DevCarrierOrderE.无))
                             {
                                 carrierid = carrier.ID;
                                 return true;
                             }
 
-                            if (carrier.Task == DevCarrierTaskE.后退取砖 && carrier.FinishTask == DevCarrierTaskE.无)
+                            if (carrier.CurrentOrder == DevCarrierOrderE.取砖指令 && carrier.FinishOrder == DevCarrierOrderE.无)
                             {
                                 carrierid = carrier.ID;
                                 return true;
                             }
-
                         }
 
                         if (CheckCarrierFreeNoTask(carrier))
@@ -1110,19 +1006,17 @@ namespace task.device
                             && carrier.OperateMode == DevOperateModeE.自动)
                         {
                             if (carrier.Status == DevCarrierStatusE.停止
-                                //&& carrier.WorkMode == DevCarrierWorkModeE.生产模式
-                                && (carrier.Task == carrier.FinishTask || carrier.Task == DevCarrierTaskE.无))
+                                && (carrier.CurrentOrder == carrier.FinishOrder || carrier.CurrentOrder == DevCarrierOrderE.无))
                             {
                                 carrierid = carrier.ID;
                                 return true;
                             }
 
-                            if (carrier.Task == DevCarrierTaskE.前进取砖 && carrier.FinishTask == DevCarrierTaskE.无)
+                            if (carrier.CurrentOrder == DevCarrierOrderE.取砖指令 && carrier.FinishOrder == DevCarrierOrderE.无)
                             {
                                 carrierid = carrier.ID;
                                 return true;
                             }
-
                         }
 
                         if (CheckCarrierFreeNoTask(carrier))
@@ -1148,7 +1042,7 @@ namespace task.device
                 foreach (uint traid in trackids)
                 {
                     if (!PubMaster.Track.IsStoreType(traid)) continue;
-                    List<CarrierTask> tasks = DevList.FindAll(c => c.TrackId == traid);
+                    List<CarrierTask> tasks = DevList.FindAll(c => c.CurrentTrackId == traid);
                     if (tasks.Count > 0)
                     {
                         if (tasks.Count > 1) continue;
@@ -1157,9 +1051,7 @@ namespace task.device
                         if (tasks[0].ConnStatus == SocketConnectStatusE.通信正常
                                 && tasks[0].Status == DevCarrierStatusE.停止
                                 && tasks[0].OperateMode == DevOperateModeE.自动
-                                //&& tasks[0].WorkMode == DevCarrierWorkModeE.生产模式
-                                && (tasks[0].Task == tasks[0].FinishTask || tasks[0].Task == DevCarrierTaskE.无)
-                                //&& tasks[0].Load == DevCarrierLoadE.无货
+                                && (tasks[0].CurrentOrder == tasks[0].FinishOrder || tasks[0].CurrentOrder == DevCarrierOrderE.无)
                                 && tasks[0].CarrierType == needtype
                                 )
                         {
@@ -1221,8 +1113,7 @@ namespace task.device
             if (carrier.ConnStatus == SocketConnectStatusE.通信正常
                     && carrier.Status == DevCarrierStatusE.停止
                     && carrier.OperateMode == DevOperateModeE.自动
-                    //&& carrier.WorkMode == DevCarrierWorkModeE.生产模式
-                    && (carrier.Task == carrier.FinishTask || carrier.Task == DevCarrierTaskE.无)
+                    && (carrier.CurrentOrder == carrier.FinishOrder || carrier.CurrentOrder == DevCarrierOrderE.无)
                     //&& carrier.Load == DevCarrierLoadE.无货
                     )
             {
@@ -1235,9 +1126,10 @@ namespace task.device
         {
             return DevList;
         }
+
         internal List<CarrierTask> GetDevCarriers(List<uint> areaids)
         {
-            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+            return DevList.FindAll(c => areaids.Contains(c.AreaId));
         }
 
         /// <summary>
@@ -1251,8 +1143,7 @@ namespace task.device
             if (carrier.ConnStatus == SocketConnectStatusE.通信正常
                     && carrier.Status == DevCarrierStatusE.停止
                     && carrier.OperateMode == DevOperateModeE.自动
-                    //&& carrier.WorkMode == DevCarrierWorkModeE.生产模式
-                    && (carrier.Task == carrier.FinishTask || carrier.Task == DevCarrierTaskE.无)
+                    && (carrier.CurrentOrder == carrier.FinishOrder || carrier.CurrentOrder == DevCarrierOrderE.无)
                     //&& carrier.Load == DevCarrierLoadE.无货
                     )
             {
@@ -1265,19 +1156,6 @@ namespace task.device
         {
             CarrierTask carrier = DevList.Find(c => c.ID == carrierid);
             return CheckCarrierFreeNotLoad(carrier);
-        }
-
-        private bool GetCarrierInTrack(uint trackid)
-        {
-            Track track = PubMaster.Track.GetTrack(trackid);
-
-            CarrierTask carrier = DevList.Find(c => track.IsInTrack(c.Site));
-            if (carrier != null)
-            {
-
-            }
-
-            return false;
         }
 
         #endregion
@@ -1294,7 +1172,7 @@ namespace task.device
         /// <returns></returns>
         public bool CanCarrierEnterTrack(uint trackid)
         {
-            CarrierTask carrier = DevList.Find(c => c.TrackId == trackid);
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
             if (carrier != null) return false;
 
             uint brotherid = PubMaster.Track.GetBrotherTrackId(trackid);
@@ -1303,7 +1181,7 @@ namespace task.device
                 //没有兄弟轨道，不会碰撞？？(可能也是配置漏了)
                 return true;
             }
-            carrier = DevList.Find(c => c.TrackId == brotherid);
+            carrier = DevList.Find(c => c.CurrentTrackId == brotherid);
             if (carrier != null)
             {
                 if ((PubMaster.Goods.GetTrackStock(trackid)
@@ -1316,15 +1194,27 @@ namespace task.device
             return true;
         }
 
-        internal ushort GetCarrierSite(uint devId)
+        /// <summary>
+        /// 获取当前RFID
+        /// </summary>
+        /// <param name="devId"></param>
+        /// <returns></returns>
+        internal ushort GetCurrentPoint(uint devId)
+        {
+            return DevList.Find(c => c.ID == devId)?.DevStatus?.CurrentPoint ?? 0;
+        }
+        /// <summary>
+        /// 获取当前坐标值
+        /// </summary>
+        /// <param name="devId"></param>
+        /// <returns></returns>
+        internal ushort GetCurrentSite(uint devId)
         {
             return DevList.Find(c => c.ID == devId)?.DevStatus?.CurrentSite ?? 0;
         }
 
         /// <summary>
-        /// 判断小车是否完成了取砖任务
-        /// 1.在指定的轨道
-        /// 2.并且
+        /// 判断小车是否完成了取砖
         /// </summary>
         /// <param name="carrier_id"></param>
         /// <returns></returns>
@@ -1335,16 +1225,12 @@ namespace task.device
                                     && c.OperateMode == DevOperateModeE.自动
                                     && c.Status == DevCarrierStatusE.停止
                                     && c.Load == DevCarrierLoadE.有货
-                                    //&& c.FinishTask == DevCarrierTaskE.后退取砖
-                                    //&& c.Task == DevCarrierTaskE.后退取砖
-                                    && (c.Task == c.FinishTask || c.Task == DevCarrierTaskE.无)
+                                    && (c.CurrentOrder == c.FinishOrder || c.CurrentOrder == DevCarrierOrderE.无)
                                     );
         }
 
         /// <summary>
-        /// 判断小车是否完成了取砖任务
-        /// 1.在指定的轨道
-        /// 2.并且
+        /// 判断小车是否完成了卸砖
         /// </summary>
         /// <param name="carrier_id"></param>
         /// <returns></returns>
@@ -1355,58 +1241,53 @@ namespace task.device
                                     && c.OperateMode == DevOperateModeE.自动
                                     && c.Status == DevCarrierStatusE.停止
                                     && c.Load == DevCarrierLoadE.无货
-                                    //&& c.FinishTask == DevCarrierTaskE.前进放砖
-                                    //&& c.Task == DevCarrierTaskE.前进放砖
-                                    && (c.Task == c.FinishTask || c.Task == DevCarrierTaskE.无)
+                                    && (c.CurrentOrder == c.FinishOrder || c.CurrentOrder == DevCarrierOrderE.无)
                                     );
         }
 
-        internal bool IsCarrierInTask(uint carrier_id, DevCarrierTaskE task)
+        /// <summary>
+        /// 判断小车是否正在执行该指令
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="Order"></param>
+        /// <returns></returns>
+        internal bool IsCarrierInTask(uint carrier_id, DevCarrierOrderE Order)
         {
             return DevList.Exists(c => c.ID == carrier_id
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
-                                    && c.Task == task
-                                    && c.Task != c.FinishTask);
+                                    && c.CurrentOrder == Order
+                                    && c.CurrentOrder != c.FinishOrder);
         }
 
-        internal bool IsCarrierFinishTask(uint carrier_id, DevCarrierTaskE task)
+        /// <summary>
+        /// 判断小车是否已完成该指令
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="Order"></param>
+        /// <returns></returns>
+        internal bool IsCarrierFinishTask(uint carrier_id, DevCarrierOrderE Order)
         {
             return DevList.Exists(c => c.ID == carrier_id
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
                                     && c.Status == DevCarrierStatusE.停止
-                                    && c.Task == task
-                                    && c.FinishTask == task);
+                                    && c.CurrentOrder == Order
+                                    && c.CurrentOrder == c.FinishOrder);
         }
 
         /// <summary>
-        /// 判断小车是否处于任务
+        /// 判断小车是否在摆渡车上移动
         /// </summary>
-        /// <param name="carrier_id"></param>
-        /// <param name="carriertask"></param>
+        /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool IsTaskAndDoTask(uint carrier_id, DevCarrierTaskE carriertask)
+        internal bool IsCarrierMoveInFerry(uint trackid)
         {
-            CarrierTask task = DevList.Find(c => c.ID == carrier_id);
-            if (task != null)
-            {
-                if (task.Task == carriertask && task.FinishTask == DevCarrierTaskE.终止)
-                {
-                    return true;
-                }
-                task.DoTask(carriertask, DevCarrierSizeE.非超限);
-            }
-            return false;
-        }
-
-        internal bool IsCarrierMoveInTrack(uint trackid)
-        {
-            List<CarrierTask> carriers = DevList.FindAll(c => c.TrackId == trackid
-                                && (c.Status != DevCarrierStatusE.停止 || c.OperateMode == DevOperateModeE.手动 ||
-                                (c.Task != c.FinishTask && c.Task != DevCarrierTaskE.无) || c.CarrierPosition == DevCarrierPositionE.上下摆渡中));
-
-            return carriers.Count > 0;
+            return DevList.Exists(c => c.CurrentTrackId == trackid 
+            && (c.Status != DevCarrierStatusE.停止 || c.OperateMode == DevOperateModeE.手动 
+            || (c.CurrentOrder != c.FinishOrder && c.CurrentOrder != DevCarrierOrderE.无) 
+            //|| c.Position == DevCarrierPositionE.上下摆渡中   //小车过头？
+                 ) );
         }
 
         #endregion
@@ -1453,4 +1334,40 @@ namespace task.device
 
         #endregion
     }
+
+    /// <summary>
+    /// 运输车动作指令
+    /// </summary>
+    public class CarrierActionOrder
+    {
+        /// <summary>
+        /// 指令类型
+        /// </summary>
+        public DevCarrierOrderE Order { set; get; }
+        /// <summary>
+        /// 校验轨道
+        /// </summary>
+        public ushort CheckTra { set; get; } = 0;
+        /// <summary>
+        /// 定位RFID
+        /// </summary>
+        public ushort ToRFID { set; get; } = 0;
+        /// <summary>
+        /// 定位坐标
+        /// </summary>
+        public ushort ToSite { set; get; } = 0;
+        /// <summary>
+        /// 结束RFID
+        /// </summary>
+        public ushort OverRFID { set; get; } = 0;
+        /// <summary>
+        /// 结束坐标
+        /// </summary>
+        public ushort OverSite { set; get; } = 0;
+        /// <summary>
+        /// 倒库数量
+        /// </summary>
+        public byte MoveCount { set; get; } = 0;
+    }
+
 }

@@ -67,10 +67,7 @@
                         <MenuItem Header="后退至内放砖" Tag="11" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="前进取砖" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="终止" Tag="127" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="复位空满信号" Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <!--<MenuItem Header="调试" Tag="25" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
-                        <!--<MenuItem Header="生产" Tag="26" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
-                        <MenuItem Header="清空信息" Tag="27" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="清空信息" Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         
                     </ContextMenu>
                 </DataGrid.ContextMenu>

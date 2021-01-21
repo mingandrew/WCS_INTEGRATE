@@ -360,11 +360,11 @@ namespace task.trans
         {
             return TransList;
         }
+
         public List<StockTrans> GetTransList(List<uint> areaids)
         {
-            return TransList.FindAll(c=>areaids.Contains(c.area_id));
+            return TransList.FindAll(c => areaids.Contains(c.area_id));
         }
-
 
         public StockTrans GetTrans(int transid)
         {
@@ -539,10 +539,6 @@ namespace task.trans
                         //    }
                         //}
                         Console.WriteLine("小车信息完成任务！");
-                    }
-                    else
-                    {
-                        PubTask.Carrier.DoReset(carrierid);
                     }
                 }
                 finally

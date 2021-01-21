@@ -273,12 +273,16 @@ namespace task.device
         {
             return DevList;
         }
-        
+
         internal List<FerryTask> GetDevFerrys(List<uint> areaids)
         {
-            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+            return DevList.FindAll(c => areaids.Contains(c.AreaId));
         }
 
+        public uint GetFerryTrackId(uint devid)
+        {
+            return DevList.Find(c => c.ID == devid)?.FerryTrackId ?? 0;
+        }
 
         public void UpdateFerryWithTrackId(uint trackid, DevFerryLoadE devFerryLoadE)
         {
@@ -362,7 +366,7 @@ namespace task.device
             }
         }
 
-        public bool HaveFerryOnTrack(ushort ferry_code, DevCarrierTaskE type, out string result, bool onferryboolvalue)
+        public bool HaveFerryOnTrack(ushort from, ushort to, out string result, bool onferryboolvalue)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -371,24 +375,21 @@ namespace task.device
             }
             try
             {
-                Track track = PubMaster.Track.GetTrackByCode(ferry_code);
-                if (track != null)
+                Track ft = PubMaster.Track.GetTrackByPoint(from);
+                Track tt = PubMaster.Track.GetTrackByPoint(to);
+                if (ft != null)
                 {
-                    if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
+                    if (ft.Type == TrackTypeE.摆渡车_入 || ft.Type == TrackTypeE.摆渡车_出)
                     {
                         result = "小车已经在摆渡车上了！";
                         return onferryboolvalue;
                     }
-
-                    FerryTask task = null;
-                    if (type == DevCarrierTaskE.前进至摆渡车)
+                    
+                    FerryTask task = DevList.Find(c => c.TransId == tt.id);
+                    if (!task.IsOnSite(ft.ferry_up_code) && !task.IsOnSite(ft.ferry_down_code))
                     {
-                        task = DevList.Find(c => c.IsOnSite(track.ferry_down_code));
-                    }
-
-                    if (type == DevCarrierTaskE.后退至摆渡车)
-                    {
-                        task = DevList.Find(c => c.IsOnSite(track.ferry_up_code));
+                        result = "摆渡车没到位！";
+                        return false;
                     }
 
                     if (!CheckFerryStatus(task, out result))
@@ -577,14 +578,14 @@ namespace task.device
                     }
 
                     if ((task.IsUpLight || task.IsLocateUpGood)
-                        && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
+                        && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
                     {
                         result = "小车正在上摆渡车";
                         return false;
                     }
 
                     if ((task.IsDownLight || task.IsLocateDownGood)
-                        && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车))
+                        && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
                     {
                         result = "小车正在上摆渡车";
                         return false;
@@ -596,7 +597,7 @@ namespace task.device
                     if (task.Load == DevFerryLoadE.载车)
                     {
                         //在摆渡车轨道上的运输车是否有状态不是停止的或者是手动的
-                        if (PubTask.Carrier.IsCarrierMoveInTrack(task.DevConfig.track_id))
+                        if (PubTask.Carrier.IsCarrierMoveInFerry(task.DevConfig.track_id))
                         {
                             result = "摆渡车上的运输车在运动/手动状态中/上下摆渡中状态";
                             task.DoStop();
@@ -667,13 +668,21 @@ namespace task.device
                 {
                     return false;
                 }
-                if (PubTask.Carrier.HaveCarrierTaskInFerry(task.DevConfig.track_id)
-                    || (task.IsUpLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
-                    || (task.IsDownLight && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车)))
+
+                if ((task.IsUpLight || task.IsLocateUpGood)
+                    && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
                 {
-                    result = "小车正在上下摆渡！";
+                    result = "小车正在上摆渡车";
                     return false;
                 }
+
+                if ((task.IsDownLight || task.IsLocateDownGood)
+                    && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
+                {
+                    result = "小车正在上摆渡车";
+                    return false;
+                }
+
                 task.DoReSet(resettype);
                 return true;
             }
@@ -716,9 +725,7 @@ namespace task.device
                     return false;
                 }
 
-                if (PubTask.Carrier.HaveCarrierTaskInFerry(task.DevConfig.track_id)
-                    || ((task.IsUpLight || task.IsLocateUpGood) && PubTask.Carrier.HaveCarrierTaskInTrack(task.UpTrackId, DevCarrierTaskE.后退至摆渡车))
-                    || ((task.IsDownLight || task.IsLocateDownGood) && PubTask.Carrier.HaveCarrierTaskInTrack(task.DownTrackId, DevCarrierTaskE.前进至摆渡车)))
+                if (PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
                 {
                     result = "小车正在上下摆渡！";
                     return false;
@@ -794,7 +801,7 @@ namespace task.device
 
                             //另一台摆渡车的目的轨道的顺序
                             //uint anotherTarget = PubMaster.Track.GetTrackId(taskB.DevStatus.TargetSite);
-                            short taskBTargetOrder = PubMaster.Track.GetTrackByCode(taskB.DevStatus.TargetSite)?.order ?? 0;
+                            short taskBTargetOrder = PubMaster.Track.GetTrackByPoint(taskB.DevStatus.TargetSite)?.order ?? 0;
 
                             //当前摆渡车对着的轨道id
                             //taskTrackId = task.Type == DeviceTypeE.上摆渡 ? task.DownTrackId : task.UpTrackId;
@@ -1149,7 +1156,7 @@ namespace task.device
                                         short taskLockedCurrentOrder = PubMaster.Track.GetTrack(taskLockedTrackId)?.order ?? 0;
 
                                         //上锁摆渡车的目的轨道的位置顺序
-                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackByCode(fLocked.DevStatus.TargetSite)?.order ?? 0;
+                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackByPoint(fLocked.DevStatus.TargetSite)?.order ?? 0;
 
                                         if ((leftCompare < taskLockedCurrentOrder && taskLockedCurrentOrder < rightCompare)
                                                || (leftCompare < taskLockedTargetOrder && taskLockedTargetOrder < rightCompare))

@@ -50,6 +50,14 @@ namespace task.task
         public uint DownTrackId { set; get; }
         public bool IsLocateUpGood { set; get; }
         public bool IsLocateDownGood { set; get; }
+
+        /// <summary>
+        /// 摆渡轨道ID
+        /// </summary>
+        public uint FerryTrackId
+        {
+            get => DevConfig?.track_id ?? 0;
+        }
         #endregion
 
         #region[构造/启动/停止]

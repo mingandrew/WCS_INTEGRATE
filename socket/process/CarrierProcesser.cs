@@ -173,18 +173,13 @@ namespace socket.process
         /// </summary>
         /// <param name="devid"></param>
         /// <param name="type"></param>
+        /// <param name="order"></param>
         /// <param name="v1"></param>
         /// <param name="v2"></param>
         /// <param name="v3"></param>
         /// <param name="v4"></param>
         /// <param name="v5"></param>
         /// <param name="v6"></param>
-        /// <param name="v7"></param>
-        /// <param name="v8"></param>
-        /// <param name="v9"></param>
-        /// <param name="v10"></param>
-        /// <param name="v11"></param>
-        /// <param name="v12"></param>
         /// <returns></returns>
         internal byte[] GetCmd(string devid, DevCarrierCmdE type, DevCarrierOrderE order, 
             ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, byte v6)

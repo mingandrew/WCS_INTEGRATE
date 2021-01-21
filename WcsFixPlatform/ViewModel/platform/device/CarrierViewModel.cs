@@ -133,16 +133,7 @@ namespace wcs.ViewModel
                         }
                         break;
 
-                    case 24://复位空满信号
-                        PubTask.Carrier.DoReset(DeviceSelected.ID);
-                        break;
-                    //case 25:
-                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.调试);
-                    //    break;
-                    //case 26:
-                    //    PubTask.Carrier.DoSetMode(DeviceSelected.ID, DevCarrierWorkModeE.生产);
-                    //    break;
-                    case 27://清空设备信息
+                    case 24://清空设备信息
                         PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
                         break;
 

@@ -1,5 +1,6 @@
 ﻿using enums.track;
 using System;
+using System.Collections.Generic;
 
 namespace module.track
 {
@@ -27,6 +28,9 @@ namespace module.track
         public ushort rfid_4 { set; get; }
         public ushort rfid_5 { set; get; }
         public ushort rfid_6 { set; get; }
+
+        public string rfids { set; get; }
+
         public short order { set; get; }
         public uint recent_goodid { set; get; }
         public uint recent_tileid { set; get; }
@@ -55,15 +59,35 @@ namespace module.track
             set => track_status = (byte)value;
         }
 
-        public bool IsInTrackTop(ushort rfid)
+        public List<ushort> RFIDs;
+        public void GetAllRFID()
         {
-            return rfid == rfid_1;
+            RFIDs = new List<ushort>();
+
+            if (string.IsNullOrEmpty(rfids)) return;
+
+            string[] s = rfids.Split('#');
+            foreach (var item in s)
+            {
+                if (ushort.TryParse(item, out ushort rfid))
+                {
+                    RFIDs.Add(rfid);
+                }
+            }
         }
 
+        /// <summary>
+        /// 是否是轨道内地标
+        /// </summary>
+        /// <param name="rfid"></param>
+        /// <returns></returns>
         public bool IsInTrack(ushort rfid)
         {
             if (rfid == 0) return false;
-            return rfid == rfid_1 || rfid == rfid_2 || rfid == rfid_3 || rfid == rfid_4 || rfid == rfid_5 || rfid == rfid_6;
+            //return rfid == rfid_1 || rfid == rfid_2 || rfid == rfid_3 || rfid == rfid_4 || rfid == rfid_5 || rfid == rfid_6;
+
+            if (RFIDs == null || RFIDs.Count == 0) return false;
+            return RFIDs.Contains(rfid);
         }
 
         public int TrackCode
