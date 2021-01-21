@@ -62,6 +62,12 @@ namespace resource.device
             return DeviceList.FindAll(c => types.Contains(c.Type));
         }
 
+        public List<Device> GetDevices(List<DeviceTypeE> types, List<uint> areaids)
+        {
+            return DeviceList.FindAll(c => types.Contains(c.Type) && areaids.Contains(c.area));
+        }
+
+
         public List<Device> GetDevices(List<DeviceTypeE> types, uint areaid)
         {
             return DeviceList.FindAll(c => c.area == areaid && types.Contains(c.Type));
@@ -75,6 +81,11 @@ namespace resource.device
         public List<Device> GetTileLifters()
         {
             return DeviceList.FindAll(c => c.Type == DeviceTypeE.上砖机 || c.Type == DeviceTypeE.下砖机 || c.Type == DeviceTypeE.砖机);
+        }
+
+        public List<Device> GetTileLifters(List<uint> areaids)
+        {
+            return DeviceList.FindAll(c => areaids.Contains(c.area) && (c.Type == DeviceTypeE.上砖机 || c.Type == DeviceTypeE.下砖机 || c.Type == DeviceTypeE.砖机));
         }
 
         public List<Device> GetTileLifters(uint areaid)

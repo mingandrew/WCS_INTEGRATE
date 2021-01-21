@@ -83,6 +83,10 @@ namespace resource.goods
         {
             return GoodsList;
         }
+        public List<Goods> GetGoodsList(List<uint> areaids)
+        {
+            return GoodsList.FindAll(c=>areaids.Contains(c.area_id));
+        }
 
         public Goods GetGoods(uint id)
         {

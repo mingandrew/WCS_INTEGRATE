@@ -1410,10 +1410,21 @@ namespace task.device
             return DevList;
         }
 
+        internal List<TileLifterTask> GetDevTileLifters(List<uint> areaids)
+        {
+            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+        }
+
         internal List<TileLifterTask> GetCanCutoverTiles()
         {
             return DevList.FindAll(c => c.IsCanCutover);
         }
+
+        internal List<TileLifterTask> GetCanCutoverTiles(List<uint> areaids)
+        {
+            return DevList.FindAll(c => c.IsCanCutover && areaids.Contains(c.AreaId));
+        }
+
 
         /// <summary>
         /// 砖机是否切换模式中

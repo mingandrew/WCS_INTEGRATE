@@ -334,6 +334,25 @@ namespace resource.diction
             return list;
         }
 
+        public List<TaskSwitch> GetSwitchDtl(List<uint> areaids)
+        {
+            List<TaskSwitch> list = new List<TaskSwitch>();
+            foreach (DictionDtl dtl in DicDtlList.FindAll(c => c.diction_id == TaskSwitchId))
+            {
+                if (areaids.Contains(dtl.uint_value))
+                {
+                    list.Add(new TaskSwitch()
+                    {
+                        id = dtl.id,
+                        code = dtl.code,
+                        name = dtl.name,
+                        onoff = dtl.bool_value
+                    });
+                }
+            }
+            return list;
+        }
+
         #endregion
 
         #region[版本更新]

@@ -121,6 +121,10 @@ namespace task.rf
         {
             mClient.Clear();
             mClient.AddRange(PubMaster.Mod.DevSql.QueryRfClientList());
+            foreach (var item in mClient)
+            {
+                item.SetupFilterArea();
+            }
         }
 
         public void GetAllClient()
@@ -523,7 +527,7 @@ namespace task.rf
             {
                 if (int.TryParse(msg.Pack.Data, out int areaid))
                 {
-                    StockSumPack pack = new StockSumPack();
+                    StockSumPack pack = new StockSumPack(); 
                     pack.AddSumList(PubMaster.Goods.GetStockSums(areaid));
                     string data = JsonTool.Serialize(pack);
 
@@ -835,7 +839,8 @@ namespace task.rf
                 mDicPack.AddEnum(typeof(TrackTypeE), "轨道类型", nameof(TrackTypeE));
                 mDicPack.AddEnum(typeof(RfFilterTrackTypeE), "轨道过滤类型", nameof(RfFilterTrackTypeE));
                 mDicPack.AddEnum(typeof(TrackStockStatusE), "轨道库存状态", nameof(TrackStockStatusE));
-                mDicPack.AddEnum(typeof(TrackRfStatusE), "轨道状态", nameof(TrackStatusE));
+                mDicPack.AddEnum(typeof(TrackStatusE), "轨道状态", nameof(TrackStatusE));
+                mDicPack.AddEnum(typeof(TrackRfStatusE), "轨道状态", nameof(TrackRfStatusE));
                 mDicPack.AddEnum(typeof(SocketConnectStatusE), "通信状态", nameof(SocketConnectStatusE));
                 mDicPack.AddEnum(typeof(DevCarrierStatusE), "运输车状态", nameof(DevCarrierStatusE));
                 mDicPack.AddEnum(typeof(DevCarrierTaskE), "运输车任务状态", nameof(DevCarrierTaskE));
@@ -865,7 +870,7 @@ namespace task.rf
 
                 #region[List]
 
-                mDicPack.AddArea(PubMaster.Area.GetAreaList());
+                //mDicPack.AddArea(PubMaster.Area.GetAreaList());
                 mDicPack.AddTrack(PubMaster.Track.GetTrackList());
                 mDicPack.AddDevice(PubMaster.Device.GetDeviceList());
                 mDicPack.AddGood(PubMaster.Goods.GetGoodsList());
@@ -874,8 +879,19 @@ namespace task.rf
 
                 #endregion
             }
+
+            if(IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            {
+                mDicPack.AddArea(PubMaster.Area.GetAreaList(areaids));
+            }
+            else
+            {
+                mDicPack.AddArea(PubMaster.Area.GetAreaList());
+            }
+
             mDicPack.AddVersion(DicTag.PDA_INIT_VERSION, PubMaster.Dic.GetDtlIntCode(DicTag.PDA_INIT_VERSION));
             mDicPack.UserLoginFunction = PubMaster.Dic.IsSwitchOnOff(DicTag.UserLoginFunction);
+
             SendSucc2Rf(msg.MEID, FunTag.QueryDicAll, JsonTool.Serialize(mDicPack));
         }
 
@@ -1098,7 +1114,14 @@ namespace task.rf
         private void GetGoodsList(RfMsgMod msg)
         {
             GoodsPack gmsg = new GoodsPack();
-            gmsg.AddGoodList(PubMaster.Goods.GetGoodsList());
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            {
+                gmsg.AddGoodList(PubMaster.Goods.GetGoodsList(areaids));
+            }
+            else
+            {
+                gmsg.AddGoodList(PubMaster.Goods.GetGoodsList());
+            }
             gmsg.AddGoodSizeList(PubMaster.Goods.GetGoodSizes());
 
             SendSucc2Rf(msg.MEID, FunTag.QueryGoods, JsonTool.Serialize(gmsg));
@@ -1138,7 +1161,14 @@ namespace task.rf
         private void GetTileGood(RfMsgMod msg)
         {
             TilePack pack = new TilePack();
-            pack.AddTileList(PubMaster.Device.GetTileLifters());
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            {
+                pack.AddTileList(PubMaster.Device.GetTileLifters(areaids));
+            }
+            else
+            {
+                pack.AddTileList(PubMaster.Device.GetTileLifters());
+            }
 
             SendSucc2Rf(msg.MEID, FunTag.QueryTileGood, JsonTool.Serialize(pack));
         }
@@ -1212,11 +1242,25 @@ namespace task.rf
                     }
                 }
 
-                pack.AddTrackList(PubMaster.Track.GetTrackList(tlist));
+                if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
+                {
+                    pack.AddTrackList(PubMaster.Track.GetTrackList(tlist, areaids));
+                }
+                else
+                {
+                    pack.AddTrackList(PubMaster.Track.GetTrackList(tlist));
+                }
             }
             else
             {
-                pack.AddTrackList(PubMaster.Track.GetTrackList());
+                if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
+                {
+                    pack.AddTrackList(PubMaster.Track.GetTrackList(areaids));
+                }
+                else
+                {
+                    pack.AddTrackList(PubMaster.Track.GetTrackList());
+                }
             }
 
             SendSucc2Rf(msg.MEID, FunTag.QueryTrack, JsonTool.Serialize(pack));
@@ -1255,7 +1299,14 @@ namespace task.rf
         private void GetTaskSwitch(RfMsgMod msg)
         {
             TaskSwitchPack pack = new TaskSwitchPack();
-            pack.AddSwitch(PubMaster.Dic.GetSwitchDtl());
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            {
+                pack.AddSwitch(PubMaster.Dic.GetSwitchDtl(areaids));
+            }
+            else
+            {
+                pack.AddSwitch(PubMaster.Dic.GetSwitchDtl());
+            }
             SendSucc2Rf(msg.MEID, FunTag.QueryTaskSwitch, JsonTool.Serialize(pack));
         }
 
@@ -1333,7 +1384,14 @@ namespace task.rf
                 }
                 
                 RfDevicePack pack = new RfDevicePack();
-                pack.AddDevs(PubMaster.Device.GetDevices(tlist)); ;
+                if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
+                {
+                    pack.AddDevs(PubMaster.Device.GetDevices(tlist, areaids)); ;
+                }
+                else
+                {
+                    pack.AddDevs(PubMaster.Device.GetDevices(tlist)); ;
+                }
 
                 SendSucc2Rf(msg.MEID, FunTag.QueryDevice, JsonTool.Serialize(pack));
             }
@@ -1369,16 +1427,33 @@ namespace task.rf
         private void GetDevFerry(RfMsgMod msg)
         {
             DevFerryPack pack = new DevFerryPack();
-            foreach (FerryTask item in PubTask.Ferry.GetDevFerrys())
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                pack.AddDev(new RfDevFerry()
+                foreach (FerryTask item in PubTask.Ferry.GetDevFerrys(areaids))
                 {
-                    Id = item.ID,
-                    Area = item.AreaId,
-                    Ferry = item.DevStatus,
-                    Conn = item.ConnStatus
-                });
+                    pack.AddDev(new RfDevFerry()
+                    {
+                        Id = item.ID,
+                        Area = item.AreaId,
+                        Ferry = item.DevStatus,
+                        Conn = item.ConnStatus
+                    });
+                }
             }
+            else
+            {
+                foreach (FerryTask item in PubTask.Ferry.GetDevFerrys())
+                {
+                    pack.AddDev(new RfDevFerry()
+                    {
+                        Id = item.ID,
+                        Area = item.AreaId,
+                        Ferry = item.DevStatus,
+                        Conn = item.ConnStatus
+                    });
+                }
+            }
+            
 
             SendSucc2Rf(msg.MEID, FunTag.QueryDevFerry, JsonTool.Serialize(pack));
         }
@@ -1386,15 +1461,31 @@ namespace task.rf
         private void GetDevCarrier(RfMsgMod msg)
         {
             DevCarrierPack pack = new DevCarrierPack();
-            foreach (CarrierTask item in PubTask.Carrier.GetDevCarriers())
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                pack.AddDev(new RfDevCarrier()
+                foreach (CarrierTask item in PubTask.Carrier.GetDevCarriers(areaids))
                 {
-                    Id = item.ID,
-                    Area = item.AreaId,
-                    Carrier = item.DevStatus,
-                    Conn = item.ConnStatus
-                });
+                    pack.AddDev(new RfDevCarrier()
+                    {
+                        Id = item.ID,
+                        Area = item.AreaId,
+                        Carrier = item.DevStatus,
+                        Conn = item.ConnStatus
+                    });
+                }
+            }
+            else
+            {
+                foreach (CarrierTask item in PubTask.Carrier.GetDevCarriers())
+                {
+                    pack.AddDev(new RfDevCarrier()
+                    {
+                        Id = item.ID,
+                        Area = item.AreaId,
+                        Carrier = item.DevStatus,
+                        Conn = item.ConnStatus
+                    });
+                }
             }
 
             SendSucc2Rf(msg.MEID, FunTag.QueryDevCarrier, JsonTool.Serialize(pack));
@@ -1403,18 +1494,37 @@ namespace task.rf
         private void GetDevTileLifter(RfMsgMod msg)
         {
             DevTileLifterPack pack = new DevTileLifterPack();
-            foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters())
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                pack.AddDev(new RfDevTileLifter()
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids))
                 {
-                    Id = item.ID,
-                    Area = item.AreaId,
-                    TileLifter = item.DevStatus,
-                    Conn = item.ConnStatus,
-                    Working = item.IsWorking,
-                    WorkType = item.WorkType
-                });
+                    pack.AddDev(new RfDevTileLifter()
+                    {
+                        Id = item.ID,
+                        Area = item.AreaId,
+                        TileLifter = item.DevStatus,
+                        Conn = item.ConnStatus,
+                        Working = item.IsWorking,
+                        WorkType = item.WorkType
+                    });
+                }
             }
+            else
+            {
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters())
+                {
+                    pack.AddDev(new RfDevTileLifter()
+                    {
+                        Id = item.ID,
+                        Area = item.AreaId,
+                        TileLifter = item.DevStatus,
+                        Conn = item.ConnStatus,
+                        Working = item.IsWorking,
+                        WorkType = item.WorkType
+                    });
+                }
+            }
+            
 
             SendSucc2Rf(msg.MEID, FunTag.QueryDevTileLifter, JsonTool.Serialize(pack));
         }
@@ -1451,7 +1561,14 @@ namespace task.rf
         private void GetTrans(RfMsgMod msg)
         {
             TransPack pack = new TransPack();
-            pack.AddTransList(PubTask.Trans.GetTransList());
+            if(IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            {
+                pack.AddTransList(PubTask.Trans.GetTransList(areaids));
+            }
+            else
+            {
+                pack.AddTransList(PubTask.Trans.GetTransList());
+            }
             string data = JsonTool.Serialize(pack);
 
             SendSucc2Rf(msg.MEID, FunTag.QueryTrans, data);
@@ -1542,10 +1659,21 @@ namespace task.rf
         private void QueryTileShift(RfMsgMod msg) 
         {
             RfTileShiftPack pack = new RfTileShiftPack();
-            foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters())
+            if(IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                pack.AddTileShift(item.Device, item.DevConfig, item.TileShiftStatus);
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids))
+                {
+                    pack.AddTileShift(item.Device, item.DevConfig, item.TileShiftStatus);
+                }
             }
+            else
+            {
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters())
+                {
+                    pack.AddTileShift(item.Device, item.DevConfig, item.TileShiftStatus);
+                }
+            }
+
 
             if(pack.TileShift != null)
             {
@@ -1609,20 +1737,41 @@ namespace task.rf
         private void QueryTileMode(RfMsgMod msg)
         {
             RfTileWorkModePack pack = new RfTileWorkModePack();
-            foreach (TileLifterTask item in PubTask.TileLifter.GetCanCutoverTiles())
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                pack.AddDevice(new RfTileModePack()
+                foreach (TileLifterTask item in PubTask.TileLifter.GetCanCutoverTiles(areaids))
                 {
-                    tile_id = item.ID,
-                    type = item.Device.type,
-                    area = item.AreaId,
-                    goods_id = item.DevConfig.goods_id,
-                    pregood_id = item.DevConfig.pre_goodid,
-                    work_mode = item.DevConfig.work_mode,
-                    work_mode_next = item.DevConfig.work_mode_next,
-                    do_cutover = item.DevConfig.do_cutover,
-                }) ;
+                    pack.AddDevice(new RfTileModePack()
+                    {
+                        tile_id = item.ID,
+                        type = item.Device.type,
+                        area = item.AreaId,
+                        goods_id = item.DevConfig.goods_id,
+                        pregood_id = item.DevConfig.pre_goodid,
+                        work_mode = item.DevConfig.work_mode,
+                        work_mode_next = item.DevConfig.work_mode_next,
+                        do_cutover = item.DevConfig.do_cutover,
+                    });
+                }
             }
+            else
+            {
+                foreach (TileLifterTask item in PubTask.TileLifter.GetCanCutoverTiles())
+                {
+                    pack.AddDevice(new RfTileModePack()
+                    {
+                        tile_id = item.ID,
+                        type = item.Device.type,
+                        area = item.AreaId,
+                        goods_id = item.DevConfig.goods_id,
+                        pregood_id = item.DevConfig.pre_goodid,
+                        work_mode = item.DevConfig.work_mode,
+                        work_mode_next = item.DevConfig.work_mode_next,
+                        do_cutover = item.DevConfig.do_cutover,
+                    });
+                }
+            }
+
 
             if (pack.TileWorkMode != null)
             {
@@ -1660,6 +1809,32 @@ namespace task.rf
 
         #endregion
 
+
+        #endregion
+
+        #region[判断设备是否需要过滤]
+
+        private List<uint> Empty = new List<uint>();
+        /// <summary>
+        /// 判断平板是否需要过滤设备信息
+        /// </summary>
+        /// <param name="meid"></param>
+        /// <param name="areaids"></param>
+        /// <returns></returns>
+        private bool IsClientFilterArea(string meid,out List<uint> areaids)
+        {
+            RfClient rf = mClient.Find(c => meid.Equals(c.rfid));
+            if (rf != null)
+            {
+                if (rf.filter_area)
+                {
+                    areaids = rf.AreaIds;
+                    return true;
+                }
+            }
+            areaids = Empty;
+            return false;
+        }
 
         #endregion
     }

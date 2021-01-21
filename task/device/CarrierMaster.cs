@@ -1235,6 +1235,10 @@ namespace task.device
         {
             return DevList;
         }
+        internal List<CarrierTask> GetDevCarriers(List<uint> areaids)
+        {
+            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+        }
 
         /// <summary>
         /// 小车当前是否状态符合/不管有没有货
