@@ -307,21 +307,6 @@ namespace task.device
         }
 
         /// <summary>
-        /// 判断小车在指定的地标
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <param name="carrierid"></param>
-        /// <param name="isdownsite"></param>
-        /// <returns></returns>
-        internal bool HaveInTrackTopSide(uint trackid, uint carrierid, bool isdownsite)
-        {
-            Track track = PubMaster.Track.GetTrack(trackid);
-            return DevList.Exists(c => c.ID != carrierid
-            && ((isdownsite && c.CurrentPoint == track.ferry_down_code)
-                    || (!isdownsite && c.CurrentPoint == track.ferry_up_code)));
-        }
-
-        /// <summary>
         /// 小车完成任务
         /// </summary>
         /// <param name="carrier_id"></param>
@@ -520,7 +505,7 @@ namespace task.device
                                     && c.Status != DevCarrierStatusE.停止
                                     && c.Status != DevCarrierStatusE.异常
                                     && c.CurrentOrder != c.FinishOrder
-                                    //&& c.Position == DevCarrierPositionE.上下摆渡中  //冲过头？
+                                    && c.Position == DevCarrierPositionE.上下摆渡中  //小车冲过头？
                                     );
         }
 
@@ -1310,11 +1295,11 @@ namespace task.device
         /// <returns></returns>
         internal bool IsCarrierMoveInFerry(uint trackid)
         {
-            return DevList.Exists(c => c.CurrentTrackId == trackid 
-            && (c.Status != DevCarrierStatusE.停止 || c.OperateMode == DevOperateModeE.手动 
-            || (c.CurrentOrder != c.FinishOrder && c.CurrentOrder != DevCarrierOrderE.无) 
-            //|| c.Position == DevCarrierPositionE.上下摆渡中   //小车过头？
-                 ) );
+            return DevList.Exists(c => c.CurrentTrackId == trackid
+            && (c.Status != DevCarrierStatusE.停止 || c.OperateMode == DevOperateModeE.手动
+            || (c.CurrentOrder != c.FinishOrder && c.CurrentOrder != DevCarrierOrderE.无)
+            || c.Position == DevCarrierPositionE.上下摆渡中   //小车过头？
+                 ));
         }
 
         #endregion

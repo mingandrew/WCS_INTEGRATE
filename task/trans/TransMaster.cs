@@ -342,13 +342,21 @@ namespace task.trans
                                         trans.IsLeaveTileLifter = true;
                                     }
 
-                                    //1.卸货轨道状态是否运行放货                                    
-                                    //2.是否有其他车在同轨道上
-                                    if (PubTask.Carrier.IsCarrierFree(trans.carrier_id)
-                                        && PubTask.Ferry.IsLoad(trans.give_ferry_id)
-                                        && (!PubMaster.Track.IsStatusOkToGive(trans.give_track_id)
-                                        || PubTask.Carrier.HaveInTrackTopSide(trans.give_track_id, trans.carrier_id, false)))
+                                    ushort count = 0, loc = 0;
+                                    //1.计算轨道下一车坐标
+                                    //2.卸货轨道状态是否运行放货                                    
+                                    //3.是否有其他车在同轨道上
+                                    if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out count, out loc) ||
+                                         !PubMaster.Track.IsStatusOkToGive(trans.give_track_id) ||
+                                         PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
                                     {
+                                        if (loc == 0)
+                                        {
+                                            // 设满砖
+                                            PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
+                                            PubMaster.Track.AddTrackLog(count, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
+                                        }
+
                                         if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<uint> traids))
                                         {
                                             foreach (uint traid in traids)
@@ -370,14 +378,15 @@ namespace task.trans
 
                                     //摆渡车 定位去 放货点
                                     //小车到达摆渡车后短暂等待再开始定位
-                                    if (LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out string _))
+                                    if (PubTask.Ferry.IsLoad(trans.give_ferry_id) &&
+                                        LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out string _))
                                     {
                                         //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.放砖指令,
                                             CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id)
+                                            ToSite = loc
                                         });
 
                                     }
@@ -389,7 +398,7 @@ namespace task.trans
                                     PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id);
                                 }
 
-                                #region[小车没有扫到地标]
+                                #region[小车没有扫到地标] - 停用
 
                                 //小车离开了摆渡车但是没有扫到轨道地标
                                 //if (!ferryload
@@ -466,20 +475,24 @@ namespace task.trans
                             {
                                 SetUnLoadTime(trans);
 
-                                if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
-                                {
-                                    ushort fullqty = PubMaster.Area.GetAreaFullQty(trans.area_id);
+                                #region 按最小库存数 设满砖 -停用
 
-                                    //当轨道满砖数量库存时就将轨道设为满砖轨道
-                                    if (PubMaster.Goods.GetTrackStockCount(trans.give_track_id) == fullqty)
-                                    {
-                                        PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "设定最大库存数,自动满砖");
-                                        PubMaster.Track.AddTrackLog(fullqty, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "满足最大库存数");
-                                        return;
-                                    }
-                                }
+                                //if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
+                                //{
+                                //    ushort fullqty = PubMaster.Area.GetAreaFullQty(trans.area_id);
 
-                                #region 移车
+                                //    //当轨道满砖数量库存时就将轨道设为满砖轨道
+                                //    if (PubMaster.Goods.GetTrackStockCount(trans.give_track_id) == fullqty)
+                                //    {
+                                //        PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "设定最大库存数,自动满砖");
+                                //        PubMaster.Track.AddTrackLog(fullqty, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "满足最大库存数");
+                                //        return;
+                                //    }
+                                //}
+
+                                #endregion
+
+                                #region 移车 -停用
 
                                 //if (PubMaster.Track.IsTrackFull(trans.give_track_id))
                                 //{
@@ -1081,7 +1094,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.取砖指令,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
                                         });
 
                                         return;
@@ -1108,8 +1121,7 @@ namespace task.trans
 
                                         #region 没库存时就将轨道设为空砖
 
-                                        if (PubMaster.Track.GetTrack(trans.take_track_id).Type == TrackTypeE.储砖_出入 &&
-                                            !PubMaster.Track.IsEmtpy(trans.take_track_id) && PubMaster.Goods.IsTrackStockEmpty(trans.take_track_id))
+                                        if (!PubMaster.Track.IsEmtpy(trans.take_track_id) && PubMaster.Goods.IsTrackStockEmpty(trans.take_track_id))
                                         {
                                             PubMaster.Track.UpdateStockStatus(trans.take_track_id, TrackStockStatusE.空砖, "系统已无库存,自动调整轨道为空");
                                             PubMaster.Goods.ClearTrackEmtpy(trans.take_track_id);
@@ -1161,7 +1173,7 @@ namespace task.trans
                                         if (PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
                                         {
                                             // 优先移动到空轨道
-                                            List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出入);
+                                            List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
 
                                             List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrack(trans.take_track_id).order);
 
@@ -1191,7 +1203,7 @@ namespace task.trans
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
                                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
                                                 });
 
                                             }
@@ -1202,7 +1214,7 @@ namespace task.trans
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
                                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
                                                 });
 
                                             }
@@ -1369,7 +1381,7 @@ namespace task.trans
                                                     {
                                                         foreach (var tid in trackids)
                                                         {
-                                                            if (!IsTraInTrans(tid) 
+                                                            if (!IsTraInTrans(tid)
                                                                 && !PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id)
                                                                 && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid))
                                                             {
@@ -1441,7 +1453,7 @@ namespace task.trans
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
                                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
+                                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id),
                                                 });
 
                                             }
@@ -1452,7 +1464,7 @@ namespace task.trans
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
                                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
+                                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id),
                                                 });
 
                                             }
@@ -1545,7 +1557,7 @@ namespace task.trans
                                     {
                                         Order = DevCarrierOrderE.定位指令,
                                         CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                        ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                        ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
                                     });
 
                                     break;
@@ -1719,7 +1731,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
 
@@ -1779,7 +1791,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
 
@@ -1801,7 +1813,7 @@ namespace task.trans
 
                 #region[小车倒库]
                 case TransStatusE.倒库中:
-                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库) || 
+                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
                         PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
                     {
                         if (PubMaster.Goods.ShiftStock(trans.take_track_id, trans.give_track_id))
@@ -1852,7 +1864,7 @@ namespace task.trans
                             {
                                 Order = DevCarrierOrderE.定位指令,
                                 CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                             });
 
                         }
@@ -1923,7 +1935,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.定位指令,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                         });
 
                                     }
@@ -2072,7 +2084,7 @@ namespace task.trans
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                 });
 
                             }
@@ -2291,7 +2303,7 @@ namespace task.trans
                                     if (isload)
                                     {
                                         //TODO 如果当前小车取了砖砖轨道头，那小车先把砖放回原位置
-                                        if(PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                        if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
                                         {
                                             //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -2385,8 +2397,7 @@ namespace task.trans
 
                                         #region 没库存时就将轨道设为空砖
 
-                                        if (PubMaster.Track.GetTrack(trans.take_track_id).Type == TrackTypeE.储砖_出入 &&
-                                            !PubMaster.Track.IsEmtpy(trans.take_track_id) && PubMaster.Goods.IsTrackStockEmpty(trans.take_track_id))
+                                        if (!PubMaster.Track.IsEmtpy(trans.take_track_id) && PubMaster.Goods.IsTrackStockEmpty(trans.take_track_id))
                                         {
                                             PubMaster.Track.UpdateStockStatus(trans.take_track_id, TrackStockStatusE.空砖, "系统已无库存,自动调整轨道为空");
                                             PubMaster.Goods.ClearTrackEmtpy(trans.take_track_id);
@@ -2444,7 +2455,7 @@ namespace task.trans
                                         if (PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
                                         {
                                             // 优先移动到空轨道
-                                            List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出入);
+                                            List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
 
                                             List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrack(trans.take_track_id).order);
 

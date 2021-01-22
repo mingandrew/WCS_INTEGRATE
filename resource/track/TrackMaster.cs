@@ -184,13 +184,23 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取轨道RFID1
+        /// 获取轨道RFID1（定位-默认最小地标）
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
         public ushort GetTrackRFID1(uint trackid)
         {
             return TrackList.Find(c => c.id == trackid)?.rfid_1 ?? 0;
+        }
+
+        /// <summary>
+        /// 获取轨道RFID2（定位-默认最大地标）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackRFID2(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.rfid_2 ?? 0;
         }
 
         /// <summary>

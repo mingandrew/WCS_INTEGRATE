@@ -795,7 +795,7 @@ namespace resource.goods
             {
                 if ((DateTime.Now - (DateTime)stock1.produce_time).TotalHours >= minStockTime)
                 {
-                    if (PubMaster.Track.IsTrackFull(stock1.track_id) && 
+                    if (!PubMaster.Track.IsEmtpy(stock1.track_id) && 
                         PubMaster.Track.IsTrackEnable(stock1.track_id, TrackStatusE.仅上砖))
                     {
                         allocatstocks.Add(stock1);
@@ -1658,13 +1658,16 @@ namespace resource.goods
         /// <summary>
         /// 计算下一车轨道坐标
         /// </summary>
-        /// <param name="trackid"></param>
         /// <param name="tt"></param>
+        /// <param name="carrierid"></param>
+        /// <param name="trackid"></param>
+        /// <param name="stockcount"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public bool CalculateNextLocation(TransTypeE tt, uint carrierid, uint trackid, out ushort location)
+        public bool CalculateNextLocation(TransTypeE tt, uint carrierid, uint trackid, out ushort stockcount, out ushort location)
         {
             bool isOK = false;
+            stockcount = 0;
             location = 0;
             List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
             if (stocks == null || stocks.Count == 0)
@@ -1673,6 +1676,7 @@ namespace resource.goods
             }
             else
             {
+                stockcount = (ushort)stocks.Count;
                 switch (tt)
                 {
                     case TransTypeE.下砖任务:
@@ -1687,8 +1691,11 @@ namespace resource.goods
                         if (location < limit)
                         {
                             location = 0;
+                            break;
                         }
+                        isOK = true;
                         break;
+
                     case TransTypeE.上砖任务:
                     case TransTypeE.手动上砖:
                         break;

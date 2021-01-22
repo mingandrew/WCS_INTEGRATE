@@ -441,9 +441,15 @@ namespace resource.area
             return AreaTraList.FindAll(c => c.area_id == areaid);
         }
 
+        /// <summary>
+        /// 获取区域内可用轨道（已含出入轨道）
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="typeE"></param>
+        /// <returns></returns>
         public List<uint> GetAreaTrackIds(uint areaid, TrackTypeE typeE)
         {
-            List<AreaTrack> areaTracks = AreaTraList.FindAll(c => c.area_id == areaid && c.TrackType == typeE);
+            List<AreaTrack> areaTracks = AreaTraList.FindAll(c => c.area_id == areaid && (c.TrackType == typeE || c.TrackType == TrackTypeE.储砖_出入));
             return areaTracks.Select(c => c.track_id).ToList();
         }
 
