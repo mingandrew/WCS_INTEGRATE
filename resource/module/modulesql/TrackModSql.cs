@@ -207,6 +207,9 @@ namespace resource.module.modulesql
                     sql += string.Format("`early_full` = {0} ,`full_time` = {1} ",
                         track.early_full, GetTimeOrNull(track.full_time));
                     break;
+                case TrackUpdateE.Point:
+                    sql += string.Format("`split_point` = {0},`limit_point` = {1} ", track.split_point, track.limit_point);
+                    break;
                 default:
                     sql += " 1=1";
                     break;

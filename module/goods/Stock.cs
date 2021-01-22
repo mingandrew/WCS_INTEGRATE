@@ -17,6 +17,16 @@ namespace module.goods
         public uint tilelifter_id { set; get; }//库存来源下砖机
         public uint area { set; get; }
         public byte track_type { set; get; }
+
+        /// <summary>
+        /// 库存实际坐标（脉冲）
+        /// </summary>
+        public ushort location { set; get; }
+        /// <summary>
+        /// 库存计算坐标（脉冲）
+        /// </summary>
+        public ushort location_cal { set; get; }
+
         public StockPosE PosType
         {
             get => (StockPosE)pos_type;

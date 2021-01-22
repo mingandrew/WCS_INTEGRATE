@@ -58,8 +58,9 @@
 
     public enum StockPosE
     {
-        顶部,
-        其他
+        头部,
+        中部,
+        尾部
     }
 
     public enum StockUpE

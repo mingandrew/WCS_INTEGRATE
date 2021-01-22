@@ -150,6 +150,16 @@ namespace resource.device
 
         #region 运输车
 
+        /// <summary>
+        /// 获取运输车顶板长度
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public ushort GetCarrierLenght(uint devid)
+        {
+            return ConfigCarrierList.Find(c => c.id == devid)?.length ?? 0;
+        }
+
         #endregion
 
         #region 摆渡车

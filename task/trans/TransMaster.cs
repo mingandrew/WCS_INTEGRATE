@@ -118,6 +118,7 @@ namespace task.trans
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     });
 
@@ -152,6 +153,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
 
@@ -167,6 +169,7 @@ namespace task.trans
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = track.ferry_up_code,
                                         ToRFID = track.rfid_1,
                                     });
 
@@ -203,6 +206,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                                 });
 
@@ -250,6 +254,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.取砖指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                         });
 
@@ -311,6 +316,7 @@ namespace task.trans
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     });
 
@@ -370,7 +376,8 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.放砖指令,
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
+                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id)
                                         });
 
                                     }
@@ -464,7 +471,7 @@ namespace task.trans
                                     ushort fullqty = PubMaster.Area.GetAreaFullQty(trans.area_id);
 
                                     //当轨道满砖数量库存时就将轨道设为满砖轨道
-                                    if (PubMaster.Goods.GetTrackCount(trans.give_track_id) == fullqty)
+                                    if (PubMaster.Goods.GetTrackStockCount(trans.give_track_id) == fullqty)
                                     {
                                         PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "设定最大库存数,自动满砖");
                                         PubMaster.Track.AddTrackLog(fullqty, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "满足最大库存数");
@@ -571,6 +578,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
                                         });
 
@@ -619,6 +627,7 @@ namespace task.trans
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     });
 
@@ -692,6 +701,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                         });
 
@@ -728,6 +738,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
 
@@ -847,6 +858,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                                 ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
@@ -865,6 +877,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                                 ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
@@ -899,6 +912,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
 
@@ -938,6 +952,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                                 ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
@@ -972,6 +987,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                                 });
 
@@ -987,6 +1003,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = track.ferry_down_code,
                                                 ToRFID = track.rfid_2,
                                             });
 
@@ -1021,6 +1038,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                                 });
 
@@ -1035,6 +1053,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = track.ferry_down_code,
                                                 ToRFID = track.rfid_2,
                                             });
 
@@ -1061,6 +1080,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.取砖指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                         });
 
@@ -1122,6 +1142,7 @@ namespace task.trans
                                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                     {
                                                         Order = DevCarrierOrderE.放砖指令,
+                                                        CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
                                                         ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                                     });
 
@@ -1169,6 +1190,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                                 });
 
@@ -1179,6 +1201,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                                 });
 
@@ -1222,6 +1245,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.放砖指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                         });
 
@@ -1289,6 +1313,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
 
@@ -1415,6 +1440,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
                                                 });
 
@@ -1425,6 +1451,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
                                                 });
 
@@ -1517,6 +1544,7 @@ namespace task.trans
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                     });
 
@@ -1547,6 +1575,7 @@ namespace task.trans
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     });
 
@@ -1689,6 +1718,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
@@ -1717,6 +1747,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid)
                                         });
 
@@ -1747,6 +1778,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
@@ -1819,6 +1851,7 @@ namespace task.trans
                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.定位指令,
+                                CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                 ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                             });
 
@@ -1889,6 +1922,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                         });
 
@@ -1911,6 +1945,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
 
@@ -1950,6 +1985,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                         });
 
@@ -1972,6 +2008,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
 
@@ -2009,6 +2046,7 @@ namespace task.trans
                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
+                                    CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                 });
 
@@ -2033,6 +2071,7 @@ namespace task.trans
                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
+                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                 });
 
@@ -2184,6 +2223,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                                 ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
@@ -2218,6 +2258,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                                 });
 
@@ -2233,6 +2274,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = track.ferry_up_code,
                                                 ToRFID = track.rfid_1,
                                             });
 
@@ -2255,7 +2297,8 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.放砖指令,
-                                                ToRFID = PubMaster.Track.GetTrackRFID1(track.id),
+                                                CheckTra = track.ferry_up_code,
+                                                ToRFID = track.rfid_1,
                                             });
 
                                         }
@@ -2272,6 +2315,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                                 });
 
@@ -2286,6 +2330,7 @@ namespace task.trans
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = track.ferry_up_code,
                                                 ToRFID = track.rfid_2,
                                             });
 
@@ -2312,6 +2357,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.取砖指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                         });
 
@@ -2380,6 +2426,7 @@ namespace task.trans
                                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                     {
                                                         Order = DevCarrierOrderE.放砖指令,
+                                                        CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                                         ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                                     });
 
@@ -2426,6 +2473,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                                 });
 
@@ -2437,6 +2485,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
+                                                    CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                                 });
 
@@ -2481,6 +2530,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.放砖指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
                                         });
 
@@ -2549,6 +2599,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
 
@@ -2677,6 +2728,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
+                                                    CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
                                                 });
 
@@ -2687,6 +2739,7 @@ namespace task.trans
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
                                                 });
 
@@ -2784,6 +2837,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.放砖指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                         });
 
@@ -2796,6 +2850,7 @@ namespace task.trans
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
                                         });
 
@@ -2828,6 +2883,7 @@ namespace task.trans
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     });
 

@@ -713,6 +713,11 @@ namespace task.device
             return true;
         }
 
+        /// <summary>
+        /// 发送执行指令
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="cao"></param>
         public void DoOrder(uint devid, CarrierActionOrder cao)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -729,6 +734,28 @@ namespace task.device
                         }
 
                         task.DoOrder(cao);
+                    }
+                }
+                finally { Monitor.Exit(_obj); }
+            }
+        }
+
+        /// <summary>
+        /// 发送设置复位点坐标指令
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="rfid"></param>
+        /// <param name="site"></param>
+        public void DoResetSite(uint devid, ushort rfid, ushort site)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    CarrierTask task = DevList.Find(c => c.ID == devid);
+                    if (task != null)
+                    {
+                        task.DoResetSite(rfid, site);
                     }
                 }
                 finally { Monitor.Exit(_obj); }

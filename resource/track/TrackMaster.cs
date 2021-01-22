@@ -129,19 +129,88 @@ namespace resource.track
             return GetTrackByPoint(site)?.id ?? 0;
         }
 
+        /// <summary>
+        /// 获取轨道前进起点（默认入库端口）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackUpCode(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.ferry_up_code ?? 0;
+        }
+
+        /// <summary>
+        /// 获取轨道后退起点（默认出库端口）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackDownCode(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.ferry_down_code ?? 0;
+        }
+
+        /// <summary>
+        /// 获取小车位置对应轨道ID
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="site"></param>
+        /// <returns></returns>
+        public uint GetTrackIdForCarrier(ushort point, ushort site)
+        {
+            uint traid = 0;
+            Track t = GetTrackByPoint(point);
+            if (t != null)
+            {
+                switch (t.Type)
+                {
+                    case TrackTypeE.储砖_入: // 读到入轨道地标，但是大于分段点距离，当做出轨道
+                        if (site >= t.split_point)
+                        {
+                            traid = t.brother_track_id;
+                        }
+                        break;
+                    case TrackTypeE.储砖_出:// 读到出轨道地标，但是小于分段点距离，当做入轨道
+                        if (site <= t.split_point)
+                        {
+                            traid = t.brother_track_id;
+                        }
+                        break;
+                    default:
+                        traid = t.id;
+                        break;
+                }
+            }
+            return traid;
+        }
+
+        /// <summary>
+        /// 获取轨道RFID1
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         public ushort GetTrackRFID1(uint trackid)
         {
             return TrackList.Find(c => c.id == trackid)?.rfid_1 ?? 0;
         }
 
-        public bool IsTrackWithCode(uint take_track_id, ushort taketrackcode)
+        /// <summary>
+        /// 获取轨道分段点坐标
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackSplitPoint(uint trackid)
         {
-            return TrackList.Exists(c => c.id == take_track_id && c.IsInTrack(taketrackcode));
+            return TrackList.Find(c => c.id == trackid)?.split_point ?? 0;
         }
 
-        public bool IsTrackInArea(uint filterareaid, uint track_id)
+        /// <summary>
+        /// 获取轨道下砖极限点坐标
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackLimitPoint(uint trackid)
         {
-            return TrackList.Exists(c => c.id == track_id && c.area == filterareaid);
+            return TrackList.Find(c => c.id == trackid)?.limit_point ?? 0;
         }
 
         public uint GetBrotherTrackId(uint trackid)

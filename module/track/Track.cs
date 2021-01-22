@@ -15,8 +15,16 @@ namespace module.track
         public ushort width { set; get; }
         public ushort left_distance { set; get; }
         public ushort right_distance { set; get; }
-        public ushort ferry_up_code{set;get;}
-        public ushort ferry_down_code{set;get;}
+
+        /// <summary>
+        /// 摆渡对位点位，也作为轨道尽头 前进起始点位
+        /// </summary>
+        public ushort ferry_up_code{set;get; }
+        /// <summary>
+        /// 摆渡对位点位，也作为轨道尽头 后退起始点位
+        /// </summary>
+        public ushort ferry_down_code{set;get; } 
+
         public int max_store { set; get; }
         public uint brother_track_id { set; get; }
         public uint left_track_id { set; get; }
@@ -40,6 +48,17 @@ namespace module.track
         public bool early_full { set; get; }//提前满砖
         public DateTime? full_time { set; get; }//满砖时间
         public bool same_side_inout { set; get; }//是否同侧出入库
+
+        /// <summary>
+        /// 轨道分段点坐标
+        /// </summary>
+        public ushort split_point { set; get; }
+
+        /// <summary>
+        /// 轨道下砖极限点坐标
+        /// </summary>
+        public ushort limit_point { set; get; }
+
 
         public TrackTypeE Type
         {

@@ -119,6 +119,12 @@
                     <DataGridTextColumn Binding="{Binding TargetSite}" Header="目的坐标"/>
                     <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
                     <DataGridTextColumn Binding="{Binding Position}" Header="位置"/>
+
+                    <DataGridTextColumn Binding="{Binding TakePoint}" Header="取货RFID"/>
+                    <DataGridTextColumn Binding="{Binding TakeSite}" Header="取货坐标"/>
+                    <DataGridTextColumn Binding="{Binding GivePoint}" Header="卸货RFID"/>
+                    <DataGridTextColumn Binding="{Binding GiveSite}" Header="卸货坐标"/>
+                    <DataGridTextColumn Binding="{Binding MoveCount}" Header="倒库数量"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

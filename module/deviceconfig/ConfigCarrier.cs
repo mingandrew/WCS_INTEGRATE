@@ -33,5 +33,10 @@ namespace module.deviceconfig
         /// </summary>
         public uint stock_id { set; get; }
 
+        /// <summary>
+        /// 运输顶板长度（脉冲）
+        /// </summary>
+        public ushort length { set; get; }
+
     }
 }

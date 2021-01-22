@@ -139,7 +139,7 @@ namespace wcs.Data.View
                 {
                     Length = size.length;
                     Width = size.width;
-                    Isoversize = size.oversize;
+                    //Isoversize = size.oversize;
                     Stack = size.stack;
                 }
             }

@@ -240,12 +240,12 @@ namespace task.device
         {
             if (CurrentPoint != 0)
             {
-                CurrentTrackId = PubMaster.Track.GetTrackId(CurrentPoint);
+                CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier(CurrentPoint, CurrentSite);
             }
 
             if (TargetPoint != 0)
             {
-                TargetTrackId = PubMaster.Track.GetTrackId(TargetPoint);
+                TargetTrackId = PubMaster.Track.GetTrackIdForCarrier(TargetPoint, TargetSite);
             }
         }
 
