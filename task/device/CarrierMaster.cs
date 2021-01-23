@@ -695,13 +695,16 @@ namespace task.device
             if (!trans.IsReleaseGiveFerry)
             {
                 CarrierTask carrier = DevList.Find(c => c.ID == trans.carrier_id);
-                if (carrier.Task == DevCarrierTaskE.前进放砖)
+                if(carrier != null && carrier.CarrierPosition == DevCarrierPositionE.在轨道上)
                 {
-                    mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
-                }
-                else if (carrier.Task == DevCarrierTaskE.后退取砖)
-                {
-                    mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
+                    if (carrier.Task == DevCarrierTaskE.前进放砖)
+                    {
+                        mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
+                    }
+                    else if (carrier.Task == DevCarrierTaskE.后退取砖)
+                    {
+                        mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
+                    }
                 }
             }
             return DevList.Exists(c => c.ID == trans.carrier_id
