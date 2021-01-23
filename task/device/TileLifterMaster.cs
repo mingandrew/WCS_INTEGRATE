@@ -1691,10 +1691,18 @@ namespace task.device
             {
                 if (checkleft)
                 {
+                    if (!brotask.IsNeed_1 && !brotask.IsLoad_1 && !brotask.IsInvo_1)
+                    {
+                        brotask.Do1Invo(DevLifterInvolE.介入);
+                    }
                     if ((brotask.IsNeed_1 || brotask.IsInvo_1) && brotask.IsEmpty_1) return true;//如果兄弟砖机左工位有需求或介入且无砖，就可以生成出库任务                       
                 }
                 else
                 {
+                    if (!brotask.IsNeed_2 && !brotask.IsLoad_2 && !brotask.IsInvo_2)
+                    {
+                        brotask.Do2Invo(DevLifterInvolE.介入);
+                    }
                     if ((brotask.IsNeed_2 || brotask.IsInvo_2) && brotask.IsEmpty_2) return true;//如果兄弟砖机右工位有需求或介入且无砖，就可以生成出库任务
                 }
                 return false;
