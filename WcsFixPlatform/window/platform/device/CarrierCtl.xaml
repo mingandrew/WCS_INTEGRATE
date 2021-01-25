@@ -58,14 +58,14 @@
                         <MenuItem Header="前进放砖" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="后退至摆渡车" Tag="3" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="前进至摆渡车" Tag="4" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="后退至轨道倒库" Tag="5" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="倒库" Tag="5" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="前进至点" Tag="6" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="后退至点" Tag="7" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="顶升取货" Tag="8" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="下降放货" Tag="9" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="后退至外放砖" Tag="10" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <!--<MenuItem Header="后退至外放砖" Tag="10" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="后退至内放砖" Tag="11" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="前进取砖" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="前进取砖" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
                         <MenuItem Header="终止" Tag="127" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         <MenuItem Header="清空信息" Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         
@@ -111,18 +111,18 @@
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding DeviceStatus}" Header="状态"/>
                     <DataGridTextColumn Binding="{Binding LoadStatus}" Header="货物"/>
-                    <DataGridTextColumn Binding="{Binding CurrentPoint}" Header="当前地标"/>
+                    <DataGridTextColumn Binding="{Binding CurrentPoint}" Header="当前点位"/>
                     <DataGridTextColumn Binding="{Binding CurrentSite}" Header="当前坐标"/>
                     <DataGridTextColumn Binding="{Binding CurrentOrder}" Header="指令"/>
                     <DataGridTextColumn Binding="{Binding FinishOrder}" Header="完成"/>
-                    <DataGridTextColumn Binding="{Binding TargetPoint}" Header="目的地标"/>
+                    <DataGridTextColumn Binding="{Binding TargetPoint}" Header="目的点位"/>
                     <DataGridTextColumn Binding="{Binding TargetSite}" Header="目的坐标"/>
                     <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
                     <DataGridTextColumn Binding="{Binding Position}" Header="位置"/>
 
-                    <DataGridTextColumn Binding="{Binding TakePoint}" Header="取货RFID"/>
+                    <DataGridTextColumn Binding="{Binding TakePoint}" Header="取货点位"/>
                     <DataGridTextColumn Binding="{Binding TakeSite}" Header="取货坐标"/>
-                    <DataGridTextColumn Binding="{Binding GivePoint}" Header="卸货RFID"/>
+                    <DataGridTextColumn Binding="{Binding GivePoint}" Header="卸货点位"/>
                     <DataGridTextColumn Binding="{Binding GiveSite}" Header="卸货坐标"/>
                     <DataGridTextColumn Binding="{Binding MoveCount}" Header="倒库数量"/>
                 </DataGrid.Columns>

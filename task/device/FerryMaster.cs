@@ -366,51 +366,6 @@ namespace task.device
             }
         }
 
-        public bool HaveFerryOnTrack(ushort from, ushort to, out string result, bool onferryboolvalue)
-        {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                result = "稍后再试！";
-                return false;
-            }
-            try
-            {
-                Track ft = PubMaster.Track.GetTrackByPoint(from);
-                Track tt = PubMaster.Track.GetTrackByPoint(to);
-                if (ft != null)
-                {
-                    if (ft.Type == TrackTypeE.摆渡车_入 || ft.Type == TrackTypeE.摆渡车_出)
-                    {
-                        result = "小车已经在摆渡车上了！";
-                        return onferryboolvalue;
-                    }
-                    
-                    FerryTask task = DevList.Find(c => c.TransId == tt.id);
-                    if (!task.IsOnSite(ft.ferry_up_code) && !task.IsOnSite(ft.ferry_down_code))
-                    {
-                        result = "摆渡车没到位！";
-                        return false;
-                    }
-
-                    if (!CheckFerryStatus(task, out result))
-                    {
-                        return false;
-                    }
-
-                    if (task.Status == DevFerryStatusE.停止)
-                    {
-                        return true;
-                    }
-                }
-            }
-            finally
-            {
-                Monitor.Exit(_obj);
-            }
-            result = "没有符合条件的摆渡车!";
-            return false;
-        }
-
         private void CheckConn(FerryTask task)
         {
             switch (task.ConnStatus)
@@ -432,7 +387,6 @@ namespace task.device
                 MsgSend(task, task.DevStatus);
             }
         }
-
 
         #endregion
 
@@ -1232,7 +1186,7 @@ namespace task.device
         {
             if (task == null)
             {
-                result = "找不到可上的摆渡车";
+                result = "找不到可用的摆渡车";
                 return false;
             }
 
@@ -1284,8 +1238,9 @@ namespace task.device
                                     && c.Status == DevFerryStatusE.停止);
         }
 
-        internal bool IsStopAndSiteOnTrack(uint id, bool isferryupsite, out string result)
+        internal bool IsStopAndSiteOnTrack(uint id, bool isferryupsite, out uint intrackid, out string result)
         {
+            intrackid = 0;
             FerryTask task = DevList.Find(c => c.DevConfig.track_id == id);
             if (task == null)
             {
@@ -1306,18 +1261,111 @@ namespace task.device
 
             if (isferryupsite && !task.IsUpLight)
             {
-                result = "摆渡车上光电未亮！";
+                result = "摆渡车前侧光电未亮！";
                 return false;
             }
 
             if (!isferryupsite && !task.IsDownLight)
             {
-                result = "摆渡车下光电未亮！";
+                result = "摆渡车后侧光电未亮！";
                 return false;
             }
 
+            intrackid = isferryupsite ? task.UpTrackId : task.DownTrackId;
             result = "";
             return true;
+        }
+
+        /// <summary>
+        /// 是否有到位摆渡车可用
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="trackid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool HaveFerryInPlace(DeviceTypeE dt, uint trackid, out ushort trackcode, out string result)
+        {
+            trackcode = 0;
+            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            {
+                result = "稍后再试！";
+                return false;
+            }
+            try
+            {
+                FerryTask task = DevList.Find(c => c.Type == dt && c.GetFerryCurrentTrackId() == trackid);
+
+                if (!CheckFerryStatus(task, out result))
+                {
+                    return false;
+                }
+
+                if (task.Status == DevFerryStatusE.停止)
+                {
+                    // 摆渡车up down 一样的
+                    trackcode = PubMaster.Track.GetTrackDownCode(task.FerryTrackId);
+                    return true;
+                }
+            }
+            finally
+            {
+                Monitor.Exit(_obj);
+            }
+            result = "没有符合条件的摆渡车!";
+            return false;
+        }
+
+        /// <summary>
+        /// 目的摆渡车是否到位
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="result"></param>
+        /// <param name="onferryboolvalue"></param>
+        /// <returns></returns>
+        public bool IsTargetFerryInPlace(ushort from, ushort to, out string result, bool onferryboolvalue)
+        {
+            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            {
+                result = "稍后再试！";
+                return false;
+            }
+            try
+            {
+                Track ft = PubMaster.Track.GetTrackByPoint(from);
+                Track tt = PubMaster.Track.GetTrackByPoint(to);
+                if (ft != null)
+                {
+                    if (ft.Type == TrackTypeE.摆渡车_入 || ft.Type == TrackTypeE.摆渡车_出)
+                    {
+                        result = "小车已经在摆渡车上了！";
+                        return onferryboolvalue;
+                    }
+
+                    FerryTask task = DevList.Find(c => c.TransId == tt.id);
+                    if (!task.IsOnSite(ft.ferry_up_code) && !task.IsOnSite(ft.ferry_down_code))
+                    {
+                        result = "摆渡车没到位！";
+                        return false;
+                    }
+
+                    if (!CheckFerryStatus(task, out result))
+                    {
+                        return false;
+                    }
+
+                    if (task.Status == DevFerryStatusE.停止)
+                    {
+                        return true;
+                    }
+                }
+            }
+            finally
+            {
+                Monitor.Exit(_obj);
+            }
+            result = "没有符合条件的摆渡车!";
+            return false;
         }
 
         #endregion

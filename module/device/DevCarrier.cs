@@ -309,7 +309,7 @@ namespace module.device
         public override string ToString()
         {
             return string.Format("设备[ {0} ]，状态[ {1} ]，当前[ {2}^{3} ]，目的[ {4}^{5} ]，指令[ {6} ]，完成[ {7} ]，" +
-                "载货[ {8} ]，位置[ {9} ]，操作[ {10} ]，取货[ {11}^{12} ]，卸货[ {6}^{7} ]，倒库[ {8} ]",
+                "载货[ {8} ]，位置[ {9} ]，操作[ {10} ]，取货[ {11}^{12} ]，卸货[ {13}^{14} ]，倒库[ {15} ]",
                 DeviceID, DeviceStatus, CurrentPoint, CurrentSite, TargetPoint, TargetSite, CurrentOrder, FinishOrder,
                 LoadStatus, Position, OperateMode, TakePoint, TakeSite, GivePoint, GiveSite, MoveCount);
         }

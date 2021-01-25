@@ -138,31 +138,9 @@ namespace wcs.ViewModel
                         break;
 
                     default:
-
-                        //PubTask.Carrier.DoResetSite(DeviceSelected.ID, 30100, 1500);
-
-                        DevCarrierOrderE o = DevCarrierOrderE.定位指令;
-                        ushort c = 301;
-                        ushort tr = 30100;
-                        ushort ts = 0;
-                        ushort or = 0;
-                        ushort os = 0 ;
-                        byte m = 0;
-
-                        PubTask.Carrier.DoOrder(DeviceSelected.ID, new task.device.CarrierActionOrder() {
-                            Order = o,
-                            CheckTra = c,
-                            ToRFID = tr,
-                            ToSite = ts,
-                            OverRFID = or,
-                            OverSite = os,
-                            MoveCount = m
-                        });
-                        Growl.Info("已发送");
-                        break;
-
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
-                        if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
+                        //if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
+                        if (!PubTask.Carrier.DoManualNewTask(DeviceSelected.ID, type, out string result,"PC手动"))
                         {
                             Growl.Warning(result);
                         }
