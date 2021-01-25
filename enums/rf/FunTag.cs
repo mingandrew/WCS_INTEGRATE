@@ -131,6 +131,7 @@
 
         public const string QueryTileMode = nameof(QueryTileMode);//查询砖机模型信息
         public const string ShiftTileMode = nameof(ShiftTileMode);//转模式
+        public const string CancelTileShift = nameof(CancelTileShift);//取消切换模式
 
         #endregion
     }
