@@ -34,33 +34,46 @@
         TileGoodsIsNull,  //砖机工位品种没有配置
     }
 
+    /// <summary>
+    /// 运输车反馈报警信息
+    /// </summary>
     public enum CarrierWarnE
     {
-        ReadConBreakenCheckWire = 100,//RFID阅读器故障
-        StoreSlowOverTimeCheckLight,
-        FrontAvoidAlert,//前防撞
-        BackAvoidAlert,//后防撞
-        BackTakeOverTime,//后退取货超时
-        FrontGiveOverTime,//前进放货超时
-        FrontPointOverTime,
-        BackPointOverTime,
-        Back2FerryOverTime,
-        Front2FerryOverTime,
-        GoUpOverTime,
-        GoDownOverTime,
-        BackTakeCannotDo,
-        FrontGiveCannotDo,
-        Back2FerryCannotDo,
-        Front2FerryCannotDo,
-        Back2SortCannotDo,
-        Front2PointCannotDo,
-        Back2PointCannotDo,
-        NotGoodToGoUp,
-        SortTaskOverTime,
-        FunctinSwitchOverTime,
-        CheckUpAndLoadIsNormal, //检查上位和有砖信号是否正常
-        CheckGoDecelerateIsNormal,  //检查前进存砖减速信号是否正常
-        TriggerEmergencyStop //急停触发
+        WarningA1X0 = 100,
+        WarningA1X1,
+        WarningA1X2,
+        WarningA1X3,
+        WarningA1X4,
+        WarningA1X5,
+        WarningA1X6,
+        WarningA1X7,
+
+        WarningA2X0,
+        WarningA2X1,
+        WarningA2X2,
+        WarningA2X3,
+        WarningA2X4,
+        WarningA2X5,
+        WarningA2X6,
+        WarningA2X7,
+
+        WarningA3X0,
+        WarningA3X1,
+        WarningA3X2,
+        WarningA3X3,
+        WarningA3X4,
+        WarningA3X5,
+        WarningA3X6,
+        WarningA3X7,
+
+        WarningA4X0,
+        WarningA4X1,
+        WarningA4X2,
+        WarningA4X3,
+        WarningA4X4,
+        WarningA4X5,
+        WarningA4X6,
+        WarningA4X7
     }
 
 }
