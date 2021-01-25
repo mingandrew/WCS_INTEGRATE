@@ -182,6 +182,11 @@ namespace resource.area
             return list;
         }
 
+        public bool HaveAreaDevTrack(uint areaid, uint devid)
+        {
+            return AreaDevTraList.Exists(c => c.area_id == areaid && c.device_id == devid);
+        }
+
         #endregion
 
         #region[获取/判断属性]

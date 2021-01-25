@@ -410,7 +410,7 @@ namespace wcs.ViewModel
             }
         }
 
-        private async void EditDevice()
+        private void EditDevice()
         {
 
 

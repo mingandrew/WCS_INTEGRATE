@@ -36,7 +36,6 @@ namespace wcs.ViewModel
         private ushort pieces;
         private uint size_id;
         private string size_info;
-        private byte level;
 
         private string actionname;
         private bool mIsAdd;
@@ -272,7 +271,6 @@ namespace wcs.ViewModel
             AreaChange = isadd;
             SizeInfo = "";
             size_id = 0;
-            level = 0;
             SelectLevel = null;
             if (isadd)
             {

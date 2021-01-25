@@ -34,10 +34,10 @@
                     <DataTemplate DataType="mwindow:AreaRadioBtn">
                         <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
                                          Style="{StaticResource RadioGroupItemBaseStyle}" 
-                                     Width="80" Height="40" MinHeight="35" MinWidth="80" FontSize="22"
+                                         Width="100" Height="40" MinHeight="35" MinWidth="80"
                                          BorderBrush="{StaticResource BorderBrush}"
                                          Background="{StaticResource RegionBrush}"
-                                         BorderThickness="1" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
                     </DataTemplate>
                 </hc:ButtonGroup.ItemTemplate>
             </hc:ButtonGroup>

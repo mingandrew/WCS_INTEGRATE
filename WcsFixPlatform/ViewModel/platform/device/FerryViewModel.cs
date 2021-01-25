@@ -190,6 +190,7 @@ namespace wcs.ViewModel
                         DialogResult result = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
                          .Initialize<TrackSelectViewModel>((vm) =>
                          {
+                             //不过滤，直接显示全部的配置轨道
                              vm.SetAreaFilter(0, false);
                              vm.QueryFerryTrack(DeviceSelected.ID);
                          }).GetResultAsync<DialogResult>();

@@ -50,6 +50,11 @@ namespace task.task
         public uint DownTrackId { set; get; }
         public bool IsLocateUpGood { set; get; }
         public bool IsLocateDownGood { set; get; }
+
+        public bool IsConnect
+        {
+            get => DevTcp?.IsConnected ?? false;
+        }
         #endregion
 
         #region[构造/启动/停止]

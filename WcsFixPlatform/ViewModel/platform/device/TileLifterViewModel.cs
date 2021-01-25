@@ -148,7 +148,7 @@ namespace wcs.ViewModel
                         DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
                          .Initialize<GoodsSelectViewModel>((vm) =>
                          {
-                             vm.SetAreaFilter(area, true);
+                             vm.SetAreaFilter(area, false);
                              if (isuptilelifter)
                              {
                                  vm.QueryStockGood();
@@ -235,7 +235,8 @@ namespace wcs.ViewModel
                         DialogResult res = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
                          .Initialize<TrackSelectViewModel>((vm) =>
                          {
-                             vm.SetAreaFilter(0, true);
+                             //不根据区域进行过滤，展示砖机配置的所有轨道
+                             vm.SetAreaFilter(0, false);
                              vm.QueryTileTrack(DeviceSelected.ID);
                          }).GetResultAsync<DialogResult>();
                         if (res.p1 is Track tra)

@@ -140,6 +140,11 @@ namespace wcs.ViewModel
             Types = types;
         }
 
+        /// <summary>
+        /// 设置轨道ID并且是否启用显示区域过滤控件
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <param name="isshow">是否展示</param>
         public void SetAreaFilter(uint areaid, bool isshow)
         {
             filterareaid = areaid;
@@ -153,6 +158,10 @@ namespace wcs.ViewModel
             }
         }
 
+        /// <summary>
+        /// 查询砖机的轨道
+        /// </summary>
+        /// <param name="tileid">砖机ID</param>
         public void QueryTileTrack(uint tileid)
         {
             List<Track> tracks = PubMaster.Track.GetTileTrack(tileid);

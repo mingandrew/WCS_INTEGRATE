@@ -108,108 +108,113 @@ namespace task.device
         {
             while (Refreshing)
             {
-                if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+                try
                 {
-                    try
+                    foreach (FerryTask task in DevList)
                     {
-                        foreach (FerryTask task in DevList)
+                        try
                         {
-                            try
+                            if (task.IsEnable && task.IsConnect 
+                                && _IsSetting && _FerryPosSetList.Find(c => c.FerryId == task.ID) is FerryPosSet set)
                             {
-                                if (task.IsEnable)
-                                {
-                                    task.DoQuery();
-                                }
-
-                                if (task.IsEnable && _IsSetting && _FerryPosSetList.Find(c => c.FerryId == task.ID) is FerryPosSet set)
-                                {
-                                    Thread.Sleep(1000);
-                                    task.DoSiteQuery(set.QueryPos);
-                                }
-                                if (_IsRefreshPos)
-                                {
-                                    foreach (FerryPos fp in PosList)
-                                    {
-                                        PubTask.Ferry.QueryPosList(fp.device_id, fp.ferry_code);
-                                        Thread.Sleep(100);
-
-                                    }
-                                    EndRefreshPosList();
-                                }
-
-                                if (task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
-                                {
-                                    //上砖测轨道ID 或 下砖测轨道ID
-                                    if (task.UpTrackId == PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) && task.IsUpLight)
-                                    {
-                                        Thread.Sleep(500);
-                                        task.DoStop();
-                                    }
-
-                                    if (task.DownTrackId == PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) && task.IsDownLight)
-                                    {
-                                        Thread.Sleep(500);
-                                        task.DoStop();
-                                    }
-                                }
-
-                                #region 上砖待命点 (单摆渡对多上砖机)
-
-                                //if (task.Type == DeviceTypeE.上摆渡 && task.Status == DevFerryStatusE.停止 &&
-                                //    task.DevStatus.CurrentTask == DevFerryTaskE.终止 && task.DevStatus.TargetSite == 0)
-                                //{
-                                //    // 当上砖机都有货，摆渡车 空车无锁定 时，移至待命点（原点 12&13 之间）
-                                //    if (task.IsFerryFree() &&
-                                //        !PubTask.Trans.IsExistsTask(task.AreaId, TransTypeE.出库) &&
-                                //        !PubTask.TileLifter.IsAnyoneNeeds(task.AreaId, DeviceTypeE.上砖机))
-                                //    {
-                                //        short trackOrder = PubMaster.Track.GetTrack(task.DownTrackId)?.order ?? 0;
-                                //        if (trackOrder != 0)
-                                //        {
-                                //            // 513
-                                //            if (trackOrder < 12 || trackOrder > 14)
-                                //            {
-                                //                task.DoLocate(513);
-                                //            }
-                                //        }
-                                //    }
-                                //}
-
-                                #endregion
-
-                                #region 断线重连
-
-                                ///离线住够长时间，自动断开重连
-                                if (task.IsEnable
-                                    && task.ConnStatus != SocketConnectStatusE.通信正常
-                                    && task.ConnStatus != SocketConnectStatusE.连接成功)
-                                {
-                                    //离线超过20秒并且没有在主动断开
-                                    if (!task.IsDevOfflineInBreak
-                                        && task.IsOfflineTimeOver())
-                                    {
-                                        task.SetDevConnOnBreak(true);
-                                        task.Stop("休息5秒断开连接");
-                                    }
-
-                                    //主动断开时间超过后，开始重连
-                                    if (task.IsDevOfflineInBreak && task.IsInBreakOver())
-                                    {
-                                        task.SetDevConnOnBreak(false);
-                                        task.Start("休息5秒后开始连接");
-                                    }
-                                }
-
-                                #endregion
-
+                                task.DoSiteQuery(set.QueryPos);
+                                Thread.Sleep(1000);
                             }
-                            catch (Exception e)
+
+                            if (_IsRefreshPos)
                             {
-                                mlog.Error(true, e.Message, e);
+                                foreach (FerryPos fp in PosList)
+                                {
+                                    PubTask.Ferry.QueryPosList(fp.device_id, fp.ferry_code);
+                                    Thread.Sleep(100);
+                                }
+                                EndRefreshPosList();
+                            }
+
+                            if (task.IsEnable && task.IsConnect 
+                                && task.Status == DevFerryStatusE.停止 
+                                && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
+                            {
+                                //上砖测轨道ID 或 下砖测轨道ID
+                                if (task.UpTrackId == PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) && task.IsUpLight)
+                                {
+                                    task.DoStop();
+                                    Thread.Sleep(500);
+                                }
+
+                                if (task.DownTrackId == PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) && task.IsDownLight)
+                                {
+                                    task.DoStop();
+                                    Thread.Sleep(500);
+                                }
+                            }
+
+                            #region 上砖待命点 (单摆渡对多上砖机)
+
+                            //if (task.Type == DeviceTypeE.上摆渡 && task.Status == DevFerryStatusE.停止 &&
+                            //    task.DevStatus.CurrentTask == DevFerryTaskE.终止 && task.DevStatus.TargetSite == 0)
+                            //{
+                            //    // 当上砖机都有货，摆渡车 空车无锁定 时，移至待命点（原点 12&13 之间）
+                            //    if (task.IsFerryFree() &&
+                            //        !PubTask.Trans.IsExistsTask(task.AreaId, TransTypeE.出库) &&
+                            //        !PubTask.TileLifter.IsAnyoneNeeds(task.AreaId, DeviceTypeE.上砖机))
+                            //    {
+                            //        short trackOrder = PubMaster.Track.GetTrack(task.DownTrackId)?.order ?? 0;
+                            //        if (trackOrder != 0)
+                            //        {
+                            //            // 513
+                            //            if (trackOrder < 12 || trackOrder > 14)
+                            //            {
+                            //                task.DoLocate(513);
+                            //            }
+                            //        }
+                            //    }
+                            //}
+
+                            #endregion
+
+                            #region 断线重连
+
+                            ///离线住够长时间，自动断开重连
+                            if (task.IsEnable
+                                && task.ConnStatus != SocketConnectStatusE.通信正常
+                                && task.ConnStatus != SocketConnectStatusE.连接成功)
+                            {
+                                //离线超过20秒并且没有在主动断开
+                                if (!task.IsDevOfflineInBreak
+                                    && task.IsOfflineTimeOver())
+                                {
+                                    task.SetDevConnOnBreak(true);
+                                    task.Stop("休息5秒断开连接");
+                                }
+
+                                //主动断开时间超过后，开始重连
+                                if (task.IsDevOfflineInBreak && task.IsInBreakOver())
+                                {
+                                    task.SetDevConnOnBreak(false);
+                                    task.Start("休息5秒后开始连接");
+                                }
+                            }
+
+                            #endregion
+
+                        }
+                        catch (Exception e)
+                        {
+                            mlog.Error(true, e.Message, e);
+                        }
+                        finally
+                        {
+                            if (task.IsEnable && task.IsConnect)
+                            {
+                                task.DoQuery();
                             }
                         }
                     }
-                    finally { Monitor.Exit(_obj); }
+                }
+                catch (Exception e)
+                {
+                    mlog.Error(true, e.Message, e);
                 }
                 Thread.Sleep(2000);
             }
@@ -255,18 +260,10 @@ namespace task.device
 
         public void GetAllFerry()
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            foreach (FerryTask task in DevList)
             {
-                return;
+                MsgSend(task, task.DevStatus);
             }
-            try
-            {
-                foreach (FerryTask task in DevList)
-                {
-                    MsgSend(task, task.DevStatus);
-                }
-            }
-            finally { Monitor.Exit(_obj); }
         }
 
         internal List<FerryTask> GetDevFerrys()

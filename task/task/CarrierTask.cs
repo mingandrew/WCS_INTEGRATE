@@ -80,6 +80,10 @@ namespace task.device
             get => DevStatus?.GiveTrackCode ?? 0;
         }
 
+        public bool IsConnect
+        {
+            get => DevTcp?.IsConnected ?? false;
+        }
         #endregion
 
         #region[构造/启动/停止]

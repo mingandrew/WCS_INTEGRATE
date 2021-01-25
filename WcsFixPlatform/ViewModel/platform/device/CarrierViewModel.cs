@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using task;
@@ -101,7 +100,7 @@ namespace wcs.ViewModel
         #endregion
 
         #region[方法]
-        private async void SendCarrierTask(string tag)
+        private void SendCarrierTask(string tag)
         {
             if (DeviceSelected == null)
             {

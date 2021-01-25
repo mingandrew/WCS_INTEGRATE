@@ -93,73 +93,75 @@ namespace task.device
         {
             while (Refreshing)
             {
-                if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+                try
                 {
-                    try
+                    foreach (CarrierTask task in DevList)
                     {
-                        foreach (CarrierTask task in DevList)
+                        try
                         {
-                            try
+                            if (task.IsEnable && task.IsConnect)
                             {
-                                if (task.IsEnable)
+                                if (task.Task != task.FinishTask)
                                 {
-                                    task.DoQuery();
-
-                                    if (task.Task != task.FinishTask)
+                                    switch (task.Task)
                                     {
-                                        switch (task.Task)
-                                        {
-                                            case DevCarrierTaskE.后退至摆渡车:
-                                            case DevCarrierTaskE.前进至摆渡车:
-                                                #region[判断是否有摆渡车]
-                                                //ushort trackcode = PubTask.Carrier.GetCarrierSite(task.ID);
-                                                ushort trackcode = task.DevStatus.CurrentSite;
-                                                if (!PubTask.Ferry.HaveFerryOnTrack(trackcode, task.Task, out string result, true))
-                                                {
-                                                    DoTask(task.ID, DevCarrierTaskE.终止);
-                                                }
-                                                #endregion
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                    }
-
-                                }
-
-                                #region 断线重连
-
-                                ///离线住够长时间，自动断开重连
-                                if (task.IsEnable
-                                    && task.ConnStatus != SocketConnectStatusE.通信正常
-                                    && task.ConnStatus != SocketConnectStatusE.连接成功)
-                                {
-                                    //离线超过20秒并且没有在主动断开
-                                    if (!task.IsDevOfflineInBreak
-                                        && task.IsOfflineTimeOver())
-                                    {
-                                        task.SetDevConnOnBreak(true);
-                                        task.Stop("休息5秒断开连接");
-                                    }
-
-                                    //主动断开时间超过后，开始重连
-                                    if (task.IsDevOfflineInBreak && task.IsInBreakOver())
-                                    {
-                                        task.SetDevConnOnBreak(false);
-                                        task.Start("休息5秒后开始连接");
+                                        case DevCarrierTaskE.后退至摆渡车:
+                                        case DevCarrierTaskE.前进至摆渡车:
+                                            #region[判断是否有摆渡车]
+                                            //ushort trackcode = PubTask.Carrier.GetCarrierSite(task.ID);
+                                            ushort trackcode = task.DevStatus.CurrentSite;
+                                            if (!PubTask.Ferry.HaveFerryOnTrack(trackcode, task.Task, out string result, true))
+                                            {
+                                                DoTask(task.ID, DevCarrierTaskE.终止);
+                                                Thread.Sleep(500);
+                                            }
+                                            #endregion
+                                            break;
+                                        default:
+                                            break;
                                     }
                                 }
-
-                                #endregion
-
                             }
-                            catch (Exception e)
+
+                            #region 断线重连
+
+                            ///离线住够长时间，自动断开重连
+                            if (task.IsEnable
+                                && task.ConnStatus != SocketConnectStatusE.通信正常
+                                && task.ConnStatus != SocketConnectStatusE.连接成功)
                             {
-                                mlog.Error(true, e.Message, e);
+                                //离线超过20秒并且没有在主动断开
+                                if (!task.IsDevOfflineInBreak
+                                    && task.IsOfflineTimeOver())
+                                {
+                                    task.SetDevConnOnBreak(true);
+                                    task.Stop("休息5秒断开连接");
+                                }
+
+                                //主动断开时间超过后，开始重连
+                                if (task.IsDevOfflineInBreak && task.IsInBreakOver())
+                                {
+                                    task.SetDevConnOnBreak(false);
+                                    task.Start("休息5秒后开始连接");
+                                }
+                            }
+                            #endregion
+                        }
+                        catch (Exception e)
+                        {
+                            mlog.Error(true, e.Message, e);
+                        }
+                        finally
+                        {
+                            if(task.IsEnable && task.IsConnect)
+                            {
+                                task.DoQuery();
                             }
                         }
                     }
-                    finally { Monitor.Exit(_obj); }
+                }catch(Exception e)
+                {
+                    mlog.Error(true, e.Message, e);
                 }
                 Thread.Sleep(2000);
             }
@@ -241,16 +243,9 @@ namespace task.device
 
         public void GetAllCarrier()
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            foreach (CarrierTask task in DevList)
             {
-                try
-                {
-                    foreach (CarrierTask task in DevList)
-                    {
-                        MsgSend(task, task.DevStatus);
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
+                MsgSend(task, task.DevStatus);
             }
         }
 
@@ -695,7 +690,7 @@ namespace task.device
             if (!trans.IsReleaseGiveFerry)
             {
                 CarrierTask carrier = DevList.Find(c => c.ID == trans.carrier_id);
-                if(carrier != null && carrier.CarrierPosition == DevCarrierPositionE.在轨道上)
+                if (carrier != null && carrier.CarrierPosition == DevCarrierPositionE.在轨道上)
                 {
                     if (carrier.Task == DevCarrierTaskE.前进放砖)
                     {

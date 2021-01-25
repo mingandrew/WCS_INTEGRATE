@@ -124,7 +124,11 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+            <Grid Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
                 <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10"/>
                 <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
@@ -139,14 +143,14 @@
                         <DataTemplate DataType="mwindow:AreaRadioBtn">
                             <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaID}"  GroupName="Area"
                                          Style="{StaticResource RadioGroupItemBaseStyle}" 
-                                         Width="80" Height="35"
+                                          Width="100" Height="40" MinHeight="35" MinWidth="80"
                                          BorderBrush="{StaticResource BorderBrush}"
                                          Background="{StaticResource RegionBrush}"
                                          BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
                         </DataTemplate>
                     </hc:ButtonGroup.ItemTemplate>
                 </hc:ButtonGroup>
-            </StackPanel>
+            </Grid>
             <DataGrid Grid.Row="1" RowHeaderWidth="60" FontSize="18"  hc:DataGridAttach.ShowRowNumber="True"
                       SelectedItem="{Binding SelectPos}" ItemsSource="{Binding List}"
                       SelectionUnit="FullRow" SelectionMode="Single"
