@@ -292,10 +292,12 @@ namespace wcs.ViewModel
                                 vm.SetArea(area, DeviceSelected.ID, DeviceSelected.Name, DeviceSelected.GoodsId);
                                 vm.SetWorkMode(PubMaster.DevConfig.GetTileWorkMode(DeviceSelected.ID));
                             }).GetResultAsync<MsgAction>();
-
-                        if (workmode.o1 is bool r && workmode.o2 is TileWorkModeE wm && workmode.o3 is uint goodsid)
+                        break;
+                    case 16: //取消切换作业模式
+                        if (!PubMaster.DevConfig.CancelCutover(DeviceSelected.ID, out string r))
                         {
-                           
+                            Growl.Warning(r);
+                            return;
                         }
                         break;
                 }

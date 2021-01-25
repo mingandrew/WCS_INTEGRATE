@@ -626,6 +626,43 @@ namespace resource.device
             return false;
         }
 
+        /// <summary>
+        /// 取消切换
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool CancelCutover(uint devid, out string result)
+        {
+            result = "";
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null)
+            {
+                if (!dev.do_cutover)
+                {
+                    result = "当前该砖机并没有切换！";
+                    return false;
+                }
+
+                try
+                {
+                    mLog.Status(true, string.Format("[取消切换模式]砖机：{0}，原模式:{1}，新模式:{2}，原品种:{3}, 新品种:{4}【{5},{6}】",
+                       PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, dev.WorkModeNext,
+                       PubMaster.Goods.GetGoodsName(dev.goods_id),
+                       PubMaster.Goods.GetGoodsName(dev.pre_goodid),
+                       dev.goods_id, dev.pre_goodid));
+                }
+                catch { }
+                dev.WorkModeNext = TileWorkModeE.无;
+                dev.pre_goodid = 0;
+                dev.do_cutover = false;
+                PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
+                return true;
+            }
+            return false;
+        }
+
+
         #endregion
 
         #endregion
