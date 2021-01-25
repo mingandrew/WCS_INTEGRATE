@@ -487,6 +487,11 @@ namespace task.rf
                         ShiftTileMode(msg);
 
                         break;
+                    case FunTag.CancelTileShift:
+                        //切换模式
+                        CancelTileShift(msg);
+
+                        break;
 
                     #endregion
                 }
@@ -1791,7 +1796,7 @@ namespace task.rf
             {
                 if (!PubTask.TileLifter.IsOnline(pack.tile_id))
                 {
-                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机离线！不能执行模式切换！");
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileMode, "砖机离线！不能执行模式切换！");
                     return;
                 }
 
@@ -1803,6 +1808,25 @@ namespace task.rf
                 else
                 {
                     SendFail2Rf(msg.MEID, FunTag.ShiftTileMode, result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 取消模式切换
+        /// </summary>
+        /// <param name="msg"></param>
+        private void CancelTileShift(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData() && uint.TryParse(msg.Pack.Data, out uint devid))
+            {
+                if (!PubMaster.DevConfig.CancelCutover(devid, out string rs))
+                {
+                    SendFail2Rf(msg.MEID, FunTag.CancelTileShift, rs);
+                }
+                else
+                {
+                    SendSucc2Rf(msg.MEID, FunTag.CancelTileShift, "ok");
                 }
             }
         }
