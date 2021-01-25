@@ -147,6 +147,10 @@ namespace task.device
             get => DevStatus?.CurrentOrder ?? DevCarrierOrderE.异常;
         }
 
+        public bool IsConnect
+        {
+            get => DevTcp?.IsConnected ?? false;
+        }
         #endregion
 
         #endregion
