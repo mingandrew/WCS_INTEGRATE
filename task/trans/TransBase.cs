@@ -291,6 +291,7 @@ namespace task.trans
         {
             if (trans.finish_time == null)
             {
+                PubMaster.Warn.RemoveTaskAllWarn(trans.id);
                 mLog.Status(true, string.Format("任务：{0}，任务完成：{1}", trans.id, DateTime.Now.ToString()));
                 trans.finish = true;
                 trans.finish_time = DateTime.Now;

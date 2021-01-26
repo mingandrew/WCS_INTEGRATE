@@ -357,6 +357,7 @@ namespace task.trans
                                             PubMaster.Track.AddTrackLog(count, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
                                         }
 
+                                        bool isWarn = false;
                                         if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<uint> traids))
                                         {
                                             foreach (uint traid in traids)
@@ -368,9 +369,19 @@ namespace task.trans
                                                 {
                                                     PubMaster.Track.UpdateRecentGood(trans.give_track_id, trans.goods_id);
                                                     PubMaster.Track.UpdateRecentTile(trans.give_track_id, trans.tilelifter_id);
+                                                    isWarn = true;
                                                     break;
                                                 }
                                             }
+                                        }
+
+                                        if (isWarn)
+                                        {
+                                            PubMaster.Warn.RemoveTaskWarn(WarningTypeE.TransHaveNotTheGiveTrack, trans.id);
+                                        }
+                                        else
+                                        {
+                                            PubMaster.Warn.AddTaskWarn(WarningTypeE.TransHaveNotTheGiveTrack, (ushort)trans.carrier_id, trans.id);
                                         }
 
                                         return;

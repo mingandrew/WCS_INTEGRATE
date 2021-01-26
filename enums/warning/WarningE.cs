@@ -32,6 +32,8 @@
 
         TileGoodsIsZero,  //砖机工位品种反馈异常
         TileGoodsIsNull,  //砖机工位品种没有配置
+
+        TransHaveNotTheGiveTrack, // 任务没有合适的轨道卸砖
     }
 
     /// <summary>

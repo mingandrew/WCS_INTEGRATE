@@ -244,7 +244,34 @@ namespace task
             }
         }
 
+        /// <summary>
+        /// 清除任务报警
+        /// </summary>
+        /// <param name="transid"></param>
+        public void RemoveTaskWarn(WarningTypeE warntype, uint transid)
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.trans_id == transid && !c.resolve);
+            if (warn != null)
+            {
+                RemoveWarning(warn);
+            }
+        }
 
+        /// <summary>
+        /// 清除任务所有报警
+        /// </summary>
+        /// <param name="transid"></param>
+        public void RemoveTaskAllWarn(uint transid)
+        {
+            List<Warning> warns = List.FindAll(c => c.trans_id == transid && !c.resolve);
+            if (warns != null && warns.Count > 0)
+            {
+                foreach (Warning item in warns)
+                {
+                    RemoveWarning(item);
+                }
+            }
+        }
         #endregion
 
         #region[轨道警告]
