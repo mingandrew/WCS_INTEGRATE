@@ -20,7 +20,7 @@ namespace resource.module.modulesql
         public List<Diction> QueryDictionList()
         {
             List<Diction> list = new List<Diction>();
-            string sql = string.Format("SELECT d.id, d.type, d.valuetype, d.`name`, d.isadd, d.isedit, d.isdelete, d.authorizelevel FROM diction AS d ");
+            string sql = string.Format("SELECT t.* FROM diction AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -32,8 +32,7 @@ namespace resource.module.modulesql
         public List<DictionDtl> QueryDictionDtlList()
         {
             List<DictionDtl> list = new List<DictionDtl>();
-            string sql = string.Format("SELECT t.id, t.diction_id, t.`code`, t.`name`, t.int_value, t.bool_value, t.string_value, " +
-                "t.double_value, t.uint_value, t.`order`, t.updatetime FROM diction_dtl AS t ");
+            string sql = string.Format("SELECT t.* FROM diction_dtl AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {

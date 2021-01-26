@@ -53,7 +53,7 @@ namespace resource.module.modulesql
         public List<FerryPos> QueryFerryPosList()
         {
             List<FerryPos> list = new List<FerryPos>();
-            string sql = string.Format("SELECT t.id, t.track_id, t.device_id, t.ferry_code, t.ferry_pos FROM ferry_pos AS t  ");
+            string sql = string.Format("SELECT t.* FROM ferry_pos AS t  ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -65,7 +65,7 @@ namespace resource.module.modulesql
         public List<FerryPos> QueryFerryPosList(uint areaid, uint devid)
         {
             List<FerryPos> list = new List<FerryPos>();
-            string sql = string.Format("SELECT t.id, t.track_id, t.device_id, t.ferry_code, t.ferry_pos FROM ferry_pos AS t  " +
+            string sql = string.Format("SELECT t.* FROM ferry_pos AS t  " +
                 "where t.device_id = {0} and  t.track_id in (select id from track r where r.area = {1}) ", devid, areaid);
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))

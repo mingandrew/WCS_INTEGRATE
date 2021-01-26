@@ -1,7 +1,5 @@
 ﻿using enums;
-using module.device;
 using module.deviceconfig;
-using module.rf;
 using System.Collections.Generic;
 using System.Data;
 using tool;
@@ -23,7 +21,7 @@ namespace resource.module.modulesql
         public List<ConfigCarrier> QueryConfigCarrier()
         {
             List<ConfigCarrier> list = new List<ConfigCarrier>();
-            string sql = string.Format(@"SELECT t.id, t.a_takemisstrack, t.a_givemisstrack, t.a_alert_track, t.stock_id FROM config_carrier AS t ");
+            string sql = string.Format(@"SELECT t.* FROM config_carrier AS t ");
             DataTable dt = mSql.ExecuteQuery(sql);
             if (!mSql.IsNoData(dt))
             {
@@ -39,7 +37,7 @@ namespace resource.module.modulesql
         public List<ConfigFerry> QueryConfigFerry()
         {
             List<ConfigFerry> list = new List<ConfigFerry>();
-            string sql = string.Format(@"SELECT t.id, t.track_id FROM config_ferry AS t ");
+            string sql = string.Format(@"SELECT t.* FROM config_ferry AS t ");
             DataTable dt = mSql.ExecuteQuery(sql);
             if (!mSql.IsNoData(dt))
             {
@@ -55,8 +53,7 @@ namespace resource.module.modulesql
         public List<ConfigTileLifter> QueryConfigTileLifter()
         {
             List<ConfigTileLifter> list = new List<ConfigTileLifter>();
-            string sql = string.Format(@"SELECT t.id, t.brother_dev_id, t.left_track_id, t.right_track_id, t.strategy_in, t.strategy_out, t.work_type, t.last_track_id, 
-t.old_goodid, t.goods_id, t.pre_goodid, t.do_shift, t.can_cutover, t.work_mode, t.work_mode_next, t.do_cutover FROM config_tilelifter AS t");
+            string sql = string.Format(@"SELECT t.* FROM config_tilelifter AS t");
             DataTable dt = mSql.ExecuteQuery(sql);
             if (!mSql.IsNoData(dt))
             {

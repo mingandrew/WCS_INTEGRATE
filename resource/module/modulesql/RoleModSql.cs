@@ -19,8 +19,7 @@ namespace resource.module.modulesql
         public List<WcsModule> QueryWcsModuleList()
         {
             List<WcsModule> list = new List<WcsModule>();
-            string sql = string.Format("SELECT t.id, t.`name`, t.type, t.`key`, t.entity, t.brush," +
-                " t.geometry, t.winctlname, t.memo FROM wcs_module AS t ");
+            string sql = string.Format("SELECT t.* FROM wcs_module AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -32,7 +31,7 @@ namespace resource.module.modulesql
         public List<WcsMenu> QueryWcsMenuList()
         {
             List<WcsMenu> list = new List<WcsMenu>();
-            string sql = string.Format("SELECT t.id, t.`name`, t.prior, t.memo FROM wcs_menu AS t ORDER BY t.prior ASC ");
+            string sql = string.Format("SELECT t.* FROM wcs_menu AS t ORDER BY t.prior ASC ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -44,8 +43,7 @@ namespace resource.module.modulesql
         public List<WcsMenuDtl> QueryWcsMenuDtlList()
         {
             List<WcsMenuDtl> list = new List<WcsMenuDtl>();
-            string sql = string.Format("SELECT t.id, t.menu_id, t.`name`, t.folder, t.folder_id, t.module_id, " +
-                "t.`order`, t.`rf` FROM wcs_menu_dtl AS t ORDER BY t.`order` ASC ");
+            string sql = string.Format("SELECT t.* FROM wcs_menu_dtl AS t ORDER BY t.`order` ASC ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -57,7 +55,7 @@ namespace resource.module.modulesql
         public List<WcsRole> QueryWcsRoleList()
         {
             List<WcsRole> list = new List<WcsRole>();
-            string sql = string.Format("SELECT t.id, t.`name`, t.admin, t.menu_id, t.prior FROM wcs_role AS t ");
+            string sql = string.Format("SELECT t.* FROM wcs_role AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -69,8 +67,7 @@ namespace resource.module.modulesql
         public List<WcsUser> QueryWcsUserList()
         {
             List<WcsUser> list = new List<WcsUser>();
-            string sql = string.Format("SELECT t.id, t.username, t.`password`, t.`name`," +
-                " t.memo, t.role_id, t.exitwcs, t.guest FROM wcs_user AS t ");
+            string sql = string.Format("SELECT t.* FROM wcs_user AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {

@@ -20,7 +20,7 @@ namespace resource.module.modulesql
         public List<Goods> QueryGoodsList()
         {
             List<Goods> list = new List<Goods>();
-            string sql = string.Format("SELECT * FROM goods AS t ORDER BY t.top desc, t.createtime DESC, t.updatetime DESC ");
+            string sql = string.Format("SELECT t.* FROM goods AS t ORDER BY t.top desc, t.createtime DESC, t.updatetime DESC ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -32,8 +32,7 @@ namespace resource.module.modulesql
         public List<Stock> QueryStockList()
         {
             List<Stock> list = new List<Stock>();
-            string sql = string.Format("SELECT t.id, t.goods_id, t.stack, t.pieces, t.track_id, t.produce_time, " +
-                "t.pos, t.pos_type, t.tilelifter_id, t.area, t.track_type, t.location, t.location_cal  FROM stock AS t  ");
+            string sql = string.Format("SELECT t.* FROM stock AS t  ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -45,11 +44,7 @@ namespace resource.module.modulesql
         public List<StockTrans> QueryStockTransList()
         {
             List<StockTrans> list = new List<StockTrans>();
-            string sql = string.Format("SELECT t.id, t.trans_type, t.trans_status, t.area_id," +
-                " t.goods_id, t.take_track_id, t.give_track_id," +
-                " t.tilelifter_id, t.take_ferry_id, t.give_ferry_id," +
-                " t.carrier_id, t.create_time, t.load_time, t.unload_time," +
-                " t.finish, t.finish_time, t.cancel FROM stock_trans AS t" +
+            string sql = string.Format("SELECT t.* FROM stock_trans AS t" +
                 " where t.finish is NULL AND t.trans_status <> {0}", (byte)TransStatusE.完成);
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
@@ -62,10 +57,7 @@ namespace resource.module.modulesql
         public StockTrans QueryStockTransById(int transid)
         {
             List<StockTrans> list = new List<StockTrans>();
-            string sql = string.Format("SELECT t.id, t.trans_type, t.trans_status, t.area_id, t.goods_id, t.take_track_id, t.give_track_id," +
-                " t.tilelifter_id, t.take_ferry_id, t.give_ferry_id, t.carrier_id, t.create_time, t.load_time, t.unload_time," +
-                " t.finish, t.finish_time FROM stock_trans AS t " +
-                "where t.id ={0} ", transid);
+            string sql = string.Format("SELECT t.* FROM stock_trans AS t where t.id ={0} ", transid);
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {

@@ -20,9 +20,7 @@ namespace resource.module.modulesql
         public List<Device> QueryDeviceList()
         {
             List<Device> list = new List<Device>();
-            string sql = string.Format("SELECT t.id, t.`name`, t.ip, t.`port`, " +
-                "t.type, t.type2, t.`enable`, t.att1, t.att2, t.memo, t.area, t.do_work " +
-                "FROM device AS t");
+            string sql = string.Format("SELECT t.* FROM device AS t");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {

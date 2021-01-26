@@ -17,8 +17,7 @@ namespace resource.module.modulesql
         public List<Area> QueryAreaList()
         {
             List<Area> list = new List<Area>();
-            string sql = string.Format("SELECT t.id, t.`name`, t.`enable`, t.devautorun, t.memo," +
-                " t.c_sorttask, t.carriertype, t.full_qty FROM area AS t ");
+            string sql = string.Format("SELECT t.* FROM area AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -30,7 +29,7 @@ namespace resource.module.modulesql
         public List<AreaDevice> QueryAreaDeviceList()
         {
             List<AreaDevice> list = new List<AreaDevice>();
-            string sql = string.Format("SELECT t.id, t.area_id, t.device_id, t.dev_type FROM area_device AS t ");
+            string sql = string.Format("SELECT t.* FROM area_device AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -42,7 +41,7 @@ namespace resource.module.modulesql
         public List<AreaTrack> QueryAreaTrackList()
         {
             List<AreaTrack> list = new List<AreaTrack>();
-            string sql = string.Format("SELECT t.id, t.area_id, t.track_id, t.track_type FROM area_track AS t ");
+            string sql = string.Format("SELECT t.* FROM area_track AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -54,7 +53,7 @@ namespace resource.module.modulesql
         public List<AreaDeviceTrack> QueryAreaDeviceTrackList()
         {
             List<AreaDeviceTrack> list = new List<AreaDeviceTrack>();
-            string sql = string.Format("SELECT t.id, t.area_id, t.device_id, t.track_id, t.prior FROM area_device_track AS t  ");
+            string sql = string.Format("SELECT t.* FROM area_device_track AS t  ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
