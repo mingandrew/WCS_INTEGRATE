@@ -49,10 +49,10 @@
             <TextBlock Text="对位侧:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
         </Border>
         <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" Height="70">
-            <TextBlock Text="{Binding AUTOPOSSIDE}" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
-            <!--<hc:ComboBox Visibility="{Binding SHOWIN, Converter={StaticResource Boolean2VisibilityReConverter}}"
+            <!--<TextBlock Text="{Binding AUTOPOSSIDE}" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>-->
+            <hc:ComboBox Visibility="{Binding SHOWIN, Converter={StaticResource Boolean2VisibilityReConverter}}"
                          ItemsSource="{Binding Source={StaticResource DevFerryAutoPosE}}" 
-                         SelectedItem="{Binding AUTOPOSSIDE}"  Margin="10,17,10,17" FontSize="22"/>-->
+                         VerticalAlignment="Center" SelectedItem="{Binding AUTOPOSSIDE}" Margin="10,0,10,0" FontSize="22"/>
         </Border>
 
         <StackPanel Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,0">
