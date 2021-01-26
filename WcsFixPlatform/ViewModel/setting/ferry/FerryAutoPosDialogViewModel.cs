@@ -100,22 +100,17 @@ namespace wcs.ViewModel
             FerryName = ferryname;
             STARTTRACKCODE = ferrycode;
             TRACKNUMBER = "";
-            if (((STARTTRACKCODE > 200 && STARTTRACKCODE < 300) || STARTTRACKCODE > 600 && STARTTRACKCODE < 700))
-            {
-                AUTOPOSSIDE = DevFerryAutoPosE.上砖侧对位;
-            }
-            if (((STARTTRACKCODE > 500 && STARTTRACKCODE < 600) || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200)))
-            {
-                AUTOPOSSIDE = DevFerryAutoPosE.下砖侧对位;
-            }
+            //if (((STARTTRACKCODE > 200 && STARTTRACKCODE < 300) || STARTTRACKCODE > 600 && STARTTRACKCODE < 700))
+            //{
+            //    AUTOPOSSIDE = DevFerryAutoPosE.上砖侧对位;
+            //}
+            //if (((STARTTRACKCODE > 500 && STARTTRACKCODE < 600) || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200)))
+            //{
+            //    AUTOPOSSIDE = DevFerryAutoPosE.下砖侧对位;
+            //}
         }
         private void Comfirm()
         {
-            //if (string.IsNullOrEmpty(STARTTRACKCODE))
-            //{
-            //    Growl.Warning("请输入起始轨道号！");
-            //    return;
-            //}
 
             if (string.IsNullOrEmpty(TRACKNUMBER))
             {
