@@ -400,6 +400,8 @@ namespace task.trans
                                             ToSite = loc
                                         });
 
+                                        PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
+
                                     }
                                 }
 

@@ -1179,6 +1179,21 @@ namespace resource.goods
                 PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Location);
             }
         }
+
+        /// <summary>
+        /// 更新库存计算卸货坐标
+        /// </summary>
+        /// <param name="stock_id"></param>
+        /// <param name="giveSite"></param>
+        public void UpdateStockLocationCal(uint stock_id, ushort loc)
+        {
+            Stock stock = GetStock(stock_id);
+            if (stock != null && stock.location != loc)
+            {
+                stock.location_cal = loc;
+                PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Location);
+            }
+        }
         #endregion
 
         #region[库存统计]
