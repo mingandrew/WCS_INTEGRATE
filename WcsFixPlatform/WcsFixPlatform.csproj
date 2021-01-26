@@ -243,6 +243,7 @@
     <Compile Include="ViewModel\platform\track\TrackViewModel.cs" />
     <Compile Include="ViewModel\platform\waring\WaringViewModel.cs" />
     <Compile Include="ViewModel\platform\waring\WarnLogViewModel.cs" />
+    <Compile Include="ViewModel\setting\carrier\CarrierPosViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryAutoPosDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryPosViewModel.cs" />
     <Compile Include="ViewModel\setting\menu\MenuSelectViewModel.cs" />
@@ -314,6 +315,9 @@
     </Compile>
     <Compile Include="window\platform\waring\WarnLogCtl.xaml.cs">
       <DependentUpon>WarnLogCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\setting\carrier\CarrierPosCtl.xaml.cs">
+      <DependentUpon>CarrierPosCtl.xaml</DependentUpon>
     </Compile>
     <Compile Include="window\setting\ferry\FerryPosCtl.xaml.cs">
       <DependentUpon>FerryPosCtl.xaml</DependentUpon>
@@ -550,6 +554,10 @@
     <Page Include="window\platform\waring\WarnLogCtl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\setting\carrier\CarrierPosCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="window\setting\ferry\FerryPosCtl.xaml">
       <SubType>Designer</SubType>

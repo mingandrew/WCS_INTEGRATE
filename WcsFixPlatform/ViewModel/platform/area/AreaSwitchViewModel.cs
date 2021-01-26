@@ -247,7 +247,7 @@ namespace wcs.ViewModel
         #region[方法]
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea())
+            if (PubMaster.Area.IsSingleArea(out uint areaid))
             {
                 Show2Area = false;
                 Show3Area = false;

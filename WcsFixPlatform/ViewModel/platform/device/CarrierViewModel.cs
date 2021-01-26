@@ -36,9 +36,10 @@ namespace wcs.ViewModel
         }
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea())
+            if (PubMaster.Area.IsSingleArea(out uint areaid))
             {
                 ShowAreaFileter = false;
+                filterareaid = areaid;
             }
         }
 

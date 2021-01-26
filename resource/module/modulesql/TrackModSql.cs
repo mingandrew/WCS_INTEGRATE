@@ -29,6 +29,27 @@ namespace resource.module.modulesql
             return list;
         }
 
+        /// <summary>
+        /// 查询区域运输车复位地标信息
+        /// </summary>
+        /// <param name="areaid">0 不过滤区域， 大于0 过滤指定的区域</param>
+        /// <returns></returns>
+        public List<CarrierPos> QueryCarrierPosList(uint areaid = 0)
+        {
+            List<CarrierPos> list = new List<CarrierPos>();
+            string sql = string.Format("SELECT t.* FROM carrier_pos AS t"); 
+            if (areaid > 0)
+            {
+                sql += string.Format(" WHERE area_id = {0}", areaid);
+            }
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<CarrierPos>();
+            }
+            return list;
+        }
+
         public List<FerryPos> QueryFerryPosList()
         {
             List<FerryPos> list = new List<FerryPos>();
@@ -155,6 +176,14 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        public void AddCarrierPos(CarrierPos pos)
+        {
+            string str = "INSERT INTO `carrier_pos`(`area_id`, `track_point`, `track_pos`) VALUES({0}, {1}, {2})";
+            string sql = string.Format(@str, pos.area_id, pos.track_point, pos.track_pos);
+            int row = mSql.ExcuteSql(sql);
+            
+        }
+
         #endregion
 
         #region[修改]
@@ -236,6 +265,13 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        public bool EditCarrierPos(CarrierPos pos)
+        {
+            string sql = "UPDATE `carrier_pos` SET `track_pos` = {0} WHERE `id` = {1}";
+            sql = string.Format(sql, pos.track_pos, pos.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
         #endregion
 
         #region[删除]

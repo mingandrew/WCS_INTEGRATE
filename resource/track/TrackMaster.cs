@@ -150,6 +150,16 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 判断是否有轨道配置了该地标
+        /// </summary>
+        /// <param name="trackPoint"></param>
+        /// <returns></returns>
+        public bool ExistPointInTrack(ushort trackPoint)
+        {
+            return TrackList.Exists(c => c.IsInTrack(trackPoint));
+        }
+
+        /// <summary>
         /// 获取小车位置对应轨道ID
         /// </summary>
         /// <param name="point"></param>

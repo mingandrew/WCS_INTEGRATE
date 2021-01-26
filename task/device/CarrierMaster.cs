@@ -968,9 +968,9 @@ namespace task.device
         /// <summary>
         /// 发送设置复位点坐标指令
         /// </summary>
-        /// <param name="devid"></param>
-        /// <param name="rfid"></param>
-        /// <param name="site"></param>
+        /// <param name="devid">指定设备</param>
+        /// <param name="rfid">复位地标</param>
+        /// <param name="site">复位脉冲</param>
         public void DoResetSite(uint devid, ushort rfid, ushort site)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -985,6 +985,35 @@ namespace task.device
                 }
                 finally { Monitor.Exit(_obj); }
             }
+        }
+
+        /// <summary>
+        /// 发送设置复位点坐标指令
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <param name="rfid">复位地标</param>
+        /// <param name="site">复位脉冲</param>
+        public void DoAreaResetSite(uint areaid, ushort rfid, ushort site)
+        {
+            new Thread(() =>
+            {
+                if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+                {
+                    try
+                    {
+                        foreach (CarrierTask task in DevList.FindAll(c=>c.AreaId == areaid))
+                        {
+                            if (!task.IsConnect) continue;
+                            task.DoResetSite(rfid, site);
+                        }
+                    }
+                    finally { Monitor.Exit(_obj); }
+                }
+            })
+            {
+                IsBackground = true
+            }.Start();
+            
         }
 
         #endregion

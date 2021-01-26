@@ -64,6 +64,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<UserEditViewModel>();
             SimpleIoc.Default.Register<DeviceEditViewModel>();
             SimpleIoc.Default.Register<DeviceViewModel>();
+            SimpleIoc.Default.Register<CarrierPosViewModel>();
 
             PubMaster.Init();
             PubTask.Init();
@@ -102,6 +103,7 @@ namespace wcs.ViewModel
         public FerryAutoPosDialogViewModel FerryAutoPos => ServiceLocator.Current.GetInstance<FerryAutoPosDialogViewModel>();
         public CutoverDialogViewModel Cutover => ServiceLocator.Current.GetInstance<CutoverDialogViewModel>();
         public GoodShiftDialogViewModel GoodShift => ServiceLocator.Current.GetInstance<GoodShiftDialogViewModel>();
+        public CarrierPosViewModel CarrierPos => ServiceLocator.Current.GetInstance<CarrierPosViewModel>();
         #endregion
 
         #region[品种/库存/交易]

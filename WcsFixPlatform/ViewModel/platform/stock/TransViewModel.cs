@@ -204,7 +204,7 @@ namespace wcs.ViewModel
         #region[方法]
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea())
+            if (PubMaster.Area.IsSingleArea(out uint areaid))
             {
                 ShowAreaFileter = false;
             }

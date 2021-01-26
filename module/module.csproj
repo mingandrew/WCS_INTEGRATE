@@ -120,6 +120,7 @@
     <Compile Include="role\WcsRole.cs" />
     <Compile Include="role\WcsUser.cs" />
     <Compile Include="tiletrack\TileTrack.cs" />
+    <Compile Include="track\CarrierPos.cs" />
     <Compile Include="track\FerryPos.cs" />
     <Compile Include="track\Track.cs" />
     <Compile Include="track\TrackLog.cs" />

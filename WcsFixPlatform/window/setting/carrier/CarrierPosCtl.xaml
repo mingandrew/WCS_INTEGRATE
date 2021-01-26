@@ -1,0 +1,103 @@
+﻿<UserControl x:Class="wcs.window.CarrierPosCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mwindow="clr-namespace:module.window;assembly=module"
+             xmlns:local="clr-namespace:wcs.window" xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" DataContext="{Binding CarrierPos,Source={StaticResource Locator}}"
+             d:DesignHeight="450" d:DesignWidth="800" Background="{StaticResource RegionBrush}">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+            <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10"/>
+            <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
+                                ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                        <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+
+                <hc:ButtonGroup.ItemTemplate>
+                    <DataTemplate DataType="mwindow:AreaRadioBtn">
+                        <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaID}"  GroupName="Area"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="80" Height="35"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                    </DataTemplate>
+                </hc:ButtonGroup.ItemTemplate>
+            </hc:ButtonGroup>
+        </StackPanel>
+        <DataGrid Grid.Row="1" Grid.Column="0" RowHeaderWidth="60" FontSize="18"  hc:DataGridAttach.ShowRowNumber="True"
+                      SelectedItem="{Binding SelectPos}" ItemsSource="{Binding List}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+            <hc:Interaction.Triggers>
+                <hc:EventTrigger EventName="SelectionChanged">
+                    <hc:EventToCommand Command="{Binding PosSelectedChangeCmd}"/>
+                </hc:EventTrigger>
+            </hc:Interaction.Triggers>
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="添加" Tag="addpos" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding track_point,Converter={StaticResource TrackCode2NameConverter}}" Header="轨道名称" Width="*"/>
+                <DataGridTextColumn Binding="{Binding track_point}" Header="复位地标" Width="*"/>
+                <DataGridTextColumn Binding="{Binding track_pos}" Header="复位脉冲" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="1" Grid.Column="1" MinWidth="400" Margin="10,0,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MinWidth="80"/>
+                <ColumnDefinition MinWidth="80"/>
+                <ColumnDefinition MinWidth="80"/>
+                <ColumnDefinition MinWidth="80"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="35"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition MinHeight="45"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBlock Text="运输车脉冲轨道复位" Style="{StaticResource TextBlockLarge}" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="复位地标：" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBox Text="{Binding TrackPoint,Mode=TwoWay}" Style="{StaticResource TextBoxBaseStyle}" Margin="5" FontSize="22" MaxHeight="50"
+                         IsEnabled="{Binding TrackPointEnable}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                <TextBlock Text="复位脉冲：" Style="{StaticResource TextBlockSubTitle}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                <TextBox Text="{Binding TrackPos,Mode=TwoWay}" Style="{StaticResource TextBoxBaseStyle}" Margin="5" FontSize="22" MaxHeight="50"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                <Button Content="更新到全部运输车" Style="{StaticResource ButtonPrimary}" Tag="update2allcar" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
+                <Button Content="{Binding BtnName}" Style="{StaticResource ButtonPrimary}" Tag="actionbtn" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
