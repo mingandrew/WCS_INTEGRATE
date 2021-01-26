@@ -14,7 +14,7 @@ namespace module.device
         private byte recentqty;     //当前数量
         private bool isinvolve1;      //介入状态1 左
         private bool isinvolve2;      //介入状态2 右
-        private byte operatemode;   //作业模式
+        private byte operatemode;   //操作模式
         private uint goods1;   //工位1品种
         private uint goods2;   //工位2品种
         private byte shiftstatus;   //转产状态

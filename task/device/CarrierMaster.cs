@@ -549,6 +549,8 @@ namespace task.device
                     mMsg.o1 = carrier;
                     mMsg.o2 = task.ConnStatus;
                     mMsg.o3 = task.IsWorking;
+                    mMsg.o4 = task.CurrentTrackId;
+                    mMsg.o5 = task.TargetTrackId;
                     Messenger.Default.Send(mMsg, MsgToken.CarrierStatusUpdate);
                 }
                 finally

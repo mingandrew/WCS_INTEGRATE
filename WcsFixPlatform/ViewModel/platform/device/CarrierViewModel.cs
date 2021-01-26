@@ -153,7 +153,9 @@ namespace wcs.ViewModel
         {
             if (msg.o1 is DevCarrier dev
                 && msg.o2 is SocketConnectStatusE conn
-                && msg.o3 is bool working)
+                && msg.o3 is bool working
+                && msg.o4 is uint currenttrackId
+                && msg.o5 is uint targettrackId)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -167,7 +169,7 @@ namespace wcs.ViewModel
                         };
                         DeviceList.Add(view);
                     }
-                    view.Update(dev, conn, working);
+                    view.Update(dev, conn, working, currenttrackId, targettrackId);
                 });
             }
         }

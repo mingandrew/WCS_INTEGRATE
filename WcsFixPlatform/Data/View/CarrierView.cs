@@ -8,7 +8,10 @@ namespace wcs.Data.View
     {
         public uint ID { set; get; }
         public string Name { set; get; }
+
         private bool working;
+        private uint currenttrackId;
+        private uint targettrackId;
 
         #region[逻辑字段]
         private SocketConnectStatusE connstatus;
@@ -29,6 +32,24 @@ namespace wcs.Data.View
         {
             get => working;
             set => Set(ref working, value);
+        }
+
+        /// <summary>
+        /// 当前轨道ID
+        /// </summary>
+        public uint CurrentTrackId
+        {
+            get => currenttrackId;
+            set => Set(ref currenttrackId, value);
+        }
+
+        /// <summary>
+        /// 目标轨道ID
+        /// </summary>
+        public uint TargetTrackId
+        {
+            get => targettrackId;
+            set => Set(ref targettrackId, value);
         }
 
         #region[字段]
@@ -312,7 +333,7 @@ namespace wcs.Data.View
 
         #endregion
 
-        internal void Update(DevCarrier st, SocketConnectStatusE conn, bool working)
+        internal void Update(DevCarrier st, SocketConnectStatusE conn, bool working, uint currenttrackId,uint targettrackId)
         {
             DeviceID = st.DeviceID;
             DeviceStatus = st.DeviceStatus;
@@ -347,6 +368,8 @@ namespace wcs.Data.View
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
             Working = working;
+            CurrentTrackId = currenttrackId;
+            TargetTrackId = targettrackId;
         }
     }
 }

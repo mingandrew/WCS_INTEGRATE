@@ -68,6 +68,11 @@ namespace wcs.Data.View
         private DevOperateModeE operatemode;   //作业模式
         private StrategyInE instrategy;//入库策略
         private StrategyOutE outstrategy;//出库策略
+        private uint goods1;   //工位1品种
+        private uint goods2;   //工位2品种
+        private TileShiftStatusE shiftstatus;   //转产状态
+        private uint setgoods;   //设定品种
+        private byte setlevel;   //设定等级
         #endregion
 
         #region[属性]
@@ -139,6 +144,36 @@ namespace wcs.Data.View
         {
             get => outstrategy;
             set => Set(ref outstrategy, value);
+        }
+
+        public uint Goods1 //左工位品种ID
+        {
+            get => goods1;
+            set => Set(ref goods1, value);
+        }
+
+        public uint Goods2 //右工位品种ID
+        {
+            get => goods2;
+            set => Set(ref goods2, value);
+        }
+
+        public uint SetGoods //设定品种ID
+        {
+            get => setgoods;
+            set => Set(ref setgoods, value);
+        }
+
+        public byte SetLevel //设定等级
+        {
+            set => Set(ref setlevel, value);
+            get => setlevel;
+        }
+
+        public TileShiftStatusE ShiftStatus //转产状态
+        {
+            get => shiftstatus;
+            set => Set(ref shiftstatus, value);
         }
 
         #endregion
