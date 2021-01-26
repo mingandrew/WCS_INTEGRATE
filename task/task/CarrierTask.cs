@@ -12,8 +12,13 @@ namespace task.device
     public class CarrierTask : TaskBase
     {
         #region[属性]
-
+        /// <summary>
+        /// 当前运输车所在轨道ID
+        /// </summary>
         public uint CurrentTrackId { set; get; }
+        /// <summary>
+        /// 运输车目的轨道ID
+        /// </summary>
         public uint TargetTrackId { set; get; }
 
         /// <summary>

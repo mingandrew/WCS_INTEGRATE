@@ -1,6 +1,4 @@
 ﻿using enums;
-using System;
-using System.Net.Configuration;
 
 namespace module.device
 {

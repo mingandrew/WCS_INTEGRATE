@@ -1,9 +1,4 @@
 ﻿using enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace module.deviceconfig
 {
@@ -23,11 +18,21 @@ namespace module.deviceconfig
         /// 左 轨道ID
         /// </summary>
         public uint left_track_id { set; get; }
+        
+        /// <summary>
+        /// 左 轨道地标
+        /// </summary>
+        public uint left_track_point { set; get; }
 
         /// <summary>
         /// 右 轨道ID
         /// </summary>
         public uint right_track_id { set; get; }
+
+        /// <summary>
+        /// 右 轨道地标
+        /// </summary>
+        public uint right_track_point { set; get; }
 
         /// <summary>
         /// 兄弟砖机ID

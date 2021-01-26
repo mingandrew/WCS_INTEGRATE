@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace module.deviceconfig
+﻿namespace module.deviceconfig
 {
     public class ConfigFerry
     {
@@ -17,6 +11,11 @@ namespace module.deviceconfig
         /// 摆渡轨道ID
         /// </summary>
         public uint track_id { set; get; }
+
+        /// <summary>
+        /// 摆渡轨道地标
+        /// </summary>
+        public ushort track_point { set; get; }
 
     }
 }

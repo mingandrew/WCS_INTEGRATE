@@ -274,7 +274,7 @@ namespace task.device
         public void UpdateFerryWithTrackId(uint trackid, DevFerryLoadE devFerryLoadE)
         {
             FerryTask ferry = DevList.Find(c => c.DevConfig.track_id == trackid);
-            if (ferry != null)
+            if (ferry != null && ferry.DevStatus.LoadStatus != devFerryLoadE)
             {
                 ferry.DevStatus.LoadStatus = devFerryLoadE;
                 MsgSend(ferry, ferry.DevStatus);

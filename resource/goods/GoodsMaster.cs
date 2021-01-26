@@ -101,7 +101,7 @@ namespace resource.goods
         /// </summary>
         /// <param name="id">库存ID</param>
         /// <returns></returns>
-        public Stock GetStock(int id)
+        public Stock GetStock(uint id)
         {
             return StockList.Find(c => c.id == id);
         }
@@ -1165,6 +1165,20 @@ namespace resource.goods
             PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.PosType);
         }
 
+        /// <summary>
+        /// 更新库存实际卸货坐标
+        /// </summary>
+        /// <param name="stock_id"></param>
+        /// <param name="giveSite"></param>
+        public void UpdateStockLocation(uint stock_id, ushort loc)
+        {
+            Stock stock = GetStock(stock_id);
+            if (stock != null && stock.location != loc)
+            {
+                stock.location = loc;
+                PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Location);
+            }
+        }
         #endregion
 
         #region[库存统计]
