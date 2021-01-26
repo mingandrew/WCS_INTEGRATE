@@ -33,7 +33,7 @@ namespace resource.module.modulesql
         {
             List<Stock> list = new List<Stock>();
             string sql = string.Format("SELECT t.id, t.goods_id, t.stack, t.pieces, t.track_id, t.produce_time, " +
-                "t.pos, t.pos_type, t.tilelifter_id, t.area, t.track_type  FROM stock AS t  ");
+                "t.pos, t.pos_type, t.tilelifter_id, t.area, t.track_type, t.location, t.location_cal  FROM stock AS t  ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -124,10 +124,11 @@ namespace resource.module.modulesql
         internal bool AddStock(Stock stock)
         {
             string str = "INSERT INTO `stock`(`id`, `goods_id`, `stack`, `pieces`, `track_id`" +
-                ", `produce_time`, `pos`, `pos_type`, `tilelifter_id`, `area`, `track_type`) " +
-                "VALUES('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10})";
+                ", `produce_time`, `pos`, `pos_type`, `tilelifter_id`, `area`, `track_type`, `location`, `location_cal`) " +
+                "VALUES('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})";
             string sql = string.Format(@str, stock.id, stock.goods_id, stock.stack, stock.pieces, stock.track_id,
-                GetTimeOrNull(stock.produce_time), stock.pos, stock.pos_type, stock.tilelifter_id, stock.area, stock.track_type);
+                GetTimeOrNull(stock.produce_time), stock.pos, stock.pos_type, stock.tilelifter_id, stock.area, 
+                stock.track_type, stock.location, stock.location_cal);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -214,6 +215,9 @@ namespace resource.module.modulesql
                     break;
                 case StockUpE.ProduceTime:
                     sql += string.Format("`produce_time` = {0}", GetTimeOrNull(stock.produce_time));
+                    break;
+                case StockUpE.Location:
+                    sql += string.Format("`location` = {0}, `location_cal` = {1}",  stock.location, stock.location_cal);
                     break;
                 default:
                     sql += "1=1";

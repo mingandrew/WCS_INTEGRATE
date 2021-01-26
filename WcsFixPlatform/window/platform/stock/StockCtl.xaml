@@ -60,8 +60,9 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="品种"/>
                     <DataGridTextColumn Binding="{Binding produce_time,Converter={StaticResource Date2StringLongConverter}}" Header="生产时间"/>
-                    <DataGridTextColumn Binding="{Binding pos}" Header="位置"/>
+                    <DataGridTextColumn Binding="{Binding pos}" Header="序号"/>
                     <DataGridTextColumn Binding="{Binding PosType}" Header="位置"/>
+                    <DataGridTextColumn Binding="{Binding location}" Header="实际坐标(脉冲)"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

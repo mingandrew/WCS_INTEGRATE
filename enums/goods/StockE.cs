@@ -69,6 +69,7 @@
         Track,
         Pos,
         PosType,
-        ProduceTime
+        ProduceTime,
+        Location
     }
 }
