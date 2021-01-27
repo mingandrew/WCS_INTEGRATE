@@ -1284,9 +1284,9 @@ namespace task.device
         /// <param name="trackid"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool HaveFerryInPlace(DeviceTypeE dt, uint trackid, out ushort trackcode, out string result)
+        public bool HaveFerryInPlace(DeviceTypeE dt, uint trackid, out uint ferryTrackid, out string result)
         {
-            trackcode = 0;
+            ferryTrackid = 0;
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
                 result = "稍后再试！";
@@ -1304,7 +1304,7 @@ namespace task.device
                 if (task.Status == DevFerryStatusE.停止)
                 {
                     // 摆渡车up down 一样的
-                    trackcode = PubMaster.Track.GetTrackDownCode(task.FerryTrackId);
+                    ferryTrackid = task.FerryTrackId;
                     return true;
                 }
             }

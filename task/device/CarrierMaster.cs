@@ -723,7 +723,7 @@ namespace task.device
             ushort overRFID = 0;
             ushort overSite = 0;
             byte moveCount = 0;
-
+            uint ferryTraid = 0;
             switch (carriertask)
             {
                 case DevCarrierTaskE.后退取砖:
@@ -763,8 +763,10 @@ namespace task.device
                         return false;
                     }
                     if (!PubTask.Ferry.HaveFerryInPlace(track.Type == TrackTypeE.上砖轨道 ? DeviceTypeE.上摆渡 : DeviceTypeE.下摆渡,
-                        track.id, out checkTra, out result))
+                        track.id, out ferryTraid, out result))
                     {
+                        checkTra = PubMaster.Track.GetTrackDownCode(ferryTraid);
+                        toRFID = PubMaster.Track.GetTrackRFID1(ferryTraid);
                         return false;
                     }
                     order = DevCarrierOrderE.定位指令;
@@ -778,8 +780,10 @@ namespace task.device
                         return false;
                     }
                     if (!PubTask.Ferry.HaveFerryInPlace(track.Type == TrackTypeE.下砖轨道? DeviceTypeE.下摆渡: DeviceTypeE.上摆渡,
-                        track.id, out checkTra, out result))
+                        track.id, out ferryTraid, out result))
                     {
+                        checkTra = PubMaster.Track.GetTrackUpCode(ferryTraid);
+                        toRFID = PubMaster.Track.GetTrackRFID2(ferryTraid);
                         return false;
                     }
                     order = DevCarrierOrderE.定位指令;
