@@ -28,7 +28,7 @@ namespace task.task
         }
         public DevFerryLoadE Load
         {
-            get => DevStatus?.LoadStatus ?? DevFerryLoadE.未知;
+            get => DevStatus?.LoadStatus ?? DevFerryLoadE.异常;
         }
         public bool IsDownLight
         {
@@ -48,8 +48,6 @@ namespace task.task
         }
         public uint UpTrackId { set; get; }
         public uint DownTrackId { set; get; }
-        public bool IsLocateUpGood { set; get; }
-        public bool IsLocateDownGood { set; get; }
 
         /// <summary>
         /// 摆渡轨道ID

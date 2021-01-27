@@ -3829,7 +3829,7 @@ namespace task.trans
             if (PubTask.Ferry.IsLoad(ferryid))
             {
                 //在摆渡车轨道上的运输车是否有状态不是停止的或者是手动的
-                if (PubTask.Carrier.IsCarrierMoveInFerry(ferryTraid))
+                if (PubTask.Carrier.HaveTaskForFerry(ferryTraid))
                 {
                     return false;
                 }

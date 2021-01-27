@@ -491,19 +491,18 @@ namespace task.device
         #endregion
 
         /// <summary>
-        /// 是否在上下摆渡相关任务
+        /// 是否有运输车在上下摆渡相关任务
         /// </summary>
         /// <param name="ferrytraid"></param>
         /// <returns></returns>
         internal bool HaveTaskForFerry(uint ferrytraid)
         {
             return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid)
-                                    && c.ConnStatus == SocketConnectStatusE.通信正常
-                                    && (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
-                                    && c.Status != DevCarrierStatusE.停止
-                                    && c.Status != DevCarrierStatusE.异常
-                                    && c.CurrentOrder != c.FinishOrder
-                                    && c.Position == DevCarrierPositionE.上下摆渡中  //小车冲过头？
+                                    //&& c.ConnStatus == SocketConnectStatusE.通信正常
+                                    //&& (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
+                                    //&& c.Status != DevCarrierStatusE.异常
+                                    //&& c.CurrentOrder != c.FinishOrder
+                                    && (c.Status != DevCarrierStatusE.停止 || c.Position == DevCarrierPositionE.上下摆渡中)
                                     );
         }
 
@@ -1554,20 +1553,6 @@ namespace task.device
                                     && c.Status == DevCarrierStatusE.停止
                                     && c.CurrentOrder == Order
                                     && c.CurrentOrder == c.FinishOrder);
-        }
-
-        /// <summary>
-        /// 判断小车是否在摆渡车上移动
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        internal bool IsCarrierMoveInFerry(uint trackid)
-        {
-            return DevList.Exists(c => c.CurrentTrackId == trackid
-            && (c.Status != DevCarrierStatusE.停止 || c.OperateMode == DevOperateModeE.手动
-            || (c.CurrentOrder != c.FinishOrder && c.CurrentOrder != DevCarrierOrderE.无)
-            || c.Position == DevCarrierPositionE.上下摆渡中   //小车过头？
-                 ));
         }
 
         #endregion

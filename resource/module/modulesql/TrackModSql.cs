@@ -20,7 +20,7 @@ namespace resource.module.modulesql
         public List<Track> QueryTrackList()
         {
             List<Track> list = new List<Track>();
-            string sql = string.Format("SELECT t.* FROM track AS t ORDER BY t.`order`");
+            string sql = string.Format("SELECT t.* FROM track AS t ORDER BY t.area, t.type, t.id");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {

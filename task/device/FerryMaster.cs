@@ -119,7 +119,7 @@ namespace task.device
                                 task.DoSiteQuery(set.QueryPos);
                                 Thread.Sleep(1000);
                             }
-                            
+
                             if (_IsRefreshPos)
                             {
                                 foreach (FerryPos fp in PosList)
@@ -439,7 +439,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 定位摆渡车
+        /// 手动摆渡车定位
         /// </summary>
         /// <param name="ferryid">摆渡车ID</param>
         /// <param name="trackid">轨道ID</param>
@@ -506,44 +506,12 @@ namespace task.device
             {
                 try
                 {
-                    //查看是否有小车正在上摆渡车
                     FerryTask task = DevList.Find(c => c.ID == ferryid);
-                    if (!CheckFerryStatus(task, out result))
-                    {
-                        return false;
-                    }
 
-                    if (!IsLoadOrEmpty(task, out result))
+                    if (!IsAllowToMove(task, out result))
                     {
+                        task.DoStop();
                         return false;
-                    }
-
-                    if ((task.IsUpLight || task.IsLocateUpGood)
-                        && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
-                    {
-                        result = "小车正在上摆渡车";
-                        return false;
-                    }
-
-                    if ((task.IsDownLight || task.IsLocateDownGood)
-                        && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
-                    {
-                        result = "小车正在上摆渡车";
-                        return false;
-                    }
-
-                    //找摆渡车上的运输车
-                    //判断运输车是否在动
-                    //在动则返回false，不给摆渡车发任务
-                    if (task.Load == DevFerryLoadE.载车)
-                    {
-                        //在摆渡车轨道上的运输车是否有状态不是停止的或者是手动的
-                        if (PubTask.Carrier.IsCarrierMoveInFerry(task.DevConfig.track_id))
-                        {
-                            result = "摆渡车上的运输车在运动/手动状态中/上下摆渡中状态";
-                            task.DoStop();
-                            return false;
-                        }
                     }
 
                     task.DoLocate(ferrycode, task.DevConfig.track_id);
@@ -595,6 +563,13 @@ namespace task.device
             }
         }
 
+        /// <summary>
+        /// 摆渡车复位原点
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="resettype"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public bool ReSetFerry(uint id, DevFerryResetPosE resettype, out string result)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -605,22 +580,10 @@ namespace task.device
             try
             {
                 FerryTask task = DevList.Find(c => c.ID == id);
-                if (!CheckFerryStatus(task, out result))
-                {
-                    return false;
-                }
 
-                if ((task.IsUpLight || task.IsLocateUpGood)
-                    && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
+                if (!IsAllowToMove(task, out result))
                 {
-                    result = "小车正在上摆渡车";
-                    return false;
-                }
-
-                if ((task.IsDownLight || task.IsLocateDownGood)
-                    && PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
-                {
-                    result = "小车正在上摆渡车";
+                    task.DoStop();
                     return false;
                 }
 
@@ -634,7 +597,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 定位摆渡车
+        /// 自动流程中摆渡车定位
         /// </summary>
         /// <param name="ferryid"></param>
         /// <param name="to_track_id"></param>
@@ -674,9 +637,9 @@ namespace task.device
 
                 if (task.Status == DevFerryStatusE.停止
                     && (task.DevStatus.CurrentTask == task.DevStatus.FinishTask
-                        || task.DevStatus.CurrentTask == DevFerryTaskE.未知
+                        || task.DevStatus.CurrentTask == DevFerryTaskE.无
                         || ((task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.CurrentTask == DevFerryTaskE.定位)
-                            && (task.DevStatus.FinishTask == DevFerryTaskE.未知 || task.DevStatus.FinishTask == DevFerryTaskE.定位))))
+                            && (task.DevStatus.FinishTask == DevFerryTaskE.无 || task.DevStatus.FinishTask == DevFerryTaskE.定位))))
                 {
                     if (task.DevStatus.TargetSite != 0 && PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) != to_track_id)
                     {
@@ -844,6 +807,57 @@ namespace task.device
             {
                 Monitor.Exit(_obj);
             }
+        }
+
+        /// <summary>
+        /// 是否存在避让 - 暂不可用
+        /// </summary>
+        public bool ExistsAvoid(FerryTask task, uint to_track_id)
+        {
+            bool result = false;
+            // 同区域内其他同类型的摆渡车
+            List<FerryTask> ferries = DevList.FindAll(c => c.AreaId == task.AreaId && c.Type == task.Type && c.ID != task.ID);
+            if (ferries == null || ferries.Count == 0)
+            {
+                // 无车干扰
+                return result;
+            }
+
+            // 目的轨道顺序
+            short toOrder = PubMaster.Track.GetTrack(to_track_id)?.order ?? 0;
+            // 摆渡间安全距离 轨道数
+            int safedis = PubMaster.Dic.GetDtlIntCode("FerryAvoidNumber");
+
+            //循环判断 
+            foreach (FerryTask other in ferries)
+            {
+                // 其一摆渡当前轨道ID
+                uint otherTrackId = other.GetFerryCurrentTrackId();
+                // 其一摆渡当前轨道顺序
+                short otherOrder = PubMaster.Track.GetTrack(otherTrackId)?.order ?? 0;
+                // 其一摆渡目的轨道顺序
+                short otherToOrder = PubMaster.Track.GetTrackByPoint(other.DevStatus.TargetSite)?.order ?? 0;
+
+                switch (other.Status)
+                {
+                    case DevFerryStatusE.停止:
+                        if (IsAllowToMove(task, out string res))
+                        {
+                            result = true;
+                        }
+                        break;
+                    case DevFerryStatusE.前进:
+                        break;
+                    case DevFerryStatusE.后退:
+                        break;
+                    case DevFerryStatusE.设备故障:
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
         }
 
         #endregion
@@ -1195,7 +1209,7 @@ namespace task.device
 
         internal bool IsLoadOrEmpty(FerryTask task, out string result)
         {
-            if (task.Load == DevFerryLoadE.未知 || task.Load == DevFerryLoadE.非空)
+            if (task.Load == DevFerryLoadE.异常 || task.Load == DevFerryLoadE.非空)
             {
                 result = "摆渡车非空非载车";
                 return false;
@@ -1353,6 +1367,31 @@ namespace task.device
             }
             result = "没有符合条件的摆渡车!";
             return false;
+        }
+
+        /// <summary>
+        /// 摆渡车是否可移动
+        /// </summary>
+        public bool IsAllowToMove(FerryTask task, out string result)
+        {
+            // 检查摆渡车状态
+            if (!CheckFerryStatus(task, out result))
+            {
+                return false;
+            }
+            if (!IsLoadOrEmpty(task, out result))
+            {
+                return false;
+            }
+
+            // 检查是否有对应运输车作业
+            if (PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
+            {
+                result = "小车上下摆渡中";
+                return false;
+            }
+
+            return true;
         }
 
         #endregion
