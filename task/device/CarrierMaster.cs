@@ -765,10 +765,10 @@ namespace task.device
                     if (!PubTask.Ferry.HaveFerryInPlace(track.Type == TrackTypeE.上砖轨道 ? DeviceTypeE.上摆渡 : DeviceTypeE.下摆渡,
                         track.id, out ferryTraid, out result))
                     {
-                        checkTra = PubMaster.Track.GetTrackDownCode(ferryTraid);
-                        toRFID = PubMaster.Track.GetTrackRFID1(ferryTraid);
                         return false;
                     }
+                    checkTra = PubMaster.Track.GetTrackDownCode(ferryTraid);
+                    toRFID = PubMaster.Track.GetTrackRFID1(ferryTraid);
                     order = DevCarrierOrderE.定位指令;
                     break;
 
@@ -782,10 +782,10 @@ namespace task.device
                     if (!PubTask.Ferry.HaveFerryInPlace(track.Type == TrackTypeE.下砖轨道? DeviceTypeE.下摆渡: DeviceTypeE.上摆渡,
                         track.id, out ferryTraid, out result))
                     {
-                        checkTra = PubMaster.Track.GetTrackUpCode(ferryTraid);
-                        toRFID = PubMaster.Track.GetTrackRFID2(ferryTraid);
                         return false;
                     }
+                    checkTra = PubMaster.Track.GetTrackUpCode(ferryTraid);
+                    toRFID = PubMaster.Track.GetTrackRFID2(ferryTraid);
                     order = DevCarrierOrderE.定位指令;
                     break;
 

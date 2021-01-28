@@ -1303,7 +1303,6 @@ namespace task.device
 
                 if (task.Status == DevFerryStatusE.停止)
                 {
-                    // 摆渡车up down 一样的
                     ferryTrackid = task.FerryTrackId;
                     return true;
                 }
