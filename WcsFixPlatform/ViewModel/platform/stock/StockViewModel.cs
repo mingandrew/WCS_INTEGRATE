@@ -165,16 +165,17 @@ namespace wcs.ViewModel
                         }
                         break;
                     case 1://添加
-                        if (List.Count == 0)
-                        {
-                            TrackGoodsSelected();
-                        }
-                        else
-                        {
-                            Stock stock = List[0];
-                            ushort pis = stock.stack > 0 ? (ushort)(stock.pieces / stock.stack) : (ushort)1;
-                            TrackStockAdd(stock.goods_id, pis);
-                        }
+                        //if (List.Count == 0)
+                        //{
+                        //    TrackGoodsSelected();
+                        //}
+                        //else
+                        //{
+                        //    Stock stock = List[0];
+                        //    ushort pis = stock.stack > 0 ? (ushort)(stock.pieces / stock.stack) : (ushort)1;
+                        //    TrackStockAdd(stock.goods_id, pis);
+                        //}
+                        TrackGoodsSelected();
                         break;
                     case 2://更换品种
                         ChangeGoodAsync();
