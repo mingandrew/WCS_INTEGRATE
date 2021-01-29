@@ -19,8 +19,8 @@ namespace resource.module
         public GoodsModSql GoodSql { set; get; }
         public WarnModSql WarnSql { set; get; }
         public TileTrackModSql TileTraSql { set; get; }
-
         public RoleModSql RoleSql { set; get; }
+        public TrafficCtlModSql TrafficCtlSql { set; get; }
         #endregion
 
         #region[构造/初始化]
@@ -38,6 +38,7 @@ namespace resource.module
             WarnSql = new WarnModSql(mySQL);
             TileTraSql = new TileTrackModSql(mySQL);
             RoleSql = new RoleModSql(mySQL);
+            TrafficCtlSql = new TrafficCtlModSql(mySQL);
         }
 
         public void Start()

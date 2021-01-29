@@ -15,6 +15,7 @@ namespace task
         public static TransMaster Trans { set; get; }
         public static RfMaster Rf { set; get; }
         public static PingMaster Ping { set; get; }
+        public static TrafficControlMaster TrafficControl { set; get; }
         public static void Init()
         {
             Carrier = new CarrierMaster();
@@ -23,6 +24,7 @@ namespace task
             Trans = new TransMaster();
             Rf = new RfMaster();
             Ping = new PingMaster();
+            TrafficControl = new TrafficControlMaster();
         }
 
         public static void Start()
@@ -46,6 +48,7 @@ namespace task
             Trans?.Start();
             Rf?.Start();
             Ping?.Start();
+            //TrafficControl?.Start();   // 暂时停用
         }
 
         public static void Stop()
@@ -56,6 +59,7 @@ namespace task
             Carrier?.Stop();
             Rf?.Stop();
             Ping?.Stop();
+            //TrafficControl?.Stop();   // 暂时停用
         }
     }
 }

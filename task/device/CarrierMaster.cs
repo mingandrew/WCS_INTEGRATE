@@ -960,6 +960,16 @@ namespace task.device
                             return;
                         }
 
+                        // 定位与结束相同时，不发结束
+                        if (cao.ToRFID == cao.OverRFID)
+                        {
+                            cao.OverRFID = 0;
+                        }
+                        if (cao.ToSite == cao.OverSite)
+                        {
+                            cao.OverSite = 0;
+                        }
+
                         task.DoOrder(cao);
                     }
                 }

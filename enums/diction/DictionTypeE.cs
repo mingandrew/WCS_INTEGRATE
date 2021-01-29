@@ -23,12 +23,18 @@
         public const string NewWarnId = nameof(NewWarnId);
         public const string NewGoodId = nameof(NewGoodId);
         public const string NewTileTrackId = nameof(NewTileTrackId);
+        public const string NewTrafficCtlId = nameof(NewTrafficCtlId);
+
         public const string PDA_INIT_VERSION = nameof(PDA_INIT_VERSION);//PDA基础字典版本数据
         public const string PDA_GOOD_VERSION = nameof(PDA_GOOD_VERSION);//PDA品种字典版本信息
 
         public const string UserLoginFunction = nameof(UserLoginFunction);//是否开启登陆功能
 
         public static string GoodLevel = nameof(GoodLevel);//品种等级
+
+        public static string MinStockTime = nameof(MinStockTime);//最小库存存放时间 小时数
+        public static string FerryAvoidNumber = nameof(FerryAvoidNumber);//摆渡车安全距离 轨道数
+        public static string TileLifterShiftCount = nameof(TileLifterShiftCount);//下砖机转产差值 层数
     }
 
     public static class DicSwitchTag

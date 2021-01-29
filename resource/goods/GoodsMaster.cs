@@ -790,7 +790,7 @@ namespace resource.goods
                 }
             );
 
-            int minStockTime = PubMaster.Dic.GetDtlIntCode("MinStockTime");
+            int minStockTime = PubMaster.Dic.GetDtlIntCode(DicTag.MinStockTime);
             foreach (Stock stock1 in stocks)
             {
                 if ((DateTime.Now - (DateTime)stock1.produce_time).TotalHours >= minStockTime)

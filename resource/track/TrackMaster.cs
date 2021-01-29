@@ -302,6 +302,16 @@ namespace resource.track
             return tracks.Select(c => c.id).ToList();
         }
 
+        /// <summary>
+        /// 根据order查找对应的储砖轨道ID
+        /// </summary>
+        /// <returns></returns>
+        public uint GetTrackIDByOrder(ushort area, int order)
+        {
+            return TrackList.Find(c => c.area == area && c.order == order && 
+            (c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入))?.id ?? 0;
+        }
+
         #endregion
 
         #region[更改]

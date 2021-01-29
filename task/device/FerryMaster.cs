@@ -685,7 +685,7 @@ namespace task.device
                     uint taskTrackId;
                     short trackOrder;
                     short takeTrackOrder = PubMaster.Track.GetTrack(to_track_id)?.order ?? 0;
-                    int safedis = PubMaster.Dic.GetDtlIntCode("FerryAvoidNumber");
+                    int safedis = PubMaster.Dic.GetDtlIntCode(DicTag.FerryAvoidNumber);
                     foreach (AreaDevice ferry in areatras)
                     {
                         if (ferry.device_id != ferryid)
@@ -812,8 +812,9 @@ namespace task.device
         /// <summary>
         /// 是否存在避让 - 暂不可用
         /// </summary>
-        public bool ExistsAvoid(FerryTask task, uint to_track_id)
+        public bool ExistsAvoid(FerryTask task, uint to_track_id, out string msg)
         {
+            msg = "";
             bool result = false;
             // 同区域内其他同类型的摆渡车
             List<FerryTask> ferries = DevList.FindAll(c => c.AreaId == task.AreaId && c.Type == task.Type && c.ID != task.ID);
@@ -823,14 +824,41 @@ namespace task.device
                 return result;
             }
 
+            // 当前轨道ID
+            uint TrackId = task.GetFerryCurrentTrackId();
+            // 当前摆渡车对着的轨道的顺序
+            short fromOrder = PubMaster.Track.GetTrack(TrackId)?.order ?? 0;
             // 目的轨道顺序
             short toOrder = PubMaster.Track.GetTrack(to_track_id)?.order ?? 0;
+
+            if (fromOrder == 0 && toOrder == 0)
+            {
+                // 无顺序 即不需要避让？
+                return result;
+            }
+
             // 摆渡间安全距离 轨道数
-            int safedis = PubMaster.Dic.GetDtlIntCode("FerryAvoidNumber");
+            int safedis = PubMaster.Dic.GetDtlIntCode(DicTag.FerryAvoidNumber);
+
+            // 当前摆渡车移动区间  limt1 [min/ (? - safedis) ~ (? + safedis)/max ] limt2
+            int limit1, limit2;
+            if (fromOrder >= toOrder)
+            {
+                limit1 = (toOrder - safedis) <= 0 ? toOrder : (toOrder - safedis);
+                limit2 = fromOrder + safedis;
+            }
+            else
+            {
+                limit1 = (fromOrder - safedis) <= 0 ? toOrder : (fromOrder - safedis);
+                limit2 = toOrder + safedis;
+            }
 
             //循环判断 
             foreach (FerryTask other in ferries)
             {
+                // 停用了就不管？
+                if (!other.IsWorking) continue;
+
                 // 其一摆渡当前轨道ID
                 uint otherTrackId = other.GetFerryCurrentTrackId();
                 // 其一摆渡当前轨道顺序
@@ -838,23 +866,37 @@ namespace task.device
                 // 其一摆渡目的轨道顺序
                 short otherToOrder = PubMaster.Track.GetTrackByPoint(other.DevStatus.TargetSite)?.order ?? 0;
 
-                switch (other.Status)
+                if (otherOrder == 0 && otherToOrder == 0)
                 {
-                    case DevFerryStatusE.停止:
-                        if (IsAllowToMove(task, out string res))
-                        {
-                            result = true;
-                        }
-                        break;
-                    case DevFerryStatusE.前进:
-                        break;
-                    case DevFerryStatusE.后退:
-                        break;
-                    case DevFerryStatusE.设备故障:
-                        break;
-                    default:
-                        break;
+                    // 没有配置？也当作不用避让处理？
+                    continue;
                 }
+
+                // 其一摆渡车在当前摆渡车移动区间内
+                if ((otherOrder > limit1 && otherOrder < limit2) ||
+                    (otherToOrder > limit1 && otherToOrder < limit2))
+                {
+                    result = true;
+                    // 确认是否已被同类型交管
+                    if (PubTask.TrafficControl.ExistsRestricted(TrafficControlTypeE.摆渡车交管摆渡车, other.ID))
+                    {
+                        continue;
+                    }
+                    // 其一摆渡车可先到安全点待定
+                    int standbyOrder = otherOrder >= fromOrder ? limit2 : limit1;
+                    uint standbyTraID = PubMaster.Track.GetTrackIDByOrder((ushort)other.AreaId, standbyOrder);
+                    // 加入交管
+                    PubTask.TrafficControl.AddTrafficControl(new TrafficControl()
+                    {
+                        area = (ushort)task.AreaId,
+                        TrafficControlType = TrafficControlTypeE.摆渡车交管摆渡车,
+                        restricted_id = task.ID,
+                        control_id = other.ID,
+                        from_track_id = otherTrackId,
+                        to_track_id = standbyTraID
+                    }, out msg) ;
+                }
+
             }
 
             return result;
@@ -1060,7 +1102,7 @@ namespace task.device
 
                     if (ferrys.Count > 0)
                     {
-                        int safedis = PubMaster.Dic.GetDtlIntCode("FerryAvoidNumber");
+                        int safedis = PubMaster.Dic.GetDtlIntCode(DicTag.FerryAvoidNumber);
                         //判断是否存在有摆渡车已被锁
                         if (ferrys.Exists(c => c.IsFerryLock()) && ferrys.Exists(c => !c.IsFerryLock()))
                         {

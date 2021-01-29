@@ -138,7 +138,7 @@ namespace task.device
 
                             if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
                             {
-                                int count = PubMaster.Dic.GetDtlIntCode("TileLifterShiftCount");
+                                int count = PubMaster.Dic.GetDtlIntCode(DicTag.TileLifterShiftCount);
                                 switch (task.DevStatus.ShiftStatus)
                                 {
                                     case TileShiftStatusE.复位:

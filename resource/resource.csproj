@@ -72,6 +72,7 @@
     <Compile Include="module\modulesql\RoleModSql.cs" />
     <Compile Include="module\modulesql\TileTrackModSql.cs" />
     <Compile Include="module\modulesql\TrackModSql.cs" />
+    <Compile Include="module\modulesql\TrafficCtlModSql.cs" />
     <Compile Include="module\modulesql\WarnModSql.cs" />
     <Compile Include="PubMaster.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
