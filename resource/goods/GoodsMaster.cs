@@ -1702,6 +1702,7 @@ namespace resource.goods
             if (stocks == null || stocks.Count == 0)
             {
                 location = PubMaster.Track.GetTrackSplitPoint(trackid);
+                isOK = true;
             }
             else
             {

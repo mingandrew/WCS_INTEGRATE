@@ -393,14 +393,22 @@ namespace task.trans
                                         LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out string _))
                                     {
                                         //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        CarrierActionOrder cao = new CarrierActionOrder
                                         {
                                             Order = DevCarrierOrderE.放砖指令,
-                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
-                                            ToSite = loc
-                                        });
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id)
+                                        };
 
-                                        PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
+                                        if (loc == 0)
+                                        {
+                                            cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_ferry_id);
+                                        }
+                                        else
+                                        {
+                                            cao.ToSite = loc;
+                                            PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
+                                        }
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, cao);
 
                                     }
                                 }
