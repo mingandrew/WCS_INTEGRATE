@@ -37,5 +37,24 @@ namespace module.goods
             get => (TrackTypeE)track_type;
             set => track_type = (byte)value;
         }
+
+        /// <summary>
+        /// 判断库存是否在给定误差内
+        /// </summary>
+        /// <param name="stocksite">脉冲位置</param>
+        /// <param name="difrange">误差范围</param>
+        /// <returns></returns>
+        public bool IsInLocation(ushort stocksite, ushort difrange)
+        {
+            if (location == 0 || stocksite ==0) return false;
+            return Math.Abs(location - stocksite) <= difrange;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("id:{0},good_id:{1},track_id:{2},produce_time:{3}," +
+                "pos:{4},tile_id:{5},area:{6},track_type:{7}",id, goods_id, track_id, produce_time, pos,
+                tilelifter_id, area, TrackType);
+        }
     }
 }

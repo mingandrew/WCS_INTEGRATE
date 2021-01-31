@@ -4,12 +4,14 @@ using GalaSoft.MvvmLight.Messaging;
 using module.area;
 using module.goods;
 using module.msg;
+using module.other;
 using module.rf;
 using module.track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using tool.mlog;
 
 namespace resource.goods
 {
@@ -26,6 +28,7 @@ namespace resource.goods
             StockSumList = new List<StockSum>();
             GoodSizeList = new List<GoodSize>();
             mMsg = new MsgAction();
+            _mlog = (Log)new LogFactory().GetLog("库存异常", false);
         }
 
         public void Start()
@@ -74,6 +77,7 @@ namespace resource.goods
         private List<StockSum> StockSumList { set; get; }
         private List<GoodSize> GoodSizeList { set; get; }
         private MsgAction mMsg;
+        private Log _mlog;
         #endregion
 
         #region[获取对象]
@@ -354,6 +358,26 @@ namespace resource.goods
             return 0;
         }
 
+        /// <summary>
+        /// 获取指定砖机轨道等待库存ID
+        /// </summary>
+        /// <param name="trackid">砖机轨道</param>
+        /// <param name="point">地标</para/m>
+        /// <returns></returns>
+        public uint GetStockInTileTrack(uint trackid, ushort point)
+        {
+            uint tileid = PubMaster.DevConfig.GetTileInPoint(trackid, point);
+            Stock stock = null;
+            if (tileid > 0)
+            {
+                stock = StockList.Find(c => c.track_id == trackid && c.tilelifter_id == tileid);
+            }
+            else
+            {
+                stock = StockList.Find(c => c.track_id == trackid);
+            }
+            return stock?.id ?? 0;
+        }
         #endregion
 
         #endregion
@@ -538,6 +562,7 @@ namespace resource.goods
             result = "找不到该品种信息：" + good.name;
             return false;
         }
+
 
         public bool DeleteGood(uint goodid, out string result)
         {
@@ -1193,6 +1218,72 @@ namespace resource.goods
                 stock.location_cal = loc;
                 PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Location);
             }
+        }
+
+
+        /// <summary>
+        /// 在储砖轨道获取库存信息返回给小车绑定
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="takePoint"></param>
+        /// <param name="takeSite"></param>
+        /// <returns></returns>
+        public uint GetStockInStoreTrack(uint trackid, ushort stockSite)
+        {
+            //查找脉冲范围内的库存信息
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.IsInLocation(stockSite, 50));//50脉冲 ≈ 50*(1.736)=86.8cm
+            if (stocks.Count == 1)
+            {
+                //找到范围内唯一的库存
+                return stocks[0].id;
+            }
+
+            if(stocks.Count == 0)
+            {
+                //找不到范围内的库存信息
+                stocks = StockList.FindAll(c => c.track_id == trackid);//找到范围内多个的库存 排序取最近的库存
+            }
+
+            if (stocks.Count > 0)
+            {
+                List<CalData> callist = new List<CalData>();
+                foreach (var item in stocks)
+                {
+                    callist.Add(new CalData() { id = item.id, s_data = (ushort)Math.Abs(item.location - stockSite) });
+                }
+                callist.Sort((x, y) => x.s_data.CompareTo(y.s_data));
+
+                return callist[0].id;
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// 获取摆渡车上的库存信息返回给小车绑定
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public uint GetStockInFerryTrack(uint trackid)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+            if(stocks.Count == 1)
+            {
+                return stocks[0].id;
+            }
+            else if(stocks.Count > 1)
+            {
+                stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
+                uint stockid = stocks[0].id;
+                string trackname = PubMaster.Track.GetTrackName(trackid);
+                for(int i =1; i< stocks.Count; i++)
+                {
+                    PubMaster.Mod.GoodSql.DeleteStock(stocks[i]);
+                    _mlog.Status(true, string.Format("轨道：{0}，库存信息：{1}", trackname, stocks[i].ToString()));
+                }
+                StockList.RemoveAll(c =>c.track_id == trackid && c.id != stockid && stocks.Exists(s => s.id == c.id));
+            }
+
+            return 0;
         }
         #endregion
 

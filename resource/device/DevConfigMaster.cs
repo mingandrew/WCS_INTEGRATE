@@ -370,6 +370,18 @@ namespace resource.device
         }
 
         /// <summary>
+        /// 获取砖机对应的地标
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        internal uint GetTileInPoint(uint trackid, ushort point)
+        {
+            return ConfigTileLifterList.Find(c => (c.left_track_id == trackid && c.left_track_point == point)
+                    || (c.right_track_id == trackid && c.right_track_point == point))?.id ?? 0 ;
+        }
+
+        /// <summary>
         /// 获取内侧砖机的ID
         /// </summary>
         /// <param name="tilelifter_id"></param>

@@ -426,6 +426,9 @@ namespace task.device
         {
             task.CheckAlert();
 
+            Track track = PubMaster.Track.GetTrack(task.CurrentTrackId);
+
+            #region[手动操作]
             if (task.OperateMode == DevOperateModeE.手动)
             {
                 if (task.CurrentOrder != DevCarrierOrderE.终止指令 && task.CurrentOrder != DevCarrierOrderE.无)
@@ -433,7 +436,6 @@ namespace task.device
                     task.DoStop();
                 }
 
-                Track track = PubMaster.Track.GetTrack(task.CurrentTrackId);
                 if (track != null)
                 {
                     if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
@@ -442,14 +444,89 @@ namespace task.device
                     }
                 }
             }
+            #endregion
 
-            UpdateFerryLoadStatus(task);
+            #region[更新摆渡车载货状态]
+            if (track != null)
+            {
+                switch (track.Type)
+                {
+                    case TrackTypeE.摆渡车_入:
+                    case TrackTypeE.摆渡车_出:
+                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, DevFerryLoadE.载车);
+                        task.LastTrackId = task.CurrentTrackId;
+                        break;
+                    default:
+                        if (task.LastTrackId != 0)
+                        {
+                            PubTask.Ferry.UpdateFerryWithTrackId(task.LastTrackId, DevFerryLoadE.空);
+                            task.LastTrackId = 0;
+                        }
+                        break;
+                }
+            }
+            #endregion
 
-            if (task.Status != DevCarrierStatusE.停止) return;
+            //if (task.Status != DevCarrierStatusE.停止) return;
 
             #region[检查任务]
 
             #region [取卸货]
+
+            //放货动作
+            if(task.DevConfig.stock_id != 0 && task.Load == DevCarrierLoadE.无货)
+            {
+                PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GiveSite);
+                task.DevConfig.stock_id = 0;
+
+                PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
+            }
+
+            //取货动作
+            if(task.DevConfig.stock_id == 0 && task.Load == DevCarrierLoadE.有货)
+            {
+                //1.根据轨道当前地标查看是否有库存在轨道的地标上
+                //2.找不到则拿轨道上的库存(先不考虑方向)
+                //3.都没有，则报警
+                if (track != null)
+                {
+                    switch (track.Type)
+                    {
+                        case TrackTypeE.上砖轨道:
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentPoint);
+                            break;
+                        case TrackTypeE.下砖轨道:
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentPoint);
+                            break;
+                        case TrackTypeE.储砖_入:
+                        case TrackTypeE.储砖_出:
+                        case TrackTypeE.储砖_出入:
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInStoreTrack(track.id, task.DevStatus.TakeSite);
+                            break;
+                        case TrackTypeE.摆渡车_入:
+                        case TrackTypeE.摆渡车_出:
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInFerryTrack(track.id);
+                            break;
+                    }
+                    if(task.DevConfig.stock_id != 0) PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
+                }
+
+                if(task.DevConfig.stock_id == 0)
+                {
+                    //报警
+
+                }
+            }
+
+            #endregion
+
+            #region[运输车切换轨道]
+
+
+            if (task.DevConfig.stock_id != 0)
+            {
+                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId);
+            }
 
             #endregion
 
@@ -467,25 +544,7 @@ namespace task.device
 
         private static void UpdateFerryLoadStatus(CarrierTask task)
         {
-            Track tt = PubMaster.Track.GetTrack(task.CurrentTrackId);
-            if (tt != null)
-            {
-                switch (tt.Type)
-                {
-                    case TrackTypeE.摆渡车_入:
-                    case TrackTypeE.摆渡车_出:
-                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, DevFerryLoadE.载车);
-                        task.LastTrackId = task.CurrentTrackId;
-                        break;
-                    default:
-                        if (task.LastTrackId != 0)
-                        {
-                            PubTask.Ferry.UpdateFerryWithTrackId(task.LastTrackId, DevFerryLoadE.空);
-                            task.LastTrackId = 0;
-                        }
-                        break;
-                }
-            }
+            
         }
 
         #endregion
