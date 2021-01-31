@@ -1231,12 +1231,27 @@ namespace task.trans
                                             else
                                             {
                                                 //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退取砖, isoversize);
-                                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                                CarrierActionOrder cao = new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.取砖指令,
                                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
-                                                });
+                                                };
+
+                                                TrackTypeE tt = PubMaster.Track.GetTrackType(trans.take_track_id);
+                                                if (tt == TrackTypeE.储砖_出入)
+                                                {
+                                                    // 去入库地标取，回轨道出库地标
+                                                    cao.ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
+                                                    cao.OverRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id);
+                                                }
+                                                else
+                                                {
+                                                    // 去分段点取，回轨道出库地标
+                                                    cao.ToSite = PubMaster.Track.GetTrackSplitPoint(trans.take_track_id);
+                                                    cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
+                                                }
+
+                                                PubTask.Carrier.DoOrder(trans.carrier_id, cao);
 
                                             }
                                         }
