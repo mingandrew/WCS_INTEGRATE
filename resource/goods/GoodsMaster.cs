@@ -886,8 +886,12 @@ namespace resource.goods
         /// </summary>
         /// <param name="stock_id">库存ID</param>
         /// <param name="to_track_id">被转移到的轨道ID</param>
-        public void MoveStock(uint stock_id, uint to_track_id)
+        /// <param name="fromtrans">调用方法来自任务逻辑</param>
+        public void MoveStock(uint stock_id, uint to_track_id, bool fromtrans = true)
         {
+            //屏蔽任务逻辑里面的调用
+            if (fromtrans) return;
+
             Stock stock = StockList.Find(c => c.id == stock_id);
             if(stock != null && stock.track_id != to_track_id)
             {

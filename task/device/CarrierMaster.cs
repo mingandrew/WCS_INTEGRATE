@@ -525,7 +525,8 @@ namespace task.device
 
             if (task.DevConfig.stock_id != 0)
             {
-                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId);
+                //根据小车当前的位置更新库存对应所在的轨道
+                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false);
             }
 
             #endregion
