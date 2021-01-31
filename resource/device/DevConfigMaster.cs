@@ -607,8 +607,10 @@ namespace resource.device
                 }
                 try
                 {
-                    mLog.Status(true, string.Format("[开始切换模式]砖机：{0}，当前模式:{1}，切换模式:{2}",
-                       PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode));
+                    mLog.Status(true, string.Format("[开始切换模式]砖机：{0}，当前模式:{1}，切换模式:{2}，目前品种:{3}，切换品种:{4}【{5},{6}】",
+                      PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode,
+                      PubMaster.Goods.GetGoodsName(dev.goods_id),
+                      PubMaster.Goods.GetGoodsName(newgoodid), dev.goods_id, newgoodid));
                 }
                 catch { }
 
@@ -636,8 +638,11 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[完成切换模式]砖机：{0}，原模式:{1}，新模式:{2}",
-                       PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode));
+                    mLog.Status(true, string.Format("[完成切换模式]砖机：{0}，原模式:{1}，新模式:{2}，原品种:{3}, 新品种:{4}【{5},{6}】",
+                       PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode,
+                       PubMaster.Goods.GetGoodsName(dev.goods_id),
+                       PubMaster.Goods.GetGoodsName(dev.pre_goodid),
+                       dev.goods_id, dev.pre_goodid));
                 }
                 catch { }
                 dev.WorkMode = nextmode;
