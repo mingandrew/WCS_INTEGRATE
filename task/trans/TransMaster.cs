@@ -401,11 +401,13 @@ namespace task.trans
 
                                         if (loc == 0)
                                         {
-                                            cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_ferry_id);
+                                            cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id);
+                                            cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
                                         }
                                         else
                                         {
                                             cao.ToSite = loc;
+                                            cao.OverSite = PubMaster.Track.GetTrackLimitPoint(trans.give_track_id);
                                             PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
                                         }
                                         PubTask.Carrier.DoOrder(trans.carrier_id, cao);
