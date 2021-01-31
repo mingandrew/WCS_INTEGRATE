@@ -407,7 +407,8 @@ namespace task.trans
                                         else
                                         {
                                             cao.ToSite = loc;
-                                            cao.OverSite = PubMaster.Track.GetTrackLimitPoint(trans.give_track_id);
+                                            //cao.OverSite = PubMaster.Track.GetTrackLimitPoint(trans.give_track_id);
+                                            cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
                                             PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
                                         }
                                         PubTask.Carrier.DoOrder(trans.carrier_id, cao);
