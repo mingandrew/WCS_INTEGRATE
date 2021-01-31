@@ -1,0 +1,27 @@
+﻿<Window x:Class="wcs.window.SimulationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wcs.window" xmlns:hc="https://handyorg.github.io/handycontrol"
+        DataContext="{Binding Simulation,Source={StaticResource Locator}}"
+        mc:Ignorable="d"
+        Title="模拟测试系统" Height="200" Width="400" MaxWidth="400">
+    <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Horizontal">
+            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="启动模拟服务：" Style="{StaticResource TextBlockTitleBold}" Margin="5"></TextBlock>
+            </Border>
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" MinWidth="120">
+                <ToggleButton Grid.Row="0" Grid.Column="1"  IsChecked="{Binding SimServerRun,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+            </Border>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="砖机开始作业：" Style="{StaticResource TextBlockTitleBold}" Margin="5">
+            </TextBlock>
+            <ToggleButton Grid.Row="1" Grid.Column="1"  IsChecked="{Binding TileWorkStart,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+        </Grid>
+    </StackPanel>
+
+</Window>

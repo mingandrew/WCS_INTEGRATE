@@ -17,5 +17,14 @@
         /// </summary>
         public ushort track_point { set; get; }
 
+
+        #region[模拟使用]
+
+        /// <summary>
+        /// 摆渡车重启后默认对上的轨道
+        /// </summary>
+        public ushort sim_last_point { set; get; }
+
+        #endregion
     }
 }

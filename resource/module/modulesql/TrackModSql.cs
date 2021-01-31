@@ -284,5 +284,25 @@ namespace resource.module.modulesql
         }
 
         #endregion
+
+        #region[模拟系统]
+
+        /// <summary>
+        /// 查询模拟摆渡车位置信息
+        /// </summary>
+        /// <returns></returns>
+        public List<SimFerryPos> QuerySimFerryPosList()
+        {
+            List<SimFerryPos> list = new List<SimFerryPos>();
+            string sql = string.Format("SELECT t.* FROM sim_ferry_pos AS t ");
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<SimFerryPos>();
+            }
+            return list;
+        }
+
+        #endregion
     }
 }

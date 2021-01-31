@@ -33,5 +33,13 @@ namespace enums
         public const string GoodsUpdate = nameof(GoodsUpdate);
         public const string TaskSwitchUpdate = nameof(TaskSwitchUpdate);
 
+
+        #region[模拟系统]
+
+        public const string SimCarrierMsgUpdate = nameof(SimCarrierMsgUpdate);
+        public const string SimFerryMsgUpdate = nameof(SimFerryMsgUpdate);
+        public const string SimTileLifterMsgUpdate = nameof(SimTileLifterMsgUpdate);
+
+        #endregion
     }
 }

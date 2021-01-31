@@ -1,12 +1,15 @@
 ﻿using enums;
 using HandyControl.Controls;
+using HandyControl.Tools;
 using HandyControl.Tools.Extension;
 using module.msg;
 using module.role;
 using resource;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Input;
 using task;
 using tool.mlog;
 using wcs.Dialog;
@@ -38,6 +41,13 @@ namespace wcs
             base.OnContentRendered(e);
 
             NonClientAreaContent = new MainToolBarCtl();
+
+            GlobalShortcut.Init(new List<KeyBinding>
+            {
+                new KeyBinding(ViewModelLocator.Instance.Main.GlobalShortcutCmd, Key.Back, ModifierKeys.Control | ModifierKeys.Alt)
+            });
+
+            WindowAttach.SetIgnoreAltF4(this, true);
         }
 
 

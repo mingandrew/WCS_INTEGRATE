@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D4B6B07A-120B-4975-8EB3-94B026554A1B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>simserver</RootNamespace>
+    <AssemblyName>simserver</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CommonServiceLocator, Version=2.0.5.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.2.0.5\lib\net46\CommonServiceLocator.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight, Version=5.4.1.0, Culture=neutral, PublicKeyToken=e7570ab207bcb616, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Extras, Version=5.4.1.0, Culture=neutral, PublicKeyToken=669f0b5e8f868abf, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Extras.dll</HintPath>
+    </Reference>
+    <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.4.1.0, Culture=neutral, PublicKeyToken=5f873c45e98af8a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="master\CarrierMaster.cs" />
+    <Compile Include="master\FerryMaster.cs" />
+    <Compile Include="master\TileLifterMaster.cs" />
+    <Compile Include="resource\SimSourceMaster.cs" />
+    <Compile Include="SimServer.cs" />
+    <Compile Include="socket\base\device\CarrierCmd.cs" />
+    <Compile Include="socket\base\device\DevTileCmd.cs" />
+    <Compile Include="socket\base\device\FerryCmd.cs" />
+    <Compile Include="socket\base\rf\SimRfClientTcp.cs" />
+    <Compile Include="socket\base\rf\RfServerBase.cs" />
+    <Compile Include="socket\process\SimCarrierProcesser.cs" />
+    <Compile Include="socket\process\SimFerryProcesser.cs" />
+    <Compile Include="socket\process\SimTileLifterProcesser.cs" />
+    <Compile Include="socket\rf\SimCarrierServer.cs" />
+    <Compile Include="socket\rf\SimFerryServer.cs" />
+    <Compile Include="socket\rf\SimTileLifterServer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="socket\SimSocketConst.cs" />
+    <Compile Include="task\SimCarrierTask.cs" />
+    <Compile Include="task\SimFerryTask.cs" />
+    <Compile Include="task\SimTaskBase.cs" />
+    <Compile Include="task\SimTileLifterTask.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\enums\enums.csproj">
+      <Project>{e62b0fd1-ecfc-4e47-ac1d-e8535e78a42e}</Project>
+      <Name>enums</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\module\module.csproj">
+      <Project>{6fc3ffeb-7e5a-425e-9760-1ea8b6ce71ef}</Project>
+      <Name>module</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\resource\resource.csproj">
+      <Project>{b7a0a97c-24f2-4d84-b6da-9405be57f21e}</Project>
+      <Name>resource</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\socket\socket.csproj">
+      <Project>{da78b73e-ca78-4a09-8ded-d471303207b0}</Project>
+      <Name>socket</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\task\task.csproj">
+      <Project>{02efc4c8-4b98-4efe-9777-65b85145d753}</Project>
+      <Name>task</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\tool\tool.csproj">
+      <Project>{8c9e88c9-e187-4eeb-b104-ab7d317173cd}</Project>
+      <Name>tool</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

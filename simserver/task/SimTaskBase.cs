@@ -1,0 +1,35 @@
+﻿using enums;
+using module.device;
+
+namespace simtask.task
+{
+    public abstract class SimTaskBase
+    {
+        #region[字段]
+
+        public DeviceTypeE Type
+        {
+            get => Device?.Type ?? DeviceTypeE.其他;
+        }
+
+        public uint ID
+        {
+            get => Device?.id ?? 0;
+        }
+
+        public bool IsEnable
+        {
+            get => Device?.enable ?? false;
+        }
+
+        public Device Device { set; get; }
+        public SocketConnectStatusE ConnStatus { set; get; }
+
+        #endregion
+
+        public SimTaskBase()
+        {
+
+        }
+    }
+}

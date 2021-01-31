@@ -16,6 +16,7 @@ using System.Windows.Controls;
 using wcs.Data.Model;
 using wcs.Service;
 using wcs.Tools;
+using wcs.window;
 
 namespace wcs.ViewModel
 {
@@ -82,6 +83,7 @@ namespace wcs.ViewModel
         public RelayCommand<RoutedEventArgs> MenuTreeViewChangeCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(MenuTreeViewChange)).Value;
         public RelayCommand<RoutedEventArgs> TabSelectedCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(TabSelected)).Value;
 
+        public RelayCommand GlobalShortcutCmd => new Lazy<RelayCommand>(() => new RelayCommand(OpenSimWindow)).Value;
         #endregion
 
         #region[方法]
@@ -286,6 +288,16 @@ namespace wcs.ViewModel
                 Messenger.Default.Send(tab.Key, MsgToken.TabItemSelected);
             }
         }
+        #endregion
+
+        #region[模拟系统]
+
+        private void OpenSimWindow()
+        {
+            new SimulationWindow().Show();
+        }
+
+
         #endregion
     }
 }

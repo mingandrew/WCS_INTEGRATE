@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcsFixPlatform", "WcsFixPlatform\WcsFixPlatform.csproj", "{543E39C9-1B47-4107-9B1E-F3841C20BDBB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D4B6B07A-120B-4975-8EB3-94B026554A1B} = {D4B6B07A-120B-4975-8EB3-94B026554A1B}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "enums", "enums\enums.csproj", "{E62B0FD1-ECFC-4E47-AC1D-E8535E78A42E}"
 EndProject
@@ -18,6 +21,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "task", "task\task.csproj", "{02EFC4C8-4B98-4EFE-9777-65B85145D753}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "WcsFixPlatformSetup", "WcsFixPlatformSetup\WcsFixPlatformSetup.vdproj", "{C204B786-CFC7-4DC8-AF54-F19D08DC62C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simserver", "simserver\simserver.csproj", "{D4B6B07A-120B-4975-8EB3-94B026554A1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +60,10 @@ Global
 		{02EFC4C8-4B98-4EFE-9777-65B85145D753}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C204B786-CFC7-4DC8-AF54-F19D08DC62C8}.Debug|Any CPU.ActiveCfg = Debug
 		{C204B786-CFC7-4DC8-AF54-F19D08DC62C8}.Release|Any CPU.ActiveCfg = Release
+		{D4B6B07A-120B-4975-8EB3-94B026554A1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4B6B07A-120B-4975-8EB3-94B026554A1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4B6B07A-120B-4975-8EB3-94B026554A1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4B6B07A-120B-4975-8EB3-94B026554A1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

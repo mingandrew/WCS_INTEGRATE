@@ -252,6 +252,7 @@
     <Compile Include="ViewModel\setting\toolbar\ToolBarViewModel.cs" />
     <Compile Include="ViewModel\setting\user\UserEditViewModel.cs" />
     <Compile Include="ViewModel\setting\user\UserViewModel.cs" />
+    <Compile Include="ViewModel\simulation\SimulationViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="window\platform\area\AreaSwitchCtl.xaml.cs">
       <DependentUpon>AreaSwitchCtl.xaml</DependentUpon>
@@ -330,6 +331,9 @@
     </Compile>
     <Compile Include="window\setting\user\UserCtl.xaml.cs">
       <DependentUpon>UserCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\simulation\SimulationWindow.xaml.cs">
+      <DependentUpon>SimulationWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Dialog\platform\device\ChangeStrategyDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -575,6 +579,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="window\simulation\SimulationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -744,6 +752,10 @@
     <ProjectReference Include="..\resource\resource.csproj">
       <Project>{B7A0A97C-24F2-4D84-B6DA-9405BE57F21E}</Project>
       <Name>resource</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\simserver\simserver.csproj">
+      <Project>{d4b6b07a-120b-4975-8eb3-94b026554a1b}</Project>
+      <Name>simserver</Name>
     </ProjectReference>
     <ProjectReference Include="..\task\task.csproj">
       <Project>{02EFC4C8-4B98-4EFE-9777-65B85145D753}</Project>

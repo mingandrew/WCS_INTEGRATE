@@ -32,5 +32,15 @@
         /// </summary>
         public ushort length { set; get; }
 
+
+        #region[模拟使用]
+
+        /// <summary>
+        /// 摆渡车重启后默认对上的轨道
+        /// </summary>
+        public ushort sim_init_point { set; get; }
+        public ushort sim_init_site { set; get; }
+
+        #endregion
     }
 }

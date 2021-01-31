@@ -5,6 +5,7 @@ namespace module.msg
 {
     public class SocketMsgMod
     {
+        public byte Devid { set; get; }
         public uint ID { set; get; }
         public SocketMsgTypeE MsgType { set; get; } 
         public SocketConnectStatusE ConnStatus { set; get; }

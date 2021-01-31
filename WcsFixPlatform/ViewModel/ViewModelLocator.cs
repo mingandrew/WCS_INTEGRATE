@@ -66,6 +66,8 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<DeviceViewModel>();
             SimpleIoc.Default.Register<CarrierPosViewModel>();
 
+            SimpleIoc.Default.Register<SimulationViewModel>();
+
             PubMaster.Init();
             PubTask.Init();
         }
@@ -133,6 +135,11 @@ namespace wcs.ViewModel
         public ToolBarViewModel ToolBar => ServiceLocator.Current.GetInstance<ToolBarViewModel>();
         public UserEditViewModel UserEdit => ServiceLocator.Current.GetInstance<UserEditViewModel>();
 
+        #endregion
+
+        #region[Ä£ÄâÏµÍ³]
+
+        public SimulationViewModel Simulation => ServiceLocator.Current.GetInstance<SimulationViewModel>();
         #endregion
 
         public static void Cleanup()
