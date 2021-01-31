@@ -1803,6 +1803,11 @@ namespace resource.goods
                     case TransTypeE.下砖任务:
                     case TransTypeE.手动下砖:
                         Stock bottom = stocks.Find(c => c.PosType == StockPosE.尾部);
+                        if (bottom == null)//如果找不到尾部则找最后的一个库存
+                        {
+                            stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
+                            bottom = stocks[stocks.Count - 1];
+                        }
                         ushort car = PubMaster.DevConfig.GetCarrierLenght(carrierid);
                         ushort safe = GetGoodsSafeDis(bottom.goods_id);
                         // 当砖间距比小车顶板小，用顶板长度更安全
