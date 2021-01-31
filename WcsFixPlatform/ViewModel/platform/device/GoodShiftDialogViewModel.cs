@@ -8,6 +8,8 @@ using module.msg;
 using module.window;
 using resource;
 using System;
+using System.Threading;
+using System.Windows;
 using task;
 using wcs.Data.View;
 using wcs.Dialog;
@@ -22,6 +24,7 @@ namespace wcs.ViewModel
         public GoodShiftDialogViewModel()
         {
             _result = new MsgAction();
+            InitTimer();
         }
 
         public MsgAction Result
@@ -32,7 +35,9 @@ namespace wcs.ViewModel
         public Action CloseAction { get; set; }
 
         private uint _devid, _area, _goodsid, _pregoodsid;
-        private string _devname, _pregoodsname, _shiftstatus;
+        private string _devname, _pregoodsname;
+        TileShiftStatusE _shiftstatus;
+        private bool shiftbtnenable;
 
         public uint AREA
         {
@@ -58,10 +63,16 @@ namespace wcs.ViewModel
             set => Set(ref _devname, value);
         }
 
-        public string SHIFTSTATUS
+        public TileShiftStatusE SHIFTSTATUS
         {
             get => _shiftstatus;
             set => Set(ref _shiftstatus, value);
+        }
+
+        public bool SHIFTBTNENABLE
+        {
+            get => shiftbtnenable;
+            set => Set(ref shiftbtnenable, value);
         }
 
         #region[字段]
@@ -100,7 +111,6 @@ namespace wcs.ViewModel
                     DoShift();
                     break;
             }
-            
         }
 
         /// <summary>
@@ -128,8 +138,7 @@ namespace wcs.ViewModel
             {
                 if (PubMaster.DevConfig.UpdateTilePreGood(_devid, GOODSID, good.ID, out string msg))
                 {
-                    PREGOODSNAME = good.info;
-                    _pregoodsid = good.ID;
+                    SetPreGood(string.IsNullOrEmpty(good.info) ? good.Name : good.info, good.ID);
                 }
                 else
                 {
@@ -139,12 +148,29 @@ namespace wcs.ViewModel
         }
 
 
+        private void SetPreGood(string name, uint id)
+        {
+            PREGOODSNAME = name;
+            _pregoodsid = id;
+        }
+
+        private void ClearPreGood()
+        {
+            PREGOODSNAME = "";
+            _pregoodsid = 0;
+        }
+
+
         /// <summary>
         /// 刷新转产状态
         /// </summary>
         private void DoRefresh()
         {
-            SHIFTSTATUS =  "" + PubTask.TileLifter.GetTileShiftStatus(_devid);
+            SHIFTSTATUS = PubTask.TileLifter.GetTileShiftStatus(_devid);
+            if (SHIFTSTATUS != TileShiftStatusE.转产中)
+            {
+                SHIFTBTNENABLE = true;
+            }
         }
 
         /// <summary>
@@ -178,6 +204,7 @@ namespace wcs.ViewModel
         /// </summary>
         private void CancelChange()
         {
+            StopTimer();
             CloseAction?.Invoke();
         }
 
@@ -199,10 +226,51 @@ namespace wcs.ViewModel
             }
             DEVNAME = devname;
             GOODSID = goodid;
-            DoRefresh();
+            SHIFTBTNENABLE = false;
+
+            uint pregid = PubMaster.DevConfig.GetDevicePreId(devid);
+            if (pregid > 0)
+            {
+                SetPreGood(PubMaster.Goods.GetGoodsName(pregid), pregid);
+            }
+            else
+            {
+                ClearPreGood();
+            }
+
+            StartTimer();
         }
 
         #endregion
 
+        #region[刷新转产状态]
+
+        //定义Timer类
+        Timer threadTimer;
+        private void InitTimer()
+        {
+            threadTimer = new Timer(new TimerCallback(TimesUp), null, Timeout.Infinite, 2000);
+        }
+
+        private void StartTimer()
+        {
+            //立即开始计时，时间间隔2000毫秒
+            threadTimer.Change(0, 2000);
+        }
+
+        private void TimesUp(object value)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DoRefresh();
+            });
+        }
+
+        private void StopTimer()
+        {
+            //停止计时
+            threadTimer.Change(Timeout.Infinite, 2000);
+        }
+        #endregion
     }
 }

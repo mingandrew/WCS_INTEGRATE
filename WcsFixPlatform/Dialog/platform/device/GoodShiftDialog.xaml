@@ -37,11 +37,16 @@
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="转产状态："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
                 <TextBlock Grid.Row="2" Grid.Column="1" Margin="10" FontSize="22" Text="{Binding SHIFTSTATUS}" VerticalAlignment="Center"/>
-                <Button Grid.Row="2" Grid.Column="2" Margin="10"  Tag="refreshstatus" Command="{Binding BtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}" Content="刷新" FontSize="15"/>
+                <Button Grid.Row="2" Grid.Column="2" Margin="10"  Tag="refreshstatus" Command="{Binding BtnCmd}" 
+                        CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}"
+                        Content="刷新" FontSize="15" Visibility="Collapsed"/>
 
             </Grid>
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,30,0,0">
-                <Button Width="120" Height="35" Margin="5,0,0,0" Tag="doshift" Command="{Binding BtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}" Content="执行转产" FontSize="17"/>
+                <Button Width="120" Height="35" Margin="5,0,0,0" Tag="doshift" Command="{Binding BtnCmd}"  
+                        CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                        Style="{StaticResource ButtonPrimary}" Content="执行转产" FontSize="17"
+                        IsEnabled="{Binding SHIFTBTNENABLE}"/>
             </StackPanel>
         </StackPanel>
     </hc:SimplePanel>
