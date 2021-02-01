@@ -367,7 +367,7 @@ namespace task.trans
             return TransList.FindAll(c => areaids.Contains(c.area_id));
         }
 
-        public StockTrans GetTrans(int transid)
+        public StockTrans GetTrans(uint transid)
         {
             StockTrans stock = TransList.Find(c => c.id == transid);
             if (stock == null)

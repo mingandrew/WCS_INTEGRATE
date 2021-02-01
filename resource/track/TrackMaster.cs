@@ -308,8 +308,17 @@ namespace resource.track
         /// <returns></returns>
         public uint GetTrackIDByOrder(ushort area, int order)
         {
-            return TrackList.Find(c => c.area == area && c.order == order && 
+            return TrackList.Find(c => c.area == area && c.order == order &&
             (c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入))?.id ?? 0;
+        }
+
+        /// <summary>
+        /// 获取最大储砖轨道order
+        /// </summary>
+        /// <returns></returns>
+        public int GetMaxOrder(ushort area, TrackTypeE tt)
+        {
+            return TrackList.FindAll(c => c.area == area && (c.Type == tt || c.Type == TrackTypeE.储砖_出入)).Max(c => c.order);
         }
 
         #endregion
@@ -684,7 +693,7 @@ namespace resource.track
             result = "";
             trackferrycode = 0;
             Track track = TrackList.Find(c => c.id == take_track_id);
-            if(track != null)
+            if (track != null)
             {
                 switch (track.Type)
                 {
@@ -697,7 +706,7 @@ namespace resource.track
                         trackferrycode = track.ferry_down_code;
                         break;
                     case TrackTypeE.储砖_出入:
-                        if(ferrytype == DeviceTypeE.下摆渡)
+                        if (ferrytype == DeviceTypeE.下摆渡)
                         {
                             trackferrycode = track.ferry_up_code;
                         }
@@ -711,7 +720,7 @@ namespace resource.track
                         break;
                 }
 
-                if(trackferrycode != 0)
+                if (trackferrycode != 0)
                 {
                     result = "";
                     return true;
@@ -750,7 +759,7 @@ namespace resource.track
             Track track = TrackList.Find(c => c.id == track_id);
             if (track != null)
             {
-                if(track.StockStatus != TrackStockStatusE.满砖 && track.max_store <= storecount)
+                if (track.StockStatus != TrackStockStatusE.满砖 && track.max_store <= storecount)
                 {
                     track.StockStatus = TrackStockStatusE.满砖;
                     PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.StockStatus);
@@ -767,7 +776,7 @@ namespace resource.track
 
         internal List<uint> GetAreaTrackIds(uint areaid, TrackTypeE type)
         {
-            return TrackList.FindAll(c => c.area == areaid && c.Type == type).Select(c=>c.id).ToList();
+            return TrackList.FindAll(c => c.area == areaid && c.Type == type).Select(c => c.id).ToList();
         }
 
         public bool IsTrackFull(uint track_id)
@@ -806,9 +815,9 @@ namespace resource.track
 
         public bool IsStoreType(uint traid)
         {
-            return TrackList.Exists(c => c.id == traid 
-                                && (c.Type == TrackTypeE.储砖_入 
-                                    || c.Type == TrackTypeE.储砖_出 
+            return TrackList.Exists(c => c.id == traid
+                                && (c.Type == TrackTypeE.储砖_入
+                                    || c.Type == TrackTypeE.储砖_出
                                     || c.Type == TrackTypeE.储砖_出入));
         }
 
@@ -827,7 +836,7 @@ namespace resource.track
         {
             MsgAction msg = new MsgAction();
             msg.o1 = track;
-            Messenger.Default.Send(msg, MsgToken.TrackStatusUpdate) ;
+            Messenger.Default.Send(msg, MsgToken.TrackStatusUpdate);
         }
 
         public bool IsStatusOkToGive(uint give_track_id)
@@ -850,9 +859,9 @@ namespace resource.track
         public bool IsTrackEmtpy(uint track_id)
         {
             Track track = GetTrack(track_id);
-            if(track != null)
+            if (track != null)
             {
-                return track.TrackStatus != TrackStatusE.停用 
+                return track.TrackStatus != TrackStatusE.停用
                         && track.StockStatus == TrackStockStatusE.空砖
                         && track.AlertStatus == TrackAlertE.正常
                         && !PubMaster.Goods.ExistStockInTrack(track_id);
@@ -905,7 +914,7 @@ namespace resource.track
                                        && c.Type == totracktype
                                        && c.AlertStatus == TrackAlertE.正常
                                        && c.TrackStatus != TrackStatusE.停用);
-            if(list.Count > 0)
+            if (list.Count > 0)
             {
                 list.Sort((x, y) => x.stock_status.CompareTo(y.stock_status));
             }
@@ -916,7 +925,7 @@ namespace resource.track
         {
             if (trackid == 0) return false;
             Track track = GetTrack(trackid);
-            return track != null 
+            return track != null
                 && track.TrackStatus != TrackStatusE.停用
                 //&& track.StockStatus == TrackStockStatusE.空砖
                 && track.AlertStatus == TrackAlertE.正常;
@@ -960,35 +969,37 @@ namespace resource.track
 
         public bool CheckAndUpateTrackStatus(TrackUpdatePack pack, out string result)
         {
-            if (pack == null) {
+            if (pack == null)
+            {
                 result = "找不到轨道信息";
                 return false;
             }
-            if (pack.TrackId == 0) {
+            if (pack.TrackId == 0)
+            {
                 result = "轨道ID不能为空";
-                return false; 
+                return false;
             }
 
             Track track = GetTrack(pack.TrackId);
-            if(track.stock_status != pack.OldStockStatus || track.track_status != pack.OldTrackStatus)
+            if (track.stock_status != pack.OldStockStatus || track.track_status != pack.OldTrackStatus)
             {
                 result = "请刷新后再修改！";
                 return false;
             }
 
 
-            if(!pack.IsStockStatusChange() && !pack.IsStatusChange())
+            if (!pack.IsStockStatusChange() && !pack.IsStatusChange())
             {
                 result = "不需要更改，请刷新！";
                 return false;
             }
-            
-            if(pack.IsStatusChange() && !SetTrackStatus(pack.TrackId, (TrackStatusE)pack.TrackStatus, out result, "平板"))
+
+            if (pack.IsStatusChange() && !SetTrackStatus(pack.TrackId, (TrackStatusE)pack.TrackStatus, out result, "平板"))
             {
                 return false;
             }
 
-            if(pack.IsStockStatusChange() && !SetStockStatus(pack.TrackId, (TrackStockStatusE)pack.StockStatus, out result, "平板"))
+            if (pack.IsStockStatusChange() && !SetStockStatus(pack.TrackId, (TrackStockStatusE)pack.StockStatus, out result, "平板"))
             {
                 return false;
             }

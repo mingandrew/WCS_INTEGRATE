@@ -54,7 +54,7 @@ namespace resource.module.modulesql
             return list;
         }
 
-        public StockTrans QueryStockTransById(int transid)
+        public StockTrans QueryStockTransById(uint transid)
         {
             List<StockTrans> list = new List<StockTrans>();
             string sql = string.Format("SELECT t.* FROM stock_trans AS t where t.id ={0} ", transid);

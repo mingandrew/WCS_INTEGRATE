@@ -411,7 +411,7 @@ namespace task.trans
 
                                             //cao.ToSite = loc;
                                             //cao.OverSite = PubMaster.Track.GetTrackLimitPoint(trans.give_track_id);
-                                           
+
                                             PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
                                         }
                                         PubTask.Carrier.DoOrder(trans.carrier_id, cao);
@@ -3269,52 +3269,6 @@ namespace task.trans
         }
 
         #endregion
-
-        public uint IsTrackFree(Track track, bool checkleft, bool checkright)
-        {
-            if (checkleft)
-            {
-                if (track.left_track_id == 0)
-                {
-                    return 0;
-                }
-
-                Track ltrack = PubMaster.Track.GetTrack(track.left_track_id);
-                if (IsTrackFreeToGo(ltrack))
-                {
-                    return track.right_track_id;
-                }
-                else
-                {
-                    return IsTrackFree(ltrack, true, false);
-                }
-            }
-
-            if (checkright)
-            {
-                if (track.right_track_id == 0)
-                {
-                    return 0;
-                }
-
-                Track rtrack = PubMaster.Track.GetTrack(track.right_track_id);
-                if (IsTrackFreeToGo(rtrack))
-                {
-                    return track.right_track_id;
-                }
-                else
-                {
-                    return IsTrackFree(rtrack, false, true);
-                }
-            }
-
-            return 0;
-        }
-
-        public bool IsTrackFreeToGo(Track track)
-        {
-            return PubMaster.Track.IsTrackFree(track.id) && !IsTraInTrans(track.id) && !PubTask.Carrier.HaveInTrack(track.id);
-        }
 
         #region[根据小车位置分配摆渡车]
 

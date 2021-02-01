@@ -1,9 +1,11 @@
 ﻿using enums;
 using module.device;
+using module.goods;
 using resource;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using task.task;
 using tool.mlog;
 using tool.timer;
 
@@ -60,7 +62,7 @@ namespace task.device
                     try
                     {
                         TrafficCtlList.RemoveAll(c => c.TrafficControlStatus == TrafficControlStatusE.已完成);
-                        if (TrafficCtlList != null || TrafficCtlList.Count !=0)
+                        if (TrafficCtlList != null || TrafficCtlList.Count != 0)
                         {
                             foreach (TrafficControl ctl in TrafficCtlList)
                             {
@@ -71,15 +73,14 @@ namespace task.device
                                         case TrafficControlTypeE.运输车交管运输车:
                                             break;
                                         case TrafficControlTypeE.摆渡车交管摆渡车:
-                                            // 是否存在被运输车交管
-                                            if (ExistsRestricted(TrafficControlTypeE.运输车交管摆渡车, ctl.control_id))
+                                            // 是否允许摆渡车移动
+                                            if (IsAllowToMoveForFerry(ctl.control_id, out string result))
                                             {
-                                                continue;
-                                            }
-                                            // 让交管车定位到结束点
-                                            if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out string res))
-                                            {
-                                                SetStatus(ctl, TrafficControlStatusE.已完成);
+                                                // 让交管车定位到结束点
+                                                if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out result))
+                                                {
+                                                    SetStatus(ctl, TrafficControlStatusE.已完成);
+                                                }
                                             }
                                             break;
                                         case TrafficControlTypeE.运输车交管摆渡车:
@@ -203,12 +204,12 @@ namespace task.device
         /// 是否存在设备已被同类型交管
         /// </summary>
         /// <param name="tct"></param>
-        /// <param name="restricted_id"></param>
+        /// <param name="devid"></param>
         /// <returns></returns>
-        public bool ExistsRestricted(TrafficControlTypeE tct, uint restricted_id)
+        public bool ExistsTrafficControl(TrafficControlTypeE tct, uint devid)
         {
             return TrafficCtlList.Exists(c => c.TrafficControlStatus == TrafficControlStatusE.交管中 &&
-                c.TrafficControlType == tct && c.restricted_id == restricted_id);
+                c.TrafficControlType == tct && (c.restricted_id == devid || c.control_id == devid));
         }
 
 
@@ -226,6 +227,103 @@ namespace task.device
                 ctl.TrafficControlStatus = status;
                 PubMaster.Mod.TrafficCtlSql.EditTrafficCtl(ctl, TrafficControlUpdateE.Status);
             }
+        }
+
+        #endregion
+
+        #region [ 交管摆渡车是否允许移动 ]
+
+        /// <summary>
+        /// 是否允许交管摆渡车移动
+        /// </summary>
+        /// <returns></returns>
+        private bool IsAllowToMoveForFerry(uint ferryid, out string result)
+        {
+            // 是否存在被运输车交管
+            if (ExistsTrafficControl(TrafficControlTypeE.运输车交管摆渡车, ferryid))
+            {
+                result = "被运输车交管中！";
+                return false;
+            }
+
+            FerryTask ferry = PubTask.Ferry.GetFerry(ferryid);
+            if (!PubTask.Ferry.IsAllowToMove(ferry, out result))
+            {
+                return false;
+            }
+            uint Ftraid = ferry.GetFerryCurrentTrackId();
+            // 是否锁定任务 判断任务节点是否允许移动
+            if (ferry.IsLock && ferry.TransId != 0)
+            {
+                StockTrans trans = PubTask.Trans.GetTrans(ferry.TransId);
+                if (trans != null)
+                {
+                    // 空车 - 在运输车对应位置 则不能移动
+                    uint Ctraid = PubTask.Carrier.GetCarrierTrackID(trans.carrier_id);
+                    if (Ftraid == Ctraid)
+                    {
+                        result = "对应运输车任务待定！";
+                        return false;
+                    }
+
+                    // 载车 - 在任务的对应位置 则不能移动
+                    if (ferry.Load == DevFerryLoadE.载车)
+                    {
+                        switch (trans.TransType)
+                        {
+                            case TransTypeE.下砖任务:
+                            case TransTypeE.手动下砖:
+                            case TransTypeE.同向下砖:
+                                if (trans.TransStaus == TransStatusE.取砖流程 && Ftraid == trans.take_track_id)
+                                {
+                                    result = "准备取货！";
+                                    return false;
+                                }
+                                if (trans.TransStaus == TransStatusE.放砖流程 && Ftraid == trans.give_track_id)
+                                {
+                                    result = "准备卸货！";
+                                    return false;
+                                }
+                                break;
+                            case TransTypeE.上砖任务:
+                            case TransTypeE.手动上砖:
+                            case TransTypeE.同向上砖:
+                                if (trans.TransStaus == TransStatusE.取砖流程)
+                                {
+                                    // 运输车无货 需要取砖
+                                    if (PubTask.Carrier.IsNotLoad(trans.carrier_id) && Ftraid == trans.take_track_id)
+                                    {
+                                        result = "准备取货！";
+                                        return false;
+                                    }
+                                    // 运输车载货 需要放砖
+                                    if (PubTask.Carrier.IsLoad(trans.carrier_id) && Ftraid == trans.give_track_id)
+                                    {
+                                        result = "准备卸货！";
+                                        return false;
+                                    }
+                                }
+                                if (trans.TransStaus == TransStatusE.还车回轨 && Ftraid == trans.finish_track_id)
+                                {
+                                    result = "准备还车回轨！";
+                                    return false;
+                                }
+                                break;
+                            case TransTypeE.倒库任务:
+                            case TransTypeE.移车任务:
+                                if (trans.TransStaus == TransStatusE.移车中 && Ftraid == trans.give_track_id)
+                                {
+                                    result = "准备移车！";
+                                    return false;
+                                }
+                                break;
+                        }
+                    }
+
+                }
+            }
+
+            return true;
         }
 
         #endregion

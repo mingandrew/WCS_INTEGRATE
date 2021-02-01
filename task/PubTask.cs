@@ -48,7 +48,7 @@ namespace task
             Trans?.Start();
             Rf?.Start();
             Ping?.Start();
-            //TrafficControl?.Start();   // 暂时停用
+            //TrafficControl?.Start();   // 暂时停用 - 取消注释即可用
         }
 
         public static void Stop()
@@ -59,7 +59,7 @@ namespace task
             Carrier?.Stop();
             Rf?.Stop();
             Ping?.Stop();
-            //TrafficControl?.Stop();   // 暂时停用
+            //TrafficControl?.Stop();   // 暂时停用 - 取消注释即可用
         }
     }
 }
