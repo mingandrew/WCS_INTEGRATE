@@ -204,6 +204,11 @@ namespace task.device
                             }
                         }
 
+                        if(task.DevConfig.do_shift && task.DevConfig.WorkMode == TileWorkModeE.上砖)
+                        {
+                            task.DevConfig.do_shift = false;
+                            PubMaster.Mod.DevConfigSql.EditConfigTileLifter(task.DevConfig);
+                        }
                         #endregion
 
                         #region 同步当前品种/等级

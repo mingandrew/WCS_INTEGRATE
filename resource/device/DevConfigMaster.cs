@@ -511,6 +511,7 @@ namespace resource.device
                     result = "请刷新设备信息！";
                     return false;
                 }
+
                 if (dev.do_shift)
                 {
                     result = "正在转产中！";

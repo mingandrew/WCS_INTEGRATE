@@ -161,7 +161,7 @@ WHERE id = {0}", dev.id, dev.a_takemisstrack, dev.a_givemisstrack, dev.a_alert_t
 
         #region 砖机
 
-        internal bool EditConfigTileLifter(ConfigTileLifter dev)
+        public bool EditConfigTileLifter(ConfigTileLifter dev)
         {
             string sql = string.Format(@"UPDATE config_tilelifter SET brother_dev_id = {1}, left_track_id = {2}, right_track_id = {3}, strategy_in = {4}, strategy_out = {5}, 
 work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11},
