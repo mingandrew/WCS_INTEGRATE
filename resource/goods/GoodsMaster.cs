@@ -765,9 +765,11 @@ namespace resource.goods
             );
 
             int minStockTime = PubMaster.Dic.GetDtlIntCode("MinStockTime");
+
             foreach (Stock stock1 in stocks)
             {
-                if ((DateTime.Now - (DateTime)stock1.produce_time).TotalHours >= minStockTime)
+                double dirhours = (DateTime.Now - (DateTime)stock1.produce_time).TotalHours;
+                if (minStockTime == 0 || dirhours < 0 || dirhours >= minStockTime)
                 {
                     if (!PubMaster.Track.IsEmtpy(stock1.track_id) && 
                         PubMaster.Track.IsTrackEnable(stock1.track_id, TrackStatusE.仅上砖))
