@@ -179,6 +179,16 @@ namespace resource.device
         #region 砖机
 
         /// <summary>
+        /// 获取砖机预设品种
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetDevicePreId(uint devid)
+        {
+            return ConfigTileLifterList.Find(c => c.id == devid)?.pre_goodid ?? 0;
+        }
+
+        /// <summary>
         /// 获取砖机作业类型
         /// </summary>
         /// <param name="devid"></param>
