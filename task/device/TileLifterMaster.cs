@@ -783,9 +783,13 @@ namespace task.device
 
                     #region[生成入库交易]
 
-                    if (!IsAllowToBeTaskGoods(task.ID, task.DevStatus.Goods1)) return;
-
                     uint gid = task.DevStatus.Goods1;
+                    if (!IsAllowToBeTaskGoods(task.ID, gid))
+                    {
+                        // 砖机回馈品种有问题，直接报警 沿用当前设定品种进行作业
+                        if (task.DevConfig.goods_id == 0) return;
+                        gid = task.DevConfig.goods_id;
+                    }
 
                     if (task.DevConfig.do_cutover &&
                         !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid, 
@@ -941,9 +945,13 @@ namespace task.device
 
                     #region[生成入库交易]
 
-                    if (!IsAllowToBeTaskGoods(task.ID, task.DevStatus.Goods2)) return;
-
                     uint gid = task.DevStatus.Goods2;
+                    if (!IsAllowToBeTaskGoods(task.ID, gid))
+                    {
+                        // 砖机回馈品种有问题，直接报警 沿用当前设定品种进行作业
+                        if (task.DevConfig.goods_id == 0) return;
+                        gid = task.DevConfig.goods_id;
+                    }
 
                     if (task.DevConfig.do_cutover &&
                         !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid,
