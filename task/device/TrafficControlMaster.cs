@@ -71,21 +71,16 @@ namespace task.device
                                     switch (ctl.TrafficControlType)
                                     {
                                         case TrafficControlTypeE.运输车交管运输车:
+                                            ControlCarrierByCarrier(ctl);
                                             break;
                                         case TrafficControlTypeE.摆渡车交管摆渡车:
-                                            // 是否允许摆渡车移动
-                                            if (IsAllowToMoveForFerry(ctl.control_id, out string result))
-                                            {
-                                                // 让交管车定位到结束点
-                                                if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out result))
-                                                {
-                                                    SetStatus(ctl, TrafficControlStatusE.已完成);
-                                                }
-                                            }
+                                            ControlFerryByFerry(ctl);
                                             break;
                                         case TrafficControlTypeE.运输车交管摆渡车:
+                                            ControlFerryByCarrier(ctl);
                                             break;
                                         case TrafficControlTypeE.摆渡车交管运输车:
+                                            ControlCarrierByFerry(ctl);
                                             break;
                                         default:
                                             break;
@@ -231,7 +226,134 @@ namespace task.device
 
         #endregion
 
-        #region [ 交管摆渡车是否允许移动 ]
+        #region [交管逻辑]
+
+        /// <summary>
+        /// 运输车交管运输车
+        /// </summary>
+        /// <param name="ctl"></param>
+        private void ControlCarrierByCarrier(TrafficControl ctl)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 摆渡车交管摆渡车
+        /// </summary>
+        /// <param name="ctl"></param>
+        private void ControlFerryByFerry(TrafficControl ctl)
+        {
+            try
+            {
+                // 是否存在被运输车交管
+                if (ExistsTrafficControl(TrafficControlTypeE.运输车交管摆渡车, ctl.control_id))
+                {
+                    return;
+                }
+
+                // 交管车当前位置是否满足结束交管条件
+                if (IsMeetLocationForFerry(ctl.control_id, ctl.from_track_id, ctl.to_track_id))
+                {
+                    SetStatus(ctl, TrafficControlStatusE.已完成);
+                    return;
+                }
+
+                // 是否允许交管摆渡车移动
+                if (IsAllowToMoveForFerry(ctl.control_id, out string result))
+                {
+                    // 让交管车定位到结束点
+                    if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out result))
+                    {
+                        SetStatus(ctl, TrafficControlStatusE.已完成);
+                        return;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 运输车交管摆渡车
+        /// </summary>
+        /// <param name="ctl"></param>
+        private void ControlFerryByCarrier(TrafficControl ctl)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 摆渡车交管运输车
+        /// </summary>
+        /// <param name="ctl"></param>
+        private void ControlCarrierByFerry(TrafficControl ctl)
+        {
+            try
+            {
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region [ 交管摆渡车判断 ]
+
+        /// <summary>
+        /// 是否满足交管摆渡车位置条件
+        /// </summary>
+        /// <returns></returns>
+        private bool IsMeetLocationForFerry(uint ferryid, uint fromTraid, uint toTraid)
+        {
+            // 当前轨道ID
+            uint nowTraid = PubTask.Ferry.GetFerryCurrentTrackId(ferryid);
+            if (nowTraid == 0)
+            {
+                return false;
+            }
+
+            // 当前轨道顺序
+            short Norder = PubMaster.Track.GetTrack(nowTraid)?.order ?? 0;
+            // 起始轨道顺序
+            short Forder = PubMaster.Track.GetTrack(fromTraid)?.order ?? 0;
+            // 结束轨道顺序
+            short Torder = PubMaster.Track.GetTrack(toTraid)?.order ?? 0;
+
+            if (Norder == 0 || Forder == 0 || Torder == 0)
+            {
+                // 没配置？不管了 直接完成
+                return true;
+            }
+
+            // 当前位置 需要在移动方向之外
+            if ((Torder > Forder && Norder >= Torder) ||
+                (Torder < Forder && Norder <= Torder))
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// 是否允许交管摆渡车移动
@@ -239,13 +361,6 @@ namespace task.device
         /// <returns></returns>
         private bool IsAllowToMoveForFerry(uint ferryid, out string result)
         {
-            // 是否存在被运输车交管
-            if (ExistsTrafficControl(TrafficControlTypeE.运输车交管摆渡车, ferryid))
-            {
-                result = "被运输车交管中！";
-                return false;
-            }
-
             FerryTask ferry = PubTask.Ferry.GetFerry(ferryid);
             if (!PubTask.Ferry.IsAllowToMove(ferry, out result))
             {

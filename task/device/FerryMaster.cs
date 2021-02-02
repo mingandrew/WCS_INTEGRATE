@@ -271,9 +271,24 @@ namespace task.device
             return DevList.Find(c => c.ID == devid);
         }
 
+        /// <summary>
+        /// 摆渡轨道ID
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
         public uint GetFerryTrackId(uint devid)
         {
             return DevList.Find(c => c.ID == devid)?.FerryTrackId ?? 0;
+        }
+
+        /// <summary>
+        /// 摆渡车当前对应轨道ID
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetFerryCurrentTrackId(uint devid)
+        {
+            return DevList.Find(c => c.ID == devid)?.GetFerryCurrentTrackId() ?? 0;
         }
 
         public void UpdateFerryWithTrackId(uint trackid, DevFerryLoadE devFerryLoadE)
