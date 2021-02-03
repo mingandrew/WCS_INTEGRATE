@@ -9,55 +9,58 @@
       MinHeight="320" MinWidth="500" MaxWidth="600" MaxHeight="500"  CornerRadius="20"
       DataContext="{Binding FerryAutoPos, Source={StaticResource Locator}}"
       Background="{DynamicResource RegionBrush}">
+    <hc:SimplePanel>
+        <Button hc:IconElement.Geometry="{StaticResource CloseGeometry}" Style="{StaticResource ButtonDanger}" 
+                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0" Command="{Binding CancelCmd}" />
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal">
+                <TextBlock  Text="{Binding FerryName}" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Margin="0,10,0,10"/>
+            </StackPanel>
 
-        </Grid.ColumnDefinitions>
-        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0">
-            <TextBlock Text="摆渡车名称:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="0,10,0,10"/>
-            <TextBlock  Text="{Binding FerryName}" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="0,10,0,10"/>
-        </StackPanel>
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="开始轨道:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}" Height="70">
+                <TextBlock Text="{Binding STARTTRACKCODE, Mode=TwoWay}" Style="{StaticResource TextBlockSubTitle}" Margin="10" FontSize="20"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTR}">
+                <TextBlock Text="注意: 请确保摆渡车在“开始轨道” 前(未对上轨道)" Style="{StaticResource TextBlockDefaultDanger}" 
+                           FontSize="20" Margin="10" HorizontalAlignment="Left"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="轨道数量:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
+                <TextBox Text="{Binding TRACKNUMBER, Mode=TwoWay}" Height="50" FontSize="20" Margin="10" />
+            </Border>
 
-        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-            <TextBlock Text="开始轨道编号:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
-        </Border>
-        <!--<Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-            <TextBox Text="{Binding STARTTRACKCODE, Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="20" Height="50"/>
-        </Border>-->
-        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}" Height="70">
-            <TextBlock Text="{Binding STARTTRACKCODE, Mode=TwoWay}" Style="{StaticResource TextBlockSubTitle}" Margin="10" FontSize="20"/>
-        </Border>
+            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                <TextBlock Text="对位侧:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" Height="70">
+                <TextBlock Text="{Binding AUTOPOSSIDE}" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
+            </Border>
+            <StackPanel Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,30,0,10">
 
-        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-            <TextBlock Text="轨道数量:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
-        </Border>
-        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-            <TextBox Text="{Binding TRACKNUMBER, Mode=TwoWay}" Height="50" FontSize="20" Margin="10" />
-        </Border>
+                <Button Width="150" Height="40" Margin="0,0,50,0" Tag="doshift" Command="{Binding ClearCmd}"
+                        Style="{StaticResource ButtonDanger}" Content="清空其他轨道" FontSize="20"/>
 
-        <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-            <TextBlock Text="对位侧:" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
-        </Border>
-        <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" Height="70">
-            <!--<TextBlock Text="{Binding AUTOPOSSIDE}" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>-->
-            <hc:ComboBox Visibility="{Binding SHOWIN, Converter={StaticResource Boolean2VisibilityReConverter}}"
-                         ItemsSource="{Binding Source={StaticResource DevFerryAutoPosE}}" 
-                         VerticalAlignment="Center" SelectedItem="{Binding AUTOPOSSIDE}" Margin="10,0,10,0" FontSize="22"/>
-        </Border>
-
-        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,0">
-            <Button Width="120" Margin="0,0,5,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消"/>
-            <Button Width="120" Margin="5,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确认"/>
-        </StackPanel>
-    </Grid>
+                <Button Width="150" Height="40" Margin="50,0,0,0" Tag="doshift" Command="{Binding ComfirmCmd}"  
+                        Style="{StaticResource ButtonPrimary}" Content="确定发送对位" FontSize="20"/>
+            </StackPanel>
+        </Grid>
+    </hc:SimplePanel>
 </Border>

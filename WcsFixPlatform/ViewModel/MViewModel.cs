@@ -6,8 +6,6 @@ namespace wcs.ViewModel
 {
     public abstract class MViewModel : ViewModelBase
     {
-        //        private readonly string timeformat = "yyyy-MM-dd HH:mm:ss:ffff";
-
         #region[字段]
         #endregion
 
@@ -32,14 +30,12 @@ namespace wcs.ViewModel
         /// </summary>
         public bool IsViewActive { set; get; } = true;
 
-
         protected MViewModel(string name) : base()
         {
             ModelName = name;
             Messenger.Default.Register<string>(this, MsgToken.TabItemSelected, TabItemSelected);
             //Messenger.Default.Register<string>(this, MsgToken.TabItemClosed, TabItemClosed);
         }
-
 
         protected MViewModel(IMessenger messenger) : base(messenger) { }
 
@@ -48,7 +44,6 @@ namespace wcs.ViewModel
         /// </summary>
         protected abstract void TabActivate();
         protected abstract void TabDisActivate();
-
 
         public void TabItemSelected(string tagname)
         {

@@ -20,6 +20,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<WaringViewModel>();
             SimpleIoc.Default.Register<WarnLogViewModel>();
             SimpleIoc.Default.Register<OperateGrandDialogViewModel>();
+            SimpleIoc.Default.Register<CheckRightDialogViewModel>();
 
             SimpleIoc.Default.Register<DictionViewModel>();
             SimpleIoc.Default.Register<DictionDtlEditViewModel>();
@@ -79,6 +80,7 @@ namespace wcs.ViewModel
         public WaringViewModel Warn => ServiceLocator.Current.GetInstance<WaringViewModel>();
         public WarnLogViewModel WarnLog => ServiceLocator.Current.GetInstance<WarnLogViewModel>();
         public OperateGrandDialogViewModel OperateGrand => ServiceLocator.Current.GetInstance<OperateGrandDialogViewModel>();
+        public CheckRightDialogViewModel CheckRight => ServiceLocator.Current.GetInstance<CheckRightDialogViewModel>();
 
         #region[×Öµä]
         public DictionViewModel Dic => ServiceLocator.Current.GetInstance<DictionViewModel>();

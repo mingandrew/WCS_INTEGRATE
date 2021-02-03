@@ -14,33 +14,34 @@
     <sys:Double x:Key="MGroupTitleFS">22</sys:Double>
     <sys:Double x:Key="MGroupContentFS">23</sys:Double>
     <sys:Double x:Key="MLightFS">18</sys:Double>
-    
+
+    <Style x:Key="MBorder_L" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness" Value="1,0,0,0" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    </Style>
+
     <Style x:Key="MBorder_LT" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness" Value="1,1,0,0" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
-    
-    <Style x:Key="MBorder_LB" TargetType="{x:Type Border}">
-        <Setter Property="BorderThickness" Value="1,0,0,1" />
+
+    <Style x:Key="MBorder_LR" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness" Value="1,0,1,0" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
-    
+
     <Style x:Key="MBorder_LTR" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness" Value="1,1,1,0" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
-    
+
     <Style x:Key="MBorder_LTB" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness" Value="1,1,0,1" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
-    
+
     <Style x:Key="MBorder_LTRB" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness" Value="1,1,1,1" />
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-    </Style>
-    <Style x:Key="MBorder_LRB" TargetType="{x:Type Border}">
-        <Setter Property="BorderThickness" Value="1,0,1,1" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
 

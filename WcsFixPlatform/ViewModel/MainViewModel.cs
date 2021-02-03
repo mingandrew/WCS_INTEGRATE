@@ -40,10 +40,7 @@ namespace wcs.ViewModel
             MenuList = new ObservableCollection<MenuModel>();
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.OperateGrandUpdate, OperateGrandUpdate);
-
-
         }
-
 
         #region[ Ù–‘]
 

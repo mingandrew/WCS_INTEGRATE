@@ -1,9 +1,12 @@
 ﻿using enums;
 using module.device;
 using module.deviceconfig;
+using module.track;
 using resource;
 using socket.tcp;
 using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace task.task
 {
@@ -15,6 +18,7 @@ namespace task.task
         public uint TransId { set; get; }
         public DateTime? LockRefreshTime { set; get; }
 
+        internal bool _cleaning;//清除其他轨道进行中
         #endregion
 
         #region[属性]
@@ -309,5 +313,33 @@ namespace task.task
 
         #endregion
 
+        #region[清除摆渡车未配置的其他轨道对位信息]
+
+        internal void StartClearOtherTrackPos(List<FerryPos> ferryPos)
+        {
+            _cleaning = true;
+            ushort fpos = 0;
+            new Thread(() =>
+            {
+                for (ushort i = 100; i <= 500; i += 200)
+                {
+                    for (ushort j = 1; j <= 99; j++)
+                    {
+                        fpos = (ushort)(i + j);
+                        if (!ferryPos.Exists(c => c.ferry_pos == fpos))
+                        {
+                            DoSiteUpdate(fpos, 0);
+                            Thread.Sleep(100);
+                        }
+                    }
+                }
+                _cleaning = false;
+            })
+            {
+                IsBackground = true
+            }.Start();
+        }
+
+        #endregion
     }
 }

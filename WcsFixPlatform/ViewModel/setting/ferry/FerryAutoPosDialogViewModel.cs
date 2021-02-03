@@ -6,11 +6,6 @@ using HandyControl.Tools.Extension;
 using module.device;
 using module.msg;
 using enums;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using module.window;
 using task;
 
 namespace wcs.ViewModel
@@ -26,12 +21,12 @@ namespace wcs.ViewModel
         private Device selectferry;
         private MsgAction _result;
         private int starttrack;
-        private string tracknumber;
+        private byte tracknumber;
         private string ferryname;
+        private byte maxtracknumber;//根据选中的轨道设置最大轨道数
         private DevFerryAutoPosE _devferryautopos;
 
         #endregion
-
 
         #region[属性]
         public Device SELECTFERRY
@@ -45,7 +40,7 @@ namespace wcs.ViewModel
             set => Set(ref starttrack, value);
         }
 
-        public string TRACKNUMBER
+        public byte TRACKNUMBER
         {
             get => tracknumber;
             set => Set(ref tracknumber, value);
@@ -56,14 +51,12 @@ namespace wcs.ViewModel
             get => _devferryautopos;
             set => Set(ref _devferryautopos, value);
         }
+
         public string FerryName
         {
             get => ferryname;
             set => Set(ref ferryname, value);
         }
-
-
-
 
         public MsgAction Result
         {
@@ -74,15 +67,12 @@ namespace wcs.ViewModel
         public Action CloseAction { get; set; }
         #endregion
 
-
-
         #region[命令]
         public RelayCommand CancelCmd => new Lazy<RelayCommand>(() => new RelayCommand(CancelChange)).Value;
         public RelayCommand ComfirmCmd => new Lazy<RelayCommand>(() => new RelayCommand(Comfirm)).Value;
-
+        public RelayCommand ClearCmd => new Lazy<RelayCommand>(() => new RelayCommand(ClearOtherTrack)).Value;
 
         #endregion
-
 
         #region[方法]
         private void CancelChange()
@@ -93,52 +83,49 @@ namespace wcs.ViewModel
             CloseAction?.Invoke();
         }
 
-
-
-        public void SetDialog(string ferryname, int ferrycode)
+        public void SetDialog(string ferryname, int ferrycode, int maxtracknum)
         {
+            maxtracknumber = (byte)maxtracknum;
             FerryName = ferryname;
             STARTTRACKCODE = ferrycode;
-            TRACKNUMBER = "";
-            //if (((STARTTRACKCODE > 200 && STARTTRACKCODE < 300) || STARTTRACKCODE > 600 && STARTTRACKCODE < 700))
-            //{
-            //    AUTOPOSSIDE = DevFerryAutoPosE.上砖侧对位;
-            //}
-            //if (((STARTTRACKCODE > 500 && STARTTRACKCODE < 600) || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200)))
-            //{
-            //    AUTOPOSSIDE = DevFerryAutoPosE.下砖侧对位;
-            //}
+            TRACKNUMBER = (byte)maxtracknum;
+
+            if (((STARTTRACKCODE > 200 && STARTTRACKCODE < 300) || STARTTRACKCODE > 600 && STARTTRACKCODE < 700))
+            {
+                AUTOPOSSIDE = DevFerryAutoPosE.上砖侧对位;
+            }
+            if (((STARTTRACKCODE > 500 && STARTTRACKCODE < 600) || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200)))
+            {
+                AUTOPOSSIDE = DevFerryAutoPosE.下砖侧对位;
+            }
         }
         private void Comfirm()
         {
-
-            if (string.IsNullOrEmpty(TRACKNUMBER))
+            if (TRACKNUMBER <= 0)
             {
                 Growl.Warning("请输入对位轨道数量！");
                 return;
             }
+
+            if (TRACKNUMBER > maxtracknumber)
+            {
+                Growl.Warning("对位数量不能超过设置的数量");
+                return;
+            }
+
             if (AUTOPOSSIDE == 0)
             {
                 Growl.Warning("请选择对位侧！");
                 return;
             }
-           
-            Result.o1 = STARTTRACKCODE;
-            Result.o2 = TRACKNUMBER;
-            Result.o3 = AUTOPOSSIDE;
-            if (Result.o1 != null && Result.o2 != null && Result.o3 != null)
+
+            if (!PubTask.Ferry.IsOnline(SELECTFERRY.id))
             {
-                try
-                {
-                    int starttrack = STARTTRACKCODE;//Convert.ToInt32(STARTTRACKCODE);
-                    byte tracknumber = Convert.ToByte(TRACKNUMBER);
-                    PubTask.Ferry.AutoPosMsgSend(SELECTFERRY.id, (DevFerryAutoPosE)Result.o3, starttrack, tracknumber);
-                }
-                finally
-                {
-                    CloseAction?.Invoke();
-                }
+                Growl.Warning("设备离线！");
+                return;
             }
+
+            PubTask.Ferry.AutoPosMsgSend(SELECTFERRY.id, AUTOPOSSIDE, STARTTRACKCODE, TRACKNUMBER);
         }
 
         internal void SetPosSide(DevFerryAutoPosE autoPosSide)
@@ -146,7 +133,24 @@ namespace wcs.ViewModel
             AUTOPOSSIDE = autoPosSide;
         }
 
+        /// <summary>
+        /// 清空摆渡车未配置的其他轨道对位信息
+        /// </summary>
+        private void ClearOtherTrack()
+        {
+            if (!PubTask.Ferry.IsOnline(SELECTFERRY.id))
+            {
+                Growl.Warning("设备离线！");
+                return;
+            }
 
+            if (!PubTask.Ferry.DoClearOtherTrackPos(SELECTFERRY.id, out string rs))
+            {
+                Growl.Warning(rs);
+                return;
+            }
+            Growl.Success("开始清理中！");
+        }
 
         #endregion
     }
