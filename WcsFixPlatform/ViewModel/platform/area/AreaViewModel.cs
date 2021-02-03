@@ -191,10 +191,10 @@ namespace wcs.ViewModel
 
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea())
+            if (PubMaster.Area.IsSingleArea(out uint aid))
             {
                 ShowAreaFileter = false;
-                SelectAreaId = 1;
+                SelectAreaId = aid;
                 RefreshDev();
             }
         }

@@ -220,6 +220,31 @@ namespace task.device
             }
         }
 
+
+        public bool DoClearOtherTrackPos(uint id, out string rs)
+        {
+            rs = "";
+            FerryTask task = DevList.Find(c => c.ID == id);
+            if (task != null)
+            {
+                if (!task.IsConnect)
+                {
+                    rs = "设备离线！";
+                    return false;
+                }
+
+                if (!task._cleaning)
+                {
+                    List<FerryPos> ferryPos = PubMaster.Track.GetFerryPos(id);
+                    task.StartClearOtherTrackPos(ferryPos);
+                    return true;
+                }
+
+                rs = "正在清除中！";
+            }
+            return false;
+        }
+
         public void StartStopFerry(uint ferryid, bool isstart)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -257,6 +282,17 @@ namespace task.device
         #endregion
 
         #region[获取信息]
+
+        /// <summary>
+        /// 判断摆渡车是否在线
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public bool IsOnline(uint devid)
+        {
+            return DevList.Exists(c => c.ID == devid && c.IsConnect);
+        }
+
 
         public void GetAllFerry()
         {

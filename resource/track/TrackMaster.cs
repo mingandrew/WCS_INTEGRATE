@@ -244,6 +244,12 @@ namespace resource.track
             return TrackList.FindAll(c => areadevtras.Exists(a => a.track_id == c.id));
         }
 
+        public List<Track> GetFerryTracksInType(uint ferryid, TrackTypeE type)
+        {
+            List<AreaDeviceTrack> deviceTrack = PubMaster.Area.GetDevTrackList(ferryid);
+            return TrackList.FindAll(c => c.Type == type && deviceTrack.Exists(d => d.track_id == c.id));
+        }
+
         public bool SetStockStatus(uint trackid, TrackStockStatusE goodstatus, out string result, string memo = "")
         {
             Track track = TrackList.Find(c => c.id == trackid);
@@ -320,6 +326,21 @@ namespace resource.track
             Track track = TrackList.Find(c => c.id == trackid);
             UpdateStockStatus(track, status, memo, false);
         }
+
+        /// <summary>
+        /// 计算摆渡车自动对位，选中轨道后 剩余对位数据
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="pos"></param>
+        /// <returns></returns>
+        public int GetFerryAutoPosLen(uint devid, ushort poscode)
+        {
+            Track selectrack = GetTrackByCode(poscode);
+            List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
+            tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
+            return tracks.Count - tracks.IndexOf(selectrack);
+        }
+
 
         internal void UpdateStockStatus(Track track, TrackStockStatusE status, string memo, bool isAllow)
         {

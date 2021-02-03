@@ -150,7 +150,7 @@ namespace wcs.ViewModel
             filterareaid = areaid;
             if (isshow)
             {
-                ShowAreaFilter = !PubMaster.Area.IsSingleArea();
+                ShowAreaFilter = !PubMaster.Area.IsSingleArea(out uint aid);
             }
             else
             {

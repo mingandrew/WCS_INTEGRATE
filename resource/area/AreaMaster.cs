@@ -480,9 +480,15 @@ namespace resource.area
 
         #region[单一区域]
 
-        public bool IsSingleArea()
+        public bool IsSingleArea(out uint areaid)
         {
-            return AreaList.Count == 1;
+            if (AreaList.Count == 1)
+            {
+                areaid = AreaList[0].id;
+                return true;
+            }
+            areaid = 0;
+            return false;
         }
 
         #endregion
