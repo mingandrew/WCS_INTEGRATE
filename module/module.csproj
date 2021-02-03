@@ -75,6 +75,7 @@
     <Compile Include="rf\carrier\DevCarrierPack.cs" />
     <Compile Include="rf\carrier\DevCarrierTaskPack.cs" />
     <Compile Include="rf\carrier\RfDevCarrier.cs" />
+    <Compile Include="rf\device\RfDevice.cs" />
     <Compile Include="rf\device\RfDevicePack.cs" />
     <Compile Include="rf\device\RfTileGoodPack.cs" />
     <Compile Include="rf\device\RfTileModePack.cs" />

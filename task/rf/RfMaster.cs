@@ -1165,15 +1165,9 @@ namespace task.rf
 
         private void GetTileGood(RfMsgMod msg)
         {
-            TilePack pack = new TilePack();
-            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
-            {
-                pack.AddTileList(PubMaster.Device.GetTileLifters(areaids));
-            }
-            else
-            {
-                pack.AddTileList(PubMaster.Device.GetTileLifters());
-            }
+            RfDevicePack pack = new RfDevicePack();
+
+            QueryDeviceInType(msg.MEID, new List<DeviceTypeE>() { DeviceTypeE.上砖机, DeviceTypeE.下砖机, DeviceTypeE.砖机 }, ref pack);
 
             SendSucc2Rf(msg.MEID, FunTag.QueryTileGood, JsonTool.Serialize(pack));
         }
@@ -1364,6 +1358,46 @@ namespace task.rf
 
         #region[设备信息]
 
+        /// <summary>
+        /// 根据设备类型获取设备配置信息
+        /// </summary>
+        /// <param name="MEID"></param>
+        /// <param name="tlist"></param>
+        /// <param name="pack"></param>
+        private void QueryDeviceInType(string MEID, List<DeviceTypeE> tlist, ref RfDevicePack pack)
+        {
+            List<Device> devices = new List<Device>();
+            if (IsClientFilterArea(MEID, out List<uint> areaids))
+            {
+                devices.AddRange(PubMaster.Device.GetDevices(tlist, areaids));
+            }
+            else
+            {
+                devices.AddRange(PubMaster.Device.GetDevices(tlist)); ;
+            }
+
+            foreach (var item in devices)
+            {
+                switch (item.Type)
+                {
+                    case DeviceTypeE.砖机:
+                    case DeviceTypeE.上砖机:
+                    case DeviceTypeE.下砖机:
+                        pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
+                        break;
+                    case DeviceTypeE.上摆渡:
+                    case DeviceTypeE.下摆渡:
+                        pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetFerry(item.id)));
+                        break;
+                    case DeviceTypeE.运输车:
+                        pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetCarrier(item.id)));
+                        break;
+                    case DeviceTypeE.其他:
+                        break;
+                }
+            }
+        }
+
         private void GetDevice(RfMsgMod msg)
         {
             if(msg.IsPackHaveData())
@@ -1387,17 +1421,9 @@ namespace task.rf
                         tlist.Add((DeviceTypeE)btype);
                     }
                 }
-                
-                RfDevicePack pack = new RfDevicePack();
-                if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
-                {
-                    pack.AddDevs(PubMaster.Device.GetDevices(tlist, areaids)); ;
-                }
-                else
-                {
-                    pack.AddDevs(PubMaster.Device.GetDevices(tlist)); ;
-                }
 
+                RfDevicePack pack = new RfDevicePack();
+                QueryDeviceInType(msg.MEID,tlist, ref pack);
                 SendSucc2Rf(msg.MEID, FunTag.QueryDevice, JsonTool.Serialize(pack));
             }
         }
