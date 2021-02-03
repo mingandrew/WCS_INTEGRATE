@@ -134,7 +134,10 @@ namespace wcs.ViewModel
                     byte tracknumber = Convert.ToByte(TRACKNUMBER);
                     PubTask.Ferry.AutoPosMsgSend(SELECTFERRY.id, (DevFerryAutoPosE)Result.o3, starttrack, tracknumber);
                 }
-                finally { }
+                finally
+                {
+                    CloseAction?.Invoke();
+                }
             }
         }
 

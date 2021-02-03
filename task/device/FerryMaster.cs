@@ -28,6 +28,7 @@ namespace task.device
         private List<FerryTask> DevList { set; get; }
 
         private readonly object _obj;
+        private readonly object _posobj; //用于锁定轨道坐标值的poslist
 
         private Thread _mRefresh;
         private bool Refreshing = true;
@@ -57,6 +58,7 @@ namespace task.device
             _objmsg = new object();
             mMsg = new MsgAction();
             _obj = new object();
+            _posobj = new object();
             DevList = new List<FerryTask>();
             _FerryPosSetList = new List<FerryPosSet>();
             PosList = new List<FerryPos>();
@@ -120,7 +122,7 @@ namespace task.device
                                 Thread.Sleep(1000);
                             }
 
-                            if (_IsRefreshPos)
+                            if (_IsRefreshPos && Monitor.TryEnter(_posobj, TimeSpan.FromSeconds(1)))
                             {
                                 foreach (FerryPos fp in PosList)
                                 {
@@ -1058,9 +1060,19 @@ namespace task.device
 
         public void RefreshPosList(uint ferryid)
         {
-            EndRefreshPosList();
-            PosList.AddRange(PubMaster.Mod.TraSql.QueryFerryPosList(ferryid));
-            _IsRefreshPos = true;
+            if (Monitor.TryEnter(_posobj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    EndRefreshPosList();
+                    PosList.AddRange(PubMaster.Mod.TraSql.QueryFerryPosList(ferryid));
+                    _IsRefreshPos = true;
+                }
+                finally
+                {
+                    Monitor.Exit(_posobj);
+                }
+            }
         }
 
         public void EndRefreshPosList()
