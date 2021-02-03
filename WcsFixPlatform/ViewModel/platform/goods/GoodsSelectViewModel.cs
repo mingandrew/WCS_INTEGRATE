@@ -106,8 +106,15 @@ namespace wcs.ViewModel
 
         public void SetAreaFilter(uint areaid, bool isshow)
         {
-            filterareaid = areaid;
-            ShowAreaFilter = isshow;
+            filterareaid = areaid; 
+            if (PubMaster.Area.IsSingleArea(out uint aid))
+            {
+                showareafilter = false;
+            }
+            else
+            {
+                ShowAreaFilter = isshow;
+            }
         }
 
         bool OnFilterMovie(object item)
