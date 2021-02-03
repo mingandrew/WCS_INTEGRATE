@@ -633,7 +633,7 @@ namespace task.device
             try
             {
                 FerryTask task = DevList.Find(c => c.ID == ferryid);
-                if (IsAllowToMove(task, out result))
+                if (!IsAllowToMove(task, out result))
                 {
                     return false;
                 }
