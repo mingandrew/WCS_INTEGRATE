@@ -1,20 +1,29 @@
-﻿using module.device;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace module.rf.device
 {
     public class RfDevicePack
     {
-        public List<Device> DevList { set; get; }
+        public List<RfDevice> DevList { set; get; }
 
-        public void AddDevs(List<Device> list)
+        public void AddDevs(List<RfDevice> list)
         {
             if(DevList == null)
             {
-                DevList = new List<Device>();
+                DevList = new List<RfDevice>();
             }
 
             DevList.AddRange(list);
+        }
+
+        public void AddDevs(RfDevice dev)
+        {
+            if (DevList == null)
+            {
+                DevList = new List<RfDevice>();
+            }
+
+            DevList.Add(dev);
         }
     }
 }
