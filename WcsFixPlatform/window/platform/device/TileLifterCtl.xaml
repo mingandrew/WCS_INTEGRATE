@@ -223,13 +223,23 @@
                     <DataGridTextColumn Binding="{Binding InStrategy}" Header="入库策略"/>
                     <DataGridTextColumn Binding="{Binding OutStrategy}" Header="出库策略"/>
                     <DataGridTextColumn Binding="{Binding WorkType}" Header="作业依据"/>
-                    
+
                     <!-- 非调试情况下请隐藏 -->
                     <DataGridTextColumn Binding="{Binding Goods1}" Header="左工位品种ID"/>
                     <DataGridTextColumn Binding="{Binding Goods2}" Header="右工位品种ID"/>
                     <DataGridTextColumn Binding="{Binding SetGoods}" Header="设定品种ID"/>
                     <DataGridTextColumn Binding="{Binding SetLevel}" Header="设定等级"/>
                     <DataGridTextColumn Binding="{Binding ShiftStatus}" Header="转产状态"/>
+
+
+                 
+                    <!--<DataGridTextColumn Binding="{Binding Goods1}" Header="左工位品种ID" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{Binding Goods2}" Header="右工位品种ID" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{Binding SetGoods}" Header="设定品种ID" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{Binding SetLevel}" Header="设定等级" Visibility="Hidden"/>
+                    <DataGridTextColumn Binding="{Binding ShiftStatus}" Header="转产状态" Visibility="Hidden"/>-->
+
+
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

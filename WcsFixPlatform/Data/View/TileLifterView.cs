@@ -198,6 +198,14 @@ namespace wcs.Data.View
             GoodsId = gid;
             InStrategy = instrategy;
             OutStrategy = outstrategy;
+
+            Goods1 = st.Goods1;
+            Goods2 = st.Goods2;
+            SetGoods = st.SetGoods;
+            SetLevel = st.SetLevel;
+            ShiftStatus = st.ShiftStatus;
+
+
             Working = working;
             LastTrackId = tid;
             WorkType = wtype;
