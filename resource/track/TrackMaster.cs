@@ -321,6 +321,15 @@ namespace resource.track
             return TrackList.FindAll(c => c.area == area && (c.Type == tt || c.Type == TrackTypeE.储砖_出入)).Max(c => c.order);
         }
 
+        /// <summary>
+        /// 根据摆渡车对位地标查找轨道信息
+        /// </summary>
+        /// <param name="poscode"></param>
+        /// <returns></returns>
+        private Track GetTrackByFerryCocde(ushort poscode)
+        {
+            return TrackList.Find(c => c.ferry_down_code == poscode || c.ferry_up_code == poscode);
+        }
         #endregion
 
         #region[更改]
@@ -460,7 +469,7 @@ namespace resource.track
         /// <returns></returns>
         public int GetFerryAutoPosLen(uint devid, ushort poscode)
         {
-            Track selectrack = GetTrackByPoint(poscode);
+            Track selectrack = GetTrackByFerryCocde(poscode);
             List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
             tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
             return tracks.Count - tracks.IndexOf(selectrack);

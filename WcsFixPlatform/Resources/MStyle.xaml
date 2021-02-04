@@ -20,6 +20,11 @@
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
 
+    <Style x:Key="MBorder_LB" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness" Value="1,0,0,1" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    </Style>
+
     <Style x:Key="MBorder_LT" TargetType="{x:Type Border}">
         <Setter Property="BorderThickness" Value="1,1,0,0" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
