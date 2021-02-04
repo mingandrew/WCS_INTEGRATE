@@ -49,6 +49,11 @@
         <Setter Property="BorderThickness" Value="1,1,1,1" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
+    
+    <Style x:Key="MBorder_LRB" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness" Value="1,0,1,1" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    </Style>
 
     <Style x:Key="MButton_Primary" TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonPrimary}">
         <Setter Property="FontSize" Value="25"/>
