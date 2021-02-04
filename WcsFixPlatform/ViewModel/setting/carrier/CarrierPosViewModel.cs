@@ -6,6 +6,7 @@ using resource;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using task;
@@ -136,12 +137,23 @@ namespace wcs.ViewModel
 
                     if (SelectPos == null)//添加
                     {
-                        if (!PubMaster.Track.ExistPointInTrack(TrackPoint))
+                        if (TrackPointEnable)
                         {
-                            Growl.Warning("找不到配置该地标的轨道信息，请检查地标是否准确！");
-                            return;
+                            CarrierPos ishavepos = List.FirstOrDefault(c => c.track_point == TrackPoint);
+                            if (ishavepos == null)
+                            {
+                                if (!PubMaster.Track.ExistPointInTrack(TrackPoint))
+                                {
+                                    Growl.Warning("找不到配置该地标的轨道信息，请检查地标是否准确！");
+                                    return;
+                                }
+                                PubMaster.Mod.TraSql.AddCarrierPos(pos);
+                            }
+                            else
+                            {
+                                Growl.Warning("已经存在对应的复位地标！");
+                            }
                         }
-                        PubMaster.Mod.TraSql.AddCarrierPos(pos);
                     }
                     else//修改
                     {
