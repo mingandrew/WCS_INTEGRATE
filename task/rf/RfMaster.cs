@@ -855,6 +855,7 @@ namespace task.rf
                 mDicPack.AddEnum(typeof(CarrierTypeE), "运输车类型", nameof(CarrierTypeE));
                 mDicPack.AddEnum(typeof(DevCarrierCmdE), "运输车指令", nameof(DevCarrierCmdE));
                 mDicPack.AddEnum(typeof(DevCarrierPositionE), "运输车位置", nameof(DevCarrierPositionE));
+                mDicPack.AddEnum(typeof(DevCarrierOrderE), "运输车指令", nameof(DevCarrierOrderE));
 
                 mDicPack.AddEnum(typeof(DevFerryStatusE), "摆渡车状态", nameof(DevFerryStatusE));
                 mDicPack.AddEnum(typeof(DevFerryLoadE), "摆渡车载车状态", nameof(DevFerryLoadE));
