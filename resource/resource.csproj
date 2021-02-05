@@ -70,6 +70,7 @@
     <Compile Include="module\modulesql\DictionModSql.cs" />
     <Compile Include="module\modulesql\GoodsModSql.cs" />
     <Compile Include="module\modulesql\RoleModSql.cs" />
+    <Compile Include="module\modulesql\TileLifterNeedModSql.cs" />
     <Compile Include="module\modulesql\TileTrackModSql.cs" />
     <Compile Include="module\modulesql\TrackModSql.cs" />
     <Compile Include="module\modulesql\TrafficCtlModSql.cs" />

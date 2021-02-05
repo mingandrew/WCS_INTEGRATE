@@ -185,6 +185,16 @@ namespace task.trans
             TransList.Add(trans);
             PubMaster.Mod.GoodSql.AddStockTrans(trans);
 
+            //更新需求的任务id和时间 20210121
+            if (type == TransTypeE.下砖任务 || type == TransTypeE.同向下砖)
+            {
+                PubTask.TileLifterNeed.UpdateTileLifterNeedTrans(lifterid, taketrackid, trans.create_time, trans.id);
+            }
+            else if (type == TransTypeE.上砖任务 || type == TransTypeE.同向上砖)
+            {
+                PubTask.TileLifterNeed.UpdateTileLifterNeedTrans(lifterid, givetrackid, trans.create_time, trans.id);
+            }
+
             SendMsg(trans);
 
             try

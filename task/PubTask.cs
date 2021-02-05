@@ -16,6 +16,7 @@ namespace task
         public static RfMaster Rf { set; get; }
         public static PingMaster Ping { set; get; }
         public static TrafficControlMaster TrafficControl { set; get; }
+        public static TileLifterNeedMaster TileLifterNeed { set; get; }  //需求操作对象 20210121
         public static void Init()
         {
             Carrier = new CarrierMaster();
@@ -25,6 +26,7 @@ namespace task
             Rf = new RfMaster();
             Ping = new PingMaster();
             TrafficControl = new TrafficControlMaster();
+            TileLifterNeed = new TileLifterNeedMaster();
         }
 
         public static void Start()
@@ -48,6 +50,7 @@ namespace task
             Trans?.Start();
             Rf?.Start();
             Ping?.Start();
+            TileLifterNeed?.Start();
             //TrafficControl?.Start();   // 暂时停用 - 取消注释即可用
         }
 
@@ -59,6 +62,7 @@ namespace task
             Carrier?.Stop();
             Rf?.Stop();
             Ping?.Stop();
+            TileLifterNeed?.Stop();
             //TrafficControl?.Stop();   // 暂时停用 - 取消注释即可用
         }
     }

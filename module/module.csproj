@@ -56,6 +56,7 @@
     <Compile Include="device\Device.cs" />
     <Compile Include="device\DevTileLifter.cs" />
     <Compile Include="device\IDevice.cs" />
+    <Compile Include="device\TileLifterNeed.cs" />
     <Compile Include="device\TrafficControl.cs" />
     <Compile Include="diction\Diction.cs" />
     <Compile Include="diction\DictionDtl.cs" />

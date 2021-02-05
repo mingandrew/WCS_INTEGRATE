@@ -684,6 +684,8 @@ namespace task.trans
                 case TransStatusE.完成:
                     //PubMaster.Goods.MoveStock(trans.stock_id, trans.give_track_id);
                     SetFinish(trans);
+                    //完成需求
+                    PubTask.TileLifterNeed.FinishTileLifterNeed(trans.tilelifter_id, trans.take_track_id);
                     break;
                 #endregion
 
@@ -1565,6 +1567,8 @@ namespace task.trans
                 case TransStatusE.完成:
                     //PubMaster.Goods.MoveStock(trans.stock_id, trans.give_track_id);
                     SetFinish(trans);
+                    //完成需求
+                    PubTask.TileLifterNeed.FinishTileLifterNeed(trans.tilelifter_id, trans.give_track_id);
                     break;
                 #endregion
 

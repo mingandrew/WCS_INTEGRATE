@@ -21,6 +21,7 @@ namespace resource.module
         public TileTrackModSql TileTraSql { set; get; }
         public RoleModSql RoleSql { set; get; }
         public TrafficCtlModSql TrafficCtlSql { set; get; }
+        public TileLifterNeedModSql TileLifterNeedSql { set; get; }   //需求的数据库操作对象
         #endregion
 
         #region[构造/初始化]
@@ -39,6 +40,7 @@ namespace resource.module
             TileTraSql = new TileTrackModSql(mySQL);
             RoleSql = new RoleModSql(mySQL);
             TrafficCtlSql = new TrafficCtlModSql(mySQL);
+            TileLifterNeedSql = new TileLifterNeedModSql(mySQL);
         }
 
         public void Start()

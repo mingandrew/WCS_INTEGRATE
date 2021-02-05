@@ -208,6 +208,15 @@ namespace task.device
 
                             #endregion
 
+                            #region 上砖-转产
+
+                            if (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.DevConfig.do_shift)
+                            {
+                                task.DevConfig.do_shift = false;
+                            }
+
+                            #endregion
+
                             #region 同步当前品种/等级
 
                             if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
@@ -747,12 +756,26 @@ namespace task.device
                 return;
             }
 
-            #endregion
+            //生成砖机的需求 20210121
+            PubTask.TileLifterNeed.CheckTileLifterNeed(task);
 
+            #endregion
+        }
+
+        /// <summary>
+        /// 根据砖机状态和需求来生成任务
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="need"></param>
+        public void CheckAndCreateStockTrans(TileLifterTask task, TileLifterNeed need)
+        {
             #region[工位1有需求]
 
-            if (task.IsNeed_1)
+            if (task.IsNeed_1 && need.left)
             {
+                //判断当前砖机轨道是否已有任务
+                if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
+
                 #region[下砖机-满砖]
 
                 if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
@@ -766,7 +789,7 @@ namespace task.device
 
                     if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
 
-                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
+                    //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
 
                     #region[介入]
 
@@ -888,7 +911,7 @@ namespace task.device
                         break;
                 }
                 //没有需求但是介入状态 同时:轨道没有车/有车无货
-                if (task.IsInvo_1 && isOK
+                if (task.IsInvo_1 && isOK && need.left
                     && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_1, 15, 10))
                 {
                     if (task.HaveBrother)
@@ -911,9 +934,12 @@ namespace task.device
 
             #region[工位2有需求]
 
-            if (task.IsNeed_2 && task.IsTwoTrack)
+            if (task.IsNeed_2 && task.IsTwoTrack && !need.left)
             {
                 if (task.DevConfig.right_track_id == 0) return;
+
+                //判断当前砖机轨道是否已有任务
+                if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
 
                 #region[下砖机-满砖]
 
@@ -928,7 +954,7 @@ namespace task.device
 
                     if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
 
-                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
+                    //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
 
                     #region[介入]
 
@@ -1032,7 +1058,7 @@ namespace task.device
 
                 #endregion
             }
-            else if (task.IsInvo_2)
+            else if (task.IsInvo_2 && !need.left)
             {
                 bool isOK = false;
                 if (task.DevConfig.right_track_id == 0)
@@ -1830,6 +1856,20 @@ namespace task.device
         public bool IsTileLifterType(uint tilelifter_id, TileLifterTypeE tileLifterType)
         {
             return DevList.Exists(c => c.ID == tilelifter_id && c.TileLifterType == tileLifterType);
+        }
+
+        /// <summary>
+        /// 判断砖机是否离线/对应工位没有了需求 20210121
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="isleft"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool CheckTileLifterStatusWithNeed(TileLifterTask t, bool isleft, out string result)
+        {
+            result = "";
+            bool fla = CheckTileLifterStatus(t, out result);
+            return (fla && (isleft ? t.IsNeed_1 : t.IsNeed_2));
         }
 
         #endregion

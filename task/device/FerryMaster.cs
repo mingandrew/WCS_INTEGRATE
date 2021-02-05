@@ -1248,7 +1248,7 @@ namespace task.device
                                         return true;
                                     }
                                 }
-                                return false;
+                                continue; //当前空闲摆渡车分配不了，就分配下一辆摆渡车
                             }
                         }
 

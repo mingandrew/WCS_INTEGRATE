@@ -71,4 +71,12 @@
         前进放砖,
         后退放砖,
     }
+
+    //需求列表的 20210121
+    public enum TileNeedStatusE
+    {
+        Trans = 0, //生成任务
+        Finish = 1, //任务完成
+        UpdateCreateTime = 2, //更新需求生成时间
+    }
 }

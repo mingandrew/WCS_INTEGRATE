@@ -1,0 +1,13 @@
+--创建保存砖机需求的表
+
+CREATE TABLE `tilelifterneed` (
+  `device_id` int(10) unsigned NOT NULL COMMENT '上/下砖机ID',
+  `track_id` int(10) NOT NULL COMMENT '需求轨道',
+  `left` bit(1) DEFAULT NULL COMMENT '是否左需求',
+  `trans_id` int(10) DEFAULT NULL COMMENT '生成的任务id',
+  `create_time` datetime DEFAULT NULL COMMENT '需求生成时间',
+  `trans_create_time` datetime DEFAULT NULL COMMENT '任务生成时间',
+  `finish` bit(1) DEFAULT NULL COMMENT '是否完成',
+  `type` tinyint(3) unsigned DEFAULT NULL COMMENT '砖机类型',
+  `area_id` tinyint(3) unsigned DEFAULT NULL COMMENT '区域值用于过滤'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
