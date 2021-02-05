@@ -731,8 +731,6 @@ namespace task.device
         {
             task.SetInTaskStatus(task.IsNeed_1 || task.IsNeed_2);
 
-            if (!task.IsWorking) return;
-
             #region[检查基础信息]
 
             if(task.DevConfig == null)
@@ -769,6 +767,8 @@ namespace task.device
         /// <param name="need"></param>
         public void CheckAndCreateStockTrans(TileLifterTask task, TileLifterNeed need)
         {
+            if (!task.IsWorking) return;
+
             #region[工位1有需求]
 
             if (task.IsNeed_1 && need.left)

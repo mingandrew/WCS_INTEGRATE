@@ -794,7 +794,7 @@ namespace task.device
                                     if ((leftCompare < trackBOrder && trackBOrder < rightCompare)
                                            || (leftCompare < taskBTargetOrder && taskBTargetOrder < rightCompare))
                                     {
-                                        if (taskB.IsFerryLock())
+                                        if (taskB.IsFerryLock() || !IsAllowToMove(taskB, out result))
                                         {
                                             return false;
                                         }
@@ -1170,11 +1170,11 @@ namespace task.device
                     }
 
                     //3.2摆渡车上是否有车[空闲，无货]
-                    List<FerryTask> ferrys = DevList.FindAll(c => ferryids.Contains(c.ID));
+                    List<FerryTask> ferrys = DevList.FindAll(c => ferryids.Contains(c.ID) && c.IsWorking);
 
                     if (isCarInFerry)
                     {
-                        ferryid = DevList.Find(c => c.DevConfig.track_id == carrierTrack.id)?.ID ?? 0;
+                        ferryid = DevList.Find(c => c.DevConfig.track_id == carrierTrack.id && c.IsWorking)?.ID ?? 0;
                         return true;
                     }
 

@@ -147,33 +147,33 @@ namespace task.trans
                                 //摆渡车接车
                                 if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                 {
-                                    if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
-                                    {
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                        {
-                                            Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                        });
-
-                                        return;
-                                    }
-                                }
-
-                                // 从一端到另一端
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
-                                    PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
-                                {
-                                    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                    //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                    //{
+                                    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
-                                        CheckTra = track.ferry_up_code,
-                                        ToRFID = track.rfid_1,
+                                        CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                                        ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     });
 
+                                    return;
+                                    //}
                                 }
+
+                                // 从一端到另一端
+                                //if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
+                                //    PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
+                                //{
+                                //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                //    {
+                                //        Order = DevCarrierOrderE.定位指令,
+                                //        CheckTra = track.ferry_up_code,
+                                //        ToRFID = track.rfid_1,
+                                //    });
+
+                                //}
                             }
                             break;
 
@@ -1023,34 +1023,34 @@ namespace task.trans
                                         //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                         {
-                                            if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
-                                            {
-                                                //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
-                                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                                {
-                                                    Order = DevCarrierOrderE.定位指令,
-                                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                                });
-
-                                                return;
-                                            }
-                                        }
-
-                                        // 从一端到另一端
-                                        if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
-                                            PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
-                                        {
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                            //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
+                                            //{
+                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
-                                                CheckTra = track.ferry_down_code,
-                                                ToRFID = track.rfid_2,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                                ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
                                             return;
+                                            //}
                                         }
+
+                                        // 从一端到另一端
+                                        //if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
+                                        //    PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                        //{
+                                        //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                        //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        //    {
+                                        //        Order = DevCarrierOrderE.定位指令,
+                                        //        CheckTra = track.ferry_down_code,
+                                        //        ToRFID = track.rfid_2,
+                                        //    });
+
+                                        //    return;
+                                        //}
                                     }
 
                                 }
@@ -1074,33 +1074,33 @@ namespace task.trans
                                         //摆渡车接车
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                         {
-                                            if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
-                                            {
-                                                //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
-                                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                                {
-                                                    Order = DevCarrierOrderE.定位指令,
-                                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                                });
-
-                                                return;
-                                            }
-                                        }
-
-                                        // 从一端到另一端
-                                        if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
-                                        {
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                            //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
+                                            //{
+                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
-                                                CheckTra = track.ferry_down_code,
-                                                ToRFID = track.rfid_2,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                                ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
                                             return;
+                                            //}
                                         }
+
+                                        // 从一端到另一端
+                                        //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                        //{
+                                        //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                        //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        //    {
+                                        //        Order = DevCarrierOrderE.定位指令,
+                                        //        CheckTra = track.ferry_down_code,
+                                        //        ToRFID = track.rfid_2,
+                                        //    });
+
+                                        //    return;
+                                        //}
                                     }
                                 }
                             }
@@ -2332,34 +2332,34 @@ namespace task.trans
                                         //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                         {
-                                            if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
-                                            {
-                                                //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
-                                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                                {
-                                                    Order = DevCarrierOrderE.定位指令,
-                                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                                });
-
-                                                return;
-                                            }
-                                        }
-
-                                        // 从一端到另一端
-                                        if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
-                                            PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
-                                        {
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                            //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                            //{
+                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
-                                                CheckTra = track.ferry_up_code,
-                                                ToRFID = track.rfid_1,
+                                                CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                                                ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
                                             return;
+                                            //}
                                         }
+
+                                        // 从一端到另一端
+                                        //if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
+                                        //    PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
+                                        //{
+                                        //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                        //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        //    {
+                                        //        Order = DevCarrierOrderE.定位指令,
+                                        //        CheckTra = track.ferry_up_code,
+                                        //        ToRFID = track.rfid_1,
+                                        //    });
+
+                                        //    return;
+                                        //}
                                     }
 
                                 }
@@ -2371,17 +2371,17 @@ namespace task.trans
                                     if (isload)
                                     {
                                         //TODO 如果当前小车取了砖砖轨道头，那小车先把砖放回原位置
-                                        if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                        //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                        //{
+                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进放砖);
-                                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                            {
-                                                Order = DevCarrierOrderE.放砖指令,
-                                                CheckTra = track.ferry_up_code,
-                                                ToRFID = track.rfid_1,
-                                            });
+                                            Order = DevCarrierOrderE.放砖指令,
+                                            CheckTra = track.ferry_up_code,
+                                            ToRFID = track.rfid_1,
+                                        });
 
-                                        }
+                                        //}
                                     }
 
                                     if (isnotload)
@@ -2389,33 +2389,33 @@ namespace task.trans
                                         //摆渡车接车
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                         {
-                                            if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
-                                            {
-                                                //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
-                                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                                {
-                                                    Order = DevCarrierOrderE.定位指令,
-                                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                                });
-
-                                                return;
-                                            }
-                                        }
-
-                                        // 从一端到另一端
-                                        if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
-                                        {
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                            //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                            //{
+                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至摆渡车);
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
-                                                CheckTra = track.ferry_up_code,
-                                                ToRFID = track.rfid_2,
+                                                CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                                                ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
 
                                             return;
+                                            //}
                                         }
+
+                                        // 从一端到另一端
+                                        //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
+                                        //{
+                                        //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                        //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        //    {
+                                        //        Order = DevCarrierOrderE.定位指令,
+                                        //        CheckTra = track.ferry_up_code,
+                                        //        ToRFID = track.rfid_2,
+                                        //    });
+
+                                        //    return;
+                                        //}
                                     }
                                 }
                             }

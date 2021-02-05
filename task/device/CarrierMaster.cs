@@ -578,17 +578,13 @@ namespace task.device
 
         internal bool IsCarrierInTrack(StockTrans trans)
         {
-            if (!trans.IsReleaseGiveFerry)
+            //当前任务的运输车是否是否站点在摆渡车上，但所在位置是在轨道上
+            bool isWrongStatus = DevList.Exists(c => c.ID == trans.carrier_id
+                                    && c.Position == DevCarrierPositionE.在轨道上
+                                    && PubMaster.Track.IsFerryTrackType(c.CurrentTrackId));
+            if (!trans.IsReleaseGiveFerry && isWrongStatus)
             {
                 CarrierTask carrier = DevList.Find(c => c.ID == trans.carrier_id);
-                //if (carrier.Task == DevCarrierTaskE.前进放砖)
-                //{
-                //    mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
-                //}
-                //else if (carrier.Task == DevCarrierTaskE.后退取砖)
-                //{
-                //    mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
-                //}
                 if (carrier.CurrentOrder == DevCarrierOrderE.放砖指令)
                 {
                     mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
@@ -598,9 +594,7 @@ namespace task.device
                     mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
                 }
             }
-            return DevList.Exists(c => c.ID == trans.carrier_id
-                                    && c.Position == DevCarrierPositionE.在轨道上
-                                    && PubMaster.Track.IsFerryTrackType(c.CurrentTrackId));
+            return isWrongStatus;
         }
 
         #endregion
