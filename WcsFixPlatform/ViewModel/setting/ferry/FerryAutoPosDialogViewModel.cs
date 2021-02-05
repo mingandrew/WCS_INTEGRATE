@@ -83,18 +83,20 @@ namespace wcs.ViewModel
             CloseAction?.Invoke();
         }
 
-        public void SetDialog(string ferryname, int ferrycode, int maxtracknum)
+        public void SetDialog(int ferrycode, int maxtracknum)
         {
             maxtracknumber = (byte)maxtracknum;
-            FerryName = ferryname;
+            FerryName = SELECTFERRY.name;
             STARTTRACKCODE = ferrycode;
             TRACKNUMBER = (byte)maxtracknum;
 
-            if (((STARTTRACKCODE > 200 && STARTTRACKCODE < 300) || STARTTRACKCODE > 600 && STARTTRACKCODE < 700))
+            if (((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.下摆渡)
+                || STARTTRACKCODE > 500 && STARTTRACKCODE < 600))
             {
                 AUTOPOSSIDE = DevFerryAutoPosE.上砖侧对位;
             }
-            if (((STARTTRACKCODE > 500 && STARTTRACKCODE < 600) || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200)))
+            if ((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.上摆渡)
+                || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200))
             {
                 AUTOPOSSIDE = DevFerryAutoPosE.下砖侧对位;
             }
@@ -126,6 +128,7 @@ namespace wcs.ViewModel
             }
 
             PubTask.Ferry.AutoPosMsgSend(SELECTFERRY.id, AUTOPOSSIDE, STARTTRACKCODE, TRACKNUMBER);
+            CloseAction?.Invoke();
         }
 
         internal void SetPosSide(DevFerryAutoPosE autoPosSide)

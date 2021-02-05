@@ -304,7 +304,7 @@ namespace wcs.ViewModel
                 .Initialize<FerryAutoPosDialogViewModel>((vm) =>
                 {
                     vm.SELECTFERRY = _selectferry;
-                    vm.SetDialog(_selectferry.name, _selectpos.Ferry_Code, autolen);
+                    vm.SetDialog(_selectpos.Ferry_Code, autolen);
                 }).GetResultAsync<MsgAction>();
         }
 
