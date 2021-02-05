@@ -124,13 +124,21 @@ namespace task.device
 
                             if (_IsRefreshPos && Monitor.TryEnter(_posobj, TimeSpan.FromSeconds(1)))
                             {
-                                foreach (FerryPos fp in PosList)
+                                try
                                 {
-                                    PubTask.Ferry.QueryPosList(fp.device_id, fp.ferry_code);
-                                    Thread.Sleep(100);
+                                    foreach (FerryPos fp in PosList)
+                                    {
+                                        PubTask.Ferry.QueryPosList(fp.device_id, fp.ferry_code);
+                                        Thread.Sleep(100);
 
+                                    }
+                                    EndRefreshPosList();
                                 }
-                                EndRefreshPosList();
+                                finally
+                                {
+                                    Monitor.Exit(_posobj);
+                                }
+                                
                             }
 
                             if (task.IsConnect && task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
@@ -1113,7 +1121,7 @@ namespace task.device
 
         public void EndRefreshPosList()
         {
-            PosList.Clear();
+             PosList.Clear();
             _IsRefreshPos = false;
         }
 
@@ -1456,7 +1464,7 @@ namespace task.device
                         return onferryboolvalue;
                     }
 
-                    FerryTask task = DevList.Find(c => c.TransId == tt.id);
+                    FerryTask task = DevList.Find(c => c.FerryTrackId == tt.id);
                     if (!task.IsOnSite(ft.ferry_up_code) && !task.IsOnSite(ft.ferry_down_code))
                     {
                         result = "摆渡车没到位！";
