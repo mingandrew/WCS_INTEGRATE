@@ -475,6 +475,16 @@ namespace task.trans
 
                             if (PubTask.Carrier.IsCarrierFinishUnLoad(trans.carrier_id))
                             {
+                                //放砖完成后，计算能不能放下一车砖，不能则将轨道满砖 20210206
+                                if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out ushort count, out ushort loc))
+                                {
+                                    if (loc == 0)
+                                    {
+                                        // 设满砖
+                                        PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
+                                        PubMaster.Track.AddTrackLog(count, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
+                                    }
+                                }
                                 SetUnLoadTime(trans);
                                 SetStatus(trans, TransStatusE.完成);
                             }
@@ -500,6 +510,17 @@ namespace task.trans
 
                             if (PubTask.Carrier.IsCarrierFinishUnLoad(trans.carrier_id))
                             {
+                                //放砖完成后，计算能不能放下一车砖，不能则将轨道满砖 20210206
+                                if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out ushort count, out ushort loc))
+                                {
+                                    if (loc == 0)
+                                    {
+                                        // 设满砖
+                                        PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
+                                        PubMaster.Track.AddTrackLog(count, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
+                                    }
+                                }
+
                                 SetUnLoadTime(trans);
 
                                 #region 按最小库存数 设满砖 -停用
