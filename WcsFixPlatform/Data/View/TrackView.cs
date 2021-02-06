@@ -28,24 +28,21 @@ namespace wcs.Data.View
         private ushort right_distance;
         private int max_store;
         private string memo;
-        private SolidColorBrush trackbrush;
-        private SolidColorBrush WhiteBrush = new SolidColorBrush(Colors.White);
-        private SolidColorBrush GrayBrush = new SolidColorBrush(Colors.Gray);
-        private SolidColorBrush BlackBrush = new SolidColorBrush(Colors.Black);
-        private SolidColorBrush LightGreenBrush = new SolidColorBrush(Colors.LightGreen);
-        private SolidColorBrush OrangeBrush = new SolidColorBrush(Colors.LightSkyBlue);
-        //private ushort ferry_up_code;
-        //private ushort ferry_down_code;
-        //private uint brother_track_id;
-        //private uint left_track_id;
-        //private uint right_track_id;
-        //private ushort rfid_1;
-        //private ushort rfid_2;
-        //private ushort rfid_3;
-        //private ushort rfid_4;
-        //private ushort rfid_5;
-        //private ushort rfid_6;
-        //private short order;
+        private SolidColorBrush trackbrush, trackfbrush, stockbrush;
+
+        #region[轨道状态]
+        private SolidColorBrush Green = new SolidColorBrush(Color.FromRgb(34, 177, 76));
+        private SolidColorBrush Red = new SolidColorBrush(Color.FromRgb(237, 28, 36));
+        private SolidColorBrush Blue = new SolidColorBrush(Color.FromRgb(0, 162, 232));
+        private SolidColorBrush Yellow = new SolidColorBrush(Color.FromRgb(255, 242, 0));
+        private SolidColorBrush Black = new SolidColorBrush(Colors.Black);
+        private SolidColorBrush LightGray = new SolidColorBrush(Color.FromRgb(242, 242, 242));
+        private SolidColorBrush Gray = new SolidColorBrush(Color.FromRgb(195, 195, 195));
+        private SolidColorBrush DarkGray = new SolidColorBrush(Color.FromRgb(140, 140, 140));
+        private SolidColorBrush White = new SolidColorBrush(Colors.White);
+        private double trackprogress;
+        #endregion
+
         #endregion
 
         public uint Id
@@ -111,6 +108,23 @@ namespace wcs.Data.View
             set => Set(ref trackbrush, value);
         }
 
+        public SolidColorBrush TrackFBrush
+        {
+            get => trackfbrush;
+            set => Set(ref trackfbrush, value);
+        }
+
+        public SolidColorBrush StockBrush
+        {
+            get => stockbrush;
+            set => Set(ref stockbrush, value);
+        }
+        public double TrackProgress
+        {
+            get => trackprogress;
+            set => Set(ref trackprogress, value);
+        }
+
         public void Update(Track track)
         {
             Status = track.StockStatus;
@@ -120,16 +134,46 @@ namespace wcs.Data.View
             Right_distance = track.right_distance;
             Max_store = track.max_store;
             Memo = track.memo;
+
+            switch (TrackStatus)
+            {
+                case TrackStatusE.停用:
+                    TrackBrush = Red;
+                    TrackFBrush = Black; 
+                    break;
+                case TrackStatusE.启用:
+                    TrackBrush = Green;
+                    TrackFBrush = Black;
+                    break;
+                case TrackStatusE.倒库中:
+                    TrackBrush = Green;
+                    TrackFBrush = Black;
+                    break;
+                case TrackStatusE.仅上砖:
+                    TrackBrush = Blue;
+                    TrackFBrush = Yellow;
+                    break;
+                case TrackStatusE.仅下砖:
+                    TrackBrush = Yellow;
+                    TrackFBrush = Black;
+                    break;
+            }
+
             switch (Status)
             {
                 case TrackStockStatusE.空砖:
-                    TrackBrush = WhiteBrush;
+                    StockBrush = LightGray;
+                    TrackProgress = 0;
                     break;
                 case TrackStockStatusE.有砖:
-                    TrackBrush = OrangeBrush;
+                    StockBrush = Gray;
+                    TrackProgress = 50;
                     break;
                 case TrackStockStatusE.满砖:
-                    TrackBrush = BlackBrush;
+                    StockBrush = DarkGray;
+                    TrackProgress = 100;
+                    break;
+                default:
                     break;
             }
         }

@@ -91,8 +91,41 @@
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding Area}" Header="区域" Visibility="Collapsed"/>
                     <DataGridTextColumn Binding="{Binding Type}" Header="类型"/>
-                    <DataGridTextColumn Binding="{Binding TrackStatus}" Header="轨道状态"/>
-                    <DataGridTextColumn Binding="{Binding Status}" Header="状态"/>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="轨道状态"/>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center"
+                                      CornerRadius="5">
+                                    <TextBlock Text="{Binding TrackStatus}" Padding="0,5,0,5"  Block.TextAlignment="Center"
+                                               MinWidth="100" Foreground="Black"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.Header>
+                            <TextBlock Text="储砖状态"/>
+                        </DataGridTemplateColumn.Header>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <hc:ProgressButton IsChecked="True" Progress="{Binding TrackProgress}" 
+                                                       IsEnabled="False" Opacity="1"
+                                                       Content="{Binding Status}" 
+                                                       Style="{StaticResource ProgressButtonWarning}"
+                                                       ProgressStyle="{StaticResource ProgressBarFlat4ProgressButton}"
+                                                       BorderThickness="0"
+                                                       Width="150" Padding="0,5,0,5" Height="35"
+                                                       Background="{Binding StockBrush}"
+                                                       Foreground="Black" FontSize="18"/>
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding Width}" Header="宽" Visibility="Collapsed"/>
                     <DataGridTextColumn Binding="{Binding Max_store}" Header="最大存" Visibility="Collapsed"/>
                     <DataGridTextColumn Binding="{Binding AlertStatus}" Header="故障" Visibility="Collapsed"/>
