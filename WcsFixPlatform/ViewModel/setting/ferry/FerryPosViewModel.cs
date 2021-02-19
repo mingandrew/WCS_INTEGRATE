@@ -181,7 +181,7 @@ namespace wcs.ViewModel
                     {
                         pos = PubMaster.Track.AddFerryPos(areaid, _selectferry.id);
 
-                        if(pos.Count >0)
+                        if (pos.Count > 0)
                         {
                             foreach (FerryPos p in pos)
                             {
@@ -299,7 +299,7 @@ namespace wcs.ViewModel
                 return;
             }
 
-            int autolen = PubMaster.Track.GetFerryAutoPosLen(_selectferry.id, _selectpos.Ferry_Code);
+            int autolen = PubMaster.Track.GetFerryAutoPosLen(_selectferry.area, _selectferry.id, _selectpos.Ferry_Code);
             MsgAction autopos = await HandyControl.Controls.Dialog.Show<FerryAutoPosDialog>()
                 .Initialize<FerryAutoPosDialogViewModel>((vm) =>
                 {

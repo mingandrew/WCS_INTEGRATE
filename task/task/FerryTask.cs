@@ -175,17 +175,17 @@ namespace task.task
 
             if (UpSite != 0 && (DevStatus?.IsUpSiteChange ?? false))
             {
-                UpTrackId = PubMaster.Track.GetTrackId(UpSite);
+                UpTrackId = PubMaster.Track.GetTrackId((ushort)AreaId, UpSite);
             }
 
-            if(DownSite == 0)
+            if (DownSite == 0)
             {
                 DownTrackId = 0;
             }
 
             if (DownSite != 0 && (DevStatus?.IsDownSiteChange ?? false))
             {
-                DownTrackId = PubMaster.Track.GetTrackId(DownSite);
+                DownTrackId = PubMaster.Track.GetTrackId((ushort)AreaId, DownSite);
             }
         }
         #endregion
@@ -203,7 +203,7 @@ namespace task.task
                 return false;
             }
 
-            if(TransId == 0 && !IsLock)
+            if (TransId == 0 && !IsLock)
             {
                 return true;
             }
@@ -224,7 +224,7 @@ namespace task.task
         /// <param name="transid"></param>
         public bool IsStillLockInTrans(uint transid)
         {
-            if(IsLock && TransId == transid)
+            if (IsLock && TransId == transid)
             {
                 LockRefreshTime = DateTime.Now;
                 return true;
@@ -251,12 +251,12 @@ namespace task.task
         /// <returns></returns>
         public bool IsFerryLock()
         {
-            if(Load == DevFerryLoadE.载车)
+            if (Load == DevFerryLoadE.载车)
             {
                 return true;
             }
-            
-            if(IsLockOverTime() || TransId == 0)
+
+            if (IsLockOverTime() || TransId == 0)
             {
                 return false;
             }
@@ -277,7 +277,7 @@ namespace task.task
         /// <returns></returns>
         public bool IsLockOverTime()
         {
-            if(LockRefreshTime is null)
+            if (LockRefreshTime is null)
             {
                 LockRefreshTime = DateTime.Now;
             }

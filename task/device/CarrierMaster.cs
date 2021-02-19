@@ -102,11 +102,11 @@ namespace task.device
                             {
                                 if (task.TargetPoint != 0)
                                 {
-                                    TrackTypeE tt = PubMaster.Track.GetTrackType(task.TargetPoint);
+                                    TrackTypeE tt = PubMaster.Track.GetTrackType((ushort)task.AreaId, task.TargetPoint);
                                     if (tt == TrackTypeE.摆渡车_入 || tt == TrackTypeE.摆渡车_出)
                                     {
                                         // 判断是否有摆渡车
-                                        if (!PubTask.Ferry.IsTargetFerryInPlace(task.CurrentPoint, task.TargetPoint, out string result, true))
+                                        if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentPoint, task.TargetPoint, out string result, true))
                                         {
                                             task.DoStop();
                                             Thread.Sleep(500);
@@ -550,15 +550,6 @@ namespace task.device
             #endregion
 
         }
-
-        #region[更新摆渡车载货状态]
-
-        private static void UpdateFerryLoadStatus(CarrierTask task)
-        {
-
-        }
-
-        #endregion
 
         /// <summary>
         /// 是否有运输车在上下摆渡相关任务

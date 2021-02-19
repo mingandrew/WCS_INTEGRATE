@@ -95,14 +95,14 @@ namespace resource.track
             return TrackList.Find(c => c.id == trackid);
         }
 
-        public Track GetTrackByPoint(ushort trackrfid)
+        public Track GetTrackByPoint(ushort area, ushort trackrfid)
         {
-            return TrackList.Find(c => c.IsInTrack(trackrfid));
+            return TrackList.Find(c => c.area == area && c.IsInTrack(trackrfid));
         }
 
-        public TrackTypeE GetTrackType(ushort trackrfid)
+        public TrackTypeE GetTrackType(ushort area, ushort trackrfid)
         {
-            return TrackList.Find(c => c.IsInTrack(trackrfid)).Type;
+            return TrackList.Find(c => c.area == area && c.IsInTrack(trackrfid)).Type;
         }
 
         public TrackTypeE GetTrackType(uint track_id)
@@ -123,10 +123,10 @@ namespace resource.track
             return TrackList.Find(c => c.id == trackid)?.name ?? defaultstr;
         }
 
-        public uint GetTrackId(ushort site)
+        public uint GetTrackId(ushort area, ushort site)
         {
             if (site == 0) return 0;
-            return GetTrackByPoint(site)?.id ?? 0;
+            return GetTrackByPoint(area, site)?.id ?? 0;
         }
 
         /// <summary>
@@ -154,9 +154,9 @@ namespace resource.track
         /// </summary>
         /// <param name="trackPoint"></param>
         /// <returns></returns>
-        public bool ExistPointInTrack(ushort trackPoint)
+        public bool ExistPointInTrack(ushort area, ushort trackPoint)
         {
-            return TrackList.Exists(c => c.IsInTrack(trackPoint));
+            return TrackList.Exists(c => c.area == area && c.IsInTrack(trackPoint));
         }
 
         /// <summary>
@@ -165,10 +165,10 @@ namespace resource.track
         /// <param name="point"></param>
         /// <param name="site"></param>
         /// <returns></returns>
-        public uint GetTrackIdForCarrier(ushort point, ushort site)
+        public uint GetTrackIdForCarrier(ushort area, ushort point, ushort site)
         {
             uint traid = 0;
-            Track t = GetTrackByPoint(point);
+            Track t = GetTrackByPoint(area, point);
             if (t != null)
             {
                 switch (t.Type)
@@ -326,9 +326,9 @@ namespace resource.track
         /// </summary>
         /// <param name="poscode"></param>
         /// <returns></returns>
-        private Track GetTrackByFerryCocde(ushort poscode)
+        private Track GetTrackByFerryCocde(ushort area, ushort poscode)
         {
-            return TrackList.Find(c => c.ferry_down_code == poscode || c.ferry_up_code == poscode);
+            return TrackList.Find(c => c.area == area && (c.ferry_down_code == poscode || c.ferry_up_code == poscode));
         }
         #endregion
 
@@ -467,9 +467,9 @@ namespace resource.track
         /// <param name="devid"></param>
         /// <param name="pos"></param>
         /// <returns></returns>
-        public int GetFerryAutoPosLen(uint devid, ushort poscode)
+        public int GetFerryAutoPosLen(ushort area, uint devid, ushort poscode)
         {
-            Track selectrack = GetTrackByFerryCocde(poscode);
+            Track selectrack = GetTrackByFerryCocde(area, poscode);
             List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
             tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
             return tracks.Count - tracks.IndexOf(selectrack);
@@ -574,9 +574,9 @@ namespace resource.track
         /// </summary>
         /// <param name="taketrackcode"></param>
         /// <returns></returns>
-        public bool SetTrackEmtpy(ushort taketrackcode)
+        public bool SetTrackEmtpy(ushort area, ushort taketrackcode)
         {
-            Track track = GetTrackByPoint(taketrackcode);
+            Track track = GetTrackByPoint(area, taketrackcode);
             if (track != null)
             {
                 if (track.StockStatus != TrackStockStatusE.空砖)
@@ -647,9 +647,9 @@ namespace resource.track
         /// </summary>
         /// <param name="givetrackcode"></param>
         /// <returns></returns>
-        public bool SetTrackFull(ushort givetrackcode)
+        public bool SetTrackFull(ushort area, ushort givetrackcode)
         {
-            Track track = GetTrackByPoint(givetrackcode);
+            Track track = GetTrackByPoint(area, givetrackcode);
             if (track != null)
             {
                 if (track.StockStatus != TrackStockStatusE.满砖)
@@ -864,8 +864,10 @@ namespace resource.track
 
         private void SendMsg(Track track)
         {
-            MsgAction msg = new MsgAction();
-            msg.o1 = track;
+            MsgAction msg = new MsgAction
+            {
+                o1 = track
+            };
             Messenger.Default.Send(msg, MsgToken.TrackStatusUpdate);
         }
 

@@ -44,7 +44,7 @@ namespace wcs.ViewModel
             get => _arearadio;
             set => Set(ref _arearadio, value);
         }
-        
+
         public ObservableCollection<CarrierPos> List
         {
             get => _list;
@@ -67,14 +67,14 @@ namespace wcs.ViewModel
             get => _trackpos;
             set => Set(ref _trackpos, value);
         }
-        
+
         public string BtnName
         {
             get => btn_name;
             set => Set(ref btn_name, value);
         }
 
-        public bool TrackPointEnable 
+        public bool TrackPointEnable
         {
             set => Set(ref _track_point_enable, value);
             get => _track_point_enable;
@@ -116,8 +116,13 @@ namespace wcs.ViewModel
                     TrackPointEnable = true;
                     ClearInput();
                     break;
-                
+
                 case "actionbtn":
+                    if (areaid == 0)
+                    {
+                        Growl.Warning("请先选择区域！");
+                        return;
+                    }
                     if (TrackPoint <= 0)
                     {
                         Growl.Warning("请输入正确的复位地标！");
@@ -142,7 +147,7 @@ namespace wcs.ViewModel
                             CarrierPos ishavepos = List.FirstOrDefault(c => c.track_point == TrackPoint);
                             if (ishavepos == null)
                             {
-                                if (!PubMaster.Track.ExistPointInTrack(TrackPoint))
+                                if (!PubMaster.Track.ExistPointInTrack((ushort)areaid, TrackPoint))
                                 {
                                     Growl.Warning("找不到配置该地标的轨道信息，请检查地标是否准确！");
                                     return;
@@ -157,7 +162,7 @@ namespace wcs.ViewModel
                     }
                     else//修改
                     {
-                        if(SelectPos == null)
+                        if (SelectPos == null)
                         {
                             Growl.Warning("请先选择数据！");
                             return;
@@ -166,7 +171,7 @@ namespace wcs.ViewModel
                         PubMaster.Mod.TraSql.EditCarrierPos(pos);
                     }
                     QueryPointPosData();
-                    
+
                     break;
 
                 case "update2allcar":
@@ -177,7 +182,7 @@ namespace wcs.ViewModel
                     }
                     PubTask.Carrier.DoAreaResetSite(areaid, SelectPos.track_point, SelectPos.track_pos);
                     break;
-                
+
             }
         }
 

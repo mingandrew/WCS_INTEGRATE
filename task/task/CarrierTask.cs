@@ -266,9 +266,9 @@ namespace task.device
 
         internal void UpdateInfo()
         {
-            CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier(CurrentPoint, CurrentSite);
+            CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentPoint, CurrentSite);
 
-            TargetTrackId = PubMaster.Track.GetTrackIdForCarrier(TargetPoint, TargetSite);
+            TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetPoint, TargetSite);
         }
 
         #endregion

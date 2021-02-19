@@ -1,12 +1,10 @@
 ﻿using enums;
-using enums.track;
 using module.device;
 using module.deviceconfig;
 using module.track;
 using resource;
 using simtask.task;
 using System;
-using tool.timer;
 
 namespace simtask.master
 {
@@ -65,7 +63,7 @@ namespace simtask.master
             else
             {
                 DevStatus.CurrentSite = poscode;
-                Track track = PubMaster.Track.GetTrackByPoint(poscode);
+                Track track = PubMaster.Track.GetTrackByPoint(Device.area, poscode);
                 if (track != null)
                 {
                     SetNowTrack(track);
@@ -316,7 +314,7 @@ namespace simtask.master
             //                        SetNowTrack(PubMaster.Track.GetTrack(postrack));
             //                    }
             //                }
-                            
+
             //                break;
             //            case TrackTypeE.摆渡车_入:
             //            case TrackTypeE.摆渡车_出:

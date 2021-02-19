@@ -109,16 +109,16 @@ namespace simtask.master
             }
             try
             {
-                return DevList.Find(c =>!c.IsLocating 
+                return DevList.Find(c => !c.IsLocating
                 && ((c.DevStatus.UpSite == rfid && c.DevStatus.UpLight)
-                    ||(c.DevStatus.DownSite == rfid && c.DevStatus.DownLight)))?.FerryTrackId ?? 0;
+                    || (c.DevStatus.DownSite == rfid && c.DevStatus.DownLight)))?.FerryTrackId ?? 0;
             }
             finally { Monitor.Exit(_obj); }
         }
 
         public void SetLoadStatus(byte deviceID, DevFerryLoadE stauts)
         {
-            if(Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
                 try
                 {
@@ -137,7 +137,7 @@ namespace simtask.master
         /// </summary>
         /// <param name="rfid"></param>
         /// <returns></returns>
-        internal ushort GetFerryOnTrackPosCode(ushort rfid, bool backward)
+        internal ushort GetFerryOnTrackPosCode(ushort area, ushort rfid, bool backward)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -145,13 +145,13 @@ namespace simtask.master
             }
             try
             {
-                Track track = PubMaster.Track.GetTrackByPoint(rfid);
-                SimFerryTask task = DevList.Find(c =>!c.IsLocating && c.FerryTrackId == track.id);
+                Track track = PubMaster.Track.GetTrackByPoint(area, rfid);
+                SimFerryTask task = DevList.Find(c => !c.IsLocating && c.FerryTrackId == track.id);
                 if (task != null)
                 {
                     if (backward)
                     {
-                        if(task.DevStatus.TargetSite == task.DevStatus.DownSite && task.DevStatus.DownLight)
+                        if (task.DevStatus.TargetSite == task.DevStatus.DownSite && task.DevStatus.DownLight)
                         {
                             return task.DevStatus.DownSite;
                         }
@@ -184,7 +184,8 @@ namespace simtask.master
                     {
                         task.DevStatus.UpSite = poscode;
                         task.DevStatus.UpLight = true;
-                    }else
+                    }
+                    else
                     {
                         task.DevStatus.DownSite = poscode;
                         task.DevStatus.DownLight = true;
@@ -268,13 +269,13 @@ namespace simtask.master
                 {
                     SimFerryTask task = DevList.Find(c => c.DevId == mod.Devid);
 
-                    if(task == null)
+                    if (task == null)
                     {
                         task = new SimFerryTask();
 
                         Device dev = PubMaster.Device.GetDevice(mod.Devid);
                         ConfigFerry devconfig = PubMaster.DevConfig.GetFerry(mod.Devid);
-                        
+
                         task.Device = dev;
                         task.DevConfig = devconfig;
                         task.DevId = mod.Devid;

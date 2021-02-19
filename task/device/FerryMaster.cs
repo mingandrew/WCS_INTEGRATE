@@ -138,19 +138,19 @@ namespace task.device
                                 {
                                     Monitor.Exit(_posobj);
                                 }
-                                
+
                             }
 
                             if (task.IsConnect && task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                             {
                                 //上砖测轨道ID 或 下砖测轨道ID
-                                if (task.UpTrackId == PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) && task.IsUpLight)
+                                if (task.UpTrackId == PubMaster.Track.GetTrackId((ushort)task.AreaId, task.DevStatus.TargetSite) && task.IsUpLight)
                                 {
                                     task.DoStop();
                                     Thread.Sleep(1000);
                                 }
 
-                                if (task.DownTrackId == PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) && task.IsDownLight)
+                                if (task.DownTrackId == PubMaster.Track.GetTrackId((ushort)task.AreaId, task.DevStatus.TargetSite) && task.IsDownLight)
                                 {
                                     task.DoStop();
                                     Thread.Sleep(1000);
@@ -690,7 +690,7 @@ namespace task.device
                         || ((task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                             && (task.DevStatus.FinishTask == DevFerryTaskE.无 || task.DevStatus.FinishTask == DevFerryTaskE.定位))))
                 {
-                    if (task.DevStatus.TargetSite != 0 && PubMaster.Track.GetTrackId(task.DevStatus.TargetSite) != to_track_id)
+                    if (task.DevStatus.TargetSite != 0 && PubMaster.Track.GetTrackId((ushort)task.AreaId, task.DevStatus.TargetSite) != to_track_id)
                     {
                         Thread.Sleep(500);
                         task.DoStop();
@@ -761,7 +761,7 @@ namespace task.device
 
                             //另一台摆渡车的目的轨道的顺序
                             //uint anotherTarget = PubMaster.Track.GetTrackId(taskB.DevStatus.TargetSite);
-                            short taskBTargetOrder = PubMaster.Track.GetTrackByPoint(taskB.DevStatus.TargetSite)?.order ?? 0;
+                            short taskBTargetOrder = PubMaster.Track.GetTrackByPoint((ushort)taskB.AreaId, taskB.DevStatus.TargetSite)?.order ?? 0;
 
                             //当前摆渡车对着的轨道id
                             //taskTrackId = task.Type == DeviceTypeE.上摆渡 ? task.DownTrackId : task.UpTrackId;
@@ -932,7 +932,7 @@ namespace task.device
                 // 其一摆渡当前轨道顺序
                 short otherOrder = PubMaster.Track.GetTrack(otherTrackId)?.order ?? 0;
                 // 其一摆渡目的轨道顺序
-                short otherToOrder = PubMaster.Track.GetTrackByPoint(other.DevStatus.TargetSite)?.order ?? 0;
+                short otherToOrder = PubMaster.Track.GetTrackByPoint((ushort)other.AreaId, other.DevStatus.TargetSite)?.order ?? 0;
 
                 if (otherOrder == 0 && otherToOrder == 0)
                 {
@@ -1051,9 +1051,11 @@ namespace task.device
             StopFerryPosSetting();
             if (!_FerryPosSetList.Exists(c => c.FerryId == id && !c.IsRF))
             {
-                FerryPosSet set = new FerryPosSet();
-                set.FerryId = id;
-                set.IsRF = false;
+                FerryPosSet set = new FerryPosSet
+                {
+                    FerryId = id,
+                    IsRF = false
+                };
                 //set.QueryPos = code;
                 _FerryPosSetList.Add(set);
             }
@@ -1071,10 +1073,12 @@ namespace task.device
             FerryPosSet set = _FerryPosSetList.Find(c => meid.Equals(c.MEID));
             if (set == null)
             {
-                set = new FerryPosSet();
-                set.FerryId = ferryid;
-                set.IsRF = true;
-                set.MEID = meid;
+                set = new FerryPosSet
+                {
+                    FerryId = ferryid,
+                    IsRF = true,
+                    MEID = meid
+                };
                 _FerryPosSetList.Add(set);
             }
             else
@@ -1121,7 +1125,7 @@ namespace task.device
 
         public void EndRefreshPosList()
         {
-             PosList.Clear();
+            PosList.Clear();
             _IsRefreshPos = false;
         }
 
@@ -1233,7 +1237,7 @@ namespace task.device
                                         short taskLockedCurrentOrder = PubMaster.Track.GetTrack(taskLockedTrackId)?.order ?? 0;
 
                                         //上锁摆渡车的目的轨道的位置顺序
-                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackByPoint(fLocked.DevStatus.TargetSite)?.order ?? 0;
+                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackByPoint((ushort)fLocked.AreaId, fLocked.DevStatus.TargetSite)?.order ?? 0;
 
                                         if ((leftCompare < taskLockedCurrentOrder && taskLockedCurrentOrder < rightCompare)
                                                || (leftCompare < taskLockedTargetOrder && taskLockedTargetOrder < rightCompare))
@@ -1445,7 +1449,7 @@ namespace task.device
         /// <param name="result"></param>
         /// <param name="onferryboolvalue"></param>
         /// <returns></returns>
-        public bool IsTargetFerryInPlace(ushort from, ushort to, out string result, bool onferryboolvalue)
+        public bool IsTargetFerryInPlace(ushort area, ushort from, ushort to, out string result, bool onferryboolvalue)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -1454,8 +1458,8 @@ namespace task.device
             }
             try
             {
-                Track ft = PubMaster.Track.GetTrackByPoint(from);
-                Track tt = PubMaster.Track.GetTrackByPoint(to);
+                Track ft = PubMaster.Track.GetTrackByPoint(area, from);
+                Track tt = PubMaster.Track.GetTrackByPoint(area, to);
                 if (ft != null)
                 {
                     if (ft.Type == TrackTypeE.摆渡车_入 || ft.Type == TrackTypeE.摆渡车_出)
