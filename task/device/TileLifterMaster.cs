@@ -1884,7 +1884,10 @@ namespace task.device
                 {
                     task.DevConfig.goods_id = goodid;
 
-                    if(task.IsEnable && task.IsConnect)
+                    //刷新界面
+                    MsgSend(task, task.DevStatus);
+
+                    if (task.IsEnable && task.IsConnect)
                     {
                         #region 同步当前品种/等级
                         if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
@@ -1900,8 +1903,6 @@ namespace task.device
                         }
                         #endregion
                     }
-
-                    MsgSend(task, task.DevStatus);
                 }
             }
             catch
