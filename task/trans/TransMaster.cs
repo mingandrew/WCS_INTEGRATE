@@ -129,8 +129,8 @@ namespace task.trans
                         case TrackTypeE.储砖_出入:
                             if (isload)
                             {
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
-                                    PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    //PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
                                 {
                                     //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
