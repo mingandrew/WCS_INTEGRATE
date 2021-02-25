@@ -41,6 +41,8 @@ namespace module.device
         private byte aler10;          //报警10
         private byte reserve3;        //预留3
         private byte reserve4;        //预留4
+        private uint currenttrackid;
+        private uint targettrackid;
         #endregion
 
         #region[更新属性]
@@ -300,6 +302,18 @@ namespace module.device
         {
             set => Set(ref reserve4, value);
             get => reserve4;
+        }
+
+        public uint CurrentTrackId 
+        {
+            set => Set(ref currenttrackid, value);
+            get => currenttrackid;
+        }
+
+        public uint TargetTrackId
+        {
+            set => Set(ref targettrackid, value);
+            get => targettrackid;
         }
 
         #endregion

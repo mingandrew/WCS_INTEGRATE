@@ -269,6 +269,10 @@ namespace task.device
             CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentPoint, CurrentSite);
 
             TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetPoint, TargetSite);
+
+            DevStatus.CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentPoint, CurrentSite);
+
+            DevStatus.TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetPoint, TargetSite);
         }
 
         #endregion
