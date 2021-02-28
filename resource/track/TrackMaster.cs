@@ -128,6 +128,22 @@ namespace resource.track
             if (site == 0) return 0;
             return GetTrackByPoint(area, site)?.id ?? 0;
         }
+        
+        /// <summary>
+        /// 获取设备分配的轨道ID
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="area"></param>
+        /// <param name="site"></param>
+        /// <returns></returns>
+        public uint GetTrackId(uint devid, ushort area, ushort site)
+        {
+            if (site == 0) return 0;
+            List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
+            return TrackList.Find(c => c.area == area 
+                                    && c.IsInTrack(site)
+                                    && list.Exists(d=>d.track_id == c.id))?.id ?? 0;
+        }
 
         /// <summary>
         /// 获取轨道前进起点（默认入库端口）

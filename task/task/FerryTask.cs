@@ -175,7 +175,7 @@ namespace task.task
 
             if (UpSite != 0 && (DevStatus?.IsUpSiteChange ?? false))
             {
-                UpTrackId = PubMaster.Track.GetTrackId((ushort)AreaId, UpSite);
+                UpTrackId = PubMaster.Track.GetTrackId(ID, (ushort)AreaId, UpSite);
             }
 
             if (DownSite == 0)
@@ -185,7 +185,7 @@ namespace task.task
 
             if (DownSite != 0 && (DevStatus?.IsDownSiteChange ?? false))
             {
-                DownTrackId = PubMaster.Track.GetTrackId((ushort)AreaId, DownSite);
+                DownTrackId = PubMaster.Track.GetTrackId(ID, (ushort)AreaId, DownSite);
             }
         }
         #endregion
