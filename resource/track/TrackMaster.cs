@@ -364,9 +364,11 @@ namespace resource.track
         /// </summary>
         /// <param name="poscode"></param>
         /// <returns></returns>
-        private Track GetTrackByFerryCocde(ushort area, ushort poscode)
+        private Track GetTrackByFerryCocde(ushort area, uint devid, ushort poscode)
         {
-            return TrackList.Find(c => c.area == area && (c.ferry_down_code == poscode || c.ferry_up_code == poscode));
+            List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
+            return TrackList.Find(c => c.area == area && (c.ferry_down_code == poscode || c.ferry_up_code == poscode)
+                                    && list.Exists(d=>d.track_id == c.id));
         }
         #endregion
 
@@ -507,7 +509,7 @@ namespace resource.track
         /// <returns></returns>
         public int GetFerryAutoPosLen(ushort area, uint devid, ushort poscode)
         {
-            Track selectrack = GetTrackByFerryCocde(area, poscode);
+            Track selectrack = GetTrackByFerryCocde(area, devid, poscode);
             List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
             tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
             return tracks.Count - tracks.IndexOf(selectrack);
