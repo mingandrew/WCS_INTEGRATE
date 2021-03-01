@@ -194,11 +194,19 @@ namespace resource.track
                         {
                             traid = t.brother_track_id;
                         }
+                        else
+                        {
+                            traid = t.id;
+                        }
                         break;
                     case TrackTypeE.储砖_出:// 读到出轨道地标，但是小于分段点距离，当做入轨道
                         if (site <= t.split_point)
                         {
                             traid = t.brother_track_id;
+                        }
+                        else
+                        {
+                            traid = t.id;
                         }
                         break;
                     default:
