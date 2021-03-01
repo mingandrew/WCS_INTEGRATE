@@ -33,6 +33,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<FerryViewModel>();
             SimpleIoc.Default.Register<CarrierViewModel>();
             SimpleIoc.Default.Register<DeviceSelectViewModel>();
+            SimpleIoc.Default.Register<DeviceBackupSelectViewModel>();
             SimpleIoc.Default.Register<FerryPosViewModel>();
             SimpleIoc.Default.Register<RfClientViewModel>();
             SimpleIoc.Default.Register<TrackViewModel>();
@@ -98,6 +99,7 @@ namespace wcs.ViewModel
         public FerryViewModel Ferry => ServiceLocator.Current.GetInstance<FerryViewModel>();
         public CarrierViewModel Carrier => ServiceLocator.Current.GetInstance<CarrierViewModel>();
         public DeviceSelectViewModel DeviceSelect => ServiceLocator.Current.GetInstance<DeviceSelectViewModel>();
+        public DeviceBackupSelectViewModel DeviceBackupSelect => ServiceLocator.Current.GetInstance<DeviceBackupSelectViewModel>();
         public FerryPosViewModel FerryPos => ServiceLocator.Current.GetInstance<FerryPosViewModel>();
         public RfClientViewModel RfClient => ServiceLocator.Current.GetInstance<RfClientViewModel>();
         public TrackViewModel Track => ServiceLocator.Current.GetInstance<TrackViewModel>();

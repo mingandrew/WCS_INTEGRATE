@@ -98,8 +98,34 @@ namespace resource.module.modulesql
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
+        
+        /// <summary>
+        /// 复制其他砖机的储砖轨道信息，给备用砖机
+        /// </summary>
+        /// <param name="from_id">其他砖机id</param>
+        /// <param name="to_id">备用砖机id</param>
+        /// <returns></returns>
+        internal bool CopyOtherDeviceTrackByDevId(uint from_id, uint to_id)
+        {
+            string str = "INSERT INTO area_device_track ( area_id, device_id, track_id, prior ) SELECT area_id, {0}, track_id, prior FROM area_device_track WHERE device_id = {1}";
+            string sql = string.Format(@str, to_id, from_id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
 
-
+        /// <summary>
+        /// 根据其他砖机轨道id，复制对应摆渡车能去 的备用砖机轨道
+        /// </summary>
+        /// <param name="from_id">其他砖机的轨道id</param>
+        /// <param name="to_id">备用砖机的轨道id</param>
+        /// <returns></returns>
+        internal bool CopyOtherDeviceTrackByTrackId(uint from_track_id, uint to_track_id)
+        {
+            string str = "INSERT INTO area_device_track ( area_id, device_id, track_id, prior ) SELECT area_id, device_id, {0}, prior FROM area_device_track WHERE track_id = {1}";
+            string sql = string.Format(@str, to_track_id, from_track_id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
         #endregion
 
         #region[修改]
@@ -163,6 +189,31 @@ namespace resource.module.modulesql
         internal bool DeleteAreaDeviceTrack(AreaDeviceTrack areadevtra)
         {
             string sql = string.Format("DELETE FROM `area_device_track` where id = '{0}'", areadevtra.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        /// <summary>
+        /// 根据设备id删除设备对应的轨道
+        /// </summary>
+        /// <param name="dev_id">设备id</param>
+        /// <returns></returns>
+        internal bool DeleteAreaDeviceTrackByDevId(uint dev_id)
+        {
+            string sql = string.Format("DELETE FROM `area_device_track` where device_id = '{0}'", dev_id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        /// <summary>
+        /// 根据轨道id，删除指定的数据
+        /// </summary>
+        /// <param name="dev_id">设备id</param>
+        /// <param name="track_id">轨道id</param>
+        /// <returns></returns>
+        internal bool DeleteAreaDeviceTrackByTrackId(uint track_id)
+        {
+            string sql = string.Format("DELETE FROM `area_device_track` where track_id = {0}", track_id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

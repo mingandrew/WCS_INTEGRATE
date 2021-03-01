@@ -185,6 +185,22 @@ namespace resource.area
         #endregion
 
         #region[获取/判断属性]
+        /// <summary>
+        /// 根据设备id查找对应的轨道id
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <returns></returns>
+        public List<uint> GetAreaDevTrackWithTrackIds(uint tileid)
+        {
+            List<uint> trackids = null;
+            List<AreaDeviceTrack> areaDeviceTracks = GetDevTrackList(tileid);
+            if (areaDeviceTracks != null && areaDeviceTracks.Count != 0)
+            {
+                trackids = areaDeviceTracks.Select(c => c.track_id).ToList();
+            }
+            return trackids;
+
+        }
 
         public string GetAreaName(uint Area_id)
         {

@@ -113,6 +113,7 @@
     <Compile Include="Data\Model\TabItemModel.cs" />
     <Compile Include="Data\Model\WinCtlModel.cs" />
     <Compile Include="Data\MyResourceToken.cs" />
+    <Compile Include="Data\View\BackupTileLifterView.cs" />
     <Compile Include="Data\View\CarrierView.cs" />
     <Compile Include="Data\View\FerryPosView.cs" />
     <Compile Include="Data\View\FerryView.cs" />
@@ -125,6 +126,9 @@
     <Compile Include="Data\View\WarningView.cs" />
     <Compile Include="Dialog\platform\device\ChangeStrategyDialog.xaml.cs">
       <DependentUpon>ChangeStrategyDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\device\DeviceBackupSelectDialog.xaml.cs">
+      <DependentUpon>DeviceBackupSelectDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\platform\device\GoodShiftDialog.xaml.cs">
       <DependentUpon>GoodShiftDialog.xaml</DependentUpon>
@@ -213,6 +217,7 @@
     <Compile Include="ViewModel\platform\area\AreaViewModel.cs" />
     <Compile Include="ViewModel\platform\BindingProxy.cs" />
     <Compile Include="ViewModel\platform\device\CarrierViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\DeviceBackupSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\device\GoodShiftDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\CutoverDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceEditViewModel.cs" />
@@ -340,6 +345,10 @@
       <DependentUpon>SimulationWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Dialog\platform\device\ChangeStrategyDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\device\DeviceBackupSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

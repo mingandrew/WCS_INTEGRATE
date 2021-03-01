@@ -84,6 +84,15 @@ namespace module.deviceconfig
         /// </summary>
         public bool do_cutover { set; get; }
 
+        /// <summary>
+        /// 是否备用砖机
+        /// </summary>
+        public bool can_alter { set; get; }
+
+        /// <summary>
+        /// 备用的砖机选项列表id（用'#'隔开）
+        /// </summary>
+        public string alter_ids { set; get; }
 
         /// <summary>
         /// 入库策略

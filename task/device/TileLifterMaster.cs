@@ -10,6 +10,7 @@ using module.track;
 using resource;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using task.task;
 using tool.mlog;
@@ -637,6 +638,45 @@ namespace task.device
             return take;
         }
 
+        /// <summary>
+        /// 用于获取备用砖机的信息
+        /// </summary>
+        /// <param name="dev_id">备用砖机id</param>
+        public List<List<object>> GetBackupTileLifter(uint dev_id)
+        {
+            TileLifterTask task = DevList.Find(c => c.ID == dev_id);
+            //保存每个要备用的砖机的有用信息
+            List<List<object>> altertileinfo = new List<List<object>>();
+            if (task != null && task.DevConfig.can_alter)
+            {
+                string[] alteridList = task.DevConfig.alter_ids.Split(',');
+                foreach (string item in alteridList)
+                {
+                    List<object> temp = new List<object>();
+                    if (uint.TryParse(item, out uint alterid))
+                    {
+                        TileLifterTask altertile = DevList.Find(c => c.ID == alterid);
+                        temp.Add(altertile.ID);
+                        temp.Add(altertile.Device.name);
+                        temp.Add(altertile.Type);
+                        uint goodid = altertile.DevConfig.goods_id;
+                        string goodidnfo = PubMaster.Goods.GetGoodsName(goodid);
+                        temp.Add(goodidnfo);
+                        temp.Add(altertile.DevConfig.last_track_id);
+
+                        List<uint> tiletrackids = PubMaster.Area.GetAreaDevTrackWithTrackIds(altertile.ID);
+                        string maxname = PubMaster.Track.GetTrackName(tiletrackids.Max());
+                        string minname = PubMaster.Track.GetTrackName(tiletrackids.Min());
+                        string content = string.Format("{0} 至 {1}", minname, maxname);
+                        temp.Add(content);
+                    }
+
+                    altertileinfo.Add(temp);
+                }
+            }
+
+            return altertileinfo;
+        }
         #endregion
 
         #region[数据更新]
@@ -1872,6 +1912,15 @@ namespace task.device
             return (fla && (isleft ? t.IsNeed_1 : t.IsNeed_2));
         }
 
+        /// <summary>
+        /// 判断砖机是否备用砖机
+        /// </summary>
+        /// <param name="tilelifter_id"></param>
+        /// <returns></returns>
+        public bool IsBackupTileLifter(uint tilelifter_id)
+        {
+            return DevList.Exists(c => c.ID == tilelifter_id && c.DevConfig.can_alter);
+        }
         #endregion
 
         #region[更新品种信息]

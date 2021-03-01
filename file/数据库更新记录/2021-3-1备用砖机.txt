@@ -1,0 +1,3 @@
+
+ALTER TABLE `config_tilelifter` ADD COLUMN `can_alter` bit(1) NULL COMMENT '是否备用' AFTER `do_cutover`;
+ALTER TABLE `config_tilelifter` ADD COLUMN `alter_ids` varchar(10) NULL COMMENT '备用砖机id' AFTER `can_alter`;

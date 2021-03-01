@@ -697,6 +697,78 @@ namespace resource.device
 
         #endregion
 
+        #region[设置备用砖机的信息]
+
+        /// <summary>
+        /// 将备用砖机的信息设置成需要备用的砖机的信息
+        /// </summary>
+        /// <param name="need_id">需要备用的砖机id</param>
+        /// <param name="backup_id">备用砖机id</param>
+        /// <returns></returns>
+        public bool SetBackupTileLifter(uint need_id, uint backup_id)
+        {
+            //要备用的砖机
+            ConfigTileLifter need_dev = ConfigTileLifterList.Find(c => c.id == need_id);
+            //备用砖机
+            ConfigTileLifter backup_dev = ConfigTileLifterList.Find(c => c.id == backup_id);
+            if (need_dev != null && backup_dev != null)
+            {
+                try
+                {
+                    mLog.Status(true, string.Format("[启用备用砖机]备用砖机：{0}，需要备用的砖机：{1}",
+                        PubMaster.Device.GetDeviceName(backup_id), PubMaster.Device.GetDeviceName(need_id)));
+                }
+                catch { }
+
+                #region[设置备用砖机的config表-品种、策略、当前工作轨道、工作模式]
+
+                backup_dev.InStrategey = need_dev.InStrategey;
+                backup_dev.OutStrategey = need_dev.OutStrategey;
+                backup_dev.WorkType = need_dev.WorkType;
+                backup_dev.last_track_id = need_dev.last_track_id;
+                backup_dev.old_goodid = need_dev.old_goodid;
+                backup_dev.goods_id = need_dev.goods_id;
+                backup_dev.pre_goodid = need_dev.pre_goodid;
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(backup_dev);
+
+                #endregion
+
+                #region[设置备用砖机的area_device_track表-备用砖机能去的轨道和摆渡车对应到达砖机轨道]
+
+                //先将backup砖机的对应轨道删除
+                PubMaster.Mod.AreaSql.DeleteAreaDeviceTrackByDevId(backup_dev.id);
+
+                //将need砖机的对应储砖轨道 复制一份给backup砖机，注意修改信息中设备id为backup砖机的id
+                PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByDevId(need_id, backup_id);
+
+
+                // 找出backup砖机的左右轨道id，然后删除这些轨道id的信息
+                PubMaster.Mod.AreaSql.DeleteAreaDeviceTrackByTrackId(backup_dev.left_track_id);
+                if (backup_dev.right_track_id != 0)
+                {
+                    PubMaster.Mod.AreaSql.DeleteAreaDeviceTrackByTrackId(backup_dev.right_track_id);
+                }
+
+                // 找出need砖机的左右轨道id，然后将那些信息复制一份给backup砖机，注意修改信息中轨道id为backup砖机的左右轨道id
+                PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.left_track_id, backup_dev.left_track_id);
+                if (need_dev.right_track_id != 0 && backup_dev.right_track_id != 0)
+                {
+                    PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.right_track_id, backup_dev.right_track_id);
+                }
+                else if (backup_dev.right_track_id != 0)
+                {
+                    PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.left_track_id, backup_dev.right_track_id);
+                }
+
+                PubMaster.Area.Refresh(false, false, false, true);
+                #endregion
+
+                return true;
+            }
+            return false;
+        }
+        #endregion
+
         #endregion
 
         #endregion

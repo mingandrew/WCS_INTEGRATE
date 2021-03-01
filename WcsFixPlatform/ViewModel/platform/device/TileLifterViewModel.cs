@@ -19,6 +19,7 @@ using System.Windows.Controls;
 using task;
 using wcs.Data.View;
 using wcs.Dialog;
+using wcs.Dialog.platform.device;
 
 namespace wcs.ViewModel
 {
@@ -131,6 +132,48 @@ namespace wcs.ViewModel
                         break;
 
                     case 3://启用
+                           //判断是否备用砖机
+                        if (PubTask.TileLifter.IsBackupTileLifter(DeviceSelected.ID))
+                        {
+                            //展示能备用的砖机的信息，并返回被选择的砖机id
+                            DialogResult alterresult = await HandyControl.Controls.Dialog.Show<DeviceBackupSelectDialog>()
+                               .Initialize<DeviceBackupSelectViewModel>((vm) =>
+                               {
+                                   vm.GetBackupTilelifterInfo(DeviceSelected.ID);
+                               }).GetResultAsync<DialogResult>();
+
+                            if (alterresult.p1 is bool ar && alterresult.p2 is uint need_dev_id)
+                            {
+                                string rr = string.Format("是否确定选择：\r\n 【名称 - {0}】\r\n【类型 - {1}】\r\n【品种 - {2}】\r\n【当前作业轨道 - {3}】\r\n【砖机作业轨道 - {4}】",
+                                    alterresult.p3, alterresult.p4, alterresult.p5, alterresult.p6, alterresult.p7);
+                                MessageBoxResult box = HandyControl.Controls.MessageBox.Show(rr, "警告",
+                                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                                if (box == MessageBoxResult.Yes)
+                                {
+                                    //然后调用下面方法，用于修改备用砖机的品种等信息
+                                    if (PubMaster.DevConfig.SetBackupTileLifter(need_dev_id, DeviceSelected.ID))
+                                    {
+                                        Growl.Success("修改成功！");
+                                    }
+                                    else
+                                    {
+                                        Growl.Warning("修改失败");
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                                //然后调用下面方法，用于修改备用砖机的品种等信息
+                                //PubMaster.DevConfig.SetBackupTileLifter(need_dev_id, DeviceSelected.ID);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
                         if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC"))
                         {
                             PubTask.TileLifter.UpdateWorking(DeviceSelected.ID, true, 255);
