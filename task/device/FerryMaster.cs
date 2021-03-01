@@ -1406,11 +1406,12 @@ namespace task.device
         /// <summary>
         /// 是否有到位摆渡车可用
         /// </summary>
-        /// <param name="dt"></param>
-        /// <param name="trackid"></param>
-        /// <param name="result"></param>
+        /// <param name="checkuplight">检查哪侧</param>
+        /// <param name="dt">摆渡类型</param>
+        /// <param name="trackid">判断摆渡车是否对上轨道</param>
+        /// <param name="result">结果</param>
         /// <returns></returns>
-        public bool HaveFerryInPlace(DeviceTypeE dt, uint trackid, out uint ferryTrackid, out string result)
+        public bool HaveFerryInPlace(DevCarrierTaskE carriertask, DeviceTypeE dt, uint trackid, out uint ferryTrackid, out string result)
         {
             ferryTrackid = 0;
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -1420,7 +1421,8 @@ namespace task.device
             }
             try
             {
-                FerryTask task = DevList.Find(c => c.Type == dt && c.GetFerryCurrentTrackId() == trackid);
+                bool checkuplight = carriertask == DevCarrierTaskE.后退至摆渡车;
+                FerryTask task = DevList.Find(c => c.Type == dt  &&  c.GetFerryCurrentTrackId(checkuplight) == trackid);
 
                 if (!CheckFerryStatus(task, out result))
                 {

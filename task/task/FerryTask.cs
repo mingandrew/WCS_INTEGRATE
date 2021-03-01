@@ -311,6 +311,28 @@ namespace task.task
             return trackId;
         }
 
+        /// <summary>
+        /// 根据方向获取摆渡车所在轨道
+        /// </summary>
+        /// <param name="checkuplight"></param>
+        /// <returns></returns>
+        internal uint GetFerryCurrentTrackId(bool checkuplight)
+        {
+            if(checkuplight && IsUpLight)
+            {
+                return UpTrackId;
+            }
+
+            if(!checkuplight && IsDownLight)
+            {
+                return DownTrackId;
+            }
+
+            return 0;
+        }
+
+
+
         #endregion
 
         #region[清除摆渡车未配置的其他轨道对位信息]

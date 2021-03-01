@@ -9,7 +9,17 @@ namespace wcs.Tools.Converter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is ushort trackcode)
+            if(value is string devidtrackcode)
+            {
+                string[] idcode = devidtrackcode.Split(':');
+                if (idcode.Length > 1
+                    && uint.TryParse(idcode[0], out uint devid)
+                    && ushort.TryParse(idcode[1], out ushort trackcode))
+                {
+                    return PubMaster.Track.GetTrackName(devid, trackcode);
+                }
+
+            }else if (value is ushort trackcode)
             {
                 return PubMaster.Track.GetTrackNameByCode(trackcode);
             }
