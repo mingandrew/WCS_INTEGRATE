@@ -146,6 +146,20 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 获取轨道名称
+        /// </summary>
+        /// <param name="devid">设备ID</param>
+        /// <param name="site">轨道号</param>
+        /// <returns></returns>
+        public string GetTrackName(uint devid, ushort site)
+        {
+            if (site == 0) return "";
+            List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
+            return TrackList.Find(c => c.IsInTrack(site)
+                                    && list.Exists(d => d.track_id == c.id))?.name ?? site+"";
+        }
+
+        /// <summary>
         /// 获取轨道前进起点（默认入库端口）
         /// </summary>
         /// <param name="trackid"></param>

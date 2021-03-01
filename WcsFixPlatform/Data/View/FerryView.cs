@@ -34,10 +34,10 @@ namespace module.window.device
         #region[通信字段]
         private byte deviceid;      //设备号
         private DevFerryStatusE devicestatus;  //设备状态
-        private ushort targetsite;  //目标值
+        private string targetsite;  //目标值
         private DevFerryTaskE currenttask;   //当前任务
-        private ushort upsite; //当前左值
-        private ushort downsite; //当前右值
+        private string upsite; //当前左值
+        private string downsite; //当前右值
         private DevFerryTaskE finishtask;    //完成任务
         private DevFerryLoadE loadstatus;    //载货状态
         private DevOperateModeE workmode;      //作业模式
@@ -59,7 +59,7 @@ namespace module.window.device
             set => Set(ref devicestatus, value);
             get => devicestatus;
         }
-        public ushort TargetSite  //目标值   
+        public string TargetSite  //目标值   
         {
             set => Set(ref targetsite, value);
             get => targetsite;
@@ -70,13 +70,13 @@ namespace module.window.device
             get => currenttask;
         }
 
-        public ushort UpSite //当前值   
+        public string UpSite //当前值   
         {
             set => Set(ref upsite, value);
             get => upsite;
         }
 
-        public ushort DownSite //当前值   
+        public string DownSite //当前值   
         {
             set => Set(ref downsite, value);
             get => downsite;
@@ -124,10 +124,10 @@ namespace module.window.device
         {
             DeviceID = st.DeviceID;
             DeviceStatus = st.DeviceStatus;
-            TargetSite =st.TargetSite;
+            TargetSite =ID +":" + st.TargetSite;
             CurrentTask = st.CurrentTask;
-            DownSite = st.DownSite;
-            UpSite = st.UpSite;
+            DownSite = ID + ":" + st.DownSite;
+            UpSite = ID + ":" + st.UpSite;
             FinishTask = st.FinishTask;
             LoadStatus = st.LoadStatus;
             WorkMode = st.WorkMode;
