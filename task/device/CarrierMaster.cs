@@ -811,13 +811,15 @@ namespace task.device
                     break;
 
                 case DevCarrierTaskE.后退至摆渡车:
-                    if (track.Type != TrackTypeE.上砖轨道 && track.Type != TrackTypeE.储砖_入 && track.Type != TrackTypeE.储砖_出入 &&
-                        point != track.rfid_1) //最小定位RFID
+                    if (track.Type != TrackTypeE.上砖轨道 
+                        && track.Type != TrackTypeE.储砖_入 
+                        && track.Type != TrackTypeE.储砖_出入 
+                        && point != track.rfid_1) //最小定位RFID
                     {
                         result = "小车需要在入库轨道头或者上砖轨道";
                         return false;
                     }
-                    if (!PubTask.Ferry.HaveFerryInPlace(track.Type == TrackTypeE.上砖轨道 ? DeviceTypeE.上摆渡 : DeviceTypeE.下摆渡,
+                    if (!PubTask.Ferry.HaveFerryInPlace(carriertask, track.Type == TrackTypeE.上砖轨道 ? DeviceTypeE.上摆渡 : DeviceTypeE.下摆渡,
                         track.id, out ferryTraid, out result))
                     {
                         return false;
@@ -828,13 +830,15 @@ namespace task.device
                     break;
 
                 case DevCarrierTaskE.前进至摆渡车:
-                    if (track.Type != TrackTypeE.下砖轨道 && track.Type != TrackTypeE.储砖_出 && track.Type != TrackTypeE.储砖_出入 &&
-                        point != track.rfid_2) //最大定位RFID
+                    if (track.Type != TrackTypeE.下砖轨道 
+                        && track.Type != TrackTypeE.储砖_出 
+                        && track.Type != TrackTypeE.储砖_出入 
+                        && point != track.rfid_2) //最大定位RFID
                     {
                         result = "小车需要在出库轨道头或者下砖轨道";
                         return false;
                     }
-                    if (!PubTask.Ferry.HaveFerryInPlace(track.Type == TrackTypeE.下砖轨道 ? DeviceTypeE.下摆渡 : DeviceTypeE.上摆渡,
+                    if (!PubTask.Ferry.HaveFerryInPlace(carriertask, track.Type == TrackTypeE.下砖轨道 ? DeviceTypeE.下摆渡 : DeviceTypeE.上摆渡,
                         track.id, out ferryTraid, out result))
                     {
                         return false;
