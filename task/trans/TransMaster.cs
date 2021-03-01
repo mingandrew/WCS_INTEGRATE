@@ -33,9 +33,15 @@ namespace task.trans
             {
                 #region[检查轨道]
                 case TransStatusE.检查轨道:
-                    CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
-                    //是否有小车在放砖轨道
-                    if (PubTask.Carrier.HaveDifTypeInTrack(trans.give_track_id, carrier, out uint carrierid))
+
+                    //CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
+                    ////是否有小车在放砖轨道
+                    //if (PubTask.Carrier.HaveDifTypeInTrack(trans.give_track_id, carrier, out uint carrierid))
+
+                    // 获取任务品种规格ID
+                    uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
+                    // 是否有不符规格的车在轨道
+                    if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trans.give_track_id, goodssizeID, out uint carrierid))
                     {
                         if (!HaveCarrierInTrans(carrierid)
                             && PubTask.Carrier.IsCarrierFree(carrierid))

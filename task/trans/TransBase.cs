@@ -152,7 +152,16 @@ namespace task.trans
             {
                 try
                 {
-                    AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid);
+                    TransStatusE initstatus = TransStatusE.调度设备;
+                    switch (type)
+                    {
+                        case TransTypeE.下砖任务:
+                        case TransTypeE.手动下砖:
+                        case TransTypeE.同向下砖:
+                            initstatus = TransStatusE.检查轨道;
+                            break;
+                    }
+                    AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid, initstatus);
                 }
                 finally
                 {

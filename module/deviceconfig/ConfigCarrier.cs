@@ -32,6 +32,23 @@
         /// </summary>
         public ushort length { set; get; }
 
+        /// <summary>
+        /// 运输车负责规格ID集
+        /// </summary>
+        public string goods_size { set; get; }
+
+        /// <summary>
+        /// 运输车是否负责该规格
+        /// </summary>
+        /// <param name="sizeID"></param>
+        /// <returns></returns>
+        public bool IsUseGoodsSize(uint sizeID)
+        {
+            if (sizeID == 0) return false;
+            if (string.IsNullOrEmpty(goods_size)) return true;
+
+            return goods_size.Contains(sizeID.ToString());
+        }
 
         #region[模拟使用]
 

@@ -292,6 +292,25 @@ namespace task.device
         }
 
         /// <summary>
+        /// 是否有负责不同规格的车在轨道内
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="goodssizeID"></param>
+        /// <param name="carrierid"></param>
+        /// <returns></returns>
+        internal bool HaveDifGoodsSizeInTrack(uint trackid, uint goodssizeID, out uint carrierid)
+        {
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
+            if (carrier != null && !carrier.DevConfig.IsUseGoodsSize(goodssizeID))
+            {
+                carrierid = carrier.ID;
+                return true;
+            }
+            carrierid = 0;
+            return false;
+        }
+
+        /// <summary>
         /// 查找是否存在运输车在指定的轨道
         /// 1.ID对应的轨道
         /// 2.轨道的兄弟轨道
@@ -1231,9 +1250,14 @@ namespace task.device
                 result = "任务没有品种id";
                 return false;
             }
-            CarrierTypeE needtype = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
+            //CarrierTypeE needtype = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
+
+            // 获取任务品种规格ID
+            uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
+
             // 1.取货轨道是否有车[空闲，无货]
-            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.take_track_id && c.CarrierType == needtype);
+            //CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.take_track_id && c.CarrierType == needtype);
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
 
             //if (carrier == null && (trans.TransType == TransTypeE.上砖任务 || trans.TransType == TransTypeE.手动上砖))
             //{
@@ -1247,7 +1271,8 @@ namespace task.device
             if (carrier == null)
             {
                 #region[2.卸货轨道是否有车[空闲，无货]]
-                carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.CarrierType == needtype);
+                //carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.CarrierType == needtype);
+                carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
                 #endregion
 
                 #region[3.摆渡车上是否有车[空闲，无货]
@@ -1267,7 +1292,8 @@ namespace task.device
                     }
 
                     //3.2获取在摆渡车上的车[空闲，无货]
-                    List<CarrierTask> carriers = DevList.FindAll(c => loadcarferryids.Contains(c.CurrentTrackId) && c.CarrierType == needtype);
+                    //List<CarrierTask> carriers = DevList.FindAll(c => loadcarferryids.Contains(c.CurrentTrackId) && c.CarrierType == needtype);
+                    List<CarrierTask> carriers = DevList.FindAll(c => loadcarferryids.Contains(c.CurrentTrackId) && c.DevConfig.IsUseGoodsSize(goodssizeID));
                     if (carriers.Count > 0)
                     {
                         //如何判断哪个摆渡车最右
@@ -1408,7 +1434,8 @@ namespace task.device
                                 && tasks[0].Status == DevCarrierStatusE.停止
                                 && tasks[0].OperateMode == DevOperateModeE.自动
                                 && (tasks[0].CurrentOrder == tasks[0].FinishOrder || tasks[0].CurrentOrder == DevCarrierOrderE.无)
-                                && tasks[0].CarrierType == needtype
+                                //&& tasks[0].CarrierType == needtype
+                                && tasks[0].DevConfig.IsUseGoodsSize(goodssizeID)
                                 )
                         {
                             if (tasks[0].Load == DevCarrierLoadE.无货)
@@ -1430,7 +1457,8 @@ namespace task.device
                         CarrierTask task = DevList.Find(c => c.ID == carid);
 
                         if (CheckCarrierFreeNotLoad(task)
-                               && task.CarrierType == needtype
+                               //&& task.CarrierType == needtype
+                               && task.DevConfig.IsUseGoodsSize(goodssizeID)
                                && !PubTask.Trans.HaveInCarrier(task.ID))
                         {
                             carrierid = task.ID;
@@ -1443,7 +1471,8 @@ namespace task.device
                         CarrierTask task = DevList.Find(c => c.ID == carid);
 
                         if (CheckCarrierFreeNotLoad(task)
-                               && task.CarrierType == needtype
+                               //&& task.CarrierType == needtype
+                               && task.DevConfig.IsUseGoodsSize(goodssizeID)
                                && !PubTask.Trans.HaveInCarrier(task.ID))
                         {
                             carrierid = task.ID;

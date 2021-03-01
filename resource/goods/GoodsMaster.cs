@@ -250,6 +250,16 @@ namespace resource.goods
             return 0;
         }
 
+        /// <summary>
+        /// 获取品种的规格ID
+        /// </summary>
+        /// <param name="Goods_id"></param>
+        /// <returns></returns>
+        public uint GetGoodsSizeID(uint Goods_id)
+        {
+            return GoodsList.Find(c => c.id == Goods_id)?.size_id ?? 0;
+        }
+
         #endregion
 
         #region[库存]
