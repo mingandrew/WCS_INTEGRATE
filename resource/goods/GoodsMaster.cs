@@ -702,6 +702,33 @@ namespace resource.goods
             }
         }
 
+        public void DeleteStockBySite(uint trackid, ushort site)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+            if (stocks == null || stocks.Count == 0)
+            {
+                return;
+            }
+
+            foreach (Stock s in stocks)
+            {
+                if (s.location < site)
+                {
+                    continue;
+                }
+                if (s.location == 0)
+                {
+                    if (s.location_cal != 0 && s.location_cal < site)
+                    {
+                        continue;
+                    }
+                }
+                StockList.Remove(s);
+                PubMaster.Mod.GoodSql.DeleteStock(s);
+                StockSumChange(s, 0);
+            }
+        }
+
         private byte GetGoodStack(uint goodid)
         {
             return GetGoodSize(goodid)?.stack ?? 1;

@@ -392,6 +392,18 @@ namespace task.device
             if (On(DevStatus.Aler2, 3))
             {
                 PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X3, (ushort)ID, 2);
+                //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
+                //2.判断是否还有库存，没有则轨道状态变为空
+                //3.运输车发终止任务
+                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentSite);
+                if (PubMaster.Goods.IsTrackStockEmpty(CurrentTrackId))
+                {
+                    PubMaster.Track.UpdateStockStatus(CurrentTrackId, TrackStockStatusE.空砖, "运输车检测无砖,自动调整轨道为空");
+                    PubMaster.Goods.ClearTrackEmtpy(CurrentTrackId);
+                    PubTask.TileLifter.ReseTileCurrentTake(CurrentTrackId);
+                    PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, "运输车检测无砖");
+                }
+                DoStop();
             }
             else
             {
