@@ -3096,32 +3096,46 @@ namespace task.trans
                 {
                     case MoveTypeE.转移占用轨道://优先到空轨道
 
-                        if (PubMaster.Track.IsTrackFree(track.right_track_id)
-                            && !IsTraInTrans(track.right_track_id)
-                            && !PubTask.Carrier.HaveInTrack(track.right_track_id))
-                        {
-                            givetrackid = track.right_track_id;
-                        }
-                        else if (PubMaster.Track.IsTrackFree(track.left_track_id)
-                            && !IsTraInTrans(track.left_track_id)
-                            && !PubTask.Carrier.HaveInTrack(track.right_track_id))
-                        {
-                            givetrackid = track.left_track_id;
-                        }
+                        // 优先移动到空轨道
+                        List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
 
-                        if (givetrackid == 0)
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, PubMaster.Track.GetTrack(trackid).order);
+
+                        foreach (uint t in tids)
                         {
-                            List<Track> tracklist = PubMaster.Track.GetTrackInTypeFree(track.area, totracktype);
-                            foreach (Track tra in tracklist)
+                            if (!IsTraInTrans(t) && !PubTask.Carrier.HaveInTrack(t, carrierid))
                             {
-                                if (!IsTraInTrans(tra.id)
-                                    && !PubTask.Carrier.HaveInTrack(tra.id))
-                                {
-                                    givetrackid = tra.id;
-                                    break;
-                                }
+                                givetrackid = t;
+                                break;
                             }
                         }
+
+                        //if (PubMaster.Track.IsTrackFree(track.right_track_id)
+                        //    && !IsTraInTrans(track.right_track_id)
+                        //    && !PubTask.Carrier.HaveInTrack(track.right_track_id))
+                        //{
+                        //    givetrackid = track.right_track_id;
+                        //}
+                        //else if (PubMaster.Track.IsTrackFree(track.left_track_id)
+                        //    && !IsTraInTrans(track.left_track_id)
+                        //    && !PubTask.Carrier.HaveInTrack(track.right_track_id))
+                        //{
+                        //    givetrackid = track.left_track_id;
+                        //}
+
+                        //if (givetrackid == 0)
+                        //{
+                        //    List<Track> tracklist = PubMaster.Track.GetTrackInTypeFree(track.area, totracktype);
+                        //    foreach (Track tra in tracklist)
+                        //    {
+                        //        if (!IsTraInTrans(tra.id)
+                        //            && !PubTask.Carrier.HaveInTrack(tra.id))
+                        //        {
+                        //            givetrackid = tra.id;
+                        //            break;
+                        //        }
+                        //    }
+                        //}
                         break;
                     case MoveTypeE.释放摆渡车:
                         break;
