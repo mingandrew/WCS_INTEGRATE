@@ -34,6 +34,8 @@ namespace task.trans
                 #region[检查轨道]
                 case TransStatusE.检查轨道:
 
+                  
+
                     //CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
                     ////是否有小车在放砖轨道
                     //if (PubTask.Carrier.HaveDifTypeInTrack(trans.give_track_id, carrier, out uint carrierid))
@@ -56,7 +58,8 @@ namespace task.trans
 
                                 //转移到同类型轨道
                                 TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
-                                AddMoveCarrierTask(trans.take_track_id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                                track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                                AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
                             }
                         }
                     }
@@ -1826,7 +1829,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                            OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
 
@@ -1886,7 +1889,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                            OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
 
