@@ -967,12 +967,14 @@ namespace task.trans
                             {
                                 if (isload)
                                 {
-                                    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                    if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
-                                        Order = DevCarrierOrderE.放砖指令
-                                    });
-
+                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        {
+                                            Order = DevCarrierOrderE.放砖指令
+                                        });
+                                    }
                                 }
 
                                 if (isnotload)
@@ -1087,51 +1089,50 @@ namespace task.trans
                             }
                             else //在非取货轨道
                             {
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                if (isload)
                                 {
-                                    if (isload)
+                                    if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
                                         //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.放砖指令
                                         });
-
                                     }
+                                }
 
-                                    if (isnotload)
+                                if (isnotload)
+                                {
+                                    //摆渡车接车
+                                    if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                     {
-                                        //摆渡车接车
-                                        if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
-                                        {
-                                            //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
-                                            //{
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
-                                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                            {
-                                                Order = DevCarrierOrderE.定位指令,
-                                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                                ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                            });
-
-                                            return;
-                                            //}
-                                        }
-
-                                        // 从一端到另一端
-                                        //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                        //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
                                         //{
-                                        //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
-                                        //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                        //    {
-                                        //        Order = DevCarrierOrderE.定位指令,
-                                        //        CheckTra = track.ferry_down_code,
-                                        //        ToRFID = track.rfid_2,
-                                        //    });
+                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        {
+                                            Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                            ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                        });
 
-                                        //    return;
+                                        return;
                                         //}
                                     }
+
+                                    // 从一端到另一端
+                                    //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                    //{
+                                    //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                    //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                    //    {
+                                    //        Order = DevCarrierOrderE.定位指令,
+                                    //        CheckTra = track.ferry_down_code,
+                                    //        ToRFID = track.rfid_2,
+                                    //    });
+
+                                    //    return;
+                                    //}
                                 }
                             }
                             break;
@@ -1840,12 +1841,14 @@ namespace task.trans
                             {
                                 if (isload)
                                 {
-                                    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                    if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
-                                        Order = DevCarrierOrderE.放砖指令
-                                    });
-
+                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        {
+                                            Order = DevCarrierOrderE.放砖指令
+                                        });
+                                    }
                                 }
 
                                 if (isnotload)
@@ -2075,12 +2078,15 @@ namespace task.trans
                         case TrackTypeE.储砖_出:
                             if (isload)
                             {
-                                //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                 {
-                                    Order = DevCarrierOrderE.放砖指令
-                                });
-
+                                    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
+                                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                    {
+                                        Order = DevCarrierOrderE.放砖指令
+                                    });
+                                }
+                                
                                 return;
                             }
                             if (track.id == trans.take_track_id)
