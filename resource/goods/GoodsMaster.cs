@@ -765,21 +765,21 @@ namespace resource.goods
                     Track givetrack = PubMaster.Track.GetTrack(givetrackid);
                     Track taketrack = PubMaster.Track.GetTrack(taketrackid);
                     if (givetrack != null && taketrack != null
-                        && givetrack.StockStatus == TrackStockStatusE.空砖
+                        //&& givetrack.StockStatus == TrackStockStatusE.空砖
                         //&& taketrack.StockStatus == TrackStockStatusE.满砖
                         )
                     {
-                        List<Stock> stocks = StockList.FindAll(c => c.track_id == taketrack.id);
-                        foreach (Stock stock in stocks)
-                        {
-                            stock.track_id = givetrack.id;
-                            stock.area = givetrack.area;
-                            stock.track_type = givetrack.type;
-                            PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Track);
-                        }
+                        //List<Stock> stocks = StockList.FindAll(c => c.track_id == taketrack.id);
+                        //foreach (Stock stock in stocks)
+                        //{
+                        //    stock.track_id = givetrack.id;
+                        //    stock.area = givetrack.area;
+                        //    stock.track_type = givetrack.type;
+                        //    PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Track);
+                        //}
 
                         PubMaster.Track.ShiftTrack(taketrack.id, givetrack.id);
-                        UpdateShiftStockSum(taketrackid, givetrackid, givetrack.type);
+                        //UpdateShiftStockSum(taketrackid, givetrackid, givetrack.type);
                         return true;
                     }
                 }
