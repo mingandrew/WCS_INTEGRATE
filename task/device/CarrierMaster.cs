@@ -868,19 +868,29 @@ namespace task.device
                     break;
 
                 case DevCarrierTaskE.前进至点:
-                    if (track.Type != TrackTypeE.摆渡车_入 && track.Type != TrackTypeE.储砖_入 && track.Type != TrackTypeE.储砖_出入 &&
-                        point != track.rfid_1) //最小定位RFID
+                    if (track.Type != TrackTypeE.摆渡车_入 
+                        && track.Type != TrackTypeE.储砖_入 
+                        && track.Type != TrackTypeE.储砖_出入 
+                        && track.Type != TrackTypeE.储砖_出 )
                     {
-                        result = "须在下砖摆渡车或入库轨道上执行！";
+                        result = "须在下砖摆渡车或储砖轨道上执行！";
                         return false;
                     }
+
+                    if (point == track.rfid_2 //最大定位RFID
+                        && (track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入))
+                    {
+                        result = "当前储砖轨道位置不能再前进了！";
+                        return false;
+                    }
+
                     order = DevCarrierOrderE.定位指令;
                     if (track.Type == TrackTypeE.储砖_入)
                     {
                         checkTra = PubMaster.Track.GetTrackDownCode(track.brother_track_id);
                         toRFID = PubMaster.Track.GetTrackRFID2(track.brother_track_id);
                     }
-                    if (track.Type == TrackTypeE.储砖_出入)
+                    if (track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入)
                     {
                         checkTra = track.ferry_down_code;
                         toRFID = track.rfid_2;
@@ -889,19 +899,29 @@ namespace task.device
                     break;
 
                 case DevCarrierTaskE.后退至点:
-                    if (track.Type != TrackTypeE.摆渡车_出 && track.Type != TrackTypeE.储砖_出 && track.Type != TrackTypeE.储砖_出入 &&
-                        point != track.rfid_2) //最大定位RFID
+                    if (track.Type != TrackTypeE.摆渡车_出
+                        && track.Type != TrackTypeE.储砖_入
+                        && track.Type != TrackTypeE.储砖_出入
+                        && track.Type != TrackTypeE.储砖_出)
                     {
-                        result = "须在上砖摆渡车或出库轨道上执行！";
+                        result = "须在上砖摆渡车或储砖轨道上执行！";
                         return false;
                     }
+
+                    if (point == track.rfid_1 //最小定位RFID
+                        && (track.Type == TrackTypeE.储砖_入 || track.Type == TrackTypeE.储砖_出入))
+                    {
+                        result = "当前储砖轨道位置不能再后退了！";
+                        return false;
+                    }
+
                     order = DevCarrierOrderE.定位指令;
                     if (track.Type == TrackTypeE.储砖_出)
                     {
                         checkTra = PubMaster.Track.GetTrackDownCode(track.brother_track_id);
                         toRFID = PubMaster.Track.GetTrackRFID1(track.brother_track_id);
                     }
-                    if (track.Type == TrackTypeE.储砖_出入)
+                    if (track.Type == TrackTypeE.储砖_入 || track.Type == TrackTypeE.储砖_出入)
                     {
                         checkTra = track.ferry_up_code;
                         toRFID = track.rfid_1;

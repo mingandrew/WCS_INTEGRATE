@@ -204,7 +204,7 @@ namespace resource.track
                 switch (t.Type)
                 {
                     case TrackTypeE.储砖_入: // 读到入轨道地标，但是大于分段点距离，当做出轨道
-                        if (site >= t.split_point)
+                        if (site != 0 && site >= t.split_point)
                         {
                             traid = t.brother_track_id;
                         }
@@ -214,7 +214,7 @@ namespace resource.track
                         }
                         break;
                     case TrackTypeE.储砖_出:// 读到出轨道地标，但是小于分段点距离，当做入轨道
-                        if (site <= t.split_point)
+                        if (site != 0 && site <= t.split_point)
                         {
                             traid = t.brother_track_id;
                         }
