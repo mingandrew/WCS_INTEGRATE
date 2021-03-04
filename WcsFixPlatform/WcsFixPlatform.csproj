@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -26,7 +27,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -109,6 +109,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\AppConfig.cs" />
+    <Compile Include="Data\GlobalData.cs" />
     <Compile Include="Data\Model\MenuModel.cs" />
     <Compile Include="Data\Model\TabItemModel.cs" />
     <Compile Include="Data\Model\WinCtlModel.cs" />
@@ -190,12 +192,21 @@
     <Compile Include="Dialog\platform\user\UserEditDialog.xaml.cs">
       <DependentUpon>UserEditDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Lang\Lang.Designer.cs">
+    <Compile Include="Resources\Langs\Lang.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Lang.resx</DependentUpon>
     </Compile>
-    <Compile Include="Lang\MLang.cs" />
+    <Compile Include="Properties\TestResourse.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TestResourse.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Langs\LangProvider1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>LangProvider.tt</DependentUpon>
+    </Compile>
     <Compile Include="Service\Data\DataService.cs" />
     <Compile Include="Tools\Converter\Date2StringConverter.cs" />
     <Compile Include="Tools\Converter\Date2StringLongConverter.cs" />
@@ -209,7 +220,10 @@
     <Compile Include="Tools\Converter\TrackCode2NameConverter.cs" />
     <Compile Include="Tools\Converter\TrackId2NameConverter.cs" />
     <Compile Include="Tools\Converter\Value2DictionConverter.cs" />
+    <Compile Include="Tools\Extension\LangExtension.cs" />
     <Compile Include="Tools\Helper\AssemblyHelper.cs" />
+    <Compile Include="Tools\Helper\ConfigHelper.cs" />
+    <Compile Include="Tools\Helper\ResourceHelper.cs" />
     <Compile Include="Tools\Provider\EnumDataProvider.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\MViewModel.cs" />
@@ -444,6 +458,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Resource Include="Resources\Lang.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Resource>
     <Page Include="Resources\MStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -615,13 +633,18 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Lang\Lang.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+    <EmbeddedResource Include="Resources\Langs\Lang.en.resx" />
+    <EmbeddedResource Include="Resources\Langs\Lang.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Lang.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\TestResourse.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TestResourse.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <Resource Include="Data\WinCtlData.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -786,6 +809,25 @@
   <ItemGroup>
     <Resource Include="Resources\keda_blue.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Img\Flag\ca-Es.png" />
+    <Resource Include="Resources\Img\Flag\cn.png" />
+    <Resource Include="Resources\Img\Flag\en.png" />
+    <Resource Include="Resources\Img\Flag\fa.png" />
+    <Resource Include="Resources\Img\Flag\fr.png" />
+    <Resource Include="Resources\Img\Flag\ko-KR.png" />
+    <Resource Include="Resources\Img\Flag\pt-BR.png" />
+    <Resource Include="Resources\Img\Flag\ru.png" />
+    <Resource Include="Resources\Img\Flag\tr.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Langs\LangProvider.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LangProvider1.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

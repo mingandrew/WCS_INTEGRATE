@@ -1,15 +1,13 @@
 <Application x:Class="wcs.App" 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-             xmlns:local="clr-namespace:wcs" 
-             StartupUri="MainWindow.xaml" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             d1p1:Ignorable="d" 
-             xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="MainWindow.xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             d1p1:Ignorable="d"
+             xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prov="clr-namespace:wcs.Tools.Provider"
-             xmlns:enums="clr-namespace:enums;assembly=enums" 
-             xmlns:vm="clr-namespace:wcs.ViewModel" 
-             xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+             xmlns:enums="clr-namespace:enums;assembly=enums"
+             xmlns:vm="clr-namespace:wcs.ViewModel">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -23,6 +21,7 @@
                     <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True"/>
                 </ResourceDictionary>
                 <ResourceDictionary Source="pack://application:,,,/wcs;component/Resources/MStyle.xaml" />
+                <!--<ResourceDictionary Source="Resources/Lang.xaml"/>-->
             </ResourceDictionary.MergedDictionaries>
             <prov:EnumDataProvider x:Key="ValueTypeE" Type="enums:ValueTypeE"/>
             <prov:EnumDataProvider x:Key="DictionTypeE" Type="enums:DictionTypeE"/>
@@ -34,6 +33,7 @@
             <prov:EnumDataProvider x:Key="DevFerryAutoPosE" Type="enums:DevFerryAutoPosE"/>
             <prov:EnumDataProvider x:Key="TileWorkModeE" Type="enums:TileWorkModeE"/>
 
+            <!--//<langs:LangProvider x:Key="DemoLangs"/>-->
         </ResourceDictionary>
     </Application.Resources>
 </Application>

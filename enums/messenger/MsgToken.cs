@@ -4,6 +4,8 @@ namespace enums
 {
     public static class MsgToken
     {
+        public static string LangUpdated = nameof(LangUpdated);
+
         public static string MainDialog = nameof(MainDialog);
         public const string OperateGrandUpdate = nameof(OperateGrandUpdate);
 

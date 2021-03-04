@@ -1,8 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-                    xmlns:hc="https://handyorg.github.io/handycontrol">
-
+                    xmlns:hc="https://handyorg.github.io/handycontrol" 
+                    xmlns:langs="clr-namespace:wcs.Resources.Langs">
+    <langs:LangProvider x:Key="Langs"/>
+    
     <sys:Double x:Key="MSideMenuFS">20</sys:Double>
     <sys:Double x:Key="MSideMenuItemFS">18</sys:Double>
     <sys:Double x:Key="MTabBitTitleFS">25</sys:Double>
