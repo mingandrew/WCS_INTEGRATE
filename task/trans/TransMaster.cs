@@ -1830,7 +1830,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                            //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
 
@@ -1892,7 +1892,7 @@ namespace task.trans
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                            //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
 
