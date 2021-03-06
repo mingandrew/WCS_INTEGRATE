@@ -503,7 +503,7 @@ namespace task.device
             #region [取卸货]
 
             //放货动作
-            if (task.DevConfig.stock_id != 0 && task.Load == DevCarrierLoadE.无货)
+            if (task.DevConfig.stock_id != 0  && task.IsNotLoad())
             {
                 PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GiveSite);
 
@@ -535,7 +535,7 @@ namespace task.device
             }
 
             //取货动作
-            if (task.DevConfig.stock_id == 0 && task.Load == DevCarrierLoadE.有货)
+            if (task.DevConfig.stock_id == 0 && task.IsLoad())
             {
                 //1.根据轨道当前地标查看是否有库存在轨道的地标上
                 //2.找不到则拿轨道上的库存(先不考虑方向)

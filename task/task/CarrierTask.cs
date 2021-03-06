@@ -157,6 +157,22 @@ namespace task.device
             get => DevStatus?.LoadStatus ?? DevCarrierLoadE.异常;
         }
 
+        public bool IsLoad()
+        {
+            return Load == DevCarrierLoadE.有货
+                || (Load == DevCarrierLoadE.异常 
+                    && TakePoint > 0 
+                    && TakeSite > 0);
+        }
+
+        public bool IsNotLoad()
+        {
+            return Load == DevCarrierLoadE.无货
+                || (Load == DevCarrierLoadE.异常
+                    && GivePoint > 0
+                    && GiveSite > 0);
+        }
+
         /// <summary>
         /// 当前指令
         /// </summary>
