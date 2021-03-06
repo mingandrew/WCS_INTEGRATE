@@ -120,5 +120,9 @@ namespace module.track
             set => alert_status = (ushort)value;
         }
 
+        public string GetLog()
+        {
+            return string.Format("{0}, {1}, {2}", id, name, split_point);
+        }
     }
 }

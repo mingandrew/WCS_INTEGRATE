@@ -1182,5 +1182,20 @@ namespace resource.track
             return true;
         }
         #endregion
+
+        #region[获取轨道状态用于记录]
+
+        /// <summary>
+        /// 获取日志用于记录
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public string GetTrackLogInfo(uint id)
+        {
+            Track track = GetTrack(id);
+            return track?.GetLog() ?? "";
+        }
+
+        #endregion
     }
 }

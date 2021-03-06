@@ -28,7 +28,7 @@ namespace resource.goods
             StockSumList = new List<StockSum>();
             GoodSizeList = new List<GoodSize>();
             mMsg = new MsgAction();
-            _mlog = (Log)new LogFactory().GetLog("库存异常", false);
+            _mlog = (Log)new LogFactory().GetLog("库存信息", false);
         }
 
         public void Start()
@@ -925,7 +925,7 @@ namespace resource.goods
         /// <param name="stock_id">库存ID</param>
         /// <param name="to_track_id">被转移到的轨道ID</param>
         /// <param name="fromtrans">调用方法来自任务逻辑</param>
-        public void MoveStock(uint stock_id, uint to_track_id, bool fromtrans = true)
+        public void MoveStock(uint stock_id, uint to_track_id, bool fromtrans = true, string memo = "", uint devid = 0)
         {
             //屏蔽任务逻辑里面的调用
             if (fromtrans) return;
@@ -943,6 +943,7 @@ namespace resource.goods
 
                 //更新轨道被转移后的轨道信息(区域，轨道ID，轨道类型)
                 Track totrack = PubMaster.Track.GetTrack(to_track_id);
+                Track fromtrack = PubMaster.Track.GetTrack(from_track_id);
                 stock.track_id = to_track_id;
                 stock.area = totrack.area;
                 stock.track_type = totrack.type;
@@ -973,14 +974,71 @@ namespace resource.goods
 
                 PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.有砖, "");
 
-                //由设备检查轨道没砖后才制空轨道
-                //if(!ExistStockInTrack(from_track_id) 
-                //    && !PubMaster.Track.IsStoreTrack(from_track_id))
+                try
+                {
+                    _mlog.Status(true, string.Format("转移【{0} -> {1}】【{2}】{3}",
+                        fromtrack.GetLog(), totrack.GetLog(), stock.ToString(), memo));
+                }
+                catch { }
+
+
+                #region[更新轨道库存状态]
+
+                //【先不启用】
+                //if (isfromstore 
+                //    && !ExistStockInTrack(from_track_id) 
+                //    && fromtrack.StockStatus != TrackStockStatusE.空砖)
                 //{
-                //    PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.空砖);
+                //    PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.空砖, "系统已无库存,自动调整轨道为空");
+                //    PubMaster.Goods.ClearTrackEmtpy(from_track_id); 
+                //    PubMaster.Track.AddTrackLog(fromtrack.area, devid, from_track_id, TrackLogE.空轨道, "无库存数据");
                 //}
 
+                //if (istostore && totrack.StockStatus != TrackStockStatusE.满砖)
+                //{
+                //    ushort fullpos = PubMaster.Area.GetAreaFullQty(totrack.area);
+                //    if(ExistStockInTrackPos(totrack.id, fullpos)
+                //        || IsStockQtyCompare(totrack.id, fullpos))
+                //    {
+                //        PubMaster.Track.UpdateStockStatus(totrack.id, TrackStockStatusE.满砖, "设定最大库存数,自动满砖");
+                //        PubMaster.Track.AddTrackLog(fullpos, devid, totrack.id, TrackLogE.满轨道, "满足最大库存数");
+                //    }
+                //}
+
+                #endregion
+
+                #region[清理摆渡车遗留库存信息]
+                //【先不启用】
+                //if (fromtrack.Type == TrackTypeE.摆渡车_出 
+                //    || fromtrack.Type == TrackTypeE.摆渡车_入)
+                //{
+                //    ClearFerryTrackStocks(fromtrack.id);
+                //}
+                #endregion
             }
+        }
+
+        public bool IsStockQtyCompare(uint trackid, ushort campareqty)
+        {
+            return StockList.Count(c => c.track_id == trackid) >= campareqty;
+        }
+
+
+        /// <summary>
+        /// 查找是否存在极限位的库存信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fullpos">满砖数、下砖轨道极限库存位置</param>
+        /// <returns></returns>
+        public bool ExistStockInTrackPos(uint id, ushort fullpos)
+        {
+            if (StockList.Exists(c => c.track_id == id && c.pos >= fullpos))
+            {
+                return true;
+            }
+
+            ushort stockqty = (ushort)StockList.Count(c => c.track_id == id);
+            return stockqty == fullpos;
         }
 
         /// <summary>
@@ -1940,7 +1998,8 @@ namespace resource.goods
         #endregion
 
         #region[上砖消除库存记录]
-
+		
+		
         /// <summary>
         /// 添加砖机的消耗信息-用于给统计看板统计信息
         /// </summary>
@@ -1954,6 +2013,31 @@ namespace resource.goods
             }
         }
 
+        #endregion
+		
+		#region[添加日志|清空摆渡车轨道库存]
+        /// <summary>
+        /// 清空摆渡车轨道库存
+        /// </summary>
+        /// <param name="trackid"></param>
+        private void ClearFerryTrackStocks(uint trackid)
+        { 
+            List<Stock> ferrystocks = StockList.FindAll(c => c.track_id == trackid);
+            foreach (var item in ferrystocks)
+            {
+                AddStockLog(string.Format("删除摆渡库存：品种：{0}，{1}", PubMaster.Goods.GetGoodsName(item.goods_id), item.ToString()));
+                PubMaster.Mod.GoodSql.DeleteStock(item);
+            }
+        }
+
+        public void AddStockLog(string log)
+        {
+            try
+            {
+                _mlog.Status(true, log);
+            }
+            catch { }
+        }
         #endregion
     }
 }

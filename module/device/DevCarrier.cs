@@ -79,7 +79,7 @@ namespace module.device
         /// </summary>
         public ushort CurrentSite
         {
-            set => Set(ref currentsite, value);
+            set => currentsite = value;
             get => currentsite;
         }
 

@@ -3,6 +3,7 @@ using enums.track;
 using enums.warning;
 using module.device;
 using module.deviceconfig;
+using module.track;
 using resource;
 using socket.tcp;
 using task.task;
@@ -12,10 +13,30 @@ namespace task.device
     public class CarrierTask : TaskBase
     {
         #region[属性]
+        private uint currenttrackid;
         /// <summary>
         /// 当前运输车所在轨道ID
         /// </summary>
-        public uint CurrentTrackId { set; get; }
+        public uint CurrentTrackId 
+        {
+            get => currenttrackid;
+            set
+            {
+                if (currenttrackid != value)
+                {
+                    try
+                    {
+                        string log = string.Format("切换轨道：原轨道【{0}】=》新轨道【{1}】",
+                            PubMaster.Track.GetTrackLogInfo(currenttrackid),
+                            PubMaster.Track.GetTrackLogInfo(value));
+                        DevTcp.AddStatusLog(log);
+                    }
+                    catch { }
+                    currenttrackid = value;
+                }
+            }
+        }
+
         /// <summary>
         /// 运输车目的轨道ID
         /// </summary>

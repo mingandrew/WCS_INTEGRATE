@@ -506,6 +506,29 @@ namespace task.device
             if (task.DevConfig.stock_id != 0 && task.Load == DevCarrierLoadE.无货)
             {
                 PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GiveSite);
+
+                //【先不启用】
+                //if (task.DevStatus.CurrentOrder == DevCarrierOrderE.前进倒库
+                //    || task.DevStatus.CurrentOrder == DevCarrierOrderE.后退倒库)
+                //{
+                //    if (track != null)
+                //    {
+                //        if (track.Type == TrackTypeE.储砖_入
+                //            && track.rfid_2 == task.DevStatus.CurrentSite)
+                //        {
+                //            PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.brother_track_id, false, "【倒库】", task.ID);
+                //        }
+                //    }
+                //}
+
+                try
+                {                
+                    PubMaster.Goods.AddStockLog(string.Format("解绑【{0}, {1}, {2}】【{3}】", task.Device.name,
+                        track?.GetLog() ?? task.GiveSite + "",
+                        task.DevConfig.stock_id,
+                        task.DevStatus.ToString()));
+                }
+                catch { }
                 task.DevConfig.stock_id = 0;
 
                 PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
@@ -537,7 +560,19 @@ namespace task.device
                             task.DevConfig.stock_id = PubMaster.Goods.GetStockInFerryTrack(track.id);
                             break;
                     }
-                    if (task.DevConfig.stock_id != 0) PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
+                    if (task.DevConfig.stock_id != 0)
+                    {
+                        PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
+                        try
+                        {
+                            PubMaster.Goods.AddStockLog(string.Format("绑定【{0}, {1}, {2}】【{3}】",
+                                    task.Device.name,
+                                    track?.GetLog() ?? task.TakeSite + "",
+                                    task.DevConfig.stock_id,
+                                    task.DevStatus.ToString()));
+                        }
+                        catch { }
+                    }
                 }
 
                 if (task.DevConfig.stock_id == 0)

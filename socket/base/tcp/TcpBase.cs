@@ -252,5 +252,14 @@ namespace socket.tcp
 
         internal abstract void ConnectCallback(IAsyncResult ar);
         #endregion
+
+        #region[添加其他日志]
+
+        public void AddStatusLog(string log)
+        {
+            _mLog.Status(true, log);
+        }
+
+        #endregion
     }
 }

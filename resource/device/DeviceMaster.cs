@@ -105,6 +105,11 @@ namespace resource.device
             return DeviceList.Find(c => c.id == devid);
         }
 
+        public Device GetDeviceByMemo(string memo)
+        {
+            return DeviceList.Find(c => memo.Equals(c.memo));
+        }
+
         public bool IsDevType(uint devid, DeviceTypeE type)
         {
             return DeviceList.Exists(c => c.id == devid && c.Type == type);
