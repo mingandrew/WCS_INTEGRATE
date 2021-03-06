@@ -273,8 +273,8 @@ namespace simtask.master
                     {
                         task = new SimFerryTask();
 
-                        Device dev = PubMaster.Device.GetDevice(mod.Devid);
-                        ConfigFerry devconfig = PubMaster.DevConfig.GetFerry(mod.Devid);
+                        Device dev = PubMaster.Device.GetDeviceByMemo(mod.Devid + "");
+                        ConfigFerry devconfig = PubMaster.DevConfig.GetFerry(dev.id);
 
                         task.Device = dev;
                         task.DevConfig = devconfig;

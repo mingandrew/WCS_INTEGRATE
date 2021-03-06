@@ -3,25 +3,176 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:wcs.window" xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:local="clr-namespace:wcs.window" 
+        xmlns:hc="https://handyorg.github.io/handycontrol"
         DataContext="{Binding Simulation,Source={StaticResource Locator}}"
         mc:Ignorable="d"
-        Title="模拟测试系统" Height="200" Width="400" MaxWidth="400">
-    <StackPanel Orientation="Vertical">
-        <StackPanel Orientation="Horizontal">
-            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="启动模拟服务：" Style="{StaticResource TextBlockTitleBold}" Margin="5"></TextBlock>
-            </Border>
-            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" MinWidth="120">
-                <ToggleButton Grid.Row="0" Grid.Column="1"  IsChecked="{Binding SimServerRun,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
-            </Border>
-        </StackPanel>
+        Title="模拟测试系统" MinHeight="600" MinWidth="600">
+    <Grid>
+        <Grid Margin="10" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,10" 
+                  Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition  Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <hc:ButtonGroup Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
+                                ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
+                    <hc:Interaction.Triggers>
+                        <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                            <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                        </hc:RoutedEventTrigger>
+                    </hc:Interaction.Triggers>
 
-        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="砖机开始作业：" Style="{StaticResource TextBlockTitleBold}" Margin="5">
-            </TextBlock>
-            <ToggleButton Grid.Row="1" Grid.Column="1"  IsChecked="{Binding TileWorkStart,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                    <hc:ButtonGroup.ItemTemplate>
+                        <DataTemplate DataType="mwindow:AreaRadioBtn">
+                            <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="100" Height="40" MinHeight="35" MinWidth="80"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                        </DataTemplate>
+                    </hc:ButtonGroup.ItemTemplate>
+                </hc:ButtonGroup>
+                <StackPanel Orientation="Horizontal" Grid.Column="1">
+                    <TextBlock Text="启动服务" Style="{StaticResource TextBlockTitleBold}" Margin="5"></TextBlock>
+                    <ToggleButton IsChecked="{Binding SimServerRun,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                </StackPanel>
+            </Grid>
+            <TabControl Grid.Row="1" Style="{StaticResource TabControlInLine}">
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="TabControl.SelectionChanged">
+                        <hc:EventToCommand Command="{Binding TabSelectedCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+                <TabItem Header="砖机" Tag="tile">
+                    <Grid Margin="15">
+                        <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding DeviceView}" SelectedItem="{Binding DeviceSelected}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="添加" Tag="add" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="修改" Tag="edit" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="删除" Tag="delete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding device_id, Converter={StaticResource DevId2NameConverter}}" Header="设备" Width="*"/>
+                                <DataGridTextColumn Binding="{Binding DevType}" Header="类型" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="运输车" Tag="carrier">
+                    <Grid>
+                        <DataGrid Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding AreaTrackList}" SelectedItem="{Binding AreaTraSelect}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="删除" Tag="areatrackdelete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding prior}" Header="优先级" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="摆渡车" Tag="ferry">
+                    <Grid>
+                        <DataGrid Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding AreaTrackList}" SelectedItem="{Binding AreaTraSelect}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="删除" Tag="areatrackdelete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding prior}" Header="优先级" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="摆渡配置" Tag="ferrypos">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Margin="10">
+                            <StackPanel Orientation="Horizontal">
+                                <hc:ButtonGroup>
+                                    <RadioButton Content="上砖侧摆渡"  Tag="upside"  GroupName="FerryPosSide"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="150" Height="40" MinHeight="35" MinWidth="80"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="5,0,0,5" />
+                                    <RadioButton Content="上砖侧摆渡"  Tag="downside"  GroupName="FerryPosSide"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="150" Height="40" MinHeight="35" MinWidth="80"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" 
+                                         hc:BorderElement.CornerRadius="0,5,5,0" />
+                                </hc:ButtonGroup>
+
+                                <Border Margin="10,0,0,0">
+                                    <Label Content="添加其他轨道" FontSize="{StaticResource MLightFS}" Background="#E6E6E6"></Label>
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="#1" Tag="1"   Command="{Binding AddOtherTileAreaCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Width="160" HorizontalAlignment="Center" FontSize="22"/>
+                                            <MenuItem Header="#2" Tag="2"   Command="{Binding AddOtherTileAreaCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Width="160" HorizontalAlignment="Center" FontSize="22"/>
+                                            <MenuItem Header="#3" Tag="3"   Command="{Binding AddOtherTileAreaCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Width="160" HorizontalAlignment="Center" FontSize="22"/>
+                                            <MenuItem Header="#4" Tag="4"   Command="{Binding AddOtherTileAreaCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Width="160" HorizontalAlignment="Center" FontSize="22"/>
+                                            <MenuItem Header="#5" Tag="5"   Command="{Binding AddOtherTileAreaCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Width="160" HorizontalAlignment="Center" FontSize="22"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                </Border>
+
+                            </StackPanel>
+
+                            <Button Content="更新优先到数据库" HorizontalAlignment="Right" Style="{StaticResource ButtonWarning}" Command="{Binding SavePriorToDbCmd}" FontSize="16" Height="35"/>
+                        </Grid>
+                        <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding TileTraList}" SelectedItem="{Binding TileTrackSelect}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="删除" Tag="tiletradelete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding prior}" Header="优先级" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </Grid>
-    </StackPanel>
-
+    </Grid>
 </Window>

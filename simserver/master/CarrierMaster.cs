@@ -107,8 +107,8 @@ namespace simtask.master
                         {
                             task = new SimCarrierTask();
 
-                            Device dev = PubMaster.Device.GetDevice(mod.Devid);
-                            ConfigCarrier devconf = PubMaster.DevConfig.GetCarrier(mod.Devid);
+                            Device dev = PubMaster.Device.GetDeviceByMemo(mod.Devid + "");
+                            ConfigCarrier devconf = PubMaster.DevConfig.GetCarrier(dev.id);
                             task.Device = dev;
                             task.DevConfig = devconf;
                             task.DevId = mod.Devid;

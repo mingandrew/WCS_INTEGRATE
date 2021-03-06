@@ -1,53 +1,9 @@
 ﻿using enums;
 using module.device;
 using socket.process;
-using System.Runtime.InteropServices;
 
 namespace simserver.simsocket.process
 {
-    #region[接收状态]
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct TileStatusStruct
-    {
-        public ushort Head; //命令字头【0x91,0x01】
-        public byte DeviceID;      //设备号
-        public byte LoadStatus1;   //货物状态1 左
-        public byte LoadStatus2;   //货物状态2 右
-        public byte NeedStatus1;   //需求信号1 左
-        public byte NeedStatus2;   //需求信号2 右
-        public byte FullQty;       //满砖数量
-        public byte RecentQty;     //当前数量
-        public byte Involve1;      //介入状态1 左
-        public byte Involve2;      //介入状态2 右
-        public byte OperateMode;   //操作模式
-        public uint Goods1;   //工位1品种
-        public uint Goods2;   //工位2品种
-        public byte ShiftStatus;   //转产状态
-        public byte ShiftAccept;   //转产接收状态
-        public byte WorkMode;   //作业模式
-        public uint SetGoods;   //设定品种
-        public byte SetLevel;   //设定等级
-        public ushort Tail; //命令字尾【0xFF,0xFE】
-    }
-
-    #endregion
-
-    #region[命令发送]
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct TileCmdStruct
-    {
-        public ushort Head; //命令字头【0x90,0x01】
-        public byte DeviceID;      //设备号
-        public byte Command;        //故障位1
-        public byte Value1;         //值1
-        public byte Value2;        //值2
-        public uint Value3;          //值3
-        public ushort Tail; //命令字尾【0xFF,0xFE】
-    }
-
-    #endregion
 
     public class SimTileLifterProcesser : ProcesserBase
     {

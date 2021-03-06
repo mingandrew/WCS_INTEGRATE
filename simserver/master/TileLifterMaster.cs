@@ -112,8 +112,8 @@ namespace simtask.master
                         {
                             task = new SimTileLifterTask();
 
-                            Device dev = PubMaster.Device.GetDevice(mod.Devid);
-                            ConfigTileLifter devconf = PubMaster.DevConfig.GetTileLifter(mod.Devid);
+                            Device dev = PubMaster.Device.GetDeviceByMemo(mod.Devid+"");
+                            ConfigTileLifter devconf = PubMaster.DevConfig.GetTileLifter(dev.id);
                             task.Device = dev;
                             task.DevConfig = devconf;
                             task.DevId = mod.Devid;
