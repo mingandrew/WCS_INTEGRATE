@@ -1472,6 +1472,7 @@ namespace task.rf
             {
                 switch (item.Type)
                 {
+                    case DeviceTypeE.砖机:
                     case DeviceTypeE.上砖机:
                     case DeviceTypeE.下砖机:
                         pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
@@ -1671,7 +1672,7 @@ namespace task.rf
             {
                 if (pack.CarrierTask == 128) return;
                 DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
-                if (!PubTask.Carrier.DoManualTask(pack.DevId, type, out string result, false, "平板手动"))
+                if (!PubTask.Carrier.DoManualNewTask(pack.DevId, type, out string result, "平板手动"))
                 {
                     SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, result);
                     return;

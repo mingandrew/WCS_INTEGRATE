@@ -204,7 +204,10 @@ namespace resource.track
                 switch (t.Type)
                 {
                     case TrackTypeE.储砖_入: // 读到入轨道地标，但是大于分段点距离，当做出轨道
-                        if (site != 0 && site >= t.split_point)
+                        if (site != 0 
+                            && site >= t.split_point
+                            //&& IsBiggerSplitPoint(t.brother_track_id, site)
+                            )
                         {
                             traid = t.brother_track_id;
                         }
@@ -214,7 +217,9 @@ namespace resource.track
                         }
                         break;
                     case TrackTypeE.储砖_出:// 读到出轨道地标，但是小于分段点距离，当做入轨道
-                        if (site != 0 && site <= t.split_point)
+                        if (site != 0 
+                            && site <= t.split_point
+                            && IsSmallerSplitPoint(t.brother_track_id, site))
                         {
                             traid = t.brother_track_id;
                         }
@@ -229,6 +234,16 @@ namespace resource.track
                 }
             }
             return traid;
+        }
+
+        private bool IsBiggerSplitPoint(uint brother_track_id, ushort site)
+        {
+            return site >= (GetTrack(brother_track_id)?.split_point ?? 0);
+        }
+
+        private bool IsSmallerSplitPoint(uint brother_track_id, ushort site)
+        {
+            return site <= (GetTrack(brother_track_id)?.split_point ?? 0);
         }
 
         /// <summary>
