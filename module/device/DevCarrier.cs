@@ -1,4 +1,5 @@
 ﻿using enums;
+using System;
 
 namespace module.device
 {
@@ -15,6 +16,7 @@ namespace module.device
         private byte devicestatus;   //设备状态
         private ushort currentpoint;  //当前RFID
         private ushort currentsite;  //当前坐标
+        private ushort campare_currentsite = 0;//用于计算的当前坐标 避免频繁刷新
         private ushort targetpoint;  //目的RFID
         private ushort targetsite;  //目的坐标
         private byte currentorder;    //当前指令
@@ -79,7 +81,15 @@ namespace module.device
         /// </summary>
         public ushort CurrentSite
         {
-            set => currentsite = value;
+            set
+            {
+                if(Math.Abs(campare_currentsite - value) > 10)
+                {
+                    campare_currentsite = value;
+                    IsUpdate = true;
+                }
+                currentsite = value;
+            }
             get => currentsite;
         }
 
