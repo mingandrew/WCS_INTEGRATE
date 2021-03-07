@@ -1,5 +1,7 @@
 ﻿using module.area;
+using module.goods;
 using module.tiletrack;
+using module.track;
 using System.Collections.Generic;
 
 namespace module.rf
@@ -10,10 +12,13 @@ namespace module.rf
         public List<TileTrack> TrackList { set; get; }
         public List<TileTrack> DeleteList { set; get; }
         public List<AreaDeviceTrack> AreaTrackList { set; get; }
+        public List<StockSum> StockSumList { set; get; }
+        public List<RfTrack> TileTrackStatusList { set; get; }
+
 
         public void SetTrackList(List<TileTrack> list)
         {
-            if(TrackList== null)
+            if (TrackList == null)
             {
                 TrackList = new List<TileTrack>();
             }
@@ -23,7 +28,7 @@ namespace module.rf
 
         public void SetAreaTrackList(List<AreaDeviceTrack> list)
         {
-            if(AreaTrackList == null)
+            if (AreaTrackList == null)
             {
                 AreaTrackList = new List<AreaDeviceTrack>();
             }
@@ -32,6 +37,26 @@ namespace module.rf
             AreaTrackList.AddRange(list);
         }
 
+        public void SetStockSumList(List<StockSum> list)
+        {
+            if (StockSumList == null)
+            {
+                StockSumList = new List<StockSum>();
+            }
+            StockSumList.AddRange(list);
+        }
 
+        public void SetTileTrackStatus(List<Track> list)
+        {
+            if (TileTrackStatusList == null)
+            {
+                TileTrackStatusList = new List<RfTrack>();
+            }
+
+            foreach (Track track in list)
+            {
+                TileTrackStatusList.Add(new RfTrack(track));
+            }
+        }
     }
 }

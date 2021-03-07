@@ -17,4 +17,5 @@
     <mconverter:TrackCode2NameConverter x:Key="TrackCode2NameConverter"/>
     <mconverter:RoleId2RoleNameConveter x:Key="RoleId2RoleNameConveter"/>
     <mconverter:LevelValue2NameConverter x:Key="LevelValue2NameConverter"/>
+    <mconverter:BooleanToSpaceVisibilityConverter x:Key="BooleanToSpaceVisibilityConverter"/>
 </ResourceDictionary>

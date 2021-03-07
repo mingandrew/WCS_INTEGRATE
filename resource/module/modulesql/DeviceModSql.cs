@@ -1,6 +1,7 @@
 ﻿using enums;
 using module.device;
 using module.rf;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using tool;
@@ -89,6 +90,16 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        public void EditRfFilter(RfClient rf)
+        {
+            string sql = "UPDATE `rf_client` SET `filter_area` = {0}, `filter_areaids` = '{1}', " +
+                "`filter_type` = {2}, `filter_typevalues` = '{3}' , `filter_dev` = {4}, `filter_devids` = '{5}' " +
+                   "WHERE `rfid` = '{6}';";
+            sql = string.Format(sql, rf.filter_area, rf.filter_areaids, rf.filter_type, rf.filter_typevalues,
+                rf.filter_dev, rf.filter_devids, rf.rfid);
+            mSql.ExcuteSql(sql);
+
+        }
         #endregion
 
         #region[删除]

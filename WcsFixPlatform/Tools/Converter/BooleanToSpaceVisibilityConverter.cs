@@ -1,21 +1,17 @@
-﻿using enums;
-using resource;
-using System;
+﻿using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
 namespace wcs.Tools.Converter
 {
-    public class LevelValue2NameConverter : IValueConverter
+    public class BooleanToSpaceVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is byte levelbyte )
+            if (value is bool bv)
             {
-                return PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel , levelbyte);
-            }else  if (value is int levelint)
-            {
-                return PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel , levelint);
+                return bv ? Visibility.Visible: Visibility.Hidden;
             }
             return value;
         }

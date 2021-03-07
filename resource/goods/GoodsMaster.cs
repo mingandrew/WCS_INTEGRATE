@@ -136,6 +136,7 @@ namespace resource.goods
         /// 获取指定区域的库存信息
         /// </summary>
         /// <param name="areaid">区域ID</param>
+        /// <param name="isonlyup">是否是上砖库存</param>
         /// <returns></returns>
         public List<StockSum> GetStockSums(int areaid)
         {
@@ -208,6 +209,11 @@ namespace resource.goods
             return "";
         }
 
+        public int GetSizeWidth(uint size_id)
+        {
+            return GoodSizeList.Find(c => c.id == size_id)?.width ?? 0;
+        }
+
         public List<StockGoodPack> GetStockOutGoodsInsList()
         {
             List<StockGoodPack> list = new List<StockGoodPack>();
@@ -260,6 +266,10 @@ namespace resource.goods
             return GoodsList.Find(c => c.id == Goods_id)?.size_id ?? 0;
         }
 
+        private bool IsHaveGoodInName(string name)
+        {
+            return GoodsList.Exists(c => name.Equals(c.name));
+        }
         #endregion
 
         #region[库存]
@@ -395,8 +405,9 @@ namespace resource.goods
         #region[增删改]
 
         #region[品种]
-        public bool AddGoods(Goods good, out string result)
+        public bool AddGoods(Goods good, out string result, out uint gid)
         {
+            gid = 0;
             if (GoodsList.Exists(c => c.area_id == good.area_id
                                     && c.size_id == good.size_id
                                     && c.level == good.level
@@ -426,6 +437,7 @@ namespace resource.goods
                 SendMsg(good, ActionTypeE.Add);
                 PubMaster.Dic.UpdateVersion(DicTag.PDA_GOOD_VERSION);
                 result = "";
+                gid = goodid;
                 return true;
             }
             finally
@@ -661,7 +673,7 @@ namespace resource.goods
             return 0;
         }
 
-        public bool DeleteStock(uint stockid, out string rs)
+        public bool DeleteStock(uint stockid, out string rs, string memo = "删除库存")
         {
             Stock stock = StockList.Find(c => c.id == stockid);
             if(stock == null)
@@ -682,6 +694,12 @@ namespace resource.goods
             {
                 CheckStockBottom(stock.track_id);
             }
+
+            if (!ExistStockInTrack(stock.track_id))
+            {
+                PubMaster.Track.UpdateStockStatus(stock.track_id, TrackStockStatusE.空砖, memo);
+            }
+
             rs = "";
             return true;
         }
@@ -1385,6 +1403,16 @@ namespace resource.goods
 
             return 0;
         }
+
+        /// <summary>
+        /// 是否存在库存使用该品种
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private bool HaveStockUseGood(uint id)
+        {
+            return StockList.Exists(c => c.goods_id == id);
+        }
         #endregion
 
         #region[库存统计]
@@ -1871,6 +1899,12 @@ namespace resource.goods
             return StockList.Find(c => c.track_id == trackid)?.id ?? 0;
         }
 
+        public List<StockSum> GetStockSumsByDevId(uint tileid)
+        {
+            if (tileid == 0) return StockSumList;
+            uint areaid = PubMaster.Device.GetDeviceArea(tileid);
+            return StockSumList.FindAll(c => c.area == areaid).ToList();
+        }
         #endregion
 
         #region [计算轨道存放坐标]
@@ -1971,6 +2005,7 @@ namespace resource.goods
             Messenger.Default.Send(msg, MsgToken.GoodsUpdate);
         }
 
+
         /// <summary>
         /// 空砖信号后，清空轨道库存
         /// </summary>
@@ -2044,6 +2079,95 @@ namespace resource.goods
             }
             catch { }
         }
+        #endregion
+
+        #region[自动添加品种]
+
+
+        /// <summary>
+        /// 添加默认品种
+        /// </summary>
+        /// <param name="basegid"></param>
+        /// <param name="ad_rs"></param>
+        /// <param name="pgoodid"></param>
+        /// <returns></returns>
+        public bool AddDefaultGood(uint basegid, out string ad_rs, out uint pgoodid)
+        {
+            Goods ngood = GetGoods(basegid);
+            Goods notusegood = GetNotUseGood(ngood);
+            if (notusegood != null)
+            {
+                ad_rs = "";
+                pgoodid = notusegood.id;
+                return true;
+            }
+            string naddgname = GetPreAddName();
+
+            string levelname = PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel, ngood.level);
+            Goods pgood = new Goods()
+            {
+                name = naddgname,
+                color = naddgname,
+                memo = "自动生成",
+                area_id = ngood.area_id,
+                pieces = ngood.pieces,
+                GoodCarrierType = ngood.GoodCarrierType,
+                size_id = ngood.size_id,
+                level = ngood.level,
+                info = naddgname + "/" + naddgname + PubMaster.Goods.GetGoodSizeSimpleName(ngood.size_id, "/") + "/" + levelname
+            };
+
+            return AddGoods(pgood, out ad_rs, out pgoodid);
+        }
+
+
+        /// <summary>
+        /// 查找库存中未被使用的品种
+        /// </summary>
+        /// <param name="ngood"></param>
+        /// <returns></returns>
+        public Goods GetNotUseGood(Goods ngood)
+        {
+            if (ngood == null) return null;
+            for (int v = 65; v < 90; v++)
+            {
+                string vn = "" + (char)v;
+                if (IsGoodNotUse(vn, ngood.size_id, ngood.level, out Goods good))
+                {
+                    return good;
+                }
+            }
+            return null;
+        }
+
+        private bool IsGoodNotUse(string name, uint sizeid, byte level, out Goods good)
+        {
+            good = GoodsList.Find(c => name.Equals(c.name) && c.size_id == sizeid && c.level == level);
+            if (good != null)
+            {
+                if (!PubMaster.DevConfig.HaveTileSetGood(good.id)
+                    && !HaveStockUseGood(good.id))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public string GetPreAddName()
+        {
+            for (int v = 65; v < 90; v++)
+            {
+                string vn = "" + (char)v;
+                if (!IsHaveGoodInName(vn))
+                {
+                    return vn;
+                }
+            }
+
+            return DateTime.Now.ToString("MM-dd:HH");
+        }
+
         #endregion
     }
 }

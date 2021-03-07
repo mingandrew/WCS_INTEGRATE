@@ -241,7 +241,6 @@ namespace resource.device
             return GetTileLifter(devid)?.last_track_id ?? 0;
         }
 
-
         /// <summary>
         /// 是否符合砖机作业模式
         /// </summary>
@@ -262,7 +261,6 @@ namespace resource.device
         {
             return ConfigTileLifterList.Exists(c => c.goods_id == goodid || c.old_goodid == goodid || c.pre_goodid == goodid);
         }
-
 
         /// <summary>
         /// 设置砖机作业品种
@@ -413,6 +411,15 @@ namespace resource.device
             return ConfigTileLifterList.Find(c => c.brother_dev_id == tilelifter_id).id;
         }
 
+        /// <summary>
+        /// 当前是否有砖机是否该品种
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal bool HaveTileSetGood(uint id)
+        {
+            return ConfigTileLifterList.Exists(c => c.goods_id == id);
+        }
         #endregion
 
 
@@ -555,6 +562,7 @@ namespace resource.device
                 dev.goods_id = dev.pre_goodid;
                 dev.pre_goodid = 0;
                 dev.do_shift = true;
+                dev.last_shift_time = DateTime.Now;//更新转产时间
                 PubMaster.Mod.DevConfigSql.EditGoods(dev);
                 try
                 {
@@ -776,6 +784,21 @@ namespace resource.device
                 #endregion
 
                 return true;
+            }
+            return false;
+        }
+
+        public bool IsTileHavePreGood(uint tile_id)
+        {
+            return ConfigTileLifterList.Exists(c => c.id == tile_id && c.pre_goodid != 0);
+        }
+
+        public bool IsShiftInAllowTime(uint devid)
+        {
+            ConfigTileLifter device = GetTileLifter(devid);
+            if (device != null)
+            {
+                return device.IsLastShiftTimeOk();
             }
             return false;
         }

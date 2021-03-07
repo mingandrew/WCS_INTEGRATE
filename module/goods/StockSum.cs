@@ -1,4 +1,5 @@
-﻿using System;
+﻿using enums.track;
+using System;
 
 namespace module.goods
 {
@@ -20,6 +21,11 @@ namespace module.goods
                 return dtime.CompareTo(ctime);
             }
             return 0;
+        }
+
+        public TrackTypeE TrackType
+        {
+            get => (TrackTypeE)track_type;
         }
     }
 }

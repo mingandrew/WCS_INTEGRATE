@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Messaging;
 using module;
 using module.device;
 using module.diction;
+using module.goods;
 using module.msg;
 using module.rf;
 using module.rf.carrier;
@@ -124,6 +125,8 @@ namespace task.rf
             foreach (var item in mClient)
             {
                 item.SetupFilterArea();
+                item.SetupFilterType();
+                item.SetupFilterDevice();
             }
         }
 
@@ -133,6 +136,55 @@ namespace task.rf
             {
                 SendMsg(client);
             }
+        }
+
+        #endregion
+
+        #region[客户管理]
+
+        /// <summary>
+        /// 更新平板过滤设置
+        /// </summary>
+        /// <param name="meid"></param>
+        /// <param name="areaid"></param>
+        /// <param name="type"></param>
+        private void UpdateRfClient(string meid, int areaid, int type)
+        {
+            RfClient rf = mClient.Find(c => c.rfid.Equals(meid));
+            if (rf != null)
+            {
+                if (areaid == 0)
+                {
+                    rf.filter_area = false;
+                    rf.filter_areaids = "";
+                }
+                else
+                {
+                    rf.filter_area = true;
+                    rf.filter_areaids = areaid + "";
+                }
+
+                switch (type)
+                {
+                    case 0: //不过滤
+                        rf.filter_type = false;
+                        rf.filter_typevalues = "";
+                        break;
+                    case 1: //上砖侧
+                        rf.filter_type = true;
+                        rf.filter_typevalues = (byte)DeviceTypeE.上砖机 + ":" + (byte)DeviceTypeE.上摆渡 + ":" + (byte)DeviceTypeE.运输车;
+                        break;
+                    case 2: //下砖侧
+                        rf.filter_type = true;
+                        rf.filter_typevalues = (byte)DeviceTypeE.下砖机 + ":" + (byte)DeviceTypeE.下摆渡 + ":" + (byte)DeviceTypeE.运输车;
+                        break;
+                }
+                rf.SetupFilterArea();
+                rf.SetupFilterType();
+
+                PubMaster.Mod.DevSql.EditRfFilter(rf);
+            }
+
         }
 
         #endregion
@@ -455,6 +507,9 @@ namespace task.rf
                     case FunTag.UpdateTileTrack:
                         UpdateTileTrack(msg);
                         break;
+                    case FunTag.QueryTileTrackStatus:
+                        QueryTileTrackStatus(msg);
+                        break;
                     #endregion
 
                     #region[砖机转产]
@@ -473,6 +528,10 @@ namespace task.rf
                         //转品种
                         ShiftTileGood(msg);
 
+                        break;
+                    case FunTag.ShiftTileAutoAddGood:
+                        //(下砖机)自动转产 转品种
+                        ShiftTileAutoAddGood(msg);
                         break;
                     #endregion
 
@@ -493,7 +552,15 @@ namespace task.rf
                         CancelTileShift(msg);
 
                         break;
+                    #endregion
 
+                    #region[过滤设置]
+                    case FunTag.QueryFilterData:
+                        GetFilterData(msg);
+                        break;
+                    case FunTag.SaveFilterSetting:
+                        SaveFilterSetting(msg);
+                        break;
                         #endregion
                 }
 
@@ -539,6 +606,14 @@ namespace task.rf
 
                     SendSucc2Rf(msg.MEID, FunTag.QueryStockSum, data);
                 }
+            }
+            else
+            {
+                StockSumPack pack = new StockSumPack();
+                pack.AddSumList(PubMaster.Goods.GetStockSums());
+                string data = JsonTool.Serialize(pack);
+
+                SendSucc2Rf(msg.MEID, FunTag.QueryStockSum, data);
             }
         }
 
@@ -644,7 +719,7 @@ namespace task.rf
             {
                 if (uint.TryParse(msg.Pack.Data, out uint stockid))
                 {
-                    if (!PubMaster.Goods.DeleteStock(stockid, out string result))
+                    if (!PubMaster.Goods.DeleteStock(stockid, out string result, "平板删除库存"))
                     {
                         SendFail2Rf(msg.MEID, FunTag.DeleteTrackStock, result);
                     }
@@ -899,6 +974,13 @@ namespace task.rf
             mDicPack.AddVersion(DicTag.PDA_INIT_VERSION, PubMaster.Dic.GetDtlIntCode(DicTag.PDA_INIT_VERSION));
             mDicPack.UserLoginFunction = PubMaster.Dic.IsSwitchOnOff(DicTag.UserLoginFunction);
 
+            try
+            {
+                RfClient rf = mClient.Find(c => msg.MEID.Equals(c.rfid));
+                mDicPack.AddRfClinetilter(rf);
+            }
+            catch { }
+
             SendSucc2Rf(msg.MEID, FunTag.QueryDicAll, JsonTool.Serialize(mDicPack));
         }
 
@@ -1097,6 +1179,7 @@ namespace task.rf
                 if (pack != null && pack.DevId > 0)
                 {
                     PubTask.Ferry.AutoPosMsgSend(pack.DevId, pack.PosSide, pack.StartTrack, (byte)pack.TrackQty);
+                    SendSucc2Rf(msg.MEID, FunTag.TaskFerryAutoPos, "ok");
                 }
             }
         }
@@ -1141,7 +1224,7 @@ namespace task.rf
             {
                 if (pack.AddGood)
                 {
-                    if (!PubMaster.Goods.AddGoods(pack.EditGood, out string result))
+                    if (!PubMaster.Goods.AddGoods(pack.EditGood, out string result, out uint goodid))
                     {
                         SendFail2Rf(msg.MEID, FunTag.UpdateGood, result);
                     }
@@ -1169,7 +1252,9 @@ namespace task.rf
         {
             RfDevicePack pack = new RfDevicePack();
 
-            QueryDeviceInType(msg.MEID, new List<DeviceTypeE>() { DeviceTypeE.上砖机, DeviceTypeE.下砖机, DeviceTypeE.砖机 }, ref pack);
+            List<DeviceTypeE> tlist = new List<DeviceTypeE>();
+            GetDevType(msg.Pack.Data, ref tlist);
+            QueryDeviceInType(msg.MEID, tlist, ref pack);
 
             SendSucc2Rf(msg.MEID, FunTag.QueryTileGood, JsonTool.Serialize(pack));
         }
@@ -1194,6 +1279,11 @@ namespace task.rf
             pack.AddIds(PubMaster.Goods.GetStockOutGoodsInsList());
 
             SendSucc2Rf(msg.MEID, FunTag.QueryTileStockGood, JsonTool.Serialize(pack));
+        }
+
+        private void QueryGoodStockSume(RfMsgMod msg)
+        {
+
         }
         #endregion
 
@@ -1382,7 +1472,6 @@ namespace task.rf
             {
                 switch (item.Type)
                 {
-                    case DeviceTypeE.砖机:
                     case DeviceTypeE.上砖机:
                     case DeviceTypeE.下砖机:
                         pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
@@ -1400,30 +1489,39 @@ namespace task.rf
             }
         }
 
+        /// <summary>
+        /// 获取平板传过来的设备类型
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="tlist"></param>
+        private void GetDevType(string data, ref List<DeviceTypeE> tlist)
+        {
+            if (data.Contains(":"))
+            {
+                string[] types = data.Split(':');
+                foreach (string type in types)
+                {
+                    if (byte.TryParse(type, out byte btype))
+                    {
+                        tlist.Add((DeviceTypeE)btype);
+                    }
+                }
+            }
+            else
+            {
+                if (byte.TryParse(data, out byte btype))
+                {
+                    tlist.Add((DeviceTypeE)btype);
+                }
+            }
+        }
+
         private void GetDevice(RfMsgMod msg)
         {
             if (msg.IsPackHaveData())
             {
                 List<DeviceTypeE> tlist = new List<DeviceTypeE>();
-                if (msg.Pack.Data.Contains(":"))
-                {
-                    string[] types = msg.Pack.Data.Split(':');
-                    foreach (string type in types)
-                    {
-                        if (byte.TryParse(type, out byte btype))
-                        {
-                            tlist.Add((DeviceTypeE)btype);
-                        }
-                    }
-                }
-                else
-                {
-                    if (byte.TryParse(msg.Pack.Data, out byte btype))
-                    {
-                        tlist.Add((DeviceTypeE)btype);
-                    }
-                }
-
+                GetDevType(msg.Pack.Data, ref tlist);
                 RfDevicePack pack = new RfDevicePack();
                 QueryDeviceInType(msg.MEID, tlist, ref pack);
                 SendSucc2Rf(msg.MEID, FunTag.QueryDevice, JsonTool.Serialize(pack));
@@ -1460,9 +1558,11 @@ namespace task.rf
         private void GetDevFerry(RfMsgMod msg)
         {
             DevFerryPack pack = new DevFerryPack();
+            List<DeviceTypeE> tlist = new List<DeviceTypeE>();
+            GetDevType(msg.Pack.Data, ref tlist);
             if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                foreach (FerryTask item in PubTask.Ferry.GetDevFerrys(areaids))
+                foreach (FerryTask item in PubTask.Ferry.GetDevFerrys(areaids, tlist))
                 {
                     pack.AddDev(new RfDevFerry()
                     {
@@ -1475,7 +1575,7 @@ namespace task.rf
             }
             else
             {
-                foreach (FerryTask item in PubTask.Ferry.GetDevFerrys())
+                foreach (FerryTask item in PubTask.Ferry.GetDevFerrys(tlist))
                 {
                     pack.AddDev(new RfDevFerry()
                     {
@@ -1527,9 +1627,11 @@ namespace task.rf
         private void GetDevTileLifter(RfMsgMod msg)
         {
             DevTileLifterPack pack = new DevTileLifterPack();
+            List<DeviceTypeE> tlist = new List<DeviceTypeE>();
+            GetDevType(msg.Pack.Data, ref tlist);
             if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids))
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids, tlist))
                 {
                     pack.AddDev(new RfDevTileLifter()
                     {
@@ -1544,7 +1646,7 @@ namespace task.rf
             }
             else
             {
-                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters())
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(tlist))
                 {
                     pack.AddDev(new RfDevTileLifter()
                     {
@@ -1569,7 +1671,7 @@ namespace task.rf
             {
                 if (pack.CarrierTask == 128) return;
                 DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
-                if (!PubTask.Carrier.DoManualNewTask(pack.DevId, type, out string result, "平板手动"))
+                if (!PubTask.Carrier.DoManualTask(pack.DevId, type, out string result, false, "平板手动"))
                 {
                     SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, result);
                     return;
@@ -1684,24 +1786,42 @@ namespace task.rf
                 SendSucc2Rf(msg.MEID, FunTag.UpdateTileTrack, "");
             }
         }
+
+
+        private void QueryTileTrackStatus(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData() && uint.TryParse(msg.Pack.Data, out uint tileid))
+            {
+                RfTileTrackPack pack = new RfTileTrackPack();
+                pack.TileId = tileid;
+                pack.SetTileTrackStatus(PubMaster.Track.GetTileTrack(tileid));
+                pack.SetStockSumList(PubMaster.Goods.GetStockSumsByDevId(tileid));
+
+                SendSucc2Rf(msg.MEID, FunTag.QueryTileTrackStatus, JsonTool.Serialize(pack));
+            }
+        }
         #endregion
 
         #region[砖机转品种]
+
 
         //查询砖机品种，转产状态
         private void QueryTileShift(RfMsgMod msg)
         {
             RfTileShiftPack pack = new RfTileShiftPack();
+
+            List<DeviceTypeE> tlist = new List<DeviceTypeE>();
+            GetDevType(msg.Pack.Data, ref tlist);
             if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids))
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids, tlist))
                 {
                     pack.AddTileShift(item.Device, item.DevConfig, item.TileShiftStatus);
                 }
             }
             else
             {
-                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters())
+                foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(tlist))
                 {
                     pack.AddTileShift(item.Device, item.DevConfig, item.TileShiftStatus);
                 }
@@ -1745,6 +1865,70 @@ namespace task.rf
                 {
                     SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机离线！不能执行转产操作！");
                     return;
+                }
+
+                if (!PubTask.TileLifter.IsSiteGoodSame(pack.tile_id))
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机左右工位品种不一致！");
+                    return;
+                }
+
+                if (!PubMaster.DevConfig.IsShiftInAllowTime(pack.tile_id))
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机在短时间(5分钟)内已执行转产,无需重复操作");
+                    return;
+                }
+
+                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
+                {
+                    //发送砖机转产信号
+                    SendSucc2Rf(msg.MEID, FunTag.ShiftTileGood, "ok");
+                }
+                else
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, result);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 下砖机转产：如果没有预设品种，则后台自动新增品种
+        /// </summary>
+        /// <param name="msg"></param>
+        private void ShiftTileAutoAddGood(RfMsgMod msg)
+        {
+            RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
+            if (pack != null)
+            {
+                if (!PubTask.TileLifter.IsOnline(pack.tile_id))
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机离线！不能执行转产操作！");
+                    return;
+                }
+
+                if (!PubTask.TileLifter.IsSiteGoodSame(pack.tile_id))
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机左右工位品种不一致！");
+                    return;
+                }
+
+                if (!PubMaster.DevConfig.IsTileHavePreGood(pack.tile_id))
+                {
+                    //添加默认品种 A,B,C,D,E....
+                    if (!PubMaster.Goods.AddDefaultGood(pack.good_id, out string ad_rs, out uint pgoodid))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, ad_rs);
+                        return;
+                    }
+                    else
+                    {
+                        GetGoodDic(msg);
+                        if (!PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pgoodid, out string up_rs))
+                        {
+                            SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, up_rs);
+                            return;
+                        }
+                    }
                 }
 
                 if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
@@ -1861,6 +2045,52 @@ namespace task.rf
 
         #endregion
 
+        #region[过滤设置]
+
+        /// <summary>
+        /// 1.查询区域信息，
+        /// 2.当前设备过滤信息
+        /// </summary>
+        /// <param name="msg"></param>
+        private void GetFilterData(RfMsgMod msg)
+        {
+            RfClient rf = mClient.Find(c => c.rfid.Equals(msg.MEID));
+            if (rf != null)
+            {
+                RfFilterDataPack data = new RfFilterDataPack();
+                data.AddAreaList(PubMaster.Area.GetAreaList());
+                data.FilterArea = rf.filter_area ? (int)rf.AreaIds[0] : 0;
+                data.FilterType = rf.filter_type ?
+                    (rf.DevTypeValues.Contains((byte)DeviceTypeE.上砖机) ? 1 : 2) : 0;
+
+                SendSucc2Rf(msg.MEID, FunTag.QueryFilterData, JsonTool.Serialize(data));
+            }
+            else
+            {
+                SendFail2Rf(msg.MEID, FunTag.QueryFilterData, "找不到平板设置信息");
+            }
+        }
+
+
+        /// <summary>
+        /// 保存设置信息
+        /// </summary>
+        /// <param name="msg"></param>
+        private void SaveFilterSetting(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                RfFilterDataPack pack = JsonTool.Deserialize<RfFilterDataPack>(msg.Pack.Data);
+                if (pack != null)
+                {
+                    UpdateRfClient(msg.MEID, pack.FilterArea, pack.FilterType);
+                    SendSucc2Rf(msg.MEID, FunTag.SaveFilterSetting, "更新成功");
+                    GetDicData(msg);
+                }
+            }
+        }
+
+        #endregion
 
         #endregion
 

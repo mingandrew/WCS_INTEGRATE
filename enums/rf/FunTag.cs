@@ -115,7 +115,7 @@
 
         public const string QueryTileTrack = nameof(QueryTileTrack);
         public const string UpdateTileTrack = nameof(UpdateTileTrack);
-
+        public const string QueryTileTrackStatus = nameof(QueryTileTrackStatus);//查询砖机轨道的状态
         #endregion
 
 
@@ -124,6 +124,7 @@
 
         public const string UpdatePreGood = nameof(UpdatePreGood);//更新预设品种
         public const string ShiftTileGood = nameof(ShiftTileGood);//转品种
+        public const string ShiftTileAutoAddGood = nameof(ShiftTileAutoAddGood);//转产 自动新增品种
 
         #endregion
 
@@ -133,6 +134,12 @@
         public const string ShiftTileMode = nameof(ShiftTileMode);//转模式
         public const string CancelTileShift = nameof(CancelTileShift);//取消切换模式
 
+        #endregion
+
+        #region[过滤设置]
+
+        public const string QueryFilterData = nameof(QueryFilterData); //查询过滤信息
+        public const string SaveFilterSetting = nameof(SaveFilterSetting);//保存过滤设置
         #endregion
     }
 }

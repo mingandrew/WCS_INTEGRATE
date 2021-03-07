@@ -15,5 +15,10 @@ namespace module.rf
             }
             StockSumList.AddRange(list);
         }
+
+        public bool HaveData()
+        {
+            return StockSumList != null && StockSumList.Count > 0;
+        }
     }
 }

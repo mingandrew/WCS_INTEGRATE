@@ -1,0 +1,7 @@
+ALTER TABLE `rf_client` ADD COLUMN `filter_type` bit(1) NULL COMMENT '是否过滤设备类型' AFTER `filter_areaids`;
+
+ALTER TABLE `rf_client` ADD COLUMN `filter_typevalues` varchar(50) NULL COMMENT '过滤的设备类型们' AFTER `filter_type`;
+
+ALTER TABLE `rf_client` ADD COLUMN `filter_dev` bit(1) NULL COMMENT '是否过滤指定设备' AFTER `filter_typevalues`;
+
+ALTER TABLE `rf_client` ADD COLUMN `filter_devids` varchar(50) NULL COMMENT '过滤指定设备的ID' AFTER `filter_dev`;

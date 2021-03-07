@@ -2,6 +2,7 @@
 using module.device;
 using module.deviceconfig;
 using socket.tcp;
+using System;
 
 namespace task.task
 {
@@ -217,6 +218,11 @@ namespace task.task
         internal void SetInTaskStatus(bool status)
         {
             DevTcp.IsInTaskStatus = status;
+        }
+
+        internal bool IsSiteGoodSame()
+        {
+            return DevStatus.Goods1 == DevStatus.Goods2;
         }
         #endregion
     }

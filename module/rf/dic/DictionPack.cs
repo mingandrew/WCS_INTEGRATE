@@ -17,9 +17,14 @@ namespace module.rf
 
         public void AddDic(RfDiction dic)
         {
-            if(DicList == null)
+            if (DicList == null)
             {
                 DicList = new List<RfDiction>();
+            }
+            RfDiction odic = DicList.Find(c => c.DicCode.Equals(dic.DicCode));
+            if (odic != null)
+            {
+                DicList.Remove(odic);
             }
             DicList.Add(dic);
         }
@@ -47,11 +52,12 @@ namespace module.rf
                     order++;
                 }
                 AddDic(dic);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
             }
-            
+
         }
 
         public void AddArea(List<Area> lists)
@@ -160,7 +166,7 @@ namespace module.rf
                 DicCode = "TileLifterDic"
             };
 
-            int order = 0, ferryorder = 0, tileoder = 0, carrierorder =0;
+            int order = 0, ferryorder = 0, tileoder = 0, carrierorder = 0;
             foreach (Device item in lists)
             {
                 devdic.AddDtl(new RfDictionDtl()
@@ -306,6 +312,69 @@ namespace module.rf
                 });
                 order++;
             }
+            AddDic(dic);
+        }
+
+        public void AddRfClinetilter(RfClient client)
+        {
+            RfDiction dic = new RfDiction
+            {
+                DicName = "过滤设备类型",
+                DicCode = "FilterDevType"
+            };
+
+            if (client != null && client.filter_type)//设置了
+            {
+                int order = 0;
+                foreach (byte type in client.DevTypeValues)
+                {
+                    dic.AddDtl(new RfDictionDtl()
+                    {
+                        DtlOrder = order,
+                        DtlValue = type,
+                        DtlName = type + ""
+                    });
+                    order++;
+                }
+            }
+            else //添加全部设备类型
+            {
+                Array array = typeof(DeviceTypeE).GetEnumValues();
+                int order = 0;
+                foreach (var value in array)
+                {
+                    dic.AddDtl(new RfDictionDtl()
+                    {
+                        DtlOrder = order,
+                        DtlValue = (int)value,
+                        DtlName = value + ""
+                    });
+                    order++;
+                }
+            }
+            AddDic(dic);
+
+            dic = new RfDiction
+            {
+                DicName = "过滤指定设备",
+                DicCode = "FilterDevId"
+            };
+
+            if (client != null && client.filter_dev)//设置了
+            {
+                int order = 0;
+                foreach (uint id in client.DevIds)
+                {
+                    dic.AddDtl(new RfDictionDtl()
+                    {
+                        DtlOrder = order,
+                        DtlValue = (int)id,
+                        DtlName = (int)id + ""
+                    });
+                    order++;
+                }
+            }
+
             AddDic(dic);
         }
     }

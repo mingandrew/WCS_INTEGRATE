@@ -317,6 +317,16 @@ namespace task.device
             return DevList.Find(c => c.ID == devid);
         }
 
+        internal List<FerryTask> GetDevFerrys(List<DeviceTypeE> types)
+        {
+            return DevList.FindAll(c => types.Contains(c.Type));
+        }
+
+        internal List<FerryTask> GetDevFerrys(List<uint> areaids, List<DeviceTypeE> types)
+        {
+            return DevList.FindAll(c => types.Contains(c.Type) && areaids.Contains(c.AreaId));
+        }
+
         /// <summary>
         /// 摆渡轨道ID
         /// </summary>

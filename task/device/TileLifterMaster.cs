@@ -1481,6 +1481,16 @@ namespace task.device
             return DevList.FindAll(c=>areaids.Contains(c.AreaId));
         }
 
+        internal List<TileLifterTask> GetDevTileLifters(List<DeviceTypeE> types)
+        {
+            return DevList.FindAll(c => types.Contains(c.Type));
+        }
+
+        internal List<TileLifterTask> GetDevTileLifters(List<uint> areaids, List<DeviceTypeE> types)
+        {
+            return DevList.FindAll(c => types.Contains(c.Type) && areaids.Contains(c.AreaId));
+        }
+
         internal List<TileLifterTask> GetCanCutoverTiles()
         {
             return DevList.FindAll(c => c.IsCanCutover);
@@ -1769,9 +1779,20 @@ namespace task.device
                 }
             }
         }
-        #endregion 
+
+        #endregion
 
         #region[判断状态]
+        /// <summary>
+        /// 判断左右工位品种是否一致，满足转产状态
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public bool IsSiteGoodSame(uint devid)
+        {
+            return DevList.Exists(c => c.ID == devid && c.IsSiteGoodSame());
+        }
+
         private bool CheckTileLifterStatus(TileLifterTask task, out string result)
         {
             if (task == null)

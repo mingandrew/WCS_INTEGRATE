@@ -1,4 +1,5 @@
 ﻿using enums;
+using System;
 
 namespace module.deviceconfig
 {
@@ -94,6 +95,8 @@ namespace module.deviceconfig
         /// </summary>
         public string alter_ids { set; get; }
 
+        //没有保存到数据库中
+        public DateTime last_shift_time { set; get; }//最近一次转产时间
         /// <summary>
         /// 入库策略
         /// </summary>
@@ -147,5 +150,14 @@ namespace module.deviceconfig
             get => brother_dev_id != 0;
         }
 
+        /// <summary>
+        /// 判断当前转产是否可以执行
+        /// 距离最近一次转产时间在5分钟内
+        /// </summary>
+        /// <returns></returns>
+        public bool IsLastShiftTimeOk()
+        {
+            return DateTime.Now.Subtract(last_shift_time).TotalMinutes >= 5;
+        }
     }
 }

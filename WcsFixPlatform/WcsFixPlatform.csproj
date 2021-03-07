@@ -121,6 +121,7 @@
     <Compile Include="Data\View\FerryView.cs" />
     <Compile Include="Data\View\GoodsView.cs" />
     <Compile Include="Data\View\RfClientView.cs" />
+    <Compile Include="Data\View\StockGoodSumView.cs" />
     <Compile Include="Data\View\StockSumView.cs" />
     <Compile Include="Data\View\TileLifterView.cs" />
     <Compile Include="Data\View\TrackView.cs" />
@@ -161,6 +162,9 @@
     </Compile>
     <Compile Include="Dialog\platform\goods\GoodsEditDialog.xaml.cs">
       <DependentUpon>GoodsEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\goods\StocksSelectDialog.xaml.cs">
+      <DependentUpon>StocksSelectDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\platform\menu\MenuSelectDialog.xaml.cs">
       <DependentUpon>MenuSelectDialog.xaml</DependentUpon>
@@ -208,6 +212,7 @@
       <DependentUpon>LangProvider.tt</DependentUpon>
     </Compile>
     <Compile Include="Service\Data\DataService.cs" />
+    <Compile Include="Tools\Converter\BooleanToSpaceVisibilityConverter.cs" />
     <Compile Include="Tools\Converter\Date2StringConverter.cs" />
     <Compile Include="Tools\Converter\Date2StringLongConverter.cs" />
     <Compile Include="Tools\Converter\DevId2NameConverter.cs" />
@@ -249,6 +254,7 @@
     <Compile Include="ViewModel\platform\goods\GoodSizeSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsEditViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsViewModel.cs" />
+    <Compile Include="ViewModel\platform\goods\StockSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\TestGoodViewModel.cs" />
     <Compile Include="ViewModel\platform\home\HomeViewModel.cs" />
     <Compile Include="ViewModel\platform\operate\OperateGrandDialogViewModel.cs" />
@@ -403,6 +409,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\goods\GoodsEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\goods\StocksSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
