@@ -3,7 +3,7 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:hc="https://handyorg.github.io/handycontrol" 
                     xmlns:langs="clr-namespace:wcs.Resources.Langs">
-    <langs:LangProvider x:Key="Langs"/>
+    <langs:LangProvider x:Key="WcsLangs"/>
     
     <sys:Double x:Key="MSideMenuFS">20</sys:Double>
     <sys:Double x:Key="MSideMenuItemFS">18</sys:Double>

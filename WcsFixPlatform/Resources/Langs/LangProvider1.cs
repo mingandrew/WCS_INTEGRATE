@@ -8,7 +8,7 @@ namespace wcs.Resources.Langs
 {
     public class LangProvider : INotifyPropertyChanged
     {
-        internal static LangProvider Instance => ResourceHelper.GetResource<LangProvider>("Langs");
+        internal static LangProvider Instance => ResourceHelper.GetResource<LangProvider>("WcsLangs");
 
         private static string CultureInfoStr;
 

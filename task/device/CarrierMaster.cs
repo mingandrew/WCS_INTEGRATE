@@ -249,7 +249,7 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveInTrackAndLoad(uint trackid)
         {
-            return DevList.Exists(c => c.CurrentTrackId == trackid && c.Load == DevCarrierLoadE.有货);
+            return DevList.Exists(c => c.CurrentTrackId == trackid && c.IsLoad());
         }
 
         internal bool HaveInTrackButCarrier(uint trackid, uint trackid2, uint cid, out uint carrierid)
@@ -359,14 +359,14 @@ namespace task.device
         {
             return DevList.Exists(c => c.ID == carrier_id
                         && c.ConnStatus == SocketConnectStatusE.通信正常
-                        && c.Load == DevCarrierLoadE.有货);
+                        && c.IsLoad());
         }
 
         internal bool IsLoadInFerry(uint ltrack)
         {
             return DevList.Exists(c => c.CurrentTrackId == ltrack
                          && c.ConnStatus == SocketConnectStatusE.通信正常
-                         && c.Load == DevCarrierLoadE.有货
+                         && c.IsLoad()
                          && c.Position == DevCarrierPositionE.在摆渡上);
         }
 
@@ -375,7 +375,7 @@ namespace task.device
         {
             return DevList.Exists(c => c.ID == carrier_id
                         && c.ConnStatus == SocketConnectStatusE.通信正常
-                        && c.Load == DevCarrierLoadE.无货);
+                        && c.IsNotLoad());
         }
 
         #endregion
@@ -1497,11 +1497,11 @@ namespace task.device
                                 && tasks[0].DevConfig.IsUseGoodsSize(goodssizeID)
                                 )
                         {
-                            if (tasks[0].Load == DevCarrierLoadE.无货)
+                            if (tasks[0].IsNotLoad())
                             {
                                 unloadcarrierid.Add(tasks[0].ID);
                             }
-                            else if (tasks[0].Load == DevCarrierLoadE.有货)
+                            else if (tasks[0].IsLoad())
                             {
                                 loadcarrerid.Add(tasks[0].ID);
                             }
@@ -1668,7 +1668,7 @@ namespace task.device
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
                                     && c.Status == DevCarrierStatusE.停止
-                                    && c.Load == DevCarrierLoadE.有货
+                                    && c.IsLoad()
                                     && (c.CurrentOrder == c.FinishOrder || c.CurrentOrder == DevCarrierOrderE.无)
                                     );
         }
@@ -1684,7 +1684,7 @@ namespace task.device
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
                                     && c.Status == DevCarrierStatusE.停止
-                                    && c.Load == DevCarrierLoadE.无货
+                                    && c.IsNotLoad()
                                     && (c.CurrentOrder == c.FinishOrder || c.CurrentOrder == DevCarrierOrderE.无)
                                     );
         }

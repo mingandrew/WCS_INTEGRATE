@@ -1,4 +1,5 @@
 ﻿using enums;
+using module.device;
 using module.deviceconfig;
 using System;
 using System.Collections.Generic;
@@ -159,6 +160,17 @@ namespace resource.device
         public ushort GetCarrierLenght(uint devid)
         {
             return ConfigCarrierList.Find(c => c.id == devid)?.length ?? 0;
+        }
+
+        /// <summary>
+        /// 获取区域里面的小车长
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <returns></returns>
+        public ushort GetCarrierLenghtByArea(uint areaid)
+        {
+            List<Device> list = PubMaster.Device.GetDevices(new List<DeviceTypeE>() { DeviceTypeE.运输车 }, areaid);
+            return ConfigCarrierList.Find(c => c.length > 0 && list.Exists(d=>d.id == c.id))?.length ?? 0;
         }
 
         #endregion

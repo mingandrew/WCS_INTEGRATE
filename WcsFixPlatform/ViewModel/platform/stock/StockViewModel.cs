@@ -290,7 +290,7 @@ namespace wcs.ViewModel
         }
 
         /// <summary>
-        /// 添加库存
+        /// 在尾部添加库存
         /// </summary>
         /// <param name="gid"></param>
         /// <param name="picese"></param>
@@ -384,49 +384,10 @@ namespace wcs.ViewModel
                 }
             }
         }
-        //private async void AddFrontStock()
-        //{
-        //    if (!CheckSelectItem()) return;
-        //    DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
-        //         .Initialize<GoodsSelectViewModel>((vm) =>
-        //         {
-        //             vm.SetAreaFilter(_selecttrack.area, false);
-        //             vm.QueryGood();
-        //         }).GetResultAsync<DialogResult>();
-        //    if (result.p1 is bool rs && result.p2 is GoodsView good)
-        //    {
-        //        TrackStockAdd(good.ID, good.Pieces);
-        //    }
-        //}
-
-        //private async void AddBackStock()
-        //{
-        //    if (!CheckSelectItem()) return;
-        //    DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
-        //         .Initialize<GoodsSelectViewModel>((vm) =>
-        //         {
-        //             vm.SetAreaFilter(_selecttrack.area, false);
-        //             vm.QueryGood();
-        //         }).GetResultAsync<DialogResult>();
-        //    if (result.p1 is bool rs && result.p2 is GoodsView good)
-        //    {
-        //        TrackStockAdd(good.ID, good.Pieces);
-        //    }
-        //}
 
         private async void EditStock()
         {
             if (!CheckSelectItem()) return;
-            DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
-                 .Initialize<GoodsSelectViewModel>((vm) =>
-                 {
-                     vm.SetAreaFilter(_selecttrack.area, false);
-                     vm.QueryGood();
-                 }).GetResultAsync<DialogResult>();
-            if (result.p1 is bool rs && result.p2 is GoodsView good)
-            {
-                TrackStockAdd(good.ID, good.Pieces);
-            }
         }
 
         private bool CheckSelectItem()

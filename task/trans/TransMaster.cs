@@ -355,9 +355,9 @@ namespace task.trans
                                     //1.计算轨道下一车坐标
                                     //2.卸货轨道状态是否运行放货                                    
                                     //3.是否有其他车在同轨道上
-                                    if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out count, out loc) ||
-                                         !PubMaster.Track.IsStatusOkToGive(trans.give_track_id) ||
-                                         PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
+                                    if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out count, out loc) 
+                                        || !PubMaster.Track.IsStatusOkToGive(trans.give_track_id) 
+                                        || PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
                                     {
                                         if (loc == 0)
                                         {

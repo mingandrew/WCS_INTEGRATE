@@ -1873,16 +1873,16 @@ namespace resource.goods
 
         #endregion
 
-        #region 计算轨道下一车作业坐标
+        #region [计算轨道存放坐标]
 
         /// <summary>
         /// 计算下一车轨道坐标
         /// </summary>
-        /// <param name="tt"></param>
-        /// <param name="carrierid"></param>
-        /// <param name="trackid"></param>
-        /// <param name="stockcount"></param>
-        /// <param name="location"></param>
+        /// <param name="tt">任务类型</param>
+        /// <param name="carrierid">小车用于计算间距</param>
+        /// <param name="trackid">放砖轨道</param>
+        /// <param name="stockcount">库存数量</param>
+        /// <param name="location">库存存放计算地标</param>
         /// <returns></returns>
         public bool CalculateNextLocation(TransTypeE tt, uint carrierid, uint trackid, out ushort stockcount, out ushort location)
         {
@@ -1942,6 +1942,12 @@ namespace resource.goods
 
             return isOK;
         }
+
+        //public bool CalculateCanStoreQty(uint trackid, int storeqty, out int canstoreqty)
+        //{
+        //    Track track = PubMaster.Track.GetTrack(trackid);
+        //    ushort carlength = PubMaster.DevConfig.GetCarrierLenghtByArea(track.area);
+        //}
 
         #endregion
 

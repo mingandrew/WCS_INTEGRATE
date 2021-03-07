@@ -157,6 +157,10 @@ namespace task.device
             get => DevStatus?.LoadStatus ?? DevCarrierLoadE.异常;
         }
 
+        /// <summary>
+        /// 综合判断有货状态
+        /// </summary>
+        /// <returns></returns>
         public bool IsLoad()
         {
             return Load == DevCarrierLoadE.有货
@@ -165,6 +169,10 @@ namespace task.device
                     && TakeSite > 0);
         }
 
+        /// <summary>
+        /// 综合判断无货状态
+        /// </summary>
+        /// <returns></returns>
         public bool IsNotLoad()
         {
             return Load == DevCarrierLoadE.无货

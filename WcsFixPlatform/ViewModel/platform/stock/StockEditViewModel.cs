@@ -127,6 +127,7 @@ namespace wcs.ViewModel
                     Result.p1 = true;
                 }
 
+
                 if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, pieces, ProduceTime, StockQty, "PC添加库存", out string rs))
                 {
                     Result.p1 = true;
@@ -146,9 +147,6 @@ namespace wcs.ViewModel
                     Result.p1 = true;
                 }
             }
-
-            isadd = false;
-            isinsert = false;
             CloseAction?.Invoke();
         }
 
@@ -158,9 +156,16 @@ namespace wcs.ViewModel
             CloseAction?.Invoke();
         }
 
+        /// <summary>
+        /// 添加的尾部
+        /// </summary>
+        /// <param name="gid"></param>
+        /// <param name="tid"></param>
+        /// <param name="pis"></param>
         public void SetAddInput(uint gid, uint tid, ushort pis)
         {
             isadd = true;
+            isinsert = false;
             ActionTile = "添加";
             GoodsId = gid;
             TrackId = tid;
@@ -192,6 +197,7 @@ namespace wcs.ViewModel
         public void SetInsertInput(uint gid, uint tid, ushort pis, short oldpos)
         {
             isinsert = true;
+            isadd = false;
             ActionTile = "插入";
             GoodsId = gid;
             TrackId = tid;
