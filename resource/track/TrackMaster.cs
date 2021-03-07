@@ -205,7 +205,7 @@ namespace resource.track
                 {
                     case TrackTypeE.储砖_入: // 读到入轨道地标，但是大于分段点距离，当做出轨道
                         if (site != 0 
-                            && site >= t.split_point
+                            && site >= (t.split_point + 20)
                             //&& IsBiggerSplitPoint(t.brother_track_id, site)
                             )
                         {
@@ -219,7 +219,7 @@ namespace resource.track
                     case TrackTypeE.储砖_出:// 读到出轨道地标，但是小于分段点距离，当做入轨道
                         if (site != 0 
                             && site <= t.split_point
-                            && IsSmallerSplitPoint(t.brother_track_id, site))
+                            && IsSmallerSplitPoint(t.brother_track_id, (ushort)(site - 20)))
                         {
                             traid = t.brother_track_id;
                         }
