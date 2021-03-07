@@ -100,7 +100,7 @@ namespace task.rf
 
         public void Stop()
         {
-			isrunning = false;
+            isrunning = false;
             mServer?.Stop();
         }
 
@@ -185,7 +185,7 @@ namespace task.rf
 
             foreach (RfClient client in mClient)
             {
-                if(client.rfid != null)
+                if (client.rfid != null)
                 {
                     mServer.SendMessage(client.rfid, pack);
                 }
@@ -197,7 +197,7 @@ namespace task.rf
 
         private void RfMsgUpdate(RfMsgMod msg)
         {
-            if(Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
                 try
                 {
@@ -213,7 +213,8 @@ namespace task.rf
                         default:
                             break;
                     }
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     _mLog.Error(true, e.StackTrace, e);
                 }
@@ -234,7 +235,7 @@ namespace task.rf
                 {
                     rfid = msg.MEID,
                     ip = msg.IP,
-                    conn_time =DateTime.Now
+                    conn_time = DateTime.Now
                 };
                 mClient.Add(rf);
                 PubMaster.Mod.DevSql.AddRfClient(rf);
@@ -255,7 +256,7 @@ namespace task.rf
 
             SendMsg(rf);
         }
-        
+
         #endregion
 
         #region[处理信息]
@@ -401,7 +402,7 @@ namespace task.rf
                     case FunTag.QueryTaskSwitch:
                         GetTaskSwitch(msg);
                         break;
-                        
+
                     case FunTag.UpdateTaskSwitch:
                         UpdateTaskSwitch(msg);
                         break;
@@ -493,12 +494,12 @@ namespace task.rf
 
                         break;
 
-                    #endregion
+                        #endregion
                 }
 
                 _mLog?.Cmd(true, msg?.MEID + " : " + msg?.Pack?.Function);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
                 _mLog.Error(true, e.StackTrace, e);
@@ -532,7 +533,7 @@ namespace task.rf
             {
                 if (int.TryParse(msg.Pack.Data, out int areaid))
                 {
-                    StockSumPack pack = new StockSumPack(); 
+                    StockSumPack pack = new StockSumPack();
                     pack.AddSumList(PubMaster.Goods.GetStockSums(areaid));
                     string data = JsonTool.Serialize(pack);
 
@@ -549,7 +550,7 @@ namespace task.rf
                 if (pack != null)
                 {
                     byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
-                    if(PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
+                    if (PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
                         picese, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.AddTrackStock, "添加成功！");
@@ -564,7 +565,7 @@ namespace task.rf
 
         private void QueryTrackStock(RfMsgMod msg)
         {
-            if(uint.TryParse(msg.Pack.Data, out uint trackid))
+            if (uint.TryParse(msg.Pack.Data, out uint trackid))
             {
                 TrackStockPack pack = new TrackStockPack();
                 pack.TrackId = trackid;
@@ -596,7 +597,7 @@ namespace task.rf
                     result = "对应出轨道为空状态!";
                 }
 
-                if(result == null)
+                if (result == null)
                 {
                     if (PubMaster.Goods.ShiftStock(track.id, track.brother_track_id))
                     {
@@ -641,9 +642,9 @@ namespace task.rf
         {
             if (msg.IsPackHaveData())
             {
-                if(uint.TryParse(msg.Pack.Data, out uint stockid))
+                if (uint.TryParse(msg.Pack.Data, out uint stockid))
                 {
-                    if(!PubMaster.Goods.DeleteStock(stockid, out string result))
+                    if (!PubMaster.Goods.DeleteStock(stockid, out string result))
                     {
                         SendFail2Rf(msg.MEID, FunTag.DeleteTrackStock, result);
                     }
@@ -823,7 +824,7 @@ namespace task.rf
 
         private void GetDicData(RfMsgMod msg)
         {
-            if(mDicPack == null)
+            if (mDicPack == null)
             {
                 mDicPack = new DictionPack();
 
@@ -886,7 +887,7 @@ namespace task.rf
                 #endregion
             }
 
-            if(IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
                 mDicPack.AddArea(PubMaster.Area.GetAreaList(areaids));
             }
@@ -908,7 +909,7 @@ namespace task.rf
                 LoginMsg login = JsonTool.Deserialize<LoginMsg>(msg.Pack.Data);
                 if (login != null)
                 {
-                    if(PubMaster.Role.CheckUserGetPdaView(login.username, login.password,out string result, out UserModelPack user))
+                    if (PubMaster.Role.CheckUserGetPdaView(login.username, login.password, out string result, out UserModelPack user))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UserCheck, JsonTool.Serialize(user));
                     }
@@ -934,7 +935,7 @@ namespace task.rf
         private void GetFerryPos(RfMsgMod msg)
         {
             FerryPosPack gmsg = new FerryPosPack();
-            if(uint.TryParse(""+msg.Pack.Data, out uint devid))
+            if (uint.TryParse("" + msg.Pack.Data, out uint devid))
             {
                 gmsg.Device = devid;
                 gmsg.AddPosList(PubMaster.Track.GetFerryPos(devid));
@@ -945,7 +946,7 @@ namespace task.rf
 
         private void StartFerryPos(RfMsgMod msg)
         {
-            if(uint.TryParse(""+msg.Pack.Data, out uint ferryid))
+            if (uint.TryParse("" + msg.Pack.Data, out uint ferryid))
             {
                 PubTask.Ferry.StartRfPosSet(msg.MEID, ferryid);
             }
@@ -1012,7 +1013,7 @@ namespace task.rf
         /// <param name="msg"></param>
         private void UpdateFerryPos(RfMsgMod msg)
         {
-            if(msg.IsPackHaveData())
+            if (msg.IsPackHaveData())
             {
                 FerryPosUpdatePack pack = JsonTool.Deserialize<FerryPosUpdatePack>(msg.Pack.Data);
                 if (pack != null && pack.FerryId > 0 && pack.PosCode > 0 && pack.Position != 0)
@@ -1031,7 +1032,7 @@ namespace task.rf
             if (msg.IsPackHaveData())
             {
                 FerryTaskPack pack = JsonTool.Deserialize<FerryTaskPack>(msg.Pack.Data);
-                if (pack != null && pack.Id > 0 && pack.Value1 >0)
+                if (pack != null && pack.Id > 0 && pack.Value1 > 0)
                 {
                     bool isdownferry = PubMaster.Device.IsDevType(pack.Id, DeviceTypeE.下摆渡);
                     if (!PubTask.Ferry.DoManualLocate(pack.Id, pack.Value1, isdownferry, out string locateresult))
@@ -1052,7 +1053,7 @@ namespace task.rf
                 if (pack != null && pack.Id > 0// && pack.Value1 > 0
                     )
                 {
-                    if(PubTask.Ferry.StopFerry(pack.Id,out string result))
+                    if (PubTask.Ferry.StopFerry(pack.Id, out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.TaskFerryStop, result);
                     }
@@ -1063,7 +1064,7 @@ namespace task.rf
                 }
             }
         }
-        
+
         private void TaskFerryReset(RfMsgMod msg)
         {
             if (msg.IsPackHaveData())
@@ -1072,7 +1073,7 @@ namespace task.rf
                 if (pack != null && pack.Id > 0)
                 {
                     DevFerryResetPosE type = DevFerryResetPosE.前进复位;
-                    if(pack.Value1 == 1)
+                    if (pack.Value1 == 1)
                     {
                         type = DevFerryResetPosE.后退复位;
                     }
@@ -1136,11 +1137,11 @@ namespace task.rf
         private void UpdateGood(RfMsgMod msg)
         {
             GoodUpdatePack pack = JsonTool.Deserialize<GoodUpdatePack>(msg.Pack.Data);
-            if(pack != null)
+            if (pack != null)
             {
                 if (pack.AddGood)
                 {
-                    if(!PubMaster.Goods.AddGoods(pack.EditGood, out string result))
+                    if (!PubMaster.Goods.AddGoods(pack.EditGood, out string result))
                     {
                         SendFail2Rf(msg.MEID, FunTag.UpdateGood, result);
                     }
@@ -1181,7 +1182,7 @@ namespace task.rf
                 if (PubMaster.DevConfig.SetTileLifterGoods(pack.TileId, pack.GoodId))
                 {
                     PubTask.TileLifter.UpdateTileLifterGoods(pack.TileId, pack.GoodId);
-                    SendSucc2Rf(msg.MEID, FunTag.UpdateTileGood, pack.GoodId+"");
+                    SendSucc2Rf(msg.MEID, FunTag.UpdateTileGood, pack.GoodId + "");
                 }
             }
         }
@@ -1202,7 +1203,7 @@ namespace task.rf
         {
             if (msg.IsPackHaveData())
             {
-                if(uint.TryParse(msg.Pack.Data, out uint trackid))
+                if (uint.TryParse(msg.Pack.Data, out uint trackid))
                 {
                     Track track = PubMaster.Track.GetTrack(trackid);
                     if (track != null)
@@ -1273,7 +1274,7 @@ namespace task.rf
             {
                 if (PubMaster.Track.CheckAndUpateTrackStatus(pack, out string result))
                 {
-                    SendSucc2Rf(msg.MEID, FunTag.UpdateTrackStatus,"");
+                    SendSucc2Rf(msg.MEID, FunTag.UpdateTrackStatus, "");
                 }
                 else
                 {
@@ -1315,7 +1316,7 @@ namespace task.rf
             TaskSwitch pack = JsonTool.Deserialize<TaskSwitch>(msg.Pack.Data);
             if (pack != null)
             {
-                if(PubMaster.Dic.UpdateSwitch(pack.code, pack.onoff, true))
+                if (PubMaster.Dic.UpdateSwitch(pack.code, pack.onoff, true))
                 {
                     SendSucc2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "ok");
                     //关闭开关，执行人工作业
@@ -1345,11 +1346,11 @@ namespace task.rf
                         {
                             areaid = 5;
                         }
-                        if(areaid!=0 && (isdown || isup || issort))
+                        if (areaid != 0 && (isdown || isup || issort))
                         {
-                            if(isup) PubTask.Trans.StopAreaUp(areaid);
-                            if(isdown) PubTask.Trans.StopAreaDown(areaid);
-                            if(issort) PubTask.Trans.StopAreaSort(areaid);
+                            if (isup) PubTask.Trans.StopAreaUp(areaid);
+                            if (isdown) PubTask.Trans.StopAreaDown(areaid);
+                            if (issort) PubTask.Trans.StopAreaSort(areaid);
                         }
                     }
                 }
@@ -1401,7 +1402,7 @@ namespace task.rf
 
         private void GetDevice(RfMsgMod msg)
         {
-            if(msg.IsPackHaveData())
+            if (msg.IsPackHaveData())
             {
                 List<DeviceTypeE> tlist = new List<DeviceTypeE>();
                 if (msg.Pack.Data.Contains(":"))
@@ -1424,7 +1425,7 @@ namespace task.rf
                 }
 
                 RfDevicePack pack = new RfDevicePack();
-                QueryDeviceInType(msg.MEID,tlist, ref pack);
+                QueryDeviceInType(msg.MEID, tlist, ref pack);
                 SendSucc2Rf(msg.MEID, FunTag.QueryDevice, JsonTool.Serialize(pack));
             }
         }
@@ -1485,7 +1486,7 @@ namespace task.rf
                     });
                 }
             }
-            
+
 
             SendSucc2Rf(msg.MEID, FunTag.QueryDevFerry, JsonTool.Serialize(pack));
         }
@@ -1522,7 +1523,7 @@ namespace task.rf
 
             SendSucc2Rf(msg.MEID, FunTag.QueryDevCarrier, JsonTool.Serialize(pack));
         }
-        
+
         private void GetDevTileLifter(RfMsgMod msg)
         {
             DevTileLifterPack pack = new DevTileLifterPack();
@@ -1556,7 +1557,7 @@ namespace task.rf
                     });
                 }
             }
-            
+
 
             SendSucc2Rf(msg.MEID, FunTag.QueryDevTileLifter, JsonTool.Serialize(pack));
         }
@@ -1568,7 +1569,7 @@ namespace task.rf
             {
                 if (pack.CarrierTask == 128) return;
                 DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
-                if(!PubTask.Carrier.DoManualNewTask(pack.DevId, type, out string result, "平板手动"))
+                if (!PubTask.Carrier.DoManualNewTask(pack.DevId, type, out string result, "平板手动"))
                 {
                     SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, result);
                     return;
@@ -1593,7 +1594,7 @@ namespace task.rf
         private void GetTrans(RfMsgMod msg)
         {
             TransPack pack = new TransPack();
-            if(IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
                 pack.AddTransList(PubTask.Trans.GetTransList(areaids));
             }
@@ -1610,9 +1611,9 @@ namespace task.rf
         {
             if (msg.IsPackHaveData())
             {
-                if(uint.TryParse(msg.Pack.Data, out uint transid))
+                if (uint.TryParse(msg.Pack.Data, out uint transid))
                 {
-                    if(!PubTask.Trans.CancelTask(transid, out string result))
+                    if (!PubTask.Trans.CancelTask(transid, out string result))
                     {
                         SendFail2Rf(msg.MEID, FunTag.CancelTrans, result);
                     }
@@ -1663,7 +1664,7 @@ namespace task.rf
             if (msg.IsPackHaveData())
             {
                 RfTileTrackPack updatepack = JsonTool.Deserialize<RfTileTrackPack>(msg.Pack.Data);
-                if(updatepack.DeleteList != null && updatepack.DeleteList.Count > 0)
+                if (updatepack.DeleteList != null && updatepack.DeleteList.Count > 0)
                 {
                     foreach (TileTrack track in updatepack.DeleteList)
                     {
@@ -1671,7 +1672,7 @@ namespace task.rf
                     }
                 }
 
-                if(updatepack !=null && updatepack.TrackList != null)
+                if (updatepack != null && updatepack.TrackList != null)
                 {
                     foreach (TileTrack track in updatepack.TrackList)
                     {
@@ -1688,10 +1689,10 @@ namespace task.rf
         #region[砖机转品种]
 
         //查询砖机品种，转产状态
-        private void QueryTileShift(RfMsgMod msg) 
+        private void QueryTileShift(RfMsgMod msg)
         {
             RfTileShiftPack pack = new RfTileShiftPack();
-            if(IsClientFilterArea(msg.MEID, out List<uint> areaids))
+            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
                 foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids))
                 {
@@ -1707,7 +1708,7 @@ namespace task.rf
             }
 
 
-            if(pack.TileShift != null)
+            if (pack.TileShift != null)
             {
                 SendSucc2Rf(msg.MEID, FunTag.QueryTileShift, JsonTool.Serialize(pack));
             }
@@ -1715,7 +1716,7 @@ namespace task.rf
 
 
         //更新预设品种
-        private void UpdatePreGood(RfMsgMod msg) 
+        private void UpdatePreGood(RfMsgMod msg)
         {
             if (msg.IsPackHaveData())
             {
@@ -1733,9 +1734,9 @@ namespace task.rf
                 }
             }
         }
-        
+
         //转品种
-        private void ShiftTileGood(RfMsgMod msg) 
+        private void ShiftTileGood(RfMsgMod msg)
         {
             RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
             if (pack != null)
@@ -1872,7 +1873,7 @@ namespace task.rf
         /// <param name="meid"></param>
         /// <param name="areaids"></param>
         /// <returns></returns>
-        private bool IsClientFilterArea(string meid,out List<uint> areaids)
+        private bool IsClientFilterArea(string meid, out List<uint> areaids)
         {
             RfClient rf = mClient.Find(c => meid.Equals(c.rfid));
             if (rf != null)
