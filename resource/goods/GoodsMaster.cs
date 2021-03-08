@@ -1425,69 +1425,84 @@ namespace resource.goods
         private void StockSumChange(Stock stock, uint totrackid)
         {
             //该库存是否去向储砖轨道
-            bool istostore = PubMaster.Track.IsStoreTrack(totrackid);
-            //该库存是否来源于储砖轨道
-            bool isfromstore = PubMaster.Track.IsStoreTrack(stock.track_id);
-            if (istostore || isfromstore)
+            //1.摆渡车 -> 储砖轨道
+            //2.入轨道 -> 出轨道
+            if (PubMaster.Track.IsStoreTrack(totrackid))
             {
-                StockSum sum;
-                if (istostore)
-                {   //库存放置 => 储砖轨道(加)
-                    sum = StockSumList.Find(c => c.track_id == totrackid && c.goods_id == stock.goods_id);
-                }
-                else
-                {   //库存 从 储砖轨道 => 出(减)
-                    sum = StockSumList.Find(c => c.track_id == stock.track_id && c.goods_id == stock.goods_id);
-                }
+                ToStoreSumUpdate(totrackid, stock);
+            }
 
-                if(sum != null)
+            //该库存是否来源于储砖轨道
+            //1.储砖轨道 -> 摆渡车
+            //2.入轨道 -> 出轨道
+            if (PubMaster.Track.IsStoreTrack(stock.track_id))
+            {
+                FromStoreSumUpdate(stock);
+            }
+        }
+
+        /// <summary>
+        /// 该库存是否去向储砖轨道
+        /// 1.摆渡车 -> 储砖轨道
+        /// 2.入轨道 -> 出轨道
+        /// </summary>
+        /// <param name="totrackid"></param>
+        /// <param name="stock"></param>
+        private void ToStoreSumUpdate(uint totrackid, Stock stock)
+        {
+            //库存放置 => 储砖轨道(加)
+            StockSum sum = StockSumList.Find(c => c.track_id == totrackid && c.goods_id == stock.goods_id);
+            if (sum == null)
+            {
+                Track track = PubMaster.Track.GetTrack(totrackid);
+                sum = new StockSum()
                 {
-                    if (istostore)
-                    {
-                        sum.count += 1;
-                        sum.stack += stock.stack;
-                        sum.pieces += stock.pieces;
-                    }
-                    else
-                    {
-                        sum.count -= 1;
-                        sum.stack -= stock.stack;
-                        sum.pieces -= stock.pieces;
-                    }
+                    count = 1,
+                    goods_id = stock.goods_id,
+                    track_id = totrackid,
+                    pieces = stock.pieces,
+                    stack = stock.stack,
+                    produce_time = stock.produce_time,
+                    area = track.area,
+                    track_type = track.type
+                };
+                StockSumList.Add(sum);
+                SendSumMsg(sum, ActionTypeE.Add);
+                SortSumList();
+            }
+            else
+            {
+                sum.count += 1;
+                sum.stack += stock.stack;
+                sum.pieces += stock.pieces;
+                SendSumMsg(sum, ActionTypeE.Update);
+            }
+        }
 
-                    if (sum.count == 0)
-                    {
-                        StockSumList.Remove(sum);
-                        SendSumMsg(sum, ActionTypeE.Delete);
-                    }
-                    else
-                    {
-                        if (isfromstore)
-                        {
-                            sum.produce_time = GetEarliestTime(sum.track_id);
-                        }
-                        SendSumMsg(sum, ActionTypeE.Update);
-                    }
-                }
+        /// <summary>
+        /// 该库存是否来源于储砖轨道
+        /// 1.储砖轨道 -> 摆渡车
+        /// 2.入轨道 -> 出轨道
+        /// </summary>
+        /// <param name="stock"></param>
+        private void FromStoreSumUpdate(Stock stock)
+        {   //库存 从 储砖轨道 => 出(减)
+            StockSum sum = StockSumList.Find(c => c.track_id == stock.track_id && c.goods_id == stock.goods_id);
+            if (sum != null)
+            {
+                sum.count -= 1;
+                sum.stack -= stock.stack;
+                sum.pieces -= stock.pieces;
 
-                if (sum == null && istostore)
+                if (sum.count == 0)
                 {
-                    Track track = PubMaster.Track.GetTrack(totrackid);
-                    sum = new StockSum()
-                    {
-                        count = 1,
-                        goods_id = stock.goods_id,
-                        track_id = totrackid,
-                        pieces = stock.pieces,
-                        stack = stock.stack,
-                        produce_time = stock.produce_time,
-                        area = track.area,
-                        track_type = track.type
-                    };
-                    StockSumList.Add(sum);
-                    SendSumMsg(sum, ActionTypeE.Add);
-                    SortSumList();
+                    StockSumList.Remove(sum);
+                    SendSumMsg(sum, ActionTypeE.Delete);
+                    return;
                 }
+
+                sum.produce_time = GetEarliestTime(sum.track_id);
+                SendSumMsg(sum, ActionTypeE.Update);
             }
         }
 
