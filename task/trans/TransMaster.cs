@@ -415,8 +415,17 @@ namespace task.trans
                                         }
                                         else
                                         {
-                                            cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id);
-                                            cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
+                                            Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                                            if (givetrack.Type == TrackTypeE.储砖_出入)
+                                            {
+                                                cao.ToRFID = givetrack.rfid_2;
+                                            }
+
+                                            if (givetrack.Type == TrackTypeE.储砖_入)
+                                            {
+                                                cao.ToSite = givetrack.split_point;
+                                            }
+                                            cao.OverRFID = givetrack.rfid_1;
 
                                             //cao.ToSite = loc;
                                             //cao.OverSite = PubMaster.Track.GetTrackLimitPoint(trans.give_track_id);
