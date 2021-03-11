@@ -11,7 +11,6 @@ namespace simserver.simsocket.rf
 {
     public class SimTileLifterServer : SimServerBase
     {
-
         #region[定义]
         SocketMsgMod mMsg;
         SimTileLifterProcesser mProcess;
@@ -173,7 +172,6 @@ namespace simserver.simsocket.rf
         #endregion
 
         #region[通知]
-
 
         internal override void SendMsg(byte devid, SocketMsgTypeE type, SocketConnectStatusE connectE, IDevice dev)
         {

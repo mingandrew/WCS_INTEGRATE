@@ -120,6 +120,7 @@ namespace simtask.master
                             task.DevStatus.DeviceID = mod.Devid;
                             task.SetDicInfo();
                             DevList.Add(task);
+                            SendDevMsg(task);
                         }
 
                         if (task != null)
@@ -226,27 +227,15 @@ namespace simtask.master
             return false;
         }
 
-        public void StartWork(byte deviceID)
+        public void StartOrStopWork(uint devid, bool isstart)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            if (isstart)
             {
-                try
-                {
-                    DevList.Find(c => c.DevId == deviceID)?.StartWorking();
-                }
-                finally { Monitor.Exit(_obj); }
+                DevList.Find(c => c.ID == devid)?.StartWorking();
             }
-        }
-
-        public void StopWork(byte deviceID)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            else
             {
-                try
-                {
-                    DevList.Find(c => c.DevId == deviceID)?.StopWorking();
-                }
-                finally { Monitor.Exit(_obj); }
+                DevList.Find(c => c.ID == devid)?.StartWorking();
             }
         }
 
@@ -346,6 +335,16 @@ namespace simtask.master
         private void ServerSend(byte devid, DevTileLifter dev)
         {
             mServer?.SendMessage(devid, dev);
+        }
+
+        #endregion
+
+
+        #region[发送信息]
+
+        private void SendDevMsg(SimTaskBase task)
+        {
+            Messenger.Default.Send(task, MsgToken.SimDeviceStatusUpdate);
         }
 
         #endregion

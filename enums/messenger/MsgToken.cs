@@ -38,10 +38,13 @@ namespace enums
 
         #region[模拟系统]
 
-        public const string SimCarrierMsgUpdate = nameof(SimCarrierMsgUpdate);
-        public const string SimFerryMsgUpdate = nameof(SimFerryMsgUpdate);
-        public const string SimTileLifterMsgUpdate = nameof(SimTileLifterMsgUpdate);
+        public const string SimCarrierMsgUpdate = nameof(SimCarrierMsgUpdate);//通讯
+        public const string SimFerryMsgUpdate = nameof(SimFerryMsgUpdate);//通讯
+        public const string SimTileLifterMsgUpdate = nameof(SimTileLifterMsgUpdate);//通讯
 
+        public const string SimDeviceStatusUpdate = nameof(SimDeviceStatusUpdate);//界面
+        public const string SimFerryStatusUpdate = nameof(SimFerryStatusUpdate);//界面
+        public const string SimTileLifterStatusUpdate = nameof(SimTileLifterStatusUpdate);//界面
         #endregion
     }
 }

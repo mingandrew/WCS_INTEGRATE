@@ -6,7 +6,7 @@ using resource;
 using simtask.task;
 using System;
 
-namespace simtask.master
+namespace simtask
 {
     public class SimCarrierTask : SimTaskBase
     {

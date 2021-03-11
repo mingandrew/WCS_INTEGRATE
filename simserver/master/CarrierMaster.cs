@@ -6,6 +6,7 @@ using module.msg;
 using resource;
 using simserver.simsocket;
 using simserver.simsocket.rf;
+using simtask.task;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -116,6 +117,7 @@ namespace simtask.master
                             task.UpdateCurrentSite(devconf.sim_init_point);
 
                             DevList.Add(task);
+                            SendDevMsg(task);
                         }
 
                         if (task != null)
@@ -182,5 +184,14 @@ namespace simtask.master
                 task.DevStatus.DeviceStatus = mode;
             }
         }
+
+        #region[发送信息]
+
+        private void SendDevMsg(SimTaskBase task)
+        {
+            Messenger.Default.Send(task, MsgToken.SimDeviceStatusUpdate);
+        }
+
+        #endregion
     }
 }

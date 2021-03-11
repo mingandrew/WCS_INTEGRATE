@@ -87,7 +87,7 @@ namespace simserver.simsocket.rf
         protected SimServerBase(int port)
         {
             _obj = new object();
-            _mLog = (Log)new LogFactory().GetLog("PDA服务", true);
+            _mLog = (Log)new LogFactory().GetLog("模拟服务", true);
 
             Port = port;
 

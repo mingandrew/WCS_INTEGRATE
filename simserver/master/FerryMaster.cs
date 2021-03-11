@@ -283,6 +283,7 @@ namespace simtask.master
                         task.NowPosCode = devconfig.sim_last_point;
                         task.DevStatus.UpSite = devconfig.sim_last_point;
                         DevList.Add(task);
+                        SendDevMsg(task);
                     }
 
                     if (task != null)
@@ -342,5 +343,14 @@ namespace simtask.master
         {
             mServer?.SendMessage(devid, dev);
         }
+
+        #region[发送信息]
+
+        private void SendDevMsg(SimTaskBase task)
+        {
+            Messenger.Default.Send(task, MsgToken.SimDeviceStatusUpdate);
+        }
+
+        #endregion
     }
 }

@@ -1,12 +1,20 @@
-﻿using GalaSoft.MvvmLight;
+﻿using enums;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using module.window;
 using resource;
 using simtask;
+using simtask.task;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using task;
+using wcs.Data.View.sim;
 
 namespace wcs.ViewModel
 {
@@ -14,6 +22,21 @@ namespace wcs.ViewModel
     {
         public SimulationViewModel()
         {
+            _tilelist = new ObservableCollection<SimDeviceView>();
+            _ferrylist = new ObservableCollection<SimDeviceView>();
+            _carrierlist = new ObservableCollection<SimDeviceView>();
+
+            Messenger.Default.Register<SimTaskBase>(this, MsgToken.SimDeviceStatusUpdate, SimDeviceStatusUpdate);
+
+            TileView = System.Windows.Data.CollectionViewSource.GetDefaultView(_tilelist);
+            TileView.Filter = new Predicate<object>(OnFilter);
+
+            FerryView = System.Windows.Data.CollectionViewSource.GetDefaultView(_ferrylist);
+            FerryView.Filter = new Predicate<object>(OnFilter);
+
+            CarrierView = System.Windows.Data.CollectionViewSource.GetDefaultView(_carrierlist);
+            CarrierView.Filter = new Predicate<object>(OnFilter);
+
             InitAreaRadio();
             CheckIsSingle();
             SimServer.Init();
@@ -29,9 +52,16 @@ namespace wcs.ViewModel
         private uint SelectAreaId = 0;
         private bool _reftile, _refcarrier, _refferry, _refferrypose;
         private string _tabtag;
+
+        private ObservableCollection<SimDeviceView> _tilelist, _ferrylist, _carrierlist;
+
         #endregion
 
         #region[属性]
+
+        public ICollectionView TileView { set; get; }
+        public ICollectionView FerryView { set; get; }
+        public ICollectionView CarrierView { set; get; }
 
         public bool SimServerRun
         {
@@ -48,7 +78,8 @@ namespace wcs.ViewModel
                         }
                         else
                         {
-                            SimServer.Stop();
+                            PubTask.StopSimDevice();
+                            //SimServer.Stop();
                         }
                     }
                 }
@@ -79,6 +110,16 @@ namespace wcs.ViewModel
         #endregion
 
         #region[方法]
+        bool OnFilter(object item)
+        {
+            if (SelectAreaId == 0) return true;
+            if (item is SimDeviceView view)
+            {
+                return view.area_id == SelectAreaId ;
+            }
+            return true;
+        }
+
         private void CheckIsSingle()
         {
             if (PubMaster.Area.IsSingleArea(out uint areaid))
@@ -92,7 +133,7 @@ namespace wcs.ViewModel
         #region[区域按钮/Tab切换]
         private void InitAreaRadio()
         {
-            AreaRadio = PubMaster.Area.GetAreaRadioList(false);
+            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
         }
 
         private void CheckRadioBtn(RoutedEventArgs args)
@@ -104,8 +145,8 @@ namespace wcs.ViewModel
                     SelectAreaId = areaid;
                     _reftile = false;
                     _refferry = false;
-                    _refferrypose = false;
                     _refcarrier = false;
+                    _refferrypose = false;
                     switch (_tabtag)
                     {
                         case "tile":
@@ -132,17 +173,17 @@ namespace wcs.ViewModel
 
         private void RefreshCarrier()
         {
-
+            CarrierView.Refresh();
         }
 
         private void RefreshFerry()
         {
-
+            FerryView.Refresh();
         }
 
         private void RefreshTile()
         {
-
+            TileView.Refresh();
         }
 
         private void TabSelected(RoutedEventArgs orgs)
@@ -184,6 +225,29 @@ namespace wcs.ViewModel
         }
         #endregion
 
+        /// <summary>
+        /// 更新设备状态
+        /// </summary>
+        /// <param name="task"></param>
+        private void SimDeviceStatusUpdate(SimTaskBase task)
+        {
+            if (task != null )
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    if(task is SimCarrierTask c)
+                    {
+                        _carrierlist.Add(new SimDeviceView(task));
+                    }else if(task is SimTileLifterTask t)
+                    {
+                        _tilelist.Add(new SimDeviceView(task));
+                    }else if(task is SimFerryTask f)
+                    {
+                        _ferrylist.Add(new SimDeviceView(task));
+                    }
+                });
+            }
+        }
         #endregion
     }
 }

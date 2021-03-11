@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:wcs.window" 
+        xmlns:local="clr-namespace:wcs.window"  
+        Background="{StaticResource RegionBrush}"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         DataContext="{Binding Simulation,Source={StaticResource Locator}}"
         mc:Ignorable="d"
-        Title="模拟测试系统" MinHeight="600" MinWidth="600">
+        Title="模拟测试系统" MinHeight="500" MinWidth="300">
     <Grid>
-        <Grid Margin="10" Grid.Row="1">
+        <Grid Margin="5" Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
@@ -52,31 +53,44 @@
                     </hc:RoutedEventTrigger>
                 </hc:Interaction.Triggers>
                 <TabItem Header="砖机" Tag="tile">
-                    <Grid Margin="15">
+                    <Grid Margin="5">
                         <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding DeviceView}" SelectedItem="{Binding DeviceSelected}"
+                              ItemsSource="{Binding TileView}" SelectedItem="{Binding DeviceSelected}"
                               SelectionUnit="FullRow" SelectionMode="Single"
                               CanUserAddRows="False" CanUserResizeColumns="False"
                               CanUserDeleteRows="False" CanUserSortColumns="False"
                               CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.ContextMenu>
                                 <ContextMenu>
-                                    <MenuItem Header="添加" Tag="add" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="修改" Tag="edit" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="删除" Tag="delete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="开始作业" Tag="1" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="结束作业" Tag="2" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="工位1满砖" Tag="3" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="工位2满砖" Tag="4" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="工位1空砖" Tag="5" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="工位2空砖" Tag="6" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="转产" Tag="7" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding device_id, Converter={StaticResource DevId2NameConverter}}" Header="设备" Width="*"/>
-                                <DataGridTextColumn Binding="{Binding DevType}" Header="类型" Width="*"/>
+                                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
+                                <DataGridTextColumn Binding="{Binding DevType}" Header="类型"/>
+                                <DataGridTemplateColumn Header="作业">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <ToggleButton  IsChecked="{Binding Working,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
                 </TabItem>
                 <TabItem Header="运输车" Tag="carrier">
-                    <Grid>
+                    <Grid Margin="5">
                         <DataGrid Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding AreaTrackList}" SelectedItem="{Binding AreaTraSelect}"
+                              ItemsSource="{Binding CarrierView}" SelectedItem="{Binding AreaTraSelect}"
                               SelectionUnit="FullRow" SelectionMode="Single"
                               CanUserAddRows="False" CanUserResizeColumns="False"
                               CanUserDeleteRows="False" CanUserSortColumns="False"
@@ -87,16 +101,25 @@
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*" IsReadOnly="True"/>
-                                <DataGridTextColumn Binding="{Binding prior}" Header="优先级" Width="*"/>
+                                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
+                                <DataGridTextColumn Binding="{Binding DevType}" Header="类型"/>
+                                <DataGridTemplateColumn Header="作业">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <ToggleButton  IsChecked="{Binding Working,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
                 </TabItem>
                 <TabItem Header="摆渡车" Tag="ferry">
-                    <Grid>
+                    <Grid Margin="5">
                         <DataGrid Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding AreaTrackList}" SelectedItem="{Binding AreaTraSelect}"
+                              ItemsSource="{Binding FerryView}" SelectedItem="{Binding AreaTraSelect}"
                               SelectionUnit="FullRow" SelectionMode="Single"
                               CanUserAddRows="False" CanUserResizeColumns="False"
                               CanUserDeleteRows="False" CanUserSortColumns="False"
@@ -107,14 +130,23 @@
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*" IsReadOnly="True"/>
-                                <DataGridTextColumn Binding="{Binding prior}" Header="优先级" Width="*"/>
+                                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
+                                <DataGridTextColumn Binding="{Binding DevType}" Header="类型"/>
+                                <DataGridTemplateColumn Header="作业">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <ToggleButton  IsChecked="{Binding Working,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Grid>
                 </TabItem>
                 <TabItem Header="摆渡配置" Tag="ferrypos">
-                    <Grid>
+                    <Grid Margin="5">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
                             <RowDefinition/>

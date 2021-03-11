@@ -121,6 +121,7 @@
     <Compile Include="Data\View\FerryView.cs" />
     <Compile Include="Data\View\GoodsView.cs" />
     <Compile Include="Data\View\RfClientView.cs" />
+    <Compile Include="Data\View\sim\SimDeviceView.cs" />
     <Compile Include="Data\View\StockGoodSumView.cs" />
     <Compile Include="Data\View\StockSumView.cs" />
     <Compile Include="Data\View\TileLifterView.cs" />

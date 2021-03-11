@@ -3,7 +3,6 @@ using GalaSoft.MvvmLight.Messaging;
 using module.device;
 using module.msg;
 using simserver.simsocket.process;
-using socket.process;
 using System;
 using System.Linq;
 using System.Threading;
