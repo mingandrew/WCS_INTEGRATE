@@ -624,6 +624,20 @@ namespace task.rf
                 TrackStockUpdatePack pack = JsonTool.Deserialize<TrackStockUpdatePack>(msg.Pack.Data);
                 if (pack != null)
                 {
+                    //检查轨道是否能够添加对应数量的库存
+                    if (!PubMaster.Goods.CheckCanAddStockQty(pack.TrackId, pack.AddQty, out int ableqty, out string result))
+                    {
+                        if (result != null)
+                        {
+                            SendFail2Rf(msg.MEID, FunTag.AddTrackStock, result);
+                        }
+                        else
+                        {
+                            SendFail2Rf(msg.MEID, FunTag.AddTrackStock, string.Format("轨道剩余最多能添加：{0}", ableqty));
+                        }
+                        return;
+                    }
+
                     byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
                     if (PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
                         picese, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs))

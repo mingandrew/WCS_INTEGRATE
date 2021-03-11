@@ -121,6 +121,79 @@ namespace resource.goods
         }
 
         /// <summary>
+        /// 检查轨道是否能够添加对应数量的库存
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="stockqty"></param>
+        /// <param name="ableqty"></param>
+        /// <returns></returns>
+        public bool CheckCanAddStockQty(uint trackid, byte stockqty, out int ableqty, out string result)
+        {
+            result = null;
+            Track track = PubMaster.Track.GetTrack(trackid);
+            if (track != null)
+            {
+                if(track.StockStatus == TrackStockStatusE.满砖)
+                {
+                    result = "轨道满砖状态，不能添加库存！";
+                    ableqty = 0;
+                    return false;
+                }
+                if ((track.Type == TrackTypeE.储砖_出入 || track.Type == TrackTypeE.储砖_出)
+                    && (track.StockStatus == TrackStockStatusE.空砖 || !ExistStockInTrack(track.id)))
+                {
+                    ableqty = stockqty;
+                    return true;
+                }
+                else
+                {
+                    ushort loc = 0;
+                    //计算可存放位置
+                    Stock buttomStock = GetTrackButtomStock(track.id);
+                    if (buttomStock != null)
+                    {
+                        //出库第一车为空(手动添加)
+                        if(buttomStock.location == 0)
+                        {
+                            ableqty = stockqty;
+                            return true;
+                        }
+                        loc = buttomStock.location;
+                    }
+                    else
+                    {
+                        if(track.Type == TrackTypeE.储砖_入)
+                        {
+                            loc = track.split_point;
+                        }
+                    }
+                    
+                    if(loc > 0)
+                    {
+                        //ushort car = PubMaster.DevConfig.GetCarrierLenghtByArea(track.area);
+                        //ushort safe = GetGoodsSafeDis(buttomStock.goods_id);
+                        //// 当砖间距比小车顶板小，用顶板长度更安全
+                        //safe = car > safe ? car : safe;
+                        ushort safe = 217;//统计出来的(实际库存位置差平均值)
+                        if (safe > 0)
+                        {
+                            int count = (loc - track.limit_point) / safe;
+                            ableqty = count;
+                            if (count < stockqty)
+                            {
+                                return false;
+                            }
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            ableqty = -1;
+            return false;
+        }
+
+        /// <summary>
         /// 获取库存统计信息
         /// 1.重新排序
         /// 2.返回库存信息
@@ -279,27 +352,92 @@ namespace resource.goods
             return StockSumList.Find(c => c.track_id == trackid)?.stack ?? 0;
         }
 
+        /// <summary>
+        /// 手动添加轨道库存
+        /// </summary>
+        /// <param name="tileid">砖机ID</param>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="goodsid">品种ID</param>
+        /// <param name="pieces">片数</param>
+        /// <param name="produceTime">生产时间</param>
+        /// <param name="stockqty">车数</param>
+        /// <param name="memo">备注</param>
+        /// <param name="rs">添加结果</param>
+        /// <returns></returns>
         public bool AddTrackStocks(uint tileid, uint trackid, uint goodsid, byte pieces, DateTime? produceTime, byte stockqty, string memo, out string rs)
         {
             if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
             {
                 try
                 {
-                    Goods addgood = GoodsList.Find(c => c.id == goodsid);
+                    Goods addgood = GetGoods(goodsid);
                     if (addgood == null || addgood.empty)
                     {
                         rs = "添加的品种不能为空品种！";
                         return false;
                     }
 
+                    #region[计算模拟库存位置]
+                    uint StockId = 0;//库存ID
+                    int maxaddcount = 0;//最大可添加库存数量
+                    ushort nextstockloc = 0; //下一个库存计算存放位置
+                    ushort safe = 217;//统计出来的(实际库存位置差平均值)
+
+                    Track track = PubMaster.Track.GetTrack(trackid);
+                    if(track != null)
+                    {
+                        if((track.Type == TrackTypeE.储砖_出 
+                            || track.Type == TrackTypeE.储砖_出入)
+                            && track.StockStatus == TrackStockStatusE.空砖)
+                        {
+
+                        }
+                        else
+                        {
+                            //计算可存放位置
+                            Stock buttomStock = GetTrackButtomStock(trackid);
+                            if (buttomStock != null)
+                            {
+                                maxaddcount = (buttomStock.location - track.limit_point) / safe;
+                                if (maxaddcount > 0)
+                                {
+                                    nextstockloc = (ushort)(buttomStock.location - safe);
+                                }
+                            }
+                            else
+                            {
+                                if(track.Type == TrackTypeE.储砖_入)
+                                {
+                                    nextstockloc = track.split_point;
+                                }
+                            }
+                        }
+                    }
+                    #endregion
+
+                    //手动添加库存并计算脉冲
                     for (int i = 0; i < stockqty; i++)
                     {
-                        AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                        StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                        if (nextstockloc > 0)
+                        {
+                            UpdateStockLocation(StockId, nextstockloc);
+                            nextstockloc -= safe;
+                        }
                     }
 
                     CheckStockTop(trackid);
                     CheckTrackSum(trackid);
-                    PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.有砖, memo);
+
+                    //判断是否能继续放砖
+                    if (IsTrackFull(trackid, track.limit_point, safe))
+                    {
+                        PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.满砖, memo);
+                    }
+                    else
+                    {
+                        PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.有砖, memo);
+                    }
                     rs = "";
                     return true;
                 }
@@ -328,6 +466,26 @@ namespace resource.goods
             if (stock == null)
             {
                 stock = CheckGetStockTop(trackid);
+            }
+            return stock;
+        }
+
+        /// <summary>
+        /// 获取尾部、或者是最后一个库存
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public Stock GetTrackButtomStock(uint trackid)
+        {
+            Stock stock = StockList.Find(c => c.track_id == trackid && c.PosType == StockPosE.尾部);
+            if (stock == null)
+            {
+                List<Stock> list = StockList.FindAll(c => c.track_id == trackid);
+                if(list.Count > 0)
+                {
+                    list.Sort((x, y) => x.pos.CompareTo(y.pos));
+                    stock = list[list.Count - 1];
+                }
             }
             return stock;
         }
@@ -397,6 +555,26 @@ namespace resource.goods
                 stock = StockList.Find(c => c.track_id == trackid);
             }
             return stock?.id ?? 0;
+        }
+
+        /// <summary>
+        /// 【手动添加库存用】根据库存位置判断轨道是否满
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsTrackFull(uint trackid, uint limitpoint, ushort safe)
+        {
+            // 计算可存放位置
+            Stock buttomStock = GetTrackButtomStock(trackid);
+            if (buttomStock != null)
+            {
+                uint count = (buttomStock.location - limitpoint) / safe;
+                if (count <= 0)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         #endregion
 
@@ -585,6 +763,25 @@ namespace resource.goods
             return false;
         }
 
+        /// <summary>
+        /// 获取库存状态信息
+        /// </summary>
+        /// <param name="stock_id"></param>
+        /// <returns></returns>
+        public string GetStockInfo(uint stock_id)
+        {
+            return StockList.Find(c => c.id == stock_id)?.ToString() ?? stock_id+"";
+        }
+
+        /// <summary>
+        /// 获取库存简易信息
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        public string GetStockSmallInfo(uint stockid)
+        {
+            return StockList.Find(c => c.id == stockid)?.ToSmalString() ?? stockid + ""; 
+        }
 
         public bool DeleteGood(uint goodid, out string result)
         {
@@ -980,7 +1177,8 @@ namespace resource.goods
                 {
                     CheckStockTop(from_track_id);
 
-                    if (PubMaster.Track.IsTrackFull(from_track_id))
+                    if (fromtrack.StockStatus == TrackStockStatusE.满砖
+                        && fromtrack.Type == TrackTypeE.储砖_出)
                     {
                         PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.有砖, "");
                     }
@@ -994,44 +1192,20 @@ namespace resource.goods
 
                 try
                 {
-                    _mlog.Status(true, string.Format("转移【{0} -> {1}】【{2}】{3}",
-                        fromtrack.GetLog(), totrack.GetLog(), stock.ToString(), memo));
+                    AddStockLog(string.Format("【转移】轨道[ {0} -> {1} ], 库存[ {2} ], 备注[ {3} ]",
+                        fromtrack.name, totrack.name, stock.ToString(), memo));
                 }
                 catch { }
 
-
-                #region[更新轨道库存状态]
-
-                //【先不启用】
-                //if (isfromstore 
-                //    && !ExistStockInTrack(from_track_id) 
-                //    && fromtrack.StockStatus != TrackStockStatusE.空砖)
-                //{
-                //    PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.空砖, "系统已无库存,自动调整轨道为空");
-                //    PubMaster.Goods.ClearTrackEmtpy(from_track_id); 
-                //    PubMaster.Track.AddTrackLog(fromtrack.area, devid, from_track_id, TrackLogE.空轨道, "无库存数据");
-                //}
-
-                //if (istostore && totrack.StockStatus != TrackStockStatusE.满砖)
-                //{
-                //    ushort fullpos = PubMaster.Area.GetAreaFullQty(totrack.area);
-                //    if(ExistStockInTrackPos(totrack.id, fullpos)
-                //        || IsStockQtyCompare(totrack.id, fullpos))
-                //    {
-                //        PubMaster.Track.UpdateStockStatus(totrack.id, TrackStockStatusE.满砖, "设定最大库存数,自动满砖");
-                //        PubMaster.Track.AddTrackLog(fullpos, devid, totrack.id, TrackLogE.满轨道, "满足最大库存数");
-                //    }
-                //}
-
-                #endregion
-
                 #region[清理摆渡车遗留库存信息]
+
                 //【先不启用】
                 //if (fromtrack.Type == TrackTypeE.摆渡车_出 
                 //    || fromtrack.Type == TrackTypeE.摆渡车_入)
                 //{
                 //    ClearFerryTrackStocks(fromtrack.id);
                 //}
+
                 #endregion
             }
         }
@@ -1331,7 +1505,7 @@ namespace resource.goods
         public void UpdateStockLocationCal(uint stock_id, ushort loc)
         {
             Stock stock = GetStock(stock_id);
-            if (stock != null && stock.location != loc)
+            if (stock != null && stock.location_cal != loc)
             {
                 stock.location_cal = loc;
                 PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Location);
@@ -1396,7 +1570,7 @@ namespace resource.goods
                 for(int i =1; i< stocks.Count; i++)
                 {
                     PubMaster.Mod.GoodSql.DeleteStock(stocks[i]);
-                    _mlog.Status(true, string.Format("轨道：{0}，库存信息：{1}", trackname, stocks[i].ToString()));
+                    AddStockLog(string.Format("【删除摆渡库存】轨道[ {0} ], 库存[ {1} ]", trackname, stocks[i].ToString()));
                 }
                 StockList.RemoveAll(c =>c.track_id == trackid && c.id != stockid && stocks.Exists(s => s.id == c.id));
             }
@@ -2081,11 +2255,15 @@ namespace resource.goods
             List<Stock> ferrystocks = StockList.FindAll(c => c.track_id == trackid);
             foreach (var item in ferrystocks)
             {
-                AddStockLog(string.Format("删除摆渡库存：品种：{0}，{1}", PubMaster.Goods.GetGoodsName(item.goods_id), item.ToString()));
+                AddStockLog(string.Format("【删除摆渡库存】品种[ {0} ], 库存[ {1} ]", PubMaster.Goods.GetGoodsName(item.goods_id), item.ToString()));
                 PubMaster.Mod.GoodSql.DeleteStock(item);
             }
         }
 
+        /// <summary>
+        /// 添加库存日志
+        /// </summary>
+        /// <param name="log"></param>
         public void AddStockLog(string log)
         {
             try

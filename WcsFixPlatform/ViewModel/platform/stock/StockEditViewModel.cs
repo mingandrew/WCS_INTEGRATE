@@ -114,9 +114,24 @@ namespace wcs.ViewModel
                     return;
                 }
 
+
                 if (StockQty == 0 || StockQty > 50)
                 {
                     Growl.Warning("请输入正确范围的数量!");
+                    return;
+                }
+
+                //检查轨道是否能够添加对应数量的库存
+                if (!PubMaster.Goods.CheckCanAddStockQty(TrackId, StockQty, out int ableqty, out string result))
+                {
+                    if (result != null)
+                    {
+                        Growl.Warning(result);
+                    }
+                    else
+                    {
+                        Growl.Warning(string.Format("轨道剩余最多能添加：{0}", ableqty));
+                    }
                     return;
                 }
 
