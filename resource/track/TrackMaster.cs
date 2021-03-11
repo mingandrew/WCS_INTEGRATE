@@ -439,6 +439,14 @@ namespace resource.track
             return TrackList.FindAll(c => c.Type == type && deviceTrack.Exists(d => d.track_id == c.id));
         }
 
+        /// <summary>
+        /// 更新轨道库存状态
+        /// </summary>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="goodstatus">轨道库存状态</param>
+        /// <param name="result">需改结果</param>
+        /// <param name="memo">备注</param>
+        /// <returns></returns>
         public bool SetStockStatus(uint trackid, TrackStockStatusE goodstatus, out string result, string memo = "")
         {
             Track track = TrackList.Find(c => c.id == trackid);
@@ -530,7 +538,13 @@ namespace resource.track
             return tracks.Count - tracks.IndexOf(selectrack);
         }
 
-
+        /// <summary>
+        /// 修改轨道库存状态并更新到数据库
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="status"></param>
+        /// <param name="memo"></param>
+        /// <param name="isAllow"></param>
         internal void UpdateStockStatus(Track track, TrackStockStatusE status, string memo, bool isAllow)
         {
             if (track != null)
@@ -544,7 +558,7 @@ namespace resource.track
                 if (track.StockStatus == status) return;
                 try
                 {
-                    mLog.Status(true, string.Format("轨道；{0}，原货：{1}，新货：{2} , {3}", track.name, track.StockStatus, status, memo));
+                    mLog.Status(true, string.Format("轨道[ {0} ], 货物[ {1} -> {2} ], 备注[ {3} ]", track.name, track.StockStatus, status, memo));
                 }
                 catch { }
                 track.StockStatus = status;
@@ -564,11 +578,12 @@ namespace resource.track
         {
             if (track != null && track.TrackStatus != trackstatus)
             {
-                mLog.Status(true, string.Format("轨道；{0}，原状：{1}，新状：{2} , {3}", track.name, track.TrackStatus, trackstatus, memo));
+                mLog.Status(true, string.Format("轨道[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", track.name, track.TrackStatus, trackstatus, memo));
                 track.TrackStatus = trackstatus;
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.TrackStatus);
                 if (trackstatus == TrackStatusE.停用 && track.early_full)
                 {
+                    //轨道提前满砖，停用轨道 -> 清除轨道提前满砖状态
                     SetTrackEaryFull(track.id, false, null);
                 }
                 SendMsg(track);
@@ -1031,6 +1046,12 @@ namespace resource.track
             }
         }
 
+        /// <summary>
+        /// 轨道提前满砖
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="value"></param>
+        /// <param name="earytime"></param>
         public void SetTrackEaryFull(uint trackid, bool value, DateTime? earytime)
         {
             Track track = TrackList.Find(c => c.id == trackid);
@@ -1207,8 +1228,7 @@ namespace resource.track
         /// <returns></returns>
         public string GetTrackLogInfo(uint id)
         {
-            Track track = GetTrack(id);
-            return track?.GetLog() ?? "";
+            return GetTrack(id)?.GetLog() ?? "";
         }
 
         #endregion

@@ -27,7 +27,7 @@ namespace task.device
         private Thread _mRefresh;
         private bool Refreshing = true;
         private MTimer mTimer;
-        private Log mlog;
+        private Log mlog, mErrorLog;
         private bool isWcsStoping = false;
         #endregion
 
@@ -40,6 +40,8 @@ namespace task.device
         public CarrierMaster()
         {
             mlog = (Log)new LogFactory().GetLog("小车日志", false);
+            mErrorLog = (Log)new LogFactory().GetLog("放砖地标警告", false);
+
             mTimer = new MTimer();
             _objmsg = new object();
             mMsg = new MsgAction();
@@ -161,6 +163,23 @@ namespace task.device
                 Thread.Sleep(2000);
             }
         }
+
+        /// <summary>
+        /// 停止模拟的设备连接
+        /// </summary>
+        internal void StockSimDevice()
+        {
+            List<CarrierTask> tasks = DevList.FindAll(c => c.IsConnect && c.Device.ip.Equals("127.0.0.1"));
+            foreach (CarrierTask task in tasks)
+            {
+                if (task.IsEnable)
+                {
+                    task.SetEnable(false);
+                }
+                task.Stop("模拟停止");
+            }
+        }
+
 
         /// <summary>
         /// 清空设备信息
@@ -503,35 +522,43 @@ namespace task.device
             #region [取卸货]
 
             //放货动作
-            if (task.DevConfig.stock_id != 0  && task.IsNotLoad())
+            if (task.DevConfig.stock_id != 0 && task.IsNotLoad())
             {
                 PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GiveSite);
 
-                //【先不启用】
-                //if (task.DevStatus.CurrentOrder == DevCarrierOrderE.前进倒库
-                //    || task.DevStatus.CurrentOrder == DevCarrierOrderE.后退倒库)
-                //{
-                //    if (track != null)
-                //    {
-                //        if (track.Type == TrackTypeE.储砖_入
-                //            && track.rfid_2 == task.DevStatus.CurrentSite)
-                //        {
-                //            PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.brother_track_id, false, "【倒库】", task.ID);
-                //        }
-                //    }
-                //}
+                //判断放下砖的时候轨道是否是能否放砖的轨道
+                if (track.IsNotFerryTrack())
+                {
+                    try
+                    {
+                        PubMaster.Goods.AddStockLog(string.Format("【解绑】设备[ {0} ], 轨道[ {1} ], 库存[ {2} ], 运输车[ {3} ]", 
+                            task.Device.name,
+                            track?.name ?? task.GiveSite + "",
+                            PubMaster.Goods.GetStockInfo(task.DevConfig.stock_id),
+                            task.DevStatus.GetGiveString()));
+                    }
+                    catch { }
+                    task.DevConfig.stock_id = 0;
 
-                try
-                {                
-                    PubMaster.Goods.AddStockLog(string.Format("解绑【{0}, {1}, {2}】【{3}】", task.Device.name,
-                        track?.GetLog() ?? task.GiveSite + "",
-                        task.DevConfig.stock_id,
-                        task.DevStatus.ToString()));
+                    PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
+
+                    if (task.IsUnloadInFerry)
+                    {
+                        task.IsUnloadInFerry = false;
+                        mErrorLog.Error(true, string.Format("【放砖】轨道[ {0} ], 需要调整极限地标,否则影响倒库; 小车[ {1} ]", 
+                            track.GetLog(), task.Device.name));
+                    }
                 }
-                catch { }
-                task.DevConfig.stock_id = 0;
+                else
+                {
+                    if (!task.IsUnloadInFerry)
+                    {
+                        task.IsUnloadInFerry = true;
 
-                PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
+                        mErrorLog.Error(true, string.Format("【放砖】小车[ {0} ], 尝试在轨道[ {1} ]上卸货; 状态[ {2} ]", 
+                            task.Device.name, track.GetLog(), task.DevStatus.GetGiveString() ));
+                    }
+                }
             }
 
             //取货动作
@@ -565,11 +592,11 @@ namespace task.device
                         PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
                         try
                         {
-                            PubMaster.Goods.AddStockLog(string.Format("绑定【{0}, {1}, {2}】【{3}】",
+                            PubMaster.Goods.AddStockLog(string.Format("【绑定】设备[ {0} ], 轨道[ {1} ], 库存[ {2} ], 运输车[ {3} ]",
                                     task.Device.name,
-                                    track?.GetLog() ?? task.TakeSite + "",
-                                    task.DevConfig.stock_id,
-                                    task.DevStatus.ToString()));
+                                    track?.name ?? task.TakeSite + "",
+                                    PubMaster.Goods.GetStockSmallInfo(task.DevConfig.stock_id),
+                                    task.DevStatus.GetTakeString()));
                         }
                         catch { }
                     }
@@ -578,7 +605,8 @@ namespace task.device
                 if (task.DevConfig.stock_id == 0)
                 {
                     //报警
-
+                    mErrorLog.Error(true, string.Format("【放砖】小车[ {0} ]尝试在轨道[ {1} ]上放砖; 状态[ {2} ]",
+                        task.Device.name, track.GetLog(), task.DevStatus.GetGiveString()));
                 }
             }
 
@@ -590,7 +618,7 @@ namespace task.device
             if (task.DevConfig.stock_id != 0)
             {
                 //根据小车当前的位置更新库存对应所在的轨道
-                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false);
+                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, "", task.ID);
             }
 
             #endregion
@@ -632,11 +660,15 @@ namespace task.device
                 CarrierTask carrier = DevList.Find(c => c.ID == trans.carrier_id);
                 if (carrier.CurrentOrder == DevCarrierOrderE.放砖指令)
                 {
-                    mlog.Error(true, "没有读到" + trans.give_track_id + "储砖入轨道地标");
+                    mErrorLog.Error(true, string.Format("【读点】小车[ {0} ]没有读到[ {1} ]轨道地标",
+                        carrier.Device.name,
+                        PubMaster.Track.GetTrackName(trans.give_track_id)));
                 }
                 else if (carrier.CurrentOrder == DevCarrierOrderE.取砖指令)
                 {
-                    mlog.Error(true, "没有读到" + trans.finish_track_id + "储砖出轨道地标");
+                    mErrorLog.Error(true, string.Format("【读点】小车[ {0} ]没有读到[ {1} ]轨道地标",
+                        carrier.Device.name,
+                        PubMaster.Track.GetTrackName(trans.finish_track_id)));
                 }
             }
             return isWrongStatus;
@@ -798,7 +830,7 @@ namespace task.device
 
             try
             {
-                mlog.Status(true, string.Format("运输车：{0}，任务：{1},备注：{2}",
+                mlog.Status(true, string.Format("运输车[ {0} ], 任务[ {1} ], 备注[ {2} ]",
                     PubMaster.Device.GetDeviceName(devid, devid + ""), carriertask, memo));
             }
             catch { }
@@ -823,16 +855,17 @@ namespace task.device
                 result = "未能获取到小车位置相关信息！";
                 return false;
             }
+            //小车当前所在RF点
             ushort point = GetCurrentPoint(devid);
 
             DevCarrierOrderE order = DevCarrierOrderE.终止指令;
-            ushort checkTra = 0;
-            ushort toRFID = 0;
-            ushort toSite = 0;
-            ushort overRFID = 0;
-            ushort overSite = 0;
-            byte moveCount = 0;
-            uint ferryTraid = 0;
+            ushort checkTra = 0;//校验轨道号
+            ushort toRFID = 0;//目标点
+            ushort toSite = 0;//目标脉冲
+            ushort overRFID = 0;//结束点
+            ushort overSite = 0;//结束脉冲
+            byte moveCount = 0;//倒库数量
+            uint ferryTraid = 0;//摆渡轨道ID
             switch (carriertask)
             {
                 case DevCarrierTaskE.后退取砖:
@@ -1065,7 +1098,7 @@ namespace task.device
 
             try
             {
-                mlog.Status(true, string.Format("运输车：{0}，任务：{1},备注：{2}",
+                mlog.Status(true, string.Format("运输车：{0}, 任务：{1},备注：{2}",
                     PubMaster.Device.GetDeviceName(devid, devid + ""), carriertask, memo));
             }
             catch { }
@@ -1799,5 +1832,4 @@ namespace task.device
         /// </summary>
         public byte MoveCount { set; get; } = 0;
     }
-
 }

@@ -275,7 +275,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[品种修改]砖机：{0}，原：{1}，新：{2}【{3} , {4}】",
+                    mLog.Status(true, string.Format("【品种修改】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.goods_id),
                         PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid));
@@ -302,7 +302,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[入库逻辑]砖机：{0}，原:{1}，新:{2}", 
+                    mLog.Status(true, string.Format("【入库逻辑】砖机[ {0} ], 策略[ {1} -> {2} ]", 
                         PubMaster.Device.GetDeviceName(dev.id),
                         dev.InStrategey, instrategy));
                 }
@@ -329,7 +329,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[出库逻辑]砖机：{0}，原:{1}，新:{2}",
+                    mLog.Status(true, string.Format("【出库逻辑】砖机[ {0} ], 策略[ {1} -> {2} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         dev.OutStrategey, outstrategy));
                 }
@@ -355,8 +355,8 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[最后作业轨道]砖机：{0}，轨道:{1}",
-                        PubMaster.Device.GetDeviceName(dev.id), trackid));
+                    mLog.Status(true, string.Format("【最后作业轨道】砖机[ {0} ], 轨道[ {1} ]",
+                        PubMaster.Device.GetDeviceName(dev.id), PubMaster.Track.GetTrackName(trackid, trackid+"")));
                 }
                 catch { }
                 dev.last_track_id = trackid;
@@ -516,7 +516,7 @@ namespace resource.device
 
                 try
                 {
-                    mLog.Status(true, string.Format("[预设品种]砖机：{0}，预设品种:{1}【{2}】",
+                    mLog.Status(true, string.Format("【预设品种】砖机[ {0} ], 预设品种[ {1} ], 标识[ {2} ]",
                         PubMaster.Device.GetDeviceName(dev.id), 
                         PubMaster.Goods.GetGoodsName(pregoodid), pregoodid));
                 }
@@ -544,7 +544,7 @@ namespace resource.device
             {
                 if (dev.do_cutover)
                 {
-                    result = "切换模式中，无法转产！";
+                    result = "切换模式中, 无法转产！";
                     return false;
                 }
 
@@ -566,7 +566,7 @@ namespace resource.device
                 PubMaster.Mod.DevConfigSql.EditGoods(dev);
                 try
                 {
-                    mLog.Status(true, string.Format("[开始转产]砖机：{0}，原品种:{1}，新品种:{2}, 【{3} , {4}】",
+                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.old_goodid),
                         PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id));
@@ -610,7 +610,7 @@ namespace resource.device
 
                 if (dev.do_shift)
                 {
-                    result = "转产中，无法切换模式！";
+                    result = "转产中, 无法切换模式！";
                     return false;
                 }
 
@@ -627,7 +627,7 @@ namespace resource.device
                 }
                 try
                 {
-                    mLog.Status(true, string.Format("[开始切换模式]砖机：{0}，当前模式:{1}，切换模式:{2}，目前品种:{3}，切换品种:{4}【{5},{6}】",
+                    mLog.Status(true, string.Format("【开始切换模式】砖机[ {0} ], 模式[ {1} -> {2} ], 品种[ {3} -> {4}], 标识[ {5} -> {6} ]",
                       PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode,
                       PubMaster.Goods.GetGoodsName(dev.goods_id),
                       PubMaster.Goods.GetGoodsName(newgoodid), dev.goods_id, newgoodid));
@@ -658,7 +658,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[完成切换模式]砖机：{0}，原模式:{1}，新模式:{2}，原品种:{3}, 新品种:{4}【{5},{6}】",
+                    mLog.Status(true, string.Format("【完成切换模式】砖机[ {0} ], 模式[ {1} -> {2} ], 品种[ {3} -> {4} ], 标识[ {5} -> {6} ]",
                        PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, nextmode,
                        PubMaster.Goods.GetGoodsName(dev.goods_id),
                        PubMaster.Goods.GetGoodsName(dev.pre_goodid),
@@ -699,7 +699,7 @@ namespace resource.device
 
                 try
                 {
-                    mLog.Status(true, string.Format("[取消切换模式]砖机：{0}，原模式:{1}，新模式:{2}，原品种:{3}, 新品种:{4}【{5},{6}】",
+                    mLog.Status(true, string.Format("【取消切换模式】砖机[ {0} ], 模式[ {1} -> {2} ], 品种[ {3} -> {4} ], 标识[ {5} -> {6} ]",
                        PubMaster.Device.GetDeviceName(dev.id), dev.WorkMode, dev.WorkModeNext,
                        PubMaster.Goods.GetGoodsName(dev.goods_id),
                        PubMaster.Goods.GetGoodsName(dev.pre_goodid),
@@ -735,7 +735,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[启用备用砖机]备用砖机：{0}，需要备用的砖机：{1}",
+                    mLog.Status(true, string.Format("【启用备用砖机】备用砖机[ {0} ], 需要备用的砖机[ {1} ]",
                         PubMaster.Device.GetDeviceName(backup_id), PubMaster.Device.GetDeviceName(need_id)));
                 }
                 catch { }
@@ -808,5 +808,16 @@ namespace resource.device
 
         #endregion
 
+        #region[日志]
+        public void AddLog(string msg)
+        {
+            try
+            {
+                mLog.Status(true, msg);
+            }
+            catch { }
+        }
+
+        #endregion
     }
 }

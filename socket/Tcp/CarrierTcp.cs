@@ -251,7 +251,9 @@ namespace socket.tcp
                 byte[] pdata = new byte[SocketConst.CARRIER_STATUS_SIZE];
                 Array.Copy(data, 0, pdata, 0, SocketConst.CARRIER_STATUS_SIZE);
                 DevCarrier device = mProcess.GetStatus(pdata);
-                if (device.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, (int)DevID, 2))
+                if (device.IsUpdate 
+                    || device.IsCurrentSiteUpdate
+                    || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, (int)DevID, 2))
                 {
                     SendMsg(SocketMsgTypeE.DataReiceive, SocketConnectStatusE.通信正常, device);
                     if (device.IsUpdate) _mLog.Status(true, device.ToString());

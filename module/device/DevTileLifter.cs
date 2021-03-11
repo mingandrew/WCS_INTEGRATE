@@ -185,8 +185,8 @@ namespace module.device
 
         public override string ToString()
         {
-            return string.Format("货物1：{0}, 货物2：{1}, 需求1：{2}, 需求2：{3}, 满砖：{4}, 现有：{5}, 介入1：{6}, 介入2：{7}, 操作：{8}, " +
-                "工位1：{9}, 工位2：{10}, 转产：{11}, 转产接收：{12}, 模式：{13}, 设定品种：{14}, 设定等级：{15}",
+            return string.Format("物1[ {0} ], 物2[ {1} ], 需1[ {2} ], 需2[ {3} ], 满[ {4} ], 有[ {5} ], 介1[ {6} ], 介2[ {7} ], 操作[ {8} ], " +
+                "位1[ {9} ], 位2[ {10} ], 转产[ {11} ], 接收[ {12} ], 模式[ {13} ], 设定品种[ {14} ], 设定等级[ {15} ]", 
                 S(Load1), S(Load2), S(Need1), S(Need2), FullQty, RecentQty, S(Involve1), S(Involve2), OperateMode,  
                 Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel);
         }

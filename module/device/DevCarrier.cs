@@ -48,7 +48,7 @@ namespace module.device
         #endregion
 
         #region[更新属性]
-
+        public bool IsCurrentSiteUpdate { set; get; }
         /// <summary>
         /// 设备号
         /// </summary>
@@ -83,10 +83,10 @@ namespace module.device
         {
             set
             {
-                if(Math.Abs(campare_currentsite - value) > 10)
+                if(Math.Abs(campare_currentsite - value) >= 50)
                 {
                     campare_currentsite = value;
-                    IsUpdate = true;
+                    IsCurrentSiteUpdate = true;
                 }
                 currentsite = value;
             }
@@ -328,20 +328,46 @@ namespace module.device
 
         #endregion
 
+        public override void ReSetUpdate()
+        {
+            base.ReSetUpdate();
+            IsCurrentSiteUpdate = false;
+        }
+
         #region[日志]
 
         public override string ToString()
         {
-            return string.Format("设备[ {0} ]，状态[ {1} ]，当前[ {2}^{3} ]，目的[ {4}^{5} ]，指令[ {6} ]，完成[ {7} ]，" +
-                "载货[ {8} ]，位置[ {9} ]，操作[ {10} ]，取货[ {11}^{12} ]，卸货[ {13}^{14} ]，倒库[ {15} ]",
-                DeviceID, DeviceStatus, CurrentPoint, CurrentSite, TargetPoint, TargetSite, CurrentOrder, FinishOrder,
+            return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 指令[ {5} ], 完成[ {6} ], " +
+                "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ]",
+                DeviceStatus, CurrentPoint, CurrentSite, TargetPoint, TargetSite, CurrentOrder, FinishOrder,
                 LoadStatus, Position, OperateMode, TakePoint, TakeSite, GivePoint, GiveSite, MoveCount);
+        }
+
+        /// <summary>
+        /// 获取取货日志信息
+        /// </summary>
+        /// <returns></returns>
+        public string GetTakeString()
+        {
+            return string.Format("当前[ {0}^{1} ], 指令[ {2} ], 位置[ {3} ], 操作[ {4} ], 取货[ {5}^{6} ]",
+                  CurrentPoint, CurrentSite, CurrentOrder,Position, OperateMode, TakePoint, TakeSite);
+        }
+
+        /// <summary>
+        /// 获取卸货日志信息
+        /// </summary>
+        /// <returns></returns>
+        public string GetGiveString()
+        {
+            return string.Format("当前[ {0}^{1} ], 指令[ {2} ], 位置[ {3} ], 操作[ {4} ], 卸货[ {5}^{6} ], 倒库[ {7} ]",
+                  CurrentPoint, CurrentSite, CurrentOrder,Position, OperateMode, GivePoint, GiveSite, MoveCount);
         }
 
         public string AlertToString()
         {
-            return string.Format("警1：{0}, 警2：{1}, 警3：{2}, 警4：{3}, 警5：{4}, 警6：{5}, 警7：{6}, 警8：{7}, 警9：{8}, 警10：{9}, " +
-                "预1：{10}, 预2：{11}, 预3：{12}, 预4：{13}",
+            return string.Format("一[ {0} ], 二[ {1} ], 三[ {2} ], 四[ {3} ], 五[ {4} ], 六[ {5} ], 七[ {6} ], 八[ {7} ], 九[ {8} ], 十[ {9} ]," +
+                "预1[ {10} ],预2[ {11} ],预3[ {12} ],预4[ {13}",
                 Aler1, Aler2, Aler3, Aler4, Aler5, Aler6, Aler7, Aler8, Aler9, Aler10, Reserve1, Reserve2, Reserve3, Reserve4);
         }
         #endregion

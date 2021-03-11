@@ -101,6 +101,22 @@ namespace task.device
             }
         }
 
+        /// <summary>
+        /// 停止模拟的设备连接
+        /// </summary>
+        internal void StockSimDevice()
+        {
+            List<FerryTask> tasks = DevList.FindAll(c => c.IsConnect && c.Device.ip.Equals("127.0.0.1"));
+            foreach (FerryTask task in tasks)
+            {
+                if (task.IsEnable)
+                {
+                    task.SetEnable(false);
+                }
+                task.Stop("模拟停止");
+            }
+        }
+
         public void ReStart()
         {
 
@@ -1442,7 +1458,7 @@ namespace task.device
         /// <summary>
         /// 是否有到位摆渡车可用
         /// </summary>
-        /// <param name="checkuplight">检查哪侧</param>
+        /// <param name="carriertask">小车执行指令</param>
         /// <param name="dt">摆渡类型</param>
         /// <param name="trackid">判断摆渡车是否对上轨道</param>
         /// <param name="result">结果</param>
@@ -1457,6 +1473,7 @@ namespace task.device
             }
             try
             {
+                //后退至摆渡车 则 判断判断摆渡车的上砖测光电
                 bool checkuplight = carriertask == DevCarrierTaskE.后退至摆渡车;
                 FerryTask task = DevList.Find(c => c.Type == dt && c.GetFerryCurrentTrackId(checkuplight) == trackid);
 

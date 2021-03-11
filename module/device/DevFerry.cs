@@ -113,7 +113,7 @@ namespace module.device
 
         public override string ToString()
         {
-            return string.Format("状态：{0}，目标点：{1}，任务：{2}，完成：{3}，上地标：{4}，下地标：{5}，货物：{6}，模式：{7}，上光电：{8}，下光电：{9}, 预留：{10}",
+            return string.Format("状态[ {0} ], 目标[ {1} ], 任务[ {2} ], 完成[ {3} ], 上标[ {4} ], 下标[ {5} ], 货物[ {6} ], 模式[ {7} ], 上光[ {8} ], 下光[ {9} ], 预留[ {10} ]",
                 DeviceStatus, TargetSite, CurrentTask, FinishTask, UpSite, DownSite, LoadStatus, WorkMode, S(UpLight), S(DownLight), Reserve);
         }
         private string S(bool v)
@@ -170,7 +170,7 @@ namespace module.device
 
         public override string ToString()
         {
-            return string.Format("轨道号：{0}， 轨道设值：{1}，当前坐标：{2}，预留：{3}", TrackCode, TrackPos, NowTrackPos, Reserve);
+            return string.Format("轨道号[ {0} ], 轨道设值[ {1} ], 当前坐标[ {2} ], 预留[ {3} ]", TrackCode, TrackPos, NowTrackPos, Reserve);
         }
         #endregion
     }

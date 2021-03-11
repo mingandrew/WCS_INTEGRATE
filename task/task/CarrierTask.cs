@@ -26,9 +26,11 @@ namespace task.device
                 {
                     try
                     {
-                        string log = string.Format("切换轨道：原轨道【{0}】=》新轨道【{1}】",
+                        string log = string.Format("【切换轨道】源[ {0} ], 新[ {1} ], 当前[ {2}^{3} ]",
                             PubMaster.Track.GetTrackLogInfo(currenttrackid),
-                            PubMaster.Track.GetTrackLogInfo(value));
+                            PubMaster.Track.GetTrackLogInfo(value),
+                            DevStatus?.CurrentPoint,
+                            DevStatus?.CurrentSite);
                         DevTcp.AddStatusLog(log);
                     }
                     catch { }
@@ -47,6 +49,10 @@ namespace task.device
         /// </summary>
         public uint LastTrackId { set; get; }
 
+        /// <summary>
+        /// 【地标需要转移】小车卸货在摆渡车轨道
+        /// </summary>
+        public bool IsUnloadInFerry { set; get; }
         /// <summary>
         /// 小车类型
         /// </summary>

@@ -342,6 +342,23 @@ namespace task.device
             }
         }
 
+        /// <summary>
+        /// 停止模拟的设备连接
+        /// </summary>
+        internal void StockSimDevice()
+        {
+            List<TileLifterTask> tasks = DevList.FindAll(c => c.IsConnect && c.Device.ip.Equals("127.0.0.1"));
+            foreach (TileLifterTask task in tasks)
+            {
+                if (task.IsEnable)
+                {
+                    task.SetEnable(false);
+                }
+                task.Stop("模拟停止");
+            }
+        }
+
+
         public TileShiftStatusE GetTileShiftStatus(uint devid)
         {
             return DevList.Find(c => c.ID == devid)?.TileShiftStatus ?? TileShiftStatusE.复位;

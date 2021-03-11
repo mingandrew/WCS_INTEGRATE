@@ -146,7 +146,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("[作业状态]设备：{0}，类型：{1}，原:{2}，新:{3}, 备注：{4}", 
+                    PubMaster.DevConfig.AddLog(string.Format("【作业状态】设备[ {0} ], 类型[ {1} ], 原[ {2} ], 新[ {3} ], 备注[ {4} ]",
                         dev.name, dev.type, dev.do_work, working, memo));
                 }
                 catch { }

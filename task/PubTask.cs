@@ -7,6 +7,9 @@ using task.trans;
 
 namespace task
 {
+    /// <summary>
+    /// 任务资源管理公共类
+    /// </summary>
     public static class PubTask
     {
         public static CarrierMaster Carrier { set; get; }
@@ -17,6 +20,10 @@ namespace task
         public static PingMaster Ping { set; get; }
         public static TrafficControlMaster TrafficControl { set; get; }
         public static TileLifterNeedMaster TileLifterNeed { set; get; }  //需求操作对象 20210121
+
+        /// <summary>
+        /// 初始化
+        /// </summary>
         public static void Init()
         {
             Carrier = new CarrierMaster();
@@ -29,6 +36,9 @@ namespace task
             TileLifterNeed = new TileLifterNeedMaster();
         }
 
+        /// <summary>
+        /// 启动服务
+        /// </summary>
         public static void Start()
         {
             new Thread(CheckAndStart)
@@ -38,8 +48,12 @@ namespace task
             }.Start();
         }
 
+        /// <summary>
+        /// 检测数据加载并启动各个服务
+        /// </summary>
         private static void CheckAndStart()
         {
+            //检测数据加载完成后启动
             while (!PubMaster.IsReady)
             {
                 Thread.Sleep(2000);
@@ -54,6 +68,9 @@ namespace task
             TrafficControl?.Start();
         }
 
+        /// <summary>
+        /// 停止服务
+        /// </summary>
         public static void Stop()
         {
             Trans?.Stop();
@@ -64,6 +81,16 @@ namespace task
             Ping?.Stop();
             TileLifterNeed?.Stop();
             TrafficControl?.Stop();
+        }
+
+        /// <summary>
+        /// 停止模拟的设备
+        /// </summary>
+        public static void StopSimDevice()
+        {
+            Ferry?.StockSimDevice();
+            Carrier?.StockSimDevice();
+            TileLifter?.StockSimDevice();
         }
     }
 }

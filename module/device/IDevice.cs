@@ -71,7 +71,7 @@ namespace module.device
             }
         }
 
-        public void ReSetUpdate()
+        public virtual void ReSetUpdate()
         {
             IsUpdate = false;
             IsAlertUpdate = false;

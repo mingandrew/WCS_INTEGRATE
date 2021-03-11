@@ -120,9 +120,23 @@ namespace module.track
             set => alert_status = (ushort)value;
         }
 
+        /// <summary>
+        /// 获取轨道状态信息
+        /// </summary>
+        /// <returns></returns>
         public string GetLog()
         {
-            return string.Format("{0}, {1}, {2}", id, name, split_point);
+            return string.Format("名称[ {0} ]，分割[ {1} ]，极限[ {2} ]", name, split_point, limit_point);
+        }
+
+        /// <summary>
+        /// 判断轨道是否是能放砖类型
+        /// 用于库存切换轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsNotFerryTrack()
+        {
+            return Type != TrackTypeE.摆渡车_入 && Type != TrackTypeE.摆渡车_出;
         }
     }
 }
