@@ -51,7 +51,7 @@ namespace task
             Rf?.Start();
             Ping?.Start();
             TileLifterNeed?.Start();
-            //TrafficControl?.Start();   // 暂时停用 - 取消注释即可用
+            TrafficControl?.Start();
         }
 
         public static void Stop()
@@ -63,7 +63,7 @@ namespace task
             Rf?.Stop();
             Ping?.Stop();
             TileLifterNeed?.Stop();
-            //TrafficControl?.Stop();   // 暂时停用 - 取消注释即可用
+            TrafficControl?.Stop();
         }
     }
 }

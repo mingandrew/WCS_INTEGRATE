@@ -24,6 +24,12 @@ namespace module.goods
         public DateTime? finish_time { set; get; }
         public bool cancel { set; get; }
         public uint finish_track_id { set; get; }
+
+        /// <summary>
+        /// 记录摆渡车当下前往的任务轨道
+        /// </summary>
+        public uint RecordTraID { set; get; }
+
         public TransTypeE TransType
         {
             get => (TransTypeE)trans_type;

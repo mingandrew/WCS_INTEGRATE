@@ -31,7 +31,7 @@ namespace task.device
             _out = new object();
             mTimer = new MTimer();
             TrafficCtlList = new List<TrafficControl>();
-            Init();
+            //Init(); // 不管旧的
         }
 
         private void Init()
@@ -153,19 +153,19 @@ namespace task.device
         /// <returns></returns>
         public bool AddTrafficControl(TrafficControl tc, out string result)
         {
-            if (TrafficCtlList.Exists(c => c.TrafficControlType == tc.TrafficControlType &&
-                                                         c.restricted_id == tc.restricted_id &&
-                                                         c.control_id == tc.control_id &&
-                                                         c.TrafficControlStatus != TrafficControlStatusE.已完成))
-            {
-                result = "已经存在相同交管类型的对应设备！";
-                return false;
-            }
-
             if (Monitor.TryEnter(_out, TimeSpan.FromSeconds(2)))
             {
                 try
                 {
+                    if (TrafficCtlList.Exists(c => c.TrafficControlType == tc.TrafficControlType &&
+                                                                 c.restricted_id == tc.restricted_id &&
+                                                                 c.control_id == tc.control_id &&
+                                                                 c.TrafficControlStatus != TrafficControlStatusE.已完成))
+                    {
+                        result = "已经存在相同交管类型的对应设备！";
+                        return false;
+                    }
+
                     tc.id = PubMaster.Dic.GenerateID(DicTag.NewTranId);
                     tc.TrafficControlStatus = TrafficControlStatusE.交管中;
                     tc.create_time = DateTime.Now;
@@ -220,6 +220,7 @@ namespace task.device
             {
                 mLog.Status(true, string.Format("交管：{0}，原状态：{1}, 新状态：{2}, 备注：{3}", ctl.id, ctl.TrafficControlStatus, status, memo));
                 ctl.TrafficControlStatus = status;
+                ctl.update_time = System.DateTime.Now;
                 PubMaster.Mod.TrafficCtlSql.EditTrafficCtl(ctl, TrafficControlUpdateE.Status);
             }
         }
@@ -371,7 +372,7 @@ namespace task.device
             if (ferry.IsLock && ferry.TransId != 0)
             {
                 StockTrans trans = PubTask.Trans.GetTrans(ferry.TransId);
-                if (trans != null)
+                if (trans != null && !trans.finish)
                 {
                     // 空车 - 在运输车对应位置 则不能移动
                     uint Ctraid = PubTask.Carrier.GetCarrierTrackID(trans.carrier_id);
@@ -399,6 +400,11 @@ namespace task.device
                                     result = "准备卸货！";
                                     return false;
                                 }
+                                if (trans.TransStaus == TransStatusE.取消 && Ftraid == trans.give_track_id)
+                                {
+                                    result = "取消中！";
+                                    return false;
+                                }
                                 break;
                             case TransTypeE.上砖任务:
                             case TransTypeE.手动上砖:
@@ -421,6 +427,11 @@ namespace task.device
                                 if (trans.TransStaus == TransStatusE.还车回轨 && Ftraid == trans.finish_track_id)
                                 {
                                     result = "准备还车回轨！";
+                                    return false;
+                                }
+                                if (trans.TransStaus == TransStatusE.取消 && Ftraid == trans.take_track_id)
+                                {
+                                    result = "取消中！";
                                     return false;
                                 }
                                 break;

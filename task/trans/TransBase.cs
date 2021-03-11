@@ -231,6 +231,9 @@ namespace task.trans
                     SetCancel(trans);
                 }
 
+                // 记录归零
+                trans.RecordTraID = 0;
+
                 SendMsg(trans);
             }
         }

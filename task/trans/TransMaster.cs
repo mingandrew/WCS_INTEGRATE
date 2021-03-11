@@ -34,7 +34,7 @@ namespace task.trans
                 #region[检查轨道]
                 case TransStatusE.检查轨道:
 
-                  
+
 
                     //CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
                     ////是否有小车在放砖轨道
@@ -139,7 +139,7 @@ namespace task.trans
                             if (isload)
                             {
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
-                                    //PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
+                                //PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
                                 {
                                     //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
                                     PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -355,8 +355,8 @@ namespace task.trans
                                     //1.计算轨道下一车坐标
                                     //2.卸货轨道状态是否运行放货                                    
                                     //3.是否有其他车在同轨道上
-                                    if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out count, out loc) 
-                                        || !PubMaster.Track.IsStatusOkToGive(trans.give_track_id) 
+                                    if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out count, out loc)
+                                        || !PubMaster.Track.IsStatusOkToGive(trans.give_track_id)
                                         || PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
                                     {
                                         if (loc == 0)
@@ -2095,7 +2095,7 @@ namespace task.trans
                                         Order = DevCarrierOrderE.放砖指令
                                     });
                                 }
-                                
+
                                 return;
                             }
                             if (track.id == trans.take_track_id)
@@ -3623,6 +3623,16 @@ namespace task.trans
                 (c.take_ferry_id == 0 || c.give_ferry_id == 0));
         }
 
+        /// <summary>
+        /// 获取任务当前记录的摆渡车目的轨道ID
+        /// </summary>
+        /// <param name="transid"></param>
+        /// <returns></returns>
+        public uint GetRecordTraID(uint transid)
+        {
+            return TransList.Find(c => c.id == transid)?.RecordTraID ?? 0;
+        }
+
         #endregion
 
         #region[更新界面数据]
@@ -3901,6 +3911,13 @@ namespace task.trans
                 {
                     return false;
                 }
+            }
+
+            // 数据记录摆渡车任务目的
+            if (trans.RecordTraID != locatetrackid)
+            {
+                trans.RecordTraID = locatetrackid;
+                return false;
             }
 
             return ferryid != 0

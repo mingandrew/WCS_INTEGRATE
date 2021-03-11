@@ -19,9 +19,7 @@ namespace resource.module.modulesql
         public List<TrafficControl> QueryTrafficCtlList()
         {
             List<TrafficControl> list = new List<TrafficControl>();
-            string sql = string.Format("SELECT t.id, t.area, t.traffic_control_type, t.restricted_id, t.control_id, t.traffic_control_status," +
-                " t.from_track_id, t.from_point, t.from_site, t.to_track_id, t.to_point, t.to_site, " +
-                " t.create_time, t.update_time FROM traffic_control AS t WHERE t.traffic_control_status = 0 ");
+            string sql = string.Format("SELECT t.* FROM traffic_control AS t WHERE t.traffic_control_status = 0 ORDER BY t.create_time");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
