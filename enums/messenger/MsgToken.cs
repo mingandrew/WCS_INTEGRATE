@@ -4,6 +4,8 @@ namespace enums
 {
     public static class MsgToken
     {
+        public const string AllowShow = nameof(AllowShow); //授权显示
+
         public static string LangUpdated = nameof(LangUpdated);
 
         public static string MainDialog = nameof(MainDialog);

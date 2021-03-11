@@ -111,7 +111,7 @@ namespace resource.role
 
         private WcsRole GetUserRole(string username, string password)
         {
-            if(IsUserMatch(username, password))
+            if (IsUserMatch(username, password))
             {
                 int roleid = UserList.Find(c => c.username.Equals(username))?.role_id ?? 0;
                 return GetRole(roleid);
@@ -156,19 +156,19 @@ namespace resource.role
 
         public bool IsUserBelowLoginPrior(WcsUser user, out string result)
         {
-            if(LoginUser == null)
+            if (LoginUser == null)
             {
                 result = "请先登陆！";
                 return false;
             }
 
-            if(LoginUser.id == user.id)
+            if (LoginUser.id == user.id)
             {
                 result = "";
                 return true;
             }
 
-            if(user == null)
+            if (user == null)
             {
                 result = "用户信息不能为空！";
                 return false;
@@ -176,9 +176,9 @@ namespace resource.role
 
             WcsRole loginuserrole = GetRole(LoginUser.role_id);
             WcsRole camparerole = GetRole(user.role_id);
-            if(loginuserrole != null && camparerole != null)
+            if (loginuserrole != null && camparerole != null)
             {
-                if(loginuserrole.prior > camparerole.prior)
+                if (loginuserrole.prior > camparerole.prior)
                 {
                     result = "";
                     return true;
@@ -263,22 +263,22 @@ namespace resource.role
             }
 
             WcsRole userrole = GetUserRole(username, password);
-            if(userrole == null)
+            if (userrole == null)
             {
                 result = "用户没有配置角色！";
                 return false;
             }
 
-            if(userrole.menu_id == 0)
+            if (userrole.menu_id == 0)
             {
                 result = "用户角色没有配置菜单！";
                 return false;
             }
 
             user = GetPDAMenu(userrole);
-            if(user != null)
+            if (user != null)
             {
-                user.UserId = wcsuser.id+"";
+                user.UserId = wcsuser.id + "";
                 user.UserName = wcsuser.name;
                 result = "";
                 return true;
@@ -298,7 +298,7 @@ namespace resource.role
 
         public string GetRoleName(int roleid)
         {
-            return RoleList.Find(c => c.id == roleid)?.name ?? ""+roleid;
+            return RoleList.Find(c => c.id == roleid)?.name ?? "" + roleid;
         }
 
 
@@ -312,6 +312,21 @@ namespace resource.role
             if (LoginUser == null) return new List<WcsRole>();
             WcsRole role = GetRole(LoginUser.role_id);
             return GetBeLowRoleList(role.prior);
+        }
+
+        //当前用户的对应角色的优先级 跟 指定的优先级 的对比
+        public bool MatchRolePrior(WcsRolePrior prior, WcsUser wcsUser)
+        {
+            if (LoginUser != null)
+            {
+                wcsUser = LoginUser;
+            }
+            WcsRole wr = RoleList.Find(c => c.id == wcsUser.role_id);
+            if (wr != null)
+            {
+                return wr.prior >= (int)prior;
+            }
+            return false;
         }
 
         #endregion
@@ -552,7 +567,7 @@ namespace resource.role
 
             List<MenuModel> menus = new List<MenuModel>();
             WcsRole role = GetUserRole(username, password);
-            if(role == null)
+            if (role == null)
             {
                 result = "账号或密码不正确！";
                 return menus;
@@ -591,7 +606,7 @@ namespace resource.role
         {
             MenuModel menu = new MenuModel();
             WcsMenuDtl dtl = GetMenuDtl(id);
-            if (dtl != null && (!dtl.rf || getrf ))
+            if (dtl != null && (!dtl.rf || getrf))
             {
                 menu.Id = dtl.id;
                 menu.FolderId = dtl.folder_id;
@@ -655,12 +670,13 @@ namespace resource.role
 
         public int GetMaxMenuDtlId()
         {
-            if(MenuDtlNexId == -1)
+            if (MenuDtlNexId == -1)
             {
                 try
                 {
                     MenuDtlNexId = MenuDtlList.Max(c => c.id);
-                }catch
+                }
+                catch
                 {
                     MenuDtlNexId = 1000;
                 }
@@ -708,7 +724,8 @@ namespace resource.role
                     if (mdtl != null)
                     {
                         EditMenuDtl(mdtl, item, dtlorder);
-                    }else
+                    }
+                    else
                     {
                         //添加
                         AddMenuDtlByModel(item, dtlorder);
@@ -747,7 +764,7 @@ namespace resource.role
         public List<WcsMenu> GetLoginPriorMenuList()
         {
             List<WcsMenu> list = new List<WcsMenu>();
-            if(LoginUser == null)
+            if (LoginUser == null)
             {
                 return list;
             }
@@ -760,7 +777,7 @@ namespace resource.role
             UserModelPack pack = new UserModelPack();
             List<ModuleView> menus = new List<ModuleView>();
 
-            List<WcsMenuDtl> usermenus = MenuDtlList.FindAll(c =>c.rf && c.menu_id == role.menu_id);
+            List<WcsMenuDtl> usermenus = MenuDtlList.FindAll(c => c.rf && c.menu_id == role.menu_id);
             if (usermenus.Count > 0)
             {
                 usermenus.Sort((x, y) => x.order.CompareTo(y.order));
@@ -786,7 +803,7 @@ namespace resource.role
         public List<ModuleView> GetPDAMenuDtl(int menuid)
         {
             List<ModuleView> menus = new List<ModuleView>();
-            
+
             return menus;
         }
         #endregion

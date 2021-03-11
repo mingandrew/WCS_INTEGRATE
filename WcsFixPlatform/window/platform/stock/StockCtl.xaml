@@ -26,12 +26,12 @@
                             Command="{Binding ActionStockCmd}"   Margin="0,0,10,0"
                             FontSize="16" Height="35" Tag="0" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
 
-                    <Button Content="添加" HorizontalAlignment="Right" 
+                    <Button Content="添加" HorizontalAlignment="Right"   Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"
                             Style="{StaticResource ButtonPrimary}" 
                             Command="{Binding ActionStockCmd}"   Margin="0,0,10,0"
                             FontSize="16" Height="35" Tag="1" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
 
-                    <Button Content="更改品种" HorizontalAlignment="Right" 
+                    <Button Content="更改品种" HorizontalAlignment="Right"   Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"
                             Style="{StaticResource ButtonDanger}" 
                             Command="{Binding ActionStockCmd}" Margin="0,0,10,0"
                             FontSize="16" Height="35" Tag="2" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
@@ -39,7 +39,8 @@
                     <Button Content="转移库存" HorizontalAlignment="Right" 
                             Style="{StaticResource ButtonDanger}" 
                             Command="{Binding ActionStockCmd}"
-                            FontSize="16" Height="35" Tag="3" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            FontSize="16" Height="35" Tag="3" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
+                            Visibility="Collapsed"/>
 
                 </StackPanel>
             </Grid>

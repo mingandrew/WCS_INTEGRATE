@@ -17,9 +17,9 @@ using wcs.Dialog;
 
 namespace wcs.ViewModel
 {
-    public class StockViewModel : ViewModelBase
+    public class StockViewModel : MViewModel
     {
-        public StockViewModel()
+        public StockViewModel():base("StockView")
         {
             List = new ObservableCollection<Stock>();
         }
@@ -399,6 +399,14 @@ namespace wcs.ViewModel
             }
 
             return true;
+        }
+
+        protected override void TabActivate()
+        {
+        }
+
+        protected override void TabDisActivate()
+        {
         }
         #endregion
 

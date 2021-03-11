@@ -1,0 +1,3 @@
+
+-- 管理员角色-优先级 设置为50
+UPDATE `wcs_role` SET `prior` = 50 WHERE `id` = 2

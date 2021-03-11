@@ -73,7 +73,7 @@ namespace wcs.ViewModel
                 if (IsLoginDialogShow) return;
                 OperateGrandDialogConst.IsOprerateDialogOpen = true;
                 IsLoginDialogShow = true;
-                MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>(MsgToken.MainDialog)
+                MsgAction result = await HandyControl.Controls.Dialog.Show<OperateGrandDialog>()
                        .Initialize<OperateGrandDialogViewModel>((vm) => { vm.Clear(); vm.SetDialog(false); })
                        .GetResultAsync<MsgAction>();
                 IsLoginDialogShow = false;
@@ -81,7 +81,7 @@ namespace wcs.ViewModel
                 if (result.o1 is null)
                 {
                     Growl.Error("用户密码错误，认证失败！");
-                    if(result.o3 is string username)
+                    if (result.o3 is string username)
                     {
                         mLog.Status(true, username + "：用户密码错误，认证失败！");
                     }
@@ -111,6 +111,13 @@ namespace wcs.ViewModel
                     mLog.Status(true, UserName + "：认证成功！");
 
                     PubMaster.Role.SetLoginUser(user.id);
+
+                    MsgAction allowmsg = new MsgAction()
+                    {
+                        o1 = PubMaster.Role.MatchRolePrior(WcsRolePrior.管理员, user),
+                        o2 = PubMaster.Role.MatchRolePrior(WcsRolePrior.超级管理员, user)
+                    };
+                    Messenger.Default.Send(allowmsg, MsgToken.AllowShow);
                 }
 
                 BtnName = "登出";
@@ -133,8 +140,16 @@ namespace wcs.ViewModel
                     o1 = guest
                 };
                 Messenger.Default.Send(msg, MsgToken.OperateGrandUpdate);
+
                 UserName = guest.name;
                 PubMaster.Role.SetLoginUser(guest.id);
+
+                //MsgAction allowmsg = new MsgAction()
+                //{
+                //    o1 = PubMaster.Role.MatchRolePrior(WcsRolePrior.管理员, guest),
+                //    o2 = PubMaster.Role.MatchRolePrior(WcsRolePrior.超级管理员, guest)
+                //};
+                //Messenger.Default.Send(allowmsg, MsgToken.AllowShow);
             }
             else
             {
@@ -143,14 +158,28 @@ namespace wcs.ViewModel
                     o1 = true
                 };
                 Messenger.Default.Send(msg, MsgToken.OperateGrandUpdate);
+
                 UserName = "普通用户";
+
+                //MsgAction allowmsg = new MsgAction()
+                //{
+                //    o1 = false,
+                //    o2 = false
+                //};
+                //Messenger.Default.Send(allowmsg, MsgToken.AllowShow);
             }
             BtnName = "登陆";
             BtnStyle = Primary;
             islogin = false;
+
+            //由于是初始化或者登出，所以是普通用户的权限
+            MsgAction allowmsg = new MsgAction()
+            {
+                o1 = false,
+                o2 = false
+            };
+            Messenger.Default.Send(allowmsg, MsgToken.AllowShow);
         }
         #endregion
-
-
     }
 }
