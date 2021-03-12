@@ -688,6 +688,8 @@ namespace task.device
                                 if (tilelifter.IsUpdate
                                     || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, tilelifter.ID, 10))
                                     MsgSend(task, tilelifter);
+                                task.Ignore_1 = false;
+                                task.Ignore_2 = false;
                             }
                             CheckConn(task);
                         }
