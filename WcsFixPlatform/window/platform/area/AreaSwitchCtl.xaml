@@ -28,10 +28,10 @@
                 <TextBlock Text="线路 \ 功能" Style="{StaticResource TextBlockTitleBold}"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                <TextBlock Text="窑后2#" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+                <TextBlock Text="窑后#" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
             </Border>
             <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show2Area,Converter={StaticResource Boolean2VisibilityConverter}}">
-                <TextBlock Text="包装线" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
+                <TextBlock Text="A#" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
             </Border>
             <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding Show3Area,Converter={StaticResource Boolean2VisibilityConverter}}">
                 <TextBlock Text="#3" Style="{StaticResource TextBlockTitleBold}"></TextBlock>
