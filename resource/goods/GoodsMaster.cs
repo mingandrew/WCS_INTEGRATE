@@ -162,7 +162,8 @@ namespace resource.goods
                     }
                     else
                     {
-                        if(track.Type == TrackTypeE.储砖_入)
+                        //如果入轨道没有库存，则分割点为起点进行计算
+                        if (track.Type == TrackTypeE.储砖_入)
                         {
                             loc = track.split_point;
                         }
@@ -177,7 +178,17 @@ namespace resource.goods
                         ushort safe = 217;//统计出来的(实际库存位置差平均值)
                         if (safe > 0)
                         {
-                            int count = (loc - track.limit_point) / safe;
+                            int count;
+
+                            //出库轨道的分割点为放砖极限点
+                            if (track.Type == TrackTypeE.储砖_出)
+                            {
+                                count = (loc - track.split_point) / safe;
+                            }
+                            else
+                            {
+                                count = (loc - track.limit_point) / safe;
+                            }
                             ableqty = count;
                             if (count < stockqty)
                             {
@@ -398,7 +409,15 @@ namespace resource.goods
                             Stock buttomStock = GetTrackButtomStock(trackid);
                             if (buttomStock != null)
                             {
-                                maxaddcount = (buttomStock.location - track.limit_point) / safe;
+                                if(track.Type == TrackTypeE.储砖_出)
+                                {
+                                    maxaddcount = (buttomStock.location - track.split_point) / safe;
+                                }
+                                else
+                                {
+                                    maxaddcount = (buttomStock.location - track.limit_point) / safe;
+                                }
+
                                 if (maxaddcount > 0)
                                 {
                                     nextstockloc = (ushort)(buttomStock.location - safe);

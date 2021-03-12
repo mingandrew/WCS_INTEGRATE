@@ -666,6 +666,8 @@ namespace task.rf
 
         private void ShiftTrackStock(RfMsgMod msg)
         {
+            SendFail2Rf(msg.MEID, FunTag.ShiftTrackStock, "此功能已经禁用！");
+            return;
             if (uint.TryParse(msg.Pack.Data, out uint trackid))
             {
                 Track track = PubMaster.Track.GetTrack(trackid);
