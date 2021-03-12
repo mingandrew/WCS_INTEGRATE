@@ -133,12 +133,12 @@ namespace resource.goods
             Track track = PubMaster.Track.GetTrack(trackid);
             if (track != null)
             {
-                if(track.StockStatus == TrackStockStatusE.满砖)
-                {
-                    result = "轨道满砖状态，不能添加库存！";
-                    ableqty = 0;
-                    return false;
-                }
+                //if(track.StockStatus == TrackStockStatusE.满砖)
+                //{
+                //    result = "轨道满砖状态，不能添加库存！";
+                //    ableqty = 0;
+                //    return false;
+                //}
                 if ((track.Type == TrackTypeE.储砖_出入 || track.Type == TrackTypeE.储砖_出)
                     && (track.StockStatus == TrackStockStatusE.空砖 || !ExistStockInTrack(track.id)))
                 {
