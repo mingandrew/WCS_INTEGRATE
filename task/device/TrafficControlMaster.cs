@@ -367,16 +367,23 @@ namespace task.device
             {
                 return false;
             }
-            uint Ftraid = ferry.GetFerryCurrentTrackId();
+
             // 是否锁定任务 判断任务节点是否允许移动
             if (ferry.IsLock && ferry.TransId != 0)
             {
                 StockTrans trans = PubTask.Trans.GetTrans(ferry.TransId);
                 if (trans != null && !trans.finish)
                 {
+                    List<uint> Ftraids = ferry.GetFerryCurrentTrackIds();
+                    if (Ftraids == null || Ftraids.Count == 0)
+                    {
+                        result = "无摆渡车对位数据！";
+                        return false;
+                    }
+
                     // 空车 - 在运输车对应位置 则不能移动
                     uint Ctraid = PubTask.Carrier.GetCarrierTrackID(trans.carrier_id);
-                    if (Ftraid == Ctraid)
+                    if (Ftraids.Contains(Ctraid))
                     {
                         result = "对应运输车任务待定！";
                         return false;
@@ -390,17 +397,17 @@ namespace task.device
                             case TransTypeE.下砖任务:
                             case TransTypeE.手动下砖:
                             case TransTypeE.同向下砖:
-                                if (trans.TransStaus == TransStatusE.取砖流程 && Ftraid == trans.take_track_id)
+                                if (trans.TransStaus == TransStatusE.取砖流程 && Ftraids.Contains(trans.take_track_id))
                                 {
                                     result = "准备取货！";
                                     return false;
                                 }
-                                if (trans.TransStaus == TransStatusE.放砖流程 && Ftraid == trans.give_track_id)
+                                if (trans.TransStaus == TransStatusE.放砖流程 && Ftraids.Contains(trans.give_track_id))
                                 {
                                     result = "准备卸货！";
                                     return false;
                                 }
-                                if (trans.TransStaus == TransStatusE.取消 && Ftraid == trans.give_track_id)
+                                if (trans.TransStaus == TransStatusE.取消 && Ftraids.Contains(trans.give_track_id))
                                 {
                                     result = "取消中！";
                                     return false;
@@ -412,24 +419,24 @@ namespace task.device
                                 if (trans.TransStaus == TransStatusE.取砖流程)
                                 {
                                     // 运输车无货 需要取砖
-                                    if (PubTask.Carrier.IsNotLoad(trans.carrier_id) && Ftraid == trans.take_track_id)
+                                    if (PubTask.Carrier.IsNotLoad(trans.carrier_id) && Ftraids.Contains(trans.take_track_id))
                                     {
                                         result = "准备取货！";
                                         return false;
                                     }
                                     // 运输车载货 需要放砖
-                                    if (PubTask.Carrier.IsLoad(trans.carrier_id) && Ftraid == trans.give_track_id)
+                                    if (PubTask.Carrier.IsLoad(trans.carrier_id) && Ftraids.Contains(trans.give_track_id))
                                     {
                                         result = "准备卸货！";
                                         return false;
                                     }
                                 }
-                                if (trans.TransStaus == TransStatusE.还车回轨 && Ftraid == trans.finish_track_id)
+                                if (trans.TransStaus == TransStatusE.还车回轨 && Ftraids.Contains(trans.finish_track_id))
                                 {
                                     result = "准备还车回轨！";
                                     return false;
                                 }
-                                if (trans.TransStaus == TransStatusE.取消 && Ftraid == trans.take_track_id)
+                                if (trans.TransStaus == TransStatusE.取消 && Ftraids.Contains(trans.take_track_id))
                                 {
                                     result = "取消中！";
                                     return false;
@@ -437,7 +444,7 @@ namespace task.device
                                 break;
                             case TransTypeE.倒库任务:
                             case TransTypeE.移车任务:
-                                if (trans.TransStaus == TransStatusE.移车中 && Ftraid == trans.give_track_id)
+                                if (trans.TransStaus == TransStatusE.移车中 && Ftraids.Contains(trans.give_track_id))
                                 {
                                     result = "准备移车！";
                                     return false;
