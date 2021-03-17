@@ -261,6 +261,31 @@ namespace resource.area
         }
 
         /// <summary>
+        /// 获取配置了该轨道的所有摆渡车轨道
+        /// </summary>
+        /// <param name="traid"></param>
+        /// <returns></returns>
+        public List<AreaDeviceTrack> GetFerryTrackId(uint traid)
+        {
+            List<Device> ferrys = PubMaster.Device.GetFerrys();
+            return AreaDevTraList.FindAll(c => c.track_id == traid && ferrys.Exists(f=>f.id == c.device_id));
+        }
+
+        public bool ExistFerryToBothTrack(List<AreaDeviceTrack> tra_one, uint tra_two)
+        {
+            List<AreaDeviceTrack> tratwo = AreaDevTraList.FindAll(c => c.track_id == tra_two);
+            foreach (var item in tra_one)
+            {
+                if (tratwo.Exists(c => c.device_id == item.device_id))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 获取摆渡车ID或摆渡车轨道的ID
         /// </summary>
         /// <param name="trans"></param>

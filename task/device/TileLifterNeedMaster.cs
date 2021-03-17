@@ -128,7 +128,6 @@ namespace task.device
                 {
                     CheckTileNeed(task, task.IsNeed_2, false, task.DevConfig.right_track_id);
                 }
-
             }
             catch (Exception e)
             {

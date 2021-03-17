@@ -35,6 +35,10 @@
         public static string MinStockTime = nameof(MinStockTime);//最小库存存放时间 小时数
         public static string FerryAvoidNumber = nameof(FerryAvoidNumber);//摆渡车安全距离 轨道数
         public static string TileLifterShiftCount = nameof(TileLifterShiftCount);//下砖机转产差值 层数
+
+        public static string StackPluse = nameof(StackPluse);                       //计算库位置使用的一垛间距
+        public static string TileNeedSysShiftFunc = nameof(TileNeedSysShiftFunc);   //开关-砖机需转产信号
+        public static string AutoBackupTileFunc = nameof(AutoBackupTileFunc);       //开关-计算库位置使用的一垛间距
     }
 
     public static class DicSwitchTag

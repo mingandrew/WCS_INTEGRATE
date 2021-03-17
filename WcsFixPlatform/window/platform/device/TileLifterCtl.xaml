@@ -181,7 +181,8 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding FullQty}" Header="满砖层数"/>
-                    <DataGridTextColumn Binding="{Binding RecentQty}" Header="当前层数"/>
+                    <DataGridTextColumn Binding="{Binding Site1Qty}" Header="位1数"/>
+                    <DataGridTextColumn Binding="{Binding Site2Qty}" Header="位2数"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="介入1"/>

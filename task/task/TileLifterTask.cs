@@ -100,6 +100,16 @@ namespace task.task
             get => DevStatus?.FullQty ?? 66;
         }
 
+        public byte Site1Qty
+        {
+            get => DevStatus?.Site1Qty ?? FullQty;
+        }
+
+        public byte Site2Qty
+        {
+            get => DevStatus?.Site2Qty ?? FullQty;
+        }
+
         public bool InInvoStatus
         {
             get => IsNeed_1 || IsNeed_2;
@@ -212,7 +222,12 @@ namespace task.task
 
         internal void DoUpdateLevel(byte level)
         {
-            DevTcp?.SendCmd(DevLifterCmdTypeE.等级, (byte)level, 0, 0);
+            DevTcp?.SendCmd(DevLifterCmdTypeE.等级, level, 0, 0);
+        }
+
+        internal void DoTileShiftSignal(TileAlertShiftE ts)
+        {
+            DevTcp?.SendCmd(DevLifterCmdTypeE.复位转产, (byte)ts, 0, 0);
         }
 
         internal void SetInTaskStatus(bool status)

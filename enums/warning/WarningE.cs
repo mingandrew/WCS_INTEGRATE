@@ -34,6 +34,7 @@
         TileGoodsIsNull,  //砖机工位品种没有配置
 
         TransHaveNotTheGiveTrack, // 任务没有合适的轨道卸砖
+        UpTilePreGoodNotSet,//上砖机预设品种没有设置
     }
 
     /// <summary>

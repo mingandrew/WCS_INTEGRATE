@@ -62,7 +62,8 @@ namespace wcs.Data.View
         private bool isneed1;   //需求信号1 左
         private bool isneed2;   //需求信号2 右
         private byte fullqty;       //满砖数量
-        private byte recentqty;     //当前数量
+        private byte site1qty;     //工位1数量
+        private byte site2qty;     //当前数量
         private bool isinvolve1;      //介入状态1 左
         private bool isinvolve2;      //介入状态2 右
         private DevOperateModeE operatemode;   //作业模式
@@ -111,10 +112,15 @@ namespace wcs.Data.View
             set => Set(ref fullqty, value);
             get => fullqty;
         }
-        public byte RecentQty//当前数量
+        public byte Site1Qty//当前数量
         {
-            set => Set(ref recentqty, value);
-            get => recentqty;
+            set => Set(ref site1qty, value);
+            get => site1qty;
+        }
+        public byte Site2Qty//当前数量
+        {
+            set => Set(ref site2qty, value);
+            get => site2qty;
         }
 
         public bool IsInvolve1//介入状态1 左
@@ -189,7 +195,8 @@ namespace wcs.Data.View
             IsNeed1 = st.Need1;
             IsNeed2 = st.Need2;
             FullQty = st.FullQty;
-            RecentQty = st.RecentQty;
+            Site1Qty = st.Site1Qty;
+            Site2Qty = st.Site2Qty;
             IsInvolve1 = st.Involve1;
             IsInvolve2 = st.Involve2;
             OperateMode = st.OperateMode;

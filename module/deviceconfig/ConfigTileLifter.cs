@@ -95,6 +95,11 @@ namespace module.deviceconfig
         /// </summary>
         public string alter_ids { set; get; }
 
+        /// <summary>
+        /// 当前备用砖机ID
+        /// </summary>
+        public uint alter_dev_id { set; get; }
+
         //没有保存到数据库中
         public DateTime last_shift_time { set; get; }//最近一次转产时间
         /// <summary>
@@ -158,6 +163,19 @@ namespace module.deviceconfig
         public bool IsLastShiftTimeOk()
         {
             return DateTime.Now.Subtract(last_shift_time).TotalMinutes >= 5;
+        }
+
+        public bool IsInBackUpList(uint devid)
+        {
+            if (string.IsNullOrEmpty(alter_ids)) return false;
+            foreach (var item in alter_ids.Split(','))
+            {
+                if(uint.TryParse(item, out uint did) && did == devid)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

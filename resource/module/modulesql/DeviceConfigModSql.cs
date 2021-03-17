@@ -162,10 +162,10 @@ WHERE id = {0}", dev.id, dev.a_takemisstrack, dev.a_givemisstrack, dev.a_alert_t
         {
             string sql = string.Format(@"UPDATE config_tilelifter SET brother_dev_id = {1}, left_track_id = {2}, right_track_id = {3}, strategy_in = {4}, strategy_out = {5}, 
 work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11},
-can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15} WHERE id = {0}",
+can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, alter_dev_id = {16} WHERE id = {0}",
                 dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), dev.strategy_in, dev.strategy_out, 
                 dev.work_type, dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift,
-                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover);
+                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, dev.alter_dev_id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

@@ -25,7 +25,8 @@
         介入2,
         转产,
         模式,
-        等级
+        等级,
+        复位转产//砖机主动触发的转产，执行后进行复位
     }
 
     public enum TileShiftCmdE
@@ -78,5 +79,11 @@
         Trans = 0, //生成任务
         Finish = 1, //任务完成
         UpdateCreateTime = 2, //更新需求生成时间
+    }
+
+    public enum TileAlertShiftE
+    {
+        复位,
+        收到转产,
     }
 }

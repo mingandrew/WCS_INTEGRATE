@@ -19,7 +19,6 @@ namespace simtask.task
             get => DevConfig.track_id;
         }
 
-
         public bool IsLocating { set; get; } = false;
         public ushort NowPosCode { set; get; }//当前站点
         public int NowPos { set; get; }//当前坐标

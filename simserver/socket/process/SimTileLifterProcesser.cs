@@ -27,7 +27,8 @@ namespace simserver.simsocket.process
             st.NeedStatus1 = (byte)(dev.Need1 ? 0x01 : 0x00);
             st.NeedStatus2 = (byte)(dev.Need2 ? 0x01 : 0x00);
             st.FullQty = dev.FullQty;
-            st.RecentQty = dev.RecentQty;
+            st.Site1Qty = dev.Site1Qty;
+            st.Site2Qty = dev.Site2Qty;
             st.Involve1 = (byte)(dev.Involve1 ? 0x01 : 0x00);
             st.Involve2 = (byte)(dev.Involve2 ? 0x01 : 0x00);
             st.OperateMode = (byte)dev.OperateMode;
@@ -38,6 +39,14 @@ namespace simserver.simsocket.process
             st.WorkMode = (byte)dev.WorkMode;
             st.SetGoods = dev.SetGoods;
             st.SetLevel = dev.SetLevel;
+            st.NeedSytemShift = (byte)(dev.NeedSytemShift ? 0x01 : 0x00);
+            st.BackupShiftDev = dev.BackupShiftDev;
+            st.Reserve1 = dev.reserve1;
+            st.Reserve2 = dev.reserve2;
+            st.Reserve3 = dev.reserve3;
+            st.Reserve4 = dev.reserve4;
+            st.Reserve5 = dev.reserve5;
+
             st.Tail = ShiftBytes(SimSocketConst.TAIL_KEY);
 
             return StructToBuffer(st) ;

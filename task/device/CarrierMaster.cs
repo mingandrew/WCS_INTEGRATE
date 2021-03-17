@@ -529,6 +529,16 @@ namespace task.device
                 //判断放下砖的时候轨道是否是能否放砖的轨道
                 if (track.IsNotFerryTrack())
                 {
+                    if (task.IsUnloadInFerry)
+                    {
+                        task.IsUnloadInFerry = false;
+                        mErrorLog.Error(true, string.Format("【放砖】轨道[ {0} ], 需要调整极限地标,否则影响倒库; 小车[ {1} ]",
+                            track.GetLog(), task.Device.name));
+
+                        //将库存转移到轨道的位置
+                        PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.id, false, "", task.ID);
+                    }
+
                     try
                     {
                         PubMaster.Goods.AddStockLog(string.Format("【解绑】设备[ {0} ], 轨道[ {1} ], 库存[ {2} ], 运输车[ {3} ]", 
@@ -538,16 +548,12 @@ namespace task.device
                             task.DevStatus.GetGiveString()));
                     }
                     catch { }
+
+
                     task.DevConfig.stock_id = 0;
 
                     PubMaster.Mod.DevConfigSql.EditConfigCarrier(task.DevConfig);
 
-                    if (task.IsUnloadInFerry)
-                    {
-                        task.IsUnloadInFerry = false;
-                        mErrorLog.Error(true, string.Format("【放砖】轨道[ {0} ], 需要调整极限地标,否则影响倒库; 小车[ {1} ]", 
-                            track.GetLog(), task.Device.name));
-                    }
                 }
                 else
                 {
@@ -873,7 +879,7 @@ namespace task.device
                     {
                         result = "运输车有货不能后退取砖！";
                         return false;
-                    }
+                    } 
                     if (track.Type != TrackTypeE.摆渡车_入 && track.Type != TrackTypeE.摆渡车_出)
                     {
                         result = "须在摆渡车上执行！";
@@ -1098,7 +1104,7 @@ namespace task.device
 
             try
             {
-                mlog.Status(true, string.Format("运输车：{0}, 任务：{1},备注：{2}",
+                mlog.Status(true, string.Format("运输车[ {0} ], 任务[ {1} ], 备注[ {2} ]",
                     PubMaster.Device.GetDeviceName(devid, devid + ""), carriertask, memo));
             }
             catch { }

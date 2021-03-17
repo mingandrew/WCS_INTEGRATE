@@ -2,6 +2,7 @@
 using enums.track;
 using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
+using module.area;
 using module.goods;
 using module.tiletrack;
 using module.track;
@@ -3119,9 +3120,12 @@ namespace task.trans
 
                         List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, PubMaster.Track.GetTrack(trackid).order);
 
+                        List<AreaDeviceTrack> traone = PubMaster.Area.GetFerryTrackId(trackid);
                         foreach (uint t in tids)
                         {
-                            if (!IsTraInTrans(t) && !PubTask.Carrier.HaveInTrack(t, carrierid))
+                            if (!IsTraInTrans(t) 
+                                && !PubTask.Carrier.HaveInTrack(t, carrierid)
+                                && PubMaster.Area.ExistFerryToBothTrack(traone, t))
                             {
                                 givetrackid = t;
                                 break;

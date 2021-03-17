@@ -127,7 +127,7 @@ namespace resource.goods
         /// <param name="stockqty"></param>
         /// <param name="ableqty"></param>
         /// <returns></returns>
-        public bool CheckCanAddStockQty(uint trackid, byte stockqty, out int ableqty, out string result)
+        public bool CheckCanAddStockQty(uint trackid, uint goodid, byte stockqty, out int ableqty, out string result)
         {
             result = null;
             Track track = PubMaster.Track.GetTrack(trackid);
@@ -139,63 +139,53 @@ namespace resource.goods
                 //    ableqty = 0;
                 //    return false;
                 //}
-                if ((track.Type == TrackTypeE.储砖_出入 || track.Type == TrackTypeE.储砖_出)
-                    && (track.StockStatus == TrackStockStatusE.空砖 || !ExistStockInTrack(track.id)))
+
+                ushort loc = 0;
+                //计算可存放位置
+                Stock buttomStock = GetTrackButtomStock(track.id);
+                if (buttomStock != null)
                 {
-                    ableqty = stockqty;
-                    return true;
+                    loc = buttomStock.location;
                 }
                 else
                 {
-                    ushort loc = 0;
-                    //计算可存放位置
-                    Stock buttomStock = GetTrackButtomStock(track.id);
-                    if (buttomStock != null)
+                    //如果入轨道没有库存，则分割点为起点进行计算
+                    if (track.Type == TrackTypeE.储砖_入)
                     {
-                        //出库第一车为空(手动添加)
-                        if(buttomStock.location == 0)
-                        {
-                            ableqty = stockqty;
-                            return true;
-                        }
-                        loc = buttomStock.location;
+                        loc = track.split_point;
                     }
-                    else
+                    else if (track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入)
                     {
-                        //如果入轨道没有库存，则分割点为起点进行计算
-                        if (track.Type == TrackTypeE.储砖_入)
-                        {
-                            loc = track.split_point;
-                        }
+                        loc = track.limit_point_up;
                     }
-                    
-                    if(loc > 0)
-                    {
-                        //ushort car = PubMaster.DevConfig.GetCarrierLenghtByArea(track.area);
-                        //ushort safe = GetGoodsSafeDis(buttomStock.goods_id);
-                        //// 当砖间距比小车顶板小，用顶板长度更安全
-                        //safe = car > safe ? car : safe;
-                        ushort safe = 217;//统计出来的(实际库存位置差平均值)
-                        if (safe > 0)
-                        {
-                            int count;
+                }
 
-                            //出库轨道的分割点为放砖极限点
-                            if (track.Type == TrackTypeE.储砖_出)
-                            {
-                                count = (loc - track.split_point) / safe;
-                            }
-                            else
-                            {
-                                count = (loc - track.limit_point) / safe;
-                            }
-                            ableqty = count;
-                            if (count < stockqty)
-                            {
-                                return false;
-                            }
-                            return true;
+                if (loc > 0)
+                {
+                    //ushort car = PubMaster.DevConfig.GetCarrierLenghtByArea(track.area);
+                    //ushort safe = GetGoodsSafeDis(buttomStock.goods_id);
+                    //// 当砖间距比小车顶板小，用顶板长度更安全
+                    //safe = car > safe ? car : safe;
+                    ushort safe = GetStackSafe(goodid);
+                    if (safe > 0)
+                    {
+                        int count;
+
+                        //出库轨道的分割点为放砖极限点
+                        if (track.Type == TrackTypeE.储砖_出)
+                        {
+                            count = (loc - track.split_point) / safe;
                         }
+                        else
+                        {
+                            count = (loc - track.limit_point) / safe;
+                        }
+                        ableqty = count;
+                        if (count < stockqty)
+                        {
+                            return false;
+                        }
+                        return true;
                     }
                 }
             }
@@ -333,6 +323,11 @@ namespace resource.goods
         public ushort GetGoodsSafeDis(uint goods_id)
         {
             GoodSize size = GetSize(GetGoods(goods_id)?.size_id ?? 0);
+            if (goods_id == 0)
+            {
+                size = GoodSizeList.Find(c => c.car_lenght > 0 || c.car_space > 0);
+            }
+
             if (size != null)
             {
                 return (ushort)(size.car_lenght + size.car_space);
@@ -392,43 +387,38 @@ namespace resource.goods
                     uint StockId = 0;//库存ID
                     int maxaddcount = 0;//最大可添加库存数量
                     ushort nextstockloc = 0; //下一个库存计算存放位置
-                    ushort safe = 217;//统计出来的(实际库存位置差平均值)
+                    ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
 
                     Track track = PubMaster.Track.GetTrack(trackid);
                     if(track != null)
                     {
-                        if((track.Type == TrackTypeE.储砖_出 
-                            || track.Type == TrackTypeE.储砖_出入)
-                            && track.StockStatus == TrackStockStatusE.空砖)
+                        //计算可存放位置
+                        Stock buttomStock = GetTrackButtomStock(trackid);
+                        if (buttomStock != null)
                         {
-
-                        }
-                        else
-                        {
-                            //计算可存放位置
-                            Stock buttomStock = GetTrackButtomStock(trackid);
-                            if (buttomStock != null)
+                            if (track.Type == TrackTypeE.储砖_出)
                             {
-                                if(track.Type == TrackTypeE.储砖_出)
-                                {
-                                    maxaddcount = (buttomStock.location - track.split_point) / safe;
-                                }
-                                else
-                                {
-                                    maxaddcount = (buttomStock.location - track.limit_point) / safe;
-                                }
-
-                                if (maxaddcount > 0)
-                                {
-                                    nextstockloc = (ushort)(buttomStock.location - safe);
-                                }
+                                maxaddcount = (buttomStock.location - track.split_point) / safe;
                             }
                             else
                             {
-                                if(track.Type == TrackTypeE.储砖_入)
-                                {
-                                    nextstockloc = track.split_point;
-                                }
+                                maxaddcount = (buttomStock.location - track.limit_point) / safe;
+                            }
+
+                            if (maxaddcount > 0)
+                            {
+                                nextstockloc = (ushort)(buttomStock.location - safe);
+                            }
+                        }
+                        else
+                        {
+                            if (track.Type == TrackTypeE.储砖_入)
+                            {
+                                nextstockloc = track.split_point;
+                            }
+                            else if (track.Type == TrackTypeE.储砖_出 || track.Type == TrackTypeE.储砖_出入)
+                            {
+                                nextstockloc = track.limit_point_up;
                             }
                         }
                     }
@@ -2150,10 +2140,7 @@ namespace resource.goods
                             stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
                             bottom = stocks[stocks.Count - 1];
                         }
-                        ushort car = PubMaster.DevConfig.GetCarrierLenght(carrierid);
-                        ushort safe = GetGoodsSafeDis(bottom.goods_id);
-                        // 当砖间距比小车顶板小，用顶板长度更安全
-                        safe = car > safe ? car : safe;
+                        ushort safe = GetStackSafe(bottom.goods_id, carrierid);
                         ushort limit = PubMaster.Track.GetTrackLimitPoint(trackid);
                         location = (ushort)(bottom.location - safe);
                         if (location < limit)
@@ -2191,6 +2178,25 @@ namespace resource.goods
         //    ushort carlength = PubMaster.DevConfig.GetCarrierLenghtByArea(track.area);
         //}
 
+        /// <summary>
+        /// 获取库存间距脉冲，用于计算
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public ushort GetStackSafe(uint goodid, uint carrierid = 0)
+        {
+            ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 0);//217
+            if(safe == 0)
+            {
+                ushort car = PubMaster.DevConfig.GetCarrierLenght(carrierid);
+                safe = GetGoodsSafeDis(goodid);
+                // 当砖间距比小车顶板小，用顶板长度更安全
+                safe = car > safe ? car : safe;
+            }
+
+            return safe;
+        }
         #endregion
 
         #endregion

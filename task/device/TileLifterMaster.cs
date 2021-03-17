@@ -815,6 +815,96 @@ namespace task.device
             PubTask.TileLifterNeed.CheckTileLifterNeed(task);
 
             #endregion
+
+            #region[砖机发起转产信号]
+
+            if (task.DevStatus.NeedSytemShift
+                && PubMaster.Dic.IsSwitchOnOff(DicTag.TileNeedSysShiftFunc, false))
+            {
+                if (task.DevConfig.IsLastShiftTimeOk())
+                {
+                    //在转产允许间隔5分钟后，依然还没完成转产，则更新转产时间
+                    if (task.DevConfig.do_shift)
+                    {
+                        PubMaster.DevConfig.UpdateShiftTime(task.ID);
+                    }
+
+                    if (!task.DevConfig.do_shift)//执行转产
+                    {
+                        if (task.Type == DeviceTypeE.下砖机 && task.DevConfig.pre_goodid == 0)
+                        {
+                            //添加默认品种 A,B,C,D,E....
+                            if (!PubMaster.Goods.AddDefaultGood(task.DevConfig.goods_id, out string ad_rs, out uint pgoodid))
+                            {
+
+                            }
+                            else
+                            {
+                                if (!PubMaster.DevConfig.UpdateTilePreGood(task.ID, task.DevConfig.goods_id, pgoodid, out string up_rs))
+                                {
+
+                                }
+                            }
+                        }
+
+                        if (task.Device.Type == DeviceTypeE.上砖机)
+                        {
+                            if (task.DevConfig.pre_goodid == 0)
+                            {
+                                if (mTimer.IsOver("UpNotSetPreGood" + task.ID, 5 * 60, 60))
+                                {
+                                    task.DevConfig.last_shift_time = DateTime.Now;
+                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTilePreGoodNotSet, (ushort)task.ID);
+                                }
+                                else
+                                {
+                                    PubMaster.Warn.AddDevWarn(WarningTypeE.UpTilePreGoodNotSet, (ushort)task.ID);
+                                }
+                            }
+                            else
+                            {
+                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTilePreGoodNotSet, (ushort)task.ID);
+                            }
+                        }
+
+                        if (task.DevConfig.pre_goodid > 0)
+                        {
+                            if (!PubMaster.DevConfig.UpdateShiftTileGood(task.ID, task.DevConfig.goods_id, out string rs))
+                            {
+
+                            }
+                        }
+                    }
+                }
+                else//复位信号
+                {
+                    if (mTimer.IsOver(task.ID + "", 2, 10))
+                    {
+                        Thread.Sleep(1000);
+                        task.DoTileShiftSignal(TileAlertShiftE.收到转产);
+                    }
+                }
+            }
+
+            #endregion
+
+            #region[备用砖机切换备用]
+
+            if (task.DevConfig.can_alter
+                && PubMaster.Dic.IsSwitchOnOff(DicTag.AutoBackupTileFunc, false))
+            {
+                if (task.DevStatus.BackupShiftDev > 0)
+                {
+                    PubMaster.DevConfig.SetBackupTileLifterCode(task.ID, task.DevStatus.BackupShiftDev);
+                }
+                else
+                {
+                    //结束备用
+                    PubMaster.DevConfig.StopBackupTileLifter(task.ID, task.DevStatus.Load1 || task.DevStatus.Load2);
+                }
+            }
+
+            #endregion
         }
 
         /// <summary>
@@ -882,14 +972,14 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.品种作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.FullQty, out uint stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out uint stockid);
                                 TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid);
                                 break;
                             case DevWorkTypeE.轨道作业:
 
                                 break;
                             case DevWorkTypeE.混砖作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.FullQty, out stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out stockid);
                                 AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid);
                                 break;
                         }
@@ -1047,14 +1137,14 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.品种作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.FullQty, out uint stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out uint stockid);
                                 TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
                                 break;
                             case DevWorkTypeE.轨道作业:
 
                                 break;
                             case DevWorkTypeE.混砖作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.FullQty, out stockid);
+                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out stockid);
                                 AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
                                 break;
                         }

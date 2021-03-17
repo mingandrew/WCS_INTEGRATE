@@ -159,6 +159,10 @@ namespace resource.device
         /// <returns></returns>
         public ushort GetCarrierLenght(uint devid)
         {
+            if(devid == 0)
+            {
+                return ConfigCarrierList.Find(c => c.length > 0)?.length ?? 0;
+            }
             return ConfigCarrierList.Find(c => c.id == devid)?.length ?? 0;
         }
 
@@ -731,10 +735,19 @@ namespace resource.device
             ConfigTileLifter need_dev = ConfigTileLifterList.Find(c => c.id == need_id);
             //备用砖机
             ConfigTileLifter backup_dev = ConfigTileLifterList.Find(c => c.id == backup_id);
-            if (need_dev != null && backup_dev != null)
+            if (need_dev != null && backup_dev != null 
+                && backup_dev.can_alter
+                && backup_dev.alter_dev_id != need_dev.id)
             {
                 try
                 {
+                    if (!backup_dev.IsInBackUpList(need_id))
+                    {
+                        mLog.Status(true, string.Format("【切换备用砖机】备用砖机[ {0} ], 没有配置需要备用的砖机[ {1} ]",
+                            PubMaster.Device.GetDeviceName(backup_id), PubMaster.Device.GetDeviceName(need_id)));
+                        return false;
+                    }
+
                     mLog.Status(true, string.Format("【启用备用砖机】备用砖机[ {0} ], 需要备用的砖机[ {1} ]",
                         PubMaster.Device.GetDeviceName(backup_id), PubMaster.Device.GetDeviceName(need_id)));
                 }
@@ -749,6 +762,8 @@ namespace resource.device
                 backup_dev.old_goodid = need_dev.old_goodid;
                 backup_dev.goods_id = need_dev.goods_id;
                 backup_dev.pre_goodid = need_dev.pre_goodid;
+                backup_dev.alter_dev_id = need_dev.id;
+
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(backup_dev);
 
                 #endregion
@@ -788,6 +803,55 @@ namespace resource.device
             return false;
         }
 
+        /// <summary>
+        /// 砖机传设备号过来进行设备转换
+        /// </summary>
+        /// <param name="need_id">备用砖机ID</param>
+        /// <param name="devcode">转产砖机设备号</param>
+        public void SetBackupTileLifterCode(uint backup_id, byte devcode)
+        {
+            uint need_id = PubMaster.Device.GetDevIdByMemo(devcode + "");
+            if(need_id != 0)
+            {
+                SetBackupTileLifter(backup_id, need_id);
+            }
+        }
+
+        /// <summary>
+        /// 备用结束,备用砖机执行转产操作
+        /// </summary>
+        /// <param name="backup_id"></param>
+        public void StopBackupTileLifter(uint backup_id, bool doshift)
+        {
+            //备用砖机
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == backup_id);
+            if (dev != null && dev.can_alter && dev.alter_dev_id != 0)
+            {
+                if (doshift)
+                {
+                    if (dev.pre_goodid == 0)
+                    {
+                        //同品种转产
+                        dev.pre_goodid = dev.goods_id;
+                    }
+
+                    try
+                    {
+                        mLog.Status(true, string.Format("【备用结束，并转产】砖机[ {0} ], 备用砖机[ {1} ]",
+                            PubMaster.Device.GetDeviceName(dev.id),
+                            PubMaster.Device.GetDeviceName(dev.alter_dev_id)));
+                    }
+                    catch { }
+
+                    UpdateShiftTileGood(backup_id, dev.goods_id, out string _);
+                }
+
+
+                dev.alter_dev_id = 0;
+                PubMaster.Mod.DevConfigSql.EditGoods(dev);
+            }
+        }
+
         public bool IsTileHavePreGood(uint tile_id)
         {
             return ConfigTileLifterList.Exists(c => c.id == tile_id && c.pre_goodid != 0);
@@ -816,6 +880,19 @@ namespace resource.device
                 mLog.Status(true, msg);
             }
             catch { }
+        }
+
+
+        public void UpdateShiftTime(uint tilelifter_id)
+        {
+            ConfigTileLifter tile = GetTileLifter(tilelifter_id);
+            if (tile != null)
+            {
+                if (tile.do_shift)
+                {
+                    tile.last_shift_time = DateTime.Now;
+                }
+            }
         }
 
         #endregion

@@ -237,7 +237,7 @@ namespace resource.module.modulesql
                         track.early_full, GetTimeOrNull(track.full_time));
                     break;
                 case TrackUpdateE.Point:
-                    sql += string.Format("`split_point` = {0},`limit_point` = {1} ", track.split_point, track.limit_point);
+                    sql += string.Format("`split_point` = {0},`limit_point` = {1},`limit_point_up` = {2} ", track.split_point, track.limit_point, track.limit_point_up);
                     break;
                 default:
                     sql += " 1=1";

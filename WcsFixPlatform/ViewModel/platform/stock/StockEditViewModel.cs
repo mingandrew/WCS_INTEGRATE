@@ -122,7 +122,7 @@ namespace wcs.ViewModel
                 }
 
                 //检查轨道是否能够添加对应数量的库存
-                if (!PubMaster.Goods.CheckCanAddStockQty(TrackId, StockQty, out int ableqty, out string result))
+                if (!PubMaster.Goods.CheckCanAddStockQty(TrackId, GoodsId, StockQty, out int ableqty, out string result))
                 {
                     if (result != null)
                     {

@@ -21,7 +21,7 @@ namespace resource.track
 
         public TrackMaster()
         {
-            mLog = (Log)new LogFactory().GetLog("Site", false);
+            mLog = (Log)new LogFactory().GetLog("工位日志", false);
             TrackList = new List<Track>();
         }
 

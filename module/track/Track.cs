@@ -59,19 +59,32 @@ namespace module.track
         /// </summary>
         public ushort limit_point { set; get; }
 
+        /// <summary>
+        /// 轨道上砖极限点坐标
+        /// </summary>
+        public ushort limit_point_up { set; get; }
 
+        /// <summary>
+        /// 轨道类型
+        /// </summary>
         public TrackTypeE Type
         {
             get => (TrackTypeE)type;
             set => type = (byte)value;
         }
 
+        /// <summary>
+        /// 轨道库存状态
+        /// </summary>
         public TrackStockStatusE StockStatus
         {
             get => (TrackStockStatusE)stock_status;
             set => stock_status = (byte)value;
         }
 
+        /// <summary>
+        /// 轨道状态
+        /// </summary>
         public TrackStatusE TrackStatus
         {
             get => (TrackStatusE)track_status;
@@ -126,7 +139,24 @@ namespace module.track
         /// <returns></returns>
         public string GetLog()
         {
-            return string.Format("名称[ {0} ]，分割[ {1} ]，极限[ {2} ]", name, split_point, limit_point);
+            string log = string.Empty;
+            log += string.Format("名称[ {0} ]", name);
+            if (split_point > 0)
+            {
+                log+= string.Format("，分割[ {0} ]", split_point);
+            }
+
+            if (limit_point_up > 0)
+            {
+                log += string.Format("，上极[ {0} ]", limit_point_up);
+            }
+
+            if (limit_point > 0)
+            {
+                log += string.Format("，下极[ {0} ]", limit_point);
+            }
+
+            return log;
         }
 
         /// <summary>

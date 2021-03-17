@@ -26,7 +26,7 @@ namespace task.trans
         #region[构造函数/初始化/启动/停止]
         public TransBase()
         {
-            mLog = (Log)new LogFactory().GetLog("Task", false);
+            mLog = (Log)new LogFactory().GetLog("任务日志", false);
             mTimer = new MTimer();
             mMsg = new MsgAction();
             _to = new object();
@@ -208,11 +208,46 @@ namespace task.trans
 
             try
             {
-                mLog.Status(true, string.Format("任务：{0}, {1}任务, 状态：{2}, 砖机：{8}, 货物：{3}, 库存:{4}, 取货轨道:{5}, 卸货轨道:{6}, 运输车：{7}",
-                    trans.id, type, initstatus, goodsid, stocksid,
-                    PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
-                    PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""), carrierid,
-                    PubMaster.Device.GetDeviceName(lifterid, lifterid + "")));
+                string log = string.Empty;
+                switch (type)
+                {
+                    case TransTypeE.下砖任务:
+                    case TransTypeE.上砖任务:
+                    case TransTypeE.手动下砖:
+                    case TransTypeE.手动上砖:
+                    case TransTypeE.同向上砖:
+                    case TransTypeE.同向下砖:
+                    case TransTypeE.其他:
+                        log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], 砖机[ {3} ], " +
+                            "货物[ {4} ], 库存[ {5} ], 取轨[ {6} ], 卸轨[ {7} ]",
+                            trans.id, type, initstatus,
+                            PubMaster.Device.GetDeviceName(lifterid, lifterid + ""),
+                            goodsid, stocksid,
+                            PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
+                            PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
+                        break;
+                    case TransTypeE.倒库任务:
+                        log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], " +
+                            "货物[ {3} ], 取轨[ {4} ], 卸轨[ {5} ]",
+                            trans.id, type, initstatus,
+                            PubMaster.Goods.GetGoodsName(goodsid),
+                            PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
+                            PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
+                        break;
+                    case TransTypeE.移车任务:
+                        log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], " +
+                            "取轨[ {3} ], 卸轨[ {4} ]",
+                            trans.id, type, initstatus,
+                            PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
+                            PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
+                        break;
+                }
+                
+                if (carrierid > 0)
+                {
+                    log += string.Format(", 运输车[ {0} ]", PubMaster.Device.GetDeviceName(carrierid, carrierid + ""));
+                }
+                mLog.Status(true, log);
             }
             catch { }
 
@@ -222,7 +257,7 @@ namespace task.trans
         {
             if (trans.TransStaus != status)
             {
-                mLog.Status(true, string.Format("任务：{0}，原状态：{1}, 新状态：{2}, 备注：{3}", trans.id, trans.TransStaus, status, memo));
+                mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", trans.id, trans.TransStaus, status, memo));
                 trans.TransStaus = status;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Status);
 
@@ -242,7 +277,7 @@ namespace task.trans
         {
             if(trans.carrier_id != carrierid)
             {
-                mLog.Status(true, string.Format("任务：{0}，分配小车：{1}", trans.id, PubMaster.Device.GetDeviceName(carrierid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配小车[ {1} ]", trans.id, PubMaster.Device.GetDeviceName(carrierid)));
                 trans.carrier_id = carrierid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.CarrierId);
                 SendMsg(trans);
@@ -253,7 +288,7 @@ namespace task.trans
         {
             if (trans.take_ferry_id != ferryid)
             {
-                mLog.Status(true, string.Format("任务：{0}，分配T摆渡车：{1}", trans.id, PubMaster.Device.GetDeviceName(ferryid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配T摆渡车[ {1} ]", trans.id, PubMaster.Device.GetDeviceName(ferryid)));
                 trans.take_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeFerryId);
                 SendMsg(trans);
@@ -264,7 +299,7 @@ namespace task.trans
         {
             if (trans.give_ferry_id != ferryid)
             {
-                mLog.Status(true, string.Format("任务：{0}，分配G摆渡车：{1}", trans.id, PubMaster.Device.GetDeviceName(ferryid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配G摆渡车[ {1} ]", trans.id, PubMaster.Device.GetDeviceName(ferryid)));
                 trans.give_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.GiveFerryId);
                 SendMsg(trans);
@@ -280,7 +315,7 @@ namespace task.trans
         {
             if (trans.tilelifter_id != tileid)
             {
-                mLog.Status(true, string.Format("任务：{0}，重新分配砖机：{1}", trans.id, PubMaster.Device.GetDeviceName(tileid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 重新分配砖机[ {1} ]", trans.id, PubMaster.Device.GetDeviceName(tileid)));
                 trans.tilelifter_id = tileid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TileId);
                 SendMsg(trans);
@@ -291,7 +326,7 @@ namespace task.trans
         {
             if (trans.load_time == null)
             {
-                mLog.Status(true, string.Format("任务：{0}，取货时间：{1}", trans.id, DateTime.Now.ToString()));
+                mLog.Status(true, string.Format("任务[ {0} ], 取货时间[ {1} ]", trans.id, DateTime.Now.ToString()));
                 trans.load_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.LoadTime);
                 SendMsg(trans);
@@ -302,7 +337,7 @@ namespace task.trans
         {
             if (trans.unload_time == null)
             {
-                mLog.Status(true, string.Format("任务：{0}，卸货时间：{1}", trans.id, DateTime.Now.ToString()));
+                mLog.Status(true, string.Format("任务[ {0} ], 卸货时间[ {1} ]", trans.id, DateTime.Now.ToString()));
                 trans.unload_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.UnLoadTime);
                 SendMsg(trans);
@@ -314,7 +349,7 @@ namespace task.trans
             if (trans.finish_time == null)
             {
                 PubMaster.Warn.RemoveTaskAllWarn(trans.id);
-                mLog.Status(true, string.Format("任务：{0}，任务完成：{1}", trans.id, DateTime.Now.ToString()));
+                mLog.Status(true, string.Format("任务[ {0} ], 任务完成[ {1} ]", trans.id, DateTime.Now.ToString()));
                 trans.finish = true;
                 trans.finish_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Finish);
@@ -326,7 +361,7 @@ namespace task.trans
         {
             if (trans.take_track_id != traid)
             {
-                mLog.Status(true, string.Format("任务：{0}，取货轨道：{1}", trans.id, PubMaster.Track.GetTrackName(traid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 取货轨道[ {1} ]", trans.id, PubMaster.Track.GetTrackName(traid)));
                 trans.take_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeSite);
                 SendMsg(trans);
@@ -339,7 +374,7 @@ namespace task.trans
         {
             if (trans.give_track_id != traid)
             {
-                mLog.Status(true, string.Format("任务：{0}，卸货轨道：{1}", trans.id, PubMaster.Track.GetTrackName(traid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 卸货轨道[ {1} ]", trans.id, PubMaster.Track.GetTrackName(traid)));
                 trans.give_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.GiveSite);
                 SendMsg(trans);
@@ -361,7 +396,7 @@ namespace task.trans
         {
             if (!trans.cancel)
             {
-                mLog.Status(true, string.Format("任务：{0}，任务取消：{1}", trans.id, DateTime.Now.ToString()));
+                mLog.Status(true, string.Format("任务[ {0} ], 任务取消[ {1} ]", trans.id, DateTime.Now.ToString()));
                 trans.cancel = true;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Cancel);
             }

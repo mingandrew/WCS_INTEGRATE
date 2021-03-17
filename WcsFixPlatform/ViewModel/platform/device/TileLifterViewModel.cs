@@ -133,7 +133,8 @@ namespace wcs.ViewModel
 
                     case 3://启用
                            //判断是否备用砖机
-                        if (PubTask.TileLifter.IsBackupTileLifter(DeviceSelected.ID))
+                        if (PubTask.TileLifter.IsBackupTileLifter(DeviceSelected.ID)
+                            && !PubMaster.Dic.IsSwitchOnOff(DicTag.AutoBackupTileFunc, false))
                         {
                             //展示能备用的砖机的信息，并返回被选择的砖机id
                             DialogResult alterresult = await HandyControl.Controls.Dialog.Show<DeviceBackupSelectDialog>()
@@ -174,6 +175,7 @@ namespace wcs.ViewModel
                                 break;
                             }
                         }
+                        
                         if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC"))
                         {
                             PubTask.TileLifter.UpdateWorking(DeviceSelected.ID, true, 255);

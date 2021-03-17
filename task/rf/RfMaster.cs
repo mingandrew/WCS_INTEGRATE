@@ -625,7 +625,7 @@ namespace task.rf
                 if (pack != null)
                 {
                     //检查轨道是否能够添加对应数量的库存
-                    if (!PubMaster.Goods.CheckCanAddStockQty(pack.TrackId, pack.AddQty, out int ableqty, out string result))
+                    if (!PubMaster.Goods.CheckCanAddStockQty(pack.TrackId, pack.GoodId, pack.AddQty, out int ableqty, out string result))
                     {
                         if (result != null)
                         {

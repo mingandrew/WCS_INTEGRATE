@@ -115,7 +115,7 @@ namespace simtask.task
             {
                 if(Type == DeviceTypeE.上砖机)
                 {
-                    if(DevStatus.RecentQty == 0)
+                    if(DevStatus.Site1Qty == 0)
                     {
                         if (IsLeftWork)
                         {
@@ -145,7 +145,7 @@ namespace simtask.task
                             && !DevStatus.Involve2)
                         {
                             IsLeftWork = false;
-                            DevStatus.RecentQty = FULL_QTY;
+                            DevStatus.Site1Qty = FULL_QTY;
                             return;
                         }
 
@@ -156,14 +156,14 @@ namespace simtask.task
                             && !DevStatus.Involve1)
                         {
                             IsLeftWork = true;
-                            DevStatus.RecentQty = FULL_QTY;
+                            DevStatus.Site1Qty = FULL_QTY;
                             return;
                         }
 
                         if (!IsLeftWork && !DevStatus.Involve1 && DevStatus.Load1 && DevStatus.Involve2)
                         {
                             IsLeftWork = true;
-                            DevStatus.RecentQty = FULL_QTY;
+                            DevStatus.Site1Qty = FULL_QTY;
                             return;
                         }
 
@@ -175,7 +175,7 @@ namespace simtask.task
                     //if (IsLeftWork && DevStatus.Involve1) return;
                     //if (!IsLeftWork && DevStatus.Involve2) return;
 
-                    if (DevStatus.FullQty == DevStatus.RecentQty)
+                    if (DevStatus.FullQty == DevStatus.Site1Qty)
                     {
                         if (IsLeftWork && !DevStatus.Involve1)
                         {
@@ -205,7 +205,7 @@ namespace simtask.task
                             && !DevStatus.Involve2)
                         {
                             IsLeftWork = false;
-                            DevStatus.RecentQty = 0;
+                            DevStatus.Site1Qty = 0;
                             return;
                         }
 
@@ -216,14 +216,14 @@ namespace simtask.task
                             && !DevStatus.Involve1)
                         {
                             IsLeftWork = true;
-                            DevStatus.RecentQty = 0;
+                            DevStatus.Site1Qty = 0;
                             return;
                         }
 
                         if(!IsLeftWork && !DevStatus.Involve1 && !DevStatus.Load1 && DevStatus.Involve2)
                         {
                             IsLeftWork = true;
-                            DevStatus.RecentQty = 0;
+                            DevStatus.Site1Qty = 0;
                             return;
                         }
 
@@ -241,16 +241,16 @@ namespace simtask.task
                     LastPiecesTime = DateTime.Now;
                     if (Type == DeviceTypeE.上砖机)
                     {
-                        if (DevStatus.RecentQty > 0)
+                        if (DevStatus.Site1Qty > 0)
                         {
-                            DevStatus.RecentQty--;
+                            DevStatus.Site1Qty--;
                         }
                     }
                     else
                     {
-                        if (DevStatus.RecentQty < DevStatus.FullQty)
+                        if (DevStatus.Site1Qty < DevStatus.FullQty)
                         {
-                            DevStatus.RecentQty++;
+                            DevStatus.Site1Qty++;
                         }
                     }
                 }
@@ -313,7 +313,7 @@ namespace simtask.task
                 DevStatus.Need1 = false;
                 if (Device.Type2 == DeviceType2E.单轨)
                 {
-                    DevStatus.RecentQty = 0;
+                    DevStatus.Site1Qty = 0;
                 }
             }
 
@@ -334,7 +334,7 @@ namespace simtask.task
                 DevStatus.Need1 = false;
                 if (Device.Type2 == DeviceType2E.单轨)
                 {
-                    DevStatus.RecentQty = FULL_QTY;
+                    DevStatus.Site1Qty = FULL_QTY;
                 }
             }
 

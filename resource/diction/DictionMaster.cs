@@ -126,6 +126,11 @@ namespace resource.diction
             return DicDtlList.Find(c => c.id == dicdtlid)?.double_value ?? defaultvalue;
         }
 
+        internal double GetDtlDouble(string code, double defaultvalue = 0.0)
+        {
+            return DicDtlList.Find(c => code.Equals(c.code))?.double_value ?? defaultvalue;
+        }
+
         public string GetDicName(int diction_id)
         {
             return DicList.Find(c => c.id == diction_id)?.name ?? "";

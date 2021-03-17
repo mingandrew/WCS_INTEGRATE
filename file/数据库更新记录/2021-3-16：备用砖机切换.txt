@@ -1,0 +1,29 @@
+ALTER TABLE `config_tilelifter` 
+ADD COLUMN `alter_dev_id` int(11) UNSIGNED NULL COMMENT '当前备用砖机id' AFTER `alter_ids`;
+
+ALTER TABLE `track` 
+ADD COLUMN `limit_point_up` smallint(5) NULL COMMENT '轨道上砖极限坐标点' AFTER `limit_point`;
+
+ALTER TABLE `diction_dtl` 
+MODIFY COLUMN `double_value` double(10, 3) UNSIGNED NULL DEFAULT NULL COMMENT '浮点类型' AFTER `string_value`;
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (58, 10, 'StackPluse', '一垛计算距离', NULL, NULL, '', 200, NULL, NULL, NULL);
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (59, 8, 'TileNeedSysShiftFunc', '砖机需转产信号', NULL, b'0', '', NULL, NULL, NULL, NULL);
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (60, 8, 'AutoBackupTileFunc', '备用砖机自动转换', NULL, b'0', '', NULL, NULL, NULL, NULL);
+
+
+-- 查询所有出库轨道，出入库轨道
+select t.`name`, t.limit_point_up, t.split_point, t.limit_point from track t where t.type = 3 or t.type = 4;
+
+-- 更新 储砖出轨道	上砖极限值
+update track t  set t.limit_point_up = 10370 where t.type =  3;
+
+-- 更新 储砖出入轨道 上砖极限值
+update track t  set t.limit_point_up = 4846 where t.type = 4;
+
+
