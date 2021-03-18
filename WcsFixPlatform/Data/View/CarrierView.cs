@@ -337,19 +337,19 @@ namespace wcs.Data.View
         {
             DeviceID = st.DeviceID;
             DeviceStatus = st.DeviceStatus;
-            CurrentPoint = st.CurrentPoint;
-            CurrentSite = st.CurrentSite;
-            TargetPoint = st.TargetPoint;
-            TargetSite = st.TargetSite;
+            CurrentPoint = st.CurrentSite;
+            CurrentSite = st.CurrentPoint;
+            TargetPoint = st.TargetSite;
+            TargetSite = st.TargetPoint;
             CurrentOrder = st.CurrentOrder;
             FinishOrder = st.FinishOrder;
             LoadStatus = st.LoadStatus;
             Position = st.Position;
             OperateMode = st.OperateMode;
-            TakePoint = st.TakePoint;
-            TakeSite = st.TakeSite;
-            GivePoint = st.GivePoint;
-            GiveSite = st.GiveSite;
+            TakePoint = st.TakeSite;
+            TakeSite = st.TakePoint;
+            GivePoint = st.GiveSite;
+            GiveSite = st.GivePoint;
             MoveCount = st.MoveCount;
             Aler1 = st.Aler1;
             Aler2 = st.Aler2;

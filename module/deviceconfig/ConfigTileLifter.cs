@@ -100,6 +100,11 @@ namespace module.deviceconfig
         /// </summary>
         public uint alter_dev_id { set; get; }
 
+        /// <summary>
+        /// 砖机设定等级
+        /// </summary>
+        public byte level { set; get; }
+
         //没有保存到数据库中
         public DateTime last_shift_time { set; get; }//最近一次转产时间
         /// <summary>

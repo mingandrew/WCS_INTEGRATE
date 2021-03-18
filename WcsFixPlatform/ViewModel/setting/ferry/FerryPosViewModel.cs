@@ -175,22 +175,22 @@ namespace wcs.ViewModel
             List<FerryPos> pos = PubMaster.Track.GetFerryPos(areaid, _selectferry.id);
             if (pos == null || pos.Count == 0)
             {
-                Growl.Ask("该设备当前没有该轨道的信息，是否添加！", isConfirmed =>
+                bool havetrack = PubMaster.Area.ExistAreaDevTrack(areaid, _selectferry.id);
+                if (havetrack)
                 {
-                    if (isConfirmed)
+                    Growl.Ask("是否添加轨道的信息！", isConfirmed =>
                     {
-                        pos = PubMaster.Track.AddFerryPos(areaid, _selectferry.id);
-
-                        if (pos.Count > 0)
+                        if (isConfirmed)
                         {
+                            pos = PubMaster.Track.AddFerryPos(areaid, _selectferry.id);
                             foreach (FerryPos p in pos)
                             {
                                 List.Add(new FerryPosView(p));
                             }
                         }
-                    }
-                    return true;
-                });
+                        return true;
+                    });
+                }
             }
             else
             {

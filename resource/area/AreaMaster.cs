@@ -4,6 +4,7 @@ using module.area;
 using module.device;
 using module.goods;
 using module.window;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -180,6 +181,11 @@ namespace resource.area
                 list.Sort((x, y) => x.prior.CompareTo(y.prior));
             }
             return list;
+        }
+
+        public bool ExistAreaDevTrack(uint areaid, uint devid)
+        {
+            return AreaDevTraList.Exists(c => c.area_id == areaid && c.device_id == devid);
         }
 
         #endregion

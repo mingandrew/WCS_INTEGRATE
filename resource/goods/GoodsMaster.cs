@@ -1155,7 +1155,7 @@ namespace resource.goods
             if (fromtrans) return;
 
             Stock stock = StockList.Find(c => c.id == stock_id);
-            if(stock != null && stock.track_id != to_track_id)
+            if(stock != null && stock.track_id != to_track_id && to_track_id > 0)
             {
                 uint from_track_id = stock.track_id;
 

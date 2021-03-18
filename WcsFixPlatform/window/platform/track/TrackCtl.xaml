@@ -42,15 +42,16 @@
                     </hc:ButtonGroup.ItemTemplate>
                 </hc:ButtonGroup>
                 <hc:ButtonGroup Grid.Column="2" Style="{StaticResource ButtonGroupSolid}" 
-                                Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left">
+                                Orientation="Horizontal"  VerticalAlignment="Center" FontWeight="Medium">
                     <hc:Interaction.Triggers>
                         <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
                             <hc:EventToCommand Command="{Binding CheckTypeRadioBtnCmd}" PassEventArgsToCommand="True"/>
                         </hc:RoutedEventTrigger>
                     </hc:Interaction.Triggers>
-                    <!--<RadioButton Content="全部" Tag="0"  Width="60" Height="40" FontSize="17"/>
-                    <RadioButton Content="入库" Tag="2"   Width="60" Height="40" FontSize="17"/>
-                    <RadioButton Content="出库" Tag="3"  Width="60" Height="40" FontSize="17"/>-->
+                    <RadioButton Content="全部" Tag="0"  Width="60" Height="40" FontSize="17"/>
+                    <RadioButton Content="入" Tag="2"  Width="60" Height="40" FontSize="17"/>
+                    <RadioButton Content="出" Tag="3"  Width="60" Height="40" FontSize="17"/>
+                    <RadioButton Content="出入" Tag="4"  Width="60" Height="40" FontSize="17"/>
                 </hc:ButtonGroup>
             </Grid>
 

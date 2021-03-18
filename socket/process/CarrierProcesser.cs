@@ -12,10 +12,10 @@ namespace socket.process
         public ushort Head;  //命令字头【0x97,0x01】
         public byte DeviceID;       //设备号
         public byte DeviceStatus;   //设备状态
-        public ushort CurrentPoint;  //当前RFID
-        public ushort CurrentSite;  //当前坐标
-        public ushort TargetPoint;  //目的RFID
-        public ushort TargetSite;  //目的坐标
+        public ushort CurrentSite;  //当前RFID
+        public ushort CurrentPoint;  //当前坐标
+        public ushort TargetSite;  //目的RFID
+        public ushort TargetPoint;  //目的坐标
         public byte CurrentOrder;    //当前指令
         public byte FinishOrder;     //完成指令
         public byte LoadStatus;     //载货状态
@@ -118,19 +118,19 @@ namespace socket.process
             mDev.ReSetUpdate();
             mDev.DeviceID = st.DeviceID;
             mDev.DeviceStatus = (DevCarrierStatusE)st.DeviceStatus;
-            mDev.CurrentPoint = ShiftBytes(st.CurrentPoint);
             mDev.CurrentSite = ShiftBytes(st.CurrentSite);
-            mDev.TargetPoint = ShiftBytes(st.TargetPoint);
+            mDev.CurrentPoint = ShiftBytes(st.CurrentPoint);
             mDev.TargetSite = ShiftBytes(st.TargetSite);
+            mDev.TargetPoint = ShiftBytes(st.TargetPoint);
             mDev.CurrentOrder = (DevCarrierOrderE)st.CurrentOrder;
             mDev.FinishOrder = (DevCarrierOrderE)st.FinishOrder;
             mDev.LoadStatus = (DevCarrierLoadE)st.LoadStatus;
             mDev.Position = (DevCarrierPositionE)st.Position;
             mDev.OperateMode = (DevOperateModeE)st.OperateMode;
-            mDev.TakePoint = ShiftBytes(st.TakePoint);
-            mDev.TakeSite = ShiftBytes(st.TakeSite);
-            mDev.GivePoint = ShiftBytes(st.GivePoint);
-            mDev.GiveSite = ShiftBytes(st.GiveSite);
+            mDev.TakeSite = ShiftBytes(st.TakePoint);
+            mDev.TakePoint = ShiftBytes(st.TakeSite);
+            mDev.GiveSite = ShiftBytes(st.GivePoint);
+            mDev.GivePoint = ShiftBytes(st.GiveSite);
             mDev.MoveCount = st.MoveCount;
             mDev.Reserve1 = st.Reserve1;
             mDev.Reserve2 = st.Reserve2;

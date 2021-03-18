@@ -36,7 +36,7 @@ namespace wcs.ViewModel
         private Track trackselected;
 
         private IList<MyRadioBtn> _arearadio;
-        private uint filterareaid = 0;
+        private uint filterareaid = 0, filtertracktype = 0;
 
         private DateTime? refreshtime;
         private bool showareafilter;
@@ -89,6 +89,7 @@ namespace wcs.ViewModel
 
         public RelayCommand ComfirmCmd => new Lazy<RelayCommand>(() => new RelayCommand(Comfirm)).Value;
         public RelayCommand CancelCmd => new Lazy<RelayCommand>(() => new RelayCommand(CancelChange)).Value;
+        public RelayCommand<RoutedEventArgs> CheckTypeRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckTypeRadioBtn)).Value;
 
         #endregion
 
@@ -107,6 +108,7 @@ namespace wcs.ViewModel
             }
             return false;
         }
+
 
         public void QueryFerryTrack(uint ferryid)
         {
@@ -152,6 +154,17 @@ namespace wcs.ViewModel
                 ShowAreaFilter = isshow;
             }
         }
+        private void CheckTypeRadioBtn(RoutedEventArgs args)
+        {
+            if (args.OriginalSource is RadioButton btn)
+            {
+                if (uint.TryParse(btn.Tag.ToString(), out uint type))
+                {
+                    filtertracktype = type;
+                    TrackView.Refresh();
+                }
+            }
+        }
 
         public void QueryTileTrack(uint tileid)
         {
@@ -181,10 +194,20 @@ namespace wcs.ViewModel
 
         bool OnFilterMovie(object item)
         {
-            if (filterareaid == 0) return true;
-            if (item is Track track)
+            if (filterareaid == 0 && filtertracktype == 0) return true;
+            if (item is Track view)
             {
-                return track.area == filterareaid ;
+                if (filterareaid == 0)
+                {
+                    return view.Type == (TrackTypeE)filtertracktype;
+                }
+
+                if (filtertracktype == 0)
+                {
+                    return view.area == filterareaid;
+                }
+
+                return filterareaid == view.area && (TrackTypeE)filtertracktype == view.Type;
             }
             return true;
         }

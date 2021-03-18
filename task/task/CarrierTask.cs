@@ -29,8 +29,8 @@ namespace task.device
                         string log = string.Format("【切换轨道】源[ {0} ], 新[ {1} ], 当前[ {2}^{3} ]",
                             PubMaster.Track.GetTrackLogInfo(currenttrackid),
                             PubMaster.Track.GetTrackLogInfo(value),
-                            DevStatus?.CurrentPoint,
-                            DevStatus?.CurrentSite);
+                            DevStatus?.CurrentSite,
+                            DevStatus?.CurrentPoint);
                         DevTcp.AddStatusLog(log);
                     }
                     catch { }
@@ -76,7 +76,7 @@ namespace task.device
         /// </summary>
         public ushort CurrentPoint
         {
-            get => DevStatus?.CurrentPoint ?? 0;
+            get => DevStatus?.CurrentSite ?? 0;
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace task.device
         /// </summary>
         public ushort CurrentSite
         {
-            get => DevStatus?.CurrentSite ?? 0;
+            get => DevStatus?.CurrentPoint ?? 0;
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace task.device
         /// </summary>
         public ushort TargetPoint
         {
-            get => DevStatus?.TargetPoint ?? 0;
+            get => DevStatus?.TargetSite ?? 0;
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace task.device
         /// </summary>
         public ushort TargetSite
         {
-            get => DevStatus?.TargetSite ?? 0;
+            get => DevStatus?.TargetPoint ?? 0;
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace task.device
         /// </summary>
         public ushort TakePoint
         {
-            get => DevStatus?.TakePoint ?? 0;
+            get => DevStatus?.TakeSite ?? 0;
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace task.device
         /// </summary>
         public ushort TakeSite
         {
-            get => DevStatus?.TakeSite ?? 0;
+            get => DevStatus?.TakePoint ?? 0;
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace task.device
         /// </summary>
         public ushort GivePoint
         {
-            get => DevStatus?.GivePoint ?? 0;
+            get => DevStatus?.GiveSite ?? 0;
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace task.device
         /// </summary>
         public ushort GiveSite
         {
-            get => DevStatus?.GiveSite ?? 0;
+            get => DevStatus?.GivePoint ?? 0;
         }
 
         #endregion
@@ -250,10 +250,10 @@ namespace task.device
         {
             if (DevStatus != null)
             {
-                DevStatus.CurrentPoint = 0;
                 DevStatus.CurrentSite = 0;
-                DevStatus.TargetPoint = 0;
+                DevStatus.CurrentPoint = 0;
                 DevStatus.TargetSite = 0;
+                DevStatus.TargetPoint = 0;
                 DevStatus.CurrentOrder = DevCarrierOrderE.无;
                 DevStatus.FinishOrder = DevCarrierOrderE.无;
                 CurrentTrackId = 0;

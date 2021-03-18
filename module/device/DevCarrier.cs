@@ -14,20 +14,20 @@ namespace module.device
         #region[字段]
         private byte deviceid;       //设备号
         private byte devicestatus;   //设备状态
-        private ushort currentpoint;  //当前RFID
-        private ushort currentsite;  //当前坐标
-        private ushort campare_currentsite = 0;//用于计算的当前坐标 避免频繁刷新
-        private ushort targetpoint;  //目的RFID
-        private ushort targetsite;  //目的坐标
+        private ushort currentsite;  //当前RFID
+        private ushort currentpoint;  //当前坐标
+        private ushort campare_currentpoint = 0;//用于计算的当前坐标 避免频繁刷新
+        private ushort targetsite;  //目的RFID
+        private ushort targetpoint;  //目的坐标
         private byte currentorder;    //当前指令
         private byte finishorder;     //完成指令
         private byte loadstatus;     //载货状态
         private byte position;       //所在位置
         private byte operatemode;    //操作模式
-        private ushort takepoint;  //取货RFID
-        private ushort takesite;  //取货坐标
-        private ushort givepoint;  //卸货RFID
-        private ushort givesite;  //卸货坐标
+        private ushort takesite;  //取货RFID
+        private ushort takepoint;  //取货坐标
+        private ushort givesite;  //卸货RFID
+        private ushort givepoint;  //卸货坐标
         private byte movecount;  //倒库数量
         private byte reserve1;        //预留1
         private byte reserve2;        //预留2
@@ -70,40 +70,31 @@ namespace module.device
         /// <summary>
         /// 当前RFID
         /// </summary>
-        public ushort CurrentPoint
+        public ushort CurrentSite
         {
-            set => Set(ref currentpoint, value);
-            get => currentpoint;
+            set => Set(ref currentsite, value);
+            get => currentsite;
         }
 
         /// <summary>
         /// 当前坐标
         /// </summary>
-        public ushort CurrentSite
+        public ushort CurrentPoint
         {
             set
             {
-                if(Math.Abs(campare_currentsite - value) >= 50)
+                if(Math.Abs(campare_currentpoint - value) >= 50)
                 {
-                    campare_currentsite = value;
+                    campare_currentpoint = value;
                     IsCurrentSiteUpdate = true;
                 }
-                currentsite = value;
+                currentpoint = value;
             }
-            get => currentsite;
+            get => currentpoint;
         }
 
         /// <summary>
         /// 目的RFID
-        /// </summary>
-        public ushort TargetPoint
-        {
-            set => Set(ref targetpoint, value);
-            get => targetpoint;
-        }
-
-        /// <summary>
-        /// 目的坐标
         /// </summary>
         public ushort TargetSite
         {
@@ -111,18 +102,14 @@ namespace module.device
             get => targetsite;
         }
 
-
-        public DevCarrierTaskE CurrentTask
+        /// <summary>
+        /// 目的坐标
+        /// </summary>
+        public ushort TargetPoint
         {
-            set => Set(ref currentorder, (byte)value);
-            get => (DevCarrierTaskE)currentorder;
+            set => Set(ref targetpoint, value);
+            get => targetpoint;
         }
-        public DevCarrierTaskE FinishTask
-        {
-            set => Set(ref finishorder, (byte)value);
-            get => (DevCarrierTaskE)finishorder;
-        }
-
 
         /// <summary>
         /// 当前指令
@@ -172,15 +159,6 @@ namespace module.device
         /// <summary>
         /// 取货RFID
         /// </summary>
-        public ushort TakePoint
-        {
-            set => Set(ref takepoint, value);
-            get => takepoint;
-        }
-
-        /// <summary>
-        /// 取货坐标
-        /// </summary>
         public ushort TakeSite
         {
             set => Set(ref takesite, value);
@@ -188,21 +166,30 @@ namespace module.device
         }
 
         /// <summary>
-        /// 卸货RFID
+        /// 取货坐标
         /// </summary>
-        public ushort GivePoint
+        public ushort TakePoint
         {
-            set => Set(ref givepoint, value);
-            get => givepoint;
+            set => Set(ref takepoint, value);
+            get => takepoint;
         }
 
         /// <summary>
-        /// 卸货坐标
+        /// 卸货RFID
         /// </summary>
         public ushort GiveSite
         {
             set => Set(ref givesite, value);
             get => givesite;
+        }
+
+        /// <summary>
+        /// 卸货坐标
+        /// </summary>
+        public ushort GivePoint
+        {
+            set => Set(ref givepoint, value);
+            get => givepoint;
         }
 
         /// <summary>
@@ -340,8 +327,8 @@ namespace module.device
         {
             return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 指令[ {5} ], 完成[ {6} ], " +
                 "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ]",
-                DeviceStatus, CurrentPoint, CurrentSite, TargetPoint, TargetSite, CurrentOrder, FinishOrder,
-                LoadStatus, Position, OperateMode, TakePoint, TakeSite, GivePoint, GiveSite, MoveCount);
+                DeviceStatus, CurrentSite, CurrentPoint, TargetSite, TargetPoint, CurrentOrder, FinishOrder,
+                LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount);
         }
 
         /// <summary>
@@ -351,7 +338,7 @@ namespace module.device
         public string GetTakeString()
         {
             return string.Format("当前[ {0}^{1} ], 指令[ {2} ], 位置[ {3} ], 操作[ {4} ], 取货[ {5}^{6} ]",
-                  CurrentPoint, CurrentSite, CurrentOrder,Position, OperateMode, TakePoint, TakeSite);
+                  CurrentSite, CurrentPoint, CurrentOrder,Position, OperateMode, TakeSite, TakePoint);
         }
 
         /// <summary>
@@ -361,7 +348,7 @@ namespace module.device
         public string GetGiveString()
         {
             return string.Format("当前[ {0}^{1} ], 指令[ {2} ], 位置[ {3} ], 操作[ {4} ], 卸货[ {5}^{6} ], 倒库[ {7} ]",
-                  CurrentPoint, CurrentSite, CurrentOrder,Position, OperateMode, GivePoint, GiveSite, MoveCount);
+                  CurrentSite, CurrentPoint, CurrentOrder,Position, OperateMode, GiveSite, GivePoint, MoveCount);
         }
 
         public string AlertToString()

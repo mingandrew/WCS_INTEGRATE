@@ -1,0 +1,14 @@
+
+ALTER TABLE `config_tilelifter` ADD COLUMN `level` tinyint(3) UNSIGNED NULL COMMENT '砖机等级' AFTER `alter_dev_id`;
+
+ALTER TABLE `good_size` MODIFY COLUMN `name` varchar(50) NULL COMMENT '规格名称' AFTER `id`;
+
+
+ALTER TABLE `config_carrier` ADD COLUMN `sim_init_point` smallint(5) UNSIGNED NULL COMMENT '模拟初始脉冲' AFTER `goods_size`;
+
+ALTER TABLE `config_carrier` ADD COLUMN `sim_init_site` smallint(5) UNSIGNED NULL COMMENT '模拟初始地标' AFTER `sim_init_point`;
+
+
+ALTER TABLE `config_ferry` ADD COLUMN `sim_init_point` smallint(5) UNSIGNED NULL COMMENT '模拟初始化对轨值' AFTER `track_point`;
+
+ALTER TABLE `config_ferry` MODIFY COLUMN `track_point` smallint(5) UNSIGNED NULL COMMENT '摆渡车轨道地标' AFTER `track_id`;

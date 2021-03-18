@@ -522,9 +522,9 @@ namespace task.device
             #region [取卸货]
 
             //放货动作
-            if (task.DevConfig.stock_id != 0 && task.IsNotLoad())
+            if (task.DevConfig.stock_id != 0 && task.IsNotLoad() && track != null)
             {
-                PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GiveSite);
+                PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GivePoint);
 
                 //判断放下砖的时候轨道是否是能否放砖的轨道
                 if (track.IsNotFerryTrack())
@@ -586,7 +586,7 @@ namespace task.device
                         case TrackTypeE.储砖_入:
                         case TrackTypeE.储砖_出:
                         case TrackTypeE.储砖_出入:
-                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInStoreTrack(track.id, task.DevStatus.TakeSite);
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInStoreTrack(track.id, task.DevStatus.TakePoint);
                             break;
                         case TrackTypeE.摆渡车_入:
                         case TrackTypeE.摆渡车_出:
@@ -711,7 +711,7 @@ namespace task.device
         public bool DoManualTask(uint devid, DevCarrierTaskE carriertask, out string result, bool isoversize = false, string memo = "")
         {
             bool isferryupsite = false;
-            ushort trackcode = PubTask.Carrier.GetCurrentPoint(devid);
+            ushort trackcode = PubTask.Carrier.GetCurrentSite(devid);
             if (trackcode == 0)
             {
                 result = "小车当前站点为0";
@@ -862,7 +862,7 @@ namespace task.device
                 return false;
             }
             //小车当前所在RF点
-            ushort point = GetCurrentPoint(devid);
+            ushort point = GetCurrentSite(devid);
 
             DevCarrierOrderE order = DevCarrierOrderE.终止指令;
             ushort checkTra = 0;//校验轨道号
@@ -1281,7 +1281,6 @@ namespace task.device
                         }
                     }
                 }
-
             }
 
             #region[2.满砖轨道是否有车[空闲，无货]]
@@ -1308,11 +1307,15 @@ namespace task.device
                 if (trans.area_id != 0)
                 {
                     List<AreaDevice> areatras = PubMaster.Area.GetAreaDevList(trans.area_id, DeviceTypeE.运输车);
+                    
+                    //能去这个倒库轨道所有配置的摆渡车轨道信息
+                    List<AreaDeviceTrack> traone = PubMaster.Area.GetFerryTrackId(trans.give_track_id);
                     foreach (AreaDevice areatra in areatras)
                     {
                         CarrierTask task = DevList.Find(c => c.ID == areatra.device_id && c.CarrierType == needtype);
                         if (task != null && CheckCarrierFreeNotLoad(task)
-                            && PubMaster.Track.IsTrackType(task.CurrentTrackId, TrackTypeE.储砖_出))
+                            && PubMaster.Track.IsTrackType(task.CurrentTrackId, TrackTypeE.储砖_出)
+                            && PubMaster.Area.ExistFerryToBothTrack(traone, task.CurrentTrackId))
                         {
                             carrierid = task.ID;
                             return true;
@@ -1429,7 +1432,6 @@ namespace task.device
                             }
                         }
                     }
-
                 }
                 #endregion
             }
@@ -1682,18 +1684,18 @@ namespace task.device
         /// </summary>
         /// <param name="devId"></param>
         /// <returns></returns>
-        internal ushort GetCurrentPoint(uint devId)
+        internal ushort GetCurrentSite(uint devId)
         {
-            return DevList.Find(c => c.ID == devId)?.DevStatus?.CurrentPoint ?? 0;
+            return DevList.Find(c => c.ID == devId)?.DevStatus?.CurrentSite ?? 0;
         }
         /// <summary>
         /// 获取当前坐标值
         /// </summary>
         /// <param name="devId"></param>
         /// <returns></returns>
-        internal ushort GetCurrentSite(uint devId)
+        internal ushort GetCurrentPoint(uint devId)
         {
-            return DevList.Find(c => c.ID == devId)?.DevStatus?.CurrentSite ?? 0;
+            return DevList.Find(c => c.ID == devId)?.DevStatus?.CurrentPoint ?? 0;
         }
 
         /// <summary>
