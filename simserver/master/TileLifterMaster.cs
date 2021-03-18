@@ -118,7 +118,7 @@ namespace simtask.master
                             task.DevConfig = devconf;
                             task.DevId = mod.Devid;
                             task.DevStatus.DeviceID = mod.Devid;
-                            task.SetDicInfo();
+                            task.SetupTile();
                             DevList.Add(task);
                             SendDevMsg(task);
                         }
@@ -140,31 +140,34 @@ namespace simtask.master
             }
         }
 
-        public void SetLoadStatus(byte deviceID, bool status, bool v)
+        public void SetLoadStatus(uint deviceID, bool status, bool setleft)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            SimTileLifterTask task = DevList.Find(c => c.ID == deviceID);
+            if (task != null)
             {
-                try
+                if (setleft)//left
                 {
-                    SimTileLifterTask task = DevList.Find(c => c.DevId == deviceID);
-                    if (task != null)
-                    {
-                        if (v)//left
-                        {
-                            task.IsLoad_1 = status;
-                            task.IsNeed_1 = true;
-                        }
-                        else if(!v && task.Device.Type2 == DeviceType2E.双轨)
-                        {
-
-                            task.IsLoad_2 = status;
-                            task.IsNeed_2 = true;
-                        }
-                    }
+                    task.IsLoad_1 = status;
+                    task.IsNeed_1 = true;
                 }
-                finally { Monitor.Exit(_obj); }
+                else if (!setleft && task.Device.Type2 == DeviceType2E.双轨)
+                {
+
+                    task.IsLoad_2 = status;
+                    task.IsNeed_2 = true;
+                }
             }
         }
+
+        public void SetRequireShift(uint deviceID)
+        {
+            SimTileLifterTask task = DevList.Find(c => c.ID == deviceID);
+            if (task != null)
+            {
+                task.DevStatus.NeedSytemShift = true;
+            }
+        }
+
 
         internal bool DoUnload(uint trackid)
         {
@@ -235,7 +238,7 @@ namespace simtask.master
             }
             else
             {
-                DevList.Find(c => c.ID == devid)?.StartWorking();
+                DevList.Find(c => c.ID == devid)?.StopWorking();
             }
         }
 
@@ -257,69 +260,55 @@ namespace simtask.master
                 case DevLifterCmdTypeE.查询:
                     break;
                 case DevLifterCmdTypeE.介入1:
-                    if(task.Type == DeviceTypeE.下砖机)
-                    {
-                        if(cmd.InVolType == DevLifterInvolE.介入)
-                        {
-                            //if (task.IsLoad_1 && task.IsNeed_1)
-                            //{
-                            //    task.IsInvo_1 = true;
-                            //}
-                            task.IsInvo_1 = true;
-                        }
-                        else
-                        {
-                            task.IsInvo_1 = false;
-                        }
-                    }else if(task.Type == DeviceTypeE.上砖机)
-                    {
-                        if (cmd.InVolType == DevLifterInvolE.介入)
-                        {
-                            //if (!task.IsLoad_1 && task.IsNeed_1)
-                            //{
-                            //    task.IsInvo_1 = true;
-                            //}
-                            task.IsInvo_1 = true;
-                        }
-                        else
-                        {
-                            task.IsInvo_1 = false;
-                        }
-                        
-                    }
+                    task.IsInvo_1 = cmd.InVolType == DevLifterInvolE.介入;
                     break;
                 case DevLifterCmdTypeE.介入2:
-                    if (task.Type == DeviceTypeE.下砖机)
+                    task.IsInvo_2 = cmd.InVolType == DevLifterInvolE.介入;
+                    break;
+                case DevLifterCmdTypeE.转产:
+                    switch (cmd.ShiftType)
                     {
-                        if (cmd.InVolType == DevLifterInvolE.介入)
-                        {
-                            //if (task.IsLoad_2 && task.IsNeed_2)
-                            //{
-                            //    task.IsInvo_2 = true;
-                            //}
-                            task.IsInvo_2 = true;
-                        }
-                        else
-                        {
-                            task.IsInvo_2 = false;
-                        }
+                        case TileShiftCmdE.复位:
+                            break;
+                        case TileShiftCmdE.变更品种:
+                            task.DevStatus.SetGoods = cmd.GoodId;
+                            break;
+                        case TileShiftCmdE.执行转产:
+                            #region[转产]
+                            task.DevStatus.ShiftAccept = true;
+                            task.DevStatus.ShiftStatus = TileShiftStatusE.转产中;
+                            #endregion
+                            break;
+                        default:
+                            break;
                     }
-                    else if (task.Type == DeviceTypeE.上砖机)
+                    break;
+                case DevLifterCmdTypeE.模式:
+                    #region[模式]
+                    task.DevStatus.WorkMode = cmd.WorkMode;
+                    if (cmd.SetFullType == TileFullE.设为满砖)
                     {
-                        if (cmd.InVolType == DevLifterInvolE.介入)
+                        if (task.IsLoad_1)
                         {
-                            //if (!task.IsLoad_2 && task.IsNeed_2)
-                            //{
-                            //    task.IsInvo_2 = true;
-                            //}
-                            task.IsInvo_2 = true;
-                        }
-                        else
-                        {
-                            task.IsInvo_2 = false;
+                            task.DevStatus.Need1 = true;
                         }
 
+                        if (task.IsLoad_2)
+                        {
+                            task.DevStatus.Need2 = true;
+                        }
                     }
+                    #endregion
+                    break;
+                case DevLifterCmdTypeE.等级:
+                    #region[等级]
+
+                    task.DevStatus.SetLevel = cmd.Level;
+
+                    #endregion
+                    break;
+                case DevLifterCmdTypeE.复位转产:
+                    task.DevStatus.NeedSytemShift = false;
                     break;
                 default:
                     break;

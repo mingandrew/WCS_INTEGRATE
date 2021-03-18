@@ -54,20 +54,14 @@ namespace simtask
         /// 根据站点更新当前小车所在轨道
         /// </summary>
         /// <param name="poscode"></param>
-        internal void UpdateCurrentSite(ushort poscode)
+        internal void UpdateCurrentSite(ushort initsite, ushort initpoint)
         {
-            if (poscode == 999)
+            DevStatus.CurrentSite = initsite;
+            DevStatus.CurrentPoint = initpoint;
+            Track track = PubMaster.Track.GetTrackByPoint(Device.area, initsite);
+            if (track != null)
             {
-                DevStatus.FinishTask = DevStatus.CurrentTask;
-            }
-            else
-            {
-                DevStatus.CurrentSite = poscode;
-                Track track = PubMaster.Track.GetTrackByPoint(Device.area, poscode);
-                if (track != null)
-                {
-                    SetNowTrack(track);
-                }
+                SetNowTrack(track);
             }
         }
 
@@ -75,7 +69,7 @@ namespace simtask
         {
             if (track != null)
             {
-                DevStatus.CurrentSite = track.rfid_1;
+                DevStatus.CurrentPoint = track.rfid_1;
                 SetNowTrack(track);
             }
         }
@@ -122,6 +116,19 @@ namespace simtask
             //        DevStatus.DeviceStatus = DevCarrierStatusE.后退;
             //        break;
             //}
+        }
+
+        /// <summary>
+        /// 初始化设置
+        /// </summary>
+        internal void SetUpInit()
+        {
+            DevStatus.OperateMode = DevOperateModeE.自动;
+            DevStatus.LoadStatus = DevCarrierLoadE.无货;
+            DevStatus.DeviceStatus = DevCarrierStatusE.停止;
+            DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;
+            DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
+            DevStatus.Position = DevCarrierPositionE.在轨道上;
         }
 
         #endregion

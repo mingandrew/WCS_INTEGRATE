@@ -32,12 +32,12 @@ namespace simserver.simsocket.process
             st.Involve1 = (byte)(dev.Involve1 ? 0x01 : 0x00);
             st.Involve2 = (byte)(dev.Involve2 ? 0x01 : 0x00);
             st.OperateMode = (byte)dev.OperateMode;
-            st.Goods1 = dev.Goods1;
-            st.Goods2 = dev.Goods2;
+            st.Goods1 = ShiftBytes(dev.Goods1);
+            st.Goods2 = ShiftBytes(dev.Goods2);
             st.ShiftStatus = (byte)dev.ShiftStatus;
             st.ShiftAccept = (byte)(dev.ShiftAccept ? 0x01 : 0x00);
             st.WorkMode = (byte)dev.WorkMode;
-            st.SetGoods = dev.SetGoods;
+            st.SetGoods = ShiftBytes(dev.SetGoods);
             st.SetLevel = dev.SetLevel;
             st.NeedSytemShift = (byte)(dev.NeedSytemShift ? 0x01 : 0x00);
             st.BackupShiftDev = dev.BackupShiftDev;

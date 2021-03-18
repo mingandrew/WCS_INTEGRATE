@@ -58,7 +58,7 @@ namespace wcs.ViewModel
         #endregion
 
         #region[属性]
-
+        public SimDeviceView SelectedTile, SelectedFerry, SelectedCarrier;
         public ICollectionView TileView { set; get; }
         public ICollectionView FerryView { set; get; }
         public ICollectionView CarrierView { set; get; }
@@ -106,10 +106,26 @@ namespace wcs.ViewModel
 
         //模块Tab切换
         public RelayCommand<RoutedEventArgs> TabSelectedCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(TabSelected)).Value;
+        public RelayCommand SavePriorToDbCmd => new Lazy<RelayCommand>(() => new RelayCommand(SavePriorToDb)).Value;
+        #region[砖机]
+        public RelayCommand<SimDeviceView> TileChangeWorkCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileChangeWork)).Value;
+        public RelayCommand<SimDeviceView> TileSite1FullCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Full)).Value;
+        public RelayCommand<SimDeviceView> TileSite2FullCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Full)).Value;
+        public RelayCommand<SimDeviceView> TileSite1EmptyCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Empty)).Value;
+        public RelayCommand<SimDeviceView> TileSite2EmptyCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Empty)).Value;
+        public RelayCommand<SimDeviceView> TileRequireShiftCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileRequireShift)).Value;
+        #endregion
+
+        #region[运输车]
+        public RelayCommand<SimDeviceView> CarrierSetInitSiteCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(CarrierSetInitSite)).Value;
+
+        #endregion
 
         #endregion
 
         #region[方法]
+
+        #region[区域选择，Tab切换，列表状态更新]
         bool OnFilter(object item)
         {
             if (SelectAreaId == 0) return true;
@@ -247,6 +263,77 @@ namespace wcs.ViewModel
                     }
                 });
             }
+        }
+        
+        #endregion
+
+        #region[砖机操作]
+
+        private void TileChangeWork(SimDeviceView dev)
+        {
+            if (dev != null)
+            {
+                SimServer.TileLifter.StartOrStopWork(dev.dev_id, dev.Working);
+            }
+        }
+
+        private void TileSite1Full(SimDeviceView dev)
+        {
+            if (dev != null)
+            {
+                SimServer.TileLifter.SetLoadStatus(dev.dev_id, true, true);
+            }
+        }
+
+        private void TileSite2Full(SimDeviceView dev)
+        {
+            if (dev != null)
+            {
+                SimServer.TileLifter.SetLoadStatus(dev.dev_id, true, false);
+            }
+        }
+
+        private void TileSite1Empty(SimDeviceView dev)
+        {
+            if (dev != null)
+            {
+                SimServer.TileLifter.SetLoadStatus(dev.dev_id, false, true);
+            }
+        }
+
+        private void TileSite2Empty(SimDeviceView dev)
+        {
+            if (dev != null)
+            {
+                SimServer.TileLifter.SetLoadStatus(dev.dev_id, false, false);
+            }
+        }
+
+        private void TileRequireShift(SimDeviceView dev)
+        {
+            if (dev != null)
+            {
+                SimServer.TileLifter.SetRequireShift(dev.dev_id);
+            }
+        }
+
+        #endregion
+
+        #region[小车操作]
+
+        private void CarrierSetInitSite(SimDeviceView dev)
+        {
+            if (dev != null)
+            {
+                SimServer.Carrier.SetCurrentSite(dev.dev_id, 0, 0);
+            }
+        }
+
+        #endregion
+
+        private void SavePriorToDb()
+        {
+
         }
         #endregion
     }

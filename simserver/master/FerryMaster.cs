@@ -282,6 +282,7 @@ namespace simtask.master
                         task.DevStatus.ID = mod.Devid;
                         task.NowPosCode = devconfig.sim_last_point;
                         task.DevStatus.UpSite = devconfig.sim_last_point;
+                        task.SetUpFerry();
                         DevList.Add(task);
                         SendDevMsg(task);
                     }

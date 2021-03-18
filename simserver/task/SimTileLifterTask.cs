@@ -1,7 +1,6 @@
 ﻿using enums;
 using module.device;
 using module.deviceconfig;
-using resource;
 using System;
 
 namespace simtask.task
@@ -117,24 +116,22 @@ namespace simtask.task
                 {
                     if(DevStatus.Site1Qty == 0)
                     {
-                        if (IsLeftWork)
-                        {
-                            DevStatus.Load1 = false;
-                            DevStatus.Need1 = true;
-                        }
-                        else
-                        {
-                            DevStatus.Load2 = false;
-                            DevStatus.Need2 = true;
-                        }
+                        DevStatus.Load1 = false;
+                        DevStatus.Need1 = true;
                     }
 
-                    if (Device.Type2 == DeviceType2E.单轨 && DevStatus.Load1 && !DevStatus.Involve1)
+                    if(Device.Type2 == DeviceType2E.双轨 && DevStatus.Site2Qty == 0)
+                    {
+                        DevStatus.Load2 = false;
+                        DevStatus.Need2 = true;
+                    }
+
+                    if (Device.Type2 == DeviceType2E.单轨 
+                            && DevStatus.Load1 
+                            && !DevStatus.Involve1)
                     {
                         CheckTimeToAct();
-                    }
-
-                    if (Device.Type2 == DeviceType2E.双轨)
+                    }else
                     {
                         if (IsInvo_1 && IsInvo_2) return;
 
@@ -144,8 +141,8 @@ namespace simtask.task
                             && DevStatus.Load2
                             && !DevStatus.Involve2)
                         {
+                            DevStatus.Site2Qty = FULL_QTY;
                             IsLeftWork = false;
-                            DevStatus.Site1Qty = FULL_QTY;
                             return;
                         }
 
@@ -155,15 +152,15 @@ namespace simtask.task
                             && DevStatus.Load1
                             && !DevStatus.Involve1)
                         {
-                            IsLeftWork = true;
                             DevStatus.Site1Qty = FULL_QTY;
+                            IsLeftWork = true;
                             return;
                         }
 
                         if (!IsLeftWork && !DevStatus.Involve1 && DevStatus.Load1 && DevStatus.Involve2)
                         {
-                            IsLeftWork = true;
                             DevStatus.Site1Qty = FULL_QTY;
+                            IsLeftWork = true;
                             return;
                         }
 
@@ -172,29 +169,35 @@ namespace simtask.task
                 }
                 else if(Type == DeviceTypeE.下砖机)
                 {
-                    //if (IsLeftWork && DevStatus.Involve1) return;
-                    //if (!IsLeftWork && DevStatus.Involve2) return;
+                    DevStatus.Goods1 = DevStatus.Need1 ? DevStatus.SetGoods : 0;
+                    DevStatus.Goods2 = DevStatus.Need2 ? DevStatus.SetGoods : 0;
+
+                    DevStatus.Load1 = DevStatus.Site1Qty > 0;
+                    DevStatus.Load2 = DevStatus.Site2Qty > 0;
 
                     if (DevStatus.FullQty == DevStatus.Site1Qty)
                     {
-                        if (IsLeftWork && !DevStatus.Involve1)
+                        if (!DevStatus.Involve1)
                         {
                             DevStatus.Load1 = true;
                             DevStatus.Need1 = true;
                         }
-                        else if(!IsLeftWork && !DevStatus.Involve2)
+                    }
+
+                    if (DevStatus.FullQty == DevStatus.Site2Qty)
+                    {
+                        if (!DevStatus.Involve2)
                         {
+                            DevStatus.Goods2 = DevStatus.SetGoods;
                             DevStatus.Load2 = true;
                             DevStatus.Need2 = true;
                         }
                     }
 
-                    if(Device.Type2 == DeviceType2E.单轨 && !DevStatus.Load1 && !DevStatus.Involve1)
+                    if (Device.Type2 == DeviceType2E.单轨 && !DevStatus.Load1 && !DevStatus.Involve1)
                     {
                         CheckTimeToAct();
-                    }
-
-                    if(Device.Type2 == DeviceType2E.双轨)
+                    }else
                     {
                         if (IsInvo_1 && IsInvo_2) return;
 
@@ -204,8 +207,8 @@ namespace simtask.task
                             && !DevStatus.Load2
                             && !DevStatus.Involve2)
                         {
+                            DevStatus.Site2Qty = 0;
                             IsLeftWork = false;
-                            DevStatus.Site1Qty = 0;
                             return;
                         }
 
@@ -215,15 +218,15 @@ namespace simtask.task
                             && !DevStatus.Load1
                             && !DevStatus.Involve1)
                         {
-                            IsLeftWork = true;
                             DevStatus.Site1Qty = 0;
+                            IsLeftWork = true;
                             return;
                         }
 
                         if(!IsLeftWork && !DevStatus.Involve1 && !DevStatus.Load1 && DevStatus.Involve2)
                         {
-                            IsLeftWork = true;
                             DevStatus.Site1Qty = 0;
+                            IsLeftWork = true;
                             return;
                         }
 
@@ -239,25 +242,58 @@ namespace simtask.task
                 if ((DateTime.Now - lasttime).TotalSeconds > OnePiecesUsedTime)
                 {
                     LastPiecesTime = DateTime.Now;
-                    if (Type == DeviceTypeE.上砖机)
+                    if (IsLeftWork)
                     {
-                        if (DevStatus.Site1Qty > 0)
-                        {
-                            DevStatus.Site1Qty--;
-                        }
+                        DoTileSite1CountRemove();
                     }
                     else
                     {
-                        if (DevStatus.Site1Qty < DevStatus.FullQty)
-                        {
-                            DevStatus.Site1Qty++;
-                        }
+                        DoTileSite2CountRemove();
                     }
                 }
             }
         }
 
-        internal void SetDicInfo()
+        private void DoTileSite1CountRemove()
+        {
+            if (Type == DeviceTypeE.上砖机)
+            {
+                if (DevStatus.Site1Qty > 0)
+                {
+                    DevStatus.Site1Qty--;
+                }
+            }
+            else
+            {
+                if (DevStatus.Site1Qty < DevStatus.FullQty)
+                {
+                    DevStatus.Site1Qty++;
+                }
+            }
+        }
+
+        private void DoTileSite2CountRemove()
+        {
+            if (Type == DeviceTypeE.上砖机)
+            {
+                if (DevStatus.Site2Qty > 0)
+                {
+                    DevStatus.Site2Qty--;
+                }
+            }
+            else
+            {
+                if (DevStatus.Site2Qty < DevStatus.FullQty)
+                {
+                    DevStatus.Site2Qty++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 初始化后配置砖机
+        /// </summary>
+        internal void SetupTile()
         {
             if(Type == DeviceTypeE.上砖机)
             {
@@ -269,6 +305,11 @@ namespace simtask.task
                 DevStatus.FullQty = 20;
                 OnePiecesUsedTime = 3;
             }
+            DevStatus.OperateMode = DevOperateModeE.自动;
+            DevStatus.WorkMode = DevConfig.WorkMode;
+            DevStatus.ShiftStatus = TileShiftStatusE.复位;
+            DevStatus.SetGoods = DevConfig.goods_id;
+            DevStatus.SetLevel = DevConfig.level;
         }
 
         internal bool IsTrackLoad(uint trackid)

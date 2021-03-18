@@ -26,19 +26,19 @@ namespace simserver.simsocket.process
             st.Head = ShiftBytes(SimSocketConst.CARRIER_HEAD_KEY);
             st.DeviceID = dev.DeviceID;
             st.DeviceStatus = (byte)dev.DeviceStatus;
-            st.CurrentPoint = ShiftBytes(dev.CurrentPoint);
             st.CurrentSite = ShiftBytes(dev.CurrentSite);
-            st.TargetPoint = ShiftBytes(dev.TargetPoint);
+            st.CurrentPoint = ShiftBytes(dev.CurrentPoint);
             st.TargetSite = ShiftBytes(dev.TargetSite);
+            st.TargetPoint = ShiftBytes(dev.TargetPoint);
             st.CurrentOrder = (byte)dev.CurrentOrder;
             st.FinishOrder = (byte)dev.FinishOrder;
             st.LoadStatus = (byte)dev.LoadStatus;
             st.Position = (byte)dev.Position;
             st.OperateMode = (byte)dev.OperateMode;
-            st.TakePoint = ShiftBytes(dev.TakePoint);
-            st.TakeSite = ShiftBytes(dev.TakeSite);
-            st.GivePoint = ShiftBytes(dev.GivePoint);
-            st.GiveSite = ShiftBytes(dev.GiveSite);
+            st.TakePoint = ShiftBytes(dev.TakeSite);
+            st.TakeSite = ShiftBytes(dev.TakePoint);
+            st.GivePoint = ShiftBytes(dev.GiveSite);
+            st.GiveSite = ShiftBytes(dev.GivePoint);
             st.MoveCount = dev.MoveCount;
             st.Reserve1 = dev.Reserve1;
             st.Reserve2 = dev.Reserve2;
@@ -70,16 +70,11 @@ namespace simserver.simsocket.process
                 Value1_2 = ShiftBytes(st.Value1_2),
                 Value3_4 = ShiftBytes(st.Value3_4),
                 Value5_6= ShiftBytes(st.Value5_6),
-                Value7 = (DevCarrierOrderE)st.Value7,
+                CarrierOrder = (DevCarrierOrderE)st.Value7,
                 Value8_9 = ShiftBytes(st.Value8_9),
                 Value10_11 = ShiftBytes(st.Value10_11),
                 Value12 = st.Value12
             };
-
-            if (st.Command != 0)
-            {
-                return cmd;
-            }
 
             return cmd;
         }

@@ -55,22 +55,11 @@
                 <TabItem Header="砖机" Tag="tile">
                     <Grid Margin="5">
                         <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding TileView}" SelectedItem="{Binding DeviceSelected}"
+                              ItemsSource="{Binding TileView}" SelectedItem="{Binding SelectedTile}"
                               SelectionUnit="FullRow" SelectionMode="Single"
                               CanUserAddRows="False" CanUserResizeColumns="False"
                               CanUserDeleteRows="False" CanUserSortColumns="False"
                               CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="开始作业" Tag="1" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="结束作业" Tag="2" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="工位1满砖" Tag="3" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="工位2满砖" Tag="4" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="工位1空砖" Tag="5" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="工位2空砖" Tag="6" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="转产" Tag="7" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
                                 <DataGridTextColumn Binding="{Binding DevType}" Header="类型"/>
@@ -78,8 +67,37 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <ToggleButton  IsChecked="{Binding Working,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                                                <ToggleButton IsChecked="{Binding Working}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"
+                                                              Command="{Binding DataContext.TileChangeWorkCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
                                             </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                    
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="操作">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="工位1满" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
+                                                              Command="{Binding DataContext.TileSite1FullCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                                <Button Content="工位2满" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" Margin="20,0,0,0" FontSize="16"
+                                                        Visibility="{Binding IsTwoTrackTile, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                              Command="{Binding DataContext.TileSite2FullCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                                <Button Content="工位1空" HorizontalAlignment="Center" Style="{StaticResource ButtonDanger}" Margin="20,0,0,0" FontSize="16"
+                                                              Command="{Binding DataContext.TileSite1EmptyCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                                <Button Content="工位2空" HorizontalAlignment="Center" Style="{StaticResource ButtonDanger}" Margin="20,0,0,0" FontSize="16"
+                                                        Visibility="{Binding IsTwoTrackTile, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                              Command="{Binding DataContext.TileSite2EmptyCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                                <Button Content="请求转产" HorizontalAlignment="Center" Style="{StaticResource ButtonWarning}" Margin="20,0,0,0" FontSize="16"
+                                                              Command="{Binding DataContext.TileRequireShiftCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
+                                            </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -90,25 +108,22 @@
                 <TabItem Header="运输车" Tag="carrier">
                     <Grid Margin="5">
                         <DataGrid Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding CarrierView}" SelectedItem="{Binding AreaTraSelect}"
+                              ItemsSource="{Binding CarrierView}" SelectedItem="{Binding SelectedCarrier}"
                               SelectionUnit="FullRow" SelectionMode="Single"
                               CanUserAddRows="False" CanUserResizeColumns="False"
                               CanUserDeleteRows="False" CanUserSortColumns="False"
                               CanUserReorderColumns="False" AutoGenerateColumns="False">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="删除" Tag="areatrackdelete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
                                 <DataGridTextColumn Binding="{Binding DevType}" Header="类型"/>
-                                <DataGridTemplateColumn Header="作业">
+                                <DataGridTemplateColumn Header="操作">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Grid>
-                                                <ToggleButton  IsChecked="{Binding Working,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
-                                            </Grid>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="初始点" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
+                                                              Command="{Binding DataContext.TileSite1FullCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -119,16 +134,11 @@
                 <TabItem Header="摆渡车" Tag="ferry">
                     <Grid Margin="5">
                         <DataGrid Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding FerryView}" SelectedItem="{Binding AreaTraSelect}"
+                              ItemsSource="{Binding FerryView}" SelectedItem="{Binding SelectedFerry}"
                               SelectionUnit="FullRow" SelectionMode="Single"
                               CanUserAddRows="False" CanUserResizeColumns="False"
                               CanUserDeleteRows="False" CanUserSortColumns="False"
                               CanUserReorderColumns="False" AutoGenerateColumns="False">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="删除" Tag="areatrackdelete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
                                 <DataGridTextColumn Binding="{Binding DevType}" Header="类型"/>
@@ -136,7 +146,7 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <ToggleButton  IsChecked="{Binding Working,Mode=TwoWay}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                                                <ToggleButton IsChecked="{Binding Working,Mode=OneWayToSource}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -186,22 +196,7 @@
 
                             <Button Content="更新优先到数据库" HorizontalAlignment="Right" Style="{StaticResource ButtonWarning}" Command="{Binding SavePriorToDbCmd}" FontSize="16" Height="35"/>
                         </Grid>
-                        <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding TileTraList}" SelectedItem="{Binding TileTrackSelect}"
-                              SelectionUnit="FullRow" SelectionMode="Single"
-                              CanUserAddRows="False" CanUserResizeColumns="False"
-                              CanUserDeleteRows="False" CanUserSortColumns="False"
-                              CanUserReorderColumns="False" AutoGenerateColumns="False">
-                            <DataGrid.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="删除" Tag="tiletradelete" Command="{Binding DeviceEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                </ContextMenu>
-                            </DataGrid.ContextMenu>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Width="*" IsReadOnly="True"/>
-                                <DataGridTextColumn Binding="{Binding prior}" Header="优先级" Width="*"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                       
                     </Grid>
                 </TabItem>
             </TabControl>

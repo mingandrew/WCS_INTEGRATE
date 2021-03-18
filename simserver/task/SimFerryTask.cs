@@ -2,6 +2,7 @@
 using module.device;
 using module.deviceconfig;
 using module.track;
+using System;
 
 namespace simtask.task
 {
@@ -118,6 +119,15 @@ namespace simtask.task
             {
                 DevStatus.LoadStatus = DevFerryLoadE.空;
             }
+        }
+
+        internal void SetUpFerry()
+        {
+            DevStatus.DeviceStatus = DevFerryStatusE.停止;
+            DevStatus.WorkMode = DevOperateModeE.自动;
+            DevStatus.LoadStatus = DevFerryLoadE.空;
+            DevStatus.CurrentTask = DevFerryTaskE.终止;
+            DevStatus.FinishTask = DevFerryTaskE.终止;
         }
         #endregion
 

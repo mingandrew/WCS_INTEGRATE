@@ -15,5 +15,37 @@ namespace simserver.simsocket
         {
             get => (DevLifterInvolE)Value1;
         }
+
+        #region[转产]
+        public TileShiftCmdE ShiftType
+        {
+            get => (TileShiftCmdE)Value1;
+        }
+        public uint GoodId
+        {
+            get => Value3;
+        }
+        #endregion
+
+        #region[转模式]
+        public TileWorkModeE WorkMode
+        {
+            get => (TileWorkModeE)Value1;
+        }
+
+        public TileFullE SetFullType
+        {
+            get => (TileFullE)Value2;
+        }
+        #endregion
+
+        #region[等级]
+
+        public byte Level
+        {
+            get => Value1;
+        }
+
+        #endregion
     }
 }

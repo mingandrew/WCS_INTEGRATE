@@ -114,8 +114,8 @@ namespace simtask.master
                             task.DevConfig = devconf;
                             task.DevId = mod.Devid;
                             task.DevStatus.ID = mod.Devid;
-                            task.UpdateCurrentSite(devconf.sim_init_point);
-
+                            task.UpdateCurrentSite(devconf.sim_init_site, devconf.sim_init_point);
+                            task.SetUpInit();
                             DevList.Add(task);
                             SendDevMsg(task);
                         }
@@ -141,6 +141,54 @@ namespace simtask.master
 
         private void CheckDev(SimCarrierTask task, CarrierCmd cmd)
         {
+
+            switch (cmd.Command)
+            {
+                case DevCarrierCmdE.查询:
+                    break;
+                case DevCarrierCmdE.执行指令:
+                    #region[执行任务]
+                    switch (cmd.CarrierOrder)
+                    {
+                        case DevCarrierOrderE.无:
+                            break;
+                        case DevCarrierOrderE.定位指令:
+
+                            break;
+                        case DevCarrierOrderE.取砖指令:
+
+                            break;
+                        case DevCarrierOrderE.放砖指令:
+
+                            break;
+                        case DevCarrierOrderE.前进倒库:
+
+                            break;
+                        case DevCarrierOrderE.后退倒库:
+
+                            break;
+                        case DevCarrierOrderE.终止指令:
+                            task.DevStatus.DeviceStatus = DevCarrierStatusE.停止;
+                            task.DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;
+                            task.DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
+                            break;
+                        case DevCarrierOrderE.异常:
+
+                            break;
+                        default:
+                            break;
+                    }
+                    #endregion
+                    break;
+                case DevCarrierCmdE.设复位点:
+
+                    break;
+                case DevCarrierCmdE.终止指令:
+                    break;
+                default:
+                    break;
+            }
+
             ServerSend(task.DevId, task.DevStatus);
         }
 
@@ -155,13 +203,13 @@ namespace simtask.master
             mServer?.SendMessage(devid, dev);
         }
 
-        public void SetCurrentSite(byte deviceID, ushort poscode)
+        public void SetCurrentSite(uint deviceID, ushort initsite, ushort initpoint)
         {
             SimCarrierTask task = DevList.Find(c => c.DevId == deviceID);
 
             if (task != null)
             {
-                task.UpdateCurrentSite(poscode);
+                task.UpdateCurrentSite(initsite, initpoint);
             }
         }
 
