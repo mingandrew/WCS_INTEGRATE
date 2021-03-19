@@ -1407,7 +1407,15 @@ namespace resource.goods
         /// <returns></returns>
         private bool IsTrackFineToStore(uint trackid, uint goodsid, out uint storecount)
         {
-            bool isok = StockList.Exists(c => c.track_id == trackid && c.goods_id == goodsid);
+            //bool isok = StockList.Exists(c => c.track_id == trackid && c.goods_id == goodsid);
+            //找轨道最后一车库存出来，然后判断最后一车库存的品种跟当前的是否一致
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid)?.OrderByDescending(c => c.pos).ToList();
+            if (stocks == null || stocks.Count == 0)
+            {
+                storecount = 0;
+                return true;
+            }
+            bool isok = (stocks[0].goods_id == goodsid);
             if (isok)
             {
                 int maxstore = PubMaster.Track.GetTrackMaxStore(trackid);

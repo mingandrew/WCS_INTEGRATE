@@ -582,7 +582,7 @@ namespace task.device
                 {
                     ushort storecount = PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, givetrack.id, TrackLogE.满轨道, "运输车反馈信号-满");
                     ushort areafullqty = PubMaster.Area.GetAreaFullQty(task.AreaId);
-                    if (storecount >= (areafullqty - 1)) // 少一个 安全保底
+                    if (storecount >= (areafullqty - 5)) // 少5个 安全保底
                     {
                         //PubMaster.Track.SetTrackEaryFull(givetrack.id, true, DateTime.Now);
 
