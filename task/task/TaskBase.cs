@@ -14,6 +14,11 @@ namespace task.task
             get => Device.area;
         }
 
+        public ushort Line
+        {
+            get => Device.line;
+        }
+
         public DeviceTypeE Type
         {
             get => Device?.Type ?? DeviceTypeE.其他;

@@ -14,7 +14,8 @@
         Finish,
         Cancel,
         ReTake,
-        TileId
+        TileId,
+        Line
     }
 
     public enum TransTypeE

@@ -185,6 +185,20 @@ namespace resource.diction
             return 0;
         }
 
+        public uint UpdateGenerateID(string dictag, ushort addqty)
+        {
+            DictionDtl dtl = DicDtlList.Find(c => dictag.Equals(c.code));
+            if (dtl != null)
+            {
+                uint uvalue = dtl.uint_value + addqty;
+                dtl.uint_value = uvalue + 1;
+                PubMaster.Mod.DicSql.EditDicDtlValue(dtl, ValueTypeE.UInteger);
+                return uvalue;
+            }
+
+            return (uint)(addqty * 2);
+        }
+
         #endregion
 
         #region[增改字典]

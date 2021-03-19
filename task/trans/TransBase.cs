@@ -146,7 +146,7 @@ namespace task.trans
 
         #region[增删改]
 
-        public void AddTrans(uint areaid, uint lifterid, TransTypeE type, uint goodsid, uint stocksid, uint taketrackid, uint givetrackid)
+        public void AddTrans(uint areaid, uint lifterid, TransTypeE type, uint goodsid, uint stocksid, uint taketrackid, uint givetrackid, uint carrierid = 0, ushort line = 0)
         {
             if (Monitor.TryEnter(_for, TimeSpan.FromSeconds(10)))
             {
@@ -161,7 +161,7 @@ namespace task.trans
                             initstatus = TransStatusE.检查轨道;
                             break;
                     }
-                    AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid, initstatus);
+                    AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid, initstatus, carrierid, line);
                 }
                 finally
                 {
@@ -174,7 +174,7 @@ namespace task.trans
                                         uint goodsid, uint stocksid,
                                         uint taketrackid, uint givetrackid,
                                         TransStatusE initstatus = TransStatusE.调度设备,
-                                        uint carrierid = 0)
+                                        uint carrierid = 0, ushort line = 0)
         {
             uint newid = PubMaster.Dic.GenerateID(DicTag.NewTranId);
             StockTrans trans = new StockTrans()
@@ -190,9 +190,16 @@ namespace task.trans
                 give_track_id = givetrackid,
                 create_time = DateTime.Now,
                 carrier_id = carrierid,
+                line = line
             };
+            bool isadd = PubMaster.Mod.GoodSql.AddStockTrans(trans);
+            if (!isadd)
+            {
+                ReAddTransInNewID(trans);
+            }
             TransList.Add(trans);
-            PubMaster.Mod.GoodSql.AddStockTrans(trans);
+
+            SetLine(trans, line);
 
             //更新需求的任务id和时间 20210121
             if (type == TransTypeE.下砖任务 || type == TransTypeE.同向下砖)
@@ -251,6 +258,26 @@ namespace task.trans
             }
             catch { }
 
+        }
+
+        /// <summary>
+        /// ID冲突则重新添加
+        /// </summary>
+        /// <param name="trans"></param>
+        private void ReAddTransInNewID(StockTrans trans)
+        {
+            ushort count = 0;
+            while (true && count <= 10)
+            {
+                uint newid = PubMaster.Dic.UpdateGenerateID(DicTag.NewTranId, 1000);
+                trans.id = newid;
+                if (PubMaster.Mod.GoodSql.AddStockTrans(trans))
+                {
+                    return;
+                }
+                count++;
+                mLog.Error(true, string.Format("第{0}次添加任务错误[{1}]", count, trans.ToString()));
+            }
         }
 
         internal void SetStatus(StockTrans trans, TransStatusE status, string memo = "")
@@ -409,6 +436,15 @@ namespace task.trans
             trans.carrier_id = carrierid;
             trans.TransStaus = status;
             PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.ReTake);
+        }
+
+        protected void SetLine(StockTrans trans, ushort line)
+        {
+            if (line > 0)
+            {
+                trans.line = line;
+                PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Line);
+            }
         }
         #endregion
 

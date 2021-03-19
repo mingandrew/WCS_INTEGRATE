@@ -1,4 +1,5 @@
 ﻿using module.area;
+using module.line;
 using System.Collections.Generic;
 using System.Data;
 using tool;
@@ -58,6 +59,18 @@ namespace resource.module.modulesql
             if (!mSql.IsNoData(dt))
             {
                 list = dt.ToDataList<AreaDeviceTrack>();
+            }
+            return list;
+        }
+
+        public List<Line> QueryLineList()
+        {
+            List<Line> list = new List<Line>();
+            string sql = string.Format("SELECT t.* FROM line AS t ");
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<Line>();
             }
             return list;
         }

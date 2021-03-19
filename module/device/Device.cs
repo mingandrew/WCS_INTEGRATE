@@ -16,7 +16,7 @@ namespace module.device
         public string memo { set; get; }
         public ushort area { set; get; }
         public bool do_work { set; get; }//是否作业
-
+        public ushort line { set; get; }//线
 
         public DeviceTypeE Type
         {

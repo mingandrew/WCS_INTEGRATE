@@ -24,6 +24,7 @@ namespace module.goods
         public DateTime? finish_time { set; get; }
         public bool cancel { set; get; }
         public uint finish_track_id { set; get; }
+        public ushort line { set; get; }//线
 
         /// <summary>
         /// 记录摆渡车当下前往的任务轨道

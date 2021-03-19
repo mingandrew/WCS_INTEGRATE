@@ -1,0 +1,24 @@
+
+CREATE TABLE `line`  (
+  `id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '序列号',
+  `area_id` int(11) UNSIGNED NOT NULL COMMENT '区域ID',
+  `line` smallint(5) UNSIGNED NOT NULL COMMENT '线',
+  `name` varchar(20) NULL COMMENT '名称',
+  `sort_task_qty` smallint(5) UNSIGNED NULL COMMENT '倒库任务数量',
+  `up_task_qty` smallint(5) UNSIGNED NULL COMMENT '上砖任务数量',
+  `down_task_qty` smallint(5) UNSIGNED NULL COMMENT '下砖任务数量',
+  PRIMARY KEY (`id`)
+);
+
+INSERT INTO `line`(`id`, `area_id`, `line`, `name`, `sort_task_qty`, `up_task_qty`, `down_task_qty`) VALUES (1, 1, 1, '窑后1线', 1, 1, 1);
+INSERT INTO `line`(`id`, `area_id`, `line`, `name`, `sort_task_qty`, `up_task_qty`, `down_task_qty`) VALUES (2, 1, 2, '窑后2线', 1, 1, 1);
+INSERT INTO `line`(`id`, `area_id`, `line`, `name`, `sort_task_qty`, `up_task_qty`, `down_task_qty`) VALUES (3, 1, 3, '窑后3线', 1, 1, 1);
+
+
+ALTER TABLE `track` ADD COLUMN `line` smallint(5) UNSIGNED NULL COMMENT '线：区域 > 线' AFTER `area`;
+
+
+ALTER TABLE `device` ADD COLUMN `line` smallint(5) UNSIGNED NULL COMMENT '线：区域 > 线' AFTER `do_work`;
+
+
+ALTER TABLE `stock_trans` ADD COLUMN `line` smallint(5) UNSIGNED NULL COMMENT '线：区域 > 线' AFTER `area_id`;

@@ -81,6 +81,14 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        internal bool EditDeviceLine(Device dev)
+        {
+            string sql = "UPDATE `device` set line= {0} where id = '{1}'";
+            sql = string.Format(sql, dev.line, dev.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
         public bool EditRfDevice(RfClient rf)
         {
             string sql = "UPDATE `rf_client` SET `name` = '{0}', `ip` = '{1}', `conn_time` = {2}, `disconn_time` = {3} " +

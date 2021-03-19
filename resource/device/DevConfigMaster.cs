@@ -764,7 +764,11 @@ namespace resource.device
                 backup_dev.pre_goodid = need_dev.pre_goodid;
                 backup_dev.alter_dev_id = need_dev.id;
 
-                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(backup_dev);
+                if (PubMaster.Mod.DevConfigSql.EditConfigTileLifter(backup_dev))
+                {
+                    //修改备用机的线
+                    PubMaster.Device.SetBackUpLine(backup_dev.id, need_dev.id);
+                }
 
                 #endregion
 

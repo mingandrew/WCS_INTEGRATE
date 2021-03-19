@@ -668,38 +668,38 @@ namespace task.rf
         {
             SendFail2Rf(msg.MEID, FunTag.ShiftTrackStock, "此功能已经禁用！");
             return;
-            if (uint.TryParse(msg.Pack.Data, out uint trackid))
-            {
-                Track track = PubMaster.Track.GetTrack(trackid);
-                string result = null;
-                if (track.Type != TrackTypeE.储砖_入)
-                {
-                    result = "不是储存入轨道";
-                }
+            //if (uint.TryParse(msg.Pack.Data, out uint trackid))
+            //{
+            //    Track track = PubMaster.Track.GetTrack(trackid);
+            //    string result = null;
+            //    if (track.Type != TrackTypeE.储砖_入)
+            //    {
+            //        result = "不是储存入轨道";
+            //    }
 
-                if (track.StockStatus != TrackStockStatusE.满砖)
-                {
-                    result = track.name + "不是满砖状态";
-                }
+            //    if (track.StockStatus != TrackStockStatusE.满砖)
+            //    {
+            //        result = track.name + "不是满砖状态";
+            //    }
 
-                Track btrack = PubMaster.Track.GetTrack(track.brother_track_id);
-                if (btrack == null || btrack.StockStatus != TrackStockStatusE.空砖)
-                {
-                    result = "对应出轨道为空状态!";
-                }
+            //    Track btrack = PubMaster.Track.GetTrack(track.brother_track_id);
+            //    if (btrack == null || btrack.StockStatus != TrackStockStatusE.空砖)
+            //    {
+            //        result = "对应出轨道为空状态!";
+            //    }
 
-                if (result == null)
-                {
-                    if (PubMaster.Goods.ShiftStock(track.id, track.brother_track_id))
-                    {
-                        SendSucc2Rf(msg.MEID, FunTag.ShiftTrackStock, "转移成功！");
-                    }
-                }
-                else
-                {
-                    SendFail2Rf(msg.MEID, FunTag.ShiftTrackStock, result);
-                }
-            }
+            //    if (result == null)
+            //    {
+            //        if (PubMaster.Goods.ShiftStock(track.id, track.brother_track_id))
+            //        {
+            //            SendSucc2Rf(msg.MEID, FunTag.ShiftTrackStock, "转移成功！");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        SendFail2Rf(msg.MEID, FunTag.ShiftTrackStock, result);
+            //    }
+            //}
         }
 
         private void UpdateStockGood(RfMsgMod msg)

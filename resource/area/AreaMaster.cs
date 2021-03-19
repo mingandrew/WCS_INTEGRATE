@@ -3,6 +3,7 @@ using enums.track;
 using module.area;
 using module.device;
 using module.goods;
+using module.line;
 using module.window;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace resource.area
             AreaDevList = new List<AreaDevice>();
             AreaTraList = new List<AreaTrack>();
             AreaDevTraList = new List<AreaDeviceTrack>();
+            LineList = new List<Line>();
         }
 
         public void Start()
@@ -27,7 +29,7 @@ namespace resource.area
             Refresh();
         }
 
-        public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true, bool refr_4 = true)
+        public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true, bool refr_4 = true, bool refr_5 = true)
         {
             if (refr_1)
             {
@@ -51,6 +53,12 @@ namespace resource.area
             {
                 AreaDevTraList.Clear();
                 AreaDevTraList.AddRange(PubMaster.Mod.AreaSql.QueryAreaDeviceTrackList());
+            }
+
+            if (refr_5)
+            {
+                LineList.Clear();
+                LineList.AddRange(PubMaster.Mod.AreaSql.QueryLineList());
             }
         }
 
@@ -123,7 +131,7 @@ namespace resource.area
         private List<AreaDevice> AreaDevList { set; get; }
         private List<AreaTrack> AreaTraList { set; get; }
         private List<AreaDeviceTrack> AreaDevTraList { set; get; }
-
+        private List<Line> LineList { set; get; }
         #endregion
 
         #region[获取对象]
@@ -510,9 +518,34 @@ namespace resource.area
             return AreaDevList.Find(c => c.device_id == tileid)?.area_id ?? 0;
         }
 
-        public bool IsSortTaskLimit(uint area, int count)
+        public bool IsSortTaskLimit(uint area, ushort line, int count)
         {
-            return AreaList.Exists(c => c.id == area && count >= c.c_sorttask);
+            if (line == 0)
+            {
+                return AreaList.Exists(c => c.id == area && count >= c.c_sorttask);
+            }
+
+            return LineList.Exists(c => c.area_id == area && c.line == line && count >= c.sort_task_qty);
+        }
+        
+        public bool IsUpTaskLimit(uint area, ushort line, int count)
+        {
+            if (line == 0)
+            {
+                return AreaList.Exists(c => c.id == area && count >= c.c_sorttask);
+            }
+
+            return LineList.Exists(c => c.area_id == area && c.line == line && c.up_task_qty > 0 && count >= c.up_task_qty);
+        }
+
+        public bool IsDownTaskLimit(uint area, ushort line, int count)
+        {
+            if (line == 0)
+            {
+                return AreaList.Exists(c => c.id == area && count >= c.c_sorttask);
+            }
+
+            return LineList.Exists(c => c.area_id == area && c.line == line && c.down_task_qty > 0 && count >= c.down_task_qty);
         }
 
         public ushort GetAreaFullQty(uint id)
@@ -602,6 +635,14 @@ namespace resource.area
             }
             return true;
         }
+        #endregion
+
+
+        #region[线管理]
+
+
+
+
         #endregion
     }
 }

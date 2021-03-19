@@ -280,6 +280,9 @@ namespace resource.module.modulesql
                 case TransUpdateE.TileId:
                     sql += string.Format("`tilelifter_id` = {0}", trans.tilelifter_id);
                     break;
+                case TransUpdateE.Line:
+                    sql += string.Format("`line` = {0}", trans.line);
+                    break;
             }
             sql += string.Format(" WHERE `id` = {0}", trans.id);
             int row = mSql.ExcuteSql(sql);

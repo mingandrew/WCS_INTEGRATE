@@ -169,6 +169,25 @@ namespace resource.device
             return DeviceList.Find(c => c.id == device_id)?.Type ?? DeviceTypeE.其他;
         }
 
+        /// <summary>
+        /// 更新备用机的线
+        /// </summary>
+        /// <param name="backup_id"></param>
+        /// <param name="need_id"></param>
+        internal void SetBackUpLine(uint backup_id, uint need_id)
+        {
+            Device backdev = GetDevice(backup_id);
+            Device needdev = GetDevice(need_id);
+            if(backdev != null && needdev != null)
+            {
+                backdev.line = needdev.line;
+                if (backdev.line > 0)
+                {
+                    PubMaster.Mod.DevSql.EditDeviceLine(backdev);
+                }
+            }
+        }
+
         #endregion
 
     }

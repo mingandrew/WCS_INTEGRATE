@@ -973,14 +973,14 @@ namespace task.device
                         {
                             case DevWorkTypeE.品种作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out uint stockid);
-                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid);
+                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line);
                                 break;
                             case DevWorkTypeE.轨道作业:
 
                                 break;
                             case DevWorkTypeE.混砖作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out stockid);
-                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid);
+                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line);
                                 break;
                         }
                     }
@@ -1028,10 +1028,10 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.品种作业:
-                                TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id);
+                                TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id, task.Line);
                                 break;
                             case DevWorkTypeE.轨道作业:
-                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id);
+                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.Line);
                                 break;
                         }
                     }
@@ -1138,14 +1138,14 @@ namespace task.device
                         {
                             case DevWorkTypeE.品种作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out uint stockid);
-                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
+                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line);
                                 break;
                             case DevWorkTypeE.轨道作业:
 
                                 break;
                             case DevWorkTypeE.混砖作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out stockid);
-                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
+                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line);
                                 break;
                         }
                     }
@@ -1192,10 +1192,10 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.品种作业:
-                                TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id);
+                                TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id, task.Line);
                                 break;
                             case DevWorkTypeE.轨道作业:
-                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id);
+                                TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.Line);
                                 break;
                         }
                     }
@@ -1313,7 +1313,7 @@ namespace task.device
         /// <param name="tiletrackid"></param>
         /// <param name="goodid"></param>
         /// <param name="stockid"></param>
-        private void AddMixTrackTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid)
+        private void AddMixTrackTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line)
         {
             if (stockid == 0) return;
             uint lasttrack = PubMaster.DevConfig.GetLastTrackId(tileid);
@@ -1330,11 +1330,11 @@ namespace task.device
                 PubMaster.Track.UpdateRecentGood(lasttrack, goodid);
                 PubMaster.Track.UpdateRecentTile(lasttrack, tileid);
                 //生成入库交易
-                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, lasttrack);
+                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, lasttrack, 0, line);
             }
             else
             {
-                TileAddInTransTask(areaid, tileid, tiletrackid, goodid, stockid);
+                TileAddInTransTask(areaid, tileid, tiletrackid, goodid, stockid, line);
 
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileMixLastTrackInTrans, (ushort)tileid);
             }
@@ -1371,7 +1371,7 @@ namespace task.device
         /// <param name="tiletrackid">砖机轨道ID</param>
         /// <param name="goodid">砖机品种</param>
         /// <param name="fullqty">砖机满砖数量</param>
-        private void TileAddInTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid)
+        private void TileAddInTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line)
         {
             //分配放货点
             if (stockid != 0 && PubMaster.Goods.AllocateGiveTrack(areaid, tileid, goodid, out List<uint> traids))
@@ -1392,7 +1392,7 @@ namespace task.device
                     PubMaster.Track.UpdateRecentGood(givetrackid, goodid);
                     PubMaster.Track.UpdateRecentTile(givetrackid, tileid);
                     //生成入库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid, 0, line);
                 }
 
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
@@ -1411,7 +1411,7 @@ namespace task.device
         /// <param name="tiletrackid">砖机轨道ID</param>
         /// <param name="goodid">砖机品种</param>
         /// <param name="currentid">设置优先轨道</param>
-        private void TileAddOutTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint currentid)
+        private void TileAddOutTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint currentid, ushort line)
         {
             bool isallocate = false;
 
@@ -1433,12 +1433,12 @@ namespace task.device
                     if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, trackid, tiletrackid);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, trackid, tiletrackid, 0, line);
                     }
                     else
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, trackid, tiletrackid);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, trackid, tiletrackid, 0, line);
                     }
                     //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                     isallocate = true;
@@ -1464,12 +1464,12 @@ namespace task.device
                         if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                         {
                             //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tra, tiletrackid);
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tra, tiletrackid, 0, line);
                         }
                         else
                         {
                             //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tra, tiletrackid);
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tra, tiletrackid, 0, line);
                         }
 
                         //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
@@ -1492,12 +1492,12 @@ namespace task.device
                         if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                         {
                             //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, stock.track_id, tiletrackid);
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
                         }
                         else
                         {
                             //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid);
+                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
                         }
 
                         //PubMaster.Goods.AddStockOutLog(stock.id, tiletrackid, tileid);
@@ -1524,7 +1524,7 @@ namespace task.device
         /// <param name="areaid"></param>
         /// <param name="tileid"></param>
         /// <param name="tiletrackid"></param>
-        private void TileAddTrackOutTransTask(uint areaid, uint tileid, uint tiletrackid, uint tilegoodid)
+        private void TileAddTrackOutTransTask(uint areaid, uint tileid, uint tiletrackid, uint tilegoodid, ushort line)
         {
             bool isallocate = false;
             List<TileTrack> tracks = PubMaster.TileTrack.GetTileTrack2Out(tileid);
@@ -1559,12 +1559,12 @@ namespace task.device
                 if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                 {
                     //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tt.track_id, tiletrackid);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tt.track_id, tiletrackid, 0, line);
                 }
                 else
                 {
                     //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tt.track_id, tiletrackid);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tt.track_id, tiletrackid, 0, line);
                 }
                 //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileHaveNoTrackToOut, (ushort)tileid);

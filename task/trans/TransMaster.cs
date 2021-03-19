@@ -35,8 +35,6 @@ namespace task.trans
                 #region[检查轨道]
                 case TransStatusE.检查轨道:
 
-
-
                     //CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
                     ////是否有小车在放砖轨道
                     //if (PubTask.Carrier.HaveDifTypeInTrack(trans.give_track_id, carrier, out uint carrierid))
@@ -76,7 +74,7 @@ namespace task.trans
                     //是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
                     if (!HaveGiveInTrackId(trans))
                     {
-                        if (!IsAllowToHaveCarTask(trans.area_id, trans.TransType)) return;
+                        if (!IsAllowToHaveCarTask(trans.area_id, trans.line, trans.TransType)) return;
 
                         //分配运输车
                         if (PubTask.Carrier.AllocateCarrier(trans, out carrierid, out string result)
@@ -864,7 +862,7 @@ namespace task.trans
                     //是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
                     if (!HaveTaskInTrackId(trans))
                     {
-                        if (!IsAllowToHaveCarTask(trans.area_id, trans.TransType)) return;
+                        if (!IsAllowToHaveCarTask(trans.area_id, trans.line, trans.TransType)) return;
 
                         //分配运输车
                         if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result)
@@ -2273,7 +2271,7 @@ namespace task.trans
                     //是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
                     if (!HaveTaskInTrackId(trans))
                     {
-                        if (!IsAllowToHaveCarTask(trans.area_id, trans.TransType)) return;
+                        if (!IsAllowToHaveCarTask(trans.area_id, trans.line, trans.TransType)) return;
 
                         //分配运输车
                         if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result)
@@ -3042,8 +3040,8 @@ namespace task.trans
             {
                 if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.倒库)) continue;
 
-                int count = HaveAreaSortTask(track.area);
-                if (PubMaster.Area.IsSortTaskLimit(track.area, count)) continue;
+                int count = HaveAreaSortTask(track.area, track.line);
+                if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
 
                 //if (PubTask.Carrier.HaveUnFinishSortCar(track.area)) continue;
 
@@ -3090,14 +3088,14 @@ namespace task.trans
 
                     PubMaster.Track.SetSortTrackStatus(track.id, track.brother_track_id, TrackStatusE.启用, TrackStatusE.倒库中);
                     AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, stockid, track.id, track.brother_track_id
-                        , TransStatusE.检查轨道);
+                        , TransStatusE.检查轨道, 0, track.line);
                 }
             }
         }
 
-        private int HaveAreaSortTask(ushort area)
+        private int HaveAreaSortTask(ushort area, ushort line)
         {
-            return TransList.Count(c => !c.finish && c.area_id == area && c.TransType == TransTypeE.倒库任务);
+            return TransList.Count(c => !c.finish && c.area_id == area && c.line == line && c.TransType == TransTypeE.倒库任务);
         }
 
         #endregion
@@ -3169,7 +3167,7 @@ namespace task.trans
 
                 if (givetrackid != 0)
                 {
-                    AddTransWithoutLock(track.area, 0, TransTypeE.移车任务, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid);
+                    AddTransWithoutLock(track.area, 0, TransTypeE.移车任务, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid, track.line);
                 }
             }
         }
@@ -3609,10 +3607,22 @@ namespace task.trans
         /// 是否允许继续分配运输车
         /// </summary>
         /// <returns></returns>
-        private bool IsAllowToHaveCarTask(uint area, TransTypeE tt)
+        private bool IsAllowToHaveCarTask(uint area, ushort line, TransTypeE tt)
         {
-            int count = TransList.Count(c => !c.finish && c.area_id == area && c.TransType == tt && c.carrier_id > 0);
-            return !PubMaster.Area.IsSortTaskLimit(area, count);
+            int count = TransList.Count(c => !c.finish  && c.area_id == area && c.line == line 
+                                && c.TransType == tt && c.carrier_id > 0);
+            switch (tt)
+            {
+                case TransTypeE.手动下砖:
+                case TransTypeE.下砖任务:
+                case TransTypeE.同向下砖:
+                    return !PubMaster.Area.IsDownTaskLimit(area, line, count);
+                case TransTypeE.手动上砖:
+                case TransTypeE.上砖任务:
+                case TransTypeE.同向上砖:
+                    return !PubMaster.Area.IsUpTaskLimit(area, line, count);
+            }
+            return !PubMaster.Area.IsSortTaskLimit(area, line, count);
         }
 
         /// <summary>

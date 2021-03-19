@@ -67,6 +67,7 @@
     <Compile Include="goods\Stock.cs" />
     <Compile Include="goods\StockSum.cs" />
     <Compile Include="goods\StockTrans.cs" />
+    <Compile Include="line\Line.cs" />
     <Compile Include="msg\MsgAction.cs" />
     <Compile Include="msg\MsgMod.cs" />
     <Compile Include="msg\RfMsgMod.cs" />

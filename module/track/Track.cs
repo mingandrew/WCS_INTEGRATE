@@ -63,7 +63,7 @@ namespace module.track
         /// 轨道上砖极限点坐标
         /// </summary>
         public ushort limit_point_up { set; get; }
-
+        public ushort line { set; get; }//线
         /// <summary>
         /// 轨道类型
         /// </summary>
