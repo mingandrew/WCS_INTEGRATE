@@ -74,7 +74,7 @@ namespace task.device
         /// <summary>
         /// 当前RFID
         /// </summary>
-        public ushort CurrentPoint
+        public ushort CurrentSite
         {
             get => DevStatus?.CurrentSite ?? 0;
         }
@@ -82,7 +82,7 @@ namespace task.device
         /// <summary>
         /// 当前坐标
         /// </summary>
-        public ushort CurrentSite
+        public ushort CurrentPoint
         {
             get => DevStatus?.CurrentPoint ?? 0;
         }
@@ -317,11 +317,11 @@ namespace task.device
 
         internal void UpdateInfo()
         {
-            CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentPoint, CurrentSite);
+            CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentSite, CurrentPoint);
 
             TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetPoint, TargetSite);
 
-            DevStatus.CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentPoint, CurrentSite);
+            DevStatus.CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentSite, CurrentPoint);
 
             DevStatus.TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetPoint, TargetSite);
         }
@@ -446,7 +446,7 @@ namespace task.device
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
                 //3.运输车发终止任务
-                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentSite);
+                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentPoint);
                 if (PubMaster.Goods.IsTrackStockEmpty(CurrentTrackId))
                 {
                     PubMaster.Track.UpdateStockStatus(CurrentTrackId, TrackStockStatusE.空砖, "运输车检测无砖,自动调整轨道为空");
@@ -485,7 +485,7 @@ namespace task.device
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
                 //3.运输车发终止任务
-                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentSite);
+                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentPoint);
                 if (PubMaster.Goods.IsTrackStockEmpty(CurrentTrackId))
                 {
                     PubMaster.Track.UpdateStockStatus(CurrentTrackId, TrackStockStatusE.空砖, "运输车倒库无砖,自动调整轨道为空");

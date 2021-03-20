@@ -549,11 +549,11 @@ namespace resource.goods
         /// 获取指定砖机轨道等待库存ID
         /// </summary>
         /// <param name="trackid">砖机轨道</param>
-        /// <param name="point">地标</para/m>
+        /// <param name="site">地标</para/m>
         /// <returns></returns>
-        public uint GetStockInTileTrack(uint trackid, ushort point)
+        public uint GetStockInTileTrack(uint trackid, ushort site)
         {
-            uint tileid = PubMaster.DevConfig.GetTileInPoint(trackid, point);
+            uint tileid = PubMaster.DevConfig.GetTileInPoint(trackid, site);
             Stock stock = null;
             if (tileid > 0)
             {

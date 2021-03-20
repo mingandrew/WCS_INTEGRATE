@@ -397,12 +397,12 @@ namespace resource.device
         /// 获取砖机对应的地标
         /// </summary>
         /// <param name="trackid"></param>
-        /// <param name="point"></param>
+        /// <param name="site"></param>
         /// <returns></returns>
-        internal uint GetTileInPoint(uint trackid, ushort point)
+        internal uint GetTileInPoint(uint trackid, ushort site)
         {
-            return ConfigTileLifterList.Find(c => (c.left_track_id == trackid && c.left_track_point == point)
-                    || (c.right_track_id == trackid && c.right_track_point == point))?.id ?? 0 ;
+            return ConfigTileLifterList.Find(c => (c.left_track_id == trackid && c.left_track_point == site)
+                    || (c.right_track_id == trackid && c.right_track_point == site))?.id ?? 0 ;
         }
 
         /// <summary>

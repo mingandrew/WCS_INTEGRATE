@@ -108,7 +108,7 @@ namespace task.device
                                     if (tt == TrackTypeE.摆渡车_入 || tt == TrackTypeE.摆渡车_出)
                                     {
                                         // 判断是否有摆渡车
-                                        if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentPoint, task.TargetPoint, out string result, true))
+                                        if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetPoint, out string result, true))
                                         {
                                             task.DoStop();
                                             Thread.Sleep(500);
@@ -339,7 +339,7 @@ namespace task.device
         internal bool HaveInTrack(uint trackid, uint carrierid)
         {
             Track track = PubMaster.Track.GetTrack(trackid);
-            return DevList.Exists(c => c.ID != carrierid && track.IsInTrack(c.CurrentPoint));
+            return DevList.Exists(c => c.ID != carrierid && track.IsInTrack(c.CurrentSite));
         }
 
         /// <summary>
@@ -578,10 +578,10 @@ namespace task.device
                     switch (track.Type)
                     {
                         case TrackTypeE.上砖轨道:
-                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentPoint);
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentSite);
                             break;
                         case TrackTypeE.下砖轨道:
-                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentPoint);
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentSite);
                             break;
                         case TrackTypeE.储砖_入:
                         case TrackTypeE.储砖_出:
