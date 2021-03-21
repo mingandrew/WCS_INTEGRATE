@@ -318,12 +318,12 @@ namespace task.task
         /// <returns></returns>
         internal uint GetFerryCurrentTrackId(bool checkuplight)
         {
-            if(checkuplight && IsUpLight)
+            if (checkuplight && IsUpLight)
             {
                 return UpTrackId;
             }
 
-            if(!checkuplight && IsDownLight)
+            if (!checkuplight && IsDownLight)
             {
                 return DownTrackId;
             }
@@ -346,6 +346,22 @@ namespace task.task
             {
                 trackIds.Add(DownTrackId);
             }
+
+            if (trackIds == null || trackIds.Count == 0) // 都不亮，以储砖轨道为准
+            {
+                switch (Type)
+                {
+                    case DeviceTypeE.上摆渡:
+                        trackIds.Add(DownTrackId);
+                        break;
+                    case DeviceTypeE.下摆渡:
+                        trackIds.Add(UpTrackId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             return trackIds;
         }
 
