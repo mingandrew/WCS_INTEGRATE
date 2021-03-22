@@ -522,6 +522,7 @@ namespace task.device
                     return false;
                 }
                 task.DoStop();
+                mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动终止", task.ID));
                 return true;
             }
             finally
@@ -607,6 +608,7 @@ namespace task.device
                     }
 
                     task.DoLocate(ferrycode, task.DevConfig.track_id);
+                    mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动定位[ {1} ]", task.ID, ferrycode));
                     return true;
                 }
                 finally
@@ -680,6 +682,7 @@ namespace task.device
                 }
 
                 task.DoReSet(resettype);
+                mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动复位[ {1} ]", task.ID, resettype));
                 return true;
             }
             finally
@@ -718,8 +721,7 @@ namespace task.device
                 {
                     //uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
                     if (task.DevStatus.TargetSite != 0
-                        && PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite) != to_track_id
-                        && task.DevStatus.FinishTask != DevFerryTaskE.终止)
+                        && PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite) != to_track_id)
                     {
                         Thread.Sleep(500);
                         task.DoStop();
@@ -758,10 +760,14 @@ namespace task.device
                     }
 
                     #region 交管 
+
                     if (ExistsAvoid(task, to_track_id, out result))
                     {
+                        mlog.Info(true, string.Format(@"定位车[ {0} ], 存在避让[ {1} ]", task.ID, result));
                         return false;
                     }
+                    mlog.Info(true, string.Format(@"定位车[ {0} ], 无需避让[ {1} ]", task.ID, result));
+
                     #endregion
 
                     #region 定位前检查同轨道的摆渡车 - 停用，改启用楼上的 交管
@@ -900,7 +906,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 是否存在避让 - 暂不可用
+        /// 是否存在避让
         /// </summary>
         public bool ExistsAvoid(FerryTask task, uint to_track_id, out string msg)
         {
@@ -943,12 +949,12 @@ namespace task.device
             int limit1, limit2;
             if (fromOrder >= toOrder)
             {
-                limit1 = (toOrder - safedis) <= 0 ? toOrder : (toOrder - safedis);
+                limit1 = (toOrder - safedis) <= 0 ? 1 : (toOrder - safedis);
                 limit2 = (fromOrder + safedis) > maxdis ? maxdis : (fromOrder + safedis);
             }
             else
             {
-                limit1 = (fromOrder - safedis) <= 0 ? toOrder : (fromOrder - safedis);
+                limit1 = (fromOrder - safedis) <= 0 ? 1 : (fromOrder - safedis);
                 limit2 = (toOrder + safedis) > maxdis ? maxdis : (toOrder + safedis);
             }
 
@@ -986,6 +992,10 @@ namespace task.device
                     msg = "没有轨道避让顺序";
                     continue;
                 }
+
+                // 记录
+                mlog.Info(true, string.Format(@"定位车[ {0} ], 移序[ {1} - {2} ], 同轨车[ {3} ], 移序[ {4} - {5} ]",
+                    task.ID, fromOrder, toOrder, other.ID, otherOrder, otherToOrder));
 
                 // 其一摆渡车在当前摆渡车移动区间内
                 if ((otherOrder > limit1 && otherOrder < limit2) ||
@@ -1365,19 +1375,19 @@ namespace task.device
         {
             if (task == null)
             {
-                result = "找不到可用的摆渡车";
+                result = " 找不到可用的摆渡车";
                 return false;
             }
 
             if (task.ConnStatus != SocketConnectStatusE.通信正常)
             {
-                result = "摆渡车设备未连接";
+                result = " 摆渡车设备未连接";
                 return false;
             }
 
             if (task.OperateMode == DevOperateModeE.手动)
             {
-                result = "摆渡车手动操作中";
+                result = " 摆渡车手动操作中";
                 return false;
             }
 
@@ -1389,7 +1399,7 @@ namespace task.device
         {
             if (task.Load == DevFerryLoadE.异常 || task.Load == DevFerryLoadE.非空)
             {
-                result = "摆渡车非空非载车";
+                result = " 摆渡车非空非载车";
                 return false;
             }
             result = "";
@@ -1567,7 +1577,7 @@ namespace task.device
             // 检查是否有对应运输车作业
             if (PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
             {
-                result = "小车上下摆渡中";
+                result = " 小车上下摆渡中";
                 return false;
             }
 
