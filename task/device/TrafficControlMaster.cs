@@ -153,7 +153,7 @@ namespace task.device
         /// <returns></returns>
         public bool AddTrafficControl(TrafficControl tc, out string result)
         {
-            if (Monitor.TryEnter(_out, TimeSpan.FromSeconds(2)))
+            if (Monitor.TryEnter(_in, TimeSpan.FromSeconds(3)))
             {
                 try
                 {
@@ -174,9 +174,13 @@ namespace task.device
                     result = "生成交管";
                     return true;
                 }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message, e);
+                }
                 finally
                 {
-                    Monitor.Exit(_out);
+                    Monitor.Exit(_in);
                 }
             }
 
@@ -222,7 +226,7 @@ namespace task.device
                 ctl.update_time = System.DateTime.Now;
                 PubMaster.Mod.TrafficCtlSql.EditTrafficCtl(ctl, TrafficControlUpdateE.Status);
             }
-            mLog.Status(true, string.Format("交管：{0}，状态[ {1} -> {2} ], 备注：{3}", ctl.id, ctl.TrafficControlStatus, status, memo));
+            mLog.Status(true, string.Format("交管[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", ctl.id, ctl.TrafficControlStatus, status, memo));
         }
 
         #endregion
@@ -241,7 +245,7 @@ namespace task.device
             }
             catch (Exception ex)
             {
-                throw ex;
+                mLog.Error(true, ctl.id + " >>" + ex.Message, ex);
             }
         }
 
@@ -285,7 +289,7 @@ namespace task.device
             }
             catch (Exception ex)
             {
-                throw ex;
+                mLog.Error(true, ctl.id +" >>"+ ex.Message, ex);
             }
         }
 
@@ -301,7 +305,7 @@ namespace task.device
             }
             catch (Exception ex)
             {
-                throw ex;
+                mLog.Error(true, ctl.id + " >>" + ex.Message, ex);
             }
         }
 
@@ -317,7 +321,7 @@ namespace task.device
             }
             catch (Exception ex)
             {
-                throw ex;
+                mLog.Error(true, ctl.id + " >>" + ex.Message, ex);
             }
         }
 
