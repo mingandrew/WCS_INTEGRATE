@@ -607,6 +607,12 @@ namespace task.device
                         return false;
                     }
 
+                    // 避让不让发指令
+                    if (ExistsAvoid(task, trackid, out result, false))
+                    {
+                        return false;
+                    }
+
                     task.DoLocate(ferrycode, task.DevConfig.track_id);
                     mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动定位[ {1} ]", task.ID, ferrycode));
                     return true;
@@ -908,7 +914,7 @@ namespace task.device
         /// <summary>
         /// 是否存在避让
         /// </summary>
-        public bool ExistsAvoid(FerryTask task, uint to_track_id, out string msg)
+        public bool ExistsAvoid(FerryTask task, uint to_track_id, out string msg, bool isAdd = true)
         {
             // 确认是否已被交管
             if (PubTask.TrafficControl.ExistsRestricted(task.ID))
@@ -932,11 +938,11 @@ namespace task.device
             // 目的轨道顺序
             short toOrder = PubMaster.Track.GetTrack(to_track_id)?.order ?? 0;
 
-            if (fromOrder == 0 && toOrder == 0)
+            if (fromOrder == 0 || toOrder == 0)
             {
-                // 无顺序 即不需要避让？
+                // 无顺序 不动
                 msg = "没有轨道避让顺序";
-                return false;
+                return true;
             }
 
             // 摆渡间安全距离 轨道数
@@ -962,7 +968,7 @@ namespace task.device
             foreach (FerryTask other in ferries)
             {
                 // 停用了就不管？
-                if (!other.IsWorking) continue;
+                //if (!other.IsWorking) continue;
 
                 // 其一摆渡当前轨道ID
                 uint otherTrackId = other.GetFerryCurrentTrackId();
@@ -986,11 +992,11 @@ namespace task.device
                     otherToOrder = 0;
                 }
 
-                if (otherOrder == 0 && otherToOrder == 0)
+                if (otherOrder == 0)
                 {
-                    // 没有配置？也当作不用避让处理？
+                    // 没有配置？不动
                     msg = "没有轨道避让顺序";
-                    continue;
+                    return true;
                 }
 
                 // 记录
@@ -1015,18 +1021,28 @@ namespace task.device
                         msg = "干扰车已到位";
                         return true;
                     }
-                    uint standbyTraID = PubMaster.Track.GetTrackIDByOrder((ushort)other.AreaId, standbyOrder);
-                    // 加入交管
-                    PubTask.TrafficControl.AddTrafficControl(new TrafficControl()
+
+                    if (isAdd)
                     {
-                        area = (ushort)task.AreaId,
-                        TrafficControlType = TrafficControlTypeE.摆渡车交管摆渡车,
-                        restricted_id = task.ID,
-                        control_id = other.ID,
-                        from_track_id = otherTrackId,
-                        to_track_id = standbyTraID
-                    }, out msg);
-                    return true; // 限制仅生成一个交管
+                        uint standbyTraID = PubMaster.Track.GetTrackIDByOrder((ushort)other.AreaId, standbyOrder);
+                        // 加入交管
+                        PubTask.TrafficControl.AddTrafficControl(new TrafficControl()
+                        {
+                            area = (ushort)task.AreaId,
+                            TrafficControlType = TrafficControlTypeE.摆渡车交管摆渡车,
+                            restricted_id = task.ID,
+                            control_id = other.ID,
+                            from_track_id = otherTrackId,
+                            to_track_id = standbyTraID
+                        }, out msg);
+                        return true; // 限制仅生成一个交管
+                    }
+                    else
+                    {
+                        msg = "存在避让";
+                        return true;
+                    }
+
                 }
 
             }
