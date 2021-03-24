@@ -57,6 +57,11 @@
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
     </Style>
 
+    <Style x:Key="MBorder_TRB" TargetType="{x:Type Border}">
+        <Setter Property="BorderThickness" Value="0,1,1,1" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+    </Style>
+    
     <Style x:Key="MButton_Primary" TargetType="{x:Type Button}" BasedOn="{StaticResource ButtonPrimary}">
         <Setter Property="FontSize" Value="25"/>
         <Setter Property="Height" Value="50"/>

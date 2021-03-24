@@ -347,6 +347,30 @@ namespace resource.device
         }
 
         /// <summary>
+        /// 获取砖机配置的工位取货地标点
+        /// </summary>
+        /// <param name="tilelifter_id"></param>
+        /// <param name="take_track_id"></param>
+        /// <returns></returns>
+        public ushort GetTileSite(uint tilelifter_id, uint take_track_id)
+        {
+            ConfigTileLifter dev = GetTileLifter(tilelifter_id);
+            if (dev != null)
+            {
+                if(dev.left_track_id == take_track_id)
+                {
+                    return dev.left_track_point;
+                }
+
+                if(dev.right_track_id == take_track_id)
+                {
+                    return dev.right_track_point;
+                }
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// 设置砖机最后作业轨道
         /// </summary>
         /// <param name="devid"></param>

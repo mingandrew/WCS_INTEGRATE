@@ -283,6 +283,15 @@ namespace wcs.ViewModel
                 case "showferry":
                     ShowFerryPosPanal();
                     break;
+
+                #region[复制选定砖机对位数据或者重新发送一遍]
+                case "resendall":
+                    ResendAll();
+                    break;
+                case "copypose":
+                    OpenCopyPose();
+                    break;
+                #endregion
             }
         }
 
@@ -370,6 +379,42 @@ namespace wcs.ViewModel
             }
             PubTask.Ferry.RefreshPosList(_selectferry.id);
         }
+
+        private void ResendAll()
+        {
+            if (!PubTask.Ferry.ReSendAllFerryPose(_selectferry.id, out string result))
+            {
+                Growl.Warning(result);
+                return;
+            }
+
+            Growl.Success("正在发送！");
+        }
+
+        /// <summary>
+        /// 打开复制摆渡车
+        /// </summary>
+        private async void OpenCopyPose()
+        {
+            if (_selectferry == null)
+            {
+                Growl.Warning("请先选择摆渡车！");
+                return;
+            }
+
+            MsgAction result = await HandyControl.Controls.Dialog.Show<FerryCopyPosDialog>()
+                 .Initialize<FerryCopyPosDialogViewModel>((vm) =>
+                 {
+                     vm.InitVar();
+                     vm.BeforeOpenDialog(_selectferry);
+                 }).GetResultAsync<MsgAction>();
+            if (result.o1 is bool rs && rs)
+            {
+                Growl.Success("复制成功！");
+                CheckAreaHaveTrackAndAdd();
+            }
+        }
+
 
         #endregion
 

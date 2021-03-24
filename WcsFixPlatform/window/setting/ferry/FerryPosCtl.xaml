@@ -25,7 +25,8 @@
             <Button Content="停止" Style="{StaticResource ButtonDanger}" Tag="stopdev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
             <Button Content="刷新轨道坐标" Style="{StaticResource ButtonPrimary}" Command="{Binding QueryPosCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"  FontSize="16" Height="35"
                     Visibility="{Binding SHOWFERRYPOS, Converter={StaticResource Boolean2VisibilityConverter}}"/>
-
+            <Button Content="复制数据" Style="{StaticResource ButtonPrimary}" Tag="copypose" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"
+                    Visibility="{Binding SuperVisor, Converter={StaticResource Boolean2VisibilityConverter}}"/>
         </StackPanel>
         <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="25">
             <Grid.ColumnDefinitions>
@@ -177,6 +178,8 @@
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="对位" Tag="devtocode" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="全部重新发送" Tag="resendall" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
+                                  Visibility="{Binding SuperVisor, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>

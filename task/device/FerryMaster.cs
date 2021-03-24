@@ -111,7 +111,7 @@ namespace task.device
             {
                 if (task.IsEnable)
                 {
-                    task.SetEnable(false);
+                    task.Device.enable = false;
                 }
                 task.Stop("模拟停止");
             }
@@ -148,10 +148,10 @@ namespace task.device
                                         Thread.Sleep(100);
 
                                     }
-                                    EndRefreshPosList();
                                 }
                                 finally
                                 {
+                                    EndRefreshPosList();
                                     Monitor.Exit(_posobj);
                                 }
 
@@ -697,6 +697,26 @@ namespace task.device
             }
         }
 
+        public bool ReSendAllFerryPose(uint id, out string result)
+        {
+            result = "";
+            FerryTask task = DevList.Find(c => c.ID == id);
+            if (task != null) 
+            {
+                if (!task.IsSendAll)
+                {
+                    task.DoSendAllPose();
+                    return true;
+                }
+            }
+            else
+            {
+                result = "找不到摆渡车信息";
+            }
+            return false;
+        }
+
+
         /// <summary>
         /// 自动流程中摆渡车定位
         /// </summary>
@@ -1186,6 +1206,7 @@ namespace task.device
 
         public void RefreshPosList(uint ferryid)
         {
+            if (_IsRefreshPos) return;
             if (Monitor.TryEnter(_posobj, TimeSpan.FromSeconds(1)))
             {
                 try
