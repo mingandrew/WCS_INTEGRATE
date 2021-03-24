@@ -23,7 +23,7 @@ namespace module.deviceconfig
         /// <summary>
         /// 左 轨道地标
         /// </summary>
-        public uint left_track_point { set; get; }
+        public ushort left_track_point { set; get; }
 
         /// <summary>
         /// 右 轨道ID
@@ -33,7 +33,7 @@ namespace module.deviceconfig
         /// <summary>
         /// 右 轨道地标
         /// </summary>
-        public uint right_track_point { set; get; }
+        public ushort right_track_point { set; get; }
 
         /// <summary>
         /// 兄弟砖机ID

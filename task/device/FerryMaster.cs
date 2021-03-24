@@ -111,7 +111,7 @@ namespace task.device
             {
                 if (task.IsEnable)
                 {
-                    task.SetEnable(false);
+                    task.Device.enable = false;
                 }
                 task.Stop("模拟停止");
             }
