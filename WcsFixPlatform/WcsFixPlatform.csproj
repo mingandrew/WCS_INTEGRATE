@@ -179,6 +179,9 @@
     <Compile Include="Dialog\platform\operate\OperateGrandDialog.xaml.cs">
       <DependentUpon>OperateGrandDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\setting\FerryCopyPosDiaolog.xaml.cs">
+      <DependentUpon>FerryCopyPosDiaolog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\setting\FerryAutoPosDiaolog.xaml.cs">
       <DependentUpon>FerryAutoPosDiaolog.xaml</DependentUpon>
     </Compile>
@@ -274,6 +277,7 @@
     <Compile Include="ViewModel\platform\waring\WarnLogViewModel.cs" />
     <Compile Include="ViewModel\setting\carrier\CarrierPosViewModel.cs" />
     <Compile Include="ViewModel\setting\checkright\CheckRightDialogViewModel.cs" />
+    <Compile Include="ViewModel\setting\ferry\FerryCopyPosDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryAutoPosDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryPosViewModel.cs" />
     <Compile Include="ViewModel\setting\menu\MenuSelectViewModel.cs" />
@@ -430,6 +434,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\operate\OperateGrandDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\setting\FerryCopyPosDiaolog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -57,6 +57,7 @@ namespace tool
             return null;
         }
 
+
         /// <summary>
         /// 执行sql语句
         /// </summary>
@@ -82,6 +83,34 @@ namespace tool
             }
             return 0;
         }
+
+        /// <summary>
+        /// 执行sql语句
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        public int ExcuteSqlWithException(string sql)
+        {
+            try
+            {
+                using (MySqlConnection sqlcon = new MySqlConnection(conn))
+                {
+                    sqlcon.Open();
+                    using (MySqlCommand mySqlCommand = new MySqlCommand(sql, sqlcon))
+                    {
+                        return mySqlCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mLog.Error(true, ex.Message + sql, ex);
+                throw;
+            }
+            return 0;
+        }
+
+
 
         /// <summary>
         /// 获取对应table数据数目

@@ -40,6 +40,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<TrackSelectViewModel>();
             SimpleIoc.Default.Register<ChangeStrategyDialogViewModel>();
             SimpleIoc.Default.Register<FerryAutoPosDialogViewModel>();
+            SimpleIoc.Default.Register<FerryCopyPosDialogViewModel>();
             SimpleIoc.Default.Register<CutoverDialogViewModel>();
             SimpleIoc.Default.Register<GoodShiftDialogViewModel>();
 
@@ -108,6 +109,7 @@ namespace wcs.ViewModel
         public TrackSelectViewModel TrackSelect => ServiceLocator.Current.GetInstance<TrackSelectViewModel>();
         public ChangeStrategyDialogViewModel StrategyChange => ServiceLocator.Current.GetInstance<ChangeStrategyDialogViewModel>();
         public FerryAutoPosDialogViewModel FerryAutoPos => ServiceLocator.Current.GetInstance<FerryAutoPosDialogViewModel>();
+        public FerryCopyPosDialogViewModel FerryCopyPos => ServiceLocator.Current.GetInstance<FerryCopyPosDialogViewModel>();
         public CutoverDialogViewModel Cutover => ServiceLocator.Current.GetInstance<CutoverDialogViewModel>();
         public GoodShiftDialogViewModel GoodShift => ServiceLocator.Current.GetInstance<GoodShiftDialogViewModel>();
         public CarrierPosViewModel CarrierPos => ServiceLocator.Current.GetInstance<CarrierPosViewModel>();

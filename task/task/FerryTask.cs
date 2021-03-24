@@ -394,6 +394,42 @@ namespace task.task
             }.Start();
         }
 
+        public bool IsSendAll = false;
+        internal void DoSendAllPose()
+        {
+            if (IsSendAll) return;
+            IsSendAll = true;
+
+            new Thread(SendAllPos)
+            {
+                IsBackground = true,
+                Name = "发送全部对位信息"
+            }.Start();
+        }
+
+        private void SendAllPos()
+        {   List<FerryPos> posList = PubMaster.Track.GetFerryPos(ID);
+            try
+            {
+                foreach (var item in posList)
+                {
+                    try
+                    {
+                        if (item.ferry_pos != 0)
+                        {
+                            DoSiteUpdate(item.ferry_code, item.ferry_pos);
+                            Thread.Sleep(500);
+                        }
+                    }
+                    catch { }
+                }
+            }
+            finally
+            {
+                IsSendAll = false;
+            }
+        }
+
         #endregion
     }
 }

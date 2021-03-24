@@ -533,9 +533,13 @@ namespace resource.track
         public int GetFerryAutoPosLen(ushort area, uint devid, ushort poscode)
         {
             Track selectrack = GetTrackByFerryCocde(area, devid, poscode);
-            List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
-            tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
-            return tracks.Count - tracks.IndexOf(selectrack);
+            if (selectrack != null)
+            {
+                List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
+                tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
+                return tracks.Count - tracks.IndexOf(selectrack);
+            }
+            return 1;
         }
 
         /// <summary>
@@ -702,6 +706,11 @@ namespace resource.track
             return PubMaster.Mod.TraSql.QueryFerryPosList(areaid, devid);
         }
 
+        public bool IsExistOldFerryPos()
+        {
+            return PubMaster.Mod.TraSql.IsHaveFerryOldAndAdd();
+        }
+
         public List<FerryPos> GetFerryPos(uint areaid, uint devid)
         {
             return PubMaster.Mod.TraSql.QueryFerryPosList(areaid, devid);
@@ -736,6 +745,11 @@ namespace resource.track
         public void UpdateFerryPos(uint id, int ferrypos)
         {
             PubMaster.Mod.TraSql.EditFerryPos(id, ferrypos);
+        }
+
+        public void UpdateFerryPos(FerryPos pos, bool haveold)
+        {
+            PubMaster.Mod.TraSql.EditFerryPos(pos, haveold);
         }
 
         public void UpdateFerryPos(uint devid, int trackcode, int ferrypos)

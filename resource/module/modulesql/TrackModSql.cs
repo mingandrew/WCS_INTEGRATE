@@ -78,8 +78,7 @@ namespace resource.module.modulesql
         public List<FerryPos> QueryFerryPosList(uint devid)
         {
             List<FerryPos> list = new List<FerryPos>();
-            string sql = string.Format("SELECT t.id, t.track_id, t.device_id, t.ferry_code, t.ferry_pos FROM ferry_pos AS t  " +
-                "where t.device_id = {0} ", devid);
+            string sql = string.Format("SELECT t.* FROM ferry_pos AS t where t.device_id = {0} ", devid);
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -256,6 +255,18 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        internal bool EditFerryPos(FerryPos pos, bool haveold)
+        {
+            string sql= string.Format("UPDATE `ferry_pos` SET  `ferry_pos` = {0}",pos.ferry_pos);
+            if (haveold)
+            {
+                sql += string.Format(",`old_ferry_pos` = {0}", pos.old_ferry_pos);
+            }
+            sql += string.Format(" WHERE `id` = {0}", pos.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
         internal bool EditFerryPos(uint devid,int trackcode, int ferrypos)
         {
             string sql = "UPDATE `ferry_pos` SET  `ferry_pos` = {0}" +
@@ -301,6 +312,33 @@ namespace resource.module.modulesql
                 list = dt.ToDataList<SimFerryPos>();
             }
             return list;
+        }
+
+        /// <summary>
+        /// 判断摆渡车对位数据表是否存在old_ferry_pose字段，无着添加字段
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsHaveFerryOldAndAdd()
+        {
+            try
+            {
+                string sql = string.Format("select old_ferry_pos from ferry_pos LIMIT 1");
+                mSql.ExcuteSqlWithException(@sql);
+                return true;
+            }catch(Exception e)
+            {
+                try
+                {
+                    string createcolume = "ALTER TABLE `ferry_pos` ADD COLUMN `old_ferry_pos` int(11) NULL DEFAULT NULL COMMENT '旧的设置坐标' ";
+                    int isadd = mSql.ExcuteSqlWithException(createcolume);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+            return false;
         }
 
         #endregion

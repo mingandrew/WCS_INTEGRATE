@@ -3,9 +3,9 @@
     /// <summary>
     /// Page1.xaml 的交互逻辑
     /// </summary>
-    public partial class FerryAutoPosDialog
+    public partial class FerryCopyPosDialog
     {
-        public FerryAutoPosDialog()
+        public FerryCopyPosDialog()
         {
             InitializeComponent();
         }

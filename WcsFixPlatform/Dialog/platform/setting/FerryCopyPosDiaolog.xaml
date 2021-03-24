@@ -1,0 +1,63 @@
+﻿<Border x:Class="wcs.Dialog.FerryCopyPosDialog"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:wcs.Dialog"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      mc:Ignorable="d" 
+      MinHeight="320" MinWidth="500" MaxWidth="600" MaxHeight="500"  CornerRadius="20"
+      DataContext="{Binding FerryCopyPos, Source={StaticResource Locator}}"
+      Background="{DynamicResource RegionBrush}">
+    <hc:SimplePanel>
+        <Button hc:IconElement.Geometry="{StaticResource CloseGeometry}" Style="{StaticResource ButtonDanger}" 
+                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0" Command="{Binding CancelCmd}" />
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal">
+                <TextBlock  Text="" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Margin="0,10,0,10"/>
+            </StackPanel>
+
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="{Binding FromFerryName}" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}" Height="70" MinWidth="70px">
+                <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding SelectFerryCmd}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTR}" >
+                <Grid>
+                    <StackPanel VerticalAlignment="Center">
+                        <hc:Interaction.Triggers>
+                            <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                                <hc:EventToCommand Command="{Binding CheckTypeRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                            </hc:RoutedEventTrigger>
+                        </hc:Interaction.Triggers>
+                        <RadioButton Content="复制同轨道" Tag="0" IsChecked="True"/>
+                        <RadioButton Content="删掉并复制" Tag="1"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                <TextBlock Text="{Binding ToFerryName}" Style="{StaticResource TextBlockSubTitle}" FontSize="20" Margin="10"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_TRB}">
+                
+            </Border>
+            <StackPanel Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,30,0,10">
+                <Button Width="150" Height="40" Margin="0,0,0,0" Command="{Binding ComfirmCmd}"  
+                        Style="{StaticResource ButtonPrimary}" Content="复制对位数据" FontSize="20"/>
+            </StackPanel>
+        </Grid>
+    </hc:SimplePanel>
+</Border>

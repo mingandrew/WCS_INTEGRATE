@@ -7,5 +7,6 @@
         public uint device_id { set; get; }
         public ushort ferry_code { set; get; }
         public int ferry_pos { set; get; }
+        public int old_ferry_pos { set; get; }
     }
 }
