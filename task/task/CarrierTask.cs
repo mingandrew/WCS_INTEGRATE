@@ -306,6 +306,11 @@ namespace task.device
             DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
         }
 
+        internal void DoStopNow()
+        {
+            DevTcp?.SendCmdNow(DevCarrierCmdE.终止指令);
+        }
+
         internal void DoTask(DevCarrierTaskE task, DevCarrierSizeE oversize)
         {
             DevTcp?.SendCmd(DevCarrierCmdE.执行指令);

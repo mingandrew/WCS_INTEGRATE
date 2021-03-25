@@ -40,6 +40,16 @@ namespace socket.tcp
             }
         }
 
+        public void SendCmdNow(DevCarrierCmdE type)
+        {
+            try
+            {
+                byte[] data = mProcess.GetCmd(mDev.memo, type);
+                SendMessage(data);
+            }
+            catch { }
+        }
+
         public void SendCmd(DevCarrierCmdE type, DevCarrierOrderE order,
             ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, byte v6)
         {

@@ -987,8 +987,8 @@ namespace task.device
             //循环判断 
             foreach (FerryTask other in ferries)
             {
-                // 停用了就不管？
-                //if (!other.IsWorking) continue;
+                // 断开通讯并且停用摆渡车
+                if (!other.IsWorking && !other.IsEnable) continue;
 
                 // 其一摆渡当前轨道ID
                 uint otherTrackId = other.GetFerryCurrentTrackId();

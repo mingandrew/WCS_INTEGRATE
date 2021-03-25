@@ -586,7 +586,7 @@ namespace task.device
                         case TrackTypeE.储砖_入:
                         case TrackTypeE.储砖_出:
                         case TrackTypeE.储砖_出入:
-                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInStoreTrack(track.id, task.DevStatus.TakePoint);
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInStoreTrack(track, task.DevStatus.TakePoint);
                             break;
                         case TrackTypeE.摆渡车_入:
                         case TrackTypeE.摆渡车_出:
@@ -1273,17 +1273,19 @@ namespace task.device
             result = "";
             carrierid = 0;
             if (trans.goods_id == 0) return false;
-            CarrierTypeE needtype = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
+
+            // 获取任务品种规格ID
+            uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
 
             // 1.倒库空轨道是否有车[空闲，无货]
-            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.CarrierType == needtype);
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
             #region[2.摆渡车上是否有车[空闲，无货]
             if (carrier == null)
             {
                 //3.1获取能到达[空轨道]轨道的上砖摆渡车的轨道ID
                 List<uint> ferrytrackids = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.上摆渡, trans.area_id, 0, trans.give_track_id, 0, true);
                 //3.2获取在摆渡轨道上的车[空闲，无货]
-                List<CarrierTask> carriers = DevList.FindAll(c => ferrytrackids.Contains(c.CurrentTrackId) && c.CarrierType == needtype);
+                List<CarrierTask> carriers = DevList.FindAll(c => ferrytrackids.Contains(c.CurrentTrackId) && c.DevConfig.IsUseGoodsSize(goodssizeID));
                 if (carriers.Count > 0)
                 {
                     //如何判断哪个摆渡车最右
@@ -1332,7 +1334,7 @@ namespace task.device
                     List<AreaDeviceTrack> traone = PubMaster.Area.GetFerryTrackId(trans.give_track_id);
                     foreach (AreaDevice areatra in areatras)
                     {
-                        CarrierTask task = DevList.Find(c => c.ID == areatra.device_id && c.CarrierType == needtype);
+                        CarrierTask task = DevList.Find(c => c.ID == areatra.device_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
                         if (task != null && CheckCarrierIsFree(task)
                             && PubMaster.Track.IsTrackType(task.CurrentTrackId, TrackTypeE.储砖_出)
                             && PubMaster.Area.ExistFerryToBothTrack(traone, task.CurrentTrackId))
@@ -1726,6 +1728,14 @@ namespace task.device
         {
             return DevList;
         }
+
+        
+        internal CarrierTask GetDevCarrier(uint id)
+        {
+            return DevList.Find(c=>c.ID == id);
+        }
+
+
 
         internal List<CarrierTask> GetDevCarriers(List<uint> areaids)
         {

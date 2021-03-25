@@ -980,30 +980,12 @@ namespace resource.goods
                 {
                     if (!PubMaster.Track.IsBrotherTrack(taketrackid, givetrackid)) return false;
 
-                    //if (PubMaster.Track.IsTrackFull(givetrackid)
-                    //    && PubMaster.Track.IsTrackEmtpy(taketrackid))
-                    //{
-                    //    return true;
-                    //}
-
                     Track givetrack = PubMaster.Track.GetTrack(givetrackid);
                     Track taketrack = PubMaster.Track.GetTrack(taketrackid);
-                    if (givetrack != null && taketrack != null
-                        //&& givetrack.StockStatus == TrackStockStatusE.空砖
-                        //&& taketrack.StockStatus == TrackStockStatusE.满砖
-                        )
+                    if (givetrack != null && taketrack != null)
                     {
-                        //List<Stock> stocks = StockList.FindAll(c => c.track_id == taketrack.id);
-                        //foreach (Stock stock in stocks)
-                        //{
-                        //    stock.track_id = givetrack.id;
-                        //    stock.area = givetrack.area;
-                        //    stock.track_type = givetrack.type;
-                        //    PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Track);
-                        //}
 
                         PubMaster.Track.ShiftTrack(taketrack.id, givetrack.id);
-                        //UpdateShiftStockSum(taketrackid, givetrackid, givetrack.type);
                         return true;
                     }
                 }
@@ -1529,20 +1511,31 @@ namespace resource.goods
         /// <param name="takePoint"></param>
         /// <param name="takeSite"></param>
         /// <returns></returns>
-        public uint GetStockInStoreTrack(uint trackid, ushort stockSite)
+        public uint GetStockInStoreTrack(Track track, ushort stockSite)
         {
             //查找脉冲范围内的库存信息
-            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.IsInLocation(stockSite, 50));//50脉冲 ≈ 50*(1.736)=86.8cm
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == track.id && c.IsInLocation(stockSite, 50));//50脉冲 ≈ 50*(1.736)=86.8cm
             if (stocks.Count == 1)
             {
                 //找到范围内唯一的库存
                 return stocks[0].id;
             }
 
+            //如果在储砖出、或者入的轨道找不到库存则在兄弟轨道查找该脉冲范围内有没有库存的信息
+            if(track.Type == TrackTypeE.储砖_入 || track.Type == TrackTypeE.储砖_出)
+            {
+                stocks = StockList.FindAll(c => c.track_id == track.brother_track_id && c.IsInLocation(stockSite, 50));//50脉冲 ≈ 50*(1.736)=86.8cm
+                if (stocks.Count == 1)
+                {
+                    //找到范围内唯一的库存
+                    return stocks[0].id;
+                }
+            }
+
             if(stocks.Count == 0)
             {
                 //找不到范围内的库存信息
-                stocks = StockList.FindAll(c => c.track_id == trackid);//找到范围内多个的库存 排序取最近的库存
+                stocks = StockList.FindAll(c => c.track_id == track.id);//找到范围内多个的库存 排序取最近的库存
             }
 
             if (stocks.Count > 0)

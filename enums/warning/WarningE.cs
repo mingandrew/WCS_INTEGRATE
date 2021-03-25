@@ -35,6 +35,8 @@
 
         TransHaveNotTheGiveTrack, // 任务没有合适的轨道卸砖
         UpTilePreGoodNotSet,//上砖机预设品种没有设置
+
+        DeviceSortRunOutTrack,//运输车倒库没有扫到定位点冲出轨道
     }
 
     /// <summary>

@@ -35,10 +35,6 @@ namespace task.trans
                 #region[检查轨道]
                 case TransStatusE.检查轨道:
 
-                    //CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
-                    ////是否有小车在放砖轨道
-                    //if (PubTask.Carrier.HaveDifTypeInTrack(trans.give_track_id, carrier, out uint carrierid))
-
                     // 获取任务品种规格ID
                     uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
                     // 是否有不符规格的车在轨道
@@ -1728,21 +1724,54 @@ namespace task.trans
             {
                 #region[检查轨道]
                 case TransStatusE.检查轨道:
-
-                    //是否有小车在满砖轨道
-                    if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint carrierid))
+                    bool havedifcaringive = true, havecarintake = true;
+                    // 获取任务品种规格ID
+                    uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
+                    // 是否有不符规格的车在轨道
+                    if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trans.give_track_id, goodssizeID, out uint carrierid))
                     {
-                        if (PubTask.Carrier.IsCarrierFree(carrierid))
+                        if (!HaveCarrierInTrans(carrierid)
+                            && PubTask.Carrier.IsCarrierFree(carrierid))
                         {
-                            AddMoveCarrierTask(trans.take_track_id, carrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
-                        }
-                        else if (PubTask.Carrier.IsCarrierInTask(carrierid, DevCarrierOrderE.前进倒库) ||
-                                    PubTask.Carrier.IsCarrierInTask(carrierid, DevCarrierOrderE.后退倒库))
-                        {
-                            SetStatus(trans, TransStatusE.调度设备);
+                            if (PubTask.Carrier.IsLoad(carrierid))
+                            {
+                                PubMaster.Warn.AddDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid, trans.id);
+                            }
+                            else
+                            {
+                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid);
+
+                                //转移到同类型轨道
+                                TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                                track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                                AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                            }
                         }
                     }
                     else
+                    {
+                        havedifcaringive = false;
+                    }
+
+                    //是否有小车在满砖轨道
+                    if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
+                    {
+                        if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
+                        {
+                            AddMoveCarrierTask(trans.take_track_id, fullcarrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
+                        }
+                        else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.前进倒库) ||
+                                    PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.后退倒库))
+                        {
+                            havecarintake = false;
+                        }
+                    }
+                    else
+                    {
+                        havecarintake = false;
+                    }
+
+                    if(!havecarintake && !havedifcaringive)
                     {
                         SetStatus(trans, TransStatusE.调度设备);
                     }
@@ -1960,6 +1989,24 @@ namespace task.trans
                     else
                     {
                         PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierSortButStop, (ushort)trans.carrier_id);
+                    }
+
+                    track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
+                    if (track != null && track.Type == TrackTypeE.储砖_入)
+                    {
+                        CarrierTask carrier = PubTask.Carrier.GetDevCarrier(trans.carrier_id);
+                        if (carrier != null)
+                        {
+                            if (carrier.DevStatus.DeviceStatus == DevCarrierStatusE.后退
+                                && (carrier.DevStatus.CurrentSite%100 == 0 
+                                || carrier.Position == DevCarrierPositionE.上下摆渡中))
+                            {
+                                carrier.DoStopNow();
+                                carrier.DoStopNow();
+                                PubMaster.Device.SetDevWorking(carrier.ID, false, out DeviceTypeE _);
+                                PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceSortRunOutTrack, (ushort)carrier.ID, trans.id, track.id);
+                            }
+                        }
                     }
 
                     break;
