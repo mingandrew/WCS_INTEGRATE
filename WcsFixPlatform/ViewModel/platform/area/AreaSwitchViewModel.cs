@@ -12,28 +12,40 @@ namespace wcs.ViewModel
         public AreaSwitchViewModel()
         {
             _up_1 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area1Up);
+            
             _down_1 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area1Down);
-            _sort_1 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area1Sort);
+            _sort_1 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area1Sort, out bool sort_1);
+            HAVE_SORT_1 = sort_1;
 
             _up_2 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area2Up);
             _down_2 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area2Down);
-            _sort_2 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area2Sort);
+            _sort_2 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area2Sort, out bool sort_2);
+            HAVE_SORT_2 = sort_2;
 
             _up_3 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area3Up);
             _down_3 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area3Down);
-            _sort_3 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area3Sort);
+            _sort_3 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area3Sort, out bool sort_3);
+            HAVE_SORT_3 = sort_3;
 
             _up_4 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area4Up);
             _down_4 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area4Down);
-            _sort_4 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area4Sort);
+            _sort_4 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area4Sort, out bool sort_4);
+            HAVE_SORT_4 = sort_4;
 
             _up_5 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area5Up);
             _down_5 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area5Down);
-            _sort_5 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area5Sort);
+            _sort_5 = PubMaster.Dic.IsSwitchOnOff(DicSwitchTag.Area5Sort, out bool sort_5);
+            HAVE_SORT_5 = sort_5;
 
             Messenger.Default.Register<DictionDtl>(this, MsgToken.TaskSwitchUpdate, TaskSwitchUpdate);
 
             CheckIsSingle();
+
+            Area1Name = PubMaster.Area.GetName(1);
+            Area2Name = PubMaster.Area.GetName(2);
+            Area3Name = PubMaster.Area.GetName(3);
+            Area4Name = PubMaster.Area.GetName(4);
+            Area5Name = PubMaster.Area.GetName(5);
         }
 
         #region[字段]
@@ -43,10 +55,46 @@ namespace wcs.ViewModel
         private bool _up_4, _down_4, _sort_4;
         private bool _up_5, _down_5, _sort_5;
 
+        public bool HAVE_SORT_1 { set; get; }
+        public bool HAVE_SORT_2 { set; get; }
+        public bool HAVE_SORT_3 { set; get; }
+        public bool HAVE_SORT_4 { set; get; }
+        public bool HAVE_SORT_5 { set; get; }
         private bool show2area, show3area, show4area, show5area;
+
+        private string area1name, area2name, area3name, area4name, area5name;
         #endregion
 
         #region[属性]
+
+        public string Area1Name
+        {
+            get => area1name;
+            set => Set(ref area1name, value);
+        }
+        public string Area2Name
+        {
+            get => area2name;
+            set => Set(ref area2name, value);
+        }
+        public string Area3Name
+        {
+            get => area3name;
+            set => Set(ref area3name, value);
+        }
+
+        public string Area4Name
+        {
+            get => area4name;
+            set => Set(ref area4name, value);
+        }
+
+        public string Area5Name
+        {
+            get => area5name;
+            set => Set(ref area5name, value);
+        }
+
         public bool Show2Area
         {
             get => show2area;

@@ -221,6 +221,11 @@ namespace resource.area
             return AreaList.Find(c => c.id == Area_id)?.name ?? "";
         }
 
+        public string GetName(uint id)
+        {
+            return AreaList.Find(c => c.id == id)?.name ?? id+"";
+        }
+
         /// <summary>
         /// 倒库专用：找到上砖摆渡轨道
         /// </summary>

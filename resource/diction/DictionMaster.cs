@@ -320,6 +320,17 @@ namespace resource.diction
             return GetDtlInCode(tag)?.bool_value ?? defvalue;
         }
 
+        public bool IsSwitchOnOff(string tag,out bool havedtl, bool defvalue = false)
+        {
+            DictionDtl dtl = GetDtlInCode(tag);
+            if (dtl != null)
+            {
+                havedtl = true;
+                return dtl.bool_value;
+            }
+            havedtl = false;
+            return defvalue;
+        }
 
         public bool IsAreaTaskOnoff(uint areaid, DicAreaTaskE type)
         {

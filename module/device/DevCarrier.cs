@@ -83,7 +83,7 @@ namespace module.device
         {
             set
             {
-                if(Math.Abs(campare_currentpoint - value) >= 50)
+                if(Math.Abs(campare_currentpoint - value) >= 19)
                 {
                     campare_currentpoint = value;
                     IsCurrentSiteUpdate = true;
