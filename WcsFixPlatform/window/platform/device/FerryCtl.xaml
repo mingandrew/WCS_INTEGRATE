@@ -105,7 +105,7 @@
                     <DataGridTextColumn Binding="{Binding TargetSite,Converter={StaticResource TrackCode2NameConverter}}" Header="目标点" />
                     <DataGridTextColumn Binding="{Binding CurrentTask}" Header="指令"/>
                     <DataGridTextColumn Binding="{Binding FinishTask}" Header="完成"/>
-                    <DataGridTextColumn Binding="{Binding UpSite,Converter={StaticResource TrackCode2NameConverter}}" Header="前侧站点"/>
+                    <DataGridTextColumn Binding="{Binding UpTrackId,Converter={StaticResource TrackId2NameConverter}}" Header="前侧站点"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="前侧光电"/>
@@ -124,7 +124,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding DownSite,Converter={StaticResource TrackCode2NameConverter}}" Header="后侧站点"/>
+                    <DataGridTextColumn Binding="{Binding DownTrackId,Converter={StaticResource TrackId2NameConverter}}" Header="后侧站点"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="后侧光电"/>

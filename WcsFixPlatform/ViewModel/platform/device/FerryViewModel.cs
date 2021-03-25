@@ -113,7 +113,9 @@ namespace wcs.ViewModel
         {
             if (msg.o1 is DevFerry ferry 
                 && msg.o2 is SocketConnectStatusE conn
-                && msg.o3 is bool working)
+                && msg.o3 is bool working
+                && msg.o4 is uint uptraid
+                && msg.o5 is uint downtraid)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -128,7 +130,7 @@ namespace wcs.ViewModel
                         };
                         DeviceList.Add(view);
                     }
-                    view.Update(ferry, conn, working);
+                    view.Update(ferry, conn, working, uptraid, downtraid);
                 });
             }
         }

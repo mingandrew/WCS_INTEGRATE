@@ -160,13 +160,13 @@ namespace task.device
                             if (task.IsConnect && task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                             {
                                 //上砖测轨道ID 或 下砖测轨道ID
-                                if (task.UpTrackId == PubMaster.Track.GetTrackId((ushort)task.AreaId, task.DevStatus.TargetSite) && task.IsUpLight)
+                                if (task.IsUpLight && task.UpTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
                                 {
                                     task.DoStop();
                                     Thread.Sleep(1000);
                                 }
 
-                                if (task.DownTrackId == PubMaster.Track.GetTrackId((ushort)task.AreaId, task.DevStatus.TargetSite) && task.IsDownLight)
+                                if (task.IsDownLight && task.DownTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
                                 {
                                     task.DoStop();
                                     Thread.Sleep(1000);
@@ -995,7 +995,7 @@ namespace task.device
                 // 其一摆渡当前轨道顺序
                 short otherOrder = PubMaster.Track.GetTrack(otherTrackId)?.order ?? 0;
                 // 其一摆渡目的轨道顺序
-                short otherToOrder = PubMaster.Track.GetTrackByPoint((ushort)other.AreaId, other.DevStatus.TargetSite)?.order ?? 0;
+                short otherToOrder = PubMaster.Track.GetTrackByPoint((ushort)other.AreaId, other.Type, other.DevStatus.TargetSite)?.order ?? 0;
 
                 // 锁定任务的目的轨道
                 if (otherToOrder == 0 && other.IsLock && other.TransId != 0)
@@ -1044,7 +1044,7 @@ namespace task.device
 
                     if (isAdd)
                     {
-                        uint standbyTraID = PubMaster.Track.GetTrackIDByOrder((ushort)other.AreaId, standbyOrder);
+                        uint standbyTraID = PubMaster.Track.GetTrackIDByOrder((ushort)other.AreaId, other.Type, standbyOrder);
                         // 加入交管
                         PubTask.TrafficControl.AddTrafficControl(new TrafficControl()
                         {
@@ -1084,6 +1084,8 @@ namespace task.device
                     mMsg.o1 = ferry;
                     mMsg.o2 = task.ConnStatus;
                     mMsg.o3 = task.IsWorking;
+                    mMsg.o4 = task.UpTrackId;
+                    mMsg.o5 = task.DownTrackId;
                     Messenger.Default.Send(mMsg, MsgToken.FerryStatusUpdate);
                 }
                 finally

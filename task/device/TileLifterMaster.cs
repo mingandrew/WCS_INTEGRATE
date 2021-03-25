@@ -765,7 +765,7 @@ namespace task.device
             {
                 try
                 {
-                    foreach (TileLifterTask t in DevList.FindAll(c => c.DevConfig.last_track_id == takeid))
+                    foreach (TileLifterTask t in DevList.FindAll(c => c.DevConfig.last_track_id == takeid && c.Type == DeviceTypeE.上砖机))
                     {
                         PubMaster.DevConfig.SetLastTrackId(t.ID, 0);
                     }
@@ -901,6 +901,89 @@ namespace task.device
                 {
                     //结束备用
                     PubMaster.DevConfig.StopBackupTileLifter(task.ID, task.DevStatus.Load1 || task.DevStatus.Load2);
+                }
+            }
+
+            #endregion
+
+            #region[自动离开]
+
+            //工位1
+            if(!task.IsNeed_1 && task.IsInvo_1)
+            {
+                bool isOK = false;
+                switch (task.DevConfig.WorkMode)
+                {
+                    case TileWorkModeE.上砖:
+                        isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.left_track_id);
+                        break;
+                    case TileWorkModeE.下砖:
+                        isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id);
+                        break;
+                    default:
+                        break;
+                }
+                //没有需求但是介入状态 同时:轨道没有车/有车无货
+                if (task.IsInvo_1 && isOK
+                    && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_1, 15, 10))
+                {
+                    if (task.HaveBrother)
+                    {
+                        Thread.Sleep(1000);
+                        task.Do1Invo(DevLifterInvolE.离开);
+                    }
+                    else
+                    {
+                        TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
+                        if (bro == null || (bro != null && !bro.IsNeed_1))
+                        {
+                            Thread.Sleep(1000);
+                            task.Do1Invo(DevLifterInvolE.离开);
+                        }
+                    }
+                }
+            }
+
+            //工位2
+            if (!task.IsNeed_2 && task.IsTwoTrack && task.IsInvo_2)
+            {
+                bool isOK = false;
+                if (task.DevConfig.right_track_id == 0)
+                {
+                    isOK = true;
+                }
+                else
+                {
+                    switch (task.DevConfig.WorkMode)
+                    {
+                        case TileWorkModeE.上砖:
+                            isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.right_track_id);
+                            break;
+                        case TileWorkModeE.下砖:
+                            isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                //没有需求但是介入状态 同时:轨道没有车/有车无货
+                if (task.DevConfig.right_track_id == 0
+                    || (isOK && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_2, 15, 10)))
+                {
+                    if (task.HaveBrother)
+                    {
+                        Thread.Sleep(1000);
+                        task.Do2Invo(DevLifterInvolE.离开);
+                    }
+                    else
+                    {
+                        TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
+                        if (bro == null || (bro != null && !bro.IsNeed_2))
+                        {
+                            Thread.Sleep(1000);
+                            task.Do2Invo(DevLifterInvolE.离开);
+                        }
+                    }
                 }
             }
 

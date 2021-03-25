@@ -100,6 +100,11 @@ namespace resource.track
             return TrackList.Find(c => c.area == area && c.IsInTrack(trackrfid));
         }
 
+        public Track GetTrackByPoint(ushort area, List<TrackTypeE> types, ushort trackrfid)
+        {
+            return TrackList.Find(c => c.area == area && types.Contains(c.Type) && c.IsInTrack(trackrfid));
+        }
+
         public TrackTypeE GetTrackType(ushort area, ushort trackrfid)
         {
             return TrackList.Find(c => c.area == area && c.IsInTrack(trackrfid)).Type;
@@ -146,6 +151,27 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 获取区域轨道
+        /// </summary>
+        /// <param name="devid">设备ID</param>
+        /// <param name="area">区域ID</param>
+        /// <param name="site">工位</param>
+        /// <returns></returns>
+        public uint GetAreaTrack(uint devid, ushort area, DeviceTypeE type, ushort site)
+        {
+            if (site == 0) return 0;
+            if(type == DeviceTypeE.上摆渡)
+            {
+                return TrackList.Find(c => c.area == area
+                                        && (c.Type == TrackTypeE.上砖轨道 || c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入)
+                                        && c.IsInTrack(site))?.id ?? 0;
+            }
+            return TrackList.Find(c => c.area == area
+                                    && (c.Type == TrackTypeE.下砖轨道 || c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出入)
+                                    && c.IsInTrack(site))?.id ?? 0;
+        }
+
+        /// <summary>
         /// 获取轨道名称
         /// </summary>
         /// <param name="devid">设备ID</param>
@@ -154,9 +180,12 @@ namespace resource.track
         public string GetTrackName(uint devid, ushort site)
         {
             if (site == 0) return "";
-            List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
-            return TrackList.Find(c => c.IsInTrack(site)
-                                    && list.Exists(d => d.track_id == c.id))?.name ?? site+"";
+            //List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
+            uint areaid = PubMaster.Device.GetDeviceArea(devid);
+            return TrackList.Find(c =>c.area == areaid
+                                    && c.IsInTrack(site)
+                                    //&& list.Exists(d => d.track_id == c.id)
+                                    )?.name ?? site+"";
         }
 
         /// <summary>
@@ -360,10 +389,15 @@ namespace resource.track
         /// 根据order查找对应的储砖轨道ID
         /// </summary>
         /// <returns></returns>
-        public uint GetTrackIDByOrder(ushort area, int order)
+        public uint GetTrackIDByOrder(ushort area, DeviceTypeE type, int order)
         {
+            if(type == DeviceTypeE.上摆渡)
+            {
+                return TrackList.Find(c => c.area == area && c.order == order &&
+                            (c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入))?.id ?? 0;
+            }
             return TrackList.Find(c => c.area == area && c.order == order &&
-            (c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入))?.id ?? 0;
+            (c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出入))?.id ?? 0;
         }
 
         /// <summary>
@@ -1039,6 +1073,17 @@ namespace resource.track
                 list.Sort((x, y) => x.stock_status.CompareTo(y.stock_status));
             }
             return list;
+        }
+
+        public Track GetTrackByPoint(ushort area, DeviceTypeE type, ushort site)
+        {
+            if (site == 0) return null;
+            if(type == DeviceTypeE.上摆渡)
+            {
+                return GetTrackByPoint(area, new List<TrackTypeE>() { TrackTypeE.储砖_出, TrackTypeE.储砖_出入 }, site);
+            }
+
+            return GetTrackByPoint(area, new List<TrackTypeE>() { TrackTypeE.储砖_入, TrackTypeE.储砖_出入 }, site);
         }
 
         public bool IsTrackFree(uint trackid)

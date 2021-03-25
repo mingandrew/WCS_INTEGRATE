@@ -44,6 +44,9 @@ namespace module.window.device
         private bool downlight;       //上砖侧光电
         private bool uplight;     //下砖侧光电
         private byte reserve;       //预留
+
+        private uint uptraid;
+        private uint downtraid;
         #endregion
 
         #region[属性]
@@ -116,11 +119,22 @@ namespace module.window.device
             set => Set(ref reserve, value);
             get => reserve;
         }
+
+        public uint UpTrackId
+        {
+            get => uptraid;
+            set => Set(ref uptraid, value);
+        }
+        public uint DownTrackId
+        {
+            get => downtraid;
+            set => Set(ref downtraid, value);
+        }
         #endregion
 
         #region[更新数据]
 
-        internal void Update(DevFerry st, SocketConnectStatusE conn, bool working)
+        internal void Update(DevFerry st, SocketConnectStatusE conn, bool working, uint uptraid, uint downtraid)
         {
             DeviceID = st.DeviceID;
             DeviceStatus = st.DeviceStatus;
