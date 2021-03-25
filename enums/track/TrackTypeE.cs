@@ -79,4 +79,12 @@
         空轨道 = 1,
         满轨道 = 2
     }
+
+
+    public enum TrackRelationE
+    {
+        主 = 1,
+        从 = 2
+    }
+
 }

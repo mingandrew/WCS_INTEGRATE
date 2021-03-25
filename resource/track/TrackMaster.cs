@@ -117,6 +117,44 @@ namespace resource.track
             return GetTrackByCode(site)?.id ?? 0;
         }
 
+        /// <summary>
+        /// 获取对应并联轨道ID
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public uint GetRelationTrackId(uint trackid, out TrackRelationE tr)
+        {
+            if (trackid == 0)
+            {
+                tr = TrackRelationE.从;
+                return 0;
+            }
+
+            uint relation = TrackList.Find(c => c.id == trackid)?.relation ?? 0;
+            if (relation == 0)
+            {
+                // 找 主
+                tr = TrackRelationE.主;
+                return TrackList.Find(c => c.id != trackid && c.relation == trackid)?.id ?? 0;
+            }
+            else
+            {
+                // 找 从
+                tr = TrackRelationE.从;
+                return TrackList.Find(c => c.id != trackid && c.id == relation)?.id ?? 0;
+            }
+        }
+
+        /// <summary>
+        /// 是否为并联轨道 主轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsTrackRelationMain(uint trackid)
+        {
+            return TrackList.Exists(c => c.id == trackid && c.relation > 0);
+        }
+
         public bool IsTrackWithCode(uint take_track_id, ushort taketrackcode)
         {
             return TrackList.Exists(c => c.id == take_track_id && c.IsInTrack(taketrackcode));

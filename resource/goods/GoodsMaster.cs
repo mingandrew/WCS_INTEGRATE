@@ -1310,6 +1310,23 @@ namespace resource.goods
                 SortSumList();
             }
         }
+
+        /// <summary>
+        /// 获取底部最近的库存品种信息
+        /// </summary>
+        /// <param name="traid"></param>
+        /// <returns></returns>
+        public uint GetLastStockGid(uint traid)
+        {
+            List<Stock> list = StockList.FindAll(c => c.track_id == traid);
+            if (list.Count > 0)
+            {
+                list.Sort((x, y) => x.pos.CompareTo(y.pos));
+                return list[list.Count - 1].goods_id;
+            }
+            return 0;
+        }
+
         #endregion
 
         #region[排序]
@@ -1398,6 +1415,64 @@ namespace resource.goods
         }
 
         /// <summary>
+        /// 极限混砖：获取所有可放轨道
+        /// 1.没空轨道
+        /// 2.砖机品种没有对应品种的未满轨道
+        /// 3.分配其他砖机品种轨道以外的非满轨道 
+        /// 4.优先放库存数量多的轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="devid"></param>
+        /// <param name="traids"></param>
+        /// <returns></returns>
+        public bool AllocateLimitGiveTrack(uint areaid, uint devid, uint goodsid, out List<uint> traids)
+        {
+            List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            traids = new List<uint>();
+
+            int storecount = 0;
+            List<TrackStoreCount> trackstores = new List<TrackStoreCount>();
+            foreach (AreaDeviceTrack adt in list)
+            {
+                //是否是储砖轨道
+                if (!PubMaster.Track.IsStoreGiveTrack(adt.track_id)) continue;
+
+                //轨道是否启用
+                if (!PubMaster.Track.IsTrackEnable(adt.track_id, TrackStatusE.仅下砖)) continue;
+
+                //轨道满否
+                if (PubMaster.Track.IsTrackFull(adt.track_id)) continue;
+
+                //[可以放任何品种] 空轨道，轨道没有库存
+                if (PubMaster.Track.IsEmtpy(adt.track_id)
+                    && IsTrackStockEmpty(adt.track_id)
+                    && IsTrackOkForGoods(adt.track_id, goodsid))
+                {
+                    traids.Add(adt.track_id);
+                }
+                else if (IsTrackOkForGoods(adt.track_id, goodsid))//未满能放
+                {
+                    storecount = StockList.Count(c => c.track_id == adt.track_id);
+                    trackstores.Add(new TrackStoreCount()
+                    {
+                        trackid = adt.track_id,
+                        storecount = (uint)storecount
+                    });
+                }
+            }
+
+            if (trackstores.Count > 0)
+            {
+                trackstores.Sort((x, y) => y.storecount.CompareTo(x.storecount));
+                foreach (TrackStoreCount item in trackstores)
+                {
+                    traids.Add(item.trackid);
+                }
+            }
+            return traids.Count > 0;
+        }
+
+        /// <summary>
         /// 判断轨道
         /// 1.已存同品种
         /// 2.轨道为到达满砖数量
@@ -1405,7 +1480,7 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="goodsid"></param>
         /// <returns></returns>
-        private bool IsTrackFineToStore(uint trackid, uint goodsid, out uint storecount)
+        public bool IsTrackFineToStore(uint trackid, uint goodsid, out uint storecount)
         {
             //bool isok = StockList.Exists(c => c.track_id == trackid && c.goods_id == goodsid);
             //找轨道最后一车库存出来，然后判断最后一车库存的品种跟当前的是否一致

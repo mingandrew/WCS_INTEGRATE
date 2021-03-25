@@ -59,8 +59,8 @@
                         <MenuItem Header="离开-1" Tag="7" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="介入-2" Tag="8" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="离开-2" Tag="9" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="修改策略" Tag="10" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="设置优先上砖轨道" Tag="11" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <!--<MenuItem Header="修改策略" Tag="10" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
+                        <!--<MenuItem Header="设置优先上砖轨道" Tag="11" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
                         <MenuItem Header="忽略-1" Tag="12" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="忽略-2" Tag="13" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="转产操作" Tag="14" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />

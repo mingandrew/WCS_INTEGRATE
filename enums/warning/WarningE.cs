@@ -30,6 +30,8 @@
         CarrierSortButStop,//倒库小车任务终止，需要手动发送倒库
         TileMixLastTrackInTrans,//砖机混砖作业，轨道被占用
 
+        TileMultipleLastTrackInTrans,//砖机并联轨道作业，轨道被占用
+
         TileGoodsIsZero,  //砖机工位品种反馈异常
         TileGoodsIsNull,  //砖机工位品种没有配置
     }

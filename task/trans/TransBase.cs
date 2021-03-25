@@ -161,7 +161,24 @@ namespace task.trans
             }
         }
 
-        public void AddTransWithoutLock(uint areaid, uint lifterid, TransTypeE type,
+        public uint AddTransOutID(uint areaid, uint lifterid, TransTypeE type, uint goodsid, uint stocksid, uint taketrackid, uint givetrackid)
+        {
+            uint transid = 0;
+            if (Monitor.TryEnter(_for, TimeSpan.FromSeconds(10)))
+            {
+                try
+                {
+                    transid = AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid);
+                }
+                finally
+                {
+                    Monitor.Exit(_for);
+                }
+            }
+            return transid;
+        }
+
+        public uint AddTransWithoutLock(uint areaid, uint lifterid, TransTypeE type,
                                         uint goodsid, uint stocksid,
                                         uint taketrackid, uint givetrackid,
                                         TransStatusE initstatus = TransStatusE.调度设备,
@@ -197,6 +214,7 @@ namespace task.trans
             }
             catch { }
 
+            return newid;
         }
 
         internal void SetStatus(StockTrans trans, TransStatusE status, string memo = "")

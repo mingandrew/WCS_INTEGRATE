@@ -37,6 +37,11 @@ namespace module.track
         public DateTime? full_time { set; get; }//满砖时间
         public bool same_side_inout { set; get; }//是否同侧出入库
 
+        /// <summary>
+        /// 并联关系
+        /// </summary>
+        public uint relation { set; get; }
+
         public TrackTypeE Type
         {
             get => (TrackTypeE)type;
