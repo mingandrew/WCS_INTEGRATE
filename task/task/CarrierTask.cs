@@ -90,7 +90,7 @@ namespace task.device
         /// <summary>
         /// 目的RFID
         /// </summary>
-        public ushort TargetPoint
+        public ushort TargetSite
         {
             get => DevStatus?.TargetSite ?? 0;
         }
@@ -98,7 +98,7 @@ namespace task.device
         /// <summary>
         /// 目的坐标
         /// </summary>
-        public ushort TargetSite
+        public ushort TargetPoint
         {
             get => DevStatus?.TargetPoint ?? 0;
         }
@@ -324,11 +324,11 @@ namespace task.device
         {
             CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentSite, CurrentPoint);
 
-            TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetPoint, TargetSite);
+            TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetSite, TargetPoint);
 
             DevStatus.CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentSite, CurrentPoint);
 
-            DevStatus.TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetPoint, TargetSite);
+            DevStatus.TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetSite, TargetPoint);
         }
 
         #endregion

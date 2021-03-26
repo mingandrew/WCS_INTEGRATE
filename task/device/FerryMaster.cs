@@ -1338,7 +1338,7 @@ namespace task.device
                                         short taskLockedCurrentOrder = PubMaster.Track.GetTrack(taskLockedTrackId)?.order ?? 0;
 
                                         //上锁摆渡车的目的轨道的位置顺序
-                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackByPoint((ushort)fLocked.AreaId, fLocked.DevStatus.TargetSite)?.order ?? 0;
+                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackByPoint((ushort)fLocked.AreaId, fLocked.Type, fLocked.DevStatus.TargetSite)?.order ?? 0;
 
                                         if ((leftCompare < taskLockedCurrentOrder && taskLockedCurrentOrder < rightCompare)
                                                || (leftCompare < taskLockedTargetOrder && taskLockedTargetOrder < rightCompare))

@@ -102,13 +102,13 @@ namespace task.device
                         {
                             if (task.IsEnable && task.IsConnect)
                             {
-                                if (task.TargetPoint != 0)
+                                if (task.TargetSite != 0)
                                 {
-                                    TrackTypeE tt = PubMaster.Track.GetTrackType((ushort)task.AreaId, task.TargetPoint);
+                                    TrackTypeE tt = PubMaster.Track.GetTrackType((ushort)task.AreaId, task.TargetSite);
                                     if (tt == TrackTypeE.摆渡车_入 || tt == TrackTypeE.摆渡车_出)
                                     {
                                         // 判断是否有摆渡车
-                                        if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetPoint, out string result, true))
+                                        if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetSite, out string result, true))
                                         {
                                             task.DoStop();
                                             Thread.Sleep(500);
