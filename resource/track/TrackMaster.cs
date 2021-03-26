@@ -247,11 +247,11 @@ namespace resource.track
                 return false;
             }
 
-            if (track.TrackStatus == trackstatus)
-            {
-                result = "不用修改";
-                return false;
-            }
+            //if (track.TrackStatus == trackstatus)
+            //{
+            //    result = "不用修改";
+            //    return false;
+            //}
 
             if (track.Type != TrackTypeE.储砖_出入 && (trackstatus == TrackStatusE.仅上砖 || trackstatus == TrackStatusE.仅下砖))
             {
@@ -389,7 +389,20 @@ namespace resource.track
                     return;
                 }
 
-                //if (track.Status == TrackGoodStatusE.满砖 && status == TrackGoodStatusE.有砖) return;
+
+                #region 并联轨道同时更改
+                // 获取当前轨道对应并联的轨道
+                uint relatra = PubMaster.Track.GetRelationTrackId(track.id, out TrackRelationE tr);
+                if (relatra > 0)
+                {
+                    Track relatrack = GetTrack(relatra);
+                    if (relatrack.StockStatus != status)
+                    {
+
+                    }
+                }
+                #endregion
+
                 if (track.StockStatus == status) return;
                 try
                 {
@@ -411,8 +424,35 @@ namespace resource.track
 
         internal void UpdateTrackStatus(Track track, TrackStatusE trackstatus, string memo)
         {
-            if (track != null && track.TrackStatus != trackstatus)
+            if (track != null)
             {
+                if (trackstatus != TrackStatusE.倒库中)
+                {
+                    #region 并联轨道同时更改
+                    // 获取当前轨道对应并联的轨道
+                    uint relatra = PubMaster.Track.GetRelationTrackId(track.id, out TrackRelationE tr);
+                    if (relatra > 0)
+                    {
+                        Track relatrack = GetTrack(relatra);
+                        if (relatrack.TrackStatus != trackstatus)
+                        {
+                            mLog.Status(true, string.Format("轨道；{0}，原状：{1}，新状：{2} , {3}", relatrack.name, relatrack.TrackStatus, trackstatus, memo));
+                            relatrack.TrackStatus = trackstatus;
+                            PubMaster.Mod.TraSql.EditTrack(relatrack, TrackUpdateE.TrackStatus);
+                            if (trackstatus == TrackStatusE.停用 && relatrack.early_full)
+                            {
+                                SetTrackEaryFull(relatrack.id, false, null);
+                            }
+                            else
+                            {
+                                SendMsg(relatrack);
+                            }
+                        }
+                    }
+                    #endregion
+                }
+
+                if (track.TrackStatus == trackstatus) return;
                 mLog.Status(true, string.Format("轨道；{0}，原状：{1}，新状：{2} , {3}", track.name, track.TrackStatus, trackstatus, memo));
                 track.TrackStatus = trackstatus;
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.TrackStatus);
@@ -420,7 +460,10 @@ namespace resource.track
                 {
                     SetTrackEaryFull(track.id, false, null);
                 }
-                SendMsg(track);
+                else
+                {
+                    SendMsg(track);
+                }
             }
         }
 

@@ -38,7 +38,7 @@ namespace module.track
         public bool same_side_inout { set; get; }//是否同侧出入库
 
         /// <summary>
-        /// 并联关系
+        /// 并联轨道 从 ID
         /// </summary>
         public uint relation { set; get; }
 

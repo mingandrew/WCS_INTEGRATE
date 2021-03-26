@@ -737,7 +737,15 @@ namespace task.device
                 {
                     foreach (TileLifterTask t in DevList.FindAll(c => c.DevConfig.last_track_id == takeid))
                     {
-                        PubMaster.DevConfig.SetLastTrackId(t.ID, 0);
+                        if (t.DevConfig.WorkType == DevWorkTypeE.并联作业)
+                        {
+                            continue;
+                        }
+
+                        if (t.DevConfig.WorkMode == TileWorkModeE.上砖)
+                        {
+                            PubMaster.DevConfig.SetLastTrackId(t.ID, 0);
+                        }
                     }
                 }
                 finally { Monitor.Exit(_obj); }

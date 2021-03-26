@@ -80,7 +80,9 @@
         满轨道 = 2
     }
 
-
+    /// <summary>
+    /// 并联轨道主从类别
+    /// </summary>
     public enum TrackRelationE
     {
         主 = 1,
