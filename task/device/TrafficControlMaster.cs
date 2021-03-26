@@ -344,11 +344,11 @@ namespace task.device
             }
 
             // 当前轨道顺序
-            short Norder = PubMaster.Track.GetTrack(nowTraid)?.order ?? 0;
+            short Norder = PubMaster.Track.GetTrackOrder(nowTraid);
             // 起始轨道顺序
-            short Forder = PubMaster.Track.GetTrack(fromTraid)?.order ?? 0;
+            short Forder = PubMaster.Track.GetTrackOrder(fromTraid);
             // 结束轨道顺序
-            short Torder = PubMaster.Track.GetTrack(toTraid)?.order ?? 0;
+            short Torder = PubMaster.Track.GetTrackOrder(toTraid);
 
             if (Norder == 0 || Forder == 0 || Torder == 0)
             {

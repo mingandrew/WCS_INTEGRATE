@@ -954,9 +954,9 @@ namespace task.device
             // 当前轨道ID
             uint TrackId = task.GetFerryCurrentTrackId();
             // 当前摆渡车对着的轨道的顺序
-            short fromOrder = PubMaster.Track.GetTrack(TrackId)?.order ?? 0;
+            short fromOrder = PubMaster.Track.GetTrackOrder(TrackId);
             // 目的轨道顺序
-            short toOrder = PubMaster.Track.GetTrack(to_track_id)?.order ?? 0;
+            short toOrder = PubMaster.Track.GetTrackOrder(to_track_id);
 
             if (fromOrder == 0 || toOrder == 0)
             {
@@ -993,7 +993,7 @@ namespace task.device
                 // 其一摆渡当前轨道ID
                 uint otherTrackId = other.GetFerryCurrentTrackId();
                 // 其一摆渡当前轨道顺序
-                short otherOrder = PubMaster.Track.GetTrack(otherTrackId)?.order ?? 0;
+                short otherOrder = PubMaster.Track.GetTrackOrder(otherTrackId);
                 // 其一摆渡目的轨道顺序
                 short otherToOrder = PubMaster.Track.GetTrackByPoint((ushort)other.AreaId, other.Type, other.DevStatus.TargetSite)?.order ?? 0;
 
@@ -1001,7 +1001,7 @@ namespace task.device
                 if (otherToOrder == 0 && other.IsLock && other.TransId != 0)
                 {
                     uint otherToTrackId = PubTask.Trans.GetRecordTraID(other.TransId);
-                    otherToOrder = PubMaster.Track.GetTrack(otherToTrackId)?.order ?? 0;
+                    otherToOrder = PubMaster.Track.GetTrackOrder(otherToTrackId);
                 }
 
                 // 确认是否已被交管
@@ -1303,7 +1303,7 @@ namespace task.device
                                     uint taskUnLockedTrackId = fUnLocked.GetFerryCurrentTrackId();
 
                                     //摆渡车的当前轨道的顺序
-                                    short taskUnLockedCurrentOrder = PubMaster.Track.GetTrack(taskUnLockedTrackId)?.order ?? 0;
+                                    short taskUnLockedCurrentOrder = PubMaster.Track.GetTrackOrder(taskUnLockedTrackId);
 
                                     int leftCompare, rightCompare;
                                     if (taskUnLockedCurrentOrder >= carrierTrackOrder)
@@ -1335,7 +1335,7 @@ namespace task.device
                                         uint taskLockedTrackId = fLocked.GetFerryCurrentTrackId();
 
                                         //上锁摆渡车的当前轨道的顺序
-                                        short taskLockedCurrentOrder = PubMaster.Track.GetTrack(taskLockedTrackId)?.order ?? 0;
+                                        short taskLockedCurrentOrder = PubMaster.Track.GetTrackOrder(taskLockedTrackId);
 
                                         //上锁摆渡车的目的轨道的位置顺序
                                         short taskLockedTargetOrder = PubMaster.Track.GetTrackByPoint((ushort)fLocked.AreaId, fLocked.Type, fLocked.DevStatus.TargetSite)?.order ?? 0;

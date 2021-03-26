@@ -1239,7 +1239,7 @@ namespace task.trans
                                             // 优先移动到空轨道
                                             List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
 
-                                            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrack(trans.take_track_id).order);
+                                            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
 
                                             foreach (uint t in tids)
                                             {
@@ -2610,7 +2610,7 @@ namespace task.trans
                                             // 优先移动到空轨道
                                             List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
 
-                                            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrack(trans.take_track_id).order);
+                                            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
 
                                             foreach (uint t in tids)
                                             {
@@ -3155,7 +3155,7 @@ namespace task.trans
                         // 优先移动到空轨道
                         List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
 
-                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, PubMaster.Track.GetTrack(trackid).order);
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, PubMaster.Track.GetTrackOrder(trackid));
 
                         List<AreaDeviceTrack> traone = PubMaster.Area.GetFerryTrackId(trackid);
                         foreach (uint t in tids)

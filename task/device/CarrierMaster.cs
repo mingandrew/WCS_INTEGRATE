@@ -1530,7 +1530,7 @@ namespace task.device
                 List<uint> trackids = PubMaster.Area.GetTileTrackIds(trans);
                 // 按离取货点近远排序
                 List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id,
-                    PubMaster.Track.GetTrack(trans.take_track_id).order);
+                    PubMaster.Track.GetTrackOrder(trans.take_track_id));
                 foreach (uint traid in tids)
                 {
                     if (!PubMaster.Track.IsStoreType(traid)) continue;

@@ -95,6 +95,16 @@ namespace resource.track
             return TrackList.Find(c => c.id == trackid);
         }
 
+        /// <summary>
+        /// 获取轨道位置相对顺序
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public short GetTrackOrder(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.order ?? 0;
+        }
+
         public Track GetTrackByPoint(ushort area, ushort trackrfid)
         {
             return TrackList.Find(c => c.area == area && c.IsInTrack(trackrfid));
