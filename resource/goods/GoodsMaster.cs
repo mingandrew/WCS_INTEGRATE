@@ -1475,7 +1475,7 @@ namespace resource.goods
         /// <summary>
         /// 判断轨道
         /// 1.已存同品种
-        /// 2.轨道为到达满砖数量
+        /// 2.轨道未到达满砖数量
         /// </summary>
         /// <param name="trackid"></param>
         /// <param name="goodsid"></param>

@@ -222,7 +222,7 @@
                     <DataGridTextColumn Binding="{Binding OperateMode}" Header="操作模式"/>
                     <DataGridTextColumn Binding="{Binding InStrategy}" Header="入库策略"/>
                     <DataGridTextColumn Binding="{Binding OutStrategy}" Header="出库策略"/>
-                    <DataGridTextColumn Binding="{Binding WorkType}" Header="出库" Visibility="Collapsed"/>
+                    <DataGridTextColumn Binding="{Binding WorkType}" Header="作业模式"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

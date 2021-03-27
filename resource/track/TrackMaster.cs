@@ -297,11 +297,36 @@ namespace resource.track
                 return false;
             }
 
-            if (track.StockStatus == goodstatus)
+            //if (track.StockStatus == goodstatus)
+            //{
+            //    result = "不用修改";
+            //    return false;
+            //}
+
+            #region 并联轨道判断
+            uint relatra = PubMaster.Track.GetRelationTrackId(track.id, out TrackRelationE tr);
+            if (relatra > 0)
             {
-                result = "不用修改";
-                return false;
+                Track relatrack = GetTrack(relatra);
+                if (relatrack == null)
+                {
+                    result = "找不到并联轨道的信息";
+                    return false;
+                }
+
+                if (goodstatus == TrackStockStatusE.空砖 && PubMaster.Goods.ExistStockInTrack(relatrack.id))
+                {
+                    result = "对应的并联轨道[ "+ relatrack .name+ " ]有库存记录";
+                    return false;
+                }
+
+                if (goodstatus != TrackStockStatusE.空砖 && !PubMaster.Goods.ExistStockInTrack(relatrack.id))
+                {
+                    result = "对应的并联轨道[ " + relatrack.name + " ]没有库存记录";
+                    return false;
+                }
             }
+            #endregion
 
             if (goodstatus == TrackStockStatusE.空砖 && PubMaster.Goods.ExistStockInTrack(trackid))
             {
@@ -309,7 +334,7 @@ namespace resource.track
                 return false;
             }
 
-            if (goodstatus == TrackStockStatusE.满砖 && !PubMaster.Goods.ExistStockInTrack(trackid))
+            if (goodstatus != TrackStockStatusE.空砖 && !PubMaster.Goods.ExistStockInTrack(trackid))
             {
                 result = "轨道没有库存记录";
                 return false;
@@ -389,7 +414,6 @@ namespace resource.track
                     return;
                 }
 
-
                 #region 并联轨道同时更改
                 // 获取当前轨道对应并联的轨道
                 uint relatra = PubMaster.Track.GetRelationTrackId(track.id, out TrackRelationE tr);
@@ -398,7 +422,57 @@ namespace resource.track
                     Track relatrack = GetTrack(relatra);
                     if (relatrack.StockStatus != status)
                     {
+                        bool isUpdate = true;
+                        switch (relatrack.Type)
+                        {
+                            case TrackTypeE.储砖_入:
+                            case TrackTypeE.储砖_出入:
+                                // 只能一起满，不能一起空
+                                if (status == TrackStockStatusE.空砖 && PubMaster.Goods.ExistStockInTrack(relatrack.id))
+                                {
+                                    isUpdate = false;
+                                }
+                                break;
+                            case TrackTypeE.储砖_出:
+                                // 不能一起满，不能一起空
+                                if (status == TrackStockStatusE.空砖)
+                                {
+                                    if (PubMaster.Goods.ExistStockInTrack(relatrack.id))
+                                    {
+                                        isUpdate = false;
+                                    }
+                                }
+                                else
+                                {
+                                    if (!PubMaster.Goods.ExistStockInTrack(relatrack.id))
+                                    {
+                                        isUpdate = false;
+                                    }
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        
+                        if (status == TrackStockStatusE.空砖 && PubMaster.Goods.ExistStockInTrack(relatrack.id))
+                        {
+                            isUpdate = false;
+                        }
 
+                        if (isUpdate)
+                        {
+                            mLog.Status(true, string.Format("轨道；{0}，原货：{1}，新货：{2} , {3}", relatrack.name, relatrack.StockStatus, status, memo));
+                            relatrack.StockStatus = status;
+                            PubMaster.Mod.TraSql.EditTrack(relatrack, TrackUpdateE.StockStatus);
+                            if (status == TrackStockStatusE.有砖 && relatrack.early_full)
+                            {
+                                SetTrackEaryFull(relatrack.id, false, null);
+                            }
+                            else
+                            {
+                                SendMsg(relatrack);
+                            }
+                        }
                     }
                 }
                 #endregion

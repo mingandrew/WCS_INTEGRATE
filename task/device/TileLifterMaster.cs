@@ -204,7 +204,7 @@ namespace task.device
                             }
                         }
 
-                        if(task.DevConfig.do_shift && task.DevConfig.WorkMode == TileWorkModeE.上砖)
+                        if (task.DevConfig.do_shift && task.DevConfig.WorkMode == TileWorkModeE.上砖)
                         {
                             task.DevConfig.do_shift = false;
                             PubMaster.Mod.DevConfigSql.EditConfigTileLifter(task.DevConfig);
@@ -854,7 +854,7 @@ namespace task.device
                                 break;
                             case DevWorkTypeE.并联作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.FullQty, out stockid);
-
+                                AddRelationTrackTransDown(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.DevConfig.last_track_id);
                                 break;
                         }
                     }
@@ -906,6 +906,9 @@ namespace task.device
                                 break;
                             case DevWorkTypeE.轨道作业:
                                 TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id);
+                                break;
+                            case DevWorkTypeE.并联作业:
+                                AddRelationTrackTransUp(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id);
                                 break;
                         }
                     }
@@ -1014,6 +1017,10 @@ namespace task.device
                                 AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.FullQty, out stockid);
                                 AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid);
                                 break;
+                            case DevWorkTypeE.并联作业:
+                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.FullQty, out stockid);
+                                AddRelationTrackTransDown(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.DevConfig.last_track_id);
+                                break;
                         }
                     }
 
@@ -1063,6 +1070,9 @@ namespace task.device
                                 break;
                             case DevWorkTypeE.轨道作业:
                                 TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id);
+                                break;
+                            case DevWorkTypeE.并联作业:
+                                AddRelationTrackTransUp(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id);
                                 break;
                         }
                     }
@@ -1218,30 +1228,28 @@ namespace task.device
             return DevList.Exists(c => c.Type == type && c.DevConfig.goods_id == goodid);
         }
 
+
+
+        #region 并联作业
         /// <summary>
         /// 并联下砖策略
         /// </summary>
-        private void AddRelationTrackTransDown(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, uint currentid)
+        private void AddRelationTrackTransDown(uint areaid, uint tileid, uint tiletrackid, uint goodsid, uint stockid, uint currentid)
         {
             if (stockid == 0) return;
+            uint givetrackid = 0;
 
             #region 并联轨道
             // 获取当前轨道对应并联的轨道
             uint relatra = PubMaster.Track.GetRelationTrackId(currentid, out TrackRelationE tr);
-
-            bool isCare = false;
             // 主轨道需要在意品种一致，从轨道不在意
-            if (tr == TrackRelationE.主 && !PubMaster.Goods.IsTrackFineToStore(relatra, goodid, out uint stkcount))
+            bool isOk = true;
+            if (tr == TrackRelationE.主 && !PubMaster.Goods.IsTrackFineToStore(relatra, goodsid, out uint stkcount))
             {
-                isCare = true;
+                isOk = false;
             }
 
-            uint givetrackid = 0;
-            uint lastgoodid = 0;
-
-            if (relatra != 0
-                && PubMaster.Track.IsStatusOkToGive(relatra)
-                && !isCare)
+            if (relatra != 0 && PubMaster.Track.IsStatusOkToGive(relatra) && isOk)
             {
                 if (PubTask.Trans.IsTraInTransWithLock(relatra))
                 {
@@ -1250,6 +1258,19 @@ namespace task.device
                 }
                 givetrackid = relatra;
             }
+
+            // 尝试用回原轨道
+            if (givetrackid == 0 && PubMaster.Track.IsStatusOkToGive(currentid) && isOk)
+            {
+                if (PubTask.Trans.IsTraInTransWithLock(currentid))
+                {
+                    PubMaster.Warn.AddDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid, 0, currentid);
+                    return;
+                }
+
+                givetrackid = currentid;
+            }
+
             PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid);
 
             #endregion
@@ -1257,7 +1278,7 @@ namespace task.device
             #region 常规分配
             if (givetrackid == 0)
             {
-                if (PubMaster.Goods.AllocateGiveTrack(areaid, tileid, goodid, out List<uint> traids))
+                if (PubMaster.Goods.AllocateGiveTrack(areaid, tileid, goodsid, out List<uint> traids))
                 {
                     foreach (uint traid in traids)
                     {
@@ -1272,10 +1293,11 @@ namespace task.device
             #endregion
 
             #region 极限混砖
+            uint lastgoodid = 0;
             bool islimitallocate = false;
             if (givetrackid == 0)
             {
-                if (PubMaster.Goods.AllocateLimitGiveTrack(areaid, tileid, goodid, out List<uint> stocktraids))
+                if (PubMaster.Goods.AllocateLimitGiveTrack(areaid, tileid, goodsid, out List<uint> stocktraids))
                 {
                     foreach (var traid in stocktraids)
                     {
@@ -1299,24 +1321,25 @@ namespace task.device
 
             bool isallocate = false;
             // 生成任务
-            if (givetrackid != 0)
+            if (givetrackid > 0)
             {
-                PubMaster.Track.UpdateRecentGood(givetrackid, goodid);
+                PubMaster.Track.UpdateRecentGood(givetrackid, goodsid);
                 PubMaster.Track.UpdateRecentTile(givetrackid, tileid);
                 // 重设当前执行轨道
                 PubMaster.DevConfig.SetLastTrackId(tileid, givetrackid);
                 //生成入库交易
-                uint transid = PubTask.Trans.AddTransOutID(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid);
+                uint transid = PubTask.Trans.AddTransOutID(areaid, tileid, TransTypeE.下砖任务, goodsid, stockid, tiletrackid, givetrackid);
 
                 if (islimitallocate)
                 {
                     mlog.Status(true, string.Format("极限混砖【砖机：{0}，{1}】【轨道：{2}，{3}】【任务：{4}】",
                                         PubMaster.Device.GetDeviceName(tileid),
-                                        PubMaster.Goods.GetGoodsName(goodid),
+                                        PubMaster.Goods.GetGoodsName(goodsid),
                                         PubMaster.Track.GetTrackName(givetrackid),
                                         PubMaster.Goods.GetGoodsName(lastgoodid),
                                         transid));
                 }
+                isallocate = true;
             }
 
             if (isallocate)
@@ -1332,7 +1355,7 @@ namespace task.device
         /// <summary>
         /// 并联上砖策略
         /// </summary>
-        private void AddRelationTrackTransUp(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint currentid)
+        private void AddRelationTrackTransUp(uint areaid, uint tileid, uint tiletrackid, uint goodsid, uint currentid)
         {
             uint stockid = 0;
             uint taketraid = 0;
@@ -1344,7 +1367,7 @@ namespace task.device
             if (relatraid > 0 && !PubTask.Trans.HaveInTileTrack(relatraid))
             {
                 stockid = PubMaster.Goods.GetTrackTopStockId(relatraid);
-                if (stockid != 0 && PubMaster.Goods.IsStockWithGood(stockid, goodid))
+                if (stockid != 0 && PubMaster.Goods.IsStockWithGood(stockid, goodsid))
                 {
                     taketraid = relatraid;
                 }
@@ -1359,7 +1382,7 @@ namespace task.device
             if (taketraid == 0 && currentid > 0 && !PubTask.Trans.HaveInTileTrack(currentid))
             {
                 stockid = PubMaster.Goods.GetTrackTopStockId(currentid);
-                if (stockid != 0 && PubMaster.Goods.IsStockWithGood(stockid, goodid))
+                if (stockid != 0 && PubMaster.Goods.IsStockWithGood(stockid, goodsid))
                 {
                     taketraid = currentid;
                 }
@@ -1372,10 +1395,36 @@ namespace task.device
 
             #endregion
 
+            #region 无库存 但不为空轨道
+            if (taketraid == 0)
+            {
+                if (PubMaster.Track.HaveTrackInGoodButNotStock(areaid, tileid, goodsid, out List<uint> trackids))
+                {
+                    foreach (uint tra in trackids)
+                    {
+                        if (!PubTask.Trans.HaveInTileTrack(tra))
+                        {
+                            stockid = PubMaster.Goods.GetTrackTopStockId(tra);
+                            //有库存但是不是砖机需要的品种
+                            if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goodsid))
+                            {
+                                PubMaster.Track.UpdateRecentTile(tra, 0);
+                                PubMaster.Track.UpdateRecentGood(tra, 0);
+                                continue;
+                            }
+
+                            taketraid = tra;
+                            break;
+                        }
+                    }
+                }
+            }
+            #endregion
+
             #region 根据库存寻找轨道
             if (taketraid == 0)
             {
-                if (PubMaster.Goods.GetStock(areaid, tileid, goodid, out List<Stock> allocatestocks))
+                if (PubMaster.Goods.GetStock(areaid, tileid, goodsid, out List<Stock> allocatestocks))
                 {
                     foreach (Stock stock in allocatestocks)
                     {
@@ -1398,14 +1447,14 @@ namespace task.device
                 if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                 {
                     //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, taketraid, tiletrackid);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodsid, stockid, taketraid, tiletrackid);
                 }
                 else
                 {
                     //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, taketraid, tiletrackid);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodsid, stockid, taketraid, tiletrackid);
                 }
-                PubMaster.Track.UpdateRecentGood(taketraid, goodid);
+                PubMaster.Track.UpdateRecentGood(taketraid, goodsid);
                 PubMaster.Track.UpdateRecentTile(taketraid, tileid);
                 // 重设当前执行轨道
                 PubMaster.DevConfig.SetLastTrackId(tileid, taketraid);
@@ -1422,6 +1471,9 @@ namespace task.device
                 PubMaster.Warn.AddDevWarn(WarningTypeE.UpTileHaveNotStockToOut, (ushort)tileid);
             }
         }
+
+        #endregion
+
 
         /// <summary>
         /// 新增库存
@@ -1911,7 +1963,7 @@ namespace task.device
             {
                 if (checkleft)
                 {
-                    if(!brotask.IsNeed_1 && !brotask.IsLoad_1 && !brotask.IsInvo_1)
+                    if (!brotask.IsNeed_1 && !brotask.IsLoad_1 && !brotask.IsInvo_1)
                     {
                         brotask.Do1Invo(DevLifterInvolE.介入);
                     }

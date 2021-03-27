@@ -303,6 +303,90 @@ namespace task.trans
                                         && (!PubMaster.Track.IsStatusOkToGive(trans.give_track_id)
                                         || PubTask.Carrier.HaveInTrackTopSide(trans.give_track_id, trans.carrier_id, false)))
                                     {
+                                        #region 并联作业
+                                        if (PubTask.TileLifter.GetTileLifter(trans.tilelifter_id).WorkType == DevWorkTypeE.并联作业)
+                                        {
+                                            #region 并联轨道
+                                            // 获取当前轨道对应并联的轨道
+                                            uint relatra = PubMaster.Track.GetRelationTrackId(trans.give_track_id, out TrackRelationE tr);
+                                            if (IsTraInTrans(relatra))
+                                            {
+                                                PubMaster.Warn.AddDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)trans.tilelifter_id, 0, relatra);
+                                                return;
+                                            }
+                                            else
+                                            {
+                                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)trans.tilelifter_id);
+                                            }
+
+                                            if (!PubTask.Carrier.HaveInTrack(relatra, trans.carrier_id)
+                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, relatra)
+                                                && PubTask.Carrier.IsTaskAndDoTask(trans.carrier_id, DevCarrierTaskE.终止)
+                                                && SetGiveSite(trans, relatra))
+                                            {
+                                                PubMaster.Track.UpdateRecentGood(trans.give_track_id, trans.goods_id);
+                                                PubMaster.Track.UpdateRecentTile(trans.give_track_id, trans.tilelifter_id);
+                                                return;
+                                            }
+                                            #endregion
+
+                                            #region 常规轨道
+                                            if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<uint> ts))
+                                            {
+                                                foreach (uint traid in ts)
+                                                {
+                                                    // 只判断主轨
+                                                    if (!PubMaster.Track.IsTrackRelationMain(traid)) continue;
+
+                                                    if (!IsTraInTrans(traid)
+                                                        && !PubTask.Carrier.HaveInTrack(traid, trans.carrier_id)
+                                                        && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, traid)
+                                                        && PubTask.Carrier.IsTaskAndDoTask(trans.carrier_id, DevCarrierTaskE.终止)
+                                                        && SetGiveSite(trans, traid))
+                                                    {
+                                                        PubMaster.Track.UpdateRecentGood(trans.give_track_id, trans.goods_id);
+                                                        PubMaster.Track.UpdateRecentTile(trans.give_track_id, trans.tilelifter_id);
+                                                        return;
+                                                    }
+                                                }
+                                            }
+                                            #endregion
+
+                                            #region 混砖轨道
+                                            if (PubMaster.Goods.AllocateLimitGiveTrack(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<uint> stocktraids))
+                                            {
+                                                uint lastgoodid = 0;
+                                                foreach (var traid in stocktraids)
+                                                {
+                                                    // 只判断主轨
+                                                    if (!PubMaster.Track.IsTrackRelationMain(traid)) continue;
+
+                                                    if (!IsTraInTrans(traid)
+                                                        && !PubTask.Carrier.HaveInTrack(traid, trans.carrier_id)
+                                                        && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, traid)
+                                                        && PubTask.Carrier.IsTaskAndDoTask(trans.carrier_id, DevCarrierTaskE.终止))
+                                                    {
+                                                        lastgoodid = PubMaster.Goods.GetLastStockGid(traid);
+                                                        if (lastgoodid > 0 && PubTask.TileLifter.IsHaveSameTileNowGood(lastgoodid, DeviceTypeE.下砖机))
+                                                        {
+                                                            continue;
+                                                        }
+
+                                                        if (SetGiveSite(trans, traid))
+                                                        {
+                                                            PubMaster.Track.UpdateRecentGood(trans.give_track_id, trans.goods_id);
+                                                            PubMaster.Track.UpdateRecentTile(trans.give_track_id, trans.tilelifter_id);
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            #endregion
+
+                                            return;
+                                        }
+                                        #endregion
+
                                         if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<uint> traids))
                                         {
                                             foreach (uint traid in traids)
@@ -1224,6 +1308,7 @@ namespace task.trans
                                             switch (type)
                                             {
                                                 case DevWorkTypeE.品种作业:
+                                                    #region 品种作业
                                                     // 1.查看当前作业轨道是否能作业
                                                     if (PubMaster.Track.HaveTrackInGoodFrist(trans.area_id, trans.tilelifter_id,
                                                         trans.goods_id, PubTask.TileLifter.GetTileCurrentTake(trans.tilelifter_id), out uint trackid)
@@ -1267,8 +1352,9 @@ namespace task.trans
                                                         }
                                                     }
                                                     break;
-
+                                                #endregion
                                                 case DevWorkTypeE.轨道作业:
+                                                    #region 轨道作业
                                                     List<TileTrack> tracks = PubMaster.TileTrack.GetTileTrack2Out(trans.tilelifter_id);
                                                     foreach (TileTrack tt in tracks)
                                                     {
@@ -1285,9 +1371,88 @@ namespace task.trans
                                                         break;
                                                     }
                                                     break;
+                                                #endregion
+                                                case DevWorkTypeE.并联作业:
+                                                    #region 并联作业
+
+                                                    #region 并联轨道
+                                                    uint stockid = 0;
+                                                    // 获取当前轨道对应并联的轨道
+                                                    uint relatraid = PubMaster.Track.GetRelationTrackId(trans.take_track_id, out TrackRelationE tr);
+                                                    // 判断对应并联轨道能否作业
+                                                    if (relatraid > 0)
+                                                    {
+                                                        stockid = PubMaster.Goods.GetTrackTopStockId(relatraid);
+                                                        if (stockid != 0 && PubMaster.Goods.IsStockWithGood(stockid, trans.goods_id))
+                                                        {
+                                                            if (!IsTraInTrans(relatraid) &&
+                                                                !PubTask.Carrier.HaveInTrack(relatraid, trans.carrier_id) &&
+                                                                PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, relatraid))
+                                                            {
+                                                                trans.finish_track_id = relatraid;
+                                                                isallocate = true;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    #endregion
+
+                                                    #region 无库存 但不为空轨道
+                                                    if (trans.finish_track_id == 0)
+                                                    {
+                                                        if (PubMaster.Track.HaveTrackInGoodButNotStock(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<uint> trackids))
+                                                        {
+                                                            foreach (uint tra in trackids)
+                                                            {
+                                                                stockid = PubMaster.Goods.GetTrackTopStockId(tra);
+                                                                //有库存但是不是砖机需要的品种
+                                                                if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, trans.goods_id))
+                                                                {
+                                                                    PubMaster.Track.UpdateRecentTile(tra, 0);
+                                                                    PubMaster.Track.UpdateRecentGood(tra, 0);
+                                                                    continue;
+                                                                }
+
+                                                                if (!IsTraInTrans(tra) &&
+                                                                    !PubTask.Carrier.HaveInTrack(tra, trans.carrier_id) &&
+                                                                    PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, tra))
+                                                                {
+                                                                    trans.finish_track_id = tra;
+                                                                    isallocate = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    #endregion
+
+                                                    #region 根据库存寻找轨道
+                                                    if (trans.finish_track_id == 0)
+                                                    {
+                                                        if (PubMaster.Goods.GetStock(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<Stock> allocatestocks))
+                                                        {
+                                                            foreach (Stock stock in allocatestocks)
+                                                            {
+                                                                if (!IsTraInTrans(stock.track_id) &&
+                                                                    !PubTask.Carrier.HaveInTrack(stock.track_id, trans.carrier_id) &&
+                                                                    PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, stock.track_id) &&
+                                                                    !PubTask.Trans.IsStockInTrans(stock.id, stock.track_id))
+                                                                {
+                                                                    trans.finish_track_id = stock.track_id;
+                                                                    isallocate = true;
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    #endregion
+
+                                                    #endregion
+                                                    break;
                                                 default:
                                                     break;
                                             }
+
                                             if (!isallocate)
                                             {
                                                 trans.finish_track_id = trans.take_track_id;
@@ -2570,6 +2735,15 @@ namespace task.trans
 
                 //if (PubTask.Carrier.HaveUnFinishSortCar(track.area)) continue;
 
+                #region 并联轨道同步生成倒库任务
+                // 获取当前轨道对应并联的轨道
+                uint relatraid = PubMaster.Track.GetRelationTrackId(track.id, out TrackRelationE tr);
+                if (relatraid > 0)
+                {
+                    CheckSortDetail(PubMaster.Track.GetTrack(relatraid));
+                }
+                #endregion
+
                 if (!PubMaster.Goods.ExistStockInTrack(track.id))
                 {
                     PubMaster.Warn.AddTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id, track.name);
@@ -2618,6 +2792,57 @@ namespace task.trans
             }
         }
 
+        private void CheckSortDetail(Track track)
+        {
+            if (track == null) return;
+
+            if (!PubMaster.Goods.ExistStockInTrack(track.id))
+            {
+                PubMaster.Warn.AddTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id, track.name);
+                return;
+            }
+            else
+            {
+                PubMaster.Warn.RemoveTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id);
+            }
+
+            if (TransList.Exists(c => !c.finish && (c.take_track_id == track.id
+                                    || c.give_track_id == track.id
+                                    || c.finish_track_id == track.id)))
+            {
+                return;
+            }
+
+            if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) return;
+
+            uint goodsid = PubMaster.Goods.GetGoodsId(track.id);
+
+            if (goodsid != 0)
+            {
+                if (!PubMaster.Goods.IsTrackOkForGoods(track.brother_track_id, goodsid))
+                {
+                    return;
+                }
+
+                uint stockid = PubMaster.Goods.GetTrackStockId(track.id);
+                if (stockid == 0) return;
+                uint tileid = PubMaster.Goods.GetStockTileId(stockid);
+
+                uint tileareaid = PubMaster.Area.GetAreaDevAreaId(tileid);
+
+                if (!PubMaster.Track.IsEarlyFullTimeOver(track.id))
+                {
+                    return;
+                }
+
+                PubMaster.Track.SetTrackEaryFull(track.id, false, null);
+
+                PubMaster.Track.SetSortTrackStatus(track.id, track.brother_track_id, TrackStatusE.启用, TrackStatusE.倒库中);
+                AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, stockid, track.id, track.brother_track_id
+                    , TransStatusE.检查轨道);
+            }
+        }
+
         private int HaveAreaSortTask(ushort area)
         {
             return TransList.Count(c => !c.finish && c.area_id == area && c.TransType == TransTypeE.倒库任务);
@@ -2637,33 +2862,29 @@ namespace task.trans
                 switch (movetype)
                 {
                     case MoveTypeE.转移占用轨道://优先到空轨道
+                        //优先最近轨道
+                        List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
 
-                        if (PubMaster.Track.IsTrackFree(track.right_track_id)
-                            && !IsTraInTrans(track.right_track_id)
-                            && !PubTask.Carrier.HaveInTrack(track.right_track_id))
-                        {
-                            givetrackid = track.right_track_id;
-                        }
-                        else if (PubMaster.Track.IsTrackFree(track.left_track_id)
-                            && !IsTraInTrans(track.left_track_id)
-                            && !PubTask.Carrier.HaveInTrack(track.right_track_id))
-                        {
-                            givetrackid = track.left_track_id;
-                        }
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, track.order);
 
-                        if (givetrackid == 0)
+                        foreach (uint t in tids)
                         {
-                            List<Track> tracklist = PubMaster.Track.GetTrackInTypeFree(track.area, totracktype);
-                            foreach (Track tra in tracklist)
+                            if (track.Type == TrackTypeE.储砖_入)
                             {
-                                if (!IsTraInTrans(tra.id)
-                                    && !PubTask.Carrier.HaveInTrack(tra.id))
-                                {
-                                    givetrackid = tra.id;
-                                    break;
-                                }
+                                // 获取当前轨道对应并联的轨道
+                                uint relatra = PubMaster.Track.GetRelationTrackId(t, out TrackRelationE tr);
+                                // 只判断主轨
+                                if (relatra > 0 && tr == TrackRelationE.从) continue;
+                            }
+
+                            if (!IsTraInTrans(t)               // PubMaster.Track.IsTrackFree(t)
+                                 && !PubTask.Carrier.HaveInTrack(t))
+                            {
+                                givetrackid = t;
+                                break;
                             }
                         }
+
                         break;
                     case MoveTypeE.释放摆渡车:
                         break;
