@@ -347,6 +347,9 @@ namespace task.rf
                     case FunTag.UserCheck:
                         GetUserPdaView(msg);
                         break;
+                    case FunTag.OperateCheck:
+                        GetOperateCheck(msg);
+                        break;
                     #endregion
 
                     #region[严重警告]
@@ -1018,6 +1021,26 @@ namespace task.rf
                 }
             }
         }
+
+        private void GetOperateCheck(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                LoginMsg login = JsonTool.Deserialize<LoginMsg>(msg.Pack.Data);
+                if (login != null)
+                {
+                    if (PubMaster.Role.CheckOperate(login.username, login.password, out string result))
+                    {
+                        SendSucc2Rf(msg.MEID, FunTag.OperateCheck, result);
+                    }
+                    else
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.OperateCheck, result);
+                    }
+                }
+            }
+        }
+
 
         #endregion
 

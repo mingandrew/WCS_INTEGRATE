@@ -287,6 +287,50 @@ namespace resource.role
             result = "";
             return false;
         }
+
+        public bool CheckOperate(string username, string password, out string result)
+        {
+            if (username == null || string.IsNullOrEmpty(username))
+            {
+                result = "用户名不能为空！";
+                return false;
+            }
+
+            if (password == null || string.IsNullOrEmpty(password))
+            {
+                result = "密码不能为空！";
+                return false;
+            }
+
+            WcsUser wcsuser = GetUser(username, password);
+            if (wcsuser == null)
+            {
+                result = "账号密码错误！";
+                return false;
+            }
+
+            WcsRole userrole = GetUserRole(username, password);
+            if (userrole == null)
+            {
+                result = "用户没有配置角色！";
+                return false;
+            }
+
+            if (userrole.menu_id == 0)
+            {
+                result = "用户角色没有配置菜单！";
+                return false;
+            }
+            if (userrole.menu_id == 2 || userrole.menu_id ==3)
+            {
+                result = "";
+                return true;
+            }
+
+            result = "";
+            return false;
+        }
+
         #endregion
 
         #region[角色管理]

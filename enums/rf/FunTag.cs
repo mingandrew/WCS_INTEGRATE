@@ -12,6 +12,7 @@
         public const string QueryVersion = nameof(QueryVersion);
         public const string InitVersion = nameof(InitVersion);
         public const string UserCheck = nameof(UserCheck);
+        public const string OperateCheck = nameof(OperateCheck);
         #endregion
 
         #region[数字字典]
