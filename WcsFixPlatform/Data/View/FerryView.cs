@@ -149,6 +149,8 @@ namespace module.window.device
             UpLight = st.UpLight;
             Reserve = st.Reserve;
             ConnStatus = conn;
+            UpTrackId = uptraid;
+            DownTrackId = downtraid;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
             Working = working;
         }
