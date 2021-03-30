@@ -322,6 +322,7 @@ namespace task.trans
                                             if (!PubTask.Carrier.HaveInTrack(relatra, trans.carrier_id)
                                                 && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, relatra)
                                                 && PubTask.Carrier.IsTaskAndDoTask(trans.carrier_id, DevCarrierTaskE.终止)
+                                                && PubMaster.Track.IsStatusOkToGive(trans.give_track_id) 
                                                 && SetGiveSite(trans, relatra))
                                             {
                                                 PubMaster.Track.UpdateRecentGood(trans.give_track_id, trans.goods_id);
@@ -2740,7 +2741,20 @@ namespace task.trans
                 uint relatraid = PubMaster.Track.GetRelationTrackId(track.id, out TrackRelationE tr);
                 if (relatraid > 0)
                 {
-                    CheckSortDetail(PubMaster.Track.GetTrack(relatraid));
+                    // 二者任一轨道被非倒库任务锁定都不能生成任务
+                    if (TransList.Exists(c=>!c.finish && c.TransType != TransTypeE.倒库任务 
+                            &&((c.take_track_id == track.id || c.give_track_id == track.id || c.finish_track_id == track.id) 
+                                || (c.take_track_id == relatraid || c.give_track_id == relatraid || c.finish_track_id == relatraid))
+                            ))
+                    {
+                        continue;
+                    }
+
+                    Track reTrack = PubMaster.Track.GetTrack(relatraid);
+                    if (reTrack.StockStatus == TrackStockStatusE.满砖)
+                    {
+                        CheckSortDetail(reTrack);
+                    }
                 }
                 #endregion
 

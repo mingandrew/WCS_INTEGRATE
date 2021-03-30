@@ -1431,6 +1431,29 @@ namespace task.device
                         if (!PubTask.Trans.IsStockInTrans(stock.id, stock.track_id)
                             && !PubTask.Trans.HaveInTileTrack(stock.track_id))
                         {
+                            #region 并联轨道也要满足条件
+                            relatraid = PubMaster.Track.GetRelationTrackId(stock.track_id, out tr);
+                            // 判断对应并联轨道能否作业
+                            if (relatraid > 0)
+                            {
+                                stockid = PubMaster.Goods.GetTrackTopStockId(relatraid);
+                                if (stockid != 0 
+                                    && !PubTask.Trans.IsStockInTrans(stock.id, stock.track_id)
+                                    && !PubTask.Trans.HaveInTileTrack(stock.track_id))
+                                {
+                                    stockid = stock.id;
+                                    taketraid = stock.track_id;
+                                    break;
+                                }
+                                else
+                                {
+                                    PubMaster.Track.UpdateRecentTile(relatraid, 0);
+                                    PubMaster.Track.UpdateRecentGood(relatraid, 0);
+                                }
+                                continue;
+                            }
+                            #endregion
+
                             stockid = stock.id;
                             taketraid = stock.track_id;
                             break;
