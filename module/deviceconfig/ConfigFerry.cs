@@ -21,10 +21,15 @@
         #region[模拟使用]
 
         /// <summary>
-        /// 摆渡车重启后默认对上的轨道
+        /// 摆渡车重启后默认左侧轨道
         /// </summary>
-        public ushort sim_last_point { set; get; }
+        public ushort sim_left_site { set; get; }
 
+
+        /// <summary>
+        /// 摆渡车重启后默认右侧轨道
+        /// </summary>
+        public ushort sim_right_site { set; get; }
         #endregion
     }
 }

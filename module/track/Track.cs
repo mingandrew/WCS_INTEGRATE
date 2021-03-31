@@ -168,5 +168,29 @@ namespace module.track
         {
             return Type != TrackTypeE.摆渡车_入 && Type != TrackTypeE.摆渡车_出;
         }
+
+        /// <summary>
+        /// 是否是上砖区域的轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsUpAreaTrack()
+        {
+            return Type == TrackTypeE.上砖轨道 || Type == TrackTypeE.储砖_出 || Type == TrackTypeE.储砖_出入 || Type == TrackTypeE.摆渡车_出;
+        }
+        
+        /// <summary>
+        /// 是否是下砖区域的轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsDownAreaTrack()
+        {
+            return Type == TrackTypeE.下砖轨道 || Type == TrackTypeE.储砖_入 || Type == TrackTypeE.储砖_出入 || Type == TrackTypeE.摆渡车_入;
+        }
+
+
+        public bool IsStoreTrack()
+        {
+            return Type == TrackTypeE.储砖_入 || Type == TrackTypeE.储砖_出 || Type == TrackTypeE.储砖_出入;
+        }
     }
 }

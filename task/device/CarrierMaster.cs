@@ -624,7 +624,7 @@ namespace task.device
             if (task.DevConfig.stock_id != 0)
             {
                 //根据小车当前的位置更新库存对应所在的轨道
-                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, "", task.ID);
+                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, task.CurrentOrder+"", task.ID);
             }
 
             #endregion
@@ -1005,12 +1005,17 @@ namespace task.device
                         break;
 
                     case DevCarrierTaskE.倒库:
-                        if (track.Type != TrackTypeE.储砖_出 && track.Type != TrackTypeE.储砖_出入 &&
-                            point != track.rfid_2) //最大定位RFID
+                        if (track.Type != TrackTypeE.储砖_出) //最大定位RFID
                         {
                             result = "须在出库轨道上执行！";
                             return false;
                         }
+
+                        if(!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
+                        {
+                            return false;
+                        }
+
                         order = DevCarrierOrderE.前进倒库;
                         checkTra = track.ferry_down_code;
                         moveCount = (byte)PubMaster.Goods.GetTrackStockCount(track.brother_track_id);
@@ -1306,13 +1311,22 @@ namespace task.device
             }
 
             #region[2.满砖轨道是否有车[空闲，无货]]
-            //if (carrier == null)
-            //{
-            //    carrier = DevList.Find(c => c.TrackId == trans.take_track_id);
-            //}
+            if (carrier == null)
+            {
+                carrier = DevList.Find(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
+            }
             #endregion
 
             #endregion
+            if (carrier != null
+                   && carrier.ConnStatus == SocketConnectStatusE.通信正常
+                   && carrier.OperateMode == DevOperateModeE.自动
+                   && (carrier.CurrentOrder == DevCarrierOrderE.前进倒库 
+                        || carrier.CurrentOrder == DevCarrierOrderE.后退倒库))
+            {
+                carrierid = carrier.ID;
+                return true;
+            }
 
             //前面找到车了，如果空闲则分配，否则等待
             if (carrier != null)

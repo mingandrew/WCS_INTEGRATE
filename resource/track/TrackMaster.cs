@@ -190,12 +190,22 @@ namespace resource.track
         public string GetTrackName(uint devid, ushort site)
         {
             if (site == 0) return "";
-            //List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
             uint areaid = PubMaster.Device.GetDeviceArea(devid);
-            return TrackList.Find(c =>c.area == areaid
-                                    && c.IsInTrack(site)
-                                    //&& list.Exists(d => d.track_id == c.id)
-                                    )?.name ?? site+"";
+            DeviceTypeE type = PubMaster.Device.GetDeviceType(devid);
+            switch (type)
+            {
+                case DeviceTypeE.上砖机:
+                case DeviceTypeE.上摆渡:
+                    return TrackList.Find(c => c.area == areaid && c.IsUpAreaTrack() && c.IsInTrack(site))?.name ?? site + "";
+                case DeviceTypeE.下砖机:
+                case DeviceTypeE.下摆渡:
+                    return TrackList.Find(c => c.area == areaid && c.IsDownAreaTrack() && c.IsInTrack(site))?.name ?? site + "";
+                case DeviceTypeE.砖机:
+                case DeviceTypeE.其他:
+                case DeviceTypeE.运输车:
+                default:
+                    return TrackList.Find(c => c.area == areaid && c.IsInTrack(site))?.name ?? site + "";
+            }
         }
 
         /// <summary>
@@ -563,7 +573,11 @@ namespace resource.track
             {
                 UpdateStockStatus(taketrackid, TrackStockStatusE.空砖, "倒库");
             }
-            UpdateStockStatus(givetrackid, TrackStockStatusE.满砖, "倒库");
+
+            if (PubMaster.Goods.ExistStockInTrack(givetrackid))
+            {
+                UpdateStockStatus(givetrackid, TrackStockStatusE.满砖, "倒库");
+            }
         }
 
         public void UpdateStockStatus(uint trackid, TrackStockStatusE status, string memo)

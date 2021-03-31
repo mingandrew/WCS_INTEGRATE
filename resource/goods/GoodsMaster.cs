@@ -984,7 +984,6 @@ namespace resource.goods
                     Track taketrack = PubMaster.Track.GetTrack(taketrackid);
                     if (givetrack != null && taketrack != null)
                     {
-
                         PubMaster.Track.ShiftTrack(taketrack.id, givetrack.id);
                         return true;
                     }
@@ -1137,12 +1136,9 @@ namespace resource.goods
             if (fromtrans) return;
 
             Stock stock = StockList.Find(c => c.id == stock_id);
-            if(stock != null && stock.track_id != to_track_id && to_track_id > 0)
+            if (stock != null && stock.track_id != to_track_id && to_track_id > 0)
             {
                 uint from_track_id = stock.track_id;
-
-                bool istostore = PubMaster.Track.IsStoreTrack(to_track_id);
-                bool isfromstore = PubMaster.Track.IsStoreTrack(from_track_id);
 
                 //更新库存统计信息
                 StockSumChange(stock, to_track_id);
@@ -1150,41 +1146,59 @@ namespace resource.goods
                 //更新轨道被转移后的轨道信息(区域，轨道ID，轨道类型)
                 Track totrack = PubMaster.Track.GetTrack(to_track_id);
                 Track fromtrack = PubMaster.Track.GetTrack(from_track_id);
-                stock.track_id = to_track_id;
-                stock.area = totrack.area;
-                stock.track_type = totrack.type;
 
+                #region[更新库存位置]
+
+                if (totrack != null)
+                {
+                    stock.track_id = to_track_id;
+                    stock.area = totrack.area;
+                    stock.track_type = totrack.type;
+                    PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Track);
+                }
+
+                #endregion
                 #region[更新储砖轨道]
 
                 //将库存 移入 储砖轨道
-                if (istostore)
+                if (totrack != null && totrack.IsStoreTrack())
                 {
                     UpdateTrackPos(stock, totrack);
                     PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Pos);
+
+                    if (totrack.StockStatus == TrackStockStatusE.空砖)
+                    {
+                        PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.有砖, memo);
+                    }
+
+                    if (!CheckCanAddStockQty(totrack.id, stock.goods_id, 1, out int _, out string _))
+                    {
+                        PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.满砖, memo);
+                    }
                 }
 
                 //从储砖轨道 移出 库存
-                if (isfromstore)
+                if (fromtrack != null && fromtrack.IsStoreTrack())
                 {
                     CheckStockTop(from_track_id);
 
                     if (fromtrack.StockStatus == TrackStockStatusE.满砖
                         && fromtrack.Type == TrackTypeE.储砖_出)
                     {
-                        PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.有砖, "");
+                        PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.有砖, memo);
+                    }
+
+                    if (!ExistStockInTrack(from_track_id))
+                    {
+                        PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.空砖, memo);
                     }
                 }
-
                 #endregion
-
-                PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Track);
-
-                PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.有砖, "");
 
                 try
                 {
                     AddStockLog(string.Format("【转移】轨道[ {0} -> {1} ], 库存[ {2} ], 备注[ {3} ]",
-                        fromtrack.name, totrack.name, stock.ToString(), memo));
+                        fromtrack?.name ?? from_track_id + "", totrack?.name ?? to_track_id + "", stock.ToString(), memo));
                 }
                 catch { }
 

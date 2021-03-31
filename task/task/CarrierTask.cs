@@ -188,7 +188,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 当前指令
+        /// 完成指令
         /// </summary>
         public DevCarrierOrderE FinishOrder
         {
@@ -196,7 +196,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 完成指令
+        /// 当前指令
         /// </summary>
         public DevCarrierOrderE CurrentOrder
         {

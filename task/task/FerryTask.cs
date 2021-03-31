@@ -50,8 +50,40 @@ namespace task.task
         {
             get => DevStatus?.DownSite ?? 0;
         }
-        public uint UpTrackId { set; get; }
-        public uint DownTrackId { set; get; }
+        private uint uptraid, downtraid;
+        public uint UpTrackId
+        {
+            get => uptraid;
+            set
+            {
+                if (uptraid != value)
+                {
+                    try
+                    {
+                        DevTcp.AddStatusLog(string.Format("上[ {0} ]", PubMaster.Track.GetTrackName(value)));
+                    }
+                    catch { }
+                }
+                uptraid = value;
+            }
+        }
+
+        public uint DownTrackId
+        {
+            get => downtraid;
+            set
+            {
+                if (downtraid != value)
+                {
+                    try
+                    {
+                        DevTcp.AddStatusLog(string.Format("下[ {0} ]", PubMaster.Track.GetTrackName(value)));
+                    }
+                    catch { }
+                }
+                downtraid = value;
+            }
+        }
 
         /// <summary>
         /// 摆渡轨道ID

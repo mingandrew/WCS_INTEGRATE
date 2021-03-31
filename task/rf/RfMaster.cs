@@ -894,22 +894,22 @@ namespace task.rf
                         ModulePic = "updowndev.png",
                         ModuleEntry="com.keda.wcsfixplatformapp.screen.rftrans.RfTransScreen"
                     }
-                    ,
-                    new ModuleView()
-                    {
-                        ModuleName="按轨上砖",
-                        ModuleId = "RFTILETRACK",
-                        ModulePic = "updowndev.png",
-                        ModuleEntry="com.keda.wcsfixplatformapp.screen.rftiletrack.RfTileTrackScreen"
-                    }
-                    ,
-                    new ModuleView()
-                    {
-                        ModuleName="切换模式",
-                        ModuleId = "RFTILEMODESHIFT",
-                        ModulePic = "updowndev.png",
-                        ModuleEntry="com.keda.wcsfixplatformapp.screen.rfworkmodechange.RfChangeWorkModeScreen"
-                    }
+                    //,
+                    //new ModuleView()
+                    //{
+                    //    ModuleName="按轨上砖",
+                    //    ModuleId = "RFTILETRACK",
+                    //    ModulePic = "updowndev.png",
+                    //    ModuleEntry="com.keda.wcsfixplatformapp.screen.rftiletrack.RfTileTrackScreen"
+                    //}
+                    //,
+                    //new ModuleView()
+                    //{
+                    //    ModuleName="切换模式",
+                    //    ModuleId = "RFTILEMODESHIFT",
+                    //    ModulePic = "updowndev.png",
+                    //    ModuleEntry="com.keda.wcsfixplatformapp.screen.rfworkmodechange.RfChangeWorkModeScreen"
+                    //}
                 }
             };
 

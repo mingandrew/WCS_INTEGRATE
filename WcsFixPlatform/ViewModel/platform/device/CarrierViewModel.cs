@@ -140,7 +140,6 @@ namespace wcs.ViewModel
 
                     default:
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
-                        //if (!PubTask.Carrier.DoManualTask(DeviceSelected.ID, type, out string result, false, "PC手动"))
                         if (!PubTask.Carrier.DoManualNewTask(DeviceSelected.ID, type, out string result, "PC手动"))
                         {
                             Growl.Warning(result);
