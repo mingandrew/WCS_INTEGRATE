@@ -34,6 +34,8 @@
 
         TileGoodsIsZero,  //砖机工位品种反馈异常
         TileGoodsIsNull,  //砖机工位品种没有配置
+
+        FerryNoLocation, //摆渡车没有位置信息
     }
 
     public enum CarrierWarnE

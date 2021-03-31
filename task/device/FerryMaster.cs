@@ -114,7 +114,7 @@ namespace task.device
                     {
                         try
                         {
-                            if (task.IsEnable && task.IsConnect 
+                            if (task.IsEnable && task.IsConnect
                                 && _IsSetting && _FerryPosSetList.Find(c => c.FerryId == task.ID) is FerryPosSet set)
                             {
                                 task.DoSiteQuery(set.QueryPos);
@@ -131,8 +131,29 @@ namespace task.device
                                 EndRefreshPosList();
                             }
 
-                            if (task.IsEnable && task.IsConnect 
-                                && task.Status == DevFerryStatusE.停止 
+                            #region 失去位置信息
+                            if (task.IsWorking || task.IsEnable)
+                            {
+                                uint ctid = task.GetFerryCurrentTrackId();
+                                Track ct = PubMaster.Track.GetTrack(ctid);
+                                if (ct == null || ctid == 0 || ctid.Equals(0) || ctid.CompareTo(0) == 0)
+                                {
+                                    PubMaster.Warn.AddDevWarn(WarningTypeE.FerryNoLocation, (ushort)task.ID);
+                                }
+                                else
+                                {
+                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryNoLocation, (ushort)task.ID);
+                                }
+
+                            }
+                            else
+                            {
+                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryNoLocation, (ushort)task.ID);
+                            }
+                            #endregion
+
+                            if (task.IsEnable && task.IsConnect
+                                && task.Status == DevFerryStatusE.停止
                                 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                             {
                                 //上砖测轨道ID 或 下砖测轨道ID
@@ -306,10 +327,10 @@ namespace task.device
         {
             return DevList;
         }
-        
+
         internal List<FerryTask> GetDevFerrys(List<uint> areaids)
         {
-            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+            return DevList.FindAll(c => areaids.Contains(c.AreaId));
         }
 
 
