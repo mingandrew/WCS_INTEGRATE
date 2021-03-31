@@ -1011,6 +1011,12 @@ namespace task.device
                             return false;
                         }
 
+                        if (!PubMaster.Goods.ExistStockInTrack(track.brother_track_id))
+                        {
+                            result = "对应的入库轨道并没有库存信息！";
+                            return false;
+                        }
+
                         if(!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
                         {
                             return false;

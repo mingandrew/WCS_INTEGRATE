@@ -129,6 +129,11 @@ namespace resource.track
         {
             return TrackList.FindAll(c => types.Contains(c.Type));
         }
+
+        public List<Track> GetAreaTracks(uint areaid)
+        {
+            return TrackList.FindAll(c => c.area == areaid);
+        }
         #endregion
 
         #region[获取属性]
@@ -439,6 +444,18 @@ namespace resource.track
             List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
             return TrackList.Find(c => c.area == area && (c.ferry_down_code == poscode || c.ferry_up_code == poscode)
                                     && list.Exists(d=>d.track_id == c.id));
+        }
+
+        /// <summary>
+        /// 获取区域任意摆渡车定位地标
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public List<ushort> GetFerryTrackCode(uint areaid, TrackTypeE type)
+        {
+            return TrackList.FindAll(c => c.area == areaid && c.Type == type)
+                ?.Select(c => c.rfid_1).ToList() ?? new List<ushort>();
         }
         #endregion
 

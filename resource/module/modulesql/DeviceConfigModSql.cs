@@ -195,6 +195,18 @@ goods_id = {5}, pre_goodid = {6} WHERE id = {0}",
 
         #endregion
 
+        #region[模拟数据修改]
+
+        public bool EditSimCarrierInitSite(ConfigCarrier dev)
+        {
+            string sql = string.Format(@"UPDATE config_carrier SET sim_init_site = {1}, sim_init_point = {2} WHERE id = {0}",
+                dev.id, dev.sim_init_site, dev.sim_init_point);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        #endregion
+
         #endregion
 
         #region[删除]

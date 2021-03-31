@@ -1,8 +1,10 @@
 ﻿using enums;
+using enums.track;
 using GalaSoft.MvvmLight.Messaging;
 using module.device;
 using module.deviceconfig;
 using module.msg;
+using module.track;
 using resource;
 using simserver.simsocket;
 using simserver.simsocket.rf;
@@ -17,6 +19,8 @@ namespace simtask.master
     {
         #region[字段]
         private List<SimCarrierTask> DevList { set; get; }
+        private List<CarrierPos> CarrierPosList { set; get; }
+
         private readonly object _obj;
         private SimCarrierServer mServer;
         private Thread _mRefresh;
@@ -50,6 +54,8 @@ namespace simtask.master
             }
 
             _mRefresh.Start();
+
+            CarrierPosList = PubMaster.Mod.TraSql.QueryCarrierPosList();
         }
 
         public void Stop()
@@ -141,42 +147,19 @@ namespace simtask.master
 
         private void CheckDev(SimCarrierTask task, CarrierCmd cmd)
         {
-
             switch (cmd.Command)
             {
                 case DevCarrierCmdE.查询:
                     break;
                 case DevCarrierCmdE.执行指令:
                     #region[执行任务]
-                    switch (cmd.CarrierOrder)
+                    if(task.DevStatus.CurrentOrder != cmd.CarrierOrder)
                     {
-                        case DevCarrierOrderE.无:
-                            break;
-                        case DevCarrierOrderE.定位指令:
+                        task.DevStatus.CurrentOrder = cmd.CarrierOrder;
+                        task.DevStatus.FinishOrder = DevCarrierOrderE.无;
 
-                            break;
-                        case DevCarrierOrderE.取砖指令:
-
-                            break;
-                        case DevCarrierOrderE.放砖指令:
-
-                            break;
-                        case DevCarrierOrderE.前进倒库:
-
-                            break;
-                        case DevCarrierOrderE.后退倒库:
-
-                            break;
-                        case DevCarrierOrderE.终止指令:
-                            task.DevStatus.DeviceStatus = DevCarrierStatusE.停止;
-                            task.DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;
-                            task.DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
-                            break;
-                        case DevCarrierOrderE.异常:
-
-                            break;
-                        default:
-                            break;
+                        task.DevStatus.TargetPoint = cmd.TargetPoint;
+                        task.DevStatus.TargetSite = cmd.TargetSite;
                     }
                     #endregion
                     break;
@@ -184,10 +167,15 @@ namespace simtask.master
 
                     break;
                 case DevCarrierCmdE.终止指令:
+                    task.DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;
+                    task.DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
+
+                    task.DevStatus.DeviceStatus = DevCarrierStatusE.停止;
                     break;
                 default:
                     break;
             }
+
 
             ServerSend(task.DevId, task.DevStatus);
         }
@@ -203,13 +191,21 @@ namespace simtask.master
             mServer?.SendMessage(devid, dev);
         }
 
-        public void SetCurrentSite(uint deviceID, ushort initsite, ushort initpoint)
+        public void SetCurrentSite(uint deviceID, ushort initsite, ushort initpoint, bool isontrack)
         {
-            SimCarrierTask task = DevList.Find(c => c.DevId == deviceID);
+            SimCarrierTask task = DevList.Find(c => c.ID == deviceID);
 
             if (task != null)
             {
                 task.UpdateCurrentSite(initsite, initpoint);
+                task.DevConfig.sim_init_site = initsite;
+                task.DevConfig.sim_init_point = initpoint;
+
+                task.DevStatus.Position = isontrack ? DevCarrierPositionE.在轨道上:DevCarrierPositionE.在摆渡上;
+
+                ServerSend(task.DevId, task.DevStatus);
+
+                PubMaster.Mod.DevConfigSql.EditSimCarrierInitSite(task.DevConfig);
             }
         }
 
@@ -238,6 +234,27 @@ namespace simtask.master
         private void SendDevMsg(SimTaskBase task)
         {
             Messenger.Default.Send(task, MsgToken.SimDeviceStatusUpdate);
+        }
+
+        #endregion
+
+        #region[运输车复位点]
+
+        public ushort GetUpTileTrackPoint(uint areaid)
+        {
+            List<ushort> upferrys = PubMaster.Track.GetFerryTrackCode(areaid, TrackTypeE.摆渡车_出);
+            return (ushort)(CarrierPosList.Find(c => upferrys.Contains(c.track_point) && c.track_pos > 0)?.track_pos + 260 ?? 10000);
+        }
+
+        public ushort GetFerryTrackPos(ushort tracksite)
+        {
+            return CarrierPosList.Find(c => c.track_point == tracksite)?.track_pos ?? 0;
+        }
+
+        public ushort GetDownTileTrackPoint(uint areaid)
+        {
+            List<ushort> upferrys = PubMaster.Track.GetFerryTrackCode(areaid, TrackTypeE.摆渡车_入);
+            return (ushort)(CarrierPosList.Find(c => upferrys.Contains(c.track_point) && c.track_pos > 0)?.track_pos - 260 ?? 500);
         }
 
         #endregion

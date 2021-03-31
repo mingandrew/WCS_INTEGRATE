@@ -54,7 +54,7 @@
                     </Border>
                 </Grid>
                 <Grid Visibility="{Binding SHOWSTATUSOK}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <Border BorderBrush="{StaticResource BorderBrush}"  Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    <Border BorderBrush="{StaticResource BorderBrush}" Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"
                             BorderThickness="1">
                         <Border Background="{DynamicResource SuccessBrush}" Width="80" Height="80" CornerRadius="40" HorizontalAlignment="Right" VerticalAlignment="Top"
                             BorderBrush="White" BorderThickness="5">
@@ -64,11 +64,11 @@
                 </Grid>
 
             </Grid>
-            
-            <hc:SimplePanel Margin="0,100,0,0" VerticalAlignment="Center" MinWidth="380"  Width="380" 
+
+            <hc:SimplePanel Margin="0,100,0,0" VerticalAlignment="Center" Width="450"
                     Visibility="{Binding SHOWERRORLIST}">
                 <Border Name="BorderRootEffect" Background="{DynamicResource RegionBrush}" CornerRadius="10" Effect="{StaticResource EffectShadow4}" Margin="16" Visibility="Collapsed"/>
-                <Border Name="BorderRoot" Style="{StaticResource BorderClip}" Margin="16">
+                <Border Name="BorderRoot" Style="{StaticResource BorderClip}" Margin="0,16,0,0">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -85,6 +85,7 @@
                         <Border Grid.Row="1" ClipToBounds="True" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2">
                             <DataGrid Grid.Row="1" FontSize="20"
                                   ItemsSource="{Binding WarnList}"
+                                  HeadersVisibility="None"
                                   SelectionUnit="FullRow" SelectionMode="Single"
                                   CanUserAddRows="False" CanUserResizeColumns="False"
                                   CanUserDeleteRows="False" CanUserSortColumns="False"
@@ -98,8 +99,15 @@
                                     </ContextMenu>
                                 </DataGrid.ContextMenu>
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding ID}" Header="ID" MaxWidth="150" Visibility="Hidden"/>
-                                    <DataGridTextColumn Binding="{Binding CONTENT}" Header="信息"/>
+                                    <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Collapsed"/>
+                                    <DataGridTextColumn Width="1*" Header="信息" Binding="{Binding CONTENT}">
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                            </Style>
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+ 
                                     <DataGridTextColumn Binding="{Binding CREATETIME,Converter={StaticResource Date2StringConverter}}" Header="时间" Visibility="Collapsed"/>
                                     <DataGridTextColumn Binding="{Binding REMAINTIME}" Header="持续" Visibility="Collapsed"/>
                                 </DataGrid.Columns>

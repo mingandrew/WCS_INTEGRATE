@@ -334,11 +334,52 @@ namespace wcs.ViewModel
 
         #region[小车操作]
 
-        private void CarrierSetInitSite(SimDeviceView dev)
+        private async void CarrierSetInitSite(SimDeviceView dev)
         {
-            if (dev != null)
+            DialogResult result = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
+                             .Initialize<TrackSelectViewModel>((vm) =>
+                             {
+                                 vm.SetAreaFilter(dev.area_id, false);
+                                 vm.QueryAreaTrack(dev.area_id);
+                             }).GetResultAsync<DialogResult>();
+            if (result.p1 is Track tra)
             {
-                SimServer.Carrier.SetCurrentSite(dev.dev_id, 0, 0);
+                ushort setsite = 0, setpoint = 0;
+                bool isontrack = true;
+                switch (tra.Type)
+                {
+                    case TrackTypeE.上砖轨道:
+                        setsite = tra.rfid_1;
+                        setpoint = SimServer.Carrier.GetUpTileTrackPoint(dev.area_id);
+                        break;
+                    case TrackTypeE.下砖轨道:
+                        setsite = tra.rfid_1;
+                        setpoint = SimServer.Carrier.GetDownTileTrackPoint(dev.area_id);
+                        break;
+                    case TrackTypeE.储砖_入:
+                        setsite = tra.rfid_1;
+                        setpoint = tra.limit_point;
+                        break;
+                    case TrackTypeE.储砖_出:
+                        setsite = tra.rfid_1;
+                        setpoint = tra.limit_point_up;
+                        break;
+                    case TrackTypeE.储砖_出入:
+                        setsite = tra.rfid_1;
+                        setpoint = tra.limit_point;
+                        break;
+                    case TrackTypeE.摆渡车_入:
+                        setsite = tra.rfid_1;
+                        setpoint = SimServer.Carrier.GetFerryTrackPos(tra.rfid_1);
+                        isontrack = false;
+                        break;
+                    case TrackTypeE.摆渡车_出:
+                        setsite = tra.rfid_1;
+                        setpoint = SimServer.Carrier.GetFerryTrackPos(tra.rfid_1);
+                        isontrack = false;
+                        break;
+                }
+                SimServer.Carrier.SetCurrentSite(dev.dev_id, setsite, setpoint, isontrack);
             }
         }
 

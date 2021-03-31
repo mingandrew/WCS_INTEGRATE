@@ -133,13 +133,6 @@ namespace resource.goods
             Track track = PubMaster.Track.GetTrack(trackid);
             if (track != null)
             {
-                //if(track.StockStatus == TrackStockStatusE.满砖)
-                //{
-                //    result = "轨道满砖状态，不能添加库存！";
-                //    ableqty = 0;
-                //    return false;
-                //}
-
                 ushort loc = 0;
                 //计算可存放位置
                 Stock buttomStock = GetTrackButtomStock(track.id);
@@ -1171,10 +1164,10 @@ namespace resource.goods
                         PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.有砖, memo);
                     }
 
-                    if (!CheckCanAddStockQty(totrack.id, stock.goods_id, 1, out int _, out string _))
-                    {
-                        PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.满砖, memo);
-                    }
+                    //if (!CheckCanAddStockQty(totrack.id, stock.goods_id, 1, out int _, out string _))
+                    //{
+                    //    PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.满砖, memo);
+                    //}
                 }
 
                 //从储砖轨道 移出 库存

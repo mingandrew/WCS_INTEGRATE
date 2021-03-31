@@ -21,7 +21,6 @@ namespace simtask.master
     {
         #region[字段]
         private List<SimFerryTask> DevList { set; get; }
-
         private readonly object _obj;
         private SimFerryServer mServer;
         private Thread _mRefresh;
@@ -57,6 +56,7 @@ namespace simtask.master
             }
 
             _mRefresh.Start();
+
         }
 
         public void Stop()
@@ -296,7 +296,7 @@ namespace simtask.master
                         task.DevStatus.DownSite = devconfig.sim_right_site;
                         task.SetUpFerry();
                         bool isup = task.Device.Type == DeviceTypeE.上摆渡;
-                        task.SetInitSiteAndPos(!isup, isup);
+                        task.SetInitSiteAndPos(isup, !isup);
                         DevList.Add(task);
                         SendDevMsg(task);
                     }

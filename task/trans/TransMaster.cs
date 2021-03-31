@@ -1832,9 +1832,7 @@ namespace task.trans
                     {
                         //分配运输车
                         if (PubTask.Carrier.AllocateCarrier(trans, out carrierid, out string result)
-                            && !HaveInCarrier(carrierid)
-                            //&& mTimer.IsOver(TimerTag.CarrierAllocate, trans.give_track_id, 2)
-                            )
+                            && !HaveInCarrier(carrierid))
                         {
                             SetCarrier(trans, carrierid);
                             SetStatus(trans, TransStatusE.移车中);
@@ -1851,13 +1849,6 @@ namespace task.trans
                     //小车当前所在的轨道
                     track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                     if (track == null) return;
-
-                    //if (track.id != trans.give_track_id 
-                    //    && trans.take_ferry_id != 0 
-                    //    && !PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id))
-                    //{
-                    //    return;
-                    //}
 
                     #region[分配摆渡车]
                     //还没有分配取货过程中的摆渡车
@@ -1971,8 +1962,7 @@ namespace task.trans
                                     //小车到达摆渡车后短暂等待再开始定位
                                     if (LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out string _))
                                     {
-                                        //bool isoversize = PubMaster.Goods.IsGoodsOverSize(trans.goods_id);
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至轨道倒库, isoversize);
+                                        //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
@@ -1980,7 +1970,6 @@ namespace task.trans
                                             //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
                                         });
-
                                     }
                                 }
                             }
@@ -2029,7 +2018,7 @@ namespace task.trans
                     //倒库中，突然倒库的轨道存在其他小车
                     if (PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
                     {
-                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.终止);
+                        //终止
                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
                             Order = DevCarrierOrderE.终止指令
@@ -2081,7 +2070,7 @@ namespace task.trans
                         if (trans.take_track_id == track.id
                             && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                         {
-                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                            //前进至点
                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.定位指令,

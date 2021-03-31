@@ -51,8 +51,6 @@ namespace simtask.task
 
         }
 
-
-
         #endregion
 
         #region[定位任务]
@@ -124,7 +122,6 @@ namespace simtask.task
 
         public void SetInitSiteAndPos(bool setdown, bool setup)
         {
-
             FerryPos downferry = FerryPosList.Find(c => c.ferry_code == DevStatus.DownSite);
             if (setdown && DevStatus.DownSite != 0)
             {

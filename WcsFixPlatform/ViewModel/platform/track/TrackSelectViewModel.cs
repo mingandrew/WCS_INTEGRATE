@@ -166,6 +166,20 @@ namespace wcs.ViewModel
             }
         }
 
+        public void QueryAreaTrack(uint areaid)
+        {
+            List<Track> tracks = PubMaster.Track.GetAreaTracks(areaid);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                TraList.Clear();
+                foreach (Track track in tracks)
+                {
+                    TraList.Add(track);
+                }
+            });
+        }
+
+
         public void QueryTileTrack(uint tileid)
         {
             List<Track> tracks = PubMaster.Track.GetTileTrack(tileid);

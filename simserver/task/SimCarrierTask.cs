@@ -26,7 +26,8 @@ namespace simtask
         }
 
         public uint TrackId { set; get; }
-
+        private const ushort ZERO_SITE = 0;
+        private const ushort ZERO_POINT = 0;
         #endregion
 
         #region[构造/启动/停止]
@@ -84,6 +85,7 @@ namespace simtask
 
         internal void DoTask(DevCarrierTaskE task, DevCarrierSizeE oversize)
         {
+
             //if (DevStatus.CurrentTask == task) return;
             ////DevStatus.CurrentOverSize = oversize;
             //DevStatus.CurrentTask = task;
@@ -137,9 +139,68 @@ namespace simtask
 
         internal void CheckTask()
         {
-            //if (NowTrack == null) return;
-            //if (DevStatus.CurrentTask == DevStatus.FinishTask) return;
-            ////DevStatus.ActionType = DevCarrierSignalE.非空非满;
+            if (NowTrack == null) return;
+            if (DevStatus.CurrentOrder == DevStatus.FinishOrder) return;
+            switch (DevStatus.CurrentOrder)
+            {
+                #region[无]
+                case DevCarrierOrderE.无:
+                    break;
+                #endregion
+
+                #region[定位指令]
+                case DevCarrierOrderE.定位指令:
+                    break;
+                #endregion
+
+                #region[取砖指令]
+                case DevCarrierOrderE.取砖指令:
+                    if (DevStatus.TargetSite == ZERO_SITE
+                        && DevStatus.TargetPoint == ZERO_POINT)
+                    {
+                        DevStatus.LoadStatus = DevCarrierLoadE.有货;
+                        DevStatus.TakePoint = DevStatus.CurrentPoint;
+                        DevStatus.TakeSite = DevStatus.CurrentSite;
+                        DevStatus.FinishOrder = DevCarrierOrderE.取砖指令;
+                    }
+                    break;
+                #endregion
+
+                #region[放砖指令]
+                case DevCarrierOrderE.放砖指令:
+                    if(DevStatus.TargetSite == ZERO_SITE 
+                        && DevStatus.TargetPoint == ZERO_POINT)
+                    {
+                        DevStatus.LoadStatus = DevCarrierLoadE.无货;
+                        DevStatus.GivePoint = DevStatus.CurrentPoint;
+                        DevStatus.GiveSite = DevStatus.CurrentSite;
+                        DevStatus.FinishOrder = DevCarrierOrderE.放砖指令;
+                    }
+                    break;
+                #endregion
+
+                #region[前进倒库]
+                case DevCarrierOrderE.前进倒库:
+
+                    break;
+                #endregion
+
+                #region[后退倒库]
+                case DevCarrierOrderE.后退倒库:
+                    break;
+                #endregion
+
+                #region[终止指令]
+                case DevCarrierOrderE.终止指令:
+                    break;
+                #endregion
+
+                #region[异常]
+                case DevCarrierOrderE.异常:
+                    break;
+                #endregion
+
+            }
             //switch (DevStatus.CurrentTask)
             //{
             //    #region[后退取砖]

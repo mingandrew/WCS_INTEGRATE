@@ -120,7 +120,7 @@
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
                                                 <Button Content="初始点" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
-                                                              Command="{Binding DataContext.TileSite1FullCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              Command="{Binding DataContext.CarrierSetInitSiteCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
                                             </StackPanel>
                                         </DataTemplate>
