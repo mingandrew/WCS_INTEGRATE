@@ -1,7 +1,10 @@
 ﻿using enums;
+using enums.track;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using HandyControl.Tools.Extension;
+using module.track;
 using module.window;
 using resource;
 using simtask;
@@ -15,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using task;
 using wcs.Data.View.sim;
+using wcs.Dialog;
 
 namespace wcs.ViewModel
 {
@@ -101,12 +105,16 @@ namespace wcs.ViewModel
         #endregion
 
         #region[命令]
+
+        #region[常用]
         //区域切换
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
 
         //模块Tab切换
         public RelayCommand<RoutedEventArgs> TabSelectedCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(TabSelected)).Value;
         public RelayCommand SavePriorToDbCmd => new Lazy<RelayCommand>(() => new RelayCommand(SavePriorToDb)).Value;
+        #endregion
+
         #region[砖机]
         public RelayCommand<SimDeviceView> TileChangeWorkCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileChangeWork)).Value;
         public RelayCommand<SimDeviceView> TileSite1FullCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Full)).Value;
@@ -118,6 +126,11 @@ namespace wcs.ViewModel
 
         #region[运输车]
         public RelayCommand<SimDeviceView> CarrierSetInitSiteCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(CarrierSetInitSite)).Value;
+
+        #endregion
+
+        #region[摆渡车]
+        public RelayCommand<SimDeviceView> FerrySetInitSiteCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(FerrySetInitSite)).Value;
 
         #endregion
 
@@ -328,6 +341,44 @@ namespace wcs.ViewModel
                 SimServer.Carrier.SetCurrentSite(dev.dev_id, 0, 0);
             }
         }
+
+        #endregion
+
+        #region[摆渡车操作]
+
+        private async void FerrySetInitSite(SimDeviceView dev)
+        {
+            DialogResult result = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
+                             .Initialize<TrackSelectViewModel>((vm) =>
+                             {
+                                 vm.SetAreaFilter(0, true);
+                                 vm.QueryTileTrack(dev.area_id, dev.dev_id);
+                             }).GetResultAsync<DialogResult>();
+            if (result.p1 is Track tra)
+            {
+                ushort ferrycode = 0;
+                switch (tra.Type)
+                {
+                    case TrackTypeE.上砖轨道:
+                        ferrycode = tra.ferry_up_code;
+                        break;
+                    case TrackTypeE.下砖轨道:
+                        ferrycode = tra.ferry_down_code;
+                        break;
+                    case TrackTypeE.储砖_入:
+                        ferrycode = tra.ferry_up_code;
+                        break;
+                    case TrackTypeE.储砖_出:
+                        ferrycode = tra.ferry_down_code;
+                        break;
+                    case TrackTypeE.储砖_出入:
+                        ferrycode = dev.DevType == DeviceTypeE.下摆渡 ? tra.ferry_up_code : tra.ferry_down_code;
+                        break;
+                }
+                SimServer.Ferry.SetCurrentSite(dev.dev_id, tra, ferrycode);
+            }
+        }
+
 
         #endregion
 

@@ -15,8 +15,7 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Margin="0,0,0,10" 
-                  Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+            <Grid Grid.Row="0" Margin="0,0,0,10" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition  Width="auto"/>
                     <ColumnDefinition/>
@@ -148,6 +147,17 @@
                                             <Grid>
                                                 <ToggleButton IsChecked="{Binding Working,Mode=OneWayToSource}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
                                             </Grid>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="操作">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="初始化位置" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
+                                                              Command="{Binding DataContext.FerrySetInitSiteCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                            </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>

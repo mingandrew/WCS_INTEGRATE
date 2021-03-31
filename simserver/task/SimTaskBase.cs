@@ -12,6 +12,11 @@ namespace simtask.task
             get => Device?.Type ?? DeviceTypeE.其他;
         }
 
+        public uint AreaId
+        {
+            get => Device?.area ?? 0;
+        }
+
         public uint ID
         {
             get => Device?.id ?? 0;

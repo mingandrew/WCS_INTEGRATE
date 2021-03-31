@@ -169,30 +169,42 @@ namespace simtask.master
             return 0;
         }
 
-        public void SetCurrentSite(byte deviceID, bool isleft, ushort poscode)
+        public void SetCurrentSite(uint devid, Track track, ushort ferrypose)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            SimFerryTask task = DevList.Find(c => c.ID == devid);
+            if (task != null)
             {
-                return;
-            }
-            try
-            {
-                SimFerryTask task = DevList.Find(c => c.DevId == deviceID);
-                if (task != null)
+                bool isup = false, isdown = false;
+                if(task.Device.Type == DeviceTypeE.上摆渡)
                 {
-                    if (isleft)
+                    if (ferrypose < 500)
                     {
-                        task.DevStatus.UpSite = poscode;
-                        task.DevStatus.UpLight = true;
+                        task.DevStatus.DownSite = ferrypose;
+                        isdown = true;
                     }
                     else
                     {
-                        task.DevStatus.DownSite = poscode;
-                        task.DevStatus.DownLight = true;
+                        task.DevStatus.UpSite = ferrypose;
+                        isup = true;
                     }
                 }
+                else
+                {
+                    if (ferrypose < 300)
+                    {
+                        task.DevStatus.DownSite = ferrypose;
+                        isdown = true;
+                    }
+                    else
+                    {
+                        task.DevStatus.UpSite = ferrypose;
+                        isup = true;
+                    }
+                }
+
+                task.SetInitSiteAndPos(isdown, isup) ;
+                ServerSend(task.DevId, task.DevStatus);
             }
-            finally { Monitor.Exit(_obj); }
         }
 
         public void SetOperation(byte deviceID, DevOperateModeE mode)
@@ -280,9 +292,11 @@ namespace simtask.master
                         task.DevConfig = devconfig;
                         task.DevId = mod.Devid;
                         task.DevStatus.ID = mod.Devid;
-                        task.NowPosCode = devconfig.sim_last_point;
-                        task.DevStatus.UpSite = devconfig.sim_last_point;
+                        task.DevStatus.UpSite = devconfig.sim_left_site;
+                        task.DevStatus.DownSite = devconfig.sim_right_site;
                         task.SetUpFerry();
+                        bool isup = task.Device.Type == DeviceTypeE.上摆渡;
+                        task.SetInitSiteAndPos(!isup, isup);
                         DevList.Add(task);
                         SendDevMsg(task);
                     }
@@ -302,14 +316,6 @@ namespace simtask.master
         #endregion
 
         #region[执行任务]
-
-        #endregion
-
-        #region[条件判断]
-
-
-        #endregion
-
 
         private void DoCmd(SimFerryTask task, FerryCmd cmd)
         {
@@ -334,18 +340,24 @@ namespace simtask.master
                 case DevFerryCmdE.终止任务:
                     task.DevStatus.CurrentTask = DevFerryTaskE.终止;
                     task.DevStatus.FinishTask = DevFerryTaskE.终止;
+                    task.DevStatus.TargetSite = 0;
                     break;
                     #endregion
             }
             ServerSend(task.DevId, task.DevStatus);
         }
+        #endregion
+
+        #region[条件判断]
+
+        #endregion
+
+        #region[发送信息]
 
         private void ServerSend(byte devid, DevFerry dev)
         {
             mServer?.SendMessage(devid, dev);
         }
-
-        #region[发送信息]
 
         private void SendDevMsg(SimTaskBase task)
         {

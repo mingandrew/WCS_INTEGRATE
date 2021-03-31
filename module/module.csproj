@@ -129,7 +129,6 @@
     <Compile Include="tiletrack\TileTrack.cs" />
     <Compile Include="track\CarrierPos.cs" />
     <Compile Include="track\FerryPos.cs" />
-    <Compile Include="track\SimFerryPos.cs" />
     <Compile Include="track\Track.cs" />
     <Compile Include="track\TrackLog.cs" />
     <Compile Include="track\TrackStoreCount.cs" />

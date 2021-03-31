@@ -2,7 +2,9 @@
 using module.device;
 using module.deviceconfig;
 using module.track;
+using resource;
 using System;
+using System.Collections.Generic;
 
 namespace simtask.task
 {
@@ -20,10 +22,12 @@ namespace simtask.task
             get => DevConfig.track_id;
         }
 
-        public bool IsLocating { set; get; } = false;
+        public bool IsLocating { set; get; } = false;//是否对位中
+        public int TargetPos { set; get; }//目标站点脉冲
         public ushort NowPosCode { set; get; }//当前站点
         public int NowPos { set; get; }//当前坐标
 
+        private List<FerryPos> FerryPosList { set; get; }
         #endregion
 
         #region[构造/启动/停止]
@@ -59,52 +63,37 @@ namespace simtask.task
             if (DevStatus.TargetSite != desCode || !(DevStatus.UpLight || DevStatus.DownLight))
             {
                 DevStatus.TargetSite = desCode;
-                SetBackFront();
                 DevStatus.CurrentTask = DevFerryTaskE.定位;
                 DevStatus.FinishTask = DevFerryTaskE.终止;
                 IsLocating = true;
+                TargetPos = FerryPosList.Find(c => c.ferry_code == desCode)?.sim_ferry_pos ?? 0;//目标脉冲
             }
         }
-        private void SetBackFront()
-        {
-            bool isfront = SimServer.Source.IsTargetFront(DevStatus.TargetSite, NowPos);
-            DevStatus.DeviceStatus = isfront ? DevFerryStatusE.前进 : DevFerryStatusE.后退;
-        }
-
-
+        int dir;
         internal void CheckLoaction()
         {
             if (IsLocating)
             {
-                bool isdownferry = Type == DeviceTypeE.下摆渡;
-                bool isfront = SimServer.Source.IsTargetFront(DevStatus.TargetSite, NowPos);
-                NowPos += (isfront ? 50 : -50);
-                //NowPos = 1100;
-                DevStatus.DownLight = false;
-                DevStatus.UpLight = false;
-                if (SimServer.Source.IsOnFerryPos(Device.area, NowPos, isdownferry, out SimFerryPos upferrypose, out SimFerryPos downferrypose))
+                dir = TargetPos - NowPos;
+                if(dir > 0)
                 {
-                    if (downferrypose != null)
-                    {
-                        DevStatus.DownSite = downferrypose.ferry_code;
-                        DevStatus.DownLight = true;
-                        NowPosCode = downferrypose.ferry_code;
-                    }
+                    NowPos += dir > 50 ? 50 : dir ;
+                    DevStatus.DeviceStatus = DevFerryStatusE.后退;
+                }
+                else
+                {
+                    NowPos += dir < -50 ? -50 : dir;
+                    DevStatus.DeviceStatus = DevFerryStatusE.后退;
+                }
 
-                    if(upferrypose != null)
-                    {
-                        DevStatus.UpSite = upferrypose.ferry_code;
-                        DevStatus.UpLight = true;
-                        NowPosCode = upferrypose.ferry_code;
-                    }
+                CheckOnFerryPos();
 
-                    if ((DevStatus.UpSite == DevStatus.TargetSite && DevStatus.UpLight)
-                        || (DevStatus.DownSite == DevStatus.TargetSite && DevStatus.DownLight))
-                    {
-                        IsLocating = false;
-                        DevStatus.DeviceStatus = DevFerryStatusE.停止;
-                        DevStatus.FinishTask = DevFerryTaskE.定位;
-                    }
+                if((DevStatus.TargetSite == DevStatus.UpSite && DevStatus.UpLight)  ||
+                    (DevStatus.TargetSite == DevStatus.DownSite && DevStatus.DownLight))
+                {
+                    IsLocating = false;
+                    DevStatus.DeviceStatus = DevFerryStatusE.停止;
+                    DevStatus.FinishTask = DevFerryTaskE.定位;
                 }
             }
         }
@@ -128,8 +117,119 @@ namespace simtask.task
             DevStatus.LoadStatus = DevFerryLoadE.空;
             DevStatus.CurrentTask = DevFerryTaskE.终止;
             DevStatus.FinishTask = DevFerryTaskE.终止;
+
+            FerryPosList = new List<FerryPos>();
+            FerryPosList.AddRange(PubMaster.Track.GetFerryPos(AreaId, ID));
+        }
+
+        public void SetInitSiteAndPos(bool setdown, bool setup)
+        {
+
+            FerryPos downferry = FerryPosList.Find(c => c.ferry_code == DevStatus.DownSite);
+            if (setdown && DevStatus.DownSite != 0)
+            {
+                DevStatus.DownLight = true;
+                NowPos = downferry?.sim_ferry_pos ?? 0;
+            }
+
+            FerryPos upferry = FerryPosList.Find(c => c.ferry_code == DevStatus.UpSite);
+            if (setup && DevStatus.UpSite != 0)
+            {
+                DevStatus.UpLight = true;
+                NowPos = upferry?.sim_ferry_pos ?? 0;
+            }
+
+            if(Math.Abs(downferry.sim_ferry_pos - NowPos) > 10)
+            {
+                DevStatus.DownLight = false;
+            }
+
+            if(Math.Abs(upferry.sim_ferry_pos - NowPos) > 10)
+            {
+                DevStatus.UpLight = false;
+            }
+
         }
         #endregion
 
+        #region[模拟摆渡车定位]
+
+        /// <summary>
+        /// 摆渡车当前是否到达点位
+        /// </summary>
+        private void CheckOnFerryPos()
+        {
+            List<FerryPos> tracks = FerryPosList.FindAll(c => c.SimIsInArea(NowPos, 50));
+            foreach (var item in tracks)
+            {
+                if (Device.Type == DeviceTypeE.上摆渡)
+                {
+                    if(item.ferry_code < 500)
+                    {
+                        DevStatus.DownSite = item.ferry_code;
+                    }
+                    else
+                    {
+                        DevStatus.UpSite = item.ferry_code;
+                    }
+                }
+                else
+                {
+                    if (item.ferry_code < 300)
+                    {
+                        DevStatus.DownSite = item.ferry_code;
+                    }
+                    else
+                    {
+                        DevStatus.UpSite = item.ferry_code;
+                    }
+                }
+
+                CheckOnTrackAnd(item);
+            }
+        }
+
+        /// <summary>
+        /// 判断是否对上轨道
+        /// </summary>
+        /// <param name="pos"></param>
+        private void CheckOnTrackAnd(FerryPos pos)
+        {
+            if(IsOnTrack(pos.ferry_code, pos.sim_ferry_pos))
+            {
+                if(DevStatus.TargetSite == pos.ferry_code)
+                {
+                    if(DevStatus.UpSite == DevStatus.TargetSite)
+                    {
+                        DevStatus.UpLight = true;
+                    }
+
+                    if (DevStatus.DownSite == DevStatus.TargetSite)
+                    {
+                        DevStatus.DownLight = true;
+                    }
+                }
+            }
+            else
+            {
+                if(DevStatus.UpSite == pos.ferry_code)
+                {
+                    DevStatus.UpLight = false;
+                }
+
+
+                if (DevStatus.DownSite == pos.ferry_code)
+                {
+                    DevStatus.DownLight = false;
+                }
+            }
+        }
+
+        private bool IsOnTrack(ushort poscode, int pos)
+        {
+            return DevStatus.TargetSite == poscode && Math.Abs(NowPos - pos) <= 10;
+        }
+
+        #endregion
     }
 }
