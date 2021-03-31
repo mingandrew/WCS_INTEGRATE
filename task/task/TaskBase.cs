@@ -29,11 +29,17 @@ namespace task.task
             get => Device?.id ?? 0;
         }
 
+        /// <summary>
+        /// 是否通讯
+        /// </summary>
         public bool IsEnable
         {
             get => Device?.enable ?? false;
         }
 
+        /// <summary>
+        /// 是否启用
+        /// </summary>
         public bool IsWorking
         {
             get => Device?.do_work ?? false;

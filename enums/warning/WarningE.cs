@@ -37,6 +37,8 @@
         UpTilePreGoodNotSet,//上砖机预设品种没有设置
 
         DeviceSortRunOutTrack,//运输车倒库没有扫到定位点冲出轨道
+
+        FerryNoLocation,  //摆渡车没有位置信息
     }
 
     /// <summary>
