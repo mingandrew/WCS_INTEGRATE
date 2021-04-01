@@ -79,7 +79,9 @@
     <Compile Include="task\SimTaskBase.cs" />
     <Compile Include="task\SimTileLifterTask.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\enums\enums.csproj">
       <Project>{e62b0fd1-ecfc-4e47-ac1d-e8535e78a42e}</Project>

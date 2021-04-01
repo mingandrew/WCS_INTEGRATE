@@ -685,7 +685,7 @@ namespace task.device
         #region[发送信息]
         private void MsgSend(CarrierTask task, DevCarrier carrier)
         {
-            if (Monitor.TryEnter(_objmsg, TimeSpan.FromSeconds(5)))
+            if (Monitor.TryEnter(_objmsg, TimeSpan.FromSeconds(1)))
             {
                 try
                 {

@@ -1144,6 +1144,7 @@ namespace resource.goods
 
                 if (totrack != null)
                 {
+                    stock.last_track_id = stock.track_id;
                     stock.track_id = to_track_id;
                     stock.area = totrack.area;
                     stock.track_type = totrack.type;
@@ -1365,6 +1366,37 @@ namespace resource.goods
             }
             rs = "";
             return false;
+        }
+
+        /// <summary>
+        /// 判断小车绑定的库存品种是不是与任务需要的品种一致
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="goods_id"></param>
+        /// <returns></returns>
+        public bool IsStockGoodDif(uint carrier_id, uint goods_id)
+        {
+            uint stockid = PubMaster.DevConfig.GetCarrierStockId(carrier_id);
+            if(stockid !=0 )
+            {
+                uint stockgid = GetStockGoodId(stockid);
+                if(stockgid != 0 && stockgid != goods_id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 获取库存的品种信息
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        private uint GetStockGoodId(uint stockid)
+        {
+            return StockList.Find(c => c.id == stockid)?.goods_id ?? 0;
         }
 
         /// <summary>
@@ -2384,6 +2416,17 @@ namespace resource.goods
             }
 
             return DateTime.Now.ToString("MM-dd:HH");
+        }
+
+        /// <summary>
+        /// 判断是否储砖库存在轨道的出库首位置
+        /// </summary>
+        /// <param name="finish_track_id"></param>
+        /// <returns></returns>
+        public bool IsTrackHaveStockInTopPosition(uint track_id)
+        {
+            Track track = PubMaster.Track.GetTrack(track_id);
+            return StockList.Exists(c => c.track_id == track_id && c.IsInLocation(track.limit_point_up, 50));
         }
 
         #endregion

@@ -17,6 +17,7 @@ namespace module.goods
         public uint tilelifter_id { set; get; }//库存来源下砖机
         public uint area { set; get; }
         public byte track_type { set; get; }
+        public uint last_track_id { set; get; }//库存上一个轨道ID
 
         /// <summary>
         /// 库存实际坐标（脉冲）

@@ -4,6 +4,7 @@ using resource;
 using System;
 using System.Windows;
 using task;
+using tool.appconfig;
 using wcs.Service;
 using wcs.ViewModel.platform.device;
 
@@ -74,6 +75,7 @@ namespace wcs.ViewModel
 
             SimpleIoc.Default.Register<SimulationViewModel>();
 
+            GlobalWcsDataConfig.Init();
             PubMaster.Init();
             PubTask.Init();
         }

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using tool.mlog;
+using tool.appconfig;
 using wcs.Data;
 using wcs.Resources.Langs;
 using wcs.Tools.Helper;
@@ -31,7 +32,6 @@ namespace wcs
 #if DEBUG
             System.Diagnostics.PresentationTraceSources.DataBindingSource.Switch.Level = System.Diagnostics.SourceLevels.Critical;
 #endif
-
             GlobalData.Init();
             ConfigHelper.Instance.SetLang(GlobalData.Config.Lang);
             LangProvider.Culture = new CultureInfo(GlobalData.Config.Lang);

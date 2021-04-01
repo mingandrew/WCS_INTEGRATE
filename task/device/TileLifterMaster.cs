@@ -1947,7 +1947,7 @@ namespace task.device
         #region[发送信息]
         private void MsgSend(TileLifterTask task, DevTileLifter tilelifter)
         {
-            if (Monitor.TryEnter(_objmsg, TimeSpan.FromSeconds(5)))
+            if (Monitor.TryEnter(_objmsg, TimeSpan.FromSeconds(1)))
             {
                 try
                 {

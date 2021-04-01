@@ -197,7 +197,7 @@ namespace resource.module.modulesql
                         stock.goods_id, stock.stack, stock.pieces, GetTimeOrNull(stock.produce_time));
                     break;
                 case StockUpE.Track:
-                    sql += string.Format("`track_id` = {0}, `area` = {1}, `track_type`={2}", stock.track_id, stock.area, stock.track_type);
+                    sql += string.Format("`track_id` = {0}, `area` = {1}, `track_type`={2}, `last_track_id`={3}", stock.track_id, stock.area, stock.track_type, stock.last_track_id);
                     break;
                 case StockUpE.Pos:
                     sql += string.Format("`pos` = {0}, `pos_type` = {1}, `track_id` = {2}", stock.pos, stock.pos_type, stock.track_id);

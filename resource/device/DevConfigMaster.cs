@@ -941,6 +941,11 @@ namespace resource.device
             }
         }
 
+        public uint GetCarrierStockId(uint carrier_id)
+        {
+            return ConfigCarrierList.Find(c => c.id == carrier_id)?.stock_id ?? 0;
+        }
+
         #endregion
     }
 }

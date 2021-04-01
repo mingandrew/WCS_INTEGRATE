@@ -2,17 +2,22 @@
 using System;
 using System.Configuration;
 using System.Data;
+using tool.appconfig;
 using tool.mlog;
 
 namespace tool
 {
     public class MySql
     {
-        static readonly string conn = ConfigurationManager.AppSettings["MySqlConn"];
+        private string conn;
         private Log mLog;
         public MySql(Log log)
         {
             mLog = log;
+            if (!string.IsNullOrEmpty(GlobalWcsDataConfig.MysqlConfig.MySqlConn()))
+            {
+                conn = GlobalWcsDataConfig.MysqlConfig.MySqlConn();
+            }
         }
 
         /// <summary>
