@@ -852,7 +852,7 @@ namespace task.device
         /// <param name="result"></param>
         /// <param name="memo"></param>
         /// <returns></returns>
-        public bool DoManualNewTask(uint devid, DevCarrierTaskE carriertask, out string result, string memo = "")
+        public bool DoManualNewTask(uint devid, DevCarrierTaskE carriertask, out string result, string memo = "", ushort srfid = 0)
         {
             try
             {
@@ -1091,7 +1091,18 @@ namespace task.device
                                 break;
                             case DevCarrierTaskE.前进放砖:
                                 checkTra = tt.ferry_up_code;
-                                if (tt.Type == TrackTypeE.上砖轨道 || tt.Type == TrackTypeE.储砖_出入)
+                                if (tt.Type == TrackTypeE.上砖轨道)
+                                {
+                                    if (srfid != 0)
+                                    {
+                                        toRFID = srfid;
+                                    }
+                                    else
+                                    {
+                                        toRFID = tt.rfid_2;
+                                    }
+                                }
+                                if (tt.Type == TrackTypeE.储砖_出入)
                                 {
                                     toRFID = tt.rfid_2;
                                 }

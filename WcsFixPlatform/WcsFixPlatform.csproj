@@ -146,6 +146,9 @@
     <Compile Include="Dialog\platform\device\DeviceSelectDialog.xaml.cs">
       <DependentUpon>DeviceSelectDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\device\Carrier2TileLifterDialog.xaml.cs">
+      <DependentUpon>Carrier2TileLifterDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\diction\DictionEditDialog.xaml.cs">
       <DependentUpon>DictionEditDialog.xaml</DependentUpon>
     </Compile>
@@ -240,6 +243,7 @@
     <Compile Include="ViewModel\platform\area\AreaViewModel.cs" />
     <Compile Include="ViewModel\platform\BindingProxy.cs" />
     <Compile Include="ViewModel\platform\device\CarrierViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\Carrier2TileLifterViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceBackupSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\device\GoodShiftDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\CutoverDialogViewModel.cs" />
@@ -392,6 +396,10 @@
     <Page Include="Dialog\platform\device\DeviceSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\device\Carrier2TileLifterDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\platform\diction\DictionEditDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

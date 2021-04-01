@@ -1,9 +1,12 @@
 ﻿using enums;
+using enums.track;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
+using HandyControl.Tools.Extension;
 using module.device;
 using module.msg;
+using module.track;
 using module.window;
 using resource;
 using System;
@@ -16,6 +19,8 @@ using System.Windows;
 using System.Windows.Controls;
 using task;
 using wcs.Data.View;
+using wcs.Dialog;
+using wcs.ViewModel.platform.device;
 
 namespace wcs.ViewModel
 {
@@ -97,12 +102,12 @@ namespace wcs.ViewModel
 
         #region[命令]
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
-        public RelayCommand<string> SendCarrierTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendCarrierTask)).Value;
+        public RelayCommand<string> SendCarrierTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendCarrierTaskAsync)).Value;
 
         #endregion
 
         #region[方法]
-        private void SendCarrierTask(string tag)
+        private async Task SendCarrierTaskAsync(string tag)
         {
             if (DeviceSelected == null)
             {
@@ -140,7 +145,37 @@ namespace wcs.ViewModel
 
                     default:
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
-                        if (!PubTask.Carrier.DoManualNewTask(DeviceSelected.ID, type, out string result, "PC手动"))
+                        ushort srfid = 0;
+                        if ((DevCarrierTaskE)stype == DevCarrierTaskE.前进放砖)
+                        {
+
+                            Track track = PubMaster.Track.GetTrack(DeviceSelected.CurrentTrackId);
+                            if (track.Type == TrackTypeE.摆渡车_出)
+                            {
+                                if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, true, out uint intrackid, out string warning))
+                                {
+                                    Growl.Warning(warning);
+                                    return;
+                                }
+                                Track tt = PubMaster.Track.GetTrack(intrackid);
+                                if (tt.Type == TrackTypeE.上砖轨道 && tt.rfid_1 != tt.rfid_2 && tt.rfid_2 != 0)
+                                {
+                                    DialogResult result1 = await HandyControl.Controls.Dialog.Show<Carrier2TileLifterDialog>()
+                                        .Initialize<Carrier2TileLifterViewModel>((vm) =>
+                                        {
+                                            vm.DeviceList = PubMaster.DevConfig.GetDevices(tt.id);
+                                            vm.TRACK = tt;
+                                        }).GetResultAsync<DialogResult>();
+                                    if (result1.p1 is ushort selectrfid)
+                                    {
+                                        srfid = selectrfid;
+                                    }
+                                }
+                            }
+                        }
+
+
+                        if (!PubTask.Carrier.DoManualNewTask(DeviceSelected.ID, type, out string result, "PC手动", srfid))
                         {
                             Growl.Warning(result);
                         }

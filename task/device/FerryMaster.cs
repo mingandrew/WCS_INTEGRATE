@@ -1525,7 +1525,7 @@ namespace task.device
                                     && c.Status == DevFerryStatusE.停止);
         }
 
-        internal bool IsStopAndSiteOnTrack(uint id, bool isferryupsite, out uint intrackid, out string result)
+        public bool IsStopAndSiteOnTrack(uint id, bool isferryupsite, out uint intrackid, out string result)
         {
             intrackid = 0;
             FerryTask task = DevList.Find(c => c.DevConfig.track_id == id);

@@ -75,6 +75,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="rf\base\LoginMsg.cs" />
     <Compile Include="rf\base\RfMessage.cs" />
+    <Compile Include="rf\carrier\Carrier2TileLifterPack.cs" />
     <Compile Include="rf\carrier\DevCarrierPack.cs" />
     <Compile Include="rf\carrier\DevCarrierTaskPack.cs" />
     <Compile Include="rf\carrier\RfDevCarrier.cs" />

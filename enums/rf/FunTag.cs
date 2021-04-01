@@ -98,6 +98,7 @@
 
         public const string QueryDevCarrier = nameof(QueryDevCarrier);
         public const string DoDevCarrierTask = nameof(DoDevCarrierTask);
+        public const string Carrier2TileLifter = nameof(Carrier2TileLifter);
 
         public const string QueryDevTileLifter = nameof(QueryDevTileLifter);
         public const string DoDevTileLifterTask = nameof(DoDevTileLifterTask);

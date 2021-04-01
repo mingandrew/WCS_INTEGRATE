@@ -448,6 +448,30 @@ namespace resource.device
         {
             return ConfigTileLifterList.Exists(c => c.goods_id == id);
         }
+
+        public List<Device> GetDevices(uint trackid)
+        {
+            List<ConfigTileLifter> clist = new List<ConfigTileLifter>();
+            List<Device> dlist = new List<Device>();
+            clist = ConfigTileLifterList.FindAll(c => c.left_track_id == trackid || c.right_track_id == trackid);
+            foreach (ConfigTileLifter item in clist)
+            {
+                dlist.Add(PubMaster.Device.GetDevice(item.id));
+            }
+            return dlist;
+        }
+
+        public ushort GetTileLifterPoint(uint id,uint trackid)
+        {
+            ushort rfid;
+            ConfigTileLifter dev;
+            rfid = ConfigTileLifterList.Find(c => c.id == id && c.left_track_id == trackid)?.left_track_point ?? 0;
+            if (rfid == 0)
+            {
+                rfid = ConfigTileLifterList.Find(c => c.id == id && c.right_track_id == trackid)?.right_track_point ?? 0;
+            }
+            return rfid;
+        }
         #endregion
 
 

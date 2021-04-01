@@ -489,6 +489,9 @@ namespace task.rf
                     case FunTag.DoDevTileLifterTask:
                         DoDevTileLifterTask(msg);
                         break;
+                    case FunTag.Carrier2TileLifter:
+                        DoCarrier2TileLifterTask(msg);
+                        break;
                     #endregion
 
                     #region[任务信息]
@@ -1710,6 +1713,28 @@ namespace task.rf
             if (pack != null)
             {
                 if (pack.CarrierTask == 128) return;
+                if (pack.CarrierTask == 2)
+                {
+                    CarrierTask carrier = PubTask.Carrier.GetDevCarrier(pack.DevId);
+                    Track track = PubMaster.Track.GetTrack(carrier.CurrentTrackId);
+                    if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, true, out uint intrackid, out string warning))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, warning);
+                        return;
+                    }
+                    Track tt = PubMaster.Track.GetTrack(intrackid);
+                    if (tt.Type == TrackTypeE.上砖轨道 && tt.rfid_1 != tt.rfid_2 && tt.rfid_2 != 0)
+                    {
+                        List<Device> devlist = PubMaster.DevConfig.GetDevices(intrackid);
+                        RfDevicePack pack1 = new RfDevicePack();
+                        foreach (Device item in devlist)
+                        {
+                            pack1.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
+                        }
+                        SendSucc2Rf(msg.MEID, FunTag.QueryDevice, JsonTool.Serialize(pack1));
+                        return;
+                    }
+                }
                 DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
                 if (!PubTask.Carrier.DoManualNewTask(pack.DevId, type, out string result, "平板手动"))
                 {
@@ -1717,6 +1742,32 @@ namespace task.rf
                     return;
                 }
                 SendSucc2Rf(msg.MEID, FunTag.DoDevCarrierTask, "ok");
+            }
+        }
+
+        private void DoCarrier2TileLifterTask(RfMsgMod msg)
+        {
+            Carrier2TileLifterPack pack = JsonTool.Deserialize<Carrier2TileLifterPack>(msg.Pack.Data);
+            if (pack!= null)
+            {
+                if (pack.CarrierTask == 2)
+                {
+                    CarrierTask carrier = PubTask.Carrier.GetDevCarrier(pack.CarrierId);
+                    Track track = PubMaster.Track.GetTrack(carrier.CurrentTrackId);
+                    if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, true, out uint intrackid, out string warning))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, warning);
+                        return;
+                    }
+                    ushort srfid = PubMaster.DevConfig.GetTileLifterPoint(pack.TileLifterId, intrackid);
+                    DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
+                    if (!PubTask.Carrier.DoManualNewTask(pack.CarrierId, type, out string result, "平板手动", srfid))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, result);
+                        return;
+                    }
+                    SendSucc2Rf(msg.MEID, FunTag.DoDevCarrierTask, "ok");
+                }
             }
         }
 

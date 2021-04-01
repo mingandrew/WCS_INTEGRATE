@@ -5,6 +5,7 @@ using System;
 using System.Windows;
 using task;
 using wcs.Service;
+using wcs.ViewModel.platform.device;
 
 namespace wcs.ViewModel
 {
@@ -43,6 +44,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<FerryCopyPosDialogViewModel>();
             SimpleIoc.Default.Register<CutoverDialogViewModel>();
             SimpleIoc.Default.Register<GoodShiftDialogViewModel>();
+            SimpleIoc.Default.Register<Carrier2TileLifterViewModel>();
 
             SimpleIoc.Default.Register<GoodsViewModel>();
             SimpleIoc.Default.Register<GoodsEditViewModel>();
@@ -113,6 +115,7 @@ namespace wcs.ViewModel
         public CutoverDialogViewModel Cutover => ServiceLocator.Current.GetInstance<CutoverDialogViewModel>();
         public GoodShiftDialogViewModel GoodShift => ServiceLocator.Current.GetInstance<GoodShiftDialogViewModel>();
         public CarrierPosViewModel CarrierPos => ServiceLocator.Current.GetInstance<CarrierPosViewModel>();
+        public Carrier2TileLifterViewModel Carrier2TileLifter => ServiceLocator.Current.GetInstance<Carrier2TileLifterViewModel>();
         #endregion
 
         #region[品种/库存/交易]
