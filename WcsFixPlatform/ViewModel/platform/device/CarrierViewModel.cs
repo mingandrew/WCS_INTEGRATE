@@ -102,12 +102,12 @@ namespace wcs.ViewModel
 
         #region[命令]
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
-        public RelayCommand<string> SendCarrierTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendCarrierTaskAsync)).Value;
+        public RelayCommand<string> SendCarrierTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SendCarrierTask)).Value;
 
         #endregion
 
         #region[方法]
-        private async Task SendCarrierTaskAsync(string tag)
+        private async void SendCarrierTask(string tag)
         {
             if (DeviceSelected == null)
             {
