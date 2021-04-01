@@ -1041,8 +1041,8 @@ namespace task.device
                 uint otherTrackId = other.GetFerryCurrentTrackId();
 
                 #region 失去位置信息
-                Track otherTrack = PubMaster.Track.GetTrack(TrackId);
-                if (otherTrack == null || TrackId == 0 || TrackId.Equals(0) || TrackId.CompareTo(0) == 0)
+                Track otherTrack = PubMaster.Track.GetTrack(otherTrackId);
+                if (otherTrack == null || otherTrackId == 0 || otherTrackId.Equals(0) || otherTrackId.CompareTo(0) == 0)
                 {
                     msg = other.Device.name + "：没有当前位置信息, [" + otherTrack.name + "]";
                     return true;
