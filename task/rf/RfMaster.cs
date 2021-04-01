@@ -1713,6 +1713,8 @@ namespace task.rf
             if (pack != null)
             {
                 if (pack.CarrierTask == 128) return;
+
+                //判断前进放砖是否有串联砖机
                 if (pack.CarrierTask == 2)
                 {
                     CarrierTask carrier = PubTask.Carrier.GetDevCarrier(pack.DevId);
@@ -1745,6 +1747,10 @@ namespace task.rf
             }
         }
 
+        /// <summary>
+        /// 串联上砖机小车前进放砖任务
+        /// </summary>
+        /// <param name="msg"></param>
         private void DoCarrier2TileLifterTask(RfMsgMod msg)
         {
             Carrier2TileLifterPack pack = JsonTool.Deserialize<Carrier2TileLifterPack>(msg.Pack.Data);
@@ -1759,7 +1765,7 @@ namespace task.rf
                         SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, warning);
                         return;
                     }
-                    ushort srfid = PubMaster.DevConfig.GetTileLifterPoint(pack.TileLifterId, intrackid);
+                    ushort srfid = PubMaster.DevConfig.GetTileSite(pack.TileLifterId, intrackid);
                     DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
                     if (!PubTask.Carrier.DoManualNewTask(pack.CarrierId, type, out string result, "平板手动", srfid))
                     {

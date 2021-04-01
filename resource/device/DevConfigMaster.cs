@@ -449,6 +449,11 @@ namespace resource.device
             return ConfigTileLifterList.Exists(c => c.goods_id == id);
         }
 
+        /// <summary>
+        /// 通过轨道获取砖机设备表
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         public List<Device> GetDevices(uint trackid)
         {
             List<ConfigTileLifter> clist = new List<ConfigTileLifter>();
@@ -461,17 +466,6 @@ namespace resource.device
             return dlist;
         }
 
-        public ushort GetTileLifterPoint(uint id,uint trackid)
-        {
-            ushort rfid;
-            ConfigTileLifter dev;
-            rfid = ConfigTileLifterList.Find(c => c.id == id && c.left_track_id == trackid)?.left_track_point ?? 0;
-            if (rfid == 0)
-            {
-                rfid = ConfigTileLifterList.Find(c => c.id == id && c.right_track_id == trackid)?.right_track_point ?? 0;
-            }
-            return rfid;
-        }
         #endregion
 
 

@@ -79,7 +79,7 @@ namespace wcs.ViewModel.platform.device
                 Growl.Warning("请选择设备");
                 return;
             }
-            Result.p1 = PubMaster.DevConfig.GetTileLifterPoint(SelectDevice.id, TRACK.id);
+            Result.p1 = PubMaster.DevConfig.GetTileSite(SelectDevice.id, TRACK.id);
             CloseAction?.Invoke();
         }
 

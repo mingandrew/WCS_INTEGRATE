@@ -146,6 +146,8 @@ namespace wcs.ViewModel
                     default:
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
                         ushort srfid = 0;
+                        
+                        //判断前进放砖是否有串联砖机
                         if ((DevCarrierTaskE)stype == DevCarrierTaskE.前进放砖)
                         {
 
