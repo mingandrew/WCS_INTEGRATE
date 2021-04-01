@@ -26,11 +26,6 @@ namespace module.goods
         public uint finish_track_id { set; get; }
         public ushort line { set; get; }//线
 
-        /// <summary>
-        /// 记录摆渡车当下前往的任务轨道
-        /// </summary>
-        public uint RecordTraID { set; get; }
-
         public TransTypeE TransType
         {
             get => (TransTypeE)trans_type;

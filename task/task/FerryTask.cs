@@ -19,6 +19,12 @@ namespace task.task
         public DateTime? LockRefreshTime { set; get; }
 
         internal bool _cleaning;//清除其他轨道进行中
+
+        /// <summary>
+        /// 摆渡车暂记目标轨道ID
+        /// </summary>
+        public uint RecordTraId { set; get; }
+
         #endregion
 
         #region[属性]
@@ -147,7 +153,13 @@ namespace task.task
             DevTcp?.SendCmd(DevFerryCmdE.查询, 0, 0, 0);
         }
 
-        internal void DoLocate(ushort trackcode, uint ltrack)
+        /// <summary>
+        /// 摆渡车对位
+        /// </summary>
+        /// <param name="trackcode"></param>
+        /// <param name="ltrack"></param>
+        /// <param name="recodeTraid"></param>
+        internal void DoLocate(ushort trackcode, uint ltrack, uint recodeTraid)
         {
             int speed = 2; // 快速移动
 
@@ -159,6 +171,9 @@ namespace task.task
                 }
 
             }
+
+            // 记录目标点
+            RecordTraId = recodeTraid;
 
             byte[] b = BitConverter.GetBytes(trackcode);
             DevTcp?.SendCmd(DevFerryCmdE.定位, b[1], b[0], speed);
@@ -185,6 +200,8 @@ namespace task.task
         internal void DoStop()
         {
             DevTcp?.SendCmd(DevFerryCmdE.终止任务, 0, 0, 0);
+            // 清除 记录目标点
+            RecordTraId = 0;
         }
 
         internal void DoAutoPos(DevFerryAutoPosE posside, int starttrack, byte tracknumber)

@@ -171,7 +171,7 @@ namespace task.device
                     tc.create_time = DateTime.Now;
                     PubMaster.Mod.TrafficCtlSql.AddTrafficCtl(tc);
                     TrafficCtlList.Add(tc);
-                    result = string.Format("生成交管[ {0} ], 让[ {1} ]从[ {2} ]到[ {3} ]", tc.id, tc.control_id, tc.from_track_id, tc.to_track_id);
+                    result = string.Format("生成交管[ {0} ]：摆渡车ID[ {1} ]_轨道ID[ {2} >> {3} ]", tc.id, tc.control_id, tc.from_track_id, tc.to_track_id);
                     return true;
                 }
                 catch (Exception e)
@@ -226,7 +226,7 @@ namespace task.device
                 ctl.update_time = System.DateTime.Now;
                 PubMaster.Mod.TrafficCtlSql.EditTrafficCtl(ctl, TrafficControlUpdateE.Status);
             }
-            mLog.Status(true, string.Format("交管[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", ctl.id, ctl.TrafficControlStatus, status, memo));
+            mLog.Status(true, string.Format("交管[ {0} ], 状态[ {1} ], 交管车[ {2} ], 备注[ {3} ]", ctl.id, ctl.TrafficControlStatus, ctl.control_id, memo));
         }
 
         #endregion
@@ -257,7 +257,7 @@ namespace task.device
         {
             try
             {
-                string result = "";
+                string result, res;
 
                 // 是否存在被运输车交管
                 if (ExistsTrafficControl(TrafficControlTypeE.运输车交管摆渡车, ctl.control_id))
@@ -272,23 +272,22 @@ namespace task.device
                     SetStatus(ctl, TrafficControlStatusE.已完成, result);
                     return;
                 }
-
-                // 是否允许交管摆渡车移动
-                if (IsAllowToMoveForFerry(ctl.control_id, out result))
-                {
-                    // 让交管车定位到结束点
-                    if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out result))
-                    {
-                        SetStatus(ctl, TrafficControlStatusE.已完成, result);
-                        return;
-                    }
-                }
                 else
                 {
-                    // 记录一笔信息
-                    SetStatus(ctl, TrafficControlStatusE.交管中, result);
+                    // 是否允许交管摆渡车移动
+                    if (IsAllowToMoveForFerry(ctl.control_id, out res))
+                    {
+                        // 让交管车定位到结束点
+                        if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out res))
+                        {
+                            //SetStatus(ctl, TrafficControlStatusE.已完成, result);
+                            //return;
+                        }
+                    }
                 }
 
+                // 记录一笔信息
+                SetStatus(ctl, TrafficControlStatusE.交管中, string.Format("{0}, 摆渡车况[ {1} ]", result, res));
             }
             catch (Exception ex)
             {
@@ -342,7 +341,7 @@ namespace task.device
             uint nowTraid = PubTask.Ferry.GetFerryCurrentTrackId(ferryid);
             if (nowTraid == 0)
             {
-                result = string.Format("[ ❌ ]没有当前轨道数据, 摆渡车ID[ {0} ]_轨道ID[ {1} ]",
+                result = string.Format("[ ❌ ]没有当前轨道数据, 摆渡车ID[ {0} ], 轨道ID[ {1} ]",
                     ferryid, nowTraid);
                 return false;
             }
@@ -357,36 +356,36 @@ namespace task.device
             #region 0 的判断
             if (Norder == 0 || Norder.Equals(0) || Norder.CompareTo(0) == 0)
             {
-                result = string.Format("[ ❌ ]未获取到轨道相对位置顺序用于避让, 摆渡车ID[ {0} ]_轨道ID[ {1} ]",
+                result = string.Format("[ ❌ ]未获取到轨道相对位置序号用于判断, 摆渡车ID[ {0} ], 轨道ID[ {1} ]",
                     ferryid, nowTraid);
                 return false;
             }
 
             if (Forder == 0 || Forder.Equals(0) || Forder.CompareTo(0) == 0)
             {
-                result = string.Format("[ ❌ ]未获取到轨道相对位置顺序用于避让, 摆渡车ID[ {0} ]_轨道ID[ {1} ]",
+                result = string.Format("[ ❌ ]未获取到轨道相对位置序号用于判断, 摆渡车ID[ {0} ], 轨道ID[ {1} ]",
                     ferryid, fromTraid);
                 return false;
             }
 
             if (Torder == 0 || Torder.Equals(0) || Torder.CompareTo(0) == 0)
             {
-                result = string.Format("[ ❌ ]未获取到轨道相对位置顺序用于避让, 摆渡车ID[ {0} ]_轨道ID[ {1} ]",
+                result = string.Format("[ ❌ ]未获取到轨道相对位置序号用于判断, 摆渡车ID[ {0} ], 轨道ID[ {1} ]",
                     ferryid, toTraid);
                 return false;
             }
             #endregion
 
             // 当前位置 需要在移动方向之外
-            if ((Torder > Forder && Norder >= Torder) ||
-                (Torder < Forder && Norder <= Torder))
+            if ((Torder > Forder && Norder >= Torder)  // 前进方向
+                || (Torder < Forder && Norder <= Torder)) // 后退方向
             {
-                result = string.Format("[ ✔ ]在移动方向避让范围之外, 摆渡车ID[ {0} ]_移序[ {1} - {2} ]_当前位序[ {3} ]",
+                result = string.Format("[ ✔ ]满足条件, 摆渡车ID[ {0} ], 交管移序[ {1} - {2} ], 当前位序[ {3} ]",
                     ferryid, Forder, Torder, Norder);
                 return true;
             }
 
-            result = string.Format("[ ❌ ]未满足条件, 摆渡车ID[ {0} ]_移序[ {1} - {2} ]_当前位序[ {3} ]",
+            result = string.Format("[ ❌ ]未满足条件, 摆渡车ID[ {0} ], 交管移序[ {1} - {2} ], 当前位序[ {3} ]",
                     ferryid, Forder, Torder, Norder);
             return false;
         }
@@ -403,6 +402,10 @@ namespace task.device
                 result = string.Format("[ ❌ ]{0}, 摆渡车ID[ {1} ]]", result, ferryid);
                 return false;
             }
+            else
+            {
+                result = string.Format("[ ✔ ]允许移动, 摆渡车ID[ {1} ]]", result, ferryid);
+            }
 
             // 是否锁定任务 判断任务节点是否允许移动
             if (ferry.IsLock && ferry.TransId != 0)
@@ -413,7 +416,7 @@ namespace task.device
                     List<uint> Ftraids = ferry.GetFerryCurrentTrackIds();
                     if (Ftraids == null || Ftraids.Count == 0)
                     {
-                        result = string.Format("[ ❌ ]没有当前位置信息, 摆渡车ID[ {0} ]_任务ID[ {1} ]", ferryid, trans.id);
+                        result = string.Format("[ ❌ ]没有当前位置信息, 摆渡车ID[ {0} ], 任务ID[ {1} ]", ferryid, trans.id);
                         return false;
                     }
 
@@ -421,7 +424,7 @@ namespace task.device
                     uint Ctraid = PubTask.Carrier.GetCarrierTrackID(trans.carrier_id);
                     if (Ftraids.Contains(Ctraid))
                     {
-                        result = string.Format("[ ❌ ]等待运输车作业, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]", ferryid, trans.id, trans.carrier_id);
+                        result = string.Format("[ ❌ ]等待运输车作业, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]", ferryid, trans.id, trans.carrier_id);
                         return false;
                     }
 
@@ -435,19 +438,19 @@ namespace task.device
                             case TransTypeE.同向下砖:
                                 if (trans.TransStaus == TransStatusE.取砖流程 && Ftraids.Contains(trans.take_track_id))
                                 {
-                                    result = string.Format("[ ❌ ]自动任务取砖流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                    result = string.Format("[ ❌ ]自动任务取砖流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                     return false;
                                 }
                                 if (trans.TransStaus == TransStatusE.放砖流程 && Ftraids.Contains(trans.give_track_id))
                                 {
-                                    result = string.Format("[ ❌ ]自动任务放砖流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                    result = string.Format("[ ❌ ]自动任务放砖流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                     return false;
                                 }
                                 if (trans.TransStaus == TransStatusE.取消 && Ftraids.Contains(trans.give_track_id))
                                 {
-                                    result = string.Format("[ ❌ ]自动任务取消流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                    result = string.Format("[ ❌ ]自动任务取消流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                     return false;
                                 }
@@ -460,27 +463,27 @@ namespace task.device
                                     // 运输车无货 需要取砖
                                     if (PubTask.Carrier.IsNotLoad(trans.carrier_id) && Ftraids.Contains(trans.take_track_id))
                                     {
-                                        result = string.Format("[ ❌ ]自动任务取砖流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                        result = string.Format("[ ❌ ]自动任务取砖流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                         return false;
                                     }
                                     // 运输车载货 需要放砖
                                     if (PubTask.Carrier.IsLoad(trans.carrier_id) && Ftraids.Contains(trans.give_track_id))
                                     {
-                                        result = string.Format("[ ❌ ]自动任务放砖流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                        result = string.Format("[ ❌ ]自动任务放砖流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                         return false;
                                     }
                                 }
                                 if (trans.TransStaus == TransStatusE.还车回轨 && Ftraids.Contains(trans.finish_track_id))
                                 {
-                                    result = string.Format("[ ❌ ]自动任务还车回轨流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                    result = string.Format("[ ❌ ]自动任务还车回轨流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                     return false;
                                 }
                                 if (trans.TransStaus == TransStatusE.取消 && Ftraids.Contains(trans.take_track_id))
                                 {
-                                    result = string.Format("[ ❌ ]自动任务取消流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                    result = string.Format("[ ❌ ]自动任务取消流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                     return false;
                                 }
@@ -489,7 +492,7 @@ namespace task.device
                             case TransTypeE.移车任务:
                                 if (trans.TransStaus == TransStatusE.移车中 && Ftraids.Contains(trans.give_track_id))
                                 {
-                                    result = string.Format("[ ❌ ]自动任务移车流程中, 摆渡车ID[ {0} ]_任务ID[ {1} ]_运输车ID[ {2} ]",
+                                    result = string.Format("[ ❌ ]自动任务移车流程中, 摆渡车ID[ {0} ], 任务ID[ {1} ], 运输车ID[ {2} ]",
                                         ferryid, trans.id, trans.carrier_id);
                                     return false;
                                 }
