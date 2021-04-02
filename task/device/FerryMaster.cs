@@ -765,9 +765,10 @@ namespace task.device
                         || ((task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                             && (task.DevStatus.FinishTask == DevFerryTaskE.无 || task.DevStatus.FinishTask == DevFerryTaskE.定位))))
                 {
-                    //uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
+                    uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
                     if (task.DevStatus.TargetSite != 0
-                        && PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite) != to_track_id)
+                        && trid != to_track_id
+                        && trid != task.RecordTraId)
                     {
                         Thread.Sleep(500);
                         task.DoStop();
