@@ -1186,6 +1186,25 @@ namespace task.trans
                             //取消任务
                             if (!tileemptyneed)
                             {
+                                if (PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
+                                {
+                                    // 优先移动到空轨道
+                                    List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
+                                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+                                    foreach (uint t in tids)
+                                    {
+                                        if (!IsTraInTrans(t) && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) &&
+                                            !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                        {
+                                            if (SetTakeSite(trans, t))
+                                            {
+                                                SetStatus(trans, TransStatusE.取消);
+                                            }
+                                            return;
+                                        }
+                                    }
+                                }
+
                                 if (isnotload)
                                 {
                                     //摆渡车接车
