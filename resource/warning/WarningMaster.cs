@@ -244,6 +244,26 @@ namespace task
             }
         }
 
+        public void AddTaskWarn(WarningTypeE warntype, ushort devid, uint transid, string result = "")
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && c.trans_id == transid && !c.resolve);
+            if (warn == null)
+            {
+                if (stopwarnadding) return;
+                if ((DateTime.Now - inittime).TotalSeconds < 20) return;
+                warn = new Warning()
+                {
+                    dev_id = devid,
+                    type = (byte)warntype,
+                    trans_id = transid
+                };
+                string devname = PubMaster.Device.GetDeviceName(devid);
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                warn.content = devname + ": " + warnmsg + " > " + result;
+                AddWaring(warn);
+            }
+        }
+
         /// <summary>
         /// 清除任务报警
         /// </summary>

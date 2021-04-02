@@ -25,12 +25,16 @@
         public const string CarrierOnFerry = nameof(CarrierOnFerry);//小车到达摆渡车
 
         public const string CarrierOnTask = nameof(CarrierOnTask);//小车处于任务持续时间
+
+        public const string FailAllocateCarrier = nameof(FailAllocateCarrier); //运输车分配失败
         #endregion
 
         #region[摆渡车]
 
         public const string FerryOnPosition = nameof(FerryOnPosition);
         public const string RfFerrySiteUpdateSendOffline = nameof(RfFerrySiteUpdateSendOffline);//摆渡车发送平板信息，平板离线
+
+        public const string FailAllocateFerry = nameof(FailAllocateFerry); //分配摆渡车失败
         #endregion
 
         #region[取消任务]

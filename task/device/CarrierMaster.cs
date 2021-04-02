@@ -1262,21 +1262,36 @@ namespace task.device
             {
                 try
                 {
+                    bool IsGetCarrier = false;
                     switch (trans.TransType)
                     {
                         case TransTypeE.下砖任务:
                         case TransTypeE.手动下砖:
-                            return GetTransInOutCarrier(trans, DeviceTypeE.下摆渡, out carrierid, out result);
+                            IsGetCarrier = GetTransInOutCarrier(trans, DeviceTypeE.下摆渡, out carrierid, out result);
+                            break;
                         case TransTypeE.上砖任务:
                         case TransTypeE.手动上砖:
-                            return GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
+                            IsGetCarrier = GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
+                            break;
                         case TransTypeE.倒库任务:
-                            return GetTransSortCarrier(trans, out carrierid, out result);
+                            IsGetCarrier = GetTransSortCarrier(trans, out carrierid, out result);
+                            break;
                         case TransTypeE.同向上砖:
-                            return GetTransInOutCarrier(trans, DeviceTypeE.下摆渡, out carrierid, out result);
+                            IsGetCarrier = GetTransInOutCarrier(trans, DeviceTypeE.下摆渡, out carrierid, out result);
+                            break;
                         case TransTypeE.同向下砖:
-                            return GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
+                            IsGetCarrier = GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
+                            break;
                     }
+                    if (IsGetCarrier)
+                    {
+                        PubMaster.Warn.RemoveTaskWarn(WarningTypeE.FailAllocateCarrier, trans.id);
+                    }
+                    else if (!IsGetCarrier && mTimer.IsOver(TimerTag.FailAllocateCarrier, trans.take_track_id, 10, 5))
+                    {
+                        PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateCarrier, (ushort)trans.tilelifter_id, trans.id, result);
+                    }
+                    return IsGetCarrier;
                 }
                 finally { Monitor.Exit(_obj); }
             }
@@ -1353,6 +1368,7 @@ namespace task.device
                     carrierid = carrier.ID;
                     return true;
                 }
+                result = string.Format("取/卸货轨道上有运输车{0}，但运输车不符合状态，不能分配", carrier.Device.name);
             }
             #region[直接找车]
             else
@@ -1478,6 +1494,7 @@ namespace task.device
                             }
                         }
                     }
+                    //result = "摆渡车上有运输车，但运输车不符合状态，不能分配";
                 }
             }
 
@@ -1541,6 +1558,7 @@ namespace task.device
                     default:
                         break;
                 }
+                result = string.Format("取/卸货轨道上有运输车{0}，但运输车不符合状态，不能分配", carrier.Device.name);
             }
 
             #endregion
@@ -1562,6 +1580,8 @@ namespace task.device
                 // 按离取货点近远排序
                 List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id,
                     PubMaster.Track.GetTrackOrder(trans.take_track_id));
+                string carNames = "";
+
                 foreach (uint traid in tids)
                 {
                     if (!PubMaster.Track.IsStoreType(traid)) continue;
@@ -1615,6 +1635,7 @@ namespace task.device
                         }
 
                         if (tracar == null || dis == 0) continue;
+                        carNames += string.Format("[{0}]", tracar.Device.name);
                         if (isUp)
                         {
                             // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
@@ -1727,6 +1748,16 @@ namespace task.device
                     }
                 }
 
+                if (carNames == "")
+                {
+                    result = string.Format("{0}砖机分配的储砖轨道里没有符合状态的运输车，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】",
+                                PubMaster.Device.GetDeviceName(trans.tilelifter_id), PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
+                }
+                else
+                {
+                    result = string.Format("{0}运输车不符合状态，不能分配，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】",
+                                carNames, PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
+                }
             }
 
             #endregion
