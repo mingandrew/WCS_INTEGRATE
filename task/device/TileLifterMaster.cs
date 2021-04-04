@@ -1004,7 +1004,8 @@ namespace task.device
             if (task.IsNeed_1 && need.left)
             {
                 //判断当前砖机轨道是否已有任务
-                if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
+                //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
+                //砖机需求列表已经判断了
 
                 #region[下砖机-满砖]
 
@@ -1169,7 +1170,8 @@ namespace task.device
                 if (task.DevConfig.right_track_id == 0) return;
 
                 //判断当前砖机轨道是否已有任务
-                if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
+                //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
+                //砖机需求列表已经判断了
 
                 #region[下砖机-满砖]
 

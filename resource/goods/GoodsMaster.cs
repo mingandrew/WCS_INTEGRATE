@@ -342,6 +342,16 @@ namespace resource.goods
         {
             return GoodsList.Exists(c => name.Equals(c.name));
         }
+
+        public string GetGoodsSizeName(uint Goods_id)
+        {
+            GoodSize size = GetGoodSize(Goods_id);
+            if (size != null)
+            {
+                return size.name;
+            }
+            return "";
+        }
         #endregion
 
         #region[库存]

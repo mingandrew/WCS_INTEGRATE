@@ -3433,11 +3433,13 @@ namespace task.trans
         /// <param name="track"></param>
         private void AllocateFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, bool allotogiveferry)
         {
+            uint ferryid = 0;
+            string result = "";
             switch (track.Type)
             {
                 #region[下砖区轨道]
                 case TrackTypeE.下砖轨道://小车在下砖机轨道上(前往下砖机取砖中)
-                    if (PubTask.Ferry.AllocateFerry(trans, ferrytype, trans.give_track_id, out uint ferryid, out string result))
+                    if (PubTask.Ferry.AllocateFerry(trans, ferrytype, trans.give_track_id, out ferryid, out result))
                     {
                         if (allotogiveferry)
                         {
@@ -3541,6 +3543,16 @@ namespace task.trans
                     break;
                 default:
                     break;
+            }
+
+            if (ferryid != 0)
+            {
+                PubMaster.Warn.RemoveTaskWarn(WarningTypeE.FailAllocateFerry, trans.id);
+            }
+            else if (ferryid == 0 && mTimer.IsOver(TimerTag.FailAllocateFerry, trans.take_track_id, 10, 5))
+            {
+                result = string.Format("{0},{1}货摆渡车", result, allotogiveferry ? "卸" : "取");
+                PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateFerry, (ushort)trans.tilelifter_id, trans.id, result);
             }
         }
 
