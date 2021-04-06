@@ -1483,9 +1483,13 @@ namespace task.device
                                     ferryid = ferry.ID;
                                 }
                             }
+                            
+                            result = result + ferry.Device.name + ",";
                         }
+                        result = result + "摆渡车不符合状态，不能分配，分配条件：【启用】【通讯正常】【没载车】【停止】【自动】【没有被分配到其他任务】";
                         return ferryid != 0;
                     }
+                    result = result.Equals("") ? "没有能够去取/卸货轨道的摆渡车" : result;
                 }
                 finally { Monitor.Exit(_obj); }
             }

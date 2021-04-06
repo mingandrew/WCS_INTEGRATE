@@ -1390,6 +1390,9 @@ namespace task.device
                             return true;
                         }
                     }
+
+                    result = string.Format("在出库轨道里没有符合状态的运输车，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{0}的砖】【没有被分配到其他任务】",
+                                PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
                 }
             }
             #endregion
@@ -1558,7 +1561,8 @@ namespace task.device
                     default:
                         break;
                 }
-                result = string.Format("取/卸货轨道上有运输车{0}，但运输车不符合状态，不能分配", carrier.Device.name);
+                result = string.Format("取/卸货轨道上有运输车{0}，但运输车不符合状态，不能分配，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】", 
+                                        carrier.Device.name, PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
             }
 
             #endregion
