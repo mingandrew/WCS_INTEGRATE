@@ -42,6 +42,8 @@
 
         FailAllocateCarrier, //分配运输车失败
         FailAllocateFerry, //分配摆渡车失败
+
+        UpTileEmptyNeedAndNoBack, //任务中上砖机没有需求信号且小车无轨可回
     }
 
     /// <summary>

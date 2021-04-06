@@ -1186,30 +1186,68 @@ namespace task.trans
                             //取消任务
                             if (!tileemptyneed)
                             {
-                                if (isnotload)
+                                if (PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
                                 {
-                                    //摆渡车接车
-                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out string _))
+                                    // 优先移动到空轨道
+                                    List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
+
+                                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+
+                                    foreach (uint t in tids)
                                     {
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退取砖);
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        if (!IsTraInTrans(t) && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) &&
+                                            !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                         {
-                                            Order = DevCarrierOrderE.取砖指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
-                                        });
+                                            // 有货的话就只能找空轨道
+                                            if (isload && !PubMaster.Track.IsEmtpy(t))
+                                            {
+                                                continue;
+                                            }
 
-                                        return;
+                                            if (SetTakeSite(trans, t))
+                                            {
+                                                SetStatus(trans, TransStatusE.取消);
+                                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
+                                                return;
+                                            }
+
+                                        }
                                     }
-                                }
 
-                                if (PubTask.Ferry.IsStop(trans.take_ferry_id)
-                                    && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 200, 50)
-                                    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    PubMaster.Warn.AddDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id, trans.id);
+                                }
+                                else
                                 {
                                     SetStatus(trans, TransStatusE.取消);
+                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
                                     return;
                                 }
+
+                                //if (isnotload)
+                                //{
+                                //    //摆渡车接车
+                                //    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out string _))
+                                //    {
+                                //        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退取砖);
+                                //        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                //        {
+                                //            Order = DevCarrierOrderE.取砖指令,
+                                //            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
+                                //            ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
+                                //        });
+
+                                //        return;
+                                //    }
+                                //}
+
+                                //if (PubTask.Ferry.IsStop(trans.take_ferry_id)
+                                //    && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 200, 50)
+                                //    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                //{
+                                //    SetStatus(trans, TransStatusE.取消);
+                                //    return;
+                                //}
+
                             }
 
                             if (tileemptyneed)
