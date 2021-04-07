@@ -1295,6 +1295,9 @@ namespace task.device
                         PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateCarrier, (ushort)trans.tilelifter_id, trans.id, result);
                     }
                     return IsGetCarrier;
+                }catch(Exception e)
+                {
+                    mErrorLog.Error(true,e.Message + e.StackTrace + e.Source + e.Data.ToString());
                 }
                 finally { Monitor.Exit(_obj); }
             }
@@ -1733,8 +1736,12 @@ namespace task.device
                     default:
                         break;
                 }
-                result = string.Format("取/卸货轨道上有运输车{0}，但运输车不符合状态，不能分配，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】", 
-                                        carrier.Device.name, PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
+
+                if (carrier != null)
+                {
+                    result = string.Format("取/卸货轨道上有运输车{0}，但运输车不符合状态，不能分配，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】",
+                                           carrier.Device.name, PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
+                }
             }
 
             #endregion

@@ -103,6 +103,11 @@ namespace task.task
         {
             get => DevTcp?.IsConnected ?? false;
         }
+
+        /// <summary>
+        /// 是否执行复位后重新发送全部的对位信息
+        /// </summary>
+        private bool IsResetSendAllPos { set; get; }
         #endregion
 
         #region[构造/启动/停止]
@@ -195,6 +200,7 @@ namespace task.task
         internal void DoReSet(DevFerryResetPosE resetpos)
         {
             DevTcp?.SendCmd(DevFerryCmdE.原点复位, (byte)resetpos, 0, 0);
+            RecordTraId = 0;
         }
 
         internal void DoStop()
@@ -240,7 +246,11 @@ namespace task.task
             if(DevStatus.CurrentTask == DevFerryTaskE.复位
                 && DevStatus.FinishTask == DevFerryTaskE.复位)
             {
-
+                DoStop();
+                if (!IsSendAll)
+                {
+                    DoSendAllPose();
+                }
             }
         }
         #endregion

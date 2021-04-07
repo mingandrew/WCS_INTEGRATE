@@ -1100,7 +1100,7 @@ namespace task.device
                 #endregion
 
                 // 记录
-                mlog.Info(true, string.Format(@"定位车[ {0} ]_移序[ {1} - {2} ]_安全范围[ {6} ~ {7} ], 同坑内另一车[ {3} ]_移序[ {4} - {5} ]",
+                mlog.Info(true, string.Format(@"定位车[ {0} ], _移序[ {1} - {2} ]_安全范围[ {6} ~ {7} ], 同坑内另一车[ {3} ]_移序[ {4} - {5} ]",
                     task.ID, fromOrder, toOrder, other.ID, otherOrder, otherToOrder, limitMin, limitMax));
 
                 #region 【交管判断】
