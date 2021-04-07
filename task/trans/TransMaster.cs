@@ -1119,8 +1119,10 @@ namespace task.trans
                         #region[小车在摆渡车]
                         case TrackTypeE.摆渡车_出:
                             //取消任务
-                            if (!tileemptyneed)
+                            if (!tileemptyneed
+                                && PubTask.Carrier.IsCarrierFree(trans.carrier_id))
                             {
+
                                 if (PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
                                 {
                                     // 优先移动到空轨道

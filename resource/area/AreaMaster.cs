@@ -290,6 +290,12 @@ namespace resource.area
             return AreaDevTraList.FindAll(c => c.track_id == traid && ferrys.Exists(f=>f.id == c.device_id));
         }
 
+        /// <summary>
+        /// 查看是否摆渡车分配的轨道里面是否配置了另外一个轨道
+        /// </summary>
+        /// <param name="tra_one">已经配置了A轨道的摆渡车信息</param>
+        /// <param name="tra_two">需要检查是否配了的B轨道</param>
+        /// <returns></returns>
         public bool ExistFerryToBothTrack(List<AreaDeviceTrack> tra_one, uint tra_two)
         {
             List<AreaDeviceTrack> tratwo = AreaDevTraList.FindAll(c => c.track_id == tra_two);
@@ -493,7 +499,7 @@ namespace resource.area
         public List<uint> GetTileTrackIds(StockTrans trans)
         {
             List<AreaDeviceTrack> list = GetAreaDevTraList(trans.area_id, trans.tilelifter_id);
-            return list.Select(c => c.track_id).ToList();
+            return list?.Select(c => c.track_id).ToList() ?? new List<uint>();
         }
 
         public List<AreaTrack> GetAreaTrackIds(uint areaid)

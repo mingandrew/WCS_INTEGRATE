@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using tool.appconfig;
 using wcs.Data.Model;
 using wcs.Service;
 using wcs.Tools;
@@ -291,6 +292,11 @@ namespace wcs.ViewModel
 
         private void OpenSimWindow()
         {
+            if (!GlobalWcsDataConfig.DebugConfig.IsDebug)
+            {
+                Growl.Warning("当前非调试模式!");
+                return;
+            }
             new SimulationWindow().Show();
         }
 

@@ -134,6 +134,14 @@ namespace resource.track
         {
             return TrackList.FindAll(c => c.area == areaid);
         }
+
+        public List<uint> GetAreaSortOutTrack(uint areaid, uint line)
+        {
+            return TrackList.FindAll(c => c.area == areaid 
+                                    && c.line == line 
+                                    && c.Type == TrackTypeE.储砖_出)
+                ?.Select(c => c.id).ToList() ?? new List<uint>();
+        }
         #endregion
 
         #region[获取属性]
