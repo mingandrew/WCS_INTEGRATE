@@ -75,7 +75,7 @@
                 <DataGridTextColumn Binding="{Binding max_store}" Header="最大存" Visibility="Collapsed"/>
             </DataGrid.Columns>
         </DataGrid>
-        <Button Grid.Row="2" Grid.Column="0" Width="120" Margin="0,0,5,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消"/>
-        <Button Grid.Row="2" Grid.Column="1" Width="120" Margin="5,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定"/>
+        <Button Grid.Row="2" Grid.Column="0" Width="120" Margin="0,0,5,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" IsCancel="True"/>
+        <Button Grid.Row="2" Grid.Column="1" Width="120" Margin="5,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定" IsDefault="True"/>
     </Grid>
 </Border>

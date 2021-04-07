@@ -11,7 +11,7 @@
       Background="{DynamicResource RegionBrush}">
     <hc:SimplePanel>
         <Button hc:IconElement.Geometry="{StaticResource CloseGeometry}" Style="{StaticResource ButtonDanger}" 
-                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0" Command="{Binding CancelCmd}" />
+                HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0" Command="{Binding CancelCmd}" IsCancel="True" />
         <Grid Margin="20">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
