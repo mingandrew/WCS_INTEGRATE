@@ -66,7 +66,7 @@ namespace task.trans
                 if (!initwaitefinish)
                 {
                     //等待10秒再开始调度未完成的任务
-                    if((DateTime.Now - inittime).TotalSeconds > 60)
+                    if((DateTime.Now - inittime).TotalSeconds > 10)
                     {
                         initwaitefinish = true;
                     }
