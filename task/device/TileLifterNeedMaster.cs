@@ -97,29 +97,42 @@ namespace task.device
         #endregion
 
         #region[增改删]
-        //判断能否加需求
-        private void CheckTileNeed(TileLifterTask task, bool isneed, bool isleft, uint trackid)
+        /// <summary>
+        /// 判断能否加需求
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="isneed"></param>
+        /// <param name="isleft"></param>
+        /// <param name="trackid"></param>
+        private void CheckTileNeed(TileLifterTask task, bool isleft, uint trackid)
         {
             //判断当前工位的需求是否存在没有完成任务的需求
             List<TileLifterNeed> needs = NeedList.FindAll(c => c.device_id == task.ID && c.track_id == trackid && !c.finish 
                                                                 && c.area_id == task.AreaId && c.need_type == task.Type);
 
-            if(isneed && needs.Count == 0)
+            if(needs.Count == 0)
             {
                 IsAddTileLifterNeed(task, isleft, trackid);
             }
         }
 
-        //检查砖机需求
+        /// <summary>
+        /// 检查砖机需求
+        /// </summary>
+        /// <param name="task"></param>
         public void CheckTileLifterNeed(TileLifterTask task)
         {
             try
             {
                 //判断砖机是否有需求，是否要插入/删除需求列表里
-                CheckTileNeed(task, task.IsNeed_1, true, task.DevConfig.left_track_id);
-                if (task.IsTwoTrack && task.DevConfig.right_track_id != 0)
+                if (task.IsNeed_1)
                 {
-                    CheckTileNeed(task, task.IsNeed_2, false, task.DevConfig.right_track_id);
+                    CheckTileNeed(task, true, task.DevConfig.left_track_id);
+                }
+
+                if (task.IsTwoTrack && task.DevConfig.right_track_id != 0 && task.IsNeed_2)
+                {
+                    CheckTileNeed(task, false, task.DevConfig.right_track_id);
                 }
             }
             catch (Exception e)
@@ -128,7 +141,12 @@ namespace task.device
             }
         }
 
-        //添加砖机需求
+        /// <summary>
+        /// 添加砖机需求
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="isleft"></param>
+        /// <param name="track_id"></param>
         private void IsAddTileLifterNeed(TileLifterTask task, bool isleft, uint track_id)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))

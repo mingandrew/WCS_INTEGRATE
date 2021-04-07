@@ -254,23 +254,23 @@ namespace task.device
         }
 
         /// <summary>
-        /// 查找是否存在运输车在指定的轨道
+        /// 查找是否存在运输车 当前/目的 在指定的轨道
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
         internal bool HaveInTrack(uint trackid)
         {
-            return DevList.Exists(c => c.CurrentTrackId == trackid);
+            return DevList.Exists(c => c.TargetTrackId == trackid || c.CurrentTrackId == trackid);
         }
 
         /// <summary>
-        /// 查找是否存在运输车在指定的轨道载货
+        /// 查找是否存在运输车 当前/目的 在指定的轨道且载货
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
         internal bool HaveInTrackAndLoad(uint trackid)
         {
-            return DevList.Exists(c => c.CurrentTrackId == trackid && c.IsLoad());
+            return DevList.Exists(c => (c.TargetTrackId == trackid || c.CurrentTrackId == trackid) && c.IsLoad());
         }
 
         internal bool HaveInTrackButCarrier(uint trackid, uint trackid2, uint cid, out uint carrierid)

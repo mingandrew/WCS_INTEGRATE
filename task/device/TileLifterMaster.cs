@@ -792,22 +792,26 @@ namespace task.device
 
             if(task.DevConfig == null)
             {
+                mlog.Warn(true, task.ID + "：没有 config");
                 return;
             }
 
             if (task.DevConfig.goods_id == 0)
             {
+                mlog.Warn(true, task.ID + "：没有 config.goods_id");
                 return;
             }
 
             //品种是空品种
             if (PubMaster.Goods.IsGoodEmpty(task.DevConfig.goods_id))
             {
+                mlog.Warn(true, task.ID + "：config.goods_id 是空品种属性");
                 return;
             }
 
             if (task.DevConfig.left_track_id == 0)
             {
+                mlog.Warn(true, task.ID + "：没有 config.left_track_id");
                 return;
             }
 
