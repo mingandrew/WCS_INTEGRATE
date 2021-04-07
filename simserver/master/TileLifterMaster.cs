@@ -147,12 +147,13 @@ namespace simtask.master
             {
                 if (setleft)//left
                 {
+                    task.DevStatus.Goods1 = task.DevStatus.SetGoods;
                     task.IsLoad_1 = status;
                     task.IsNeed_1 = true;
                 }
                 else if (!setleft && task.Device.Type2 == DeviceType2E.双轨)
                 {
-
+                    task.DevStatus.Goods2 = task.DevStatus.SetGoods;
                     task.IsLoad_2 = status;
                     task.IsNeed_2 = true;
                 }
@@ -260,10 +261,72 @@ namespace simtask.master
                 case DevLifterCmdTypeE.查询:
                     break;
                 case DevLifterCmdTypeE.介入1:
-                    task.IsInvo_1 = cmd.InVolType == DevLifterInvolE.介入;
+                    if(task.DevConfig.WorkMode == TileWorkModeE.下砖)
+                    {
+                        if(cmd.InVolType == DevLifterInvolE.离开)
+                        {
+                            if (task.DevStatus.Need1)
+                            {
+                                task.DevStatus.Need1 = false;
+                                task.DevStatus.Load1 = false;
+                            }
+                            task.IsInvo_1 = false;
+                        }
+                        else
+                        {
+                            task.IsInvo_1 = true;
+                        }
+                    }else if(task.DevConfig.WorkMode == TileWorkModeE.上砖)
+                    {
+                        if (cmd.InVolType == DevLifterInvolE.离开)
+                        {
+                            if (task.DevStatus.Need1)
+                            {
+                                task.DevStatus.Need1 = false;
+                                task.DevStatus.Load1 = true;
+                            }
+                            task.IsInvo_1 = false;
+                        }
+                        else
+                        {
+                            task.IsInvo_1 = true;
+                        }
+                    }
                     break;
                 case DevLifterCmdTypeE.介入2:
-                    task.IsInvo_2 = cmd.InVolType == DevLifterInvolE.介入;
+
+                    if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
+                    {
+                        if (cmd.InVolType == DevLifterInvolE.离开)
+                        {
+                            if (task.DevStatus.Need1)
+                            {
+                                task.DevStatus.Need2 = false;
+                                task.DevStatus.Load2 = false;
+                            }
+                            task.IsInvo_2 = false;
+                        }
+                        else
+                        {
+                            task.IsInvo_2 = true;
+                        }
+                    }
+                    else if (task.DevConfig.WorkMode == TileWorkModeE.上砖)
+                    {
+                        if (cmd.InVolType == DevLifterInvolE.离开)
+                        {
+                            if (task.DevStatus.Need1)
+                            {
+                                task.DevStatus.Need2 = false;
+                                task.DevStatus.Load2 = true;
+                            }
+                            task.IsInvo_2 = false;
+                        }
+                        else
+                        {
+                            task.IsInvo_2 = true;
+                        }
+                    }
                     break;
                 case DevLifterCmdTypeE.转产:
                     switch (cmd.ShiftType)

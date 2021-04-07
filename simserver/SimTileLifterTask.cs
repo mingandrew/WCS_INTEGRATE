@@ -77,7 +77,7 @@ namespace simtask.task
         public DevTileLifter DevStatus { set; get; }
         public ConfigTileLifter DevConfig { set; get; }
 
-        public SimTileLifterTask()
+        public SimTileLifterTask() : base()
         {
             DevStatus = new DevTileLifter();
         }

@@ -1,5 +1,6 @@
 ﻿using enums;
 using module.device;
+using tool.timer;
 
 namespace simtask.task
 {
@@ -30,11 +31,12 @@ namespace simtask.task
         public Device Device { set; get; }
         public SocketConnectStatusE ConnStatus { set; get; }
 
+        internal MTimer mTimer;
         #endregion
 
         public SimTaskBase()
         {
-
+            mTimer = new MTimer();
         }
     }
 }

@@ -145,7 +145,7 @@ namespace simtask.master
             }
             try
             {
-                Track track = PubMaster.Track.GetTrackByPoint(area, rfid);
+                Track track = PubMaster.Track.GetTrackBySite(area, rfid);
                 SimFerryTask task = DevList.Find(c => !c.IsLocating && c.FerryTrackId == track.id);
                 if (task != null)
                 {

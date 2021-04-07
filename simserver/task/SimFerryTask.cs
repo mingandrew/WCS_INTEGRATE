@@ -36,7 +36,7 @@ namespace simtask.task
         public ConfigFerry DevConfig { set; get; }
         public DevFerrySite DevSite { set; get; }
 
-        public SimFerryTask()
+        public SimFerryTask() : base()
         {
             DevStatus = new DevFerry();
         }
@@ -75,12 +75,12 @@ namespace simtask.task
                 dir = TargetPos - NowPos;
                 if(dir > 0)
                 {
-                    NowPos += dir > 50 ? 50 : dir ;
+                    NowPos += dir > 200 ? 200 : dir ;
                     DevStatus.DeviceStatus = DevFerryStatusE.后退;
                 }
                 else
                 {
-                    NowPos += dir < -50 ? -50 : dir;
+                    NowPos += dir < -200 ? -200 : dir;
                     DevStatus.DeviceStatus = DevFerryStatusE.后退;
                 }
 

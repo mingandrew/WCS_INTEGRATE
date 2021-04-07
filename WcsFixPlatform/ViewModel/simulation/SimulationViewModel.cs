@@ -286,6 +286,7 @@ namespace wcs.ViewModel
         {
             if (dev != null)
             {
+                dev.Working = !dev.Working;
                 SimServer.TileLifter.StartOrStopWork(dev.dev_id, dev.Working);
             }
         }

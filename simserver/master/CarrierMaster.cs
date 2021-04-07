@@ -83,6 +83,10 @@ namespace simtask.master
                             if (task.IsEnable)
                             {
                                 task.CheckTask();
+                                if (task.DevStatus.CurrentOrder != task.DevStatus.FinishOrder)
+                                {
+                                    ServerSend(task.DevId, task.DevStatus);
+                                }
                             }
                         }
                     }
@@ -155,11 +159,7 @@ namespace simtask.master
                     #region[执行任务]
                     if(task.DevStatus.CurrentOrder != cmd.CarrierOrder)
                     {
-                        task.DevStatus.CurrentOrder = cmd.CarrierOrder;
-                        task.DevStatus.FinishOrder = DevCarrierOrderE.无;
-
-                        task.DevStatus.TargetPoint = cmd.TargetPoint;
-                        task.DevStatus.TargetSite = cmd.TargetSite;
+                        task.SetTaskInfo(cmd);
                     }
                     #endregion
                     break;

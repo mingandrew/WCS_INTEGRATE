@@ -29,7 +29,7 @@ namespace simserver.simsocket
         /// <summary>
         /// 值3-4：定位用RFID编号
         /// </summary>
-        public ushort LocateSite
+        public ushort TargetSite
         {
             get => Value3_4;
         }
@@ -37,7 +37,7 @@ namespace simserver.simsocket
         /// <summary>
         /// 值5-6：定位用坐标值
         /// </summary>
-        public ushort LocatePoint
+        public ushort TargetPoint
         {
             get => Value5_6;
         }
@@ -45,7 +45,7 @@ namespace simserver.simsocket
         /// <summary>
         /// 值8-9：结束用RFID编号
         /// </summary>
-        public ushort TargetSite
+        public ushort FinishSite
         {
             get => Value8_9;
         }
@@ -53,7 +53,7 @@ namespace simserver.simsocket
         /// <summary>
         /// 值10-11：结束用坐标值
         /// </summary>
-        public ushort TargetPoint
+        public ushort FinishPoint
         {
             get => Value10_11;
         }
