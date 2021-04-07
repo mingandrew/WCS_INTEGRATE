@@ -101,8 +101,8 @@
             </DataGrid.Columns>
         </DataGrid>
         <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
-            <Button HorizontalAlignment="Left" Width="120" Margin="0,0,50,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" />
-            <Button HorizontalAlignment="Left" Width="120" Margin="50,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定"/>
+            <Button HorizontalAlignment="Left" Width="120" Margin="0,0,50,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" IsCancel="True"/>
+            <Button HorizontalAlignment="Left" Width="120" Margin="50,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定" IsDefault="True"/>
 
         </StackPanel>
     </Grid>

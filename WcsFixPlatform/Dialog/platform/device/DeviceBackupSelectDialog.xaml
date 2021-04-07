@@ -37,7 +37,7 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <Button Grid.Row="2" Width="150" Margin="27,0.4,207,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" Grid.ColumnSpan="2" Grid.Column="1"/>
-        <Button Grid.Row="2" Grid.Column="3" Width="150" Margin="88,0,194,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定" RenderTransformOrigin="2.701,0.699" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+        <Button Grid.Row="2" Width="150" Margin="27,0.4,207,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" Grid.ColumnSpan="2" Grid.Column="1" IsCancel="True"/>
+        <Button Grid.Row="2" Grid.Column="3" Width="150" Margin="88,0,194,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="确定" RenderTransformOrigin="2.701,0.699" VerticalAlignment="Bottom" Grid.ColumnSpan="2" IsDefault="True"/>
     </Grid>
 </Border>
