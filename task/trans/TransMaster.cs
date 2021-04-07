@@ -197,6 +197,17 @@ namespace task.trans
                                             return;
                                         }
 
+                                        // 串联砖机 判断
+                                        if (PubMaster.DevConfig.HaveBrother(trans.tilelifter_id))
+                                        {
+                                            uint bro = PubMaster.DevConfig.GetBrotherIdOutside(trans.tilelifter_id);
+                                            if (PubTask.TileLifter.IsTileLoad(bro, trans.take_track_id))
+                                            {
+                                                SetStatus(trans, TransStatusE.取消, "外侧兄弟砖机有货");
+                                                return;
+                                            }
+                                        }
+
                                         if (PubTask.TileLifter.IsHaveLoadNeed(trans.tilelifter_id, trans.take_track_id) &&
                                             !PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
                                         {
@@ -1206,7 +1217,7 @@ namespace task.trans
                                             if (PubMaster.DevConfig.IsBrother(trans.tilelifter_id)
                                                 && PubTask.TileLifter.IsInSideTileNeed(trans.tilelifter_id, trans.give_track_id))
                                             {
-                                                uint bro = PubMaster.DevConfig.GetBrotherId(trans.tilelifter_id);
+                                                uint bro = PubMaster.DevConfig.GetBrotherIdInside(trans.tilelifter_id);
                                                 SetTile(trans, bro);
                                                 return;
                                             }
@@ -2583,7 +2594,7 @@ namespace task.trans
                                             if (PubMaster.DevConfig.IsBrother(trans.tilelifter_id)
                                                 && PubTask.TileLifter.IsInSideTileNeed(trans.tilelifter_id, trans.give_track_id))
                                             {
-                                                uint bro = PubMaster.DevConfig.GetBrotherId(trans.tilelifter_id);
+                                                uint bro = PubMaster.DevConfig.GetBrotherIdInside(trans.tilelifter_id);
                                                 SetTile(trans, bro);
                                                 return;
                                             }

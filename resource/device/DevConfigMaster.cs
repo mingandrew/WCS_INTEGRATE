@@ -446,9 +446,19 @@ namespace resource.device
         /// </summary>
         /// <param name="tilelifter_id"></param>
         /// <returns></returns>
-        public uint GetBrotherId(uint tilelifter_id)
+        public uint GetBrotherIdInside(uint tilelifter_id)
         {
-            return ConfigTileLifterList.Find(c => c.brother_dev_id == tilelifter_id).id;
+            return ConfigTileLifterList.Find(c => c.brother_dev_id == tilelifter_id)?.id ?? 0;
+        }
+
+        /// <summary>
+        /// 获取外侧砖机的ID
+        /// </summary>
+        /// <param name="tilelifter_id"></param>
+        /// <returns></returns>
+        public uint GetBrotherIdOutside(uint tilelifter_id)
+        {
+            return ConfigTileLifterList.Find(c => c.id == tilelifter_id)?.brother_dev_id ?? 0;
         }
 
         /// <summary>

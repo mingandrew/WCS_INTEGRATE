@@ -1708,6 +1708,27 @@ namespace task.device
             return DevList.Find(c => c.ID == tileid)?.DevConfig.do_cutover ?? false;
         }
 
+        /// <summary>
+        /// 砖机轨道是否有货
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="track"></param>
+        /// <returns></returns>
+        public bool IsTileLoad(uint tileid, uint track)
+        {
+            return DevList.Exists(c => c.ID == tileid && (
+                (c.DevConfig.left_track_id == track && c.IsLoad_1) || (c.DevConfig.right_track_id == track && c.IsLoad_2)
+                ));
+        }
+
+        /// <summary>
+        /// 砖机有货需求与否判断
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="track"></param>
+        /// <param name="isload"></param>
+        /// <param name="isneed"></param>
+        /// <returns></returns>
         private bool IsTileLoadAndNeed(uint tileid, uint track, bool isload, bool isneed)
         {
             TileLifterTask tile = DevList.Find(c => c.ID == tileid);
@@ -1737,21 +1758,45 @@ namespace task.device
             return DevList.Exists(c => c.ID == tile_id && c.IsConnect);
         }
 
+        /// <summary>
+        /// 砖机是否 有货 无需求
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="track"></param>
+        /// <returns></returns>
         public bool IsHaveLoadNoNeed(uint tileid, uint track)
         {
             return IsTileLoadAndNeed(tileid, track, true, false);
         }
 
+        /// <summary>
+        /// 砖机是否 无货 无需求
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="track"></param>
+        /// <returns></returns>
         public bool IsHaveEmptyNoNeed(uint tileid, uint track)
         {
             return IsTileLoadAndNeed(tileid, track, false, false);
         }
 
+        /// <summary>
+        /// 砖机是否 有货 有需求
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="track"></param>
+        /// <returns></returns>
         public bool IsHaveLoadNeed(uint tileid, uint track)
         {
             return IsTileLoadAndNeed(tileid, track, true, true);
         }
 
+        /// <summary>
+        /// 砖机是否 无货 有需求
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="track"></param>
+        /// <returns></returns>
         public bool IsHaveEmptyNeed(uint tileid, uint track)
         {
             return IsTileLoadAndNeed(tileid, track, false, true);
