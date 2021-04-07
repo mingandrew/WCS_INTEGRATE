@@ -203,7 +203,11 @@ namespace task.trans
                                             uint bro = PubMaster.DevConfig.GetBrotherIdOutside(trans.tilelifter_id);
                                             if (PubTask.TileLifter.IsTileLoad(bro, trans.take_track_id))
                                             {
-                                                SetStatus(trans, TransStatusE.取消, "外侧兄弟砖机有货");
+                                                if (PubTask.Carrier.IsCarrierFree(trans.carrier_id))
+                                                {
+                                                    SetStatus(trans, TransStatusE.取消, "外侧兄弟砖机有货");
+                                                }
+
                                                 return;
                                             }
                                         }

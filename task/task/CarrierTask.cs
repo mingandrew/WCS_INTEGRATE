@@ -378,7 +378,14 @@ namespace task.device
             Alert2();
             Alert3();
             Alert4();
+            Alert5();
+            Alert6();
+            Alert7();
+            Alert8();
+            Alert9();
+            Alert10();
         }
+
         private void Alert1()
         {
             if (DevStatus.Aler1 == 0)
@@ -697,6 +704,450 @@ namespace task.device
             else
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA4X7, (ushort)ID);
+            }
+        }
+
+        private void Alert5()
+        {
+            if (DevStatus.Aler5 == 0)
+            {
+                PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 5);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Aler5, 0))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X0, (ushort)ID, 5);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X0, (ushort)ID);
+
+            if (On(DevStatus.Aler5, 1))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X1, (ushort)ID, 5);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X1, (ushort)ID);
+
+            if (On(DevStatus.Aler5, 2))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X2, (ushort)ID, 5);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X2, (ushort)ID);
+
+
+            if (On(DevStatus.Aler5, 3))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X3, (ushort)ID, 5);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X3, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler5, 4))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X4, (ushort)ID, 5);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X4, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler5, 5))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X5, (ushort)ID, 5);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X5, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler5, 6))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X6, (ushort)ID, 5);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X6, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler5, 7))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X7, (ushort)ID, 5);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X7, (ushort)ID);
+            }
+        }
+
+        private void Alert6()
+        {
+            if (DevStatus.Aler6 == 0)
+            {
+                PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 6);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Aler6, 0))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X0, (ushort)ID, 6);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X0, (ushort)ID);
+
+            if (On(DevStatus.Aler6, 1))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X1, (ushort)ID, 6);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X1, (ushort)ID);
+
+            if (On(DevStatus.Aler6, 2))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X2, (ushort)ID, 6);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X2, (ushort)ID);
+
+
+            if (On(DevStatus.Aler6, 3))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X3, (ushort)ID, 6);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X3, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler6, 4))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X4, (ushort)ID, 6);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X4, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler6, 5))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X5, (ushort)ID, 6);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X5, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler6, 6))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X6, (ushort)ID, 6);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X6, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler6, 7))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X7, (ushort)ID, 6);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X7, (ushort)ID);
+            }
+        }
+
+        private void Alert7()
+        {
+            if (DevStatus.Aler7 == 0)
+            {
+                PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 7);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Aler7, 0))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X0, (ushort)ID, 7);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X0, (ushort)ID);
+
+            if (On(DevStatus.Aler7, 1))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X1, (ushort)ID, 7);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X1, (ushort)ID);
+
+            if (On(DevStatus.Aler7, 2))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X2, (ushort)ID, 7);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X2, (ushort)ID);
+
+
+            if (On(DevStatus.Aler7, 3))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X3, (ushort)ID, 7);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X3, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler7, 4))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X4, (ushort)ID, 7);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X4, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler7, 5))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X5, (ushort)ID, 7);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X5, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler7, 6))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X6, (ushort)ID, 7);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X6, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler7, 7))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X7, (ushort)ID, 7);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X7, (ushort)ID);
+            }
+        }
+
+        private void Alert8()
+        {
+            if (DevStatus.Aler8 == 0)
+            {
+                PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 8);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Aler8, 0))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X0, (ushort)ID, 8);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X0, (ushort)ID);
+
+            if (On(DevStatus.Aler8, 1))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X1, (ushort)ID, 8);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X1, (ushort)ID);
+
+            if (On(DevStatus.Aler8, 2))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X2, (ushort)ID, 8);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X2, (ushort)ID);
+
+
+            if (On(DevStatus.Aler8, 3))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X3, (ushort)ID, 8);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X3, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler8, 4))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X4, (ushort)ID, 8);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X4, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler8, 5))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X5, (ushort)ID, 8);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X5, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler8, 6))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X6, (ushort)ID, 8);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X6, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler8, 7))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X7, (ushort)ID, 8);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X7, (ushort)ID);
+            }
+        }
+
+        private void Alert9()
+        {
+            if (DevStatus.Aler9 == 0)
+            {
+                PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 9);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Aler9, 0))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X0, (ushort)ID, 9);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X0, (ushort)ID);
+
+            if (On(DevStatus.Aler9, 1))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X1, (ushort)ID, 9);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X1, (ushort)ID);
+
+            if (On(DevStatus.Aler9, 2))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X2, (ushort)ID, 9);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X2, (ushort)ID);
+
+
+            if (On(DevStatus.Aler9, 3))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X3, (ushort)ID, 9);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X3, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler9, 4))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X4, (ushort)ID, 9);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X4, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler9, 5))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X5, (ushort)ID, 9);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X5, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler9, 6))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X6, (ushort)ID, 9);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X6, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler9, 7))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X7, (ushort)ID, 9);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X7, (ushort)ID);
+            }
+        }
+
+        private void Alert10()
+        {
+            if (DevStatus.Aler10 == 0)
+            {
+                PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 10);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Aler10, 0))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X0, (ushort)ID, 10);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X0, (ushort)ID);
+
+            if (On(DevStatus.Aler10, 1))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X1, (ushort)ID, 10);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X1, (ushort)ID);
+
+            if (On(DevStatus.Aler10, 2))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X2, (ushort)ID, 10);
+            }
+            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X2, (ushort)ID);
+
+
+            if (On(DevStatus.Aler10, 3))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X3, (ushort)ID, 10);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X3, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler10, 4))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X4, (ushort)ID, 10);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X4, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler10, 5))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X5, (ushort)ID, 10);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X5, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler10, 6))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X6, (ushort)ID, 10);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X6, (ushort)ID);
+            }
+
+            if (On(DevStatus.Aler10, 7))
+            {
+                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X7, (ushort)ID, 10);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X7, (ushort)ID);
             }
         }
 
