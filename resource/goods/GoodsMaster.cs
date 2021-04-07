@@ -885,6 +885,13 @@ namespace resource.goods
             return 0;
         }
 
+        /// <summary>
+        /// 手动删除库存
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <param name="rs"></param>
+        /// <param name="memo"></param>
+        /// <returns></returns>
         public bool DeleteStock(uint stockid, out string rs, string memo = "删除库存")
         {
             Stock stock = StockList.Find(c => c.id == stockid);
@@ -896,6 +903,13 @@ namespace resource.goods
 
             StockList.Remove(stock);
             PubMaster.Mod.GoodSql.DeleteStock(stock);
+            try
+            {
+                AddStockLog(string.Format("【删除库存】库存[ {0} ], 轨道[ {1} ], 备注[ {2} ]", stock.ToString()
+                    , PubMaster.Track.GetTrackName(stock.track_id)
+                    , memo));
+            }
+            catch { }
             StockSumChange(stock, 0);
             if(stock.PosType == StockPosE.头部)
             {
@@ -932,7 +946,13 @@ namespace resource.goods
             }
         }
 
-        public void DeleteStockBySite(uint trackid, ushort site)
+        /// <summary>
+        /// 根据运输车报警删除多余的库存信息
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="site"></param>
+        /// <param name="memo"></param>
+        public void DeleteStockBySite(uint trackid, ushort site, string memo)
         {
             List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
             if (stocks == null || stocks.Count == 0)
@@ -955,6 +975,13 @@ namespace resource.goods
                 }
                 StockList.Remove(s);
                 PubMaster.Mod.GoodSql.DeleteStock(s);
+                try
+                {
+                    AddStockLog(string.Format("【删除库存】库存[ {0} ], 轨道[ {1} ], 备注[ {2} ]", s.ToString()
+                        , PubMaster.Track.GetTrackName(s.track_id)
+                        , memo));
+                }
+                catch { }
                 StockSumChange(s, 0);
             }
         }

@@ -488,7 +488,7 @@ namespace task.device
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
                 //3.运输车发终止任务
-                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentPoint);
+                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentPoint, "运输车检测无砖,自动调整轨道为空");
                 if (PubMaster.Goods.IsTrackStockEmpty(CurrentTrackId))
                 {
                     PubMaster.Track.UpdateStockStatus(CurrentTrackId, TrackStockStatusE.空砖, "运输车检测无砖,自动调整轨道为空");
@@ -527,7 +527,7 @@ namespace task.device
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
                 //3.运输车发终止任务
-                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentPoint);
+                PubMaster.Goods.DeleteStockBySite(CurrentTrackId, CurrentPoint, "运输车倒库无砖,自动调整轨道为空");
                 if (PubMaster.Goods.IsTrackStockEmpty(CurrentTrackId))
                 {
                     PubMaster.Track.UpdateStockStatus(CurrentTrackId, TrackStockStatusE.空砖, "运输车倒库无砖,自动调整轨道为空");

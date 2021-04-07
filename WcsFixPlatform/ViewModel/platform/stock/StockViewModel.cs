@@ -326,7 +326,7 @@ namespace wcs.ViewModel
                     return;
                 }
 
-                if (!PubMaster.Goods.DeleteStock(SelectStock.id, out rs))
+                if (!PubMaster.Goods.DeleteStock(SelectStock.id, out rs, "PC删除库存"))
                 {
                     Growl.Warning(rs);
                     return;

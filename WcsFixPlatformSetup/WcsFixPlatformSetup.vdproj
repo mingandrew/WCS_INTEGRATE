@@ -466,13 +466,13 @@
         "Entry"
         {
         "MsmKey" = "8:_99E1447D29F2A0B23D170DF07C01912A"
-        "OwnerKey" = "8:_5168B96080F8453BA77E8BF62B7EE979"
+        "OwnerKey" = "8:_A98B53763920659C2CA78C16BC846079"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_99E1447D29F2A0B23D170DF07C01912A"
-        "OwnerKey" = "8:_A98B53763920659C2CA78C16BC846079"
+        "OwnerKey" = "8:_5168B96080F8453BA77E8BF62B7EE979"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -976,12 +976,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_99E1447D29F2A0B23D170DF07C01912A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_615DB245B88EB95481F9632A81799CDB"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1169,6 +1163,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_CD8400B0433FB5E145B70FB58192BE5A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_99E1447D29F2A0B23D170DF07C01912A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -4502,7 +4502,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_68FB37D7A1064B63AF7C4B3E3FC8E4C0"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:D:\\KEDA\\"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
