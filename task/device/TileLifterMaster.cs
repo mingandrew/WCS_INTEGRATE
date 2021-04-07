@@ -1003,10 +1003,6 @@ namespace task.device
 
             if (task.IsNeed_1 && need.left)
             {
-                //判断当前砖机轨道是否已有任务
-                //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
-                //砖机需求列表已经判断了
-
                 #region[下砖机-满砖]
 
                 if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
@@ -1020,8 +1016,6 @@ namespace task.device
 
                     if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
 
-                    //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
-
                     #region[介入]
 
                     if (!task.IsInvo_1)
@@ -1032,6 +1026,8 @@ namespace task.device
                     }
 
                     #endregion
+
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
 
                     if (!CheckBrotherIsReady(task, false, true)) return;
 
@@ -1090,6 +1086,10 @@ namespace task.device
                     }
 
                     #endregion
+
+                    //判断当前砖机轨道是否已有任务
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
+
 
                     if (!CheckUpBrotherIsReady(task, true, false)) return;
 
@@ -1169,10 +1169,6 @@ namespace task.device
             {
                 if (task.DevConfig.right_track_id == 0) return;
 
-                //判断当前砖机轨道是否已有任务
-                //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
-                //砖机需求列表已经判断了
-
                 #region[下砖机-满砖]
 
                 if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
@@ -1186,7 +1182,6 @@ namespace task.device
 
                     if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
 
-                    //if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
 
                     #region[介入]
 
@@ -1198,6 +1193,8 @@ namespace task.device
                     }
 
                     #endregion
+
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
 
                     if (!CheckBrotherIsReady(task, false, false)) return;
 
@@ -1255,6 +1252,9 @@ namespace task.device
                     }
 
                     #endregion
+
+                    //判断当前砖机轨道是否已有任务
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
 
                     if (!CheckUpBrotherIsReady(task, true, false)) return;
 
@@ -1448,6 +1448,7 @@ namespace task.device
             }
         }
 
+
         /// <summary>
         /// 添加入库任务
         /// </summary>
@@ -1459,17 +1460,10 @@ namespace task.device
         private void TileAddInTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line)
         {
             //分配放货点
-            if (stockid != 0 && PubMaster.Goods.AllocateGiveTrack(areaid, tileid, goodid, out List<uint> traids))
+            if (stockid != 0)
             {
-                uint givetrackid = 0;
-                foreach (uint traid in traids)
-                {
-                    if (!PubTask.Trans.IsTraInTransWithLock(traid))
-                    {
-                        givetrackid = traid;
-                        break;
-                    }
-                }
+                PubTask.Allocate.AllocateInGiveTrack(areaid, tileid, goodid,
+                    out uint givetrackid, out uint lastgoodid, out bool islimitallocate);
 
                 if (givetrackid != 0)
                 {
@@ -1477,15 +1471,25 @@ namespace task.device
                     PubMaster.Track.UpdateRecentGood(givetrackid, goodid);
                     PubMaster.Track.UpdateRecentTile(givetrackid, tileid);
                     //生成入库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid, 0, line);
-                }
+                    uint transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid, 0, line);
 
-                PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
+                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
+                    if (islimitallocate)
+                    {
+                        mlog.Status(true, string.Format("极限混砖【砖机：{0}，{1}】【轨道：{2}，{3}】【任务：{4}】",
+                                            PubMaster.Device.GetDeviceName(tileid),
+                                            PubMaster.Goods.GetGoodsName(goodid),
+                                            PubMaster.Track.GetTrackName(givetrackid),
+                                            PubMaster.Goods.GetGoodsName(lastgoodid),
+                                            transid));
+                    }
+                }
+                else if (stockid != 0)
+                {
+                    PubMaster.Warn.AddDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
+                }
             }
-            else if (stockid != 0)
-            {
-                PubMaster.Warn.AddDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
-            }
+            
         }
 
         /// <summary>

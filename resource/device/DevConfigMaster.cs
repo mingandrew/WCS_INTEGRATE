@@ -74,7 +74,6 @@ namespace resource.device
 
         #endregion
 
-
         #region[获取对象]
 
         #region 运输车
@@ -121,6 +120,7 @@ namespace resource.device
             return ConfigFerryList.Find(c => c.id == devid) ?? new ConfigFerry();
         }
 
+
         #endregion
 
         #region 砖机
@@ -144,6 +144,18 @@ namespace resource.device
             return ConfigTileLifterList.Find(c => c.id == devid) ?? new ConfigTileLifter();
         }
 
+
+
+        /// <summary>
+        /// 判断品种是否与砖机当前品种相同
+        /// </summary>
+        /// <param name="goodid">判断是否相同的品种</param>
+        /// <param name="type">进行判断的砖机类型</param>
+        /// <returns></returns>
+        public bool IsHaveSameTileNowGood(uint goodid, TileWorkModeE type)
+        {
+            return ConfigTileLifterList.Exists(c => c.WorkMode == type && c.goods_id == goodid);
+        }
         #endregion
 
         #endregion

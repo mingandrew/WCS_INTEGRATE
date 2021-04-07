@@ -236,6 +236,12 @@ namespace task.task
             {
                 DownTrackId = PubMaster.Track.GetAreaTrack(ID, (ushort)AreaId, Type, DownSite);
             }
+
+            if(DevStatus.CurrentTask == DevFerryTaskE.复位
+                && DevStatus.FinishTask == DevFerryTaskE.复位)
+            {
+
+            }
         }
         #endregion
 

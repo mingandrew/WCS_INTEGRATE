@@ -110,12 +110,6 @@ namespace task.task
             get => DevStatus?.Site2Qty ?? FullQty;
         }
 
-        public bool InInvoStatus
-        {
-            get => IsNeed_1 || IsNeed_2;
-        }
-
-
         public TileShiftStatusE TileShiftStatus
         {
             get => DevStatus?.ShiftStatus ?? TileShiftStatusE.完成;

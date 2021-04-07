@@ -110,6 +110,7 @@ namespace resource.goods
             return StockList.Find(c => c.id == id);
         }
 
+
         /// <summary>
         /// 获取轨道上的所有库存信息
         /// </summary>
@@ -119,6 +120,8 @@ namespace resource.goods
         {
             return StockList.FindAll(c => c.track_id == traid);
         }
+
+
 
         /// <summary>
         /// 检查轨道是否能够添加对应数量的库存
@@ -1404,7 +1407,7 @@ namespace resource.goods
         /// </summary>
         /// <param name="stockid"></param>
         /// <returns></returns>
-        private uint GetStockGoodId(uint stockid)
+        public uint GetStockGoodId(uint stockid)
         {
             return StockList.Find(c => c.id == stockid)?.goods_id ?? 0;
         }
@@ -2437,6 +2440,83 @@ namespace resource.goods
         {
             Track track = PubMaster.Track.GetTrack(track_id);
             return StockList.Exists(c => c.track_id == track_id && c.IsInLocation(track.limit_point_up, 50));
+        }
+
+        #endregion
+
+        #region[极限混砖]
+
+
+
+        /// <summary>
+        /// 极限混砖：获取所有可放轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="devid"></param>
+        /// <param name="traids"></param>
+        /// <returns></returns>
+        public bool AllocateLimitGiveTrack(uint areaid, uint devid, uint goodsid, out List<uint> traids)
+        {
+            List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            traids = new List<uint>();
+
+            uint storecount = 0;
+            List<TrackStoreCount> trackstores = new List<TrackStoreCount>();
+            foreach (AreaDeviceTrack adt in list)
+            {
+                //是否是储砖轨道
+                if (!PubMaster.Track.IsStoreGiveTrack(adt.track_id)) continue;
+
+                //轨道是否启用
+                if (!PubMaster.Track.IsTrackEnable(adt.track_id, TrackStatusE.仅下砖)) continue;
+
+                //轨道满否
+                if (PubMaster.Track.IsTrackFull(adt.track_id)) continue;
+
+                //[可以放任何品种] 空轨道，轨道没有库存
+                if (PubMaster.Track.IsEmtpy(adt.track_id)
+                    && IsTrackStockEmpty(adt.track_id)
+                    && IsTrackOkForGoods(adt.track_id, goodsid))
+                {
+                    traids.Add(adt.track_id);
+                }
+                else if (IsTrackOkForGoods(adt.track_id, goodsid))//未满能放
+                {
+                    storecount = (uint)StockList.Count(c => c.track_id == adt.track_id);
+                    trackstores.Add(new TrackStoreCount()
+                    {
+                        trackid = adt.track_id,
+                        storecount = storecount
+                    });
+                }
+            }
+
+            if (trackstores.Count > 0)
+            {
+                trackstores.Sort((x, y) => y.storecount.CompareTo(x.storecount));
+                foreach (TrackStoreCount item in trackstores)
+                {
+                    traids.Add(item.trackid);
+                }
+            }
+            return traids.Count > 0;
+        }
+
+
+        /// <summary>
+        /// 获取底部最近的库存品种信息
+        /// </summary>
+        /// <param name="traid"></param>
+        /// <returns></returns>
+        public uint GetLastStockGid(uint traid)
+        {
+            List<Stock> list = StockList.FindAll(c => c.track_id == traid);
+            if (list.Count > 0)
+            {
+                list.Sort((x, y) => x.pos.CompareTo(y.pos));
+                return list[list.Count - 1].goods_id;
+            }
+            return 0;
         }
 
         #endregion

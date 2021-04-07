@@ -105,12 +105,12 @@ namespace resource.track
             return TrackList.Find(c => c.id == trackid)?.order ?? 0;
         }
 
-        public Track GetTrackByPoint(ushort area, ushort trackrfid)
+        public Track GetTrackBySite(ushort area, ushort trackrfid)
         {
             return TrackList.Find(c => c.area == area && c.IsInTrack(trackrfid));
         }
 
-        public Track GetTrackByPoint(ushort area, List<TrackTypeE> types, ushort trackrfid)
+        public Track GetTrackBySite(ushort area, List<TrackTypeE> types, ushort trackrfid)
         {
             return TrackList.Find(c => c.area == area && types.Contains(c.Type) && c.IsInTrack(trackrfid));
         }
@@ -146,7 +146,7 @@ namespace resource.track
         public uint GetTrackId(ushort area, ushort site)
         {
             if (site == 0) return 0;
-            return GetTrackByPoint(area, site)?.id ?? 0;
+            return GetTrackBySite(area, site)?.id ?? 0;
         }
 
         /// <summary>
@@ -236,31 +236,31 @@ namespace resource.track
         /// <summary>
         /// 判断是否有轨道配置了该地标
         /// </summary>
-        /// <param name="trackPoint"></param>
+        /// <param name="trackSite">轨道地标</param>
         /// <returns></returns>
-        public bool ExistPointInTrack(ushort area, ushort trackPoint)
+        public bool ExistSiteInTrack(ushort area, ushort trackSite)
         {
-            return TrackList.Exists(c => c.area == area && c.IsInTrack(trackPoint));
+            return TrackList.Exists(c => c.area == area && c.IsInTrack(trackSite));
         }
 
         /// <summary>
         /// 获取小车位置对应轨道ID
         /// </summary>
-        /// <param name="point"></param>
-        /// <param name="site"></param>
+        /// <param name="currentsite"></param>
+        /// <param name="currentpoint"></param>
         /// <returns></returns>
-        public uint GetTrackIdForCarrier(ushort area, ushort point, ushort site)
+        public uint GetTrackIdForCarrier(ushort area, ushort currentsite, ushort currentpoint)
         {
             uint traid = 0;
-            Track t = GetTrackByPoint(area, point);
+            Track t = GetTrackBySite(area, currentsite);
             if (t != null)
             {
                 switch (t.Type)
                 {
                     case TrackTypeE.储砖_入: // 读到入轨道地标，但是大于分段点距离，当做出轨道
-                        if (site != 0
-                            && site >= t.split_point
-                            && IsBiggerSplitPoint(t.brother_track_id, (ushort)(site + 20))
+                        if (currentpoint != 0
+                            && currentpoint >= t.split_point
+                            && IsBiggerSplitPoint(t.brother_track_id, (ushort)(currentpoint + 20))
                             )
                         {
                             traid = t.brother_track_id;
@@ -271,8 +271,8 @@ namespace resource.track
                         }
                         break;
                     case TrackTypeE.储砖_出:// 读到出轨道地标，但是小于分段点距离，当做入轨道
-                        if (site != 0
-                            && site <= t.split_point - 20
+                        if (currentpoint != 0
+                            && currentpoint <= t.split_point - 20
                             //&& IsSmallerSplitPoint(t.brother_track_id, (ushort)(site - 20))
                             )
                         {
@@ -291,11 +291,23 @@ namespace resource.track
             return traid;
         }
 
+        /// <summary>
+        /// 判断脉冲是否大于轨道的分割脉冲点
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <param name="site"></param>
+        /// <returns></returns>
         private bool IsBiggerSplitPoint(uint track_id, ushort site)
         {
             return site >= (GetTrack(track_id)?.split_point ?? 0);
         }
 
+        /// <summary>
+        /// 判断脉冲是否小于轨道的分割脉冲点
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <param name="site"></param>
+        /// <returns></returns>
         private bool IsSmallerSplitPoint(uint track_id, ushort site)
         {
             return site <= (GetTrack(track_id)?.split_point ?? 0);
@@ -322,7 +334,7 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取轨道分段点坐标
+        /// 获取轨道分割点脉冲
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
@@ -332,7 +344,7 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取轨道下砖极限点坐标
+        /// 获取轨道下砖极限点脉冲
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
@@ -341,11 +353,21 @@ namespace resource.track
             return TrackList.Find(c => c.id == trackid)?.limit_point ?? 0;
         }
 
+        /// <summary>
+        /// 获取轨道的兄弟轨道ID
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         public uint GetBrotherTrackId(uint trackid)
         {
             return TrackList.Find(c => c.id == trackid)?.brother_track_id ?? 0;
         }
 
+        /// <summary>
+        /// 判断轨道是否是储砖轨道
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
         internal bool IsStoreTrack(uint track_id)
         {
             return TrackList.Exists(c => c.id == track_id
@@ -354,6 +376,11 @@ namespace resource.track
                                         || c.Type == TrackTypeE.储砖_出入));
         }
 
+        /// <summary>
+        /// 判断轨道是放砖轨道
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
         internal bool IsStoreGiveTrack(uint track_id)
         {
             return TrackList.Exists(c => c.id == track_id
@@ -361,12 +388,22 @@ namespace resource.track
                                            || c.Type == TrackTypeE.储砖_出入));
         }
 
+        /// <summary>
+        /// 获取摆渡车分配的轨道
+        /// </summary>
+        /// <param name="ferryid"></param>
+        /// <returns></returns>
         public List<Track> GetFerryTracks(uint ferryid)
         {
             List<AreaDeviceTrack> deviceTrack = PubMaster.Area.GetDevTrackList(ferryid);
             return TrackList.FindAll(c => deviceTrack.Exists(d => d.track_id == c.id));
         }
 
+        /// <summary>
+        /// 获取轨道最大存砖数量
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         internal int GetTrackMaxStore(uint trackid)
         {
             return TrackList.Find(c => c.id == trackid)?.max_store ?? 0;
@@ -395,6 +432,13 @@ namespace resource.track
                 && (c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入))?.id ?? 0;
         }
 
+        /// <summary>
+        /// 将轨道按照order进行排序
+        /// </summary>
+        /// <param name="trackids">需要排序的轨道ID列表</param>
+        /// <param name="tid">排序参照轨道</param>
+        /// <param name="order">排序参照轨道order</param>
+        /// <returns>返回一个以参考轨道为起点轨道id列表【越靠近参考轨道越前的】</returns>
         public List<uint> SortTrackIdsWithOrder(List<uint> trackids, uint tid, short order)
         {
             List<Track> tracks = TrackList.FindAll(c => c.id != tid && trackids.Contains(c.id));
@@ -762,7 +806,7 @@ namespace resource.track
         /// <returns></returns>
         public bool SetTrackEmtpy(ushort area, ushort taketrackcode)
         {
-            Track track = GetTrackByPoint(area, taketrackcode);
+            Track track = GetTrackBySite(area, taketrackcode);
             if (track != null)
             {
                 if (track.StockStatus != TrackStockStatusE.空砖)
@@ -840,7 +884,7 @@ namespace resource.track
         /// <returns></returns>
         public bool SetTrackFull(ushort area, ushort givetrackcode)
         {
-            Track track = GetTrackByPoint(area, givetrackcode);
+            Track track = GetTrackBySite(area, givetrackcode);
             if (track != null)
             {
                 if (track.StockStatus != TrackStockStatusE.满砖)
@@ -1057,6 +1101,11 @@ namespace resource.track
             return TrackList.Exists(c => c.id == traid && (c.Type == TrackTypeE.摆渡车_入 || c.Type == TrackTypeE.摆渡车_出));
         }
 
+        public bool IsFerryTrackType(uint traid, TrackTypeE type)
+        {
+            return TrackList.Exists(c => c.id == traid && c.Type == type);
+        }
+
 
         private void SendMsg(Track track)
         {
@@ -1149,15 +1198,22 @@ namespace resource.track
             return list;
         }
 
-        public Track GetTrackByPoint(ushort area, DeviceTypeE type, ushort site)
+        /// <summary>
+        /// 根据摆渡车类型获取可到轨道
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="type"></param>
+        /// <param name="site"></param>
+        /// <returns></returns>
+        public Track GetTrackBySite(ushort area, DeviceTypeE type, ushort site)
         {
             if (site == 0) return null;
             if (type == DeviceTypeE.上摆渡)
             {
-                return GetTrackByPoint(area, new List<TrackTypeE>() { TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道 }, site);
+                return GetTrackBySite(area, new List<TrackTypeE>() { TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道 }, site);
             }
 
-            return GetTrackByPoint(area, new List<TrackTypeE>() { TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道 }, site);
+            return GetTrackBySite(area, new List<TrackTypeE>() { TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道 }, site);
         }
 
         public bool IsTrackFree(uint trackid)

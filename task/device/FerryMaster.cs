@@ -1089,7 +1089,7 @@ namespace task.device
                 #endregion
 
                 // 其一摆渡目的轨道顺序
-                short otherToOrder = PubMaster.Track.GetTrackByPoint((ushort)other.AreaId, other.Type, other.DevStatus.TargetSite)?.order ?? 0;
+                short otherToOrder = PubMaster.Track.GetTrackBySite((ushort)other.AreaId, other.Type, other.DevStatus.TargetSite)?.order ?? 0;
 
                 // 使用 记录目标点
                 if (otherToOrder == 0 || otherToOrder.Equals(0) || otherToOrder.CompareTo(0) == 0)
@@ -1442,7 +1442,7 @@ namespace task.device
                                         short taskLockedCurrentOrder = PubMaster.Track.GetTrackOrder(taskLockedTrackId);
 
                                         //上锁摆渡车的目的轨道的位置顺序
-                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackByPoint((ushort)fLocked.AreaId, fLocked.Type, fLocked.DevStatus.TargetSite)?.order ?? 0;
+                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackBySite((ushort)fLocked.AreaId, fLocked.Type, fLocked.DevStatus.TargetSite)?.order ?? 0;
 
                                         if ((leftCompare < taskLockedCurrentOrder && taskLockedCurrentOrder < rightCompare)
                                                || (leftCompare < taskLockedTargetOrder && taskLockedTargetOrder < rightCompare))
@@ -1670,8 +1670,8 @@ namespace task.device
             }
             try
             {
-                Track ft = PubMaster.Track.GetTrackByPoint(area, from);
-                Track tt = PubMaster.Track.GetTrackByPoint(area, to);
+                Track ft = PubMaster.Track.GetTrackBySite(area, from);
+                Track tt = PubMaster.Track.GetTrackBySite(area, to);
                 if (ft != null)
                 {
                     if (ft.Type == TrackTypeE.摆渡车_入 || ft.Type == TrackTypeE.摆渡车_出)

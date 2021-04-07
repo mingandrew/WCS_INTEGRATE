@@ -830,51 +830,6 @@ namespace task.trans
             }
         }
 
-        /// <summary>
-        /// 判断轨道是否能发倒库任务
-        /// 1.是否有下砖、上砖任务
-        /// </summary>
-        /// <param name="givetrackid"></param>
-        /// <param name="taketrackid"></param>
-        /// <param name="devid"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        internal bool CheckTrackCanDoSort(uint givetrackid, uint taketrackid, uint devid, out string result)
-        {
-            StockTrans trans = TransList.Find(c => c.TransType == TransTypeE.倒库任务 && c.take_track_id == taketrackid
-                                && c.give_track_id == givetrackid);
-            if (trans != null)
-            {
-                if(trans.carrier_id > 0 && trans.carrier_id != devid)
-                {
-                    result = "非当前轨道任务分配的小车【" + PubMaster.Device.GetDeviceName(trans.carrier_id)+"】";
-                    return false;
-                }
-                result = "";
-                return true;
-            }
-
-            List<StockTrans> othertrans = TransList.FindAll(c => c.TransType != TransTypeE.倒库任务 && c.HaveTrack(givetrackid, taketrackid));
-
-            if (othertrans.Count > 0)
-            {
-                foreach (var item in othertrans)
-                {
-                    result = string.Format("有任务[ {0} ], 不能执行倒库指令", item.TransType);
-                    return false;
-                }
-            }
-
-            if (PubTask.Carrier.HaveInTrackButCarrier(taketrackid, givetrackid, devid, out uint othercarid))
-            {
-                result = string.Format("倒库轨道有其他车[ {0} ]，不能执行倒库指令", PubMaster.Device.GetDeviceName(othercarid));
-                return false;
-            }
-
-            result = "";
-            return true;
-        }
-
         #endregion
 
         #region[出库任务]
@@ -988,6 +943,13 @@ namespace task.trans
 
                                 if (isnotload)
                                 {
+                                    if (PubMaster.Track.IsEmtpy(trans.take_track_id)
+                                        || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
+                                    {
+                                        SetStatus(trans, TransStatusE.完成);
+                                        return;
+                                    }
+
                                     if (!PubMaster.Track.IsTrackEmtpy(trans.take_track_id))
                                     {
                                         //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
@@ -1001,12 +963,6 @@ namespace task.trans
                                                 ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
                                         }
-                                    }
-
-                                    if (PubMaster.Track.IsEmtpy(trans.take_track_id))
-                                    {
-                                        SetStatus(trans, TransStatusE.完成);
-                                        return;
                                     }
                                 }
                             }
@@ -1068,7 +1024,7 @@ namespace task.trans
                                         //摆渡车接车
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                         {
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
+                                            //前进至摆渡车
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
@@ -1090,7 +1046,8 @@ namespace task.trans
                                         return;
                                     }
 
-                                    if (PubMaster.Track.IsEmtpy(trans.take_track_id) || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
+                                    if (PubMaster.Track.IsEmtpy(trans.take_track_id) 
+                                        || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
                                     {
                                         SetStatus(trans, TransStatusE.完成);
                                         return;
@@ -1100,9 +1057,7 @@ namespace task.trans
                                         //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                         {
-                                            //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_2)
-                                            //{
-                                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
+                                            //前进至摆渡车
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
@@ -1111,23 +1066,7 @@ namespace task.trans
                                             });
 
                                             return;
-                                            //}
                                         }
-
-                                        // 从一端到另一端
-                                        //if (PubTask.Carrier.IsStopFTask(trans.carrier_id) &&
-                                        //    PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
-                                        //{
-                                        //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
-                                        //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                        //    {
-                                        //        Order = DevCarrierOrderE.定位指令,
-                                        //        CheckTra = track.ferry_down_code,
-                                        //        ToRFID = track.rfid_2,
-                                        //    });
-
-                                        //    return;
-                                        //}
                                     }
 
                                 }
@@ -1159,22 +1098,7 @@ namespace task.trans
                                         });
 
                                         return;
-                                        //}
                                     }
-
-                                    // 从一端到另一端
-                                    //if (PubTask.Carrier.GetCurrentPoint(trans.carrier_id) == track.rfid_1)
-                                    //{
-                                    //    //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
-                                    //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                    //    {
-                                    //        Order = DevCarrierOrderE.定位指令,
-                                    //        CheckTra = track.ferry_down_code,
-                                    //        ToRFID = track.rfid_2,
-                                    //    });
-
-                                    //    return;
-                                    //}
                                 }
                             }
                             break;
@@ -1345,7 +1269,7 @@ namespace task.trans
                                         {
                                             if (PubMaster.Track.IsEmtpy(trans.take_track_id) || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
                                             {
-                                                //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至点);
+                                                //后退至点
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
@@ -1790,8 +1714,7 @@ namespace task.trans
                             #endregion
                     }
                     break;
-                    #endregion
-
+                #endregion
             }
         }
 
@@ -2080,7 +2003,8 @@ namespace task.trans
                     }
 
                     track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
-                    if (track != null && track.Type == TrackTypeE.储砖_入)
+                    if (track != null && track.Type == TrackTypeE.储砖_入
+                        && PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库))
                     {
                         CarrierTask carrier = PubTask.Carrier.GetDevCarrier(trans.carrier_id);
                         if (carrier != null)
@@ -2091,7 +2015,7 @@ namespace task.trans
                             {
                                 carrier.DoStopNow();
                                 carrier.DoStopNow();
-                                PubMaster.Device.SetDevWorking(carrier.ID, false, out DeviceTypeE _);
+                                PubMaster.Device.SetDevWorking(carrier.ID, false, out DeviceTypeE _,"倒库接近极限");
                                 PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceSortRunOutTrack, (ushort)carrier.ID, trans.id, track.id);
                             }
                         }
@@ -4154,6 +4078,68 @@ namespace task.trans
         {
             StopAreaTask(areaid, new TransTypeE[] { TransTypeE.倒库任务 });
         }
+
+        #endregion
+
+        #region[极限混砖]
+
+        /// <summary>
+        /// 判断是否存在同任务类型的并使用相同轨道的任务
+        /// </summary>
+        /// <param name="traid"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public bool IsTrasInTransWithType(uint traid, TransTypeE type)
+        {
+            return TransList.Exists(c => !c.finish && c.TransType == type
+                && (c.give_track_id == traid || c.take_track_id == traid || c.finish_track_id == traid));
+        }
+
+        /// <summary>
+        /// 判断轨道是否能发倒库任务
+        /// 1.是否有下砖、上砖任务
+        /// </summary>
+        /// <param name="givetrackid"></param>
+        /// <param name="taketrackid"></param>
+        /// <param name="devid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        internal bool CheckTrackCanDoSort(uint givetrackid, uint taketrackid, uint devid, out string result)
+        {
+            StockTrans trans = TransList.Find(c => c.TransType == TransTypeE.倒库任务 && c.take_track_id == taketrackid
+                                && c.give_track_id == givetrackid);
+            if (trans != null)
+            {
+                if (trans.carrier_id > 0 && trans.carrier_id != devid)
+                {
+                    result = "非当前轨道任务分配的小车【" + PubMaster.Device.GetDeviceName(trans.carrier_id) + "】";
+                    return false;
+                }
+                result = "";
+                return true;
+            }
+
+            List<StockTrans> othertrans = TransList.FindAll(c => c.TransType != TransTypeE.倒库任务 && c.HaveTrack(givetrackid, taketrackid));
+
+            if (othertrans.Count > 0)
+            {
+                foreach (var item in othertrans)
+                {
+                    result = string.Format("有任务[ {0} ], 不能执行倒库指令", item.TransType);
+                    return false;
+                }
+            }
+
+            if (PubTask.Carrier.HaveInTrackButCarrier(taketrackid, givetrackid, devid, out uint othercarid))
+            {
+                result = string.Format("倒库轨道有其他车[ {0} ]，不能执行倒库指令", PubMaster.Device.GetDeviceName(othercarid));
+                return false;
+            }
+
+            result = "";
+            return true;
+        }
+
 
         #endregion
     }

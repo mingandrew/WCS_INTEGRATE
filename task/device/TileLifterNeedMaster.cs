@@ -1,12 +1,6 @@
 ﻿using enums;
-using enums.track;
-using enums.warning;
-using GalaSoft.MvvmLight.Messaging;
 using module.device;
-using module.goods;
 using module.msg;
-using module.tiletrack;
-using module.track;
 using resource;
 using System;
 using System.Collections.Generic;
@@ -14,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using task.task;
 using tool.mlog;
-using tool.timer;
 
 namespace task.device
 {

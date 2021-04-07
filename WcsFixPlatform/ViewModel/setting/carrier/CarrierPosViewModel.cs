@@ -147,7 +147,7 @@ namespace wcs.ViewModel
                             CarrierPos ishavepos = List.FirstOrDefault(c => c.track_point == TrackPoint);
                             if (ishavepos == null)
                             {
-                                if (!PubMaster.Track.ExistPointInTrack((ushort)areaid, TrackPoint))
+                                if (!PubMaster.Track.ExistSiteInTrack((ushort)areaid, TrackPoint))
                                 {
                                     Growl.Warning("找不到配置该地标的轨道信息，请检查地标是否准确！");
                                     return;

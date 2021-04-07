@@ -55,7 +55,7 @@ namespace tool.timer
             return md.IsOverTime(second, overtime);
         }
 
-        private bool IsOver(string tag, int second)
+        public bool IsTimeUp(string tag, int second)
         {
             TimerMod md = TimeList.Find(c => tag.Equals(c.Tag));
             if (md == null)
@@ -67,7 +67,7 @@ namespace tool.timer
                 TimeList.Add(md);
             }
 
-            return md.IsOverTime(second);
+            return md.IsOverTime(second, second*2);
         }
 
         private void Reset(string tag)

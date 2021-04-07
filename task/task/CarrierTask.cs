@@ -3,7 +3,6 @@ using enums.track;
 using enums.warning;
 using module.device;
 using module.deviceconfig;
-using module.track;
 using resource;
 using socket.tcp;
 using task.task;
@@ -135,6 +134,30 @@ namespace task.device
             get => DevStatus?.GivePoint ?? 0;
         }
 
+        /// <summary>
+        /// 运输车正在执行的任务
+        /// </summary>
+        public DevCarrierOrderE OnGoingOrder
+        {
+            get => _ongoingorder;
+            set
+            {
+                if (_ongoingorder != value)
+                {
+                    if (value != DevCarrierOrderE.无)
+                    {
+                        DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ]", value));
+                    }
+                    else
+                    {
+                        DevTcp.AddStatusLog(string.Format("【完成重置】[ {0} ]", value));
+                    }
+                }
+                _ongoingorder = value;
+            }
+        }
+        private DevCarrierOrderE _ongoingorder = DevCarrierOrderE.无;
+
         #endregion
 
         #region 状态信息
@@ -201,6 +224,14 @@ namespace task.device
         public DevCarrierOrderE CurrentOrder
         {
             get => DevStatus?.CurrentOrder ?? DevCarrierOrderE.异常;
+        }
+
+        /// <summary>
+        /// 判断运输车是否没有在执行任务
+        /// </summary>
+        public bool IsNotDoingTask
+        {
+            get => OnGoingOrder == DevCarrierOrderE.无 && (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无);
         }
 
         public bool IsConnect
@@ -285,6 +316,7 @@ namespace task.device
         /// <param name="moveCount">倒库数量</param>
         internal void DoOrder(CarrierActionOrder cao)
         {
+            OnGoingOrder = cao.Order;
             DevTcp?.SendCmd(DevCarrierCmdE.执行指令, cao.Order, cao.CheckTra, cao.ToRFID, cao.ToSite, cao.OverRFID, cao.OverSite, cao.MoveCount);
         }
 
@@ -303,17 +335,14 @@ namespace task.device
         /// </summary>
         internal void DoStop()
         {
+            OnGoingOrder = DevCarrierOrderE.终止指令;
             DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
         }
 
         internal void DoStopNow()
         {
+            OnGoingOrder = DevCarrierOrderE.终止指令;
             DevTcp?.SendCmdNow(DevCarrierCmdE.终止指令);
-        }
-
-        internal void DoTask(DevCarrierTaskE task, DevCarrierSizeE oversize)
-        {
-            DevTcp?.SendCmd(DevCarrierCmdE.执行指令);
         }
 
         #endregion
@@ -329,6 +358,14 @@ namespace task.device
             DevStatus.CurrentTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, CurrentSite, CurrentPoint);
 
             DevStatus.TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetSite, TargetPoint);
+        
+            //重置小车执行任务
+            if(OnGoingOrder != DevCarrierOrderE.无
+                && OnGoingOrder == DevStatus.CurrentOrder
+                && DevStatus.CurrentOrder == DevStatus.FinishOrder)
+            {
+                OnGoingOrder = DevCarrierOrderE.无;
+            }
         }
 
         #endregion

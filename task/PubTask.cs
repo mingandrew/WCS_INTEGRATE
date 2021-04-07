@@ -1,5 +1,6 @@
 ﻿using resource;
 using System.Threading;
+using task.allocate;
 using task.device;
 using task.ping;
 using task.rf;
@@ -20,6 +21,7 @@ namespace task
         public static PingMaster Ping { set; get; }
         public static TrafficControlMaster TrafficControl { set; get; }
         public static TileLifterNeedMaster TileLifterNeed { set; get; }  //需求操作对象 20210121
+        public static AllocateMaster Allocate { set; get; }
 
         /// <summary>
         /// 初始化
@@ -34,6 +36,7 @@ namespace task
             Ping = new PingMaster();
             TrafficControl = new TrafficControlMaster();
             TileLifterNeed = new TileLifterNeedMaster();
+            Allocate = new AllocateMaster();
         }
 
         /// <summary>
@@ -66,6 +69,7 @@ namespace task
             Ping?.Start();
             TileLifterNeed?.Start();
             TrafficControl?.Start();
+            Allocate?.Start();
         }
 
         /// <summary>
@@ -81,6 +85,7 @@ namespace task
             Ping?.Stop();
             TileLifterNeed?.Stop();
             TrafficControl?.Stop();
+            Allocate?.Stop();
         }
 
         /// <summary>

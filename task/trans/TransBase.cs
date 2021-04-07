@@ -146,8 +146,9 @@ namespace task.trans
 
         #region[增删改]
 
-        public void AddTrans(uint areaid, uint lifterid, TransTypeE type, uint goodsid, uint stocksid, uint taketrackid, uint givetrackid, uint carrierid = 0, ushort line = 0)
+        public uint AddTrans(uint areaid, uint lifterid, TransTypeE type, uint goodsid, uint stocksid, uint taketrackid, uint givetrackid, uint carrierid = 0, ushort line = 0)
         {
+            uint transid = 0;
             if (Monitor.TryEnter(_for, TimeSpan.FromSeconds(10)))
             {
                 try
@@ -161,16 +162,17 @@ namespace task.trans
                             initstatus = TransStatusE.检查轨道;
                             break;
                     }
-                    AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid, initstatus, carrierid, line);
+                    transid = AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid, initstatus, carrierid, line);
                 }
                 finally
                 {
                     Monitor.Exit(_for);
                 }
             }
+            return transid;
         }
 
-        public void AddTransWithoutLock(uint areaid, uint lifterid, TransTypeE type,
+        public uint AddTransWithoutLock(uint areaid, uint lifterid, TransTypeE type,
                                         uint goodsid, uint stocksid,
                                         uint taketrackid, uint givetrackid,
                                         TransStatusE initstatus = TransStatusE.调度设备,
@@ -258,6 +260,7 @@ namespace task.trans
             }
             catch { }
 
+            return newid;
         }
 
         /// <summary>
