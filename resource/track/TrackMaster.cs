@@ -464,10 +464,6 @@ namespace resource.track
                             mLog.Status(true, string.Format("轨道；{0}，原货：{1}，新货：{2} , {3}", relatrack.name, relatrack.StockStatus, status, memo));
                             relatrack.StockStatus = status;
                             PubMaster.Mod.TraSql.EditTrack(relatrack, TrackUpdateE.StockStatus);
-                            if (status != TrackStockStatusE.满砖)
-                            {
-                                PubMaster.Warn.RemoveTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)relatrack.id);
-                            }
                             if (status == TrackStockStatusE.有砖 && relatrack.early_full)
                             {
                                 SetTrackEaryFull(relatrack.id, false, null);
@@ -489,10 +485,6 @@ namespace resource.track
                 catch { }
                 track.StockStatus = status;
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.StockStatus);
-                if (status != TrackStockStatusE.满砖)
-                {
-                    PubMaster.Warn.RemoveTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id);
-                }
                 if (status == TrackStockStatusE.有砖 && track.early_full)
                 {
                     SetTrackEaryFull(track.id, false, null);
@@ -508,7 +500,6 @@ namespace resource.track
         {
             if (track != null)
             {
-                // 不同时变倒库
                 if (trackstatus != TrackStatusE.倒库中)
                 {
                     #region 并联轨道同时更改
@@ -517,8 +508,7 @@ namespace resource.track
                     if (relatra > 0)
                     {
                         Track relatrack = GetTrack(relatra);
-                        // 不能同时倒库完成
-                        if (relatrack.TrackStatus != TrackStatusE.倒库中 && relatrack.TrackStatus != trackstatus)
+                        if (relatrack.TrackStatus != trackstatus)
                         {
                             mLog.Status(true, string.Format("轨道；{0}，原状：{1}，新状：{2} , {3}", relatrack.name, relatrack.TrackStatus, trackstatus, memo));
                             relatrack.TrackStatus = trackstatus;

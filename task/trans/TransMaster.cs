@@ -3289,33 +3289,9 @@ namespace task.trans
         }
 
         /// <summary>
-        /// 判断并联轨道是否都被占用
-        /// </summary>
-        /// <param name="traid1"></param>
-        /// <returns></returns>
-        internal bool IsTraInTransWithLock(uint traid1,uint traid2)
-        {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(2)))
-            {
-                try
-                {
-                    return TransList.Exists(c => !c.finish && 
-                    ((c.give_track_id == traid1 || c.take_track_id == traid1 || c.finish_track_id == traid1) ||
-                     (c.give_track_id == traid2 || c.take_track_id == traid2 || c.finish_track_id == traid2))
-                    );
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
         /// 判断轨道是否有被占用
         /// </summary>
-        /// <param name="traid1"></param>
+        /// <param name="traid"></param>
         /// <returns></returns>
         internal bool IsTraInTransWithLock(uint traid)
         {

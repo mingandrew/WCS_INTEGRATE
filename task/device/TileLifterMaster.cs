@@ -1242,56 +1242,33 @@ namespace task.device
             #region 并联轨道
             // 获取当前轨道对应并联的轨道
             uint relatra = PubMaster.Track.GetRelationTrackId(currentid, out TrackRelationE tr);
-            // 二者任一被占用，则都不能用
-            if (!PubTask.Trans.IsTraInTransWithLock(currentid,relatra))
+            // 主轨道需要在意品种一致，从轨道不在意
+            bool isOk = true;
+            if (tr == TrackRelationE.主 && !PubMaster.Goods.IsTrackFineToStore(relatra, goodsid, out uint stkcount))
             {
-                // 主轨道需要在意品种一致，从轨道不在意
-                bool isOk = true;
-                uint stkcount = 0;
-                if (tr == TrackRelationE.主 && !PubMaster.Goods.IsTrackFineToStore(relatra, goodsid, out stkcount))
+                isOk = false;
+            }
+
+            if (relatra != 0 && PubMaster.Track.IsStatusOkToGive(relatra) && isOk)
+            {
+                if (PubTask.Trans.IsTraInTransWithLock(relatra))
                 {
-                    isOk = false;
+                    PubMaster.Warn.AddDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid, 0, relatra);
+                    return;
+                }
+                givetrackid = relatra;
+            }
+
+            // 尝试用回原轨道
+            if (givetrackid == 0 && PubMaster.Track.IsStatusOkToGive(currentid) && isOk)
+            {
+                if (PubTask.Trans.IsTraInTransWithLock(currentid))
+                {
+                    PubMaster.Warn.AddDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid, 0, currentid);
+                    return;
                 }
 
-                // 优先考虑库存少的轨道
-                if (PubMaster.Goods.GetTrackCount(currentid) < stkcount)
-                {
-                    if (PubMaster.Track.IsStatusOkToGive(currentid) && isOk)
-                    {
-                        if (PubTask.Trans.IsTraInTransWithLock(currentid))
-                        {
-                            PubMaster.Warn.AddDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid, 0, currentid);
-                            return;
-                        }
-
-                        givetrackid = currentid;
-                    }
-                }
-                else
-                {
-                    if (relatra > 0 && PubMaster.Track.IsStatusOkToGive(relatra) && isOk)
-                    {
-                        if (PubTask.Trans.IsTraInTransWithLock(relatra))
-                        {
-                            PubMaster.Warn.AddDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid, 0, relatra);
-                            return;
-                        }
-                        givetrackid = relatra;
-                    }
-
-                    // 尝试用回原轨道
-                    if (givetrackid == 0 && PubMaster.Track.IsStatusOkToGive(currentid) && isOk)
-                    {
-                        if (PubTask.Trans.IsTraInTransWithLock(currentid))
-                        {
-                            PubMaster.Warn.AddDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid, 0, currentid);
-                            return;
-                        }
-
-                        givetrackid = currentid;
-                    }
-                }
-
+                givetrackid = currentid;
             }
 
             PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileMultipleLastTrackInTrans, (ushort)tileid);
@@ -1462,8 +1439,7 @@ namespace task.device
                                 stockid = PubMaster.Goods.GetTrackTopStockId(relatraid);
                                 if (stockid != 0 
                                     && !PubTask.Trans.IsStockInTrans(stock.id, stock.track_id)
-                                    && !PubTask.Trans.HaveInTileTrack(stock.track_id)
-                                    && PubMaster.Goods.IsStockWithGood(stockid, goodsid))
+                                    && !PubTask.Trans.HaveInTileTrack(stock.track_id))
                                 {
                                     stockid = stock.id;
                                     taketraid = stock.track_id;
