@@ -581,8 +581,10 @@ namespace task.device
                     && (givetrack.Type == TrackTypeE.储砖_入 || givetrack.Type == TrackTypeE.储砖_出入))
                 {
                     ushort storecount = PubMaster.Track.AddTrackLog((ushort)task.AreaId, task.ID, givetrack.id, TrackLogE.满轨道, "运输车反馈信号-满");
-                    ushort areafullqty = PubMaster.Area.GetAreaFullQty(task.AreaId);
-                    if (storecount >= (areafullqty - 5)) // 少5个 安全保底
+                    //ushort areafullqty = PubMaster.Area.GetAreaFullQty(task.AreaId);
+                    //保存在字典里的 - 【满砖库存数量下限】
+                    ushort areafullqty = (ushort)PubMaster.Dic.GetDtlIntCode(DicTag.FullTrackLowerLimit);
+                    if (storecount >= areafullqty) 
                     {
                         //PubMaster.Track.SetTrackEaryFull(givetrack.id, true, DateTime.Now);
 

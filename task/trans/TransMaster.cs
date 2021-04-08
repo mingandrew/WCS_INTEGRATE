@@ -477,7 +477,9 @@ namespace task.trans
 
                                 if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
                                 {
-                                    ushort fullqty = PubMaster.Area.GetAreaFullQty(trans.area_id);
+                                    //ushort fullqty = PubMaster.Area.GetAreaFullQty(trans.area_id);
+                                    //保存在字典里的 - 【满砖库存数量上限】
+                                    ushort fullqty = (ushort)PubMaster.Dic.GetDtlIntCode(DicTag.FullTrackUpperLimit);
 
                                     if (PubMaster.Goods.GetTrackCount(trans.give_track_id) >= fullqty)
                                     {
@@ -515,7 +517,9 @@ namespace task.trans
 
                                 if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
                                 {
-                                    ushort fullqty = PubMaster.Area.GetAreaFullQty(trans.area_id);
+                                    //ushort fullqty = PubMaster.Area.GetAreaFullQty(trans.area_id);
+                                    //保存在字典里的 - 【满砖库存数量上限】
+                                    ushort fullqty = (ushort)PubMaster.Dic.GetDtlIntCode(DicTag.FullTrackUpperLimit);
 
                                     //当轨道满砖数量库存时就将轨道设为满砖轨道
                                     if (PubMaster.Goods.GetTrackCount(trans.give_track_id) >= fullqty)
