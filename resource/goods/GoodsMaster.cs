@@ -1973,8 +1973,10 @@ namespace resource.goods
         /// <returns></returns>
         private bool IsTrackFineToStore(uint trackid, uint goodsid, out uint storecount)
         {
-            bool isok = StockList.Exists(c => c.track_id == trackid && c.goods_id == goodsid);
-            if (isok)
+            //bool isok = StockList.Exists(c => c.track_id == trackid && c.goods_id == goodsid);
+            //存在但不一定在轨道最后存放的库存
+            uint gooid = PubMaster.Goods.GetLastStockGid(trackid);
+            if (gooid == goodsid)
             {
                 int maxstore = PubMaster.Track.GetTrackMaxStore(trackid);
                 storecount = StockSumList.Find(c => c.track_id == trackid)?.count ?? 0;
