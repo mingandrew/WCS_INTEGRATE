@@ -166,7 +166,7 @@ namespace task.device
                         return false;
                     }
 
-                    tc.id = PubMaster.Dic.GenerateID(DicTag.NewTranId);
+                    tc.id = PubMaster.Dic.GenerateID(DicTag.NewTrafficCtlId);
                     tc.TrafficControlStatus = TrafficControlStatusE.交管中;
                     tc.create_time = DateTime.Now;
                     PubMaster.Mod.TrafficCtlSql.AddTrafficCtl(tc);
