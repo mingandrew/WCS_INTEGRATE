@@ -30,6 +30,9 @@
 
         public static string GoodLevel = nameof(GoodLevel);//品种等级
         public static string TileLifterShiftCount = nameof(TileLifterShiftCount);//转产差值
+
+        public static string FullTrackLowerLimit = nameof(FullTrackLowerLimit);//满砖库存数量下限
+        public static string FullTrackUpperLimit = nameof(FullTrackUpperLimit);//满砖库存数量上限
     }
 
     public static class DicSwitchTag
