@@ -289,6 +289,7 @@ namespace task.device
                 DevStatus.FinishOrder = DevCarrierOrderE.无;
                 CurrentTrackId = 0;
                 TargetTrackId = 0;
+                LastTrackId = 0;
             }
         }
 

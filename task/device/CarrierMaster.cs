@@ -196,6 +196,7 @@ namespace task.device
                     CarrierTask task = DevList.Find(c => c.ID == carrierid);
                     if (task != null)
                     {
+                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, DevFerryLoadE.空);
                         task.ClearDevStatus();
                         MsgSend(task, task.DevStatus);
                     }

@@ -14,8 +14,19 @@ namespace task.task
     {
         #region[逻辑属性]
 
+        /// <summary>
+        /// 摆渡车是否被任务锁定
+        /// </summary>
         public bool IsLock { set; get; }
+
+        /// <summary>
+        /// 被锁定的任务ID
+        /// </summary>
         public uint TransId { set; get; }
+
+        /// <summary>
+        /// 最近锁定刷新时间
+        /// </summary>
         public DateTime? LockRefreshTime { set; get; }
 
         internal bool _cleaning;//清除其他轨道进行中
@@ -28,35 +39,68 @@ namespace task.task
         #endregion
 
         #region[属性]
+
+        /// <summary>
+        /// 设备状态
+        /// </summary>
         public DevFerryStatusE Status
         {
             get => DevStatus?.DeviceStatus ?? DevFerryStatusE.设备故障;
         }
-        public DevOperateModeE OperateMode//操作模式
+
+        /// <summary>
+        /// 操作模式
+        /// </summary>
+        public DevOperateModeE OperateMode
         {
             get => DevStatus?.WorkMode ?? DevOperateModeE.无;
         }
+
+        /// <summary>
+        /// 有货状态
+        /// </summary>
         public DevFerryLoadE Load
         {
             get => DevStatus?.LoadStatus ?? DevFerryLoadE.异常;
         }
+
+        /// <summary>
+        /// 下砖侧是否对上轨道
+        /// </summary>
         public bool IsDownLight
         {
             get => DevStatus?.DownLight ?? false;
         }
+
+        /// <summary>
+        /// 上砖侧是否对上轨道
+        /// </summary>
         public bool IsUpLight
         {
             get => DevStatus?.UpLight ?? false;
         }
+
+        /// <summary>
+        /// 上砖侧经过轨道号
+        /// </summary>
         public ushort UpSite
         {
             get => DevStatus?.UpSite ?? 0;
         }
+
+        /// <summary>
+        /// 下砖侧经过轨道号
+        /// </summary>
         public ushort DownSite
         {
             get => DevStatus?.DownSite ?? 0;
         }
+
         private uint uptraid, downtraid;
+
+        /// <summary>
+        /// 上砖侧经过轨道ID
+        /// </summary>
         public uint UpTrackId
         {
             get => uptraid;
@@ -74,6 +118,9 @@ namespace task.task
             }
         }
 
+        /// <summary>
+        /// 下砖侧经过轨道ID
+        /// </summary>
         public uint DownTrackId
         {
             get => downtraid;
@@ -99,15 +146,14 @@ namespace task.task
             get => DevConfig?.track_id ?? 0;
         }
 
+        /// <summary>
+        /// 通讯状态
+        /// </summary>
         public bool IsConnect
         {
             get => DevTcp?.IsConnected ?? false;
         }
-
-        /// <summary>
-        /// 是否执行复位后重新发送全部的对位信息
-        /// </summary>
-        private bool IsResetSendAllPos { set; get; }
+        
         #endregion
 
         #region[构造/启动/停止]
@@ -174,7 +220,6 @@ namespace task.task
                 {
                     speed = 1; // 慢速移动
                 }
-
             }
 
             // 记录目标点
@@ -201,6 +246,12 @@ namespace task.task
         {
             DevTcp?.SendCmd(DevFerryCmdE.原点复位, (byte)resetpos, 0, 0);
             RecordTraId = 0;
+
+            //发送原点指令同时重新写入已经对位的数据
+            if (!IsSendAll)
+            {
+                DoSendAllPose();
+            }
         }
 
         internal void DoStop()
@@ -243,15 +294,16 @@ namespace task.task
                 DownTrackId = PubMaster.Track.GetAreaTrack(ID, (ushort)AreaId, Type, DownSite);
             }
 
-            if(DevStatus.CurrentTask == DevFerryTaskE.复位
-                && DevStatus.FinishTask == DevFerryTaskE.复位)
-            {
-                DoStop();
-                if (!IsSendAll)
-                {
-                    DoSendAllPose();
-                }
-            }
+            //改为发送复位指令的时候就开始发送
+            //if(DevStatus.CurrentTask == DevFerryTaskE.复位
+            //    && DevStatus.FinishTask == DevFerryTaskE.复位)
+            //{
+            //    DoStop();
+            //    if (!IsSendAll)
+            //    {
+            //        DoSendAllPose();
+            //    }
+            //}
         }
         #endregion
 
@@ -459,6 +511,10 @@ namespace task.task
             }.Start();
         }
 
+        #endregion
+
+        #region[重新发送全部对位数据]
+
         public bool IsSendAll = false;
         internal void DoSendAllPose()
         {
@@ -472,8 +528,12 @@ namespace task.task
             }.Start();
         }
 
+        /// <summary>
+        /// 重新发送所有已经对位的数据
+        /// </summary>
         private void SendAllPos()
-        {   List<FerryPos> posList = PubMaster.Track.GetFerryPos(ID);
+        {
+            List<FerryPos> posList = PubMaster.Track.GetFerryPos(ID);
             try
             {
                 foreach (var item in posList)
@@ -494,7 +554,6 @@ namespace task.task
                 IsSendAll = false;
             }
         }
-
         #endregion
     }
 }
