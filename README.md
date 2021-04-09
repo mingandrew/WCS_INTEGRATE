@@ -129,3 +129,28 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VA
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VALUES (	178, 3, 'WarningA10X6' , '暂未配置A10X6' , '暂未配置报警信息A10X6');
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VALUES (	179, 3, 'WarningA10X7' , '暂未配置A10X7' , '暂未配置报警信息A10X7');
 
+
+2021.04.09
+更新报警sql：
+UPDATE `diction_dtl` SET `string_value` = '阅读器掉线，阅读器状态灯为红色时，检查连接线是否松动。' WHERE `id` = 100;
+UPDATE `diction_dtl` SET `string_value` = '急停触发，急停开关是否误触发？是否有异常认为打开急停开关？' WHERE `id` = 101;
+UPDATE `diction_dtl` SET `string_value` = '码盘故障，请尝试手动复位设备，消除报警' WHERE `id` = 102;
+UPDATE `diction_dtl` SET `string_value` = '前防撞触发，防撞光电亮黄绿灯时，请检查设备前方半米内是否有障碍物' WHERE `id` = 103;
+UPDATE `diction_dtl` SET `string_value` = '后防撞触发，防撞光电亮黄绿灯时，请检查设备后方半米内是否有障碍物' WHERE `id` = 104;
+UPDATE `diction_dtl` SET `string_value` = '下砖摆渡位置未设置，请在调度系统重新设置下转侧摆渡车复位点坐标值为1000' WHERE `id` = 105;
+UPDATE `diction_dtl` SET `string_value` = '上砖摆渡位置未设置，请在调度系统重新设置上转侧摆渡车复位点坐标值为实际测量值' WHERE `id` = 106;
+UPDATE `diction_dtl` SET `string_value` = '摆渡位置设置异常，下摆渡复位点坐标与上摆渡复位点坐标差值小于1000，请重新设置才能正常使用' WHERE `id` = 107;
+UPDATE `diction_dtl` SET `string_value` = '校验轨道号发现错误，分配的轨道号与实际进入轨道号不符合，请检查任务分配轨道与实际轨道号是否一致' WHERE `id` = 108;
+UPDATE `diction_dtl` SET `string_value` = '前进存砖定位光电异常，检查光电是否误触发' WHERE `id` = 109;
+UPDATE `diction_dtl` SET `string_value` = '下降到位信号异常，检查下位接近开关有没有信号' WHERE `id` = 110;
+UPDATE `diction_dtl` SET `string_value` = '后退取砖空砖，调度系统自动删除库存信息，恢复自动作业' WHERE `id` = 111;
+UPDATE `diction_dtl` SET `string_value` = '顶升超时，上升到位接近开关异常，检查上位接近开关' WHERE `id` = 112;
+UPDATE `diction_dtl` SET `string_value` = '下降超时，下降到位接近开关异常，检查下位接近开关' WHERE `id` = 113;
+UPDATE `diction_dtl` SET `string_value` = '倒库空砖，调度系统自动删除库存信息，恢复自动作业' WHERE `id` = 114;
+UPDATE `diction_dtl` SET `string_value` = '倒库异常自保护，前进存砖定位光电异常，检查前进存砖定位光电是否误触发' WHERE `id` = 115;
+UPDATE `diction_dtl` SET `string_value` = '倒库异常自保护，有砖光电异常，检查有砖光电是否误触发' WHERE `id` = 116;
+UPDATE `diction_dtl` SET `string_value` = '倒库异常自保护，后退取砖定位光电异常，检查后退取砖定位光电是否误触发' WHERE `id` = 117;
+UPDATE `diction_dtl` SET `string_value` = '前进极限触发保护，设备停止后，调度系统可正常调度' WHERE `id` = 118;
+UPDATE `diction_dtl` SET `string_value` = '后退极限触发保护，设备停止后，调度系统可正常调度' WHERE `id` = 119;
+UPDATE `diction_dtl` SET `string_value` = '倒库异常，倒库空砖，检查光电是否误触发' WHERE `id` = 120;
+UPDATE `diction_dtl` SET `string_value` = '取砖异常，取砖定位光电异常，检查取砖定位光电是否误触发' WHERE `id` = 121;
