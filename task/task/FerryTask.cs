@@ -261,7 +261,7 @@ namespace task.task
             RecordTraId = 0;
         }
 
-        internal void DoAutoPos(DevFerryAutoPosE posside, int starttrack, byte tracknumber)
+        internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber)
         {
             byte[] b = BitConverter.GetBytes(starttrack);
             DevTcp?.SendAutoPosCmd(DevFerryCmdE.自动对位, b[1], b[0], (byte)posside, tracknumber);

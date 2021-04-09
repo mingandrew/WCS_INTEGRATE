@@ -205,6 +205,14 @@ goods_id = {5}, pre_goodid = {6} WHERE id = {0}",
             return row >= 1;
         }
 
+        public bool EditSimFerryInitSite(ConfigFerry dev)
+        {
+            string sql = string.Format(@"UPDATE config_ferry SET sim_left_site = {1}, sim_right_site = {2} WHERE id = {0}",
+                dev.id, dev.sim_left_site, dev.sim_right_site);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
         #endregion
 
         #endregion

@@ -204,6 +204,8 @@ namespace simtask.master
 
                 task.SetInitSiteAndPos(isdown, isup) ;
                 ServerSend(task.DevId, task.DevStatus);
+
+                PubMaster.Mod.DevConfigSql.EditSimFerryInitSite(task.DevConfig);
             }
         }
 

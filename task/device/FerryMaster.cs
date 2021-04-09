@@ -1300,7 +1300,7 @@ namespace task.device
             _IsSetting = _FerryPosSetList.Count != 0;
         }
 
-        public void AutoPosMsgSend(uint ferryid, DevFerryAutoPosE posside, int starttrack, byte tracknumber)
+        public void AutoPosMsgSend(uint ferryid, DevFerryAutoPosE posside, ushort starttrack, byte tracknumber)
         {
             FerryTask task = DevList.Find(c => c.ID == ferryid);
             task.DoAutoPos(posside, starttrack, tracknumber);

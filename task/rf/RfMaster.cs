@@ -1213,6 +1213,10 @@ namespace task.rf
             }
         }
 
+        /// <summary>
+        /// 摆渡车自动对位数量
+        /// </summary>
+        /// <param name="msg"></param>
         private void TaskFerryAutoPos(RfMsgMod msg)
         {
             if (msg.IsPackHaveData())
@@ -1220,8 +1224,17 @@ namespace task.rf
                 FerryAutoPosPack pack = JsonTool.Deserialize<FerryAutoPosPack>(msg.Pack.Data);
                 if (pack != null && pack.DevId > 0)
                 {
-                    PubTask.Ferry.AutoPosMsgSend(pack.DevId, pack.PosSide, pack.StartTrack, (byte)pack.TrackQty);
-                    SendSucc2Rf(msg.MEID, FunTag.TaskFerryAutoPos, "ok");
+                    ushort area = PubMaster.Track.GetFerryTrackArea(pack.DevId, (ushort)pack.StartTrack);
+                    int autolen = PubMaster.Track.GetFerryAutoPosLen(area, pack.DevId, (ushort)pack.StartTrack);
+                    if(pack.TrackQty > autolen)
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.TaskFerryAutoPos, string.Format("从{0}开始对位数量最大为{1}",pack.StartTrack, autolen));
+                    }
+                    else
+                    {
+                        PubTask.Ferry.AutoPosMsgSend(pack.DevId, pack.PosSide, (ushort)pack.StartTrack, (byte)pack.TrackQty);
+                        SendSucc2Rf(msg.MEID, FunTag.TaskFerryAutoPos, "ok");
+                    }
                 }
             }
         }

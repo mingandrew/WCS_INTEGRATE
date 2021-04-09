@@ -136,12 +136,12 @@ namespace simtask.task
                 NowPos = upferry?.sim_ferry_pos ?? 0;
             }
 
-            if(Math.Abs(downferry.sim_ferry_pos - NowPos) > 10)
+            if(downferry != null && Math.Abs(downferry.sim_ferry_pos - NowPos) > 10)
             {
                 DevStatus.DownLight = false;
             }
 
-            if(Math.Abs(upferry.sim_ferry_pos - NowPos) > 10)
+            if(upferry != null && Math.Abs(upferry.sim_ferry_pos - NowPos) > 10)
             {
                 DevStatus.UpLight = false;
             }

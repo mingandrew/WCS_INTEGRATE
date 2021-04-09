@@ -20,7 +20,7 @@ namespace wcs.ViewModel
         #region[字段]
         private Device selectferry;
         private MsgAction _result;
-        private int starttrack;
+        private ushort starttrack;
         private byte tracknumber;
         private string ferryname;
         private byte maxtracknumber;//根据选中的轨道设置最大轨道数
@@ -34,7 +34,7 @@ namespace wcs.ViewModel
             get => selectferry;
             set => Set(ref selectferry, value);
         }
-        public int STARTTRACKCODE
+        public ushort STARTTRACKCODE
         {
             get => starttrack;
             set => Set(ref starttrack, value);
@@ -83,7 +83,7 @@ namespace wcs.ViewModel
             CloseAction?.Invoke();
         }
 
-        public void SetDialog(int ferrycode, int maxtracknum)
+        public void SetDialog(ushort ferrycode, int maxtracknum)
         {
             maxtracknumber = (byte)maxtracknum;
             FerryName = SELECTFERRY.name;

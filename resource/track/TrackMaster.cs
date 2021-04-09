@@ -3,6 +3,7 @@ using enums.track;
 using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
 using module.area;
+using module.device;
 using module.msg;
 using module.rf;
 using module.track;
@@ -1245,6 +1246,16 @@ namespace resource.track
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.Alert);
                 SendMsg(track);
             }
+        }
+
+        public ushort GetFerryTrackArea(uint devId, ushort startTrack)
+        {
+            Device dev = PubMaster.Device.GetDevice(devId);
+            if(dev.Type == DeviceTypeE.上摆渡)
+            {
+                return TrackList.Find(c => c.IsUpAreaTrack() && c.ferry_down_code == startTrack || c.ferry_up_code == startTrack)?.area ?? dev.area;
+            }
+            return TrackList.Find(c => c.IsDownAreaTrack() && c.ferry_down_code == startTrack || c.ferry_up_code == startTrack)?.area ?? dev.area;
         }
 
         /// <summary>
