@@ -2143,11 +2143,6 @@ namespace task.trans
                     {
                         if (PubTask.Carrier.IsCarrierFree(carrierid))
                         {
-                            AddMoveCarrierTask(trans.take_track_id, carrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
-                        }
-                        else if (PubTask.Carrier.IsCarrierInTask(carrierid, DevCarrierOrderE.前进倒库) ||
-                                    PubTask.Carrier.IsCarrierInTask(carrierid, DevCarrierOrderE.后退倒库))
-                        {
                             SetStatus(trans, TransStatusE.调度设备);
                         }
                     }
@@ -2340,10 +2335,7 @@ namespace task.trans
                     if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
                         PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
                     {
-                        if (PubMaster.Goods.ShiftStock(trans.take_track_id, trans.give_track_id))
-                        {
                             SetStatus(trans, TransStatusE.小车回轨);
-                        }
                     }
 
                     //倒库中，突然倒库的轨道存在其他小车

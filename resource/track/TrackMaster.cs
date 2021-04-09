@@ -22,7 +22,6 @@ namespace resource.track
         private bool Refreshing = true;
         private Thread _mRefresh;
         private readonly object _obj;
-
         #endregion
 
 
@@ -82,6 +81,7 @@ namespace resource.track
                         try
                         {
                             GetAndRefreshUpCount(track.id);
+                            RefreshIsUpSort(track.id);
                         }
                         catch (Exception e)
                         {
@@ -858,8 +858,12 @@ namespace resource.track
             Track track = GetTrack(trackid);
             if (track != null)
             {
-                track.isupsort = issort;
-                PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.IsUpSort);
+                if (track.isupsort != issort)
+                {
+                    track.isupsort = issort;
+                    PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.IsUpSort);
+                }
+                
             }
         }
 
@@ -1588,6 +1592,28 @@ namespace resource.track
             }
             return false;
         }
+
+        public void RefreshIsUpSort(uint trackid)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    Track track = GetTrack(trackid);
+                    if (track.isupsort == false)
+                    {
+                        if (track.upcount == 0 && PubMaster.Goods.GetStocks(trackid).Count > 0)
+                        {
+                            UpdateIsUpSort(trackid, true);
+                        }
+                    }
+                }
+                finally { Monitor.Exit(_obj); }
+
+            }
+
+        }
+
 
         /// <summary>
         /// 上砖侧是否分割
