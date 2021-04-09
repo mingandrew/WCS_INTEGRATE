@@ -132,7 +132,7 @@ namespace task.device
                             continue;
                         }
 
-                        #region 下砖-转产
+                        #region 下砖\上砖\过砖-转产
 
                         if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
                         {
@@ -204,7 +204,7 @@ namespace task.device
                             }
                         }
 
-                        if (task.DevConfig.do_shift && task.DevConfig.WorkMode == TileWorkModeE.上砖)
+                        if(task.DevConfig.do_shift && (task.DevConfig.WorkMode == TileWorkModeE.上砖 || task.DevConfig.WorkMode == TileWorkModeE.过砖))
                         {
                             task.DevConfig.do_shift = false;
                             PubMaster.Mod.DevConfigSql.EditConfigTileLifter(task.DevConfig);

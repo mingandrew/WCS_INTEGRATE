@@ -506,6 +506,12 @@ namespace resource.device
                     return false;
                 }
 
+                if (dev.WorkMode == TileWorkModeE.过砖)
+                {
+                    result = "过砖模式中，无法转产！";
+                    return false;
+                }
+
                 if (dev.goods_id != nowgoodid)
                 {
                     result = "请刷新设备信息！";
