@@ -187,6 +187,9 @@ namespace task
                 RemoveWarning(warn);
             }
         }
+
+        #region 运输车
+
         public void AddCarrierWarn(CarrierWarnE warntype, ushort devid, ushort alertidx)
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && !c.resolve);
@@ -220,6 +223,45 @@ namespace task
                 RemoveWarning(warn);
             }
         }
+        #endregion
+
+        #region 摆渡车
+
+        public void AddFerryWarn(FerryWarnE warntype, ushort devid, ushort alertidx)
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && !c.resolve);
+            if (warn == null)
+            {
+                warn = new Warning()
+                {
+                    dev_id = devid,
+                    type = (byte)warntype,
+                    track_id = alertidx
+                };
+                string devname = PubMaster.Device.GetDeviceName(devid);
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                warn.content = devname + ": " + warnmsg;
+                AddWaring(warn);
+            }
+        }
+        public void RemoveFerryWarn(FerryWarnE warntype, ushort devid)
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && !c.resolve);
+            if (warn != null)
+            {
+                RemoveWarning(warn);
+            }
+        }
+        public void RemoveFerryWarn(ushort devid, ushort alertidx)
+        {
+            Warning warn = List.Find(c => c.dev_id == devid && !c.resolve && c.track_id == alertidx);
+            if (warn != null)
+            {
+                RemoveWarning(warn);
+            }
+        }
+        #endregion
+
         #endregion
 
         #region[任务警告]

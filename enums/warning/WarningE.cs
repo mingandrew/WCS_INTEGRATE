@@ -142,4 +142,18 @@
         WarningA10X7,
     }
 
+    /// <summary>
+    /// 摆渡车反馈报警信息
+    /// </summary>
+    public enum FerryWarnE
+    {
+        WarningF_A1X0 = 180,
+        WarningF_A1X1,
+        WarningF_A1X2,
+        WarningF_A1X3,
+        WarningF_A1X4,
+        WarningF_A1X5,
+        WarningF_A1X6,
+        WarningF_A1X7,
+    }
 }

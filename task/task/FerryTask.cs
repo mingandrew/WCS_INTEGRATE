@@ -1,4 +1,5 @@
 ﻿using enums;
+using enums.warning;
 using module.device;
 using module.deviceconfig;
 using module.track;
@@ -153,7 +154,7 @@ namespace task.task
         {
             get => DevTcp?.IsConnected ?? false;
         }
-        
+
         #endregion
 
         #region[构造/启动/停止]
@@ -554,6 +555,102 @@ namespace task.task
                 IsSendAll = false;
             }
         }
+        #endregion
+
+        #region [检查报警]
+
+        public void CheckAlert()
+        {
+            Alert1();
+        }
+
+        private void Alert1()
+        {
+            if (DevStatus.Reserve == 0)
+            {
+                PubMaster.Warn.RemoveFerryWarn((ushort)ID, 1);
+                return;
+            }
+
+            // 7 6 5 4   3 2 1 0 从零开始算
+            if (On(DevStatus.Reserve, 0))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X0, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X0, (ushort)ID);
+            }
+
+            if (On(DevStatus.Reserve, 1))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X1, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X1, (ushort)ID);
+            }
+
+            if (On(DevStatus.Reserve, 2))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X2, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X2, (ushort)ID);
+            }
+
+            if (On(DevStatus.Reserve, 3))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X3, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X3, (ushort)ID);
+            }
+
+            if (On(DevStatus.Reserve, 4))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X4, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X4, (ushort)ID);
+            }
+
+            if (On(DevStatus.Reserve, 5))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X5, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X5, (ushort)ID);
+            }
+
+            if (On(DevStatus.Reserve, 6))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X6, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X6, (ushort)ID);
+            }
+
+            if (On(DevStatus.Reserve, 7))
+            {
+                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X7, (ushort)ID, 1);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveFerryWarn(FerryWarnE.WarningF_A1X7, (ushort)ID);
+            }
+        }
+
+        private bool On(byte b, byte p)
+        {
+            return (b >> p) % 2 == 1;
+        }
+
         #endregion
     }
 }

@@ -157,6 +157,9 @@ namespace task.device
 
                             }
 
+                            // 摆渡车反馈的报警
+                            task.CheckAlert();
+
                             #region 失去位置信息-报警
                             if (!task.IsEnable && !task.IsWorking)
                             {
