@@ -238,6 +238,12 @@ namespace resource.module.modulesql
                 case TrackUpdateE.Point:
                     sql += string.Format("`split_point` = {0},`limit_point` = {1},`limit_point_up` = {2} ", track.split_point, track.limit_point, track.limit_point_up);
                     break;
+                case TrackUpdateE.UpCount:
+                    sql += string.Format("`upcount` = {0} ", track.upcount);
+                    break;
+                case TrackUpdateE.IsUpSort:
+                    sql += string.Format("`isupsort` = {0} ", track.isupsort);
+                    break;
                 default:
                     sql += " 1=1";
                     break;

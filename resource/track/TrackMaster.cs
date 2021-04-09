@@ -10,12 +10,22 @@ using module.track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using tool.mlog;
 
 namespace resource.track
 {
     public class TrackMaster
     {
+
+        #region[字段]
+        private bool Refreshing = true;
+        private Thread _mRefresh;
+        private readonly object _obj;
+
+        #endregion
+
+
         #region[构造/初始化]
 
         private Log mLog;
@@ -24,11 +34,20 @@ namespace resource.track
         {
             mLog = (Log)new LogFactory().GetLog("工位日志", false);
             TrackList = new List<Track>();
+            _obj = new object();
         }
 
         public void Start()
         {
             Refresh();
+            if (_mRefresh == null || !_mRefresh.IsAlive || _mRefresh.ThreadState == ThreadState.Aborted)
+            {
+                _mRefresh = new Thread(RefreshUpCount)
+                {
+                    IsBackground = true
+                };
+            }
+            _mRefresh.Start();
         }
 
         public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true)
@@ -47,6 +66,38 @@ namespace resource.track
             }
         }
 
+        /// <summary>
+        /// 刷新上砖数量
+        /// </summary>
+        public void RefreshUpCount()
+        {
+            if (!IsUpSplit()) return;
+            while (Refreshing)
+            {
+                try
+                {
+                    List<Track> UpTrackList = TrackList.FindAll(c => c.Type == TrackTypeE.储砖_出 && c.up_split_point > 0);
+                    foreach (Track track in UpTrackList)
+                    {
+                        try
+                        {
+                            GetAndRefreshUpCount(track.id);
+                        }
+                        catch (Exception e)
+                        {
+                            mLog.Error(true, e.Message, e);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message, e);
+                }
+                Thread.Sleep(2000);
+            }
+        }
+
+
         public object GetTrackNameByCode(ushort trackcode)
         {
             return TrackList.Find(c => c.IsInTrack(trackcode))?.name ?? "";
@@ -54,7 +105,8 @@ namespace resource.track
 
         public void Stop()
         {
-
+            Refreshing = false;
+            _mRefresh?.Abort();
         }
         #endregion
 
@@ -664,6 +716,17 @@ namespace resource.track
             }
         }
 
+        public void SetUpSortStatus(uint taketrackid, uint givetrackid, TrackStatusE fromstatus, TrackStatusE tostatus)
+        {
+            Track taketrack = TrackList.Find(c => c.id == taketrackid);
+            Track givetrack = TrackList.Find(c => c.id == givetrackid);
+
+            if (taketrack != null && taketrack.TrackStatus == fromstatus)
+            {
+                UpdateTrackStatus(taketrack, tostatus, "倒库");
+            }
+        }
+
 
         /// <summary>
         /// 倒库交换库存信息
@@ -776,6 +839,27 @@ namespace resource.track
             {
                 track.recent_goodid = goodid;
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.RecentGoodId);
+            }
+        }
+
+
+        public void UpdateUpCount(uint trackid, int count)
+        {
+            Track track = TrackList.Find(c => c.id == trackid);
+            if (track != null)
+            {
+                track.upcount = count;
+                PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.UpCount);
+            }
+        }
+
+        public void UpdateIsUpSort(uint trackid, bool issort)
+        {
+            Track track = GetTrack(trackid);
+            if (track != null)
+            {
+                track.isupsort = issort;
+                PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.IsUpSort);
             }
         }
 
@@ -1283,6 +1367,17 @@ namespace resource.track
                 SendMsg(track);
             }
         }
+
+        /// <summary>
+        /// 获取上砖侧半满轨道
+        /// </summary>
+        public List<Track> GetUpSortTrack()
+        {
+            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 && c.Type == TrackTypeE.储砖_出 && c.StockStatus == TrackStockStatusE.有砖 
+            && c.upcount == 0 && PubMaster.Goods.GetStocks(c.id).Count > 0 && c.up_split_point != 0 && c.isupsort == true);  //
+        }
+
+
         #endregion
 
         #region[更新轨道状态]
@@ -1343,7 +1438,8 @@ namespace resource.track
             {
                 if (track.StockStatus != TrackStockStatusE.有砖
                     || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
-                    || track.AlertStatus != TrackAlertE.正常)
+                    || track.AlertStatus != TrackAlertE.正常
+                    || (track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0))
                 {
                     UpdateRecentTile(track.id, 0);
                     UpdateRecentGood(track.id, 0);
@@ -1373,7 +1469,8 @@ namespace resource.track
                 {
                     if (track.StockStatus == TrackStockStatusE.空砖
                         || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
-                        || track.AlertStatus != TrackAlertE.正常)
+                        || track.AlertStatus != TrackAlertE.正常
+                        || (track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0))
                     {
                         UpdateRecentTile(track.id, 0);
                         UpdateRecentGood(track.id, 0);
@@ -1427,6 +1524,125 @@ namespace resource.track
                 return false;
             }
 
+            return true;
+        }
+       
+        /// <summary>
+        /// 获取并刷新轨道上砖数量
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public int GetAndRefreshUpCount(uint trackid)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    Track track = GetTrack(trackid);
+                    if (track.up_split_point == 0) return -1;
+                    int count = -1;
+                    if (track != null)
+                    {
+                        count = PubMaster.Goods.GetUpStocks(trackid).Count;
+                        if (count != track.upcount)
+                        {
+                            PubMaster.Track.UpdateUpCount(trackid, count);
+                            return count;
+                        }
+                        else return track.upcount;              
+                
+                    }
+                    return count;
+                }
+                finally { Monitor.Exit(_obj); }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// 上砖数量是否为空
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsUpCountEmpty(uint trackid)
+        {
+            Track track = GetTrack(trackid);
+            if (track != null && track.upcount == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 是否在上砖侧倒库状态
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsUpSort(uint trackid)
+        {
+            Track track = GetTrack(trackid);
+            if (track != null)
+            {
+                return track.isupsort;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 上砖侧是否分割
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsUpSplit(uint trackid)
+        {
+            Track track = GetTrack(trackid);
+            bool isupsplit = false;
+            if (track != null)
+            {
+                if (track.up_split_point != 0)
+                {
+                    isupsplit = true;
+                }
+            }
+            return isupsplit;
+        }
+
+        public bool IsUpSplit()
+        {
+            return TrackList.Exists(c => c.up_split_point != 0 && c.Type == TrackTypeE.储砖_出);
+        }
+
+        /// <summary>
+        /// 获取上砖侧分割点
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public int GetUpPoint(uint trackid)
+        {
+            Track track = GetTrack(trackid);
+            if (track != null)
+            {
+                return track.up_split_point;
+            }
+            return 0;
+        }
+
+        /// <summary>
+        /// 上砖分割检查
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool CheckStocksTrack(uint trackid)
+        {
+            if (IsUpSplit(trackid))
+            {
+                if (GetAndRefreshUpCount(trackid) > 0 && !IsUpSort(trackid))
+                {
+                    return true;
+                }
+                else return false;
+            }
             return true;
         }
         #endregion

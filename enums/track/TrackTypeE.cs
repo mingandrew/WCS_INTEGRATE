@@ -66,7 +66,9 @@
         RecentTileId,
         Alert,
         EarlyFull,
-        Point
+        Point,
+        UpCount,
+        IsUpSort
     }
 
     public enum TrackAlertE

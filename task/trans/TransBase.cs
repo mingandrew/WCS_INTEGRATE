@@ -107,6 +107,9 @@ namespace task.trans
                                     case TransTypeE.同向上砖:
                                         DoSameSideOutTrans(trans);
                                         break;
+                                    case TransTypeE.上砖侧倒库:
+                                        DoUpSortTrans(trans);
+                                        break;
                                 }
                             }
                             catch (Exception e)
@@ -116,6 +119,7 @@ namespace task.trans
                         }
 
                         CheckTrackSort();  //包装前无需倒库
+                        CheckUpTrackSort(); //上砖侧倒库
                     }
                     catch (Exception e)
                     {
@@ -135,10 +139,12 @@ namespace task.trans
         public abstract void DoOutTrans(StockTrans trans);//上砖任务
         public abstract void DoSameSideOutTrans(StockTrans trans);//同向出库
         public abstract void DoSortTrans(StockTrans trans);//倒库
+        public abstract void DoUpSortTrans(StockTrans trans);//上砖侧倒库
         public abstract void DoMoveCarrier(StockTrans trans);//移车
         public abstract void DoManualInTrans(StockTrans trans);//手动入库
         public abstract void DoManualOutTrans(StockTrans trans);//手动出库
         public abstract void CheckTrackSort();
+        public abstract void CheckUpTrackSort();
         protected abstract void SendMsg(StockTrans trans);
         #endregion
 
@@ -236,6 +242,7 @@ namespace task.trans
                             PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
                         break;
                     case TransTypeE.倒库任务:
+                    case TransTypeE.上砖侧倒库:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], " +
                             "货物[ {3} ], 取轨[ {4} ], 卸轨[ {5} ]",
                             trans.id, type, initstatus,

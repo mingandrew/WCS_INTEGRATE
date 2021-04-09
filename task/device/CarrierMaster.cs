@@ -1277,6 +1277,7 @@ namespace task.device
                         case TransTypeE.手动上砖:
                             IsGetCarrier = GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
                             break;
+                        case TransTypeE.上砖侧倒库:
                         case TransTypeE.倒库任务:
                             IsGetCarrier = GetTransSortCarrier(trans, out carrierid, out result);
                             break;

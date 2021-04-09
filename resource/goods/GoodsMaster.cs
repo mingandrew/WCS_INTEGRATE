@@ -214,6 +214,13 @@ namespace resource.goods
             return StockSumList.FindAll(c => c.area == areaid).ToList();
         }
 
+        public List<Stock> GetUpStocks(uint trackid)
+        {
+            int uppoint = PubMaster.Track.GetUpPoint(trackid);
+            return StockList.FindAll(c => c.track_id == trackid && c.location >= uppoint);
+        }
+
+
         #endregion
 
         #region[规格]
@@ -1059,7 +1066,8 @@ namespace resource.goods
             //2.根据优先级查看非空且是需求的品种的轨道
             List<Stock> stocks = StockList.FindAll(c => c.goods_id == goodsid 
                                                     && c.PosType == StockPosE.头部 
-                                                    &&  devtrack.Exists(d => d.track_id == c.track_id));
+                                                    &&  devtrack.Exists(d => d.track_id == c.track_id)
+                                                    && PubMaster.Track.CheckStocksTrack(c.track_id));
 
             if (stocks.Count == 0)
             {

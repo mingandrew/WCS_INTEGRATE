@@ -48,6 +48,8 @@ namespace module.track
         public bool early_full { set; get; }//提前满砖
         public DateTime? full_time { set; get; }//满砖时间
         public bool same_side_inout { set; get; }//是否同侧出入库
+        public int upcount { get; set; }//上砖车数
+        public bool isupsort { get; set; }//是否在上砖侧倒库
 
         /// <summary>
         /// 轨道分段点坐标
@@ -63,6 +65,12 @@ namespace module.track
         /// 轨道上砖极限点坐标
         /// </summary>
         public ushort limit_point_up { set; get; }
+
+        /// <summary>
+        /// 上砖侧分割点坐标
+        /// </summary>
+        public int up_split_point { get; set; }
+
         public ushort line { set; get; }//线
         /// <summary>
         /// 轨道类型
