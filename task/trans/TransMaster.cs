@@ -1477,7 +1477,7 @@ namespace task.trans
                                         trans.IsLeaveTileLifter = true;
                                     }
 
-                                    if (PubMaster.Track.IsUpSplit(trans.take_ferry_id))
+                                    if (PubMaster.Track.IsUpSplit(trans.take_track_id))
                                     {
                                         int count = PubMaster.Track.GetAndRefreshUpCount(trans.take_track_id);
                                         if (count == 0)
