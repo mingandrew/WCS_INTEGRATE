@@ -709,12 +709,23 @@ namespace wcs.ViewModel
         {
             if (_tabtag.Equals("tiletrack"))
             {
+                if (_selecttile == null)
+                {
+                    return;
+                }
+
                 PubMaster.Area.SaveToDb(SelectAreaId, _selecttile.id);
             }
             else
             {
+                if (_selectferry == null)
+                {
+                    return;
+                }
+
                 PubMaster.Area.SaveToDb(SelectAreaId, _selectferry.id);
             }
+            Growl.Success("保存成功！");
         }
 
         #endregion

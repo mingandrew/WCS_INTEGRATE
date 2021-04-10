@@ -181,6 +181,7 @@ namespace wcs.ViewModel
                         return;
                     }
                     PubTask.Carrier.DoAreaResetSite(areaid, SelectPos.track_point, SelectPos.track_pos);
+                    Growl.Info("发送数据！");
                     break;
 
             }
