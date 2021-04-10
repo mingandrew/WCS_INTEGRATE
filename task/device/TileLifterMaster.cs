@@ -1088,14 +1088,23 @@ namespace task.device
                         task.Do1Invo(DevLifterInvolE.介入);
                         return;
                     }
-
+                    if (task.HaveBrother)
+                    {
+                        TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
+                        if (!brotask.IsInvo_1)
+                        {
+                            Thread.Sleep(1000);
+                            brotask.Do1Invo(DevLifterInvolE.介入);
+                            return;
+                        }
+                    }
                     #endregion
 
                     //判断当前砖机轨道是否已有任务
                     if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
 
 
-                    if (!CheckUpBrotherIsReady(task, true, false)) return;
+                    if (!CheckUpBrotherIsReady(task, true, true)) return;
 
                     #region[生成出库交易]
 
@@ -1254,7 +1263,16 @@ namespace task.device
                         task.Do2Invo(DevLifterInvolE.介入);
                         return;
                     }
-
+                    if (task.HaveBrother)
+                    {
+                        TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
+                        if (!brotask.IsInvo_2)
+                        {
+                            Thread.Sleep(1000);
+                            brotask.Do2Invo(DevLifterInvolE.介入);
+                            return;
+                        }
+                    }
                     #endregion
 
                     //判断当前砖机轨道是否已有任务
