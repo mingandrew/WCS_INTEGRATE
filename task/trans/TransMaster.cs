@@ -3504,7 +3504,7 @@ namespace task.trans
 
         private int HaveAreaSortTask(ushort area, ushort line)
         {
-            return TransList.Count(c => !c.finish && c.area_id == area && c.line == line && c.TransType == TransTypeE.倒库任务);
+            return TransList.Count(c => !c.finish && c.area_id == area && c.line == line && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖侧倒库));
         }
 
         #endregion
