@@ -231,7 +231,8 @@ namespace task.device
         /// </summary>
         public bool IsNotDoingTask
         {
-            get => OnGoingOrder == DevCarrierOrderE.无 && (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无);
+            get => (OnGoingOrder == DevCarrierOrderE.无 || OnGoingOrder == DevCarrierOrderE.终止指令) 
+                && (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无);
         }
 
         public bool IsConnect
