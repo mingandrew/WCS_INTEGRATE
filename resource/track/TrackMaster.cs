@@ -39,14 +39,6 @@ namespace resource.track
         public void Start()
         {
             Refresh();
-            if (_mRefresh == null || !_mRefresh.IsAlive || _mRefresh.ThreadState == ThreadState.Aborted)
-            {
-                _mRefresh = new Thread(RefreshUpCount)
-                {
-                    IsBackground = true
-                };
-            }
-            _mRefresh.Start();
         }
 
         public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true)
@@ -63,37 +55,13 @@ namespace resource.track
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// 刷新上砖数量
-        /// </summary>
-        public void RefreshUpCount()
-        {
-            if (!IsUpSplit()) return;
-            while (Refreshing)
+            if (refr_2)
             {
-                try
+                List<Track> list = TrackList.FindAll(c => c.Type == TrackTypeE.储砖_出 && c.up_split_point > 0);
+                foreach (Track track in list)
                 {
-                    List<Track> UpTrackList = TrackList.FindAll(c => c.Type == TrackTypeE.储砖_出 && c.up_split_point > 0);
-                    foreach (Track track in UpTrackList)
-                    {
-                        try
-                        {
-                            GetAndRefreshUpCount(track.id);
-                            RefreshIsUpSort(track.id);
-                        }
-                        catch (Exception e)
-                        {
-                            mLog.Error(true, e.Message, e);
-                        }
-                    }
+                    GetAndRefreshUpCount(track.id);
                 }
-                catch (Exception e)
-                {
-                    mLog.Error(true, e.Message, e);
-                }
-                Thread.Sleep(2000);
             }
         }
 
@@ -853,19 +821,6 @@ namespace resource.track
             }
         }
 
-        public void UpdateIsUpSort(uint trackid, bool issort)
-        {
-            Track track = GetTrack(trackid);
-            if (track != null)
-            {
-                if (track.isupsort != issort)
-                {
-                    track.isupsort = issort;
-                    PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.IsUpSort);
-                }
-                
-            }
-        }
 
         /// <summary>
         /// 空砖/满砖/一般的取货卸货
@@ -1377,8 +1332,9 @@ namespace resource.track
         /// </summary>
         public List<Track> GetUpSortTrack()
         {
-            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 && c.Type == TrackTypeE.储砖_出 && c.StockStatus == TrackStockStatusE.有砖 
-            && c.upcount == 0 && PubMaster.Goods.GetStocks(c.id).Count > 0 && c.up_split_point != 0 && c.isupsort == true);  //
+
+            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 && c.Type == TrackTypeE.储砖_出 && c.StockStatus == TrackStockStatusE.有砖
+            && GetAndRefreshUpCount(c.id) == 0 && PubMaster.Goods.GetStocks(c.id).Count > 0 && c.up_split_point != 0);
         }
 
 
@@ -1447,6 +1403,7 @@ namespace resource.track
                 {
                     UpdateRecentTile(track.id, 0);
                     UpdateRecentGood(track.id, 0);
+                    PubMaster.DevConfig.SetLastTrackId(tilelifterid, 0);
                     continue;
                 }
                 if (!PubMaster.Goods.ExistStockInTrack(track.id))
@@ -1478,6 +1435,7 @@ namespace resource.track
                     {
                         UpdateRecentTile(track.id, 0);
                         UpdateRecentGood(track.id, 0);
+                        PubMaster.DevConfig.SetLastTrackId(tilelifterid, 0);                        
                         continue;
                     }
 
@@ -1489,10 +1447,10 @@ namespace resource.track
                     //}
                 }
             }
-
-            if (currentTake != 0)
+            uint currenttra = PubMaster.DevConfig.GetLastTrackId(tilelifterid);
+            if (currenttra != 0)
             {
-                trackid = currentTake;
+                trackid = currenttra;
                 return true;
             }
 
@@ -1547,10 +1505,11 @@ namespace resource.track
                     int count = -1;
                     if (track != null)
                     {
-                        count = PubMaster.Goods.GetUpStocks(trackid).Count;
+                        count = PubMaster.Goods.GetUpStocks(trackid);
                         if (count != track.upcount)
                         {
                             PubMaster.Track.UpdateUpCount(trackid, count);
+                            mLog.Status(true, "更新[" + track.name + "]可上砖数量为[" + count + "]");
                             return count;
                         }
                         else return track.upcount;              
@@ -1562,6 +1521,7 @@ namespace resource.track
             }
             return -1;
         }
+
 
         /// <summary>
         /// 上砖数量是否为空
@@ -1577,43 +1537,6 @@ namespace resource.track
             }
             return false;
         }
-
-        /// <summary>
-        /// 是否在上砖侧倒库状态
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        public bool IsUpSort(uint trackid)
-        {
-            Track track = GetTrack(trackid);
-            if (track != null)
-            {
-                return track.isupsort;
-            }
-            return false;
-        }
-
-        public void RefreshIsUpSort(uint trackid)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    Track track = GetTrack(trackid);
-                    if (track.isupsort == false)
-                    {
-                        if (track.upcount == 0 && PubMaster.Goods.GetStocks(trackid).Count > 0)
-                        {
-                            UpdateIsUpSort(trackid, true);
-                        }
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
-
-            }
-
-        }
-
 
         /// <summary>
         /// 上砖侧是否分割
@@ -1667,7 +1590,7 @@ namespace resource.track
         {
             if (IsUpSplit(trackid))
             {
-                if (GetAndRefreshUpCount(trackid) > 0 && !IsUpSort(trackid))
+                if (GetAndRefreshUpCount(trackid) > 0)
                 {
                     return true;
                 }

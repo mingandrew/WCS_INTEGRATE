@@ -1464,7 +1464,6 @@ namespace task.trans
 
                         #region[小车在摆渡车上]
                         case TrackTypeE.摆渡车_出:
-                            bool isupsort = false;
                             if (isnotload)
                             {
                                 //小车在摆渡车上
@@ -1476,20 +1475,6 @@ namespace task.trans
                                     {
                                         trans.IsLeaveTileLifter = true;
                                     }
-
-                                    if (PubMaster.Track.IsUpSplit(trans.take_track_id))
-                                    {
-                                        int count = PubMaster.Track.GetAndRefreshUpCount(trans.take_track_id);
-                                        if (count == 0)
-                                        {                                        
-                                            if (PubMaster.Track.IsUpCountEmpty(trans.take_track_id) && PubMaster.Goods.GetStocks(trans.take_track_id).Count > 0)
-                                            {
-                                                isupsort = true;
-                                                PubMaster.Track.UpdateIsUpSort(trans.take_track_id, isupsort);
-                                            }
-                                        }
-                                    }
-
 
                                     if (trans.finish_track_id == 0)
                                     {
@@ -1593,7 +1578,7 @@ namespace task.trans
 
                                                 //后退取砖
                                                 CarrierActionOrder cao = new CarrierActionOrder();
-                                                if (PubMaster.Track.IsUpSort(trans.finish_track_id))
+                                                if (PubMaster.Track.GetAndRefreshUpCount(trans.finish_track_id) == 0)
                                                 {
                                                     cao.Order = DevCarrierOrderE.定位指令;
                                                     cao.CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id);
@@ -2399,8 +2384,6 @@ namespace task.trans
                 case TransStatusE.完成:
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierSortButStop, (ushort)trans.carrier_id);
-                    //PubMaster.Track.GetAndRefreshUpCount(trans.give_track_id);
-                    PubMaster.Track.UpdateIsUpSort(trans.give_track_id, false);
                     SetFinish(trans);
                     break;
                 #endregion
@@ -3522,7 +3505,7 @@ namespace task.trans
             List<Track> tracks = PubMaster.Track.GetUpSortTrack();
             foreach (Track track in tracks)
             {
-                if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.倒库)) continue;
+                if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.上砖)) continue;
 
                 int count = HaveAreaSortTask(track.area, track.line);
                 if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;

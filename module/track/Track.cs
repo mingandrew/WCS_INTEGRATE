@@ -49,7 +49,6 @@ namespace module.track
         public DateTime? full_time { set; get; }//满砖时间
         public bool same_side_inout { set; get; }//是否同侧出入库
         public int upcount { get; set; }//上砖车数
-        public bool isupsort { get; set; }//是否在上砖侧倒库
 
         /// <summary>
         /// 轨道分段点坐标

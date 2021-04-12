@@ -1,3 +1,2 @@
 ALTER TABLE `track` ADD COLUMN `upcount` int(11) NULL COMMENT '上砖车数计数';
-ALTER TABLE `track` ADD COLUMN `isupsort` bit(1) NULL COMMENT '是否在上砖侧倒库';
 ALTER TABLE `track` ADD COLUMN `up_split_point` smallint(6) NULL COMMENT '上砖分段坐标点';

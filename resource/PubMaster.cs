@@ -50,11 +50,11 @@ namespace resource
             Mod.Start();
             Dic.Start();
             Area.Start();
-            Track.Start();
             Device.Start();
             DevConfig.Start();
             Goods.Start();
             TileTrack.Start();
+            Track.Start();
             _isready = true;
         }
 

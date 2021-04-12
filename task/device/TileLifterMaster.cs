@@ -1540,7 +1540,6 @@ namespace task.device
                         PubTask.TileLifter.ReseTileCurrentTake(trackid);
                         return;
                     }
-
                     if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                     {
                         //生成出库交易
@@ -1571,7 +1570,6 @@ namespace task.device
                             PubMaster.Track.UpdateRecentGood(tra, 0);
                             return;
                         }
-
                         if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                         {
                             //生成出库交易

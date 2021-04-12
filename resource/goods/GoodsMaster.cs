@@ -214,10 +214,10 @@ namespace resource.goods
             return StockSumList.FindAll(c => c.area == areaid).ToList();
         }
 
-        public List<Stock> GetUpStocks(uint trackid)
+        public int GetUpStocks(uint trackid)
         {
             int uppoint = PubMaster.Track.GetUpPoint(trackid);
-            return StockList.FindAll(c => c.track_id == trackid && c.location >= uppoint);
+            return StockList.Count(c => c.track_id == trackid && c.location >= uppoint);
         }
 
 

@@ -67,8 +67,7 @@
         Alert,
         EarlyFull,
         Point,
-        UpCount,
-        IsUpSort
+        UpCount
     }
 
     public enum TrackAlertE
