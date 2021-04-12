@@ -1634,6 +1634,10 @@ namespace resource.track
             return isupsplit;
         }
 
+        /// <summary>
+        /// 是否存在有上砖分割点的储砖出库轨道
+        /// </summary>
+        /// <returns></returns>
         public bool IsUpSplit()
         {
             return TrackList.Exists(c => c.up_split_point != 0 && c.Type == TrackTypeE.储砖_出);

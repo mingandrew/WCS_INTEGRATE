@@ -167,6 +167,13 @@ namespace task.trans
                         case TransTypeE.同向下砖:
                             initstatus = TransStatusE.检查轨道;
                             break;
+                        case TransTypeE.上砖任务:
+                        case TransTypeE.同向上砖:
+                            if (PubMaster.Track.IsUpSplit(taketrackid))
+                            {
+                                PubMaster.DevConfig.SetLastTrackId(lifterid, taketrackid);
+                            }
+                            break;
                     }
                     transid = AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid, initstatus, carrierid, line);
                 }
