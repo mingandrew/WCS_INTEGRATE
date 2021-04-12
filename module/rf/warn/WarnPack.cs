@@ -4,15 +4,18 @@ namespace module.rf
 {
     public class WarnPack
     {
-        public List<Warning> WarnList { set; get; }
+        public List<RfWarning> WarnList { set; get; }
 
         public void AddWarnList(List<Warning> list)
         {
             if (WarnList == null)
             {
-                WarnList = new List<Warning>();
+                WarnList = new List<RfWarning>();
             }
-            WarnList.AddRange(list);
+            foreach (var item in list)
+            {
+                WarnList.Add(new RfWarning(item));
+            }
         }
     }
 }
