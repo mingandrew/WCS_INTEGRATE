@@ -39,6 +39,7 @@
         public static string StackPluse = nameof(StackPluse);                       //计算库位置使用的一垛间距
         public static string TileNeedSysShiftFunc = nameof(TileNeedSysShiftFunc);   //开关-砖机需转产信号
         public static string AutoBackupTileFunc = nameof(AutoBackupTileFunc);       //开关-计算库位置使用的一垛间距
+        public static string SeamlessMoveToFerry = nameof(SeamlessMoveToFerry); //开关-无缝上摆渡
     }
 
     public static class DicSwitchTag

@@ -177,7 +177,12 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VA
 
 
 
+2021.04.13
+新增开关sql：
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (61, 8, 'SeamlessMoveToFerry', '开关-无缝上摆渡', NULL, b'0', '', NULL, NULL, NULL, null);
 
+UPDATE `diction_dtl` SET `name` = '开关-砖机需转产信号' WHERE `id` = 59;
+UPDATE `diction_dtl` SET `name` = '开关-备用砖机自动转换' WHERE `id` = 60;
 
 
 

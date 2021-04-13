@@ -315,6 +315,12 @@ namespace resource.diction
             return false;
         }
 
+        /// <summary>
+        /// 是否打开开关
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="defvalue"></param>
+        /// <returns></returns>
         public bool IsSwitchOnOff(string tag, bool defvalue = false)
         {
             return GetDtlInCode(tag)?.bool_value ?? defvalue;

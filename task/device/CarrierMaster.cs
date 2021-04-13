@@ -2141,6 +2141,11 @@ namespace task.device
         /// <returns></returns>
         internal bool IsCarrierTargetMatches(uint carrier_id, ushort rfid = 0, ushort site = 0)
         {
+            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.SeamlessMoveToFerry))
+            {
+                return false;
+            }
+
             return DevList.Exists(c => c.ID == carrier_id
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
