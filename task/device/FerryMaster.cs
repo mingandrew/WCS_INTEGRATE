@@ -160,26 +160,6 @@ namespace task.device
                             // 摆渡车反馈的报警
                             task.CheckAlert();
 
-                            #region 失去位置信息-报警
-                            if (!task.IsEnable && !task.IsWorking)
-                            {
-                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryNoLocation, (ushort)task.ID);
-                            }
-                            else
-                            {
-                                uint currentTraid = task.GetFerryCurrentTrackId();
-                                Track currentTrack = PubMaster.Track.GetTrack(currentTraid);
-                                if (currentTrack == null || currentTraid == 0 || currentTraid.Equals(0) || currentTraid.CompareTo(0) == 0)
-                                {
-                                    PubMaster.Warn.AddDevWarn(WarningTypeE.FerryNoLocation, (ushort)task.ID);
-                                }
-                                else
-                                {
-                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryNoLocation, (ushort)task.ID);
-                                }
-                            }
-                            #endregion
-
                             if (task.IsConnect && task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                             {
                                 //上砖测轨道ID 或 下砖测轨道ID

@@ -7,6 +7,7 @@ using module.device;
 using module.msg;
 using enums;
 using task;
+using System.Windows;
 
 namespace wcs.ViewModel
 {
@@ -124,6 +125,13 @@ namespace wcs.ViewModel
             if (!PubTask.Ferry.IsOnline(SELECTFERRY.id))
             {
                 Growl.Warning("设备离线！");
+                return;
+            }
+
+            string tipmes = "是否确认开始自动对位？\n\n并请在摆渡车对位完毕后点击上方【刷新轨道坐标】！\n以便重新获取对位数据！";
+            MessageBoxResult rs = HandyControl.Controls.MessageBox.Show(tipmes, "提示", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (rs == MessageBoxResult.No)
+            {
                 return;
             }
 

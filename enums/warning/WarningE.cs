@@ -39,6 +39,7 @@
         DeviceSortRunOutTrack,//运输车倒库没有扫到定位点冲出轨道
 
         FerryNoLocation,  //摆渡车没有位置信息
+        FerryTargetUnconfigured,  //摆渡车没有目的位置对位坐标值
 
         FailAllocateCarrier, //分配运输车失败
         FailAllocateFerry, //分配摆渡车失败

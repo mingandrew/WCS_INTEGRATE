@@ -559,9 +559,58 @@ namespace task.task
 
         #region [检查报警]
 
+        /// <summary>
+        /// 检查报警
+        /// </summary>
         public void CheckAlert()
         {
+            // 断连停用 啥也不报警了
+            if (!IsEnable && !IsWorking)
+            {
+                PubMaster.Warn.RemoveDevWarn((ushort)ID);
+                return;
+            }
+
             Alert1();
+            RunWarningLogic();
+        }
+
+        /// <summary>
+        /// 逻辑报警
+        /// </summary>
+        private void RunWarningLogic()
+        {
+            #region 失去位置信息-报警
+            uint currentTraid = GetFerryCurrentTrackId();
+            Track currentTrack = PubMaster.Track.GetTrack(currentTraid);
+            if (currentTrack == null || currentTraid == 0 || currentTraid.Equals(0) || currentTraid.CompareTo(0) == 0)
+            {
+                PubMaster.Warn.AddDevWarn(WarningTypeE.FerryNoLocation, (ushort)ID);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryNoLocation, (ushort)ID);
+            }
+            #endregion
+
+            #region 没有对位坐标值-报警
+            if (Status == DevFerryStatusE.停止 && DevStatus.TargetSite > 0)
+            {
+                if (PubMaster.Track.GetFerryPos(ID).Exists(c => c.ferry_code == DevStatus.TargetSite && c.ferry_pos > 0))
+                {
+                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryTargetUnconfigured, (ushort)ID);
+                }
+                else
+                {
+                    PubMaster.Warn.AddDevWarn(WarningTypeE.FerryTargetUnconfigured, (ushort)ID);
+                }
+            }
+            else
+            {
+                PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryTargetUnconfigured, (ushort)ID);
+            }
+            #endregion
+
         }
 
         private void Alert1()

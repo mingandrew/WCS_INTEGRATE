@@ -25,6 +25,8 @@
             <Button Content="停止" Style="{StaticResource ButtonDanger}" Tag="stopdev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
             <Button Content="刷新轨道坐标" Style="{StaticResource ButtonPrimary}" Command="{Binding QueryPosCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"  FontSize="16" Height="35"
                     Visibility="{Binding SHOWFERRYPOS, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+            <TextBlock Text="← 务必在摆渡车【自动对位】完成后刷新一次重获对位数据" Style="{StaticResource TextBlockDefaultDanger}" FontSize="10" Margin="5,0,0,0" 
+                       Visibility="{Binding SHOWFERRYPOS, Converter={StaticResource Boolean2VisibilityConverter}}"/>
             <Button Content="复制数据" Style="{StaticResource ButtonPrimary}" Tag="copypose" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"
                     Visibility="{Binding SuperVisor, Converter={StaticResource Boolean2VisibilityConverter}}"/>
         </StackPanel>

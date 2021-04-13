@@ -157,7 +157,7 @@ UPDATE `diction_dtl` SET `string_value` = '取砖异常，取砖定位光电异�
 
 
 2021.04.09
-新增交管sql：
+新增报警sql：
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (180, 3, 'WarningF_A1X0', '码盘故障', NULL, NULL, '码盘故障，请尝试手动复位设备，消除报警', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (181, 3, 'WarningF_A1X1', '急停触发', NULL, NULL, '急停触发，急停开关是否误触发？是否有异常认为打开急停开关？', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (182, 3, 'WarningF_A1X2', '下转侧对位接近开关异常', NULL, NULL, '下转侧对位接近开关异常，检查光电是否误触发', NULL, NULL, NULL, NULL);
@@ -166,3 +166,29 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (185, 3, 'WarningF_A1X5', '后退防撞触发', NULL, NULL, '后退防撞触发，防撞光电亮黄绿灯时，请检查设备后方半米内是否有障碍物', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (186, 3, 'WarningF_A1X6', '暂未配置摆渡A1X6', NULL, NULL, '暂未配置摆渡报警信息A1X6', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (187, 3, 'WarningF_A1X7', '暂未配置摆渡A1X7', NULL, NULL, '暂未配置摆渡报警信息A1X7', NULL, NULL, NULL, NULL);
+
+
+
+
+2021.04.13
+新增报警sql：
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VALUES (224, 3, 'FerryTargetUnconfigured', '摆渡车目的位置没有对位坐标值', '摆渡车目的位置没有对位坐标值，请操作重新对一次轨道位置');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
