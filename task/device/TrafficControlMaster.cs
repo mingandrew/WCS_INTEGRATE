@@ -172,6 +172,10 @@ namespace task.device
                     PubMaster.Mod.TrafficCtlSql.AddTrafficCtl(tc);
                     TrafficCtlList.Add(tc);
                     result = string.Format("生成交管[ {0} ]：摆渡车ID[ {1} ]_轨道ID[ {2} >> {3} ]", tc.id, tc.control_id, tc.from_track_id, tc.to_track_id);
+                    if (tc.TrafficControlType == TrafficControlTypeE.摆渡车交管摆渡车)
+                    {
+                        ClueTransForFerry(tc); // 更新到任务界面
+                    }
                     return true;
                 }
                 catch (Exception e)
@@ -227,6 +231,11 @@ namespace task.device
                 PubMaster.Mod.TrafficCtlSql.EditTrafficCtl(ctl, TrafficControlUpdateE.Status);
             }
             mLog.Status(true, string.Format("交管[ {0} ], 状态[ {1} ], 交管车[ {2} ], 备注[ {3} ]", ctl.id, ctl.TrafficControlStatus, ctl.control_id, memo));
+
+            if (ctl.TrafficControlType == TrafficControlTypeE.摆渡车交管摆渡车 && status == TrafficControlStatusE.已完成)
+            {
+                ClueTransForFerry(ctl); // 更新到任务界面
+            }
         }
 
         #endregion
@@ -508,5 +517,56 @@ namespace task.device
 
         #endregion
 
+        #region [获取交管信息]
+
+        /// <summary>
+        /// 提示任务更新交管信息
+        /// </summary>
+        /// <param name="tc"></param>
+        private void ClueTransForFerry(TrafficControl tc)
+        {
+            uint resid = PubTask.Ferry.GetFerryTransId(tc.restricted_id);
+            if (resid > 0)
+            {
+                PubTask.Trans.ClueViewByTransID(resid);
+            }
+
+            uint conid = PubTask.Ferry.GetFerryTransId(tc.control_id);
+            if (conid > 0)
+            {
+                PubTask.Trans.ClueViewByTransID(resid);
+            }
+        }
+
+        /// <summary>
+        /// 获取摆渡车交管摆渡车信息
+        /// </summary>
+        /// <param name="ferryid"></param>
+        /// <returns></returns>
+        public string GetTrafficCtlInfoForFerry(uint ferryid)
+        {
+            string res = "";
+            List<TrafficControl> tcs = TrafficCtlList.FindAll(c => c.TrafficControlType == TrafficControlTypeE.摆渡车交管摆渡车
+                && (c.restricted_id == ferryid || c.control_id == ferryid));
+            if (tcs != null && tcs.Count > 0)
+            {
+                foreach (TrafficControl item in tcs)
+                {
+                    if (item.TrafficControlStatus == TrafficControlStatusE.已完成)
+                    {
+                        continue;
+                    }
+
+                    res = string.Format(@"{0}[{1}]❌-等[{2}]移到[{3}]或之外；", res,
+                        PubMaster.Device.GetDeviceName(item.restricted_id),
+                        PubMaster.Device.GetDeviceName(item.control_id),
+                        PubMaster.Track.GetTrackName(item.to_track_id));
+                }
+            }
+
+            return res;
+        }
+
+        #endregion
     }
 }

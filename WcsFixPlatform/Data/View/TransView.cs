@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using module.goods;
 using System;
+using task;
 
 namespace wcs.Data.View
 {
@@ -27,6 +28,8 @@ namespace wcs.Data.View
         private DateTime? unload_time;
         private bool finish;
         private DateTime? finish_time;
+
+        private string tcmsg;//交管信息
 
         public uint Id
         {
@@ -113,6 +116,11 @@ namespace wcs.Data.View
             set => unload_time = value;
         }
 
+        public string TCmsg
+        {
+            get => tcmsg;
+            set => tcmsg = value;
+        }
 
         #endregion
         public TransView(StockTrans trans)
@@ -139,6 +147,22 @@ namespace wcs.Data.View
             Unload_time = trans.unload_time;
             finish = trans.finish;
             finish_time = trans.finish_time;
+
+            // 交管信息
+            if (trans.give_ferry_id > 0) // 卸货摆渡车
+            {
+                if (!trans.IsReleaseGiveFerry)
+                {
+                    TCmsg = PubTask.TrafficControl.GetTrafficCtlInfoForFerry(trans.give_ferry_id);
+                }
+            }
+            else if (trans.take_ferry_id > 0) // 取货摆渡车
+            {
+                if (!trans.IsReleaseTakeFerry)
+                {
+                    TCmsg = PubTask.TrafficControl.GetTrafficCtlInfoForFerry(trans.take_ferry_id);
+                }
+            }
         }
 
         /// <summary>

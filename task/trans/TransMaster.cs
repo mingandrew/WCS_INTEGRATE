@@ -4132,6 +4132,19 @@ namespace task.trans
 
         #region[更新界面数据]
 
+        /// <summary>
+        /// 通过任务ID更新任务界面
+        /// </summary>
+        /// <param name="transid"></param>
+        public void ClueViewByTransID(uint transid)
+        {
+            StockTrans trans = GetTrans(transid);
+            if (trans != null)
+            {
+                SendMsg(trans);
+            }
+        }
+
         protected override void SendMsg(StockTrans trans)
         {
             mMsg.o1 = trans;

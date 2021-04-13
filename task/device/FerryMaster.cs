@@ -376,6 +376,16 @@ namespace task.device
             }
         }
 
+        /// <summary>
+        /// 获取摆渡车锁定的任务ID
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetFerryTransId(uint devid)
+        {
+            return DevList.Find(c => c.ID == devid && c.IsLock)?.TransId ?? 0;
+        }
+
         #endregion
 
         #region[数据更新]

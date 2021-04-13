@@ -63,6 +63,9 @@ namespace wcs.ViewModel
         private DateTime? unload_time;
         private bool finish;
         private DateTime? finish_time;
+
+        private string tcmsg;//交管信息
+
         #endregion
 
         #region[属性]
@@ -177,6 +180,14 @@ namespace wcs.ViewModel
             set => Set(ref finish, value);
         }
 
+        /// <summary>
+        /// 交管消息
+        /// </summary>
+        public string TCmsg
+        {
+            get => tcmsg;
+            set => Set(ref tcmsg, value);
+        }
 
         public ICollectionView TListView { set; get; }
         public ICollectionView FTListView { set; get; }
@@ -325,6 +336,7 @@ namespace wcs.ViewModel
             Create_time = module.Create_time;
             Load_time = module.Load_time;
             Unload_time = module.Unload_time;
+            TCmsg = module.TCmsg;
         }
 
         /// <summary>
