@@ -120,11 +120,12 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
                         <TextBlock Text="ID:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
@@ -145,15 +146,21 @@
                         <TextBlock Text="运输车:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10"/>
                     </Border>
                     <Border Grid.Row="3" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="创建时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                        <TextBlock Text="接车摆渡:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                     </Border>
                     <Border Grid.Row="3" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="送车摆渡:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="4" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
+                        <TextBlock Text="创建时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+                    <Border Grid.Row="4" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
                         <TextBlock Text="执行时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                     </Border>
-                    <Border Grid.Row="4" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                    <Border Grid.Row="5" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
                         <TextBlock Text="取货时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                     </Border>
-                    <Border Grid.Row="4" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                    <Border Grid.Row="5" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
                         <TextBlock Text="卸货时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                     </Border>
 
@@ -176,15 +183,21 @@
                         <TextBlock Text="{Binding Carrier_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
                     </Border>
                     <Border Grid.Row="3" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Take_ferry_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
                     </Border>
                     <Border Grid.Row="3" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
+                        <TextBlock Text="{Binding Give_ferry_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="4" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0" >
                         <TextBlock Text="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
                     </Border>
-                    <Border Grid.Row="4" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                    <Border Grid.Row="4" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0" >
+                        <TextBlock Text="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
+                    </Border>
+                    <Border Grid.Row="5" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1" >
                         <TextBlock Text="{Binding Load_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
                     </Border>
-                    <Border Grid.Row="4" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
+                    <Border Grid.Row="5" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1" >
                         <TextBlock Text="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
                     </Border>
                 </Grid>

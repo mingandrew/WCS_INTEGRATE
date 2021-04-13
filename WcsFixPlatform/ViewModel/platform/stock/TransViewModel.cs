@@ -317,7 +317,7 @@ namespace wcs.ViewModel
             TransStaus = module.TransStaus;
             Goods_id = module.Goods_id;
             Take_ferry_id = module.Take_ferry_id;
-            Give_ferry_id = Give_ferry_id;
+            Give_ferry_id = module.Give_ferry_id;
             Take_track_id = module.Take_track_id;
             Give_track_id = module.Give_track_id;
             Tilelifter_id = module.Tilelifter_id;
