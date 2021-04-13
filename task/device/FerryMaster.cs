@@ -757,6 +757,7 @@ namespace task.device
                     && (task.DevStatus.CurrentTask == task.DevStatus.FinishTask
                         || task.DevStatus.CurrentTask == DevFerryTaskE.无
                         || ((task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.CurrentTask == DevFerryTaskE.定位)
+                            && (task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.FinishTask == DevFerryTaskE.复位) //麻了时不时出现一下
                             && (task.DevStatus.FinishTask == DevFerryTaskE.无 || task.DevStatus.FinishTask == DevFerryTaskE.定位))))
                 {
                     uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
