@@ -312,7 +312,7 @@ namespace resource.module.modulesql
                 string sql = string.Format("select old_ferry_pos from ferry_pos LIMIT 1");
                 mSql.ExcuteSqlWithException(@sql);
                 return true;
-            }catch(Exception e)
+            }catch(Exception)
             {
                 try
                 {
@@ -320,12 +320,11 @@ namespace resource.module.modulesql
                     int isadd = mSql.ExcuteSqlWithException(createcolume);
                     return true;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
                 }
             }
-            return false;
         }
 
         #endregion

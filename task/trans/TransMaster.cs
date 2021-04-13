@@ -951,9 +951,10 @@ namespace task.trans
                                     if (tileemptyneed)
                                     {
                                         SetLoadTime(trans);
-                                        //摆渡车接车
+                                        //摆渡车接车，取到砖后不等完成指令-无缝上摆渡
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true)
-                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                            && (PubTask.Carrier.IsStopFTask(trans.carrier_id) ||
+                                                   PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2)))
                                         {
                                             //前进至摆渡车
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -963,7 +964,24 @@ namespace task.trans
                                                 ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                             });
                                         }
+                                        else
+                                        {
+                                            // 摆渡车不到位则到出库轨道头等待
+                                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id) 
+                                                && PubTask.Carrier.GetCurrentSite(trans.carrier_id) < track.rfid_2)
+                                            {
+                                                //前进至点
+                                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                                {
+                                                    Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = track.ferry_down_code,
+                                                    ToRFID = track.rfid_2,
+                                                });
+                                            }
+                                        }
+
                                     }
+
                                 }
 
                                 if (isnotload)

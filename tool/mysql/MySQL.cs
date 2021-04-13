@@ -112,7 +112,6 @@ namespace tool
                 mLog.Error(true, ex.Message + sql, ex);
                 throw;
             }
-            return 0;
         }
 
 

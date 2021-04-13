@@ -628,7 +628,7 @@ namespace task.device
             if (task.DevConfig.stock_id != 0)
             {
                 //根据小车当前的位置更新库存对应所在的轨道
-                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, task.CurrentOrder+"", task.ID);
+                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, task.CurrentOrder + "", task.ID);
             }
 
             #endregion
@@ -1021,7 +1021,7 @@ namespace task.device
                             return false;
                         }
 
-                        if(!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
+                        if (!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
                         {
                             return false;
                         }
@@ -1297,9 +1297,10 @@ namespace task.device
                         PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateCarrier, (ushort)trans.tilelifter_id, trans.id, result);
                     }
                     return IsGetCarrier;
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
-                    mErrorLog.Error(true,e.Message + e.StackTrace + e.Source + e.Data.ToString());
+                    mErrorLog.Error(true, e.Message + e.StackTrace + e.Source + e.Data.ToString());
                 }
                 finally { Monitor.Exit(_obj); }
             }
@@ -1361,7 +1362,7 @@ namespace task.device
             if (carrier != null
                    && carrier.ConnStatus == SocketConnectStatusE.通信正常
                    && carrier.OperateMode == DevOperateModeE.自动
-                   && (carrier.CurrentOrder == DevCarrierOrderE.前进倒库 
+                   && (carrier.CurrentOrder == DevCarrierOrderE.前进倒库
                         || carrier.CurrentOrder == DevCarrierOrderE.后退倒库))
             {
                 carrierid = carrier.ID;
@@ -1656,7 +1657,7 @@ namespace task.device
                                         {
                                             //摆渡车上的车载库存和任务对应的库存品种不符
                                             uint sgid = PubMaster.Goods.GetStockGoodId(car.DevConfig.stock_id);
-                                            if(sgid != 0 && sgid != trans.goods_id)
+                                            if (sgid != 0 && sgid != trans.goods_id)
                                             {
                                                 break;
                                             }
@@ -1825,7 +1826,7 @@ namespace task.device
                         if (isUp)
                         {
                             // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
-                            if (tracar.CurrentSite%100 > 90)
+                            if (tracar.CurrentSite % 100 > 90)
                             {
                                 if (tracar.IsNotLoad())
                                 {
@@ -1878,11 +1879,11 @@ namespace task.device
 
                 }
 
-                if (first_allocate_cars != null && first_allocate_cars.Count>0)
+                if (first_allocate_cars != null && first_allocate_cars.Count > 0)
                 {
                     foreach (CarrierTask car in first_allocate_cars)
                     {
-                        if (CheckCarrierIsFree(car) 
+                        if (CheckCarrierIsFree(car)
                             && car.DevConfig.IsUseGoodsSize(goodssizeID)
                             && !PubTask.Trans.HaveInCarrier(car.ID))
                         {
@@ -1976,10 +1977,10 @@ namespace task.device
             return DevList;
         }
 
-        
+
         internal CarrierTask GetDevCarrier(uint id)
         {
-            return DevList.Find(c=>c.ID == id);
+            return DevList.Find(c => c.ID == id);
         }
 
 
@@ -2132,6 +2133,20 @@ namespace task.device
                                     && c.CurrentOrder == c.FinishOrder);
         }
 
+        /// <summary>
+        /// 判断小车是否符合目的位置
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="Order"></param>
+        /// <returns></returns>
+        internal bool IsCarrierTargetMatches(uint carrier_id, ushort rfid = 0, ushort site = 0)
+        {
+            return DevList.Exists(c => c.ID == carrier_id
+                                    && c.ConnStatus == SocketConnectStatusE.通信正常
+                                    && c.OperateMode == DevOperateModeE.自动
+                                    && ((rfid > 0 && c.TargetSite == rfid) || (site > 0 && c.TargetPoint == site))
+                                    );
+        }
         #endregion
 
         #region[小车逻辑警告]

@@ -199,7 +199,7 @@ namespace socket.tcp
                     // save until next round
                     bufferData = readData;
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
                     // unclean disconnect from service
                     Reconnect();

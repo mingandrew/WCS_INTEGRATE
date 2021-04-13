@@ -47,7 +47,7 @@ namespace tool.mysql.extend
                                 info.SetValue(s, v, null);
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             //LoggerHelper._.Error("字段[" + info.Name + "]转换出错", ex);
                             throw;
@@ -94,7 +94,7 @@ namespace tool.mysql.extend
                             info.SetValue(s, v, null);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         //LoggerHelper._.Error("字段[" + info.Name + "]转换出错", ex);
                         throw;

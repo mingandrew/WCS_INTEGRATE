@@ -385,7 +385,7 @@ namespace wcs.ViewModel
             }
         }
 
-        private async void EditStock()
+        private void EditStock()
         {
             if (!CheckSelectItem()) return;
         }
