@@ -1091,7 +1091,7 @@ namespace task.device
                     if (task.HaveBrother)
                     {
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
-                        if (!brotask.IsInvo_1)
+                        if (!brotask.IsInvo_1 && brotask.IsEmpty_1)
                         {
                             Thread.Sleep(1000);
                             brotask.Do1Invo(DevLifterInvolE.介入);
@@ -1266,7 +1266,7 @@ namespace task.device
                     if (task.HaveBrother)
                     {
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
-                        if (!brotask.IsInvo_2)
+                        if (!brotask.IsInvo_2 && brotask.IsEmpty_2)
                         {
                             Thread.Sleep(1000);
                             brotask.Do2Invo(DevLifterInvolE.介入);
