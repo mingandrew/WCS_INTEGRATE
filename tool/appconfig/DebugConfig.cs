@@ -11,5 +11,6 @@ namespace tool.appconfig
         /// 是否启用调试模式
         /// </summary>
         public bool IsDebug { set; get; } = false;
+        public bool DefaultSupervisor { set; get; } = false;
     }
 }

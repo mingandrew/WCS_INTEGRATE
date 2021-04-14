@@ -24,8 +24,8 @@ namespace tool.appconfig
             else
             {
                 MysqlConfig = new MysqlConfig();
-                SaveMysqlConfig();
             }
+            SaveMysqlConfig();
             #endregion
 
             #region[测试配置文件读取/初始化]
@@ -44,47 +44,61 @@ namespace tool.appconfig
             else
             {
                 DebugConfig = new DebugConfig();
-                SaveDebugConfig();
             }
+            SaveDebugConfig();
             #endregion
         }
 
         public static void SaveMysqlConfig()
         {
-            var json = JsonConvert.SerializeObject(MysqlConfig);
-            if (!Directory.Exists(MysqlConfig.Path))
+            try
             {
-                Directory.CreateDirectory(MysqlConfig.Path);
-            }
-            using (FileStream fs = new FileStream(MysqlConfig.SavePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite))
+                var json = JsonConvert.SerializeObject(MysqlConfig);
+                if (!Directory.Exists(MysqlConfig.Path))
+                {
+                    Directory.CreateDirectory(MysqlConfig.Path);
+                }
+                using (FileStream fs = new FileStream(MysqlConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    fs.Seek(fs.Length, SeekOrigin.Current);
+
+                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+
+                    fs.Write(data, 0, data.Length);
+
+                    fs.Close();
+                }
+            }catch(Exception e)
             {
-                fs.Seek(fs.Length, SeekOrigin.Current);
 
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
-
-                fs.Write(data, 0, data.Length);
-
-                fs.Close();
             }
+            
         }
 
         public static void SaveDebugConfig()
         {
-            var json = JsonConvert.SerializeObject(DebugConfig);
-            if (!Directory.Exists(DebugConfig.Path))
+            try
             {
-                Directory.CreateDirectory(DebugConfig.Path);
-            }
-            using (FileStream fs = new FileStream(DebugConfig.SavePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite))
+                var json = JsonConvert.SerializeObject(DebugConfig);
+                if (!Directory.Exists(DebugConfig.Path))
+                {
+                    Directory.CreateDirectory(DebugConfig.Path);
+                }
+                using (FileStream fs = new FileStream(DebugConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    fs.Seek(fs.Length, SeekOrigin.Current);
+
+                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+
+                    fs.Write(data, 0, data.Length);
+
+                    fs.Close();
+                }
+            }catch(Exception e)
             {
-                fs.Seek(fs.Length, SeekOrigin.Current);
 
-                byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
-
-                fs.Write(data, 0, data.Length);
-
-                fs.Close();
             }
+            
         }
 
         public static MysqlConfig MysqlConfig { get; set; }

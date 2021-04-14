@@ -26,7 +26,7 @@ namespace wcs.ViewModel
             Danger = Application.Current.Resources["ButtonDanger"] as Style;
 
             btnstyle = Primary;
-            LogOutOrInit();
+            LogOutOrInit();//初始化授权取消
         }
 
         #region[字段]
@@ -130,6 +130,9 @@ namespace wcs.ViewModel
             }
         }
 
+        /// <summary>
+        /// 退出或回复默认用户
+        /// </summary>
         private void LogOutOrInit()
         {
             WcsUser guest = PubMaster.Role.GetGuestUser();

@@ -3,6 +3,7 @@ using module.rf;
 using module.role;
 using System.Collections.Generic;
 using System.Linq;
+using tool.appconfig;
 
 namespace resource.role
 {
@@ -126,6 +127,12 @@ namespace resource.role
         /// <returns></returns>
         public WcsUser GetGuestUser()
         {
+            if(GlobalWcsDataConfig.DebugConfig.DefaultSupervisor
+                           && UserList.Exists(c=>"supervisor".Equals(c.username)))
+            {
+                return UserList.Find(c => c.username.Equals("supervisor"));
+            }
+            
             return UserList.Find(c => c.guest);
         }
 
