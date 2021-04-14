@@ -596,7 +596,7 @@ namespace task.task
             #region 没有对位坐标值-报警
             if (Status == DevFerryStatusE.停止 && DevStatus.TargetSite > 0)
             {
-                if (PubMaster.Track.GetFerryPos(ID).Exists(c => c.ferry_code == DevStatus.TargetSite && c.ferry_pos > 0))
+                if (PubMaster.Track.GetFerryPos(ID).Exists(c => c.ferry_code == DevStatus.TargetSite && c.ferry_pos != 0))
                 {
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.FerryTargetUnconfigured, (ushort)ID);
                 }

@@ -754,11 +754,11 @@ namespace task.device
                 }
 
                 if (task.Status == DevFerryStatusE.停止
-                    && (task.DevStatus.CurrentTask == task.DevStatus.FinishTask
-                        || task.DevStatus.CurrentTask == DevFerryTaskE.无
-                        || ((task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.CurrentTask == DevFerryTaskE.定位)
-                            && (task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.FinishTask == DevFerryTaskE.复位) //麻了时不时出现一下
-                            && (task.DevStatus.FinishTask == DevFerryTaskE.无 || task.DevStatus.FinishTask == DevFerryTaskE.定位))))
+                    && (task.DevStatus.CurrentTask == task.DevStatus.FinishTask // 当前&完成 一致
+                        || task.DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
+                        || task.DevStatus.CurrentTask == DevFerryTaskE.终止 // 当前终止就当它没作业
+                        //|| (task.DevStatus.CurrentTask == DevFerryTaskE.定位 && task.DevStatus.FinishTask == DevFerryTaskE.无) // 当前定位无完成就当它没作业
+                        ))
                 {
                     uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
                     if (task.DevStatus.TargetSite != 0
