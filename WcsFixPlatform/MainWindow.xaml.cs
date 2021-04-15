@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using task;
+using tool.appconfig;
 using tool.mlog;
 using wcs.Dialog;
 using wcs.toolbar;
@@ -74,6 +75,15 @@ namespace wcs
 
         private async void ShowQuitDialogAsync()
         {
+            if (GlobalWcsDataConfig.DebugConfig.IsDebug)
+            {
+                mLog.Status(true, "调度关闭[调试模式]");
+                PubMaster.Warn.Stop();
+                PubTask.Stop();
+                PubMaster.StopMaster();
+                Environment.Exit(0);
+                return;
+            }
             if (OperateGrandDialogConst.IsOprerateDialogOpen) return;
             if (IsShowCloseDialog) return;
             IsShowCloseDialog = true;
