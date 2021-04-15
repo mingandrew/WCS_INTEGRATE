@@ -1109,12 +1109,14 @@ namespace task.device
                                 if (tt.Type == TrackTypeE.储砖_出入)
                                 {
                                     toRFID = tt.rfid_2;
+                                    overRFID = tt.rfid_1;
                                 }
                                 if (tt.Type == TrackTypeE.储砖_入)
                                 {
                                     toSite = tt.split_point;
+                                    overRFID = tt.rfid_1;
                                 }
-                                overRFID = tt.rfid_1;
+
                                 break;
                             case DevCarrierTaskE.前进至点:
                                 checkTra = tt.ferry_up_code;
