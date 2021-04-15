@@ -5,6 +5,8 @@ using module.device;
 using module.deviceconfig;
 using resource;
 using socket.tcp;
+using System;
+using System.Linq;
 using task.task;
 
 namespace task.device
@@ -1203,6 +1205,16 @@ namespace task.device
         internal bool IsLogicAlert()
         {
             return DevConfig.a_givemisstrack || DevConfig.a_takemisstrack;
+        }
+
+        internal bool InTask(params DevCarrierOrderE[] order)
+        {
+            return order.Contains(CurrentOrder) || order.Contains(OnGoingOrder);
+        }
+
+        internal bool NotInTask(params DevCarrierOrderE[] order)
+        {
+            return !order.Contains(CurrentOrder) && !order.Contains(OnGoingOrder);
         }
 
         #endregion

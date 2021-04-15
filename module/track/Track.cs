@@ -1,6 +1,7 @@
 ﻿using enums.track;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace module.track
 {
@@ -167,22 +168,12 @@ namespace module.track
         }
 
         /// <summary>
-        /// 判断轨道是否是能放砖类型
-        /// 用于库存切换轨道
-        /// </summary>
-        /// <returns></returns>
-        public bool IsNotFerryTrack()
-        {
-            return Type != TrackTypeE.摆渡车_入 && Type != TrackTypeE.摆渡车_出;
-        }
-
-        /// <summary>
         /// 是否是上砖区域的轨道
         /// </summary>
         /// <returns></returns>
         public bool IsUpAreaTrack()
         {
-            return Type == TrackTypeE.上砖轨道 || Type == TrackTypeE.储砖_出 || Type == TrackTypeE.储砖_出入 || Type == TrackTypeE.摆渡车_出;
+            return InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.摆渡车_出);
         }
         
         /// <summary>
@@ -191,13 +182,38 @@ namespace module.track
         /// <returns></returns>
         public bool IsDownAreaTrack()
         {
-            return Type == TrackTypeE.下砖轨道 || Type == TrackTypeE.储砖_入 || Type == TrackTypeE.储砖_出入 || Type == TrackTypeE.摆渡车_入;
+            return InType(TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.摆渡车_入);
         }
 
 
         public bool IsStoreTrack()
         {
-            return Type == TrackTypeE.储砖_入 || Type == TrackTypeE.储砖_出 || Type == TrackTypeE.储砖_出入;
+            return InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+        }
+
+        public bool IsFerryTrack()
+        {
+            return InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出);
+        }
+
+        /// <summary>
+        /// 检查是否符合类型
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool InType(params TrackTypeE[] types)
+        {
+            return types.Contains(Type);
+        }
+
+        /// <summary>
+        /// 检查是否不符合类型
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool NotInType(params TrackTypeE[] types)
+        {
+            return !types.Contains(Type);
         }
     }
 }
