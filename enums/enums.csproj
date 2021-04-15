@@ -53,6 +53,7 @@
     <Compile Include="rf\FunTag.cs" />
     <Compile Include="rf\RfConnectE.cs" />
     <Compile Include="role\RoleE.cs" />
+    <Compile Include="simulation\SimulationE.cs" />
     <Compile Include="socket\SocketMsgTypeE.cs" />
     <Compile Include="timer\TimerTag.cs" />
     <Compile Include="track\TrackTypeE.cs" />

@@ -967,7 +967,6 @@ namespace resource.device
         {
             return ConfigCarrierList.Find(c => c.id == carrier_id)?.stock_id ?? 0;
         }
-
         #endregion
     }
 }

@@ -4,7 +4,6 @@ using GalaSoft.MvvmLight.Messaging;
 using module;
 using module.device;
 using module.diction;
-using module.goods;
 using module.msg;
 using module.rf;
 using module.rf.carrier;

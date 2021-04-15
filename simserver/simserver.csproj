@@ -77,7 +77,7 @@
     <Compile Include="task\SimCarrierTask.cs" />
     <Compile Include="task\SimFerryTask.cs" />
     <Compile Include="task\SimTaskBase.cs" />
-    <Compile Include="SimTileLifterTask.cs" />
+    <Compile Include="task\SimTileLifterTask.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
