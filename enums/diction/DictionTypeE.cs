@@ -36,10 +36,17 @@
         public static string FerryAvoidNumber = nameof(FerryAvoidNumber);//摆渡车安全距离 轨道数
         public static string TileLifterShiftCount = nameof(TileLifterShiftCount);//下砖机转产差值 层数
 
-        public static string StackPluse = nameof(StackPluse);                       //计算库位置使用的一垛间距
-        public static string TileNeedSysShiftFunc = nameof(TileNeedSysShiftFunc);   //开关-砖机需转产信号
-        public static string AutoBackupTileFunc = nameof(AutoBackupTileFunc);       //开关-计算库位置使用的一垛间距
-        public static string SeamlessMoveToFerry = nameof(SeamlessMoveToFerry); //开关-无缝上摆渡
+        #region[任务逻辑开关]
+
+        public static string StackPluse = nameof(StackPluse);                           //计算库位置使用的一垛间距
+        public static string TileNeedSysShiftFunc = nameof(TileNeedSysShiftFunc);       //开关-砖机需转产信号
+        public static string AutoBackupTileFunc = nameof(AutoBackupTileFunc);           //开关-计算库位置使用的一垛间距
+        public static string SeamlessMoveToFerry = nameof(SeamlessMoveToFerry);         //开关-无缝上摆渡
+        public static string UpTaskIgnoreSortTask = nameof(UpTaskIgnoreSortTask);       //开关-允许倒库时可以上砖
+        public static string UseUpSplitPoint = nameof(UseUpSplitPoint);                 //开关-启用上砖侧分割点坐标逻辑
+        public static string CannotUseUpSplitStock = nameof(CannotUseUpSplitStock);     //开关-限制直接使用上砖侧分割点后的库存
+        public static string EnableDiagnose = nameof(EnableDiagnose);                   //开关-启用分析服务
+        #endregion
     }
 
     public static class DicSwitchTag

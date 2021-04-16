@@ -215,5 +215,26 @@ namespace module.track
         {
             return !types.Contains(Type);
         }
+
+
+        /// <summary>
+        /// 检查是否符合状态
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool InStatus(params TrackStatusE[] status)
+        {
+            return status.Contains(TrackStatus);
+        }
+
+        /// <summary>
+        /// 检查是否不符合状态
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool NotInStatus(params TrackStatusE[] status)
+        {
+            return !status.Contains(TrackStatus);
+        }
     }
 }

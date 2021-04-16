@@ -2360,6 +2360,30 @@ namespace task.device
                                         && c.Status == DevCarrierStatusE.后退 
                                         && c.IsNotLoad());
         }
+
+        /// <summary>
+        /// 判断小车是否处于轨道地标位置
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        internal bool IsCarrierInTrackBiggerSite(uint carrier_id, uint track_id)
+        {
+            Track track = PubMaster.Track.GetTrack(track_id);
+            return DevList.Exists(c => c.ID == carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite >= track.rfid_1);
+        }
+
+        /// <summary>
+        /// 判断小车是否处于轨道地标位置
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        internal bool IsCarrierInTrackSmallerSite(uint carrier_id, uint track_id)
+        {
+            Track track = PubMaster.Track.GetTrack(track_id);
+            return DevList.Exists(c => c.ID == carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite <= track.rfid_1);
+        }
         #endregion
     }
 

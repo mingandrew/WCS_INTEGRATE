@@ -1529,7 +1529,8 @@ namespace task.device
             // 1.查看当前作业轨道是否能作业
             if (PubMaster.Track.HaveTrackInGoodFrist(areaid, tileid, goodid, currentid, out uint trackid))
             {
-                if (!PubTask.Trans.HaveInTileTrack(trackid))
+                //判断是否轨道是否已经有任务占用[忽略倒库任务]
+                if (!PubTask.Trans.HaveInTrackButSortTask(trackid))
                 {
                     uint stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
                     //有库存但是不是砖机需要的品种
@@ -1560,7 +1561,8 @@ namespace task.device
             {
                 foreach (uint tra in trackids)
                 {
-                    if (!PubTask.Trans.HaveInTileTrack(tra))
+                    //判断是否轨道是否已经有任务占用[忽略倒库任务]
+                    if (!PubTask.Trans.HaveInTrackButSortTask(tra))
                     {
                         uint stockid = PubMaster.Goods.GetTrackTopStockId(tra);
                         //有库存但是不是砖机需要的品种
@@ -1593,7 +1595,8 @@ namespace task.device
             {
                 foreach (Stock stock in allocatestocks)
                 {
-                    if (!PubTask.Trans.IsStockInTrans(stock.id, stock.track_id))
+                    //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
+                    if (!PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id))
                     {
                         PubMaster.Track.UpdateRecentGood(stock.track_id, goodid);
                         PubMaster.Track.UpdateRecentTile(stock.track_id, tileid);
@@ -1905,7 +1908,7 @@ namespace task.device
                     iseffect = PubTask.Trans.ExistInTileTrack(task.ID, trackid);
                     break;
                 case StrategyOutE.同轨同轨://双下砖机，同时只作业一台砖机作业【间接限制了会下不同轨道】
-                    iseffect = PubTask.Trans.HaveOutTileTrack(task.DevConfig.left_track_id, task.DevConfig.right_track_id);
+                    iseffect = PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id, task.DevConfig.right_track_id);
                     break;
                 default:
                     break;

@@ -21,6 +21,14 @@ namespace task.trans
     /// </summary>
     public class TransMaster : TransBase
     {
+        #region[构造函数]
+        public TransMaster() : base()
+        {
+            InitDiagnore(this);
+        }
+
+        #endregion
+
         #region[调度任务]
 
         #region[入库任务]
@@ -880,7 +888,7 @@ namespace task.trans
                     }
 
                     //是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
-                    if (!HaveTaskInTrackId(trans))
+                    if (!HaveTaskInTrackButSort(trans))
                     {
                         if (!IsAllowToHaveCarTask(trans.area_id, trans.line, trans.TransType)) return;
 
@@ -928,6 +936,15 @@ namespace task.trans
                         #region[小车在储砖轨道]
 
                         case TrackTypeE.储砖_出:
+
+                            //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
+                            if(CheckCarrierInSortTaskAndAddTask(trans, trans.carrier_id, trans.take_track_id))
+                            {
+                                SetStatus(trans, TransStatusE.完成, 
+                                    string.Format("小车【{0}】执行接力倒库，完成上砖任务",PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                                return;
+                            }
+
                             if (!tileemptyneed
                                 && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
@@ -953,8 +970,9 @@ namespace task.trans
                                         SetLoadTime(trans);
                                         //摆渡车接车，取到砖后不等完成指令-无缝上摆渡
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true)
-                                            && (PubTask.Carrier.IsStopFTask(trans.carrier_id) ||
-                                                   PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2)))
+                                            && (PubTask.Carrier.IsStopFTask(trans.carrier_id) 
+                                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
+                                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                         {
                                             //前进至摆渡车
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -979,9 +997,7 @@ namespace task.trans
                                                 });
                                             }
                                         }
-
                                     }
-
                                 }
 
                                 if (isnotload)
@@ -997,7 +1013,8 @@ namespace task.trans
                                     {
                                         //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true)
-                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id)
+                                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                         {
                                             //前进至摆渡车
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -1028,7 +1045,8 @@ namespace task.trans
                                 {
                                     //摆渡车接车
                                     if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true)
-                                        && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                        && PubTask.Carrier.IsStopFTask(trans.carrier_id)
+                                        && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                     {
                                         //前进至摆渡车
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -1066,9 +1084,11 @@ namespace task.trans
                                     if (tileemptyneed)
                                     {
                                         SetLoadTime(trans);
-                                        //摆渡车接车
+                                        //摆渡车接车，取到砖后不等完成指令-无缝上摆渡
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true)
-                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                            && (PubTask.Carrier.IsStopFTask(trans.carrier_id)
+                                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
+                                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                         {
                                             //前进至摆渡车
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -1102,7 +1122,8 @@ namespace task.trans
                                     {
                                         //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true)
-                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id)
+                                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                         {
                                             //前进至摆渡车
                                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -1155,12 +1176,12 @@ namespace task.trans
 
                         #region[小车在摆渡车]
                         case TrackTypeE.摆渡车_出:
+
                             //取消任务
                             if (!tileemptyneed
                                 && PubTask.Carrier.IsCarrierFree(trans.carrier_id))
                             {
-
-                                if (PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
+                                if (CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id))
                                 {
                                     // 优先移动到空轨道
                                     List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
@@ -1169,8 +1190,9 @@ namespace task.trans
 
                                     foreach (uint t in tids)
                                     {
-                                        if (!IsTraInTrans(t) && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) &&
-                                            !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                        if (!IsTraInTrans(t) 
+                                            && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) 
+                                            && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                         {
                                             // 有货的话就只能找空轨道
                                             if (isload && !PubMaster.Track.IsEmtpy(t))
@@ -1184,7 +1206,6 @@ namespace task.trans
                                                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
                                                 return;
                                             }
-
                                         }
                                     }
 
@@ -1197,6 +1218,7 @@ namespace task.trans
                                     return;
                                 }
 
+                                #region[旧-逻辑直接返回原轨道]
                                 //if (isnotload)
                                 //{
                                 //    //摆渡车接车
@@ -1221,7 +1243,7 @@ namespace task.trans
                                 //    SetStatus(trans, TransStatusE.取消);
                                 //    return;
                                 //}
-
+                                #endregion
                             }
 
                             if (tileemptyneed)
@@ -1235,7 +1257,8 @@ namespace task.trans
 
                                         #region 没库存时就将轨道设为空砖
 
-                                        if (!PubMaster.Track.IsEmtpy(trans.take_track_id) && PubMaster.Goods.IsTrackStockEmpty(trans.take_track_id))
+                                        if (!PubMaster.Track.IsEmtpy(trans.take_track_id) 
+                                            && PubMaster.Goods.IsTrackStockEmpty(trans.take_track_id))
                                         {
                                             PubMaster.Track.UpdateStockStatus(trans.take_track_id, TrackStockStatusE.空砖, "系统已无库存,自动调整轨道为空");
                                             PubMaster.Goods.ClearTrackEmtpy(trans.take_track_id);
@@ -1252,20 +1275,19 @@ namespace task.trans
                                         {
                                             /**
                                              * 1.判断砖机是否是单个砖机
-                                             * 2.
+                                             * 2.如果兄弟里面的砖机有需求放砖，则优先放入里面的工位
                                              */
                                             if (PubMaster.DevConfig.IsBrother(trans.tilelifter_id)
                                                 && PubTask.TileLifter.IsInSideTileNeed(trans.tilelifter_id, trans.give_track_id))
                                             {
                                                 uint bro = PubMaster.DevConfig.GetBrotherIdInside(trans.tilelifter_id);
-                                                SetTile(trans, bro);
+                                                SetTile(trans, bro, string.Format("砖机[ {0} & {1} ]有需求,优先放里面", bro, PubMaster.Device.GetDeviceName(bro)));
                                                 return;
                                             }
                                             else
                                             {
                                                 if (PubTask.TileLifter.IsGiveReady(trans.tilelifter_id, trans.give_track_id, out _))
                                                 {
-
                                                     //获取砖机配置的取货点
                                                     ushort torfid = PubMaster.DevConfig.GetTileSite(trans.tilelifter_id, trans.give_track_id);
                                                     if (torfid == 0)
@@ -1292,7 +1314,9 @@ namespace task.trans
                                     if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
-                                        if (PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
+                                        //1.不允许，则不可以有车
+                                        //2.允许，则不可以有非倒库车
+                                        if (CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id))
                                         {
                                             // 优先移动到空轨道
                                             List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
@@ -1301,8 +1325,9 @@ namespace task.trans
 
                                             foreach (uint t in tids)
                                             {
-                                                if (!IsTraInTrans(t) && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) &&
-                                                    !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                                if (!IsTraInTrans(t) 
+                                                    && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) 
+                                                    && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                                 {
                                                     if (SetTakeSite(trans, t))
                                                     {
@@ -1319,7 +1344,8 @@ namespace task.trans
                                         if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out string _)
                                             && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                         {
-                                            if (PubMaster.Track.IsEmtpy(trans.take_track_id) || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
+                                            if (PubMaster.Track.IsEmtpy(trans.take_track_id) 
+                                                || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
                                             {
                                                 //后退至点
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -1328,10 +1354,20 @@ namespace task.trans
                                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
                                                 });
-
                                             }
                                             else
                                             {
+                                                //判断是否需要在库存在上砖分割点后，是否需要发送倒库任务
+                                                if (CheckTopStockAndSendSortTask(trans.carrier_id, trans.take_track_id))
+                                                {
+                                                    return;
+                                                }
+
+                                                if(!CheckStockIsableToTake(trans.carrier_id, trans.take_track_id, trans.stock_id))
+                                                {
+                                                    return;
+                                                }
+
                                                 //后退取砖
                                                 CarrierActionOrder cao = new CarrierActionOrder()
                                                 {
@@ -1354,12 +1390,10 @@ namespace task.trans
                                                 }
 
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, cao);
-
                                             }
                                         }
                                     }
                                 }
-
                             }
                             break;
                         #endregion
@@ -1390,7 +1424,8 @@ namespace task.trans
                                 {
                                     //没有任务并且停止
                                     if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
-                                    {                                                //获取砖机配置的取货点
+                                    {   
+                                        //获取砖机配置的取货点
                                         ushort torfid = PubMaster.DevConfig.GetTileSite(trans.tilelifter_id, trans.give_track_id);
                                         if (torfid == 0)
                                         {
@@ -1473,7 +1508,6 @@ namespace task.trans
                                             CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         });
-
                                     }
                                 }
                             }
@@ -1482,6 +1516,7 @@ namespace task.trans
 
                         #region[小车在摆渡车上]
                         case TrackTypeE.摆渡车_出:
+
                             if (isnotload)
                             {
                                 //小车在摆渡车上
@@ -1499,7 +1534,8 @@ namespace task.trans
                                         //只要轨道没有空都去轨道取，直到空轨道
                                         if (!PubMaster.Track.IsEmtpy(trans.take_track_id)
                                             && !PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType)
-                                            && !PubTask.Carrier.HaveInTrack(trans.take_track_id, trans.carrier_id))
+                                            && !CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id)
+                                            && CheckStockIsableToTake(trans.carrier_id, trans.take_track_id))
                                         {
                                             trans.finish_track_id = trans.take_track_id;
                                         }
@@ -1513,9 +1549,11 @@ namespace task.trans
                                                     // 1.查看当前作业轨道是否能作业
                                                     if (PubMaster.Track.HaveTrackInGoodFrist(trans.area_id, trans.tilelifter_id,
                                                         trans.goods_id, PubTask.TileLifter.GetTileCurrentTake(trans.tilelifter_id), out uint trackid)
-                                                        && !IsTraInTrans(trackid)
-                                                        && !PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id)
-                                                        && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid))
+                                                        && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
+                                                        && !HaveInTrackButSortTask(trackid)
+                                                        && !CheckHaveCarrierInOutTrack(trans.carrier_id, trackid)
+                                                        && CheckStockIsableToTake(trans.carrier_id, trackid)
+                                                        )
                                                     {
                                                         trans.finish_track_id = trackid;
                                                         isallocate = true;
@@ -1526,9 +1564,10 @@ namespace task.trans
                                                     {
                                                         foreach (var tid in trackids)
                                                         {
-                                                            if (!IsTraInTrans(tid)
-                                                                && !PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id)
-                                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid))
+                                                            if (!HaveInTrackButSortTask(tid)
+                                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
+                                                                && !CheckHaveCarrierInOutTrack(trans.carrier_id, trackid)
+                                                                && CheckStockIsableToTake(trans.carrier_id, trackid))
                                                             {
                                                                 trans.finish_track_id = tid;
                                                                 isallocate = true;
@@ -1542,16 +1581,35 @@ namespace task.trans
                                                     {
                                                         foreach (Stock stock in allocatestocks)
                                                         {
-                                                            if (!IsTraInTrans(stock.track_id) &&
-                                                                !PubTask.Carrier.HaveInTrack(stock.track_id, trans.carrier_id) &&
-                                                                PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, stock.track_id))
+                                                            if (!HaveInTrackButSortTask(stock.track_id)
+                                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, stock.track_id)
+                                                                && !CheckHaveCarrierInOutTrack(trans.carrier_id, stock.track_id))
                                                             {
                                                                 trans.finish_track_id = stock.track_id;
                                                                 isallocate = true;
                                                                 break;
                                                             }
                                                         }
+                                                    }else if(!isallocate)
+                                                    {
+                                                        // 优先移动到空轨道
+                                                        List<uint> emptytras = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
+
+                                                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(emptytras, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+
+                                                        foreach (uint t in tids)
+                                                        {
+                                                            if (!IsTraInTrans(t)
+                                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, t)
+                                                                && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                                            {
+                                                                trans.finish_track_id = t;
+                                                                isallocate = true;
+                                                                break;
+                                                            }
+                                                        }
                                                     }
+
                                                     break;
 
                                                 case DevWorkTypeE.轨道作业:
@@ -1594,9 +1652,21 @@ namespace task.trans
                                                 PubMaster.Track.UpdateRecentGood(trans.finish_track_id, trans.goods_id);
                                                 PubMaster.Track.UpdateRecentTile(trans.finish_track_id, trans.tilelifter_id);
 
-                                                //后退取砖
+                                                //判断是否需要在库存在上砖分割点后，是否需要发送倒库任务
+                                                if (CheckTopStockAndSendSortTask(trans.carrier_id, trans.finish_track_id))
+                                                {
+                                                    return;
+                                                }
+
+                                                if(!CheckStockIsableToTake(trans.carrier_id, trans.finish_track_id))
+                                                {
+                                                    return;
+                                                }
+
                                                 CarrierActionOrder cao = new CarrierActionOrder();
-                                                if (PubMaster.Track.GetAndRefreshUpCount(trans.finish_track_id) == 0)
+                                                //后退至点
+                                                if (PubMaster.Track.GetAndRefreshUpCount(trans.finish_track_id) == 0
+                                                    || !PubMaster.Goods.IsTopStockIsGood(trans.finish_track_id, trans.goods_id))
                                                 {
                                                     cao.Order = DevCarrierOrderE.定位指令;
                                                     cao.CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id);
@@ -1621,10 +1691,7 @@ namespace task.trans
                                                     }
                                                 }
 
-
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, cao);
-
-
                                             }
                                             else
                                             {
@@ -1635,7 +1702,6 @@ namespace task.trans
                                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
                                                     ToRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id),
                                                 });
-
                                             }
                                         }
                                         //判断小车是否已上轨道，是则解锁摆渡车
@@ -1652,11 +1718,20 @@ namespace task.trans
                         #region[小车在取砖轨道]
                         case TrackTypeE.储砖_出入:
                         case TrackTypeE.储砖_出:
+
                             if (!trans.IsReleaseGiveFerry
                                 && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
                                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                             {
                                 trans.IsReleaseGiveFerry = true;
+                            }
+
+                            //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
+                            if (CheckCarrierInSortTaskAndAddTask(trans, trans.carrier_id, trans.take_track_id))
+                            {
+                                SetStatus(trans, TransStatusE.完成,
+                                    string.Format("小车【{0}】执行接力倒库，完成上砖任务", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                                return;
                             }
 
                             SetStatus(trans, TransStatusE.完成);
@@ -1774,7 +1849,6 @@ namespace task.trans
                     #endregion
             }
         }
-
         #endregion
 
         #region[倒库任务]
@@ -1823,8 +1897,7 @@ namespace task.trans
                         {
                             AddMoveCarrierTask(trans.take_track_id, fullcarrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
                         }
-                        else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.前进倒库) ||
-                                    PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.后退倒库))
+                        else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                         {
                             havecarintake = false;
                         }
@@ -1886,10 +1959,8 @@ namespace task.trans
                         case TrackTypeE.储砖_入:
                             if (trans.take_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
-                                    PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                                 {
                                     SetStatus(trans, TransStatusE.倒库中);
                                 }
@@ -1899,10 +1970,8 @@ namespace task.trans
 
                             if (trans.give_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
-                                    PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                                 {
                                     if (!trans.IsReleaseGiveFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
@@ -2009,8 +2078,7 @@ namespace task.trans
                 #region[小车倒库]
                 case TransStatusE.倒库中:
 
-                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
-                        PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
+                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                     {
                         if (!PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
                         {
@@ -2035,21 +2103,24 @@ namespace task.trans
                         }
                     }
 
-                    //倒库中，突然倒库的轨道存在其他小车
-                    if (PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
+                    if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
                     {
-                        //终止
-                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                        //倒库中，突然倒库的轨道存在其他小车
+                        if (PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
                         {
-                            Order = DevCarrierOrderE.终止指令
-                        });
+                            //终止
+                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.终止指令
+                            });
 
-                        PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
-                            (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
-                    }
-                    else
-                    {
-                        PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
+                            PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
+                                (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
+                        }
+                        else
+                        {
+                            PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
+                        }
                     }
 
                     if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.终止指令))
@@ -2124,7 +2195,34 @@ namespace task.trans
                 case TransStatusE.取消:
 
                     break;
-                    #endregion
+                #endregion
+
+                #region[任务暂停]
+                case TransStatusE.倒库暂停:
+                    if(trans.carrier_id != 0)
+                    {
+                        //倒库中的小车卸完货并且后退中
+                        //出库轨道中没有车辆在前面
+                        if (PubTask.Carrier.IsCarrierUnLoadAndBackWard(trans.carrier_id)
+                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id))
+                        {
+                            //前进至点
+                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.定位指令,
+                                CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
+                                ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                            });
+                        }
+
+                        if (PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
+                        {
+                            SetCarrier(trans, 0, string.Format("倒库任务暂停，释放小车[ {0} ]",PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                        }
+                    }
+                    break;
+
+                #endregion
             }
         }
 
@@ -2210,10 +2308,8 @@ namespace task.trans
                         case TrackTypeE.储砖_入:
                             if (trans.take_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
-                                    PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                                 {
                                     SetStatus(trans, TransStatusE.倒库中);
                                 }
@@ -2223,10 +2319,8 @@ namespace task.trans
 
                             if (trans.give_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
-                                    PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                                 {
                                     if (!trans.IsReleaseGiveFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
@@ -2246,15 +2340,16 @@ namespace task.trans
 
                                     if (isnotload)
                                     {
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至轨道倒库, isoversize);
+                                        Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+
+                                        //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                            MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
-                                        });
-
+                                            CheckTra = gtrack.ferry_down_code,
+                                            ToSite = (ushort)(gtrack.split_point + 50),
+                                            MoveCount = (byte)PubMaster.Goods.GetBehindUpSplitStockCount(gtrack.id, gtrack.up_split_point)
+                                        }) ;
                                     }
                                 }
                             }
@@ -2264,7 +2359,7 @@ namespace task.trans
                                 {
                                     if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                     {
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.下降放货);
+                                        //下降放货
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.放砖指令
@@ -2277,7 +2372,7 @@ namespace task.trans
                                     //摆渡车接车
                                     if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
                                     {
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至摆渡车);
+                                        //前进至摆渡车
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
@@ -2307,16 +2402,16 @@ namespace task.trans
                                     //小车到达摆渡车后短暂等待再开始定位
                                     if (LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out string _))
                                     {
-                                        //bool isoversize = PubMaster.Goods.IsGoodsOverSize(trans.goods_id);
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退至轨道倒库, isoversize);
+                                        Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+
+                                        //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.前进倒库,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                            MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
+                                            CheckTra = gtrack.ferry_down_code,
+                                            ToSite = (ushort)(gtrack.split_point + 50),
+                                            MoveCount = (byte)PubMaster.Goods.GetBehindUpSplitStockCount(gtrack.id, gtrack.up_split_point)
                                         });
-
                                     }
                                 }
                             }
@@ -2335,27 +2430,29 @@ namespace task.trans
 
                 #region[小车倒库]
                 case TransStatusE.倒库中:
-                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库) ||
-                        PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.后退倒库))
+                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                     {
-                            SetStatus(trans, TransStatusE.小车回轨);
+                        SetStatus(trans, TransStatusE.小车回轨);
                     }
 
-                    //倒库中，突然倒库的轨道存在其他小车
-                    if (PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
+                    if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
                     {
-                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.终止);
-                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                        //倒库中，突然倒库的轨道存在其他小车
+                        if (PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
                         {
-                            Order = DevCarrierOrderE.终止指令
-                        });
+                            //终止
+                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.终止指令
+                            });
 
-                        PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
-                            (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
-                    }
-                    else
-                    {
-                        PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
+                            PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
+                                (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
+                        }
+                        else
+                        {
+                            PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
+                        }
                     }
 
                     if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.终止指令))
@@ -2375,24 +2472,26 @@ namespace task.trans
                     track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                     if (track != null)
                     {
-                        if (trans.take_track_id == track.id
-                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                        if (!PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id)
+                            && !PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
                         {
-                            //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            if (trans.take_track_id == track.id
+                               && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
-                                Order = DevCarrierOrderE.定位指令,
-                                CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                            });
+                                //前进至点
+                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                {
+                                    Order = DevCarrierOrderE.定位指令,
+                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                });
+                            }
 
-                        }
-
-                        if (trans.give_track_id == track.id
-                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
-                        {
-                            PubMaster.Track.SetSortTrackStatus(trans.take_track_id, trans.give_track_id, TrackStatusE.倒库中, TrackStatusE.启用);
-                            SetStatus(trans, TransStatusE.完成);
+                            if (trans.give_track_id == track.id
+                                && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                            {
+                                SetStatus(trans, TransStatusE.完成);
+                            }
                         }
                     }
                     break;
@@ -2410,6 +2509,33 @@ namespace task.trans
                 case TransStatusE.取消:
 
                     break;
+                #endregion
+
+                #region[任务暂停]
+                case TransStatusE.倒库暂停:
+                    if (trans.carrier_id != 0)
+                    {
+                        //倒库中的小车卸完货并且后退中
+                        //出库轨道中没有车辆在前面
+                        if (PubTask.Carrier.IsCarrierUnLoadAndBackWard(trans.carrier_id)
+                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id))
+                        {
+                            //前进至点
+                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.定位指令,
+                                CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
+                                ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                            });
+                        }
+
+                        if (PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
+                        {
+                            SetCarrier(trans, 0, string.Format("倒库任务暂停，释放小车[ {0} ]", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                        }
+                    }
+                    break;
+
                     #endregion
             }
         }
@@ -2449,7 +2575,7 @@ namespace task.trans
                                     if (PubTask.Carrier.IsCarrierFree(trans.carrier_id)
                                         && !PubTask.Carrier.HaveInTrack(trans.give_track_id))
                                     {
-                                        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                        //前进至点
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
@@ -2683,7 +2809,7 @@ namespace task.trans
                     }
 
                     //是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
-                    if (!HaveTaskInTrackId(trans))
+                    if (!HaveTaskInTrackButSort(trans))
                     {
                         if (!IsAllowToHaveCarTask(trans.area_id, trans.line, trans.TransType)) return;
 
@@ -2939,7 +3065,7 @@ namespace task.trans
                                                 && PubTask.TileLifter.IsInSideTileNeed(trans.tilelifter_id, trans.give_track_id))
                                             {
                                                 uint bro = PubMaster.DevConfig.GetBrotherIdInside(trans.tilelifter_id);
-                                                SetTile(trans, bro);
+                                                SetTile(trans, bro, string.Format("砖机[{0} & {1}有需求,优先放里面", bro, PubMaster.Device.GetDeviceName(bro)));
                                                 return;
                                             }
                                             else
@@ -3450,7 +3576,7 @@ namespace task.trans
             {
                 if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.倒库)) continue;
 
-                int count = HaveAreaSortTask(track.area, track.line);
+                int count = GetAreaSortTaskCount(track.area, track.line);
                 if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
 
                 //if (PubTask.Carrier.HaveUnFinishSortCar(track.area)) continue;
@@ -3503,9 +3629,33 @@ namespace task.trans
             }
         }
 
-        private int HaveAreaSortTask(ushort area, ushort line)
+        /// <summary>
+        /// 获取倒库数量
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public int GetAreaSortTaskCount(uint area, ushort line)
         {
-            return TransList.Count(c => !c.finish && c.area_id == area && c.line == line && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖侧倒库));
+            return TransList.Count(c => !c.finish 
+                                        && c.area_id == area 
+                                        && c.line == line 
+                                        && c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库));
+        }
+
+        /// <summary>
+        /// 获取非等待倒库任务数量
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public int GetSortTaskNotWaitCount(uint area, ushort line)
+        {
+            return TransList.Count(c => !c.finish 
+                                        && c.area_id == area 
+                                        && c.line == line 
+                                        && c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
+                                        && c.InStatus(TransStatusE.倒库暂停));
         }
 
         #endregion
@@ -3520,25 +3670,15 @@ namespace task.trans
         {
             if (!PubMaster.Track.IsUpSplit()) return;
 
+            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return;
+
             List<Track> tracks = PubMaster.Track.GetUpSortTrack();
             foreach (Track track in tracks)
             {
                 if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.上砖)) continue;
 
-                int count = HaveAreaSortTask(track.area, track.line);
+                int count = GetAreaSortTaskCount(track.area, track.line);
                 if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
-
-                //if (PubTask.Carrier.HaveUnFinishSortCar(track.area)) continue;
-
-                //if (!PubMaster.Goods.ExistStockInTrack(track.id))
-                //{
-                //    PubMaster.Warn.AddTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id, track.name);
-                //    continue;
-                //}
-                //else
-                //{
-                //    PubMaster.Warn.RemoveTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id);
-                //}
 
                 if (TransList.Exists(c => !c.finish && (c.take_track_id == track.id
                                         || c.give_track_id == track.id
@@ -3547,17 +3687,10 @@ namespace task.trans
                     continue;
                 }
 
-                //if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
-
                 uint goodsid = PubMaster.Goods.GetGoodsId(track.id);
 
                 if (goodsid != 0)
                 {
-                    //if (!PubMaster.Goods.IsTrackOkForGoods(track.brother_track_id, goodsid))
-                    //{
-                    //    continue;
-                    //}
-
                     uint stockid = PubMaster.Goods.GetTrackStockId(track.id);
                     if (stockid == 0) continue;
                     uint tileid = PubMaster.Goods.GetStockTileId(stockid);
@@ -3569,9 +3702,6 @@ namespace task.trans
                         continue;
                     }
 
-                    //PubMaster.Track.SetTrackEaryFull(track.id, false, null);
-
-                    PubMaster.Track.SetUpSortStatus(track.id, track.id, TrackStatusE.启用, TrackStatusE.倒库中);
                     AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.上砖侧倒库, goodsid, stockid, track.id, track.id
                         , TransStatusE.检查轨道, 0, track.line);
                 }
@@ -4018,21 +4148,44 @@ namespace task.trans
                 && (c.give_track_id == traid || c.take_track_id == traid || c.finish_track_id == traid));
         }
 
+        /// <summary>
+        /// 判断库存，作业轨道是否已经被任务占用
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         internal bool IsStockInTrans(uint stockid, uint trackid)
         {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(2)))
+            try
             {
-                try
-                {
-                    return TransList.Exists(c => !c.finish
-                    && (c.stock_id == stockid
-                    || c.take_track_id == trackid
-                    || c.give_track_id == trackid));
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
+                return TransList.Exists(c => !c.finish
+                        && (c.stock_id == stockid
+                        || c.take_track_id == trackid
+                        || c.give_track_id == trackid));
+            }catch(Exception e)
+            {
+
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 判断库存，作业轨道是否已经被任务占用[但是忽略倒库任务]
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool IsStockInTransButSortTask(uint stockid, uint trackid)
+        {
+            try
+            {
+                return TransList.Exists(c => !c.finish
+                        && c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
+                        && (c.stock_id == stockid || c.InTrack(trackid)));
+            }
+            catch (Exception e)
+            {
+
             }
             return true;
         }
@@ -4049,6 +4202,22 @@ namespace task.trans
             return TransList.Exists(c => c.id != trans.id
                                     && c.TransStaus != TransStatusE.完成
                                     && (c.take_track_id == trans.take_track_id || c.take_track_id == trans.give_track_id));
+        }
+
+        /// <summary>
+        /// 判断任务占用轨道
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <returns></returns>
+        private bool HaveTaskInTrackButSort(StockTrans trans)
+        {
+            //是否开启【倒库轨道可以同时上砖】
+            bool ignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+            return TransList.Exists(c => c.id != trans.id
+                                    && c.TransStaus != TransStatusE.完成
+                                    && (!ignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
+                                    && c.InTrack(trans.take_track_id, trans.give_track_id));
         }
 
         private bool HaveTaskSortTrackId(StockTrans trans)
@@ -4445,16 +4614,15 @@ namespace task.trans
                         {
                             try
                             {
-                                SetStatus(item, TransStatusE.完成);
+                                SetStatus(item, TransStatusE.完成, "平板任务开关-清除任务");
                                 if (item.carrier_id > 0)
                                 {
                                     try
                                     {
-                                        //PubTask.Carrier.DoTask(item.carrier_id, DevCarrierTaskE.终止);
                                         PubTask.Carrier.DoOrder(item.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.终止指令
-                                        });
+                                        }, "【平板任务开关】- 终止小车");
 
                                     }
                                     catch (Exception e)
@@ -4547,7 +4715,7 @@ namespace task.trans
         /// <returns></returns>
         internal bool CheckTrackCanDoSort(uint givetrackid, uint taketrackid, uint devid, out string result)
         {
-            StockTrans trans = TransList.Find(c => c.TransType == TransTypeE.倒库任务 && c.take_track_id == taketrackid
+            StockTrans trans = TransList.Find(c => (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务) && c.take_track_id == taketrackid
                                 && c.give_track_id == givetrackid);
             if (trans != null)
             {
@@ -4560,7 +4728,8 @@ namespace task.trans
                 return true;
             }
 
-            List<StockTrans> othertrans = TransList.FindAll(c => c.TransType != TransTypeE.倒库任务 && c.HaveTrack(givetrackid, taketrackid));
+            List<StockTrans> othertrans = TransList.FindAll(c => c.NotInType(TransTypeE.上砖侧倒库, TransTypeE.倒库任务)
+                                                                && c.InTrack(givetrackid, taketrackid));
 
             if (othertrans.Count > 0)
             {
@@ -4571,17 +4740,158 @@ namespace task.trans
                 }
             }
 
-            if (PubTask.Carrier.HaveInTrackButCarrier(taketrackid, givetrackid, devid, out uint othercarid))
+            //允许倒库的时候上砖
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
             {
-                result = string.Format("倒库轨道有其他车[ {0} ]，不能执行倒库指令", PubMaster.Device.GetDeviceName(othercarid));
-                return false;
+                if(PubTask.Carrier.ExistCarBehind(devid, givetrackid, out uint otherid))
+                {
+                    result = string.Format("倒库轨道有其他车[ {0} ]，不能执行倒库指令", PubMaster.Device.GetDeviceName(otherid));
+                    return false;
+                }
+            }
+            else
+            {
+                if (PubTask.Carrier.HaveInTrackButCarrier(taketrackid, givetrackid, devid, out uint othercarid))
+                {
+                    result = string.Format("倒库轨道有其他车[ {0} ]，不能执行倒库指令", PubMaster.Device.GetDeviceName(othercarid));
+                    return false;
+                }
             }
 
             result = "";
             return true;
         }
 
+        /// <summary>
+        /// 判断是否需要在库存在上砖分割点后，是否需要发送倒库任务
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        private bool CheckTopStockAndSendSortTask(uint carrier_id, uint track_id)
+        {
+            //1.打开使用-开关(使用上砖侧分割点坐标)
+            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return false;
 
+            //2.判断是否是出轨道
+            Track track = PubMaster.Track.GetTrack(track_id);
+            if (track == null || track.Type != TrackTypeE.储砖_出) return false;
+
+            //3.如果已经有倒库任务则不发了
+            if(TransList.Exists(c=>!c.finish && c.take_track_id == track_id && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖侧倒库)))
+            {
+                return false;
+            }
+
+            //4.判断轨道中是否已经有其他车在倒库了
+            if (PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.上砖侧倒库, track_id, carrier_id)) return false;
+
+            //5.轨道的头部库存位置处于则给小车发送倒库任务
+            if (PubMaster.Goods.IsTopStockBehindUpSplitPoint(track_id))
+            {
+                //后退至轨道倒库
+                PubTask.Carrier.DoOrder(carrier_id, new CarrierActionOrder()
+                {
+                    Order = DevCarrierOrderE.前进倒库,
+                    CheckTra = track.ferry_down_code,
+                    ToSite = (ushort)(track.split_point + 50),//倒库时，不能超过脉冲(出库轨道附件脉冲位置)
+                    MoveCount = (byte)PubMaster.Goods.GetBehindUpSplitStockCount(track.id, track.up_split_point)
+                }) ;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 判断小车是否在执行倒库指令
+        /// 1.添加上砖倒库任务给该小车
+        /// 2.返回true,完成上砖任务
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        private bool CheckCarrierInSortTaskAndAddTask(StockTrans trans, uint carrier_id, uint track_id)
+        {
+            if (PubTask.Carrier.IsCarrierInTask(carrier_id, DevCarrierOrderE.前进倒库))
+            {
+                Track track = PubMaster.Track.GetTrack(track_id);
+                if (PubMaster.Goods.ExistStockInTrack(track_id))
+                {
+                    AddTransWithoutLock(trans.area_id, 0, TransTypeE.上砖侧倒库, trans.goods_id, 0, track_id, track_id, TransStatusE.倒库中, trans.carrier_id, track.line > 0 ? track.line : trans.line);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 检查轨道是否有其他车辆
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        private bool CheckHaveCarrierInOutTrack(uint carrierid, uint trackid)
+        {
+            bool isignoresorttask = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+            //1.不允许，则不可以有车
+            //2.允许，则不可以有非倒库车
+            return (!isignoresorttask && PubTask.Carrier.HaveInTrack(trackid, carrierid))
+                    || (isignoresorttask && PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.上砖任务, trackid, carrierid)
+                    || (isignoresorttask && ExistSortBackTask(trackid)));
+        }
+
+        /// <summary>
+        /// 是否存在倒库任务状态为还车回轨的任务
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        private bool ExistSortBackTask(uint trackid)
+        {
+            return TransList.Exists(c => c.TransStaus == TransStatusE.小车回轨 
+                                && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
+        }
+
+        /// <summary>
+        /// 判断轨道的库存是否能够发送小车执行取砖指令
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <param name="trackid"></param>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        private bool CheckStockIsableToTake(uint carrierid, uint trackid, uint stockid = 0)
+        {
+            if (stockid == 0)
+            {
+                stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
+            }
+            if (stockid == 0) return false;
+
+            //判断运输车是否能进入轨道
+            //1.允许倒库的过程中使用同轨道上砖
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
+            {
+                //【使用分割点、不限制使用分割点后的库存】
+                //2.判断库存所在位置是否轨道分割点后面
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)
+                    && !PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock)
+                    && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid))
+                {
+                    //在分割点后的库存需要
+                    return false;
+                }
+
+                //3.判断是否存在运输车绑定了该库存
+                if (PubTask.Carrier.ExistCarrierBindStock(carrierid, stockid))
+                {
+                    return false;
+                }
+
+                //4.
+            }
+
+            return true;
+        }
         #endregion
     }
 }
