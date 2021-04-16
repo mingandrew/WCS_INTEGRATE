@@ -167,6 +167,11 @@ namespace module.track
             return log;
         }
 
+        public string GetStatusLog()
+        {
+            return string.Format("名称[ {0} ], 状态[ {1} ], 货物[ {2} ]", name, TrackStatus, StockStatus);
+        }
+
         /// <summary>
         /// 是否是上砖区域的轨道
         /// </summary>

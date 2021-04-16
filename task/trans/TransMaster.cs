@@ -1073,6 +1073,7 @@ namespace task.trans
             }
         }
 
+
         #endregion
 
         #region[出库任务]
@@ -1159,7 +1160,7 @@ namespace task.trans
                             if (!tileemptyneed
                                 && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
-                                SetStatus(trans, TransStatusE.完成);
+                                SetStatus(trans, TransStatusE.完成, "工位无需求，直接完成任务1");
                                 return;
                             }
 
@@ -1172,7 +1173,7 @@ namespace task.trans
                                         && PubTask.Carrier.IsStopFTask(trans.carrier_id)
                                         && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 10, 5))
                                     {
-                                        SetStatus(trans, TransStatusE.完成);
+                                        SetStatus(trans, TransStatusE.完成, "工位无需求，直接完成任务2");
                                         return;
                                     }
 
@@ -1216,7 +1217,7 @@ namespace task.trans
                                     if (PubMaster.Track.IsEmtpy(trans.take_track_id)
                                         || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
                                     {
-                                        SetStatus(trans, TransStatusE.完成);
+                                        SetStatus(trans, TransStatusE.完成,string.Format("轨道不满足状态[ {0} ]", PubMaster.Track.GetTrackStatusLogInfo(trans.take_track_id)));
                                         return;
                                     }
 
@@ -2370,25 +2371,64 @@ namespace task.trans
                     track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                     if (track != null)
                     {
-                        if (trans.take_track_id == track.id
-                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                        if (!PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id)
+                            && !PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
                         {
-                            //前进至点
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            if ((trans.take_track_id == track.id 
+                                    || (trans.give_track_id == track.id 
+                                        && PubTask.Carrier.IsCarrierInTrackSmallerSite(trans.carrier_id, trans.give_track_id)))
+                                && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
-                                Order = DevCarrierOrderE.定位指令,
-                                CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                            });
+                                //前进至点
+                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                {
+                                    Order = DevCarrierOrderE.定位指令,
+                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                });
+                            }
 
+                            if (trans.give_track_id == track.id
+                                && PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id)
+                                && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                            {
+                                SetStatus(trans, TransStatusE.完成);
+                            }
                         }
-
-                        if (trans.give_track_id == track.id
-                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                        else
                         {
-                            PubMaster.Track.SetSortTrackStatus(trans.take_track_id, trans.give_track_id, TrackStatusE.倒库中, TrackStatusE.启用);
-                            SetStatus(trans, TransStatusE.完成);
+                            if (PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id, out uint othercarrier))
+                            {
+                                if (!HaveCarrierInTrans(othercarrier) && PubTask.Carrier.IsCarrierFree(othercarrier))
+                                {
+                                    //转移到同类型轨道
+                                    TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                                    track = PubTask.Carrier.GetCarrierTrack(othercarrier);
+                                    AddMoveCarrierTask(track.id, othercarrier, tracktype, MoveTypeE.转移占用轨道);
+                                }
+                            }
                         }
+
+                        //if (trans.take_track_id == track.id
+                        //    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                        //{
+                        //    //前进至点
+                        //    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                        //    {
+                        //        Order = DevCarrierOrderE.定位指令,
+                        //        CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                        //        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                        //    });
+
+                        //}
+
+                        //if (trans.give_track_id == track.id
+                        //    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                        //{
+                        //    //PubMaster.Track.SetSortTrackStatus(trans.take_track_id, trans.give_track_id, TrackStatusE.倒库中, TrackStatusE.启用);
+                        //    SetStatus(trans, TransStatusE.完成);
+                        //}
+
                     }
                     break;
                 #endregion
@@ -2686,8 +2726,10 @@ namespace task.trans
                         if (!PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id)
                             && !PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
                         {
-                            if (trans.take_track_id == track.id
-                               && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                            if ((trans.take_track_id == track.id
+                                    || (trans.give_track_id == track.id
+                                        && PubTask.Carrier.IsCarrierInTrackSmallerSite(trans.carrier_id, trans.give_track_id)))
+                                && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
                                 //前进至点
                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -2699,9 +2741,23 @@ namespace task.trans
                             }
 
                             if (trans.give_track_id == track.id
+                                && PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id)
                                 && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
                                 SetStatus(trans, TransStatusE.完成);
+                            }
+                        }
+                        else
+                        {
+                            if(PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id, out uint othercarrier))
+                            {
+                                if (!HaveCarrierInTrans(othercarrier) && PubTask.Carrier.IsCarrierFree(othercarrier))
+                                {
+                                    //转移到同类型轨道
+                                    TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                                    track = PubTask.Carrier.GetCarrierTrack(othercarrier);
+                                    AddMoveCarrierTask(track.id, othercarrier, tracktype, MoveTypeE.转移占用轨道);
+                                }
                             }
                         }
                     }
@@ -3880,7 +3936,7 @@ namespace task.trans
                                         && c.area_id == area 
                                         && c.line == line 
                                         && c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
-                                        && c.InStatus(TransStatusE.倒库暂停));
+                                        && c.NotInStatus(TransStatusE.倒库暂停));
         }
 
         #endregion
@@ -5046,7 +5102,8 @@ namespace task.trans
         /// <returns></returns>
         private bool ExistSortBackTask(uint trackid)
         {
-            return TransList.Exists(c => c.TransStaus == TransStatusE.小车回轨 
+            return TransList.Exists(c => c.give_track_id == trackid 
+                                && c.TransStaus == TransStatusE.小车回轨 
                                 && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
         }
 
