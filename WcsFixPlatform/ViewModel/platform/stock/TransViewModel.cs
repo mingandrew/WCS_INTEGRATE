@@ -66,6 +66,8 @@ namespace wcs.ViewModel
 
         private string tcmsg;//交管信息
 
+        private string stepinfo;//步骤信息
+
         #endregion
 
         #region[属性]
@@ -187,6 +189,12 @@ namespace wcs.ViewModel
         {
             get => tcmsg;
             set => Set(ref tcmsg, value);
+        }
+
+        public string StepInfo
+        {
+            get => stepinfo;
+            set => Set(ref stepinfo, value);
         }
 
         public ICollectionView TListView { set; get; }
@@ -337,6 +345,7 @@ namespace wcs.ViewModel
             Load_time = module.Load_time;
             Unload_time = module.Unload_time;
             TCmsg = module.TCmsg;
+            StepInfo = module.StepInfo;
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using module.goods;
 using System;
+using System.Text;
 using task;
 
 namespace wcs.Data.View
@@ -30,6 +31,9 @@ namespace wcs.Data.View
         private DateTime? finish_time;
 
         private string tcmsg;//交管信息
+
+        private uint stepcode;//当前步骤编码
+        private StringBuilder stepinfo = new StringBuilder();//当前步骤信息
 
         public uint Id
         {
@@ -122,6 +126,18 @@ namespace wcs.Data.View
             set => tcmsg = value;
         }
 
+        public uint StepCode
+        {
+            get => stepcode;
+            set => stepcode = value;
+        }
+
+        public string StepInfo
+        {
+            get => stepinfo.ToString();
+            set => stepinfo = stepinfo.Insert(0, value);
+        }
+
         #endregion
         public TransView(StockTrans trans)
         {
@@ -147,6 +163,12 @@ namespace wcs.Data.View
             Unload_time = trans.unload_time;
             finish = trans.finish;
             finish_time = trans.finish_time;
+
+            if (trans.StepLog != null && trans.StepLog.StepCode != StepCode)
+            {
+                StepCode = trans.StepLog.StepCode;
+                StepInfo = trans.StepLog.StepInfo;
+            }
 
             // 交管信息
             if (trans.give_ferry_id > 0) // 卸货摆渡车

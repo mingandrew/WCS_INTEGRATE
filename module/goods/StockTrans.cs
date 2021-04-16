@@ -1,5 +1,6 @@
 ﻿using enums;
 using System;
+using System.Collections.Generic;
 
 namespace module.goods
 {
@@ -69,5 +70,51 @@ namespace module.goods
                 || take_track_id == tra2_id || give_track_id == tra2_id
                 || finish_track_id == tra2_id || finish_track_id == tra1_id;
         }
+
+        /// <summary>
+        /// 任务步骤信息
+        /// </summary>
+        public TransStep StepLog { set; get; } = new TransStep();
+
+        /// <summary>
+        /// 是否记录步骤信息
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="info"></param>
+        /// <param name="isOk"></param>
+        /// <returns></returns>
+        public bool LogStep(bool isOk, uint code, string info)
+        {
+            if (StepLog.StepCode == code)
+            {
+                return false;
+            }
+
+            // 信息格式
+            string msg = string.Format(@"[{0}]>>{1}:[{2}]-{3}({4})
+", DateTime.Now, TransStaus, isOk ? "✔" : "❌", info, code);
+
+
+            StepLog.StepCode = code;
+            StepLog.StepInfo = msg;
+            return true;
+        }
     }
+
+    /// <summary>
+    /// 任务步骤
+    /// </summary>
+    public class TransStep
+    {
+        /// <summary>
+        /// 步骤编码
+        /// </summary>
+        public uint StepCode { set; get; }
+
+        /// <summary>
+        /// 步骤信息
+        /// </summary>
+        public string StepInfo { set; get; }
+    }
+
 }

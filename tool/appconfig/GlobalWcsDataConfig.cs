@@ -68,7 +68,7 @@ namespace tool.appconfig
 
                     fs.Close();
                 }
-            }catch(Exception e)
+            }catch(Exception)
             {
 
             }
@@ -94,7 +94,7 @@ namespace tool.appconfig
 
                     fs.Close();
                 }
-            }catch(Exception e)
+            }catch(Exception)
             {
 
             }

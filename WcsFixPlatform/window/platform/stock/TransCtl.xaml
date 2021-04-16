@@ -127,6 +127,7 @@
                         <RowDefinition />
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition Height="3*"/>
                     </Grid.RowDefinitions>
                     <Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
                         <TextBlock Text="ID:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
@@ -168,6 +169,10 @@
                         <TextBlock Text="卸货时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
                     </Border>
 
+                    <Border Grid.Row="7" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
+                        <TextBlock Text="步骤信息:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                    </Border>
+
                     <Border Grid.Row="0" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
                         <TextBlock Text="{Binding Id}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
                     </Border>
@@ -207,6 +212,15 @@
                     <Border Grid.Row="6" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1" >
                         <TextBlock Text="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
                     </Border>
+
+                    <RichTextBox Grid.Row="7" Grid.Column="1" BorderThickness="1,1,1,1" Grid.ColumnSpan="3" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True">
+                        <FlowDocument>
+                            <Paragraph>
+                                <Run Text="{Binding StepInfo, Mode=OneWay}"/>
+                            </Paragraph>
+                        </FlowDocument>
+                    </RichTextBox>
+
                 </Grid>
             </Grid>
         </Grid>
