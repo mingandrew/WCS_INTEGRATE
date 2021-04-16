@@ -4572,7 +4572,7 @@ namespace task.trans
                                     case TransStatusE.调度设备:
                                         if (trans.carrier_id == 0)
                                         {
-                                            SetStatus(trans, TransStatusE.取消);
+                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;
                                         }
                                         break;
@@ -4582,7 +4582,7 @@ namespace task.trans
                                             && !PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.取砖指令)
                                             && nowtrack.Type != TrackTypeE.下砖轨道)
                                         {
-                                            SetStatus(trans, TransStatusE.取消);
+                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;
                                         }
                                         else
@@ -4604,7 +4604,7 @@ namespace task.trans
                                     case TransStatusE.调度设备:
                                         if (trans.carrier_id == 0)
                                         {
-                                            SetStatus(trans, TransStatusE.取消);
+                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;
                                         }
                                         break;
@@ -4614,7 +4614,7 @@ namespace task.trans
                                             && !PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.放砖指令)
                                             && nowtrack.Type != TrackTypeE.上砖轨道)
                                         {
-                                            SetStatus(trans, TransStatusE.取消);
+                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;
                                         }
                                         else
@@ -4631,13 +4631,13 @@ namespace task.trans
                                 if (trans.TransStaus == TransStatusE.调度设备
                                     && trans.carrier_id == 0)
                                 {
-                                    SetStatus(trans, TransStatusE.取消);
+                                    SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                     return true;
                                 }
 
                                 break;
                             case TransTypeE.移车任务:
-                                SetStatus(trans, TransStatusE.取消);
+                                SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                 break;
                             case TransTypeE.其他:
 
@@ -4687,7 +4687,7 @@ namespace task.trans
 
                                     if (t.goods_id == goodsid)
                                     {
-                                        SetStatus(t, TransStatusE.取消);
+                                        SetStatus(t, TransStatusE.取消, "切换砖机模式取消任务");
                                     }
                                     break;
 
@@ -4708,7 +4708,7 @@ namespace task.trans
                                         }
                                     }
 
-                                    SetStatus(t, TransStatusE.取消);
+                                    SetStatus(t, TransStatusE.取消, "切换砖机模式取消任务");
                                     break;
                             }
                         }
@@ -4735,7 +4735,7 @@ namespace task.trans
                     StockTrans trans = TransList.Find(c => c.id == id);
                     if (trans != null)
                     {
-                        SetStatus(trans, TransStatusE.完成);
+                        SetStatus(trans, TransStatusE.完成, "手动完成任务");
                         return true;
                     }
                     else

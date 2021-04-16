@@ -214,7 +214,7 @@
                     </Border>
 
                     <RichTextBox Grid.Row="7" Grid.Column="1" BorderThickness="1,1,1,1" Grid.ColumnSpan="3" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True">
-                        <FlowDocument>
+                        <FlowDocument FontSize="18">
                             <Paragraph>
                                 <Run Text="{Binding StepInfo, Mode=OneWay}"/>
                             </Paragraph>
