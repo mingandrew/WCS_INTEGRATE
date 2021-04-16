@@ -908,6 +908,12 @@ namespace resource.goods
                 return false;
             }
 
+            if (PubMaster.DevConfig.GetCarrierByStockid(stock.id, out string carname))
+            {
+                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来删除库存！", stock.pos, carname);
+                return false;
+            }
+
             StockList.Remove(stock);
             PubMaster.Mod.GoodSql.DeleteStock(stock);
             try
