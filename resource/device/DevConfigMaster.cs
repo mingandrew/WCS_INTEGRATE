@@ -189,6 +189,23 @@ namespace resource.device
             return ConfigCarrierList.Find(c => c.length > 0 && list.Exists(d=>d.id == c.id))?.length ?? 0;
         }
 
+        /// <summary>
+        /// 获取绑定的库存id的运输车名字
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public bool GetCarrierByStockid(uint stockid, out string name)
+        {
+            ConfigCarrier car = ConfigCarrierList.Find(c => c.stock_id == stockid);
+            if (car != null)
+            {
+                name = PubMaster.Device.GetDeviceName(car.id);
+                return true;
+            }
+            name = "";
+            return false;
+        }
+
         #endregion
 
         #region 摆渡车

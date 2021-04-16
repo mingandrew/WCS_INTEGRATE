@@ -214,6 +214,8 @@ namespace task.device
                             if (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.DevConfig.do_shift)
                             {
                                 task.DevConfig.do_shift = false;
+                                task.DevConfig.old_goodid = 0;
+                                PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevConfig.goods_id);
                             }
 
                             #endregion
@@ -449,6 +451,15 @@ namespace task.device
                                     task.Do1Invo(DevLifterInvolE.离开);
                                 }
 
+                                if (task.Type == DeviceTypeE.上砖机)
+                                {
+                                    if (!task.IsInvo_1)
+                                    {
+                                        return true;
+                                    }
+                                    return false;
+                                }
+
                                 if (bro.IsInvo_1)
                                 {
                                     bro.Do1Invo(DevLifterInvolE.离开);
@@ -485,6 +496,15 @@ namespace task.device
                                 if (task.IsInvo_2)
                                 {
                                     task.Do2Invo(DevLifterInvolE.离开);
+                                }
+
+                                if (task.Type == DeviceTypeE.上砖机)
+                                {
+                                    if (!task.IsInvo_2)
+                                    {
+                                        return true;
+                                    }
+                                    return false;
                                 }
 
                                 if (bro.IsInvo_2)

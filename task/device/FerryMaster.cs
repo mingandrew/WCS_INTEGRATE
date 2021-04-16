@@ -1659,11 +1659,11 @@ namespace task.device
         /// <returns></returns>
         public bool IsTargetFerryInPlace(ushort area, ushort from, ushort to, out string result, bool onferryboolvalue)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                result = "稍后再试！";
-                return false;
-            }
+            //if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            //{
+            //    result = "稍后再试！";
+            //    return false;
+            //}
             try
             {
                 Track ft = PubMaster.Track.GetTrackBySite(area, from);
@@ -1696,7 +1696,7 @@ namespace task.device
             }
             finally
             {
-                Monitor.Exit(_obj);
+                //Monitor.Exit(_obj);
             }
             result = "没有符合条件的摆渡车!";
             return false;
