@@ -1538,7 +1538,7 @@ namespace task.trans
                                         if (!PubMaster.Track.IsEmtpy(trans.take_track_id)
                                             && !PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType)
                                             && !CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id)
-                                            && CheckStockIsableToTake(trans.carrier_id, trans.take_track_id))
+                                            && CheckTrackStockStillCanUse(trans.carrier_id, trans.take_track_id))
                                         {
                                             trans.finish_track_id = trans.take_track_id;
                                         }
@@ -1555,7 +1555,7 @@ namespace task.trans
                                                         && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
                                                         && !HaveInTrackButSortTask(trackid)
                                                         && !CheckHaveCarrierInOutTrack(trans.carrier_id, trackid)
-                                                        && CheckStockIsableToTake(trans.carrier_id, trackid)
+                                                        && CheckTrackStockStillCanUse(trans.carrier_id, trackid)
                                                         )
                                                     {
                                                         trans.finish_track_id = trackid;
@@ -1570,7 +1570,7 @@ namespace task.trans
                                                             if (!HaveInTrackButSortTask(tid)
                                                                 && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
                                                                 && !CheckHaveCarrierInOutTrack(trans.carrier_id, trackid)
-                                                                && CheckStockIsableToTake(trans.carrier_id, trackid))
+                                                                && CheckTrackStockStillCanUse(trans.carrier_id, trackid))
                                                             {
                                                                 trans.finish_track_id = tid;
                                                                 isallocate = true;
@@ -4596,7 +4596,7 @@ namespace task.trans
         #endregion
 
         #region[强制完成任务]
-        public bool ForseFinish(uint id, out string result)
+        public bool ForseFinish(uint id, out string result, string memo = "")
         {
             result = "";
             if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
@@ -4606,7 +4606,7 @@ namespace task.trans
                     StockTrans trans = TransList.Find(c => c.id == id);
                     if (trans != null)
                     {
-                        SetStatus(trans, TransStatusE.完成);
+                        SetStatus(trans, TransStatusE.完成, memo);
                         return true;
                     }
                     else
@@ -4958,6 +4958,39 @@ namespace task.trans
                 }
 
                 //4.
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 判断轨道是否能继续作业
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <param name="trackid"></param>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        private bool CheckTrackStockStillCanUse(uint carrierid, uint trackid, uint stockid = 0)
+        {
+            if (stockid == 0)
+            {
+                stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
+            }
+            if (stockid == 0) return false;
+
+            //判断运输车是否能进入轨道
+            //1.允许倒库的过程中使用同轨道上砖
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
+            {
+                //【使用分割点、限制使用分割点后的库存】
+                //2.判断库存所在位置是否轨道分割点后面
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)
+                    && PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock)
+                    && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid))
+                {
+                    //在分割点后的库存,则不能进行取货操作
+                    return false;
+                }
             }
 
             return true;
