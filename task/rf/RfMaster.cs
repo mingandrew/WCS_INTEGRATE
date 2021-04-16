@@ -1842,7 +1842,7 @@ namespace task.rf
             {
                 if (uint.TryParse(msg.Pack.Data, out uint transid))
                 {
-                    if (!PubTask.Trans.ForseFinish(transid, out string result))
+                    if (!PubTask.Trans.ForseFinish(transid, out string result, "平板手动"))
                     {
                         SendFail2Rf(msg.MEID, FunTag.ForseTransFinish, result);
                     }
