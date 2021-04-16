@@ -1123,7 +1123,6 @@ namespace task.device
                     //判断当前砖机轨道是否已有任务
                     if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
 
-
                     if (!CheckUpBrotherIsReady(task, true, true)) return;
 
                     #region[生成出库交易]
