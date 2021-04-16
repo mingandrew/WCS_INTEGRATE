@@ -31,8 +31,9 @@ namespace task.trans.diagnose
         /// </summary>
         public override void Diagnose()
         {
+            #region[检查上砖任务，分配车超时，暂停倒库任务]
             List<StockTrans> list = _M.GetTransList()?.FindAll(c => c.InType(TransTypeE.上砖任务, TransTypeE.手动上砖)
-                                        && c.IsInStatusOverTime(TransStatusE.调度设备, 30)) ?? null;
+                                        && c.IsInStatusOverTime(TransStatusE.调度设备, 20)) ?? null;
             if(list != null && list.Count > 0)
             {
                 foreach (var item in list)
@@ -48,6 +49,29 @@ namespace task.trans.diagnose
                     }
                 }
             }
+
+            #endregion
+
+            #region[检查倒库任务, 暂停任务超时，回复倒库任务]
+
+            List<StockTrans> stopsort = _M.GetTransList()?.FindAll(c => c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
+                                       && c.IsInStatusOverTime(TransStatusE.倒库暂停, 60)) ?? null;
+            if (stopsort != null && stopsort.Count > 0)
+            {
+                foreach (var item in stopsort)
+                {
+                    Line line = PubMaster.Area.GetLine(item.area_id, item.line);
+                    if (line != null)
+                    {
+                        int sortqty = _M.GetSortTaskNotWaitCount(item.area_id, item.line);
+                        if (line.sort_task_qty > sortqty)
+                        {
+                            ResumeSortTask(item);
+                        }
+                    }
+                }
+            }
+            #endregion
         }
 
         /// <summary>
@@ -110,6 +134,21 @@ namespace task.trans.diagnose
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 回复倒库任务<br/>
+        /// 1 _ 
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="areaid"></param>
+        /// <param name="line"></param>
+        private void ResumeSortTask(StockTrans trans)
+        {
+            _M.SetTakeFerry(trans, 0, "清空分配的信息，重新恢复倒库任务");
+            _M.SetGiveFerry(trans, 0, "清空分配的信息，重新恢复倒库任务");
+            _M.SetCarrier(trans, 0, "清空分配的信息，重新恢复倒库任务");
+            _M.SetStatus(trans, TransStatusE.调度设备, string.Format("重新恢复倒库任务"));
         }
     }
 }

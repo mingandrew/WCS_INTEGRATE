@@ -1498,8 +1498,24 @@ namespace resource.track
             uint currenttra = PubMaster.DevConfig.GetLastTrackId(tilelifterid);
             if (currenttra != 0)
             {
-                trackid = currenttra;
-                return true;
+                Track track = PubMaster.Track.GetTrack(currenttra);
+                if (track != null
+                    &&  track.StockStatus == TrackStockStatusE.空砖
+                           || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
+                           || track.AlertStatus != TrackAlertE.正常
+                           || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0)
+                           )
+                {
+                    UpdateRecentTile(track.id, 0);
+                    UpdateRecentGood(track.id, 0);
+                    PubMaster.DevConfig.SetLastTrackId(tilelifterid, 0);
+
+                }
+                else
+                {
+                    trackid = currenttra;
+                    return true;
+                }
             }
 
             trackid = 0;
@@ -1645,6 +1661,16 @@ namespace resource.track
         public string GetTrackLogInfo(uint id)
         {
             return GetTrack(id)?.GetLog() ?? "";
+        }
+
+        /// <summary>
+        /// 获取轨道库存/使用状态
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public string GetTrackStatusLogInfo(uint id)
+        {
+            return GetTrack(id)?.GetStatusLog() ?? "";
         }
 
         #endregion

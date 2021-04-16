@@ -344,22 +344,22 @@ namespace task.trans
             }
         }
 
-        internal void SetTakeFerry(StockTrans trans, uint ferryid)
+        internal void SetTakeFerry(StockTrans trans, uint ferryid, string memo = "")
         {
             if (trans.take_ferry_id != ferryid)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 分配T摆渡车[ {1} ]", trans.id, PubMaster.Device.GetDeviceName(ferryid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配T摆渡车[ {1} ], 备注[ {2} ]", trans.id, PubMaster.Device.GetDeviceName(ferryid), memo));
                 trans.take_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeFerryId);
                 SendMsg(trans);
             }
         }
 
-        internal void SetGiveFerry(StockTrans trans, uint ferryid)
+        internal void SetGiveFerry(StockTrans trans, uint ferryid, string memo = "")
         {
             if (trans.give_ferry_id != ferryid)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 分配G摆渡车[ {1} ]", trans.id, PubMaster.Device.GetDeviceName(ferryid)));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配G摆渡车[ {1} ]", trans.id, PubMaster.Device.GetDeviceName(ferryid), memo));
                 trans.give_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.GiveFerryId);
                 SendMsg(trans);
@@ -479,6 +479,7 @@ namespace task.trans
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Line);
             }
         }
+
         #endregion
 
         #region[获取交易]

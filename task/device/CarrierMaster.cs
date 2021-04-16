@@ -2171,6 +2171,23 @@ namespace task.device
             return false;
         }
 
+        /// <summary>
+        /// 判断是否有小车在同一个轨道并且位置在指定小车的前面(脉冲值更小)
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool ExistCarInFront(uint carrier_id, uint trackid, out uint otherid)
+        {
+            ushort carpoint = GetCurrentPoint(carrier_id);
+            if (carpoint > 0)
+            {
+                otherid = DevList.Find(c => c.CurrentTrackId == trackid && c.ID != carrier_id && c.CurrentPoint > carpoint)?.ID ?? 0;
+                return otherid != 0;
+            }
+            otherid = 0;
+            return false;
+        }
 
         /// <summary>
         /// 判断是否有小车在同一个轨道并且位置在指定小车的后面(脉冲值更小)
@@ -2294,10 +2311,12 @@ namespace task.device
                     {
                         case TransTypeE.下砖任务:
                             return DevList.Exists(c => c.ID != carrierid
+                                                && c.CurrentTrackId == trackid
                                                 && (c.CurrentSite == track.rfid_1
                                                     || (c.CurrentSite == track.rfid_2 && c.InTask(DevCarrierOrderE.放砖指令))));
                         case TransTypeE.上砖任务:
                             return DevList.Exists(c => c.ID != carrierid
+                                                && c.CurrentTrackId == trackid
                                                 && (c.CurrentSite == track.rfid_2
                                                     || (c.CurrentSite == track.rfid_1 && c.InTask(DevCarrierOrderE.取砖指令))));
                         case TransTypeE.倒库任务:
