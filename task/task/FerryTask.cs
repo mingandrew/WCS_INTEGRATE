@@ -498,7 +498,7 @@ namespace task.task
                     for (ushort j = 1; j <= 99; j++)
                     {
                         fpos = (ushort)(i + j);
-                        if (!ferryPos.Exists(c => c.ferry_pos == fpos))
+                        if (!ferryPos.Exists(c => c.ferry_code == fpos))
                         {
                             DoSiteUpdate(fpos, 0);
                             Thread.Sleep(100);

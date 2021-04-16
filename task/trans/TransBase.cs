@@ -497,6 +497,17 @@ namespace task.trans
             return false;
         }
 
+        protected bool SetFinishSite(StockTrans trans, uint traid, string memo)
+        {
+            if (trans.finish_track_id != traid)
+            {
+                mLog.Status(true, string.Format("任务[ {0} ], 完成轨道[ {1} ], 备注[ {2} ]", trans.id, PubMaster.Track.GetTrackName(traid), memo));
+                trans.finish_track_id = traid;
+                return true;
+            }
+            return false;
+        }
+
         protected void SetStock(StockTrans trans, uint stockid)
         {
             if (trans.stock_id != stockid)

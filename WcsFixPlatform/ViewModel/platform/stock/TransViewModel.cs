@@ -269,7 +269,7 @@ namespace wcs.ViewModel
                         }
                         break;
                     case 2://完成任务
-                        if (!PubTask.Trans.ForseFinish(SelectedTask.Id, out result))
+                        if (!PubTask.Trans.ForseFinish(SelectedTask.Id, out result, "PC手动"))
                         {
                             Growl.Warning(result);
                         }
