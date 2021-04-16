@@ -880,6 +880,7 @@ namespace task.device
                 switch (carriertask)
                 {
                     case DevCarrierTaskE.后退取砖:
+                        #region 后退取砖
                         if (IsLoad(devid))
                         {
                             result = "运输车有货不能后退取砖！";
@@ -891,9 +892,11 @@ namespace task.device
                             return false;
                         }
                         order = DevCarrierOrderE.取砖指令;
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.前进放砖:
+                        #region 前进放砖
                         if (IsNotLoad(devid))
                         {
                             result = "运输车没有货不能前进放货！";
@@ -906,9 +909,12 @@ namespace task.device
                         }
                         order = DevCarrierOrderE.放砖指令;
                         isferryupsite = true;
+
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.后退至摆渡车:
+                        #region 后退至摆渡车
                         //&& site != track.rfid_1//最小定位RFID
                         if (track.NotInType(TrackTypeE.上砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入)) 
                         {
@@ -923,9 +929,12 @@ namespace task.device
                         checkTra = PubMaster.Track.GetTrackDownCode(ferryTraid);
                         toRFID = PubMaster.Track.GetTrackRFID1(ferryTraid);
                         order = DevCarrierOrderE.定位指令;
+
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.前进至摆渡车:
+                        #region 前进至摆渡车
                         if (track.NotInType(TrackTypeE.下砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
                         {
                             result = "小车需要在出库轨道头或者下砖轨道";
@@ -939,9 +948,12 @@ namespace task.device
                         checkTra = PubMaster.Track.GetTrackUpCode(ferryTraid);
                         toRFID = PubMaster.Track.GetTrackRFID2(ferryTraid);
                         order = DevCarrierOrderE.定位指令;
+
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.前进至点:
+                        #region 前进至点
                         if (track.NotInType(TrackTypeE.摆渡车_入, TrackTypeE.储砖_入, TrackTypeE.储砖_出入,TrackTypeE.储砖_出))
                         {
                             result = "须在下砖摆渡车或储砖轨道上执行！";
@@ -968,9 +980,12 @@ namespace task.device
                             toRFID = track.rfid_2;
                         }
                         isferryupsite = true;
+
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.后退至点:
+                        #region 后退至点
                         if (track.NotInType(TrackTypeE.摆渡车_出, TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.储砖_出))
                         {
                             result = "须在上砖摆渡车或储砖轨道上执行！";
@@ -995,9 +1010,12 @@ namespace task.device
                             checkTra = track.ferry_up_code;
                             toRFID = track.rfid_1;
                         }
+
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.倒库:
+                        #region 倒库
                         if (track.NotInType(TrackTypeE.储砖_出)) //最大定位RFID
                         {
                             result = "须在出库轨道上执行！";
@@ -1018,24 +1036,54 @@ namespace task.device
                         order = DevCarrierOrderE.前进倒库;
                         checkTra = track.ferry_down_code;
                         moveCount = (byte)PubMaster.Goods.GetTrackStockCount(track.brother_track_id);
+
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.顶升取货:
+                        #region 顶升取货
                         if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
                         {
                             result = "不能在摆渡车上执行！";
                             return false;
                         }
                         order = DevCarrierOrderE.取砖指令;
+
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.下降放货:
+                        #region 下降放货
                         if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
                         {
                             result = "不能在摆渡车上执行！";
                             return false;
                         }
                         order = DevCarrierOrderE.放砖指令;
+
+                        #endregion
+                        break;
+
+                    case DevCarrierTaskE.前进至中间地标:
+                        #region 前进至中间地标
+                        if (track.NotInType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入))
+                        {
+                            result = "须在入库轨道上执行！";
+                            return false;
+                        }
+
+                        if (track.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入)
+                            && (site%100) >= 48) //中间地标尾数是 48
+
+                        {
+                            result = "当前储砖轨道位置不能再前进了！";
+                            return false;
+                        }
+
+                        order = DevCarrierOrderE.定位指令;
+                        checkTra = track.ferry_down_code;
+                        toRFID = (ushort)(checkTra * 100 + 48); // 中间地标尾数是 48
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.终止:

@@ -84,6 +84,20 @@ namespace task.trans
                                 PubMaster.Track.GetTrackName(trans.give_track_id)));
                             #endregion
                             return;
+                            //if (PubTask.Carrier.IsLoad(carrierid))
+                            //{
+                            //    PubMaster.Warn.AddDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid, trans.id);
+                            //}
+                            //else
+                            //{
+                            //    PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid);
+
+                            //    //转移到同类型轨道
+                            //    TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                            //    track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                            //    AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                            //}
+
                         }
 
                         #region 【任务步骤记录】
