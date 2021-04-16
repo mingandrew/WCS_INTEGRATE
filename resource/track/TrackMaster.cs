@@ -57,7 +57,7 @@ namespace resource.track
             }
             if (refr_2)
             {
-                List<Track> list = TrackList.FindAll(c => c.Type == TrackTypeE.储砖_出 && c.up_split_point > 0);
+                List<Track> list = TrackList.FindAll(c => c.InType(TrackTypeE.储砖_出) && c.up_split_point > 0);
                 foreach (Track track in list)
                 {
                     GetAndRefreshUpCount(track.id);
@@ -167,6 +167,16 @@ namespace resource.track
 
         #region[获取属性]
 
+        /// <summary>
+        /// 获取轨道线路信息
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        public ushort GetTrackLine(uint track_id)
+        {
+            return GetTrack(track_id)?.line ?? 0;
+        }
+
         public string GetTrackName(uint trackid, string defaultstr = "")
         {
             return TrackList.Find(c => c.id == trackid)?.name ?? defaultstr;
@@ -207,11 +217,11 @@ namespace resource.track
             if (type == DeviceTypeE.上摆渡)
             {
                 return TrackList.Find(c => c.area == area
-                                        && (c.Type == TrackTypeE.上砖轨道 || c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入)
+                                        && c.InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入)
                                         && c.IsInTrack(site))?.id ?? 0;
             }
             return TrackList.Find(c => c.area == area
-                                    && (c.Type == TrackTypeE.下砖轨道 || c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出入)
+                                    && c.InType(TrackTypeE.下砖轨道, TrackTypeE.储砖_入,TrackTypeE.储砖_出入)
                                     && c.IsInTrack(site))?.id ?? 0;
         }
 
@@ -400,9 +410,7 @@ namespace resource.track
         internal bool IsStoreTrack(uint track_id)
         {
             return TrackList.Exists(c => c.id == track_id
-                                        && (c.Type == TrackTypeE.储砖_入
-                                        || c.Type == TrackTypeE.储砖_出
-                                        || c.Type == TrackTypeE.储砖_出入));
+                                        && c.InType(TrackTypeE.储砖_入,TrackTypeE.储砖_出,TrackTypeE.储砖_出入));
         }
 
         /// <summary>
@@ -412,9 +420,7 @@ namespace resource.track
         /// <returns></returns>
         internal bool IsStoreGiveTrack(uint track_id)
         {
-            return TrackList.Exists(c => c.id == track_id
-                                           && (c.Type == TrackTypeE.储砖_入
-                                           || c.Type == TrackTypeE.储砖_出入));
+            return TrackList.Exists(c => c.id == track_id && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入));
         }
 
         /// <summary>
@@ -456,9 +462,10 @@ namespace resource.track
             else
             {
                 newOrder = (t.order - difference) < 1 ? 1 : (t.order - difference);
-            }
-            return TrackList.Find(c => c.order == newOrder      // && c.area == t.area
-                && (c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入))?.id ?? 0;
+            }      
+            // && c.area == t.area
+            return TrackList.Find(c => c.order == newOrder 
+                        && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))?.id ?? 0;
         }
 
         /// <summary>
@@ -491,11 +498,11 @@ namespace resource.track
         {
             if (type == DeviceTypeE.上摆渡)
             {
-                return TrackList.Find(c => c.area == area && c.order == order &&
-                    (c.Type == TrackTypeE.储砖_出 || c.Type == TrackTypeE.储砖_出入 || c.Type == TrackTypeE.上砖轨道))?.id ?? 0;
+                return TrackList.Find(c => c.area == area && c.order == order 
+                            && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道))?.id ?? 0;
             }
-            return TrackList.Find(c => c.area == area && c.order == order &&
-                (c.Type == TrackTypeE.储砖_入 || c.Type == TrackTypeE.储砖_出入 || c.Type == TrackTypeE.下砖轨道))?.id ?? 0;
+            return TrackList.Find(c => c.area == area && c.order == order 
+                            && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道))?.id ?? 0;
         }
 
         /// <summary>
@@ -507,12 +514,12 @@ namespace resource.track
             switch (dt)
             {
                 case DeviceTypeE.上摆渡:
-                    return TrackList.FindAll(c => c.area == area &&
-                        (c.Type == TrackTypeE.储砖_出入 || c.Type == TrackTypeE.上砖轨道 || c.Type == TrackTypeE.储砖_出)).Min(c => c.order);
+                    return TrackList.FindAll(c => c.area == area 
+                            && c.InType(TrackTypeE.储砖_出入, TrackTypeE.上砖轨道,TrackTypeE.储砖_出)).Min(c => c.order);
 
                 case DeviceTypeE.下摆渡:
-                    return TrackList.FindAll(c => c.area == area &&
-                        (c.Type == TrackTypeE.储砖_出入 || c.Type == TrackTypeE.下砖轨道 || c.Type == TrackTypeE.储砖_入)).Min(c => c.order);
+                    return TrackList.FindAll(c => c.area == area 
+                            && c.InType(TrackTypeE.储砖_出入, TrackTypeE.下砖轨道, TrackTypeE.储砖_入)).Min(c => c.order);
 
                 default:
                     return 0;
@@ -528,12 +535,12 @@ namespace resource.track
             switch (dt)
             {
                 case DeviceTypeE.上摆渡:
-                    return TrackList.FindAll(c => c.area == area &&
-                        (c.Type == TrackTypeE.储砖_出入 || c.Type == TrackTypeE.上砖轨道 || c.Type == TrackTypeE.储砖_出)).Max(c => c.order);
+                    return TrackList.FindAll(c => c.area == area 
+                            && c.InType(TrackTypeE.储砖_出入, TrackTypeE.上砖轨道, TrackTypeE.储砖_出)).Max(c => c.order);
 
                 case DeviceTypeE.下摆渡:
-                    return TrackList.FindAll(c => c.area == area &&
-                        (c.Type == TrackTypeE.储砖_出入 || c.Type == TrackTypeE.下砖轨道 || c.Type == TrackTypeE.储砖_入)).Max(c => c.order);
+                    return TrackList.FindAll(c => c.area == area 
+                            && c.InType(TrackTypeE.储砖_出入, TrackTypeE.下砖轨道, TrackTypeE.储砖_入)).Max(c => c.order);
 
                 default:
                     return 0;
@@ -582,7 +589,7 @@ namespace resource.track
                 return false;
             }
 
-            if (track.Type != TrackTypeE.储砖_出入 && (trackstatus == TrackStatusE.仅上砖 || trackstatus == TrackStatusE.仅下砖))
+            if (track.NotInType(TrackTypeE.储砖_出入) && (trackstatus == TrackStatusE.仅上砖 || trackstatus == TrackStatusE.仅下砖))
             {
                 result = "储砖_出入轨道才能修改！";
                 return false;
@@ -749,7 +756,7 @@ namespace resource.track
         {
             if (track != null)
             {
-                if (!isAllow && track.Type == TrackTypeE.储砖_出入 && track.StockStatus == TrackStockStatusE.满砖 && status == TrackStockStatusE.有砖)
+                if (!isAllow && track.InType(TrackTypeE.储砖_出入) && track.StockStatus == TrackStockStatusE.满砖 && status == TrackStockStatusE.有砖)
                 {
                     return;
                 }
@@ -971,13 +978,13 @@ namespace resource.track
             switch (transType)
             {
                 case TransTypeE.下砖任务:
-                    list.AddRange(TrackList.FindAll(c => c.Type == TrackTypeE.摆渡车_入).Select(c => c.id));
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_入)).Select(c => c.id));
                     break;
                 case TransTypeE.上砖任务:
-                    list.AddRange(TrackList.FindAll(c => c.Type == TrackTypeE.摆渡车_出).Select(c => c.id));
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_出)).Select(c => c.id));
                     break;
                 case TransTypeE.倒库任务:
-                    list.AddRange(TrackList.FindAll(c => c.Type == TrackTypeE.摆渡车_出).Select(c => c.id));
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_出)).Select(c => c.id));
                     break;
                 case TransTypeE.其他:
                     break;
@@ -1068,11 +1075,11 @@ namespace resource.track
             switch (transType)
             {
                 case TransTypeE.下砖任务:
-                    return TrackList.Exists(c => c.id == track_id && (c.TrackStatus == TrackStatusE.停用 || c.TrackStatus == TrackStatusE.仅上砖));
+                    return TrackList.Exists(c => c.id == track_id && c.InStatus(TrackStatusE.停用, TrackStatusE.仅上砖));
                 case TransTypeE.上砖任务:
-                    return TrackList.Exists(c => c.id == track_id && (c.TrackStatus == TrackStatusE.停用 || c.TrackStatus == TrackStatusE.仅下砖));
+                    return TrackList.Exists(c => c.id == track_id && c.InStatus(TrackStatusE.停用, TrackStatusE.仅下砖));
                 default:
-                    return TrackList.Exists(c => c.id == track_id && c.TrackStatus == TrackStatusE.停用);
+                    return TrackList.Exists(c => c.id == track_id && c.InStatus(TrackStatusE.停用));
             }
         }
 
@@ -1112,7 +1119,7 @@ namespace resource.track
             Track t = TrackList.Find(c => c.id == trackid);
             if (t != null)
             {
-                if (t.Type == TrackTypeE.储砖_出入)
+                if (t.InType(TrackTypeE.储砖_出入))
                 {
                     switch (PubMaster.Device.GetDeviceType(ferryid))
                     {
@@ -1135,30 +1142,41 @@ namespace resource.track
             return code;
         }
 
+        /// <summary>
+        /// 是否是储砖轨道
+        /// </summary>
+        /// <param name="traid"></param>
+        /// <returns></returns>
         public bool IsStoreType(uint traid)
         {
-            return TrackList.Exists(c => c.id == traid
-                                && (c.Type == TrackTypeE.储砖_入
-                                    || c.Type == TrackTypeE.储砖_出
-                                    || c.Type == TrackTypeE.储砖_出入));
+            return TrackList.Exists(c => c.id == traid && c.IsStoreTrack());
         }
 
-        public bool IsTrackType(uint traid, TrackTypeE type)
+        /// <summary>
+        /// 判断轨道是否符合状态
+        /// </summary>
+        /// <param name="traid"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool IsTrackType(uint traid, params TrackTypeE[] types)
         {
-            return TrackList.Exists(c => c.id == traid && c.Type == type);
+            return TrackList.Exists(c => c.id == traid && c.InType(types));
         }
 
+        /// <summary>
+        /// 判断是否是摆渡车类型
+        /// </summary>
+        /// <param name="traid"></param>
+        /// <returns></returns>
         public bool IsFerryTrackType(uint traid)
         {
-            return TrackList.Exists(c => c.id == traid && (c.Type == TrackTypeE.摆渡车_入 || c.Type == TrackTypeE.摆渡车_出));
+            return TrackList.Exists(c => c.id == traid && c.IsFerryTrack());
         }
 
-        public bool IsFerryTrackType(uint traid, TrackTypeE type)
-        {
-            return TrackList.Exists(c => c.id == traid && c.Type == type);
-        }
-
-
+        /// <summary>
+        /// 更新轨道状态发送更新信息
+        /// </summary>
+        /// <param name="track"></param>
         private void SendMsg(Track track)
         {
             MsgAction msg = new MsgAction
@@ -1168,6 +1186,11 @@ namespace resource.track
             Messenger.Default.Send(msg, MsgToken.TrackStatusUpdate);
         }
 
+        /// <summary>
+        /// 轨道是否符合放货条件
+        /// </summary>
+        /// <param name="give_track_id"></param>
+        /// <returns></returns>
         public bool IsStatusOkToGive(uint give_track_id)
         {
             return TrackList.Exists(c => c.id == give_track_id
@@ -1185,6 +1208,11 @@ namespace resource.track
             return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 && c.StockStatus == TrackStockStatusE.满砖 && c.Type == TrackTypeE.储砖_入);
         }
 
+        /// <summary>
+        /// 判断是否是空轨道
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
         public bool IsTrackEmtpy(uint track_id)
         {
             Track track = GetTrack(track_id);
@@ -1198,6 +1226,12 @@ namespace resource.track
             return false;
         }
 
+        /// <summary>
+        /// 轨道是否启用
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <param name="trackStatus"></param>
+        /// <returns></returns>
         internal bool IsTrackEnable(uint track_id, TrackStatusE trackStatus)
         {
             return TrackList.Exists(c => c.id == track_id && c.AlertStatus == TrackAlertE.正常 && (c.TrackStatus == TrackStatusE.启用 || c.TrackStatus == trackStatus));
@@ -1216,6 +1250,12 @@ namespace resource.track
                                         && list.Exists(l => l.track_id == c.id));
         }
 
+        /// <summary>
+        /// 获取轨道中最近存储品种轨道
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="goodsid"></param>
+        /// <returns></returns>
         internal List<Track> GetRecentGoodTracks(List<AreaDeviceTrack> list, uint goodsid)
         {
             return TrackList.FindAll(c => c.recent_goodid == goodsid && list.Exists(l => l.track_id == c.id));
@@ -1224,11 +1264,6 @@ namespace resource.track
         internal List<Track> GetRecentTileTracks(List<AreaDeviceTrack> list, uint devid)
         {
             return TrackList.FindAll(c => c.recent_tileid == devid && list.Exists(l => l.track_id == c.id));
-        }
-
-        public bool IsOccupy(uint track_id)
-        {
-            return TrackList.Exists(c => c.id == track_id && c.recent_tileid != 0);
         }
 
         /// <summary>
@@ -1268,16 +1303,6 @@ namespace resource.track
             return GetTrackBySite(area, new List<TrackTypeE>() { TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道 }, site);
         }
 
-        public bool IsTrackFree(uint trackid)
-        {
-            if (trackid == 0) return false;
-            Track track = GetTrack(trackid);
-            return track != null
-                && track.TrackStatus != TrackStatusE.停用
-                //&& track.StockStatus == TrackStockStatusE.空砖
-                && track.AlertStatus == TrackAlertE.正常;
-        }
-
         public void SetTrackAlert(uint trackid, uint carrier, uint transid, TrackAlertE alert)
         {
             Track track = TrackList.Find(c => c.id == trackid);
@@ -1296,9 +1321,9 @@ namespace resource.track
             Device dev = PubMaster.Device.GetDevice(devId);
             if(dev.Type == DeviceTypeE.上摆渡)
             {
-                return TrackList.Find(c => c.IsUpAreaTrack() && c.ferry_down_code == startTrack || c.ferry_up_code == startTrack)?.area ?? dev.area;
+                return TrackList.Find(c => c.IsUpAreaTrack() && (c.ferry_down_code == startTrack || c.ferry_up_code == startTrack))?.area ?? dev.area;
             }
-            return TrackList.Find(c => c.IsDownAreaTrack() && c.ferry_down_code == startTrack || c.ferry_up_code == startTrack)?.area ?? dev.area;
+            return TrackList.Find(c => c.IsDownAreaTrack() && (c.ferry_down_code == startTrack || c.ferry_up_code == startTrack))?.area ?? dev.area;
         }
 
         /// <summary>
@@ -1332,7 +1357,6 @@ namespace resource.track
         /// </summary>
         public List<Track> GetUpSortTrack()
         {
-
             return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 && c.Type == TrackTypeE.储砖_出 && c.StockStatus == TrackStockStatusE.有砖
             && GetAndRefreshUpCount(c.id) == 0 && PubMaster.Goods.GetStocks(c.id).Count > 0 && c.up_split_point != 0);
         }
@@ -1392,6 +1416,17 @@ namespace resource.track
             trackids = new List<uint>();
             List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
 
+            #region[ 判断是否使用分割点后的库存做出库任务]
+            bool isnotuseupsplitstock = false;
+            //默认出库轨道库存是不管分割点的
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)
+                && PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock))
+            {
+                //开关打开后，分割点后的库存不能直接出库，需要倒库
+                isnotuseupsplitstock = true;
+            }
+            #endregion
+
             //1.查看是否有最近下砖品种轨道
             List<Track> recentusetracks = GetRecentGoodTracks(devtrack, goodsid);
             foreach (Track track in recentusetracks)
@@ -1399,7 +1434,7 @@ namespace resource.track
                 if (track.StockStatus != TrackStockStatusE.有砖
                     || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
                     || track.AlertStatus != TrackAlertE.正常
-                    || (track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0))
+                    || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0))
                 {
                     UpdateRecentTile(track.id, 0);
                     UpdateRecentGood(track.id, 0);
@@ -1418,6 +1453,18 @@ namespace resource.track
 
             //1.查看是否有最近下砖品种轨道
             List<Track> recentusetracks = GetRecentTileTracks(devtrack, tilelifterid);
+
+            #region[判断是否使用分割点后的库存做出库任务]
+            bool isnotuseupsplitstock = false;
+            //默认出库轨道库存是不管分割点的
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)
+                && PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock))
+            {
+                //开关打开后，分割点后的库存不能直接出库，需要倒库
+                isnotuseupsplitstock = true;
+            }
+            #endregion
+
             foreach (Track track in recentusetracks)
             {
                 if (currentTake != 0 && currentTake != track.id)
@@ -1431,7 +1478,8 @@ namespace resource.track
                     if (track.StockStatus == TrackStockStatusE.空砖
                         || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
                         || track.AlertStatus != TrackAlertE.正常
-                        || (track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0))
+                        || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0)
+                        )
                     {
                         UpdateRecentTile(track.id, 0);
                         UpdateRecentGood(track.id, 0);
@@ -1496,30 +1544,21 @@ namespace resource.track
         /// <returns></returns>
         public int GetAndRefreshUpCount(uint trackid)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            Track track = GetTrack(trackid);
+            int count = -1;
+            if (track != null)
             {
-                try
+                if (track.up_split_point == 0) return count;
+                count = PubMaster.Goods.GetUpStocks(trackid);
+                if (count != track.upcount)
                 {
-                    Track track = GetTrack(trackid);
-                    if (track.up_split_point == 0) return -1;
-                    int count = -1;
-                    if (track != null)
-                    {
-                        count = PubMaster.Goods.GetUpStocks(trackid);
-                        if (count != track.upcount)
-                        {
-                            PubMaster.Track.UpdateUpCount(trackid, count);
-                            mLog.Status(true, "更新[" + track.name + "]可上砖数量为[" + count + "]");
-                            return count;
-                        }
-                        else return track.upcount;              
-                
-                    }
+                    PubMaster.Track.UpdateUpCount(trackid, count);
+                    mLog.Status(true, "更新[" + track.name + "]可上砖数量为[" + count + "]");
                     return count;
                 }
-                finally { Monitor.Exit(_obj); }
+                return track.upcount;
             }
-            return -1;
+            return count;
         }
 
 
@@ -1546,15 +1585,11 @@ namespace resource.track
         public bool IsUpSplit(uint trackid)
         {
             Track track = GetTrack(trackid);
-            bool isupsplit = false;
             if (track != null)
             {
-                if (track.up_split_point != 0)
-                {
-                    isupsplit = true;
-                }
+                return track.up_split_point != 0;
             }
-            return isupsplit;
+            return false;
         }
 
         /// <summary>
@@ -1594,7 +1629,7 @@ namespace resource.track
                 {
                     return true;
                 }
-                else return false;
+                return false;
             }
             return true;
         }

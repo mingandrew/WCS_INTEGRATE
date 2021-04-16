@@ -70,7 +70,10 @@
     <Compile Include="task\FerryTask.cs" />
     <Compile Include="task\TaskBase.cs" />
     <Compile Include="task\TileLifterTask.cs" />
+    <Compile Include="trans\diagnose\DiagnoseServer.cs" />
+    <Compile Include="trans\diagnose\SortTaskDiagnose.cs" />
     <Compile Include="trans\TransBase.cs" />
+    <Compile Include="trans\diagnose\BaseDiagnose.cs" />
     <Compile Include="trans\TransMaster.cs" />
   </ItemGroup>
   <ItemGroup>

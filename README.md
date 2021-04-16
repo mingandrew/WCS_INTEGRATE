@@ -168,21 +168,32 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (187, 3, 'WarningF_A1X7', '暂未配置摆渡A1X7', NULL, NULL, '暂未配置摆渡报警信息A1X7', NULL, NULL, NULL, NULL);
 
 
-
-
 2021.04.13
 新增报警sql：
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VALUES (224, 3, 'FerryTargetUnconfigured', '摆渡车目的位置没有对位坐标值', '摆渡车目的位置没有对位坐标值，请操作重新对一次轨道位置');
 
-
-
-
 2021.04.13
 新增开关sql：
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (61, 8, 'SeamlessMoveToFerry', '开关-无缝上摆渡', NULL, b'0', '', NULL, NULL, NULL, null);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (61, 8, 'SeamlessMoveToFerry', '开关-无缝上摆渡', NULL, b'0', '', NULL, NULL, NULL, null);
 
 UPDATE `diction_dtl` SET `name` = '开关-砖机需转产信号' WHERE `id` = 59;
 UPDATE `diction_dtl` SET `name` = '开关-备用砖机自动转换' WHERE `id` = 60;
+
+2021.04.13	倒库的同时上砖，上砖分割点接力倒库
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (62, 8, 'UpTaskIgnoreSortTask', '开关-允许倒库时可以上砖', NULL, b'0', '', NULL, NULL, NULL, NULL);
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (63, 8, 'UseUpSplitPoint', '开关-启用上砖侧分割点坐标逻辑', NULL, b'0', '', NULL, NULL, NULL, NULL);
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (64, 8, 'CannotUseUpSplitStock', '开关-限制直接使用上砖侧分割点后的库存', NULL, b'0', '', NULL, NULL, NULL, NULL);
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) 
+VALUES (65, 8, 'EnableDiagnose', '开关-启用分析服务', NULL, b'0', '', NULL, NULL, NULL, NULL);
+
+
 
 
 

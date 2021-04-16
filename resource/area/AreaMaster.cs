@@ -529,6 +529,11 @@ namespace resource.area
             return AreaDevList.Find(c => c.device_id == tileid)?.area_id ?? 0;
         }
 
+        public Line GetLine(uint areaid, ushort line)
+        {
+            return LineList.Find(c => c.area_id == areaid && c.line == line);
+        }
+
         public bool IsSortTaskLimit(uint area, ushort line, int count)
         {
             if (line == 0)

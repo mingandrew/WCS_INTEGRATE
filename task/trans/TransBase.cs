@@ -5,6 +5,7 @@ using resource;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using task.trans.diagnose;
 using tool.mlog;
 using tool.timer;
 
@@ -23,6 +24,12 @@ namespace task.trans
         protected List<StockTrans> TransList { set; get; }
         #endregion
 
+        #region[分析]
+
+        DiagnoseServer MDiagnoreServer;
+
+        #endregion
+
         #region[构造函数/初始化/启动/停止]
         public TransBase()
         {
@@ -33,6 +40,11 @@ namespace task.trans
             _for = new object();
             TransList = new List<StockTrans>();
             InitTrans();
+        }
+
+        protected void InitDiagnore(TransMaster trans)
+        {
+            MDiagnoreServer = new DiagnoseServer(trans);
         }
 
         private void InitTrans()
@@ -130,6 +142,12 @@ namespace task.trans
                         Monitor.Exit(_for);
                     }
                 }
+
+                try
+                {
+                    MDiagnoreServer.Diagnose();
+                }
+                catch { }
 
                 Thread.Sleep(1000);
             }
@@ -303,6 +321,7 @@ namespace task.trans
             {
                 mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", trans.id, trans.TransStaus, status, memo));
                 trans.TransStaus = status;
+                trans.TransStausStayTime = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Status);
 
                 if (status == TransStatusE.取消)
@@ -339,12 +358,12 @@ namespace task.trans
             }
         }
 
-        internal void SetCarrier(StockTrans trans, uint carrierid)
+        internal void SetCarrier(StockTrans trans, uint carrierid, string memo = "")
         {
             if (trans.carrier_id != carrierid)
             {
                 string devname = PubMaster.Device.GetDeviceName(carrierid);
-                mLog.Status(true, string.Format("任务[ {0} ], 分配小车[ {1} ]", trans.id, devname));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配小车[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
                 trans.carrier_id = carrierid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.CarrierId);
                 //SendMsg(trans);
@@ -383,12 +402,12 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="tileid"></param>
-        internal void SetTile(StockTrans trans, uint tileid)
+        internal void SetTile(StockTrans trans, uint tileid, string memo = "")
         {
             if (trans.tilelifter_id != tileid)
             {
                 string devname = PubMaster.Device.GetDeviceName(tileid);
-                mLog.Status(true, string.Format("任务[ {0} ], 重新分配砖机[ {1} ]", trans.id, devname));
+                mLog.Status(true, string.Format("任务[ {0} ], 重新分配砖机[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
                 trans.tilelifter_id = tileid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TileId);
                 //SendMsg(trans);
@@ -534,41 +553,20 @@ namespace task.trans
         #region[判断状态]
 
         /// <summary>
-        /// 判断是否有交易在上下砖机工位
-        /// </summary>
-        /// <param name="iD"></param>
-        /// <returns></returns>
-        public bool HaveInLifter(uint devid, uint taketrackid)
-        {
-            return TransList.Exists(c => !c.finish && c.tilelifter_id == devid && c.take_track_id == taketrackid);
-        }
-
-        /// <summary>
         /// 同下砖机不同轨道限制一个
         /// </summary>
         /// <param name="devid"></param>
         /// <returns></returns>
         public bool HaveInLifter(uint devid)
         {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
-                {
-                    return TransList.Exists(c => !c.finish && c.tilelifter_id == devid);
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
+                return TransList.Exists(c => !c.finish && c.tilelifter_id == devid);
             }
+            catch { }
             return true;
         }
-
-        public bool HaveTransWithGood(TransTypeE type, uint goodid, uint areaid)
-        {
-            return TransList.Exists(c => c.TransType == type && c.goods_id == goodid && c.area_id == areaid);
-        }
-
+        
         /// <summary>
         /// 同轨道不同下砖机限制一个
         /// </summary>
@@ -577,144 +575,79 @@ namespace task.trans
         /// <returns></returns>
         public bool HaveInTileTrack(uint ltrack, uint rtrack)
         {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
-                {
-                    return TransList.Exists(c => !c.finish && (c.take_track_id == ltrack || c.take_track_id == rtrack));
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
+                return TransList.Exists(c => !c.finish && c.InTrack(ltrack,rtrack));
             }
+            catch { }
             return true;
         }
 
         /// <summary>
-        /// 同轨道不同上砖机限制一个
+        /// 判断任务是否使用了该品种
         /// </summary>
-        /// <param name="ltrack"></param>
-        /// <param name="rtrack"></param>
+        /// <param name="areaId"></param>
+        /// <param name="goodsId"></param>
+        /// <param name="tasktype"></param>
         /// <returns></returns>
-        public bool HaveOutTileTrack(uint ltrack, uint rtrack)
-        {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    return TransList.Exists(c => !c.finish && (c.give_track_id == ltrack || c.give_track_id == rtrack));
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
-            }
-            return true;
-        }
-
         internal bool HaveInGoods(uint areaId, uint goodsId, TransTypeE tasktype)
         {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
-                {
-                    return TransList.Exists(c => !c.finish && c.area_id == areaId
-                                    && c.TransType == tasktype && c.goods_id == goodsId);
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
+                return TransList.Exists(c => !c.finish && c.area_id == areaId
+                                && c.TransType == tasktype && c.goods_id == goodsId);
             }
+            catch { }
             return true;
         }
 
+        /// <summary>
+        /// 判断是否有任务使用了该轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         internal bool HaveInTileTrack(uint trackid)
         {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
-                {
-                    return TransList.Exists(c => !c.finish && (c.take_track_id == trackid || c.give_track_id == trackid || c.finish_track_id == trackid));
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
+                return TransList.Exists(c => !c.finish && c.InTrack(trackid));
             }
+            catch{ }
             return true;
         }
 
+        /// <summary>
+        /// 判断是否有任务使用了该轨道(但是不管倒库任务)
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool HaveInTrackButSortTask(uint trackid)
+        {
+            try
+            {
+                //是否忽略倒库任务绑定的轨道
+                bool ignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+                return TransList.Exists(c => !c.finish
+                            && (!ignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
+                            && c.InTrack(trackid));
+            }
+            catch { }
+            return true;
+        }
+
+        /// <summary>
+        /// 是否存在砖机使用了该轨道
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
         internal bool ExistInTileTrack(uint devid, uint trackid)
         {
-            return TransList.Exists(c => !c.finish
-            && c.tilelifter_id == devid
-            && (c.take_track_id == trackid || c.give_track_id == trackid));
+            return TransList.Exists(c => !c.finish && c.tilelifter_id == devid && c.InTrack(trackid));
         }
 
         #endregion
 
         #endregion
-
-        #region[交易处理]
-
-        /// <summary>
-        /// 完成交易
-        /// </summary>
-        /// <param name="carrierid"></param>
-        /// <param name="taketrackcode"></param>
-        /// <param name="givetrackcode"></param>
-        public void FinishTrans(uint carrierid, ushort taketrackcode, ushort givetrackcode)
-        {
-            if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    List<StockTrans> trans = TransList.FindAll(c => c.TransStaus != TransStatusE.完成 && c.carrier_id == carrierid);
-                    if (trans.Count > 0)
-                    {
-                        //foreach (StockTrans tran in trans)
-                        //{
-                        //    if (PubMaster.Track.IsTrackWithCode(tran.take_track_id, taketrackcode)
-                        //       && PubMaster.Track.IsTrackWithCode(tran.give_track_id, givetrackcode))
-                        //    {
-
-                        //        tran.TransStaus = TransStatusE.完成;
-                        //        tran.finish = true;
-                        //        tran.finish_time = DateTime.Now;
-                        //        PubMaster.Mod.GoodSql.EditStockTrans(tran, TransUpdateE.Finish);
-                        //    }
-                        //}
-                        Console.WriteLine("小车信息完成任务！");
-                    }
-                }
-                finally
-                {
-                    Monitor.Exit(_to);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 倒库完成/库存调整
-        /// </summary>
-        /// <param name="carrid"></param>
-        /// <param name="site"></param>
-        public void ShiftTrans(uint carrid, uint trackid)
-        {
-            //StockTrans trans = TransList.Find(c => c.TransType == TransTypeE.倒库 && c.carrier_id == carrid
-            //                                        && c.take_track_id == trackid && c.TransStaus != TransStatusE.完成);
-            //if (trans != null)
-            //{
-            //    PubMaster.Goods.ShiftStock(trackid);
-            //    trans.TransStaus = TransStatusE.完成;
-            //    trans.finish_time = DateTime.Now;
-            //    PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Finish);
-            //}
-        }
-
-        #endregion
-
     }
 }
