@@ -1540,7 +1540,7 @@ namespace task.trans
                                             && !CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id)
                                             && CheckTrackStockStillCanUse(trans.carrier_id, trans.take_track_id))
                                         {
-                                            trans.finish_track_id = trans.take_track_id;
+                                            SetFinishSite(trans, trans.take_track_id, "还车轨道分配轨道[1]");
                                         }
                                         else
                                         {
@@ -1558,7 +1558,7 @@ namespace task.trans
                                                         && CheckTrackStockStillCanUse(trans.carrier_id, trackid)
                                                         )
                                                     {
-                                                        trans.finish_track_id = trackid;
+                                                        SetFinishSite(trans, trackid, "还车轨道分配轨道[2]");
                                                         isallocate = true;
                                                     }
                                                     // 2.查看是否存在未空砖但无库存的轨道
@@ -1572,7 +1572,7 @@ namespace task.trans
                                                                 && !CheckHaveCarrierInOutTrack(trans.carrier_id, trackid)
                                                                 && CheckTrackStockStillCanUse(trans.carrier_id, trackid))
                                                             {
-                                                                trans.finish_track_id = tid;
+                                                                SetFinishSite(trans, tid, "还车轨道分配轨道[3]");
                                                                 isallocate = true;
                                                                 break;
                                                             }
@@ -1588,7 +1588,7 @@ namespace task.trans
                                                                 && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, stock.track_id)
                                                                 && !CheckHaveCarrierInOutTrack(trans.carrier_id, stock.track_id))
                                                             {
-                                                                trans.finish_track_id = stock.track_id;
+                                                                SetFinishSite(trans, stock.track_id, "还车轨道分配轨道[4]");
                                                                 isallocate = true;
                                                                 break;
                                                             }
@@ -1606,7 +1606,7 @@ namespace task.trans
                                                                 && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, t)
                                                                 && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                                             {
-                                                                trans.finish_track_id = t;
+                                                                SetFinishSite(trans, t, "还车轨道分配轨道[5]");
                                                                 isallocate = true;
                                                                 break;
                                                             }
@@ -1627,7 +1627,7 @@ namespace task.trans
                                                             continue;
                                                         }
 
-                                                        trans.finish_track_id = w_track.id;
+                                                        SetFinishSite(trans, w_track.id, "还车轨道分配轨道[6]");
                                                         isallocate = true;
                                                         break;
                                                     }
@@ -1637,7 +1637,7 @@ namespace task.trans
                                             }
                                             if (!isallocate)
                                             {
-                                                trans.finish_track_id = trans.take_track_id;
+                                                SetFinishSite(trans, trans.take_track_id, "还车轨道分配轨道[7]");
                                             }
                                         }
                                     }
@@ -1649,6 +1649,12 @@ namespace task.trans
                                         if (LockFerryAndAction(trans, trans.give_ferry_id, trans.finish_track_id, track.id, out ferryTraid, out string _)
                                             && PubTask.Carrier.IsStopFTask(trans.carrier_id))
                                         {
+                                            if (!CheckTrackStockStillCanUse(trans.carrier_id, trans.finish_track_id))
+                                            {
+                                                SetFinishSite(trans, 0, "轨道不满足状态重新分配");
+                                                return;
+                                            }
+
                                             if (!PubMaster.Track.IsEmtpy(trans.finish_track_id)
                                                 && !PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
                                             {
@@ -4285,7 +4291,7 @@ namespace task.trans
 
             return TransList.Exists(c => c.id != trans.id
                                     && c.TransStaus != TransStatusE.完成
-                                    && (!ignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
+                                    && (!ignoresort || !(c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库) && c.InStatus(TransStatusE.调度设备, TransStatusE.检查轨道, TransStatusE.移车中)))
                                     && c.InTrack(trans.take_track_id, trans.give_track_id));
         }
 
@@ -4922,6 +4928,20 @@ namespace task.trans
                                 && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
         }
 
+
+        /// <summary>
+        /// 是否存在倒库任务状态为还车回轨的任务
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        private bool ExistSortTask(uint trackid)
+        {
+            return TransList.Exists(c => c.give_track_id == trackid
+                                && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
+        }
+
+
+
         /// <summary>
         /// 判断轨道的库存是否能够发送小车执行取砖指令
         /// </summary>
@@ -4989,6 +5009,19 @@ namespace task.trans
                     && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid))
                 {
                     //在分割点后的库存,则不能进行取货操作
+                    return false;
+                }
+
+                //3.存在倒库完成的任务
+                if (ExistSortBackTask(trackid))
+                {
+                    return false;
+                }
+
+                //4.库存只剩1个，并且有任务在当前轨道
+                if (PubMaster.Goods.GetTrackStockCount(trackid) <= 1
+                    && ExistSortTask(trackid))
+                {
                     return false;
                 }
             }
