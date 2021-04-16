@@ -51,19 +51,24 @@ namespace task.trans
                         if (!HaveCarrierInTrans(carrierid)
                             && PubTask.Carrier.IsCarrierFree(carrierid))
                         {
-                            if (PubTask.Carrier.IsLoad(carrierid))
-                            {
-                                PubMaster.Warn.AddDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid, trans.id);
-                            }
-                            else
-                            {
-                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid);
+                            //if (PubTask.Carrier.IsLoad(carrierid))
+                            //{
+                            //    PubMaster.Warn.AddDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid, trans.id);
+                            //}
+                            //else
+                            //{
+                            //    PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid);
 
-                                //转移到同类型轨道
-                                TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
-                                track = PubTask.Carrier.GetCarrierTrack(carrierid);
-                                AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
-                            }
+                            //    //转移到同类型轨道
+                            //    TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                            //    track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                            //    AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                            //}
+
+                            //转移到同类型轨道
+                            TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                            track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                            AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
                         }
                     }
                     else
@@ -2623,6 +2628,20 @@ namespace task.trans
 
                         #region[储砖入轨道]
                         case TrackTypeE.储砖_入:
+                            if (isload)
+                            {
+                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                {
+                                    //下降放货
+                                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                    {
+                                        Order = DevCarrierOrderE.放砖指令
+                                    });
+                                }
+
+                                return;
+                            }
+
                             if (track.id == trans.take_track_id)
                             {
                                 //切换区域[同轨道-不同区域]
