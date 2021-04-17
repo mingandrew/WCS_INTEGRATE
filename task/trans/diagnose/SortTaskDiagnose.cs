@@ -42,7 +42,7 @@ namespace task.trans.diagnose
                     if(line != null)
                     {
                         int sortqty = _M.GetSortTaskNotWaitCount(item.area_id, item.line);
-                        if (line.sort_task_qty <= sortqty)
+                        if (line.sort_task_qty < sortqty)
                         {
                             StopSortTask(item, item.area_id, item.line);
                         }

@@ -10,6 +10,7 @@ using simtask.task;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using tool.appconfig;
 
 namespace simtask.master
 {
@@ -55,12 +56,19 @@ namespace simtask.master
         public void Stop()
         {
             Refreshing = false;
-            if (_mRefresh != null)
-            {
-                _mRefresh.Abort(TimeSpan.FromSeconds(3));
-            }
-
+            _mRefresh?.Abort();
             mServer?.Stop();
+
+            #region[保存模拟信息]
+            try
+            {
+                foreach (var item in DevList)
+                {
+                    GlobalWcsDataConfig.SimulateConfig.UpdateSim(item.SaveSimulate());
+                }
+            }
+            catch { }
+            #endregion
         }
 
         public void ReStart()
@@ -119,6 +127,7 @@ namespace simtask.master
                             task.DevId = mod.Devid;
                             task.DevStatus.DeviceID = mod.Devid;
                             task.SetupTile();
+                            task.SetUpSimulate(GlobalWcsDataConfig.SimulateConfig.GetSimTileLifter(dev.id));
                             DevList.Add(task);
                             SendDevMsg(task);
                         }

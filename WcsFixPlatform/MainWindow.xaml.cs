@@ -5,6 +5,7 @@ using HandyControl.Tools.Extension;
 using module.msg;
 using module.role;
 using resource;
+using simtask;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -81,6 +82,7 @@ namespace wcs
                 PubMaster.Warn.Stop();
                 PubTask.Stop();
                 PubMaster.StopMaster();
+                SimServer.Stop();
                 Environment.Exit(0);
                 return;
             }

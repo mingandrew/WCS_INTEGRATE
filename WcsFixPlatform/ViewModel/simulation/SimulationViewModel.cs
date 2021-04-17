@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Tools.Extension;
+using module.goods;
 using module.track;
 using module.window;
 using resource;
@@ -29,6 +30,7 @@ namespace wcs.ViewModel
             _tilelist = new ObservableCollection<SimDeviceView>();
             _ferrylist = new ObservableCollection<SimDeviceView>();
             _carrierlist = new ObservableCollection<SimDeviceView>();
+            StockList = new ObservableCollection<Stock>();
 
             Messenger.Default.Register<SimTaskBase>(this, MsgToken.SimDeviceStatusUpdate, SimDeviceStatusUpdate);
 
@@ -59,6 +61,12 @@ namespace wcs.ViewModel
 
         private ObservableCollection<SimDeviceView> _tilelist, _ferrylist, _carrierlist;
 
+        #region[库存测试]
+        private string trackname;
+        private ushort stockpoint;
+        private uint trackid;
+        #endregion
+
         #endregion
 
         #region[属性]
@@ -66,6 +74,20 @@ namespace wcs.ViewModel
         public ICollectionView TileView { set; get; }
         public ICollectionView FerryView { set; get; }
         public ICollectionView CarrierView { set; get; }
+        #region[库存测试]
+        public ObservableCollection<Stock> StockList { set; get; }
+        public string TrackName
+        {
+            get => trackname;
+            set => Set(ref trackname, value);
+        }
+
+        public ushort StockPoint
+        {
+            get => stockpoint;
+            set => Set(ref stockpoint, value);
+        }
+        #endregion
 
         public bool SimServerRun
         {
@@ -131,6 +153,12 @@ namespace wcs.ViewModel
 
         #region[摆渡车]
         public RelayCommand<SimDeviceView> FerrySetInitSiteCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(FerrySetInitSite)).Value;
+
+        #endregion
+
+        #region[库存测试]
+        public RelayCommand<string> StockTestBtnCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(StockTestBtn)).Value;
+
 
         #endregion
 
@@ -428,6 +456,44 @@ namespace wcs.ViewModel
         {
 
         }
+
+        #region[库存测试]
+
+
+        private async void StockTestBtn(string tag)
+        {
+            switch (tag)
+            {
+                case "selecttrack":
+                    DialogResult result = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
+                     .Initialize<TrackSelectViewModel>((vm) =>
+                     {
+                         vm.SetAreaFilter(0, true);
+                         vm.QueryTrack(new List<TrackTypeE>() { TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 });
+                     }).GetResultAsync<DialogResult>();
+                    if (result.p1 is Track tra)
+                    {
+                        trackid = tra.id;
+                        TrackName = tra.name;
+                    }
+                    break;
+                case "getstocklist":
+
+                    List<Stock> list = PubMaster.Goods.GetStockListInPoint(trackid, StockPoint);
+                    StockList.Clear();
+                    if (list.Count > 0)
+                    {
+                        foreach (var item in list)
+                        {
+                            StockList.Add(item);
+                        }
+                    }
+
+                    break;
+            }
+        }
+
+        #endregion
         #endregion
     }
 }

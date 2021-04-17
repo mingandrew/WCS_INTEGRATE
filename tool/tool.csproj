@@ -92,6 +92,7 @@
     <Compile Include="appconfig\DebugConfig.cs" />
     <Compile Include="appconfig\MysqlConfig.cs" />
     <Compile Include="appconfig\GlobalWcsDataConfig.cs" />
+    <Compile Include="appconfig\SimulateConfig.cs" />
     <Compile Include="json\JsonTool.cs" />
     <Compile Include="list\IClone.cs" />
     <Compile Include="list\ListExtend.cs" />
@@ -110,6 +111,12 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\enums\enums.csproj">
+      <Project>{E62B0FD1-ECFC-4E47-AC1D-E8535E78A42E}</Project>
+      <Name>enums</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

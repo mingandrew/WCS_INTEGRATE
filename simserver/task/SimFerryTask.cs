@@ -5,6 +5,7 @@ using module.track;
 using resource;
 using System;
 using System.Collections.Generic;
+using tool.appconfig;
 
 namespace simtask.task
 {
@@ -227,6 +228,48 @@ namespace simtask.task
             return DevStatus.TargetSite == poscode && Math.Abs(NowPos - pos) <= 10;
         }
 
+        #endregion
+        #region[模拟配置文件初始化]
+
+        internal void SetUpSimulate(SimFerry sim)
+        {
+            if (sim == null) return;
+            IsLocating = sim.IsLocating;
+            TargetPos = sim.TargetPos;
+            NowPosCode = sim.NowPosCode;
+            NowPos = sim.NowPos;
+            DevStatus.DeviceStatus = sim.DeviceStatus;
+            DevStatus.TargetSite = sim.TargetSite;
+            DevStatus.CurrentTask = sim.CurrentTask;
+            DevStatus.UpSite = sim.UpSite;
+            DevStatus.DownSite = sim.DownSite;
+            DevStatus.FinishTask = sim.FinishTask;
+            DevStatus.LoadStatus = sim.LoadStatus;
+            DevStatus.WorkMode = sim.WorkMode;
+            DevStatus.DownLight = sim.DownLight;
+            DevStatus.UpLight = sim.UpLight;
+        }
+
+        internal SimFerry SaveSimulate()
+        {
+            SimFerry sim = new SimFerry();
+            sim.DevId = ID;
+            sim.IsLocating = IsLocating;
+            sim.TargetPos = TargetPos;
+            sim.NowPosCode = NowPosCode;
+            sim.NowPos = NowPos;
+            sim.DeviceStatus = DevStatus.DeviceStatus;
+            sim.TargetSite = DevStatus.TargetSite;
+            sim.CurrentTask = DevStatus.CurrentTask;
+            sim.UpSite = DevStatus.UpSite;
+            sim.DownSite = DevStatus.DownSite;
+            sim.FinishTask = DevStatus.FinishTask;
+            sim.LoadStatus = DevStatus.LoadStatus;
+            sim.WorkMode = DevStatus.WorkMode;
+            sim.DownLight = DevStatus.DownLight;
+            sim.UpLight = DevStatus.UpLight;
+            return sim;
+        }
         #endregion
     }
 }
