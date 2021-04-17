@@ -381,38 +381,38 @@ namespace task.trans
                 trans.carrier_id = carrierid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.CarrierId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 99, string.Format("锁定运输车[ {0} ]；", devname));
+                SetStepLog(trans, true, 99, string.Format("锁定运输车[ {0} ]；{1}；", devname, memo));
             }
         }
 
-        internal void SetTakeFerry(StockTrans trans, uint ferryid)
+        internal void SetTakeFerry(StockTrans trans, uint ferryid, string memo = "")
         {
             if (trans.take_ferry_id != ferryid)
             {
                 string devname = PubMaster.Device.GetDeviceName(ferryid);
-                mLog.Status(true, string.Format("任务[ {0} ], 分配T摆渡车[ {1} ]", trans.id, devname));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配T摆渡车[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
                 trans.take_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeFerryId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 98, string.Format("锁定接车摆渡车[ {0} ]；", devname));
+                SetStepLog(trans, true, 98, string.Format("锁定接车摆渡车[ {0} ]；{1}；", devname, memo));
             }
         }
 
-        internal void SetGiveFerry(StockTrans trans, uint ferryid)
+        internal void SetGiveFerry(StockTrans trans, uint ferryid, string memo = "")
         {
             if (trans.give_ferry_id != ferryid)
             {
                 string devname = PubMaster.Device.GetDeviceName(ferryid);
-                mLog.Status(true, string.Format("任务[ {0} ], 分配G摆渡车[ {1} ]", trans.id, devname));
+                mLog.Status(true, string.Format("任务[ {0} ], 分配G摆渡车[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
                 trans.give_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.GiveFerryId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 97, string.Format("锁定送车摆渡车[ {0} ]；", devname));
+                SetStepLog(trans, true, 97, string.Format("锁定送车摆渡车[ {0} ]；{1}；", devname, memo));
             }
         }
 
         /// <summary>
-        /// 重新分配转机
+        /// 重新分配砖机
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="tileid"></param>
@@ -425,7 +425,7 @@ namespace task.trans
                 trans.tilelifter_id = tileid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TileId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 96, string.Format("重新锁定砖机[ {0} ]；", devname));
+                SetStepLog(trans, true, 96, string.Format("重新锁定砖机[ {0} ]；{1}；", devname, memo));
             }
         }
 
@@ -437,7 +437,7 @@ namespace task.trans
                 trans.load_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.LoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 95, string.Format("任务运输车取货完成；"));
+                SetStepLog(trans, true, 95, string.Format("任务运输车取砖完毕；"));
             }
         }
 
@@ -449,7 +449,7 @@ namespace task.trans
                 trans.unload_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.UnLoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 94, string.Format("任务运输车卸货完成；"));
+                SetStepLog(trans, true, 94, string.Format("任务运输车卸砖完毕；"));
             }
         }
 
@@ -463,7 +463,7 @@ namespace task.trans
                 trans.finish_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Finish);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 93, string.Format("任务结束；"));
+                SetStepLog(trans, true, 93, string.Format("任务流程结束；"));
             }
         }
 
@@ -501,8 +501,10 @@ namespace task.trans
         {
             if (trans.finish_track_id != traid)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 完成轨道[ {1} ], 备注[ {2} ]", trans.id, PubMaster.Track.GetTrackName(traid), memo));
+                string traname = PubMaster.Track.GetTrackName(traid);
+                mLog.Status(true, string.Format("任务[ {0} ], 完成轨道[ {1} ], 备注[ {2} ]", trans.id, traname, memo));
                 trans.finish_track_id = traid;
+                SetStepLog(trans, true, 90, string.Format("重新分配结束回轨轨道[ {0} ]；{1}；", traname, memo));
                 return true;
             }
             return false;
@@ -591,7 +593,7 @@ namespace task.trans
             catch { }
             return true;
         }
-        
+
         /// <summary>
         /// 同轨道不同下砖机限制一个
         /// </summary>
@@ -602,7 +604,7 @@ namespace task.trans
         {
             try
             {
-                return TransList.Exists(c => !c.finish && c.InTrack(ltrack,rtrack));
+                return TransList.Exists(c => !c.finish && c.InTrack(ltrack, rtrack));
             }
             catch { }
             return true;
@@ -637,7 +639,7 @@ namespace task.trans
             {
                 return TransList.Exists(c => !c.finish && c.InTrack(trackid));
             }
-            catch{ }
+            catch { }
             return true;
         }
 

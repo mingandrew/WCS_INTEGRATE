@@ -42,30 +42,11 @@ namespace task.trans
             {
                 #region[检查轨道]
                 case TransStatusE.检查轨道:
-
                     // 获取任务品种规格ID
                     uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
                     // 是否有不符规格的车在轨道
                     if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trans.give_track_id, goodssizeID, out uint carrierid))
                     {
-                        //if (!HaveCarrierInTrans(carrierid)
-                        //    && PubTask.Carrier.IsCarrierFree(carrierid))
-                        //{
-                        //    if (PubTask.Carrier.IsLoad(carrierid))
-                        //    {
-                        //        PubMaster.Warn.AddDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid, trans.id);
-                        //    }
-                        //    else
-                        //    {
-                        //        PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierLoadNeedTakeCare, (ushort)carrierid);
-
-                        //        //转移到同类型轨道
-                        //        TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
-                        //        track = PubTask.Carrier.GetCarrierTrack(carrierid);
-                        //        AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
-                        //    }
-                        //}
-
                         if (HaveCarrierInTrans(carrierid))
                         {
                             #region 【任务步骤记录】
@@ -175,7 +156,14 @@ namespace task.trans
                     //还没有分配取货过程中的摆渡车
                     if (trans.take_ferry_id == 0)
                     {
-                        AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
+                        string msg  = AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
+                        if (trans.take_ferry_id == 0)
+                        {
+                            #region 【任务步骤记录】
+                            SetStepLog(trans, false, 1310, string.Format("分配接车摆渡车失败，尝试继续分配；{0}；", msg));
+                            #endregion
+                            return;
+                        }
                     }
                     #endregion
 
@@ -209,32 +197,35 @@ namespace task.trans
                             if (isnotload)
                             {
                                 //摆渡车接车
-                                if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true)
-                                    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                if (LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true))
+                                {
+                                    if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    {
+                                        #region 【任务步骤记录】
+                                        SetStepLog(trans, true, 1510, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]后退至摆渡车[ {2} ]；",
+                                            PubMaster.Track.GetTrackName(track.id),
+                                            PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                            PubMaster.Device.GetDeviceName(trans.take_ferry_id)));
+                                        #endregion
+
+                                        //后退至摆渡车
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        {
+                                            Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                                            ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                        });
+                                        return;
+                                    }
+                                }
+                                else
                                 {
                                     #region 【任务步骤记录】
-                                    SetStepLog(trans, true, 1510, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]后退至摆渡车[ {2} ]；",
-                                        PubMaster.Track.GetTrackName(track.id),
-                                        PubMaster.Device.GetDeviceName(trans.carrier_id), 
-                                        PubMaster.Device.GetDeviceName(trans.take_ferry_id)));
+                                    SetStepLog(trans, true, 1610, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
+                                        PubMaster.Device.GetDeviceName(trans.take_ferry_id),
+                                        PubMaster.Track.GetTrackName(track.id), res));
                                     #endregion
-
-                                    //后退至摆渡车
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                    {
-                                        Order = DevCarrierOrderE.定位指令,
-                                        CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                        ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    });
-                                    return;
                                 }
-
-                                #region 【任务步骤记录】
-                                SetStepLog(trans, true, 1610, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
-                                    PubMaster.Device.GetDeviceName(trans.take_ferry_id), 
-                                    PubMaster.Track.GetTrackName(track.id), res));
-                                #endregion
-
                             }
                             break;
 
@@ -242,15 +233,13 @@ namespace task.trans
 
                         #region[小车在摆渡车]
                         case TrackTypeE.摆渡车_入:
-
                             if (isnotload)
                             {
                                 if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                                 {
                                     //摆渡车 定位去 取货点
                                     //小车到达摆渡车后短暂等待再开始定位
-                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res)
-                                        && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res))
                                     {
                                         if (!PubTask.TileLifter.IsHaveLoadNeed(trans.tilelifter_id, trans.take_track_id)
                                             && mTimer.IsOver(TimerTag.DownTileHaveLoadNoNeed, trans.tilelifter_id, 200, 50))
@@ -269,7 +258,6 @@ namespace task.trans
                                                 {
                                                     SetStatus(trans, TransStatusE.取消, "外侧兄弟砖机有货");
                                                 }
-
                                                 return;
                                             }
                                         }
@@ -290,27 +278,30 @@ namespace task.trans
                                             return;
                                         }
 
-                                        #region 【任务步骤记录】
-                                        SetStepLog(trans, true, 1810, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]取砖；",
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id),
-                                            PubMaster.Track.GetTrackName(trans.take_track_id)));
-                                        #endregion
+                                        if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                        {
+                                            #region 【任务步骤记录】
+                                            SetStepLog(trans, true, 1810, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]取砖；",
+                                                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                                PubMaster.Track.GetTrackName(trans.take_track_id)));
+                                            #endregion
 
-                                        //获取砖机配置的取货点
-                                        ushort torfid = PubMaster.DevConfig.GetTileSite(trans.tilelifter_id, trans.take_track_id);
-                                        if (torfid == 0)
-                                        {
-                                            //如果配置为零则获取取货轨道的rfid1
-                                            torfid = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
+                                            //获取砖机配置的取货点
+                                            ushort torfid = PubMaster.DevConfig.GetTileSite(trans.tilelifter_id, trans.take_track_id);
+                                            if (torfid == 0)
+                                            {
+                                                //如果配置为零则获取取货轨道的rfid1
+                                                torfid = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
+                                            }
+                                            //后退取砖
+                                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                            {
+                                                Order = DevCarrierOrderE.取砖指令,
+                                                CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
+                                                ToRFID = torfid,
+                                            });
+                                            return;
                                         }
-                                        //后退取砖
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                        {
-                                            Order = DevCarrierOrderE.取砖指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                            ToRFID = torfid,
-                                        });
-                                        return;
                                     }
                                     else
                                     {
@@ -340,7 +331,6 @@ namespace task.trans
 
                         #region[小车在下砖轨道]
                         case TrackTypeE.下砖轨道:
-
                             if (isload)
                             {
                                 if (track.id == trans.take_track_id
@@ -378,6 +368,7 @@ namespace task.trans
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
                                             ToRFID = torfid,
                                         });
+                                        return;
                                     }
                                 }
                                 else
@@ -423,9 +414,14 @@ namespace task.trans
                     {
                         if (trans.give_ferry_id == 0)
                         {
-                            //还没有分配取货过程中的摆渡车
-                            AllocateFerry(trans, DeviceTypeE.下摆渡, track, true);
-                            //调度摆渡车接运输车
+                            string msg = AllocateFerry(trans, DeviceTypeE.下摆渡, track, true);
+                            if (trans.give_ferry_id == 0)
+                            {
+                                #region 【任务步骤记录】
+                                SetStepLog(trans, false, 1320, string.Format("分配送车摆渡车失败，尝试继续分配；{0}；", msg));
+                                #endregion
+                                return;
+                            }
                         }
                         else if (!PubTask.Ferry.TryLock(trans, trans.give_ferry_id, track.id))
                         {
@@ -444,31 +440,36 @@ namespace task.trans
                         case TrackTypeE.下砖轨道:
                             if (isload)
                             {
-                                if (LockFerryAndAction(trans, trans.give_ferry_id, track.id, track.id, out ferryTraid, out res, true)
-                                    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                if (LockFerryAndAction(trans, trans.give_ferry_id, track.id, track.id, out ferryTraid, out res, true) )
+                                {
+                                    if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    {
+                                        #region 【任务步骤记录】
+                                        SetStepLog(trans, true, 1420, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]前进至摆渡车[ {2} ]；",
+                                            PubMaster.Track.GetTrackName(track.id),
+                                            PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                            PubMaster.Device.GetDeviceName(trans.give_ferry_id)));
+                                        #endregion
+
+                                        //前进至摆渡车
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        {
+                                            Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                            ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                        });
+                                        return;
+                                    }
+                                }
+                                else
                                 {
                                     #region 【任务步骤记录】
-                                    SetStepLog(trans, true, 1420, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]前进至摆渡车[ {2} ]；",
-                                        PubMaster.Track.GetTrackName(track.id),
-                                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                                        PubMaster.Device.GetDeviceName(trans.give_ferry_id)));
+                                    SetStepLog(trans, true, 1520, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
+                                        PubMaster.Device.GetDeviceName(trans.give_ferry_id),
+                                        PubMaster.Track.GetTrackName(track.id), res));
                                     #endregion
-
-                                    //前进至摆渡车
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                    {
-                                        Order = DevCarrierOrderE.定位指令,
-                                        CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                        ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    });
-                                    return;
                                 }
 
-                                #region 【任务步骤记录】
-                                SetStepLog(trans, true, 1520, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
-                                    PubMaster.Device.GetDeviceName(trans.give_ferry_id),
-                                    PubMaster.Track.GetTrackName(track.id), res));
-                                #endregion
                             }
                             break;
                         #endregion
@@ -490,11 +491,10 @@ namespace task.trans
                                         trans.IsLeaveTileLifter = true;
                                     }
 
-                                    ushort count = 0, loc = 0;
                                     //1.计算轨道下一车坐标
                                     //2.卸货轨道状态是否运行放货                                    
                                     //3.是否有其他车在同轨道上
-                                    if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out count, out loc)
+                                    if (!PubMaster.Goods.CalculateNextLocation(trans.TransType, trans.carrier_id, trans.give_track_id, out ushort count, out ushort loc)
                                         || !PubMaster.Track.IsStatusOkToGive(trans.give_track_id)
                                         || PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
                                     {
@@ -548,56 +548,61 @@ namespace task.trans
                                     //小车到达摆渡车后短暂等待再开始定位
                                     if (PubTask.Ferry.IsLoad(trans.give_ferry_id))
                                     {
-                                        if (LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res)
-                                            && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                        if (LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                                        {
+                                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                            {
+                                                #region 【任务步骤记录】
+                                                SetStepLog(trans, true, 1820, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]放砖；",
+                                                    PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                                    PubMaster.Track.GetTrackName(trans.give_track_id)));
+                                                #endregion
+
+                                                //前进放砖
+                                                CarrierActionOrder cao = new CarrierActionOrder
+                                                {
+                                                    Order = DevCarrierOrderE.放砖指令,
+                                                    CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id)
+                                                };
+
+                                                if (loc == 0)
+                                                {
+                                                    cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id);
+                                                    cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
+                                                }
+                                                else
+                                                {
+                                                    Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                                                    if (givetrack.Type == TrackTypeE.储砖_出入)
+                                                    {
+                                                        cao.ToRFID = givetrack.rfid_2;
+                                                    }
+
+                                                    if (givetrack.Type == TrackTypeE.储砖_入)
+                                                    {
+                                                        cao.ToSite = givetrack.split_point;
+                                                    }
+                                                    cao.OverRFID = givetrack.rfid_1;
+
+                                                    //cao.ToSite = loc;
+                                                    //cao.OverSite = PubMaster.Track.GetTrackLimitPoint(trans.give_track_id);
+
+                                                    PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
+                                                }
+                                                PubTask.Carrier.DoOrder(trans.carrier_id, cao);
+                                                return;
+                                            }
+                                        }
+                                        else
                                         {
                                             #region 【任务步骤记录】
-                                            SetStepLog(trans, true, 1820, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]放砖；",
-                                                PubMaster.Device.GetDeviceName(trans.carrier_id),
-                                                PubMaster.Track.GetTrackName(trans.give_track_id)));
+                                            SetStepLog(trans, true, 1920, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
+                                                PubMaster.Device.GetDeviceName(trans.give_ferry_id),
+                                                PubMaster.Track.GetTrackName(trans.give_track_id), res));
                                             #endregion
-
-                                            //前进放砖
-                                            CarrierActionOrder cao = new CarrierActionOrder
-                                            {
-                                                Order = DevCarrierOrderE.放砖指令,
-                                                CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id)
-                                            };
-
-                                            if (loc == 0)
-                                            {
-                                                cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id);
-                                                cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
-                                            }
-                                            else
-                                            {
-                                                Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
-                                                if (givetrack.Type == TrackTypeE.储砖_出入)
-                                                {
-                                                    cao.ToRFID = givetrack.rfid_2;
-                                                }
-
-                                                if (givetrack.Type == TrackTypeE.储砖_入)
-                                                {
-                                                    cao.ToSite = givetrack.split_point;
-                                                }
-                                                cao.OverRFID = givetrack.rfid_1;
-
-                                                //cao.ToSite = loc;
-                                                //cao.OverSite = PubMaster.Track.GetTrackLimitPoint(trans.give_track_id);
-
-                                                PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
-                                            }
-                                            PubTask.Carrier.DoOrder(trans.carrier_id, cao);
-                                            return;
                                         }
-
-                                        #region 【任务步骤记录】
-                                        SetStepLog(trans, true, 1920, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
-                                            PubMaster.Device.GetDeviceName(trans.give_ferry_id),
-                                            PubMaster.Track.GetTrackName(trans.give_track_id), res));
-                                        #endregion
                                     }
+
                                 }
 
                                 //判断小车是否已上轨道，是则解锁摆渡车
@@ -803,9 +808,14 @@ namespace task.trans
                     {
                         if (trans.give_ferry_id == 0)
                         {
-                            //还没有分配取货过程中的摆渡车
-                            AllocateFerry(trans, DeviceTypeE.下摆渡, track, true);
-                            //调度摆渡车接运输车
+                            string msg = AllocateFerry(trans, DeviceTypeE.下摆渡, track, true);
+                            if (trans.give_ferry_id == 0)
+                            {
+                                #region 【任务步骤记录】
+                                SetStepLog(trans, false, 1320, string.Format("分配送车摆渡车失败，尝试继续分配；{0}；", msg));
+                                #endregion
+                                return;
+                            }
                         }
                         else if (!PubTask.Ferry.TryLock(trans, trans.give_ferry_id, track.id))
                         {
@@ -838,30 +848,35 @@ namespace task.trans
                                 }
                                 else
                                 {
-                                    if (LockFerryAndAction(trans, trans.give_ferry_id, trans.finish_track_id, track.id, out ferryTraid, out res)
-                                        && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    if (LockFerryAndAction(trans, trans.give_ferry_id, trans.finish_track_id, track.id, out ferryTraid, out res))
+                                    {
+                                        if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                        {
+                                            #region 【任务步骤记录】
+                                            SetStepLog(trans, true, 1450, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]；",
+                                                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                                PubMaster.Track.GetTrackName(trans.finish_track_id)));
+                                            #endregion
+
+                                            //前进至点
+                                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                            {
+                                                Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
+                                                ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
+                                            });
+                                            return;
+                                        }
+                                    }
+                                    else
                                     {
                                         #region 【任务步骤记录】
-                                        SetStepLog(trans, true, 1450, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]；",
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id),
-                                            PubMaster.Track.GetTrackName(trans.finish_track_id)));
+                                        SetStepLog(trans, true, 1550, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
+                                            PubMaster.Device.GetDeviceName(trans.give_ferry_id),
+                                            PubMaster.Track.GetTrackName(trans.finish_track_id), res));
                                         #endregion
-
-                                        //前进至点
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                        {
-                                            Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
-                                        });
-                                        return;
                                     }
 
-                                    #region 【任务步骤记录】
-                                    SetStepLog(trans, true, 1550, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
-                                        PubMaster.Device.GetDeviceName(trans.give_ferry_id),
-                                        PubMaster.Track.GetTrackName(trans.finish_track_id), res));
-                                    #endregion
                                 }
                             }
                             break;
@@ -900,31 +915,36 @@ namespace task.trans
                             }
                             else
                             {
-                                if (LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res)
-                                    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                if (LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                                {
+                                    if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    {
+                                        #region 【任务步骤记录】
+                                        SetStepLog(trans, true, 1650, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]后退至摆渡车[ {2} ]；",
+                                            PubMaster.Track.GetTrackName(track.id),
+                                            PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                            PubMaster.Device.GetDeviceName(trans.give_ferry_id)));
+                                        #endregion
+
+                                        //后退至摆渡车
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                        {
+                                            Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                                            ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                        });
+                                        return;
+                                    }
+                                }
+                                else
                                 {
                                     #region 【任务步骤记录】
-                                    SetStepLog(trans, true, 1650, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]后退至摆渡车[ {2} ]；",
-                                        PubMaster.Track.GetTrackName(track.id),
-                                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                                        PubMaster.Device.GetDeviceName(trans.give_ferry_id)));
+                                    SetStepLog(trans, true, 1750, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
+                                        PubMaster.Device.GetDeviceName(trans.give_ferry_id),
+                                        PubMaster.Track.GetTrackName(trans.give_track_id), res));
                                     #endregion
-
-                                    //后退至摆渡车
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                    {
-                                        Order = DevCarrierOrderE.定位指令,
-                                        CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                        ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    });
-                                    return;
                                 }
 
-                                #region 【任务步骤记录】
-                                SetStepLog(trans, true, 1750, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
-                                    PubMaster.Device.GetDeviceName(trans.give_ferry_id),
-                                    PubMaster.Track.GetTrackName(trans.give_track_id), res));
-                                #endregion
                             }
                             break;
                             #endregion
@@ -986,30 +1006,35 @@ namespace task.trans
                                 if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                                 {
                                     //小车回到原轨道
-                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res)
-                                        && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                                    {
+                                        if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                        {
+                                            #region 【任务步骤记录】
+                                            SetStepLog(trans, true, 1180, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]；",
+                                                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                                PubMaster.Track.GetTrackName(trans.give_track_id)));
+                                            #endregion
+
+                                            //前进至点
+                                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                            {
+                                                Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
+                                                ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                            });
+                                            return;
+                                        }
+                                    }
+                                    else
                                     {
                                         #region 【任务步骤记录】
-                                        SetStepLog(trans, true, 1180, string.Format("控制运输车[ {0} ]移至轨道[ {1} ]；",
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id),
-                                            PubMaster.Track.GetTrackName(trans.give_track_id)));
+                                        SetStepLog(trans, true, 1280, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
+                                            PubMaster.Device.GetDeviceName(trans.give_ferry_id),
+                                            PubMaster.Track.GetTrackName(trans.give_track_id), res));
                                         #endregion
-
-                                        //前进至点
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                        {
-                                            Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
-                                        });
-                                        return;
                                     }
 
-                                    #region 【任务步骤记录】
-                                    SetStepLog(trans, true, 1280, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
-                                        PubMaster.Device.GetDeviceName(trans.give_ferry_id),
-                                        PubMaster.Track.GetTrackName(trans.give_track_id), res));
-                                    #endregion
                                 }
                             }
                             break;
@@ -1017,7 +1042,6 @@ namespace task.trans
 
                         #region[小车在下砖轨道]
                         case TrackTypeE.下砖轨道:
-
                             if (isload)
                             {
                                 if (track.id == trans.take_track_id
@@ -1035,31 +1059,36 @@ namespace task.trans
                                 {
                                     //小车回到原轨道
                                     //没有任务并且停止
-                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res, true)
-                                        && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res, true))
+                                    {
+                                        if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                        {
+                                            #region 【任务步骤记录】
+                                            SetStepLog(trans, true, 1380, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]前进至摆渡车[ {2} ]；",
+                                                PubMaster.Track.GetTrackName(track.id),
+                                                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                                                PubMaster.Device.GetDeviceName(trans.take_ferry_id)));
+                                            #endregion
+
+                                            //前进至摆渡车
+                                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                            {
+                                                Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                                ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                            });
+                                            return;
+                                        }
+                                    }
+                                    else
                                     {
                                         #region 【任务步骤记录】
-                                        SetStepLog(trans, true, 1380, string.Format("设备都在[ {0} ]，控制运输车[ {1} ]前进至摆渡车[ {2} ]；",
-                                            PubMaster.Track.GetTrackName(track.id),
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id),
-                                            PubMaster.Device.GetDeviceName(trans.take_ferry_id)));
+                                        SetStepLog(trans, true, 1480, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
+                                            PubMaster.Device.GetDeviceName(trans.take_ferry_id),
+                                            PubMaster.Track.GetTrackName(trans.take_track_id), res));
                                         #endregion
-
-                                        //前进至摆渡车
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                                        {
-                                            Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                            ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                        });
-                                        return;
                                     }
 
-                                    #region 【任务步骤记录】
-                                    SetStepLog(trans, true, 1480, string.Format("控制摆渡车[ {0} ]移至轨道[ {1} ]；{2}；",
-                                        PubMaster.Device.GetDeviceName(trans.take_ferry_id),
-                                        PubMaster.Track.GetTrackName(trans.take_track_id), res));
-                                    #endregion
                                 }
                             }
                             break;
@@ -4209,7 +4238,7 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="track"></param>
-        private void AllocateFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, bool allotogiveferry)
+        private string AllocateFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, bool allotogiveferry)
         {
             uint ferryid = 0;
             string result = "";
@@ -4332,6 +4361,8 @@ namespace task.trans
                 result = string.Format("{0},{1}货摆渡车", result, allotogiveferry ? "卸" : "取");
                 PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateFerry, (ushort)trans.tilelifter_id, trans.id, result);
             }
+
+            return result;
         }
 
         /// <summary>
