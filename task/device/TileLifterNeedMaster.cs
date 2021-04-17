@@ -198,9 +198,9 @@ namespace task.device
         }
 
         //完成任务时,更新需求的完成任务状态
-        public void FinishTileLifterNeed(uint devid, uint trackid)
+        public void FinishTileLifterNeed(uint transid)
         {
-            TileLifterNeed tileneed = NeedList.Find(c => c.device_id == devid && c.track_id == trackid && !c.finish);
+            TileLifterNeed tileneed = NeedList.Find(c => c.trans_id == transid);
             if (tileneed != null)
             {
                 tileneed.finish = true;
