@@ -337,13 +337,13 @@ namespace task.trans
                     if (trans.InType(TransTypeE.上砖任务, TransTypeE.同向上砖, TransTypeE.手动上砖))
                     {
                         //完成需求
-                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.tilelifter_id, trans.give_track_id);
+                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.id);
                     }
 
                     if (trans.InType(TransTypeE.下砖任务, TransTypeE.同向下砖, TransTypeE.手动下砖))
                     {
                         //完成需求
-                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.tilelifter_id, trans.take_track_id);
+                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.id);
                     }
                 }
             }
