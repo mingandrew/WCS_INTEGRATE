@@ -9,6 +9,7 @@ using simserver.simsocket;
 using simtask.task;
 using System;
 using System.Collections.Generic;
+using tool.appconfig;
 
 namespace simtask
 {
@@ -149,6 +150,7 @@ namespace simtask
             DevStatus.CurrentSite = site;
             NowTrack = track;
         }
+
 
         private void SetTargetTrack(Track track)
         {
@@ -324,8 +326,9 @@ namespace simtask
                     if (TO_POINT != ZERO_POINT)
                     {
                         //从摆渡车进入轨道的过程
-                        if(NowTrack.id != EndTrack.id
-                            && DevStatus.CurrentPoint <= EndTrack.limit_point_up)
+                        if(NowTrack != null && EndTrack != null
+                            && NowTrack.id != EndTrack.id
+                            && Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20)
                         {
                             SetNowTrack(EndTrack, EndTrack.rfid_1);
                         }
@@ -548,8 +551,9 @@ namespace simtask
                 #region[前进倒库]
                 case DevCarrierOrderE.前进倒库:
                     //从摆渡车进入轨道的过程
-                    if (NowTrack.id != EndTrack.id
-                        && DevStatus.CurrentPoint <= EndTrack.limit_point_up)
+                    if (EndTrack != null && NowTrack != null
+                        && NowTrack.id != EndTrack.id
+                        && Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20)
                     {
                         SetNowTrack(EndTrack, EndTrack.rfid_1);
                     }
@@ -691,7 +695,7 @@ namespace simtask
                                 break;
                             case SimCarrierSortStepE.取货完成获取卸货位置:
                                 Stock outbuttomstock = PubMaster.Goods.GetTrackButtomStock(EndTrack.id);
-                                if (outbuttomstock != null)
+                                if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
                                 {
                                     ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
                                     GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
@@ -1177,6 +1181,7 @@ namespace simtask
                     TargetTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_入 }, cmd.CheckTrackCode);
                     EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出 }, cmd.CheckTrackCode);
                 }
+                SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
             }
             DevStatus.MoveCount = 0;
             DevStatus.CurrentOrder = cmd.CarrierOrder;
@@ -1193,7 +1198,7 @@ namespace simtask
         {
             DevStatus.GivePoint = 0;
             DevStatus.GiveSite = 0;
-            DevStatus.TakePoint = DevStatus.CurrentPoint;
+            DevStatus.TakePoint =(ushort)( DevStatus.CurrentPoint+100);
             DevStatus.TakeSite = DevStatus.CurrentSite;
         }
 
@@ -1255,13 +1260,13 @@ namespace simtask
             ushort dif = (ushort)Math.Abs(rs);
             if (rs > 0)
             {
-                DevStatus.CurrentPoint -= (ushort)(dif > 50 ? 50 : dif);
+                DevStatus.CurrentPoint -= (ushort)(dif > 400 ? 400 : dif);
                 DevStatus.DeviceStatus = DevCarrierStatusE.后退;
             }
             
             if(rs < 0)
             {
-                DevStatus.CurrentPoint += (ushort)(dif > 50 ? 50 : dif);
+                DevStatus.CurrentPoint += (ushort)(dif > 400 ? 400 : dif);
                 DevStatus.DeviceStatus = DevCarrierStatusE.前进;
             }
             
@@ -1290,5 +1295,81 @@ namespace simtask
         }
         #endregion
 
+        #region[模拟配置文件初始化]
+
+        internal void SetUpSimulate(SimCarrier sim)
+        {
+            if (sim == null) return;
+            NowTrack = PubMaster.Track.GetTrack(sim.NowTrack);
+            TargetTrack = PubMaster.Track.GetTrack(sim.TargetTrack);
+            EndTrack = PubMaster.Track.GetTrack(sim.EndTrack);
+            OnLoading = sim.OnLoading;
+            OnUnloading = sim.OnUnloading;
+            LoadFinish = sim.LoadFinish;
+            UnloadFinish = sim.UnloadFinish;
+            TO_SITE = sim.TO_SITE;
+            TO_POINT = sim.TO_POINT;
+            END_SITE = sim.END_SITE;
+            END_POINT = sim.END_POINT;
+            SORT_QTY = sim.SORT_QTY;
+            TAKE_STOCK_POINT = sim.TAKE_STOCK_POINT;
+            GIVE_STOCK_POINT = sim.GIVE_STOCK_POINT;
+            SORT_TYPE = sim.SORT_TYPE;
+            SORT_STEP = sim.SORT_STEP;
+            DevStatus.DeviceStatus = sim.DeviceStatus;
+            DevStatus.CurrentSite = sim.CurrentSite;
+            DevStatus.CurrentPoint = sim.CurrentPoint;
+            DevStatus.TargetSite = sim.TargetSite;
+            DevStatus.TargetPoint = sim.TargetPoint;
+            DevStatus.CurrentOrder = sim.CurrentOrder;
+            DevStatus.FinishOrder = sim.FinishOrder;
+            DevStatus.LoadStatus = sim.LoadStatus;
+            DevStatus.Position = sim.Position;
+            DevStatus.OperateMode = sim.OperateMode;
+            DevStatus.TakeSite = sim.TakeSite;
+            DevStatus.TakePoint = sim.TakePoint;
+            DevStatus.GiveSite = sim.GiveSite;
+            DevStatus.GivePoint = sim.GivePoint;
+            DevStatus.MoveCount = sim.MoveCount;
+        }
+
+        internal SimCarrier SaveSimulate()
+        {
+            SimCarrier sim = new SimCarrier();
+            sim.DevId = ID;
+            sim.NowTrack = NowTrack?.id ?? 0;
+            sim.TargetTrack = TargetTrack?.id ?? 0;
+            sim.EndTrack = EndTrack?.id ?? 0;
+            sim.OnLoading = OnLoading;
+            sim.OnUnloading = OnUnloading;
+            sim.LoadFinish = LoadFinish;
+            sim.UnloadFinish = UnloadFinish;
+            sim.TO_SITE = TO_SITE;
+            sim.TO_POINT = TO_POINT;
+            sim.END_SITE = END_SITE;
+            sim.END_POINT = END_POINT;
+            sim.SORT_QTY = SORT_QTY;
+            sim.TAKE_STOCK_POINT = TAKE_STOCK_POINT;
+            sim.GIVE_STOCK_POINT = GIVE_STOCK_POINT;
+            sim.SORT_TYPE = SORT_TYPE;
+            sim.SORT_STEP = SORT_STEP;
+            sim.DeviceStatus = DevStatus.DeviceStatus;
+            sim.CurrentSite = DevStatus.CurrentSite;
+            sim.CurrentPoint = DevStatus.CurrentPoint;
+            sim.TargetSite = DevStatus.TargetSite;
+            sim.TargetPoint = DevStatus.TargetPoint;
+            sim.CurrentOrder = DevStatus.CurrentOrder;
+            sim.FinishOrder = DevStatus.FinishOrder;
+            sim.LoadStatus = DevStatus.LoadStatus;
+            sim.Position = DevStatus.Position;
+            sim.OperateMode = DevStatus.OperateMode;
+            sim.TakeSite = DevStatus.TakeSite;
+            sim.TakePoint = DevStatus.TakePoint;
+            sim.GiveSite = DevStatus.GiveSite;
+            sim.GivePoint = DevStatus.GivePoint;
+            sim.MoveCount = DevStatus.MoveCount;
+            return sim;
+        }
+        #endregion
     }
 }

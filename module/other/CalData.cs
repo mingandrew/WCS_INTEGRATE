@@ -4,5 +4,6 @@
     {
         public uint id { set; get; }
         public ushort s_data { set; get; }
+        public ushort s_location { set; get; }
     }
 }

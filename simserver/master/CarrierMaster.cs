@@ -12,6 +12,7 @@ using simtask.task;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using tool.appconfig;
 
 namespace simtask.master
 {
@@ -63,6 +64,17 @@ namespace simtask.master
             Refreshing = false;
             _mRefresh?.Abort();
             mServer?.Stop();
+
+            #region[保存模拟信息]
+            try
+            {
+                foreach (var item in DevList)
+                {
+                    GlobalWcsDataConfig.SimulateConfig.UpdateSim(item.SaveSimulate());
+                }
+            }
+            catch { }
+            #endregion
         }
 
         public void ReStart()
@@ -124,8 +136,8 @@ namespace simtask.master
                             task.DevConfig = devconf;
                             task.DevId = mod.Devid;
                             task.DevStatus.ID = mod.Devid;
-                            task.UpdateCurrentSite(devconf.sim_init_site, devconf.sim_init_point);
                             task.SetUpInit();
+                            task.SetUpSimulate(GlobalWcsDataConfig.SimulateConfig.GetSimCarrier(dev.id));
                             DevList.Add(task);
                             SendDevMsg(task);
                         }
@@ -198,14 +210,10 @@ namespace simtask.master
             if (task != null)
             {
                 task.UpdateCurrentSite(initsite, initpoint);
-                task.DevConfig.sim_init_site = initsite;
-                task.DevConfig.sim_init_point = initpoint;
 
                 task.DevStatus.Position = isontrack ? DevCarrierPositionE.在轨道上:DevCarrierPositionE.在摆渡上;
 
                 ServerSend(task.DevId, task.DevStatus);
-
-                PubMaster.Mod.DevConfigSql.EditSimCarrierInitSite(task.DevConfig);
             }
         }
 

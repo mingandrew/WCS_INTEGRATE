@@ -1,5 +1,6 @@
 ﻿using simtask.resource;
 using simtask.master;
+using tool.appconfig;
 
 namespace simtask
 {
@@ -37,6 +38,8 @@ namespace simtask
             Carrier?.Stop();
 
             IsStartServer = false;
+
+            GlobalWcsDataConfig.SaveSimulateConfig();
         }
     }
 }

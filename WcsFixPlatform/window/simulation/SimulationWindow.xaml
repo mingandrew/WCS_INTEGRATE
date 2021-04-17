@@ -209,6 +209,40 @@
                        
                     </Grid>
                 </TabItem>
+                <TabItem Header="库存测试" Tag="stocktest">
+                    <Grid Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="10" Orientation="Horizontal">
+                            <TextBlock Text="轨道：" Style="{StaticResource TextBlockLarge}"/>
+                            <TextBlock Text="{Binding TrackName}" Style="{StaticResource TextBlockLarge}" Width="100"/>
+                            <Button Content="选择轨道" Style="{StaticResource ButtonPrimary}" Margin="10,0,20,0" Tag="selecttrack" Command="{Binding StockTestBtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <TextBlock Text="脉冲：" Style="{StaticResource TextBlockLarge}"/>
+                            <TextBox Text="{Binding StockPoint, Mode=OneWayToSource}" Width="120"/>
+                            <Button Content="获取库存" Style="{StaticResource ButtonPrimary}" Margin="20,0,0,0" Tag="getstocklist" Command="{Binding StockTestBtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </StackPanel>
+                        <Grid Grid.Row="1">
+                            <Grid Margin="5">
+                                <DataGrid Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                                  ItemsSource="{Binding StockList}"
+                                  SelectionUnit="FullRow" SelectionMode="Single"
+                                  CanUserAddRows="False" CanUserResizeColumns="False"
+                                  CanUserDeleteRows="False" CanUserSortColumns="False"
+                                  CanUserReorderColumns="False" AutoGenerateColumns="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Binding="{Binding id}" Header="标识" Width="*"/>
+                                        <DataGridTextColumn Binding="{Binding produce_time}" Header="生产时间" Width="*"/>
+                                        <DataGridTextColumn Binding="{Binding location}" Header="脉冲" Width="*"/>
+                                        <DataGridTextColumn Binding="{Binding pos}" Header="位置" Width="*"/>
+                                        <DataGridTextColumn Binding="{Binding PosType}" Header="位置" Width="*"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </TabItem>
             </TabControl>
         </Grid>
     </Grid>

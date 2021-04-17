@@ -47,6 +47,36 @@ namespace tool.appconfig
             }
             SaveDebugConfig();
             #endregion
+
+
+            #region[模拟系统设备信息]
+            if (DebugConfig.IsDebug)
+            {
+                if (File.Exists(SimulateConfig.SavePath))
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(SimulateConfig.SavePath);
+                        SimulateConfig = (string.IsNullOrEmpty(json) ? new SimulateConfig() : JsonConvert.DeserializeObject<SimulateConfig>(json)) ?? new SimulateConfig();
+                    }
+                    catch
+                    {
+                        SimulateConfig = new SimulateConfig();
+                    }
+                }
+                else
+                {
+                    SimulateConfig = new SimulateConfig();
+                }
+                SaveSimulateConfig();
+            }
+            else
+            {
+                SimulateConfig = new SimulateConfig();
+            }
+            #endregion
+
+
         }
 
         public static void SaveMysqlConfig()
@@ -98,10 +128,36 @@ namespace tool.appconfig
             {
 
             }
-            
+        }
+
+        public static void SaveSimulateConfig()
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(SimulateConfig);
+                if (!Directory.Exists(SimulateConfig.Path))
+                {
+                    Directory.CreateDirectory(SimulateConfig.Path);
+                }
+                using (FileStream fs = new FileStream(SimulateConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    fs.Seek(fs.Length, SeekOrigin.Current);
+
+                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+
+                    fs.Write(data, 0, data.Length);
+
+                    fs.Close();
+                }
+            }
+            catch (Exception e)
+            {
+
+            }
         }
 
         public static MysqlConfig MysqlConfig { get; set; }
         public static DebugConfig DebugConfig { get; set; }
+        public static SimulateConfig SimulateConfig { get; set; }
     }
 }

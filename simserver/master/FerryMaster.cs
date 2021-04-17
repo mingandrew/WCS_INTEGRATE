@@ -11,6 +11,7 @@ using simtask.task;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using tool.appconfig;
 
 namespace simtask.master
 {
@@ -64,6 +65,17 @@ namespace simtask.master
             Refreshing = false;
             _mRefresh?.Abort();
             mServer?.Stop();
+
+            #region[保存模拟信息]
+            try
+            {
+                foreach (var item in DevList)
+                {
+                    GlobalWcsDataConfig.SimulateConfig.UpdateSim(item.SaveSimulate());
+                }
+            }
+            catch { }
+            #endregion
         }
 
         public void ReStart()
@@ -204,8 +216,6 @@ namespace simtask.master
 
                 task.SetInitSiteAndPos(isdown, isup) ;
                 ServerSend(task.DevId, task.DevStatus);
-
-                PubMaster.Mod.DevConfigSql.EditSimFerryInitSite(task.DevConfig);
             }
         }
 
@@ -294,11 +304,10 @@ namespace simtask.master
                         task.DevConfig = devconfig;
                         task.DevId = mod.Devid;
                         task.DevStatus.ID = mod.Devid;
-                        task.DevStatus.UpSite = devconfig.sim_left_site;
-                        task.DevStatus.DownSite = devconfig.sim_right_site;
                         task.SetUpFerry();
                         bool isup = task.Device.Type == DeviceTypeE.上摆渡;
                         task.SetInitSiteAndPos(isup, !isup);
+                        task.SetUpSimulate(GlobalWcsDataConfig.SimulateConfig.GetSimFerry(dev.id));
                         DevList.Add(task);
                         SendDevMsg(task);
                     }
@@ -366,6 +375,6 @@ namespace simtask.master
             Messenger.Default.Send(task, MsgToken.SimDeviceStatusUpdate);
         }
 
-        #endregion
+        #endregion 
     }
 }

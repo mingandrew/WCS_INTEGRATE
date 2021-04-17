@@ -2,6 +2,7 @@
 using module.device;
 using module.deviceconfig;
 using System;
+using tool.appconfig;
 
 namespace simtask.task
 {
@@ -388,5 +389,39 @@ namespace simtask.task
         }
 
         #endregion
+        #region[模拟配置文件初始化]
+
+        internal void SetUpSimulate(SimTileLifter sim)
+        {
+            if (sim == null) return;
+            Working = sim.Working;
+            LastPiecesTime = sim.LastPiecesTime;
+            OnePiecesUsedTime = sim.OnePiecesUsedTime;
+            IsLeftWork = sim.IsLeftWork;
+            IsNeed_1 = sim.IsNeed_1;
+            IsNeed_2 = sim.IsNeed_2;
+            IsLoad_1 = sim.IsLoad_1;
+            IsLoad_2 = sim.IsLoad_2;
+            IsInvo_1 = sim.IsInvo_1;
+            IsInvo_2 = sim.IsInvo_2;
+        }
+
+        internal SimTileLifter SaveSimulate()
+        {
+            SimTileLifter sim = new SimTileLifter();
+            sim.DevId = ID;
+            sim.Working = Working;
+            sim.LastPiecesTime = LastPiecesTime;
+            sim.OnePiecesUsedTime = OnePiecesUsedTime;
+            sim.IsLeftWork = IsLeftWork;
+            sim.IsNeed_1 = IsNeed_1;
+            sim.IsNeed_2 = IsNeed_2;
+            sim.IsLoad_1 = IsLoad_1;
+            sim.IsLoad_2 = IsLoad_2;
+            sim.IsInvo_1 = IsInvo_1;
+            sim.IsInvo_2 = IsInvo_2;
+            return sim;
+        }
+            #endregion
     }
 }
