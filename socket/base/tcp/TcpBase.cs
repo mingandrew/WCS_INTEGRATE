@@ -32,7 +32,7 @@ namespace socket.tcp
         internal Timer m_RetryTimer;
 
         internal Log _mLog;
-        internal DateTime? LastSendTime;
+        //internal DateTime? LastSendTime;
         internal MTimer mTimer;
 
         internal object _senobj;

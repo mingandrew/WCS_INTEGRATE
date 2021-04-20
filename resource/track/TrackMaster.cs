@@ -19,8 +19,6 @@ namespace resource.track
     {
 
         #region[字段]
-        private bool Refreshing = true;
-        private Thread _mRefresh;
         private readonly object _obj;
         #endregion
 
@@ -73,8 +71,6 @@ namespace resource.track
 
         public void Stop()
         {
-            Refreshing = false;
-            _mRefresh?.Abort();
         }
         #endregion
 

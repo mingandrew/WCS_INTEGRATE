@@ -365,8 +365,9 @@ namespace task.device
 
             //重置小车执行任务
             if (OnGoingOrder != DevCarrierOrderE.无
-                && (OnGoingOrder == DevStatus.CurrentOrder || (DevStatus.OperateMode == DevOperateModeE.手动 && DevStatus.CurrentOrder == DevCarrierOrderE.终止指令))
-                && DevStatus.CurrentOrder == DevStatus.FinishOrder)
+                && ((OnGoingOrder == DevStatus.CurrentOrder && DevStatus.CurrentOrder == DevStatus.FinishOrder) 
+                    || (DevStatus.OperateMode == DevOperateModeE.手动 && DevStatus.CurrentOrder == DevCarrierOrderE.终止指令)) // 仅判断手动情况的终止
+                )
             {
                 OnGoingOrder = DevCarrierOrderE.无;
             }

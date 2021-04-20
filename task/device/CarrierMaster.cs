@@ -486,14 +486,36 @@ namespace task.device
                 {
                     task.DoStop();
                 }
+            }
+            #endregion
 
-                if (track != null)
+            #region [上下摆渡时终止摆渡车]
+            // 当前在摆渡上
+            if (track != null 
+                && task.OnGoingOrder!= DevCarrierOrderE.无
+                && task.OnGoingOrder!= DevCarrierOrderE.终止指令
+                )
+            {
+                if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
                 {
-                    if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
-                    {
-                        PubTask.Ferry.StopFerryByFerryTrackId(track.id);
-                    }
+                    PubTask.Ferry.StopFerryByFerryTrackId(track.id);
                 }
+            }
+
+            // 目的上摆渡
+            Track targettrack = PubMaster.Track.GetTrack(task.TargetTrackId);
+            if (targettrack != null && task.OnGoingOrder == DevCarrierOrderE.定位指令)
+            {
+                if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
+                {
+                    PubTask.Ferry.StopFerryByFerryTrackId(track.id);
+                }
+            }
+
+            // 上下摆渡状态，对上轨道的摆渡车全停
+            if (task.Position == DevCarrierPositionE.上下摆渡中)
+            {
+                PubTask.Ferry.StopFerryByTrackId(track.id);
             }
             #endregion
 
@@ -654,7 +676,7 @@ namespace task.device
                                     //&& (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
                                     //&& c.Status != DevCarrierStatusE.异常
                                     //&& c.CurrentOrder != c.FinishOrder
-                                    && (c.Status != DevCarrierStatusE.停止 || c.Position == DevCarrierPositionE.上下摆渡中)
+                                    && (c.Status != DevCarrierStatusE.停止 || c.Position == DevCarrierPositionE.上下摆渡中 || c.OnGoingOrder == DevCarrierOrderE.定位指令)
                                     );
         }
 
