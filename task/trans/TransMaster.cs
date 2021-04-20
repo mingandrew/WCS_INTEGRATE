@@ -4240,7 +4240,7 @@ namespace task.trans
                         && (c.stock_id == stockid
                         || c.take_track_id == trackid
                         || c.give_track_id == trackid));
-            }catch(Exception e)
+            }catch(Exception )
             {
 
             }
@@ -4261,7 +4261,7 @@ namespace task.trans
                         && c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
                         && (c.stock_id == stockid || c.InTrack(trackid)));
             }
-            catch (Exception e)
+            catch (Exception )
             {
 
             }

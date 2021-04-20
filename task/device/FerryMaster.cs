@@ -522,11 +522,7 @@ namespace task.device
 
         public bool StopFerry(uint id, out string result)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                result = "稍后再试！";
-                return false;
-            }
+            result = "";
             try
             {
                 FerryTask task = DevList.Find(c => c.ID == id);
@@ -535,13 +531,15 @@ namespace task.device
                     return false;
                 }
                 task.DoStop();
-                mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动终止", task.ID));
+                mlog.Info(true, string.Format(@"摆渡车[ {0} ],  强制终止", task.Device.name));
                 return true;
             }
-            finally
+            catch (Exception ex)
             {
-                Monitor.Exit(_obj);
+                result = string.Format(@"摆渡车强制终止异常:", ex);
+                mlog.Error(true, result);
             }
+            return false;
         }
 
         /// <summary>
@@ -640,7 +638,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 终止摆渡车
+        /// 终止摆渡车-by摆渡轨道ID
         /// </summary>
         /// <param name="trackid"></param>
         internal void StopFerryByFerryTrackId(uint trackid)
@@ -651,6 +649,31 @@ namespace task.device
                 StopFerry(ferryid, out string _);
             }
         }
+
+        /// <summary>
+        /// 终止摆渡车-by轨道ID
+        /// </summary>
+        /// <param name="trackid"></param>
+        internal void StopFerryByTrackId(uint trackid)
+        {
+            try
+            {
+                List<FerryTask> ferrys = DevList.FindAll(c => c.GetFerryCurrentTrackId() == trackid);
+                if (ferrys != null && ferrys.Count > 0)
+                {
+                    foreach (FerryTask item in ferrys)
+                    {
+                        item.DoStop();
+                        mlog.Info(true, string.Format(@"摆渡车[ {0} ],  强制终止", item.Device.name));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                mlog.Error(true, string.Format(@"摆渡车强制终止异常:", ex));
+            }
+        }
+
 
         public bool SetFerryPos(uint id, ushort ferry_code, int intpos, out string result)
         {
@@ -757,7 +780,7 @@ namespace task.device
                     && (task.DevStatus.CurrentTask == task.DevStatus.FinishTask // 当前&完成 一致
                         || task.DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
                         || task.DevStatus.CurrentTask == DevFerryTaskE.终止 // 当前终止就当它没作业
-                        //|| (task.DevStatus.CurrentTask == DevFerryTaskE.定位 && task.DevStatus.FinishTask == DevFerryTaskE.无) // 当前定位无完成就当它没作业
+                                                                          //|| (task.DevStatus.CurrentTask == DevFerryTaskE.定位 && task.DevStatus.FinishTask == DevFerryTaskE.无) // 当前定位无完成就当它没作业
                         ))
                 {
                     uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
@@ -1096,7 +1119,7 @@ namespace task.device
 
                 // 记录
                 mlog.Info(true, string.Format(@"定位车[ {0} & {1} ], _移序[ {2} - {3} ]_安全范围[ {4} ~ {5} ], 同坑内另一车[ {6} & {7} ]_移序[ {8} - {9} ]",
-                    task.ID, task.Device.name, fromOrder, toOrder, limitMin, limitMax, 
+                    task.ID, task.Device.name, fromOrder, toOrder, limitMin, limitMax,
                     other.ID, other.Device.name, otherOrder, otherToOrder));
 
                 #region 【交管判断】
@@ -1121,7 +1144,7 @@ namespace task.device
                             msg = string.Format("同坑内另一台车[ {0} & {1} ]: 已被交管中", other.ID, other.Device.name);
                             return true;
                         }
-                        
+
                         // 安全待命点不变
                         if (standbyOrder == otherOrder)
                         {
@@ -1479,7 +1502,7 @@ namespace task.device
                                     ferryid = ferry.ID;
                                 }
                             }
-                            
+
                             result = result + ferry.Device.name + ",";
                         }
                         result = result + "摆渡车不符合状态，不能分配，分配条件：【启用】【通讯正常】【没载车】【停止】【自动】【没有被分配到其他任务】";
@@ -1688,7 +1711,8 @@ namespace task.device
                         return false;
                     }
 
-                    if (task.Status == DevFerryStatusE.停止)
+                    if (task.Status == DevFerryStatusE.停止 &&
+                        (task.RecordTraId == 0 || task.RecordTraId.Equals(0) || task.RecordTraId.CompareTo(0) == 0)) // 没记录的目标点才算到位
                     {
                         return true;
                     }
