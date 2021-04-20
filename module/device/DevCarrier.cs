@@ -321,14 +321,34 @@ namespace module.device
             IsCurrentSiteUpdate = false;
         }
 
+        #region【用于记录小车维持/空闲时间】
+        /// </summary>
+        public bool lastFlag = false;
+        public DateTime freeTime = DateTime.Now;
+        double last_time = 0;
+        #endregion
+
         #region[日志]
 
         public override string ToString()
         {
+            if (DeviceStatus == DevCarrierStatusE.停止 && TargetSite == 0 && TargetPoint == 0 && OperateMode == DevOperateModeE.自动)
+            {
+                if (!lastFlag)
+                {
+                    lastFlag = true;
+                }
+                else
+                {
+                    last_time = DateTime.Now.Subtract(freeTime).TotalMinutes + last_time;
+                    freeTime = DateTime.Now;
+                    lastFlag = true;
+                }
+            }
             return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 指令[ {5} ], 完成[ {6} ], " +
-                "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ]",
-                DeviceStatus, CurrentSite, CurrentPoint, TargetSite, TargetPoint, CurrentOrder, FinishOrder,
-                LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount);
+               "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], 维持时间[ {15}分钟 ]",
+               DeviceStatus, CurrentSite, CurrentPoint, TargetSite, TargetPoint, CurrentOrder, FinishOrder,
+               LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount, last_time.ToString("0.0"));
         }
 
         /// <summary>
