@@ -1307,6 +1307,13 @@ namespace task.device
 
         #region[分配-运输车]
 
+        /// <summary>
+        /// 分配运输车
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="carrierid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public bool AllocateCarrier(StockTrans trans, out uint carrierid, out string result)
         {
             result = "";

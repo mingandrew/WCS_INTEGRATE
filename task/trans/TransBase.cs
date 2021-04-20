@@ -357,7 +357,8 @@ namespace task.trans
         /// <param name="isOK"></param>
         /// <param name="code">规则(随意不重复的2位数+TransStatusE + TransTypeE)</param>
         /// <param name="info"></param>
-        internal void SetStepLog(StockTrans trans, bool isOK, uint code, string info)
+        /// <param name="isRepeat">是否允许重复</param>
+        internal void SetStepLog(StockTrans trans, bool isOK, uint code, string info, bool isRepeat = false)
         {
             if (!string.IsNullOrEmpty(info))
             {
@@ -365,7 +366,7 @@ namespace task.trans
                 mLog.Info(true, string.Format("任务[ {0} ], 步骤[ {1} ({2}) ]-[ {3} ]", trans.id, trans.TransStaus, code, info));
 
                 // 界面显示
-                if (trans.LogStep(isOK, code, info))
+                if (trans.LogStep(isOK, code, info, isRepeat))
                 {
                     SendMsg(trans);
                 }
@@ -437,7 +438,7 @@ namespace task.trans
                 trans.load_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.LoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 95, string.Format("任务运输车取砖完毕；"));
+                SetStepLog(trans, true, 95, string.Format("运输车[ {0} ]取砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
             }
         }
 
@@ -449,7 +450,7 @@ namespace task.trans
                 trans.unload_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.UnLoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 94, string.Format("任务运输车卸砖完毕；"));
+                SetStepLog(trans, true, 94, string.Format("运输车[ {0} ]放砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
             }
         }
 

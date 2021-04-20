@@ -92,9 +92,16 @@ namespace module.goods
         /// <param name="info"></param>
         /// <param name="isOk"></param>
         /// <returns></returns>
-        public bool LogStep(bool isOk, uint code, string info)
+        public bool LogStep(bool isOk, uint code, string info, bool isRepeat)
         {
-            if (StepLog.StepCode == code)
+            // 重复code 且 不允许重复
+            if (StepLog.StepCode == code && !isRepeat)
+            {
+                return false;
+            }
+
+            // 允许重复，但内容没变
+            if (isRepeat && !string.IsNullOrEmpty(StepLog.StepInfo) && StepLog.StepInfo.Contains(info))
             {
                 return false;
             }
@@ -102,7 +109,6 @@ namespace module.goods
             // 信息格式
             string msg = string.Format(@"[{0}]>>{1}:[{2}]-{3}({4})
 ", DateTime.Now, TransStaus, isOk ? "✔" : "❌", info, code);
-
 
             StepLog.StepCode = code;
             StepLog.StepInfo = msg;

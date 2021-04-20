@@ -32,7 +32,6 @@ namespace wcs.Data.View
 
         private string tcmsg;//交管信息
 
-        private uint stepcode;//当前步骤编码
         private StringBuilder stepinfo = new StringBuilder();//当前步骤信息
 
         public uint Id
@@ -126,12 +125,6 @@ namespace wcs.Data.View
             set => tcmsg = value;
         }
 
-        public uint StepCode
-        {
-            get => stepcode;
-            set => stepcode = value;
-        }
-
         public string StepInfo
         {
             get => stepinfo.ToString();
@@ -164,9 +157,8 @@ namespace wcs.Data.View
             finish = trans.finish;
             finish_time = trans.finish_time;
 
-            if (trans.StepLog != null && trans.StepLog.StepCode != StepCode)
+            if (trans.StepLog != null)
             {
-                StepCode = trans.StepLog.StepCode;
                 StepInfo = trans.StepLog.StepInfo;
             }
 
