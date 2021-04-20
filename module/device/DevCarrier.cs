@@ -332,19 +332,35 @@ namespace module.device
 
         public override string ToString()
         {
+            #region[刷新小车维持/空闲时间]
+            //第二天则复位数据
+            if (DateTime.Now.Date != freeTime.Date)
+            {
+                last_time = 0;
+                freeTime = DateTime.Now;
+                lastFlag = false;
+            }
+
             if (DeviceStatus == DevCarrierStatusE.停止 && TargetSite == 0 && TargetPoint == 0 && OperateMode == DevOperateModeE.自动)
             {
                 if (!lastFlag)
                 {
                     lastFlag = true;
+                    freeTime = DateTime.Now;
                 }
                 else
                 {
                     last_time = DateTime.Now.Subtract(freeTime).TotalMinutes + last_time;
                     freeTime = DateTime.Now;
-                    lastFlag = true;
                 }
             }
+            else if (lastFlag)
+            {
+                last_time = DateTime.Now.Subtract(freeTime).TotalMinutes + last_time;
+                lastFlag = false;
+            }
+            #endregion
+
             return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 指令[ {5} ], 完成[ {6} ], " +
                "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], 维持时间[ {15}分钟 ]",
                DeviceStatus, CurrentSite, CurrentPoint, TargetSite, TargetPoint, CurrentOrder, FinishOrder,
