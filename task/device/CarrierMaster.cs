@@ -506,14 +506,14 @@ namespace task.device
             Track targettrack = PubMaster.Track.GetTrack(task.TargetTrackId);
             if (targettrack != null && task.OnGoingOrder == DevCarrierOrderE.定位指令)
             {
-                if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
+                if (targettrack.Type == TrackTypeE.摆渡车_入 || targettrack.Type == TrackTypeE.摆渡车_出)
                 {
-                    PubTask.Ferry.StopFerryByFerryTrackId(track.id);
+                    PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id);
                 }
             }
 
             // 上下摆渡状态，对上轨道的摆渡车全停
-            if (task.Position == DevCarrierPositionE.上下摆渡中)
+            if (track != null && task.Position == DevCarrierPositionE.上下摆渡中)
             {
                 PubTask.Ferry.StopFerryByTrackId(track.id);
             }
