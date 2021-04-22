@@ -4257,9 +4257,11 @@ namespace task.trans
         {
             try
             {
+                //是否忽略倒库任务绑定的轨道
+                bool ignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
                 return TransList.Exists(c => !c.finish
-                        && c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
-                        && (c.stock_id == stockid || c.InTrack(trackid)));
+                            && (!ignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
+                            && (c.stock_id == stockid || c.InTrack(trackid)));
             }
             catch (Exception )
             {
