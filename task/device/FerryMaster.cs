@@ -165,13 +165,13 @@ namespace task.device
                                 //上砖测轨道ID 或 下砖测轨道ID
                                 if (task.IsUpLight && task.UpTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
                                 {
-                                    task.DoStop();
+                                    task.DoStop("上定位到位");
                                     Thread.Sleep(1000);
                                 }
 
                                 if (task.IsDownLight && task.DownTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
                                 {
-                                    task.DoStop();
+                                    task.DoStop("下定位到位");
                                     Thread.Sleep(1000);
                                 }
                             }
@@ -520,6 +520,12 @@ namespace task.device
             finally { Monitor.Exit(_obj); }
         }
 
+        /// <summary>
+        /// 终止摆渡车
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public bool StopFerry(uint id, out string result)
         {
             result = "";
@@ -530,7 +536,7 @@ namespace task.device
                 {
                     return false;
                 }
-                task.DoStop();
+                task.DoStop("终止摆渡车");
                 mlog.Info(true, string.Format(@"摆渡车[ {0} ],  强制终止", task.Device.name));
                 return true;
             }
@@ -614,7 +620,7 @@ namespace task.device
 
                     if (!IsAllowToMove(task, out result))
                     {
-                        task.DoStop();
+                        task.DoStop("不允许定位");
                         return false;
                     }
 
@@ -663,7 +669,7 @@ namespace task.device
                 {
                     foreach (FerryTask item in ferrys)
                     {
-                        item.DoStop();
+                        item.DoStop("终止摆渡车-by轨道ID");
                         mlog.Info(true, string.Format(@"摆渡车[ {0} ],  强制终止", item.Device.name));
                     }
                 }
@@ -719,7 +725,7 @@ namespace task.device
 
                 if (!IsAllowToMove(task, out result))
                 {
-                    task.DoStop();
+                    task.DoStop("摆渡车复位原点");
                     return false;
                 }
 
@@ -788,7 +794,7 @@ namespace task.device
                         && trid != to_track_id)
                     {
                         Thread.Sleep(500);
-                        task.DoStop();
+                        task.DoStop("自动流程中摆渡车定位1");
                         result = string.Format("[ {0} & {1} ]: 消除残留目标点", task.ID, task.Device.name);
                         return false;
                     }
@@ -804,7 +810,7 @@ namespace task.device
                         else
                         {
                             Thread.Sleep(500);
-                            task.DoStop();
+                            task.DoStop("自动流程中摆渡车定位2");
                             result = string.Format("[ {0} & {1} ]: 到位执行终止", task.ID, task.Device.name);
                         }
 
@@ -821,7 +827,7 @@ namespace task.device
                         else
                         {
                             Thread.Sleep(500);
-                            task.DoStop();
+                            task.DoStop("自动流程中摆渡车定位3");
                             result = string.Format("[ {0} & {1} ]: 到位执行终止", task.ID, task.Device.name);
                         }
 
