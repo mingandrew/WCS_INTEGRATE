@@ -2003,6 +2003,21 @@ namespace task.device
                     {
                         if (brotaskin.IsNeed_2) return false;//右轨道检查需求2
                     }
+
+                    #region[开关-启用砖机的-满砖信号]
+                    if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+                    {
+                        if (checkleft)
+                        {
+                            if (brotaskin.LoadStatus1 != DevLifterLoadE.满砖) return false;//左轨道检查满装状态1
+                        }
+                        else
+                        {
+                            if (brotaskin.LoadStatus2 != DevLifterLoadE.满砖) return false;//右轨道检查满砖状态2
+                        }
+                    }
+                    #endregion
+
                     return true;
                 }
                 return true;
@@ -2012,6 +2027,26 @@ namespace task.device
             if (brotask == null) return false;
             if (brotask.ConnStatus == SocketConnectStatusE.通信正常)
             {
+                #region[开关-启用砖机的-满砖信号]
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+                {
+                    if (checkleft)
+                    {
+                        if (task.LoadStatus2 == DevLifterLoadE.满砖 && brotask.IsEmpty_2)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (task.LoadStatus1 == DevLifterLoadE.满砖 && brotask.IsEmpty_1)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                #endregion
+
                 if (checkleft)
                 {
                     if ((brotask.IsNeed_1 || brotask.IsInvo_1) && brotask.IsEmpty_1) return true;//如果兄弟砖机左工位有需求或介入且无砖，就可以生成出库任务                       

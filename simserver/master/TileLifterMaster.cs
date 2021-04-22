@@ -295,6 +295,7 @@ namespace simtask.master
                                 task.DevStatus.Need1 = false;
                                 task.DevStatus.Load1 = true;
                                 task.DevStatus.Site1Qty = task.DevStatus.FullQty;
+                                task.DevStatus.LoadStatus1 = DevLifterLoadE.满砖;
                             }
                             task.IsInvo_1 = false;
                         }
@@ -332,6 +333,7 @@ namespace simtask.master
                                 task.DevStatus.Need2 = false;
                                 task.DevStatus.Load2 = true;
                                 task.DevStatus.Site2Qty = task.DevStatus.FullQty;
+                                task.DevStatus.LoadStatus2 = DevLifterLoadE.满砖;
                             }
                             task.IsInvo_2 = false;
                         }

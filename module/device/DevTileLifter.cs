@@ -6,8 +6,8 @@ namespace module.device
     {
         #region[字段]
         private byte deviceid;      //设备号
-        private bool loadstatus1;   //货物状态1 左
-        private bool isload2;       //货物状态2 右
+        private byte loadstatus1;   //货物状态1 左
+        private byte isload2;       //货物状态2 右
         private bool isneed1;       //需求信号1 左
         private bool isneed2;       //需求信号2 右
         private byte fullqty;       //满砖数量
@@ -49,8 +49,14 @@ namespace module.device
         /// </summary>
         public bool Load1
         {
-            set => Set(ref loadstatus1, value);
-            get => loadstatus1;
+            set => Set(ref loadstatus1, (byte)(value ? 1 : 0));
+            get => LoadStatus1 != DevLifterLoadE.无砖;
+        }
+
+        public DevLifterLoadE LoadStatus1
+        {
+            set => Set(ref loadstatus1, (byte)value);
+            get => (DevLifterLoadE)loadstatus1;
         }
 
         /// <summary>
@@ -58,8 +64,14 @@ namespace module.device
         /// </summary>
         public bool Load2
         {
-            set => Set(ref isload2,value);
-            get => isload2;
+            set => Set(ref isload2, (byte)(value ? 1 : 0));
+            get => LoadStatus2 != DevLifterLoadE.无砖;
+        }
+
+        public DevLifterLoadE LoadStatus2
+        {
+            set => Set(ref isload2, (byte)value);
+            get => (DevLifterLoadE)isload2;
         }
 
         /// <summary>
@@ -216,7 +228,7 @@ namespace module.device
         {
             return string.Format("物1[ {0} ], 物2[ {1} ], 需1[ {2} ], 需2[ {3} ], 满[ {4} ], 工1[ {5} ], 工1[ {6} ], 介1[ {7} ], 介2[ {8} ], 操作[ {9} ], " +
                 "位1[ {10} ], 位2[ {11} ], 转产[ {12} ], 接收[ {13} ], 模式[ {14} ], 设定品种[ {15} ], 设定等级[ {16} ], 转产信号[ {17} ], 备用设备[ {18} ]", 
-                S(Load1), S(Load2), S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,  
+                LoadStatus1, LoadStatus2, S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,  
                 Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel, S(NeedSytemShift), BackupShiftDev);
         }
 
