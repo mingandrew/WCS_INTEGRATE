@@ -2153,8 +2153,8 @@ namespace task.trans
                                 && (carrier.DevStatus.CurrentSite % 100 == 0
                                 || carrier.Position == DevCarrierPositionE.上下摆渡中))
                             {
-                                carrier.DoStopNow();
-                                carrier.DoStopNow();
+                                carrier.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "倒库接近极限"));
+                                carrier.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "倒库接近极限"));
                                 PubMaster.Device.SetDevWorking(carrier.ID, false, out DeviceTypeE _, "倒库接近极限");
                                 PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceSortRunOutTrack, (ushort)carrier.ID, trans.id, track.id);
                             }
