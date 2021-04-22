@@ -618,14 +618,6 @@ namespace task.device
                         return false;
                     }
 
-                    // 检查是否存在目的位置移动
-                    if (task.RecordTraId > 0)
-                    {
-                        result = string.Format("摆渡车正移至[ {0} ]，等待到位完成或执行终止",
-                            PubMaster.Track.GetTrackName(task.RecordTraId));
-                        return false;
-                    }
-
                     // 避让不让发指令
                     if (ExistsAvoid(task, trackid, out result, false))
                     {
@@ -731,14 +723,6 @@ namespace task.device
                     return false;
                 }
 
-                // 检查是否存在目的位置移动
-                if (task.RecordTraId > 0)
-                {
-                    result = string.Format("摆渡车正移至[ {0} ]，等待到位完成或执行终止",
-                        PubMaster.Track.GetTrackName(task.RecordTraId));
-                    return false;
-                }
-
                 task.DoReSet(resettype);
                 mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动复位[ {1} ]", task.ID, resettype));
                 return true;
@@ -789,14 +773,6 @@ namespace task.device
             {
                 if (!IsAllowToMove(task, out result))
                 {
-                    return false;
-                }
-
-                // 检查是否存在目的位置移动
-                if (task.RecordTraId > 0)
-                {
-                    result = string.Format("摆渡车正移至[ {0} ]，等待到位完成或执行终止",
-                        PubMaster.Track.GetTrackName(task.RecordTraId));
                     return false;
                 }
 
@@ -1753,6 +1729,14 @@ namespace task.device
             }
             if (!IsLoadOrEmpty(task, out result))
             {
+                return false;
+            }
+
+            // 检查是否存在目的位置移动
+            if (task.RecordTraId > 0)
+            {
+                result = string.Format("摆渡车正移至[ {0} ]，等待到位完成或执行终止",
+                    PubMaster.Track.GetTrackName(task.RecordTraId));
                 return false;
             }
 
