@@ -277,7 +277,7 @@ namespace socket.tcp
             byte[] pdata = new byte[SocketConst.FERRY_STATUS_SIZE];
             Array.Copy(data, 0, pdata, 0, SocketConst.FERRY_STATUS_SIZE);
             IDevice device = mProcess.GetStatus(pdata);
-            if (device.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, (int)DevID, 5))
+            if (device.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, DevID, 5))
             {
                 SendMsg(SocketMsgTypeE.DataReiceive, SocketConnectStatusE.通信正常, device);
                 if (device.IsUpdate) _mLog.Status(true, device.ToString());

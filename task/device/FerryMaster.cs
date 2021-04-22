@@ -782,16 +782,10 @@ namespace task.device
                     return false;
                 }
 
-                if (task.Status == DevFerryStatusE.停止
-                    && (task.DevStatus.CurrentTask == task.DevStatus.FinishTask // 当前&完成 一致
-                        || task.DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
-                        || task.DevStatus.CurrentTask == DevFerryTaskE.终止 // 当前终止就当它没作业
-                                                                          //|| (task.DevStatus.CurrentTask == DevFerryTaskE.定位 && task.DevStatus.FinishTask == DevFerryTaskE.无) // 当前定位无完成就当它没作业
-                        ))
+                if (task.Status == DevFerryStatusE.停止 && task.IsNotDoingTask)
                 {
                     uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
-                    if (task.DevStatus.TargetSite != 0
-                        && trid != to_track_id)
+                    if (task.DevStatus.TargetSite != 0 && trid != to_track_id)
                     {
                         Thread.Sleep(500);
                         task.DoStop("自动流程中摆渡车定位1");
@@ -810,12 +804,13 @@ namespace task.device
                         else
                         {
                             Thread.Sleep(500);
-                            task.DoStop("自动流程中摆渡车定位2");
+                            task.DoStop("自动流程中摆渡车定位完成2");
                             result = string.Format("[ {0} & {1} ]: 到位执行终止", task.ID, task.Device.name);
                         }
 
                         return false;
                     }
+
                     // 下砖测轨道ID 后侧
                     if (task.DownTrackId == to_track_id && task.IsDownLight)
                     {
@@ -827,7 +822,7 @@ namespace task.device
                         else
                         {
                             Thread.Sleep(500);
-                            task.DoStop("自动流程中摆渡车定位3");
+                            task.DoStop("自动流程中摆渡车定位完成3");
                             result = string.Format("[ {0} & {1} ]: 到位执行终止", task.ID, task.Device.name);
                         }
 

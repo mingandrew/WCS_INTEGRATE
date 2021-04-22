@@ -1412,7 +1412,10 @@ namespace task.trans
                             if (!tileemptyneed
                                 && PubTask.Carrier.IsCarrierFree(trans.carrier_id))
                             {
-                                if (CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id))
+                                if (CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id)
+                                    || PubMaster.Goods.IsTrackHaveStockInTopPosition(trans.take_track_id)
+                                    || PubTask.Carrier.HaveCarrierMoveTopInTrackUpTop(trans.carrier_id, trans.take_track_id)
+                                    || mTimer.IsTimeOutAndReset(TimerTag.TileNeedCancel, trans.id, 20))
                                 {
                                     // 优先移动到空轨道
                                     List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
@@ -1447,12 +1450,39 @@ namespace task.trans
                                         PubMaster.Device.GetDeviceName(trans.carrier_id)));
                                     #endregion
                                 }
-                                else
-                                {
-                                    SetStatus(trans, TransStatusE.取消, "工位非无货需求，取消任务");
-                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
-                                    return;
-                                }
+                                //else
+                                //{
+                                //    SetStatus(trans, TransStatusE.取消);
+                                //    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
+                                //    return;
+                                //}
+
+                                #region[旧-逻辑直接返回原轨道]
+                                //if (isnotload)
+                                //{
+                                //    //摆渡车接车
+                                //    if (LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out string _))
+                                //    {
+                                //        //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.后退取砖);
+                                //        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                //        {
+                                //            Order = DevCarrierOrderE.取砖指令,
+                                //            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
+                                //            ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
+                                //        });
+
+                                //        return;
+                                //    }
+                                //}
+
+                                //if (PubTask.Ferry.IsStop(trans.take_ferry_id)
+                                //    && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 200, 50)
+                                //    && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                                //{
+                                //    SetStatus(trans, TransStatusE.取消);
+                                //    return;
+                                //}
+                                #endregion
                             }
 
                             if (tileemptyneed)
@@ -5370,6 +5400,7 @@ namespace task.trans
 
             return true;
         }
+
         #endregion
     }
 }

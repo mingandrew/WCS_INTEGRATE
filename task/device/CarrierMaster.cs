@@ -1645,6 +1645,7 @@ namespace task.device
         }
 
 
+
         /// <summary>
         /// 根据交易信息分配运输车
         /// 1.取货轨道是否有车
@@ -2106,7 +2107,8 @@ namespace task.device
             if (carrier.ConnStatus == SocketConnectStatusE.通信正常
                     && carrier.Status == DevCarrierStatusE.停止
                     //&& carrier.OperateMode == DevOperateModeE.自动  // 非自动状态应该也要分配小车
-                    && (carrier.CurrentOrder == carrier.FinishOrder || carrier.CurrentOrder == DevCarrierOrderE.无)
+                    && carrier.IsNotDoingTask
+                    //&& (carrier.CurrentOrder == carrier.FinishOrder || carrier.CurrentOrder == DevCarrierOrderE.无)
                     )
             {
                 return true;
@@ -2165,6 +2167,7 @@ namespace task.device
         {
             return DevList.Find(c => c.ID == devId)?.DevStatus?.CurrentSite ?? 0;
         }
+        
         /// <summary>
         /// 获取当前坐标值
         /// </summary>
@@ -2300,7 +2303,6 @@ namespace task.device
             return false;
         }
 
-
         /// <summary>
         /// 判断是否有定位到轨道的小车
         /// </summary>
@@ -2331,6 +2333,27 @@ namespace task.device
                                     && c.OperateMode == DevOperateModeE.自动
                                     && ((site > 0 && c.TargetSite == site) || (point > 0 && c.TargetPoint == point))
                                     );
+        }
+
+        /// <summary>
+        /// 是否有车移动顶部的库存前往轨道头部
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="take_track_id"></param>
+        /// <returns></returns>
+        public bool HaveCarrierMoveTopInTrackUpTop(uint carrier_id, uint track_id)
+        {
+            List<CarrierTask> carriers = DevList.FindAll(c => c.ID != carrier_id && c.CurrentTrackId == track_id && c.IsLoad());
+            foreach (var item in carriers)
+            {
+                uint stockid = item.DevConfig.stock_id;
+                if(stockid != 0 && PubMaster.Goods.IsTopStock(stockid))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
         #endregion
 

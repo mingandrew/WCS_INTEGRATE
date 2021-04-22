@@ -3,7 +3,7 @@ namespace module.device
 {
     public class IDevice
     {
-        public int ID { set; get; }
+        public uint ID { set; get; }
 
         public bool IsUpdate { set; get; }
 

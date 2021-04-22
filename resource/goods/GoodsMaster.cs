@@ -2604,7 +2604,7 @@ namespace resource.goods
         public bool IsTrackHaveStockInTopPosition(uint track_id)
         {
             Track track = PubMaster.Track.GetTrack(track_id);
-            return StockList.Exists(c => c.track_id == track_id && c.IsInLocation(track.limit_point_up, 50));
+            return StockList.Exists(c => c.track_id == track_id && c.IsInLocation(track.limit_point_up, 500));
         }
 
         #endregion
@@ -2726,6 +2726,16 @@ namespace resource.goods
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 判断库存是否是头部库存信息
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        public bool IsTopStock(uint stockid)
+        {
+            return StockList.Exists(c => c.id == stockid && c.PosType == StockPosE.头部);
         }
 
         /// <summary>
