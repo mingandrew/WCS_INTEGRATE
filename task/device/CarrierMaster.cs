@@ -117,6 +117,39 @@ namespace task.device
                                         }
                                     }
                                 }
+
+                                #region [上下摆渡时终止摆渡车]
+                                Track track = PubMaster.Track.GetTrack(task.CurrentTrackId);
+
+                                // 当前在摆渡上
+                                if (track != null
+                                    && task.OnGoingOrder != DevCarrierOrderE.无
+                                    && task.OnGoingOrder != DevCarrierOrderE.终止指令
+                                    )
+                                {
+                                    if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
+                                    {
+                                        PubTask.Ferry.StopFerryByFerryTrackId(track.id);
+                                    }
+                                }
+
+                                // 目的上摆渡
+                                Track targettrack = PubMaster.Track.GetTrack(task.TargetTrackId);
+                                if (targettrack != null && task.OnGoingOrder == DevCarrierOrderE.定位指令)
+                                {
+                                    if (targettrack.Type == TrackTypeE.摆渡车_入 || targettrack.Type == TrackTypeE.摆渡车_出)
+                                    {
+                                        PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id);
+                                    }
+                                }
+
+                                // 上下摆渡状态，对上轨道的摆渡车全停
+                                if (track != null && task.Position == DevCarrierPositionE.上下摆渡中)
+                                {
+                                    PubTask.Ferry.StopFerryByTrackId(track.id);
+                                }
+                                #endregion
+
                             }
 
                             #region 断线重连
@@ -162,7 +195,7 @@ namespace task.device
                 {
                     mlog.Error(true, e.Message, e);
                 }
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
         }
 
@@ -486,36 +519,6 @@ namespace task.device
                 {
                     task.DoStop();
                 }
-            }
-            #endregion
-
-            #region [上下摆渡时终止摆渡车]
-            // 当前在摆渡上
-            if (track != null 
-                && task.OnGoingOrder!= DevCarrierOrderE.无
-                && task.OnGoingOrder!= DevCarrierOrderE.终止指令
-                )
-            {
-                if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
-                {
-                    PubTask.Ferry.StopFerryByFerryTrackId(track.id);
-                }
-            }
-
-            // 目的上摆渡
-            Track targettrack = PubMaster.Track.GetTrack(task.TargetTrackId);
-            if (targettrack != null && task.OnGoingOrder == DevCarrierOrderE.定位指令)
-            {
-                if (targettrack.Type == TrackTypeE.摆渡车_入 || targettrack.Type == TrackTypeE.摆渡车_出)
-                {
-                    PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id);
-                }
-            }
-
-            // 上下摆渡状态，对上轨道的摆渡车全停
-            if (track != null && task.Position == DevCarrierPositionE.上下摆渡中)
-            {
-                PubTask.Ferry.StopFerryByTrackId(track.id);
             }
             #endregion
 

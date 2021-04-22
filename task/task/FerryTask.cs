@@ -213,6 +213,12 @@ namespace task.task
         /// <param name="recodeTraid"></param>
         internal void DoLocate(ushort trackcode, uint ltrack, uint recodeTraid)
         {
+            // 记录点未清零，不发其他定位
+            if (RecordTraId > 0) return;
+
+            // 记录目标点
+            RecordTraId = recodeTraid;
+
             int speed = 2; // 快速移动
 
             if (DevStatus.LoadStatus != DevFerryLoadE.空)
@@ -222,9 +228,6 @@ namespace task.task
                     speed = 1; // 慢速移动
                 }
             }
-
-            // 记录目标点
-            RecordTraId = recodeTraid;
 
             byte[] b = BitConverter.GetBytes(trackcode);
             DevTcp?.SendCmd(DevFerryCmdE.定位, b[1], b[0], speed);
