@@ -785,8 +785,7 @@ namespace task.device
                 {
                     uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
                     if (task.DevStatus.TargetSite != 0
-                        && trid != to_track_id
-                        && trid != task.RecordTraId)
+                        && trid != to_track_id)
                     {
                         Thread.Sleep(500);
                         task.DoStop();

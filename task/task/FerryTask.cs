@@ -218,6 +218,7 @@ namespace task.task
 
             // 记录目标点
             RecordTraId = recodeTraid;
+            DevTcp.AddStatusLog(string.Format("记录目标[ {0} ]", PubMaster.Track.GetTrackName(RecordTraId)));
 
             int speed = 2; // 快速移动
 
@@ -250,6 +251,7 @@ namespace task.task
         {
             DevTcp?.SendCmd(DevFerryCmdE.原点复位, (byte)resetpos, 0, 0);
             RecordTraId = 0;
+            DevTcp.AddStatusLog(string.Format("复位-清除记录目标"));
 
             //发送原点指令同时重新写入已经对位的数据
             if (!IsSendAll)
@@ -263,6 +265,7 @@ namespace task.task
             DevTcp?.SendCmd(DevFerryCmdE.终止任务, 0, 0, 0);
             // 清除 记录目标点
             RecordTraId = 0;
+            DevTcp.AddStatusLog(string.Format("终止-清除记录目标"));
         }
 
         internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber)
