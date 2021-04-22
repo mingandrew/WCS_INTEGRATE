@@ -158,6 +158,19 @@ namespace task.device
                 _ongoingorder = value;
             }
         }
+
+        public void SetOnGoingOrderWithMemo(DevCarrierOrderE order, string memo)
+        {
+            if (_ongoingorder != order)
+            {
+                if (order != DevCarrierOrderE.无)
+                {
+                    DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ], {1}", order, memo));
+                }
+            }
+            _ongoingorder = order;
+        }
+
         private DevCarrierOrderE _ongoingorder = DevCarrierOrderE.无;
 
         #endregion
@@ -318,9 +331,16 @@ namespace task.device
         /// <param name="overRFID">结束RFID</param>
         /// <param name="overSite">结束坐标</param>
         /// <param name="moveCount">倒库数量</param>
-        internal void DoOrder(CarrierActionOrder cao)
+        internal void DoOrder(CarrierActionOrder cao, string memo = null)
         {
-            OnGoingOrder = cao.Order;
+            if(memo != null)
+            {
+                SetOnGoingOrderWithMemo(cao.Order, memo);
+            }
+            else
+            {
+                OnGoingOrder = cao.Order;
+            }
             DevTcp?.SendCmd(DevCarrierCmdE.执行指令, cao.Order, cao.CheckTra, cao.ToRFID, cao.ToSite, cao.OverRFID, cao.OverSite, cao.MoveCount);
         }
 
@@ -337,16 +357,10 @@ namespace task.device
         /// <summary>
         /// 终止指令
         /// </summary>
-        internal void DoStop()
+        internal void DoStop(string memo)
         {
-            OnGoingOrder = DevCarrierOrderE.终止指令;
+            SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, memo);
             DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
-        }
-
-        internal void DoStopNow()
-        {
-            OnGoingOrder = DevCarrierOrderE.终止指令;
-            DevTcp?.SendCmdNow(DevCarrierCmdE.终止指令);
         }
 
         #endregion

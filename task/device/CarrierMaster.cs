@@ -112,7 +112,7 @@ namespace task.device
                                         // 判断是否有摆渡车
                                         if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetSite, out string result, true))
                                         {
-                                            task.DoStop();
+                                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 其他[ {2} ]", "摆渡车状态不对", tt, result));
                                             Thread.Sleep(500);
                                         }
                                     }
@@ -517,7 +517,7 @@ namespace task.device
             {
                 if (task.CurrentOrder != DevCarrierOrderE.终止指令 && task.CurrentOrder != DevCarrierOrderE.无)
                 {
-                    task.DoStop();
+                    task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 指令[ {2} ]", "手动操作小车", track?.Type, task.CurrentOrder));
                 }
             }
             #endregion
@@ -1249,26 +1249,17 @@ namespace task.device
                     CarrierTask task = DevList.Find(c => c.ID == devid);
                     if (task != null)
                     {
-                        if (memo != null)
-                        {
-                            try
-                            {
-                                task.DevTcp.AddStatusLog(memo);
-                            }
-                            catch { }
-                        }
-
                         // 手动中的直接终止
                         if (task.OperateMode == DevOperateModeE.手动 || cao.Order == DevCarrierOrderE.终止指令)
                         {
-                            task.DoStop();
+                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 模式[ {1} ], 指令[ {2} ]", "手动/终止指令", task.OperateMode, cao.Order));
                             return;
                         }
 
                         // 连续同类型指令 需要先终止 - 待 PLC 后续优化
                         if (task.CurrentOrder == cao.Order)
                         {
-                            task.DoStop();
+                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "发送同指令", cao.Order));
                             return;
                         }
 
@@ -1282,7 +1273,7 @@ namespace task.device
                             cao.OverSite = 0;
                         }
 
-                        task.DoOrder(cao);
+                        task.DoOrder(cao, memo);
                     }
                 }
                 finally { Monitor.Exit(_obj); }
