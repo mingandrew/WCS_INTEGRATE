@@ -1378,7 +1378,7 @@ namespace task.device
                     {
                         PubMaster.Warn.RemoveTaskWarn(WarningTypeE.FailAllocateCarrier, trans.id);
                     }
-                    else if (!IsGetCarrier && mTimer.IsOver(TimerTag.FailAllocateCarrier, trans.take_track_id, 10, 5))
+                    else if (!IsGetCarrier && mTimer.IsOver(TimerTag.FailAllocateCarrier, trans.id, 10, 5))
                     {
                         PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateCarrier, (ushort)trans.tilelifter_id, trans.id, result);
                     }
@@ -2034,7 +2034,7 @@ namespace task.device
                     }
                 }
 
-                if (carNames == "")
+                if (string.IsNullOrEmpty(carNames))
                 {
                     result = string.Format("{0}砖机分配的储砖轨道里没有符合状态的运输车，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】",
                                 PubMaster.Device.GetDeviceName(trans.tilelifter_id), PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
