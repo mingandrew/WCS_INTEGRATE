@@ -295,6 +295,7 @@ namespace simtask.master
                                 task.DevStatus.Need1 = false;
                                 task.DevStatus.Load1 = true;
                                 task.DevStatus.Site1Qty = task.DevStatus.FullQty;
+                                task.DevStatus.Goods1 = 0;
                             }
                             task.IsInvo_1 = false;
                         }
@@ -315,6 +316,7 @@ namespace simtask.master
                                 task.DevStatus.Need2 = false;
                                 task.DevStatus.Load2 = false;
                                 task.DevStatus.Site2Qty = 0;
+                                task.DevStatus.Goods2 = 0;
                             }
                             task.IsInvo_2 = false;
                         }

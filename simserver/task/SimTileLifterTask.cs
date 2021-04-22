@@ -180,6 +180,7 @@ namespace simtask.task
                     {
                         if (!DevStatus.Involve1)
                         {
+                            DevStatus.Goods1 = DevStatus.SetGoods;
                             DevStatus.Load1 = true;
                             DevStatus.Need1 = true;
                         }

@@ -328,7 +328,7 @@ namespace simtask
                         //从摆渡车进入轨道的过程
                         if(NowTrack != null && EndTrack != null
                             && NowTrack.id != EndTrack.id
-                            && Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20)
+                            && (DevStatus.CurrentPoint < EndTrack.limit_point_up || Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20))
                         {
                             SetNowTrack(EndTrack, EndTrack.rfid_1);
                         }
@@ -553,7 +553,7 @@ namespace simtask
                     //从摆渡车进入轨道的过程
                     if (EndTrack != null && NowTrack != null
                         && NowTrack.id != EndTrack.id
-                        && Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20)
+                        && (DevStatus.CurrentPoint < EndTrack.limit_point_up || Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20))
                     {
                         SetNowTrack(EndTrack, EndTrack.rfid_1);
                     }
