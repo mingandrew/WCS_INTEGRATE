@@ -1184,7 +1184,10 @@ namespace task.trans
                             if (!tileemptyneed
                                 && PubTask.Carrier.IsCarrierFree(trans.carrier_id))
                             {
-                                if (CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id))
+                                if (CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id)
+                                    || PubMaster.Goods.IsTrackHaveStockInTopPosition(trans.take_track_id)
+                                    || PubTask.Carrier.HaveCarrierMoveTopInTrackUpTop(trans.carrier_id, trans.take_track_id)
+                                    || mTimer.IsTimeOutAndReset(TimerTag.TileNeedCancel, trans.id, 20))
                                 {
                                     // 优先移动到空轨道
                                     List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
@@ -1214,12 +1217,12 @@ namespace task.trans
 
                                     PubMaster.Warn.AddDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id, trans.id);
                                 }
-                                else
-                                {
-                                    SetStatus(trans, TransStatusE.取消);
-                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
-                                    return;
-                                }
+                                //else
+                                //{
+                                //    SetStatus(trans, TransStatusE.取消);
+                                //    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
+                                //    return;
+                                //}
 
                                 #region[旧-逻辑直接返回原轨道]
                                 //if (isnotload)
@@ -5041,6 +5044,7 @@ namespace task.trans
 
             return true;
         }
+
         #endregion
     }
 }

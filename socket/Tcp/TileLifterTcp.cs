@@ -236,8 +236,8 @@ namespace socket.tcp
                 Array.Copy(data, 0, pdata, 0, SocketConst.TILELIFTER_STATUS_SIZE);
                 DevTileLifter device = mProcess.GetStatus(pdata);
                 if (device.IsUpdate
-                    || (IsInTaskStatus && mTimer.IsTimeOutAndReset(TimerTag.TileInTaskStatus, (int)DevID, 2))
-                    || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, (int)DevID, 5))
+                    || (IsInTaskStatus && mTimer.IsTimeOutAndReset(TimerTag.TileInTaskStatus, DevID, 2))
+                    || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, DevID, 5))
                 {
                     SendMsg(SocketMsgTypeE.DataReiceive, SocketConnectStatusE.通信正常, device);
                     if (device.IsUpdate) _mLog.Status(true, device.ToString());

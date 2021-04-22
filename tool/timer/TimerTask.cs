@@ -85,7 +85,7 @@ namespace tool.timer
             return IsOver(tag + id + id2, second, overtime);
         }
 
-        public bool IsTimeOutAndReset(string tag, int id, int second)
+        public bool IsTimeOutAndReset(string tag, uint id, int second)
         {
             if (IsOver(tag + id, second, second * 3))
             {

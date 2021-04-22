@@ -155,6 +155,18 @@ namespace task.task
             get => DevTcp?.IsConnected ?? false;
         }
 
+        /// <summary>
+        /// 判断摆渡车是否没有在执行任务
+        /// </summary>
+        public bool IsNotDoingTask
+        {
+            get => RecordTraId == 0 
+                        && (DevStatus.CurrentTask == DevStatus.FinishTask // 当前&完成 一致
+                        || DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
+                        || DevStatus.CurrentTask == DevFerryTaskE.终止);// 当前终止就当它没作业
+
+        }
+
         #endregion
 
         #region[构造/启动/停止]

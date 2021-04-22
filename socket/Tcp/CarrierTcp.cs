@@ -263,7 +263,7 @@ namespace socket.tcp
                 DevCarrier device = mProcess.GetStatus(pdata);
                 if (device.IsUpdate 
                     || device.IsCurrentSiteUpdate
-                    || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, (int)DevID, 2))
+                    || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, DevID, 2))
                 {
                     SendMsg(SocketMsgTypeE.DataReiceive, SocketConnectStatusE.通信正常, device);
                     if (device.IsUpdate) _mLog.Status(true, device.ToString());

@@ -773,7 +773,7 @@ namespace task.device
                     break;
             }
 
-            if (task.MConChange || mTimer.IsTimeOutAndReset("ConnRefresh", (int)task.ID, 3))
+            if (task.MConChange || mTimer.IsTimeOutAndReset("ConnRefresh", task.ID, 3))
             {
                 MsgSend(task, task.DevStatus);
             }
