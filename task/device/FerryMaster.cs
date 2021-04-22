@@ -1738,6 +1738,14 @@ namespace task.device
                 return false;
             }
 
+            // 检查是否存在目的位置移动
+            if (task.RecordTraId > 0)
+            {
+                result = string.Format("摆渡车正移至[ {0} ]，等待到位完成或执行终止",
+                    PubMaster.Track.GetTrackName(task.RecordTraId));
+                return false;
+            }
+
             // 检查是否有对应运输车作业
             if (PubTask.Carrier.HaveTaskForFerry(task.DevConfig.track_id))
             {
