@@ -607,6 +607,18 @@ namespace task.device
                             break;
                         case TrackTypeE.下砖轨道:
                             task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentSite);
+                            if(task.DevConfig.stock_id == 0)
+                            {
+                                if(PubTask.TileLifter.AddTileStockInTrack(track.id, task.CurrentSite, out uint stockid))
+                                {
+                                    task.DevConfig.stock_id = stockid;
+                                    try
+                                    {
+                                        mlog.Status(true, string.Format("运输车在下砖轨道[ {0} ]，找不到轨道库存，则新增库存[ {1} ]", track.name, stockid));
+                                    }
+                                    catch { }
+                                }
+                            }
                             break;
                         case TrackTypeE.储砖_入:
                         case TrackTypeE.储砖_出:

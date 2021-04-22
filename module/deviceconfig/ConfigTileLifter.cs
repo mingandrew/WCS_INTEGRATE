@@ -182,5 +182,15 @@ namespace module.deviceconfig
             }
             return false;
         }
+
+        public bool InTrack(uint trackid)
+        {
+            return left_track_id == trackid || right_track_id == trackid;
+        }
+
+        public bool InTrackSite(ushort tracksite)
+        {
+            return left_track_point == tracksite || right_track_point == tracksite;
+        }
     }
 }
