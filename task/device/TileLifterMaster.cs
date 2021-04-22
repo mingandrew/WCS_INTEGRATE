@@ -1467,6 +1467,70 @@ namespace task.device
         }
 
         /// <summary>
+        /// 手动取砖的时候
+        /// 砖机需求有问题的时候，不能生成库存
+        /// 则在手动取货的时候，生成库存信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="trackid"></param>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        public bool AddTileStockInTrack(uint trackid, ushort tracksite, out uint stockid)
+        {
+            stockid = 0;
+            TileLifterTask tile = null;
+            //查找轨道同时配置了该工位的砖机
+             List <TileLifterTask> tiles = DevList.FindAll(c => c.DevConfig.InTrack(trackid) && c.DevConfig.InTrackSite(tracksite));
+            if(tiles.Count > 0)
+            {
+                tile = tiles[0];
+            }else
+            {
+                //查找配置轨道的所有砖机
+                tiles = DevList.FindAll(c => c.DevConfig.InTrack(trackid));
+                foreach (var item in tiles)
+                {
+                    //如果工位1数量达到满砖数量则设置为该砖机
+                    if(item.DevConfig.left_track_id == trackid && item.DevStatus.Site1Qty == item.DevStatus.FullQty)
+                    {
+                        tile = item;
+                        break;
+                    }
+
+                    //如果工位2数量达到满砖数量则设置为该砖机
+                    if (item.DevConfig.right_track_id == trackid && item.DevStatus.Site2Qty == item.DevStatus.FullQty)
+                    {
+                        tile = item;
+                        break;
+                    }
+                }
+
+                if(tile == null)
+                {
+                    tile = tiles[0];
+                }
+            }
+            if (tile != null)
+            {
+                byte qty;
+                uint gid;
+                if (tile.DevConfig.left_track_id == trackid)
+                {
+                    gid = tile.DevStatus.Goods1 != 0 ? tile.DevStatus.Goods1 : tile.DevConfig.goods_id;
+                    qty = tile.DevStatus.Site1Qty > 0 ? tile.DevStatus.Site1Qty : tile.DevStatus.FullQty;
+                }
+                else
+                {
+                    gid = tile.DevStatus.Goods2 != 0 ? tile.DevStatus.Goods2 : tile.DevConfig.goods_id;
+                    qty = tile.DevStatus.Site2Qty > 0 ? tile.DevStatus.Site2Qty : tile.DevStatus.FullQty;
+                }
+
+                AddAndGetStockId(tile.ID, trackid, gid, qty, out stockid);
+            }
+            return stockid != 0;
+        }
+
+        /// <summary>
         /// 新增库存
         /// </summary>
         /// <param name="tileid"></param>
@@ -1488,7 +1552,6 @@ namespace task.device
                 }
             }
         }
-
 
         /// <summary>
         /// 添加入库任务

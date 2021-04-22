@@ -155,9 +155,9 @@ namespace wcs.ViewModel
         public SimulationViewModel Simulation => ServiceLocator.Current.GetInstance<SimulationViewModel>();
         #endregion
 
-        public static void Cleanup()
-        {
-            // TODO Clear the ViewModels
-        }
+            public static void Cleanup()
+            {
+                // TODO Clear the ViewModels
+            }
     }
 }
