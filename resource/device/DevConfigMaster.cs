@@ -817,11 +817,15 @@ namespace resource.device
             //备用砖机
             ConfigTileLifter backup_dev = ConfigTileLifterList.Find(c => c.id == backup_id);
             if (need_dev != null && backup_dev != null 
-                && backup_dev.can_alter
-                && backup_dev.alter_dev_id != need_dev.id)
+                && backup_dev.can_alter )
             {
                 try
                 {
+                    if (backup_dev.alter_dev_id == need_dev.id)
+                    {
+                        return true;
+                    }
+
                     if (!backup_dev.IsInBackUpList(need_id))
                     {
                         mLog.Status(true, string.Format("【切换备用砖机】备用砖机[ {0} ], 没有配置需要备用的砖机[ {1} ]",
