@@ -157,6 +157,13 @@ namespace task.device
 
                             }
 
+                            // 手动清记录目标点
+                            if (task.DevStatus.WorkMode == DevOperateModeE.手动 && task.DevStatus.TargetSite == 0)
+                            {
+                                task.RecordTraId = 0;
+                                task.DevTcp.AddStatusLog(string.Format("手动-清除记录目标"));
+                            }
+
                             // 摆渡车反馈的报警
                             task.CheckAlert();
 
