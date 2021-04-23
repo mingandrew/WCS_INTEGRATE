@@ -1176,7 +1176,7 @@ namespace task.rf
                 if (pack != null && pack.Id > 0// && pack.Value1 > 0
                     )
                 {
-                    if (PubTask.Ferry.StopFerry(pack.Id, out string result))
+                    if (PubTask.Ferry.StopFerry(pack.Id, "平板终止摆渡车", out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.TaskFerryStop, result);
                     }

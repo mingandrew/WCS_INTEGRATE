@@ -526,7 +526,7 @@ namespace task.device
         /// <param name="id"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool StopFerry(uint id, out string result)
+        public bool StopFerry(uint id,string memo, out string result)
         {
             result = "";
             try
@@ -536,8 +536,8 @@ namespace task.device
                 {
                     return false;
                 }
-                task.DoStop("终止摆渡车");
-                mlog.Info(true, string.Format(@"摆渡车[ {0} ],  强制终止", task.Device.name));
+                task.DoStop(memo);
+                mlog.Info(true, string.Format(@"摆渡车[ {0} ],  [ {1} ]", task.Device.name, memo));
                 return true;
             }
             catch (Exception ex)
@@ -647,12 +647,12 @@ namespace task.device
         /// 终止摆渡车-by摆渡轨道ID
         /// </summary>
         /// <param name="trackid"></param>
-        internal void StopFerryByFerryTrackId(uint trackid)
+        internal void StopFerryByFerryTrackId(uint trackid, string memo)
         {
             uint ferryid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(trackid);
             if (ferryid > 0)
             {
-                StopFerry(ferryid, out string _);
+                StopFerry(ferryid, memo, out string _);
             }
         }
 
@@ -660,7 +660,7 @@ namespace task.device
         /// 终止摆渡车-by轨道ID
         /// </summary>
         /// <param name="trackid"></param>
-        internal void StopFerryByTrackId(uint trackid)
+        internal void StopFerryByTrackId(uint trackid, string memo)
         {
             try
             {
@@ -669,8 +669,8 @@ namespace task.device
                 {
                     foreach (FerryTask item in ferrys)
                     {
-                        item.DoStop("终止摆渡车-by轨道ID");
-                        mlog.Info(true, string.Format(@"摆渡车[ {0} ],  强制终止", item.Device.name));
+                        item.DoStop(memo);
+                        mlog.Info(true, string.Format(@"摆渡车[ {0} ],  [ {1} ]", item.Device.name, memo));
                     }
                 }
             }
@@ -798,14 +798,14 @@ namespace task.device
                     {
                         if (task.DevStatus.CurrentTask == DevFerryTaskE.终止)
                         {
-                            result = string.Format("[ {0} & {1} ]: 定位完成", task.ID, task.Device.name);
+                            result = string.Format("[ {0} & {1} ]: 上定位完成", task.ID, task.Device.name);
                             return true;
                         }
                         else
                         {
                             Thread.Sleep(500);
                             task.DoStop("自动流程中摆渡车定位完成2");
-                            result = string.Format("[ {0} & {1} ]: 到位执行终止", task.ID, task.Device.name);
+                            result = string.Format("[ {0} & {1} ]: 到位执行终止, [ {2} ]", task.ID, task.Device.name, "自动流程中摆渡车定位完成2");
                         }
 
                         return false;
@@ -816,14 +816,14 @@ namespace task.device
                     {
                         if (task.DevStatus.CurrentTask == DevFerryTaskE.终止)
                         {
-                            result = string.Format("[ {0} & {1} ]: 定位完成", task.ID, task.Device.name);
+                            result = string.Format("[ {0} & {1} ]: 下定位完成", task.ID, task.Device.name);
                             return true;
                         }
                         else
                         {
                             Thread.Sleep(500);
                             task.DoStop("自动流程中摆渡车定位完成3");
-                            result = string.Format("[ {0} & {1} ]: 到位执行终止", task.ID, task.Device.name);
+                            result = string.Format("[ {0} & {1} ]: 到位执行终止, [ {2} ]", task.ID, task.Device.name, "自动流程中摆渡车定位完成3");
                         }
 
                         return false;
