@@ -104,49 +104,39 @@ namespace task.device
                         {
                             if (task.IsEnable && task.IsConnect)
                             {
-                                if (task.TargetSite != 0)
-                                {
-                                    TrackTypeE tt = PubMaster.Track.GetTrackType((ushort)task.AreaId, task.TargetSite);
-                                    if (tt == TrackTypeE.摆渡车_入 || tt == TrackTypeE.摆渡车_出)
-                                    {
-                                        // 判断是否有摆渡车
-                                        if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetSite, out string result, true))
-                                        {
-                                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 其他[ {2} ]", "摆渡车状态不对", tt, result));
-                                            Thread.Sleep(500);
-                                        }
-                                    }
-                                }
-
                                 #region [上下摆渡时终止摆渡车]
                                 Track track = PubMaster.Track.GetTrack(task.CurrentTrackId);
 
-                                // 当前在摆渡上
-                                if (track != null
-                                    && task.OnGoingOrder != DevCarrierOrderE.无
-                                    && task.OnGoingOrder != DevCarrierOrderE.终止指令
-                                    )
+                                // 运输车有执行的指令，并且在摆渡上
+                                if (track != null && !task.IsNotDoingTask)
                                 {
-                                    if (track.Type == TrackTypeE.摆渡车_入 || track.Type == TrackTypeE.摆渡车_出)
+                                    if (track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                                     {
-                                        PubTask.Ferry.StopFerryByFerryTrackId(track.id);
+                                        PubTask.Ferry.StopFerryByFerryTrackId(track.id, string.Format("运输车[ {0} ],运输车有执行指令", task.Device.name));
                                     }
                                 }
 
-                                // 目的上摆渡
+                                // 目的前往摆渡车
                                 Track targettrack = PubMaster.Track.GetTrack(task.TargetTrackId);
-                                if (targettrack != null && task.OnGoingOrder == DevCarrierOrderE.定位指令)
+                                if (targettrack != null && targettrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出) )
                                 {
-                                    if (targettrack.Type == TrackTypeE.摆渡车_入 || targettrack.Type == TrackTypeE.摆渡车_出)
+                                    // 判断是否有摆渡车
+                                    if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetSite, out string result, true))
                                     {
-                                        PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id);
+                                        task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 其他[ {2} ]", "摆渡车状态不对", track.Type, result));
+                                        Thread.Sleep(500);
+                                    }
+
+                                    if (task.OnGoingOrder == DevCarrierOrderE.定位指令)
+                                    {
+                                        PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id, string.Format("运输车[ {0} ], 轨道[ {1} ], 运输车定位到摆渡车", task.Device.name, track.name));
                                     }
                                 }
 
                                 // 上下摆渡状态，对上轨道的摆渡车全停
                                 if (track != null && task.Position == DevCarrierPositionE.上下摆渡中)
                                 {
-                                    PubTask.Ferry.StopFerryByTrackId(track.id);
+                                    PubTask.Ferry.StopFerryByTrackId(track.id, string.Format("运输车[ {0} ], 轨道[ {1} ], 上下摆渡中", task.Device.name, track.name));
                                 }
                                 #endregion
 

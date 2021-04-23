@@ -242,7 +242,7 @@ namespace wcs.ViewModel
                     ClearInput();
                     break;
                 case "stopdev":
-                    if (!PubTask.Ferry.StopFerry(_selectferry.id, out string result))
+                    if (!PubTask.Ferry.StopFerry(_selectferry.id, "对位界面终止", out string result))
                     {
                         Growl.Info(result);
                         return;

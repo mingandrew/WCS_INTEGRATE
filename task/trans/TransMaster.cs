@@ -5075,7 +5075,7 @@ namespace task.trans
                                 {
                                     try
                                     {
-                                        PubTask.Ferry.StopFerry(item.take_ferry_id, out string result);
+                                        PubTask.Ferry.StopFerry(item.take_ferry_id, "【平板任务开关】- 终止T摆渡车", out string result);
                                     }
                                     catch (Exception e)
                                     {
@@ -5087,7 +5087,7 @@ namespace task.trans
                                 {
                                     try
                                     {
-                                        PubTask.Ferry.StopFerry(item.give_ferry_id, out string result);
+                                        PubTask.Ferry.StopFerry(item.give_ferry_id, "【平板任务开关】- 终止G摆渡车", out string result);
                                     }
                                     catch (Exception e)
                                     {
