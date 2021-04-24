@@ -284,7 +284,7 @@ namespace task.device
                 else
                 {
                     // 是否允许交管摆渡车移动
-                    if (IsAllowToMoveForFerry(ctl.control_id, out res))
+                    if (IsAllowToMoveForFerry(ctl.control_id, ctl.to_track_id, out res))
                     {
                         // 让交管车定位到结束点
                         if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out res))
@@ -403,10 +403,10 @@ namespace task.device
         /// 是否允许交管摆渡车移动
         /// </summary>
         /// <returns></returns>
-        private bool IsAllowToMoveForFerry(uint ferryid, out string result)
+        private bool IsAllowToMoveForFerry(uint ferryid, uint trackid, out string result)
         {
             FerryTask ferry = PubTask.Ferry.GetFerry(ferryid);
-            if (!PubTask.Ferry.IsAllowToMove(ferry, out result))
+            if (!PubTask.Ferry.IsAllowToMove(ferry, trackid, out result))
             {
                 result = string.Format("[ ❌ ]{0}, 摆渡车ID[ {1} ]]", result, ferryid);
                 return false;
