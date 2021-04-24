@@ -789,7 +789,7 @@ namespace task.device
                     return false;
                 }
 
-                if (task.Status == DevFerryStatusE.停止 && task.IsNotDoingTask)
+                if (task.IsNotDoingTask)
                 {
                     uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
                     if (task.DevStatus.TargetSite != 0 && trid != to_track_id)
