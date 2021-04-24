@@ -2492,24 +2492,24 @@ namespace task.trans
                         PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierSortButStop, (ushort)trans.carrier_id);
                     }
 
-                    track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
-                    if (track != null && track.Type == TrackTypeE.储砖_入
-                        && PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库))
-                    {
-                        CarrierTask carrier = PubTask.Carrier.GetDevCarrier(trans.carrier_id);
-                        if (carrier != null)
-                        {
-                            if (carrier.DevStatus.DeviceStatus == DevCarrierStatusE.后退
-                                && (carrier.DevStatus.CurrentSite % 100 == 0
-                                || carrier.Position == DevCarrierPositionE.上下摆渡中))
-                            {
-                                carrier.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "倒库接近极限"));
-                                carrier.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "倒库接近极限"));
-                                PubMaster.Device.SetDevWorking(carrier.ID, false, out DeviceTypeE _, "倒库接近极限");
-                                PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceSortRunOutTrack, (ushort)carrier.ID, trans.id, track.id);
-                            }
-                        }
-                    }
+                    //track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
+                    //if (track != null && track.Type == TrackTypeE.储砖_入
+                    //    && PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库))
+                    //{
+                    //    CarrierTask carrier = PubTask.Carrier.GetDevCarrier(trans.carrier_id);
+                    //    if (carrier != null)
+                    //    {
+                    //        if (carrier.DevStatus.DeviceStatus == DevCarrierStatusE.后退
+                    //            && (carrier.DevStatus.CurrentSite % 100 == 0
+                    //            || carrier.Position == DevCarrierPositionE.上下摆渡中))
+                    //        {
+                    //            carrier.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "倒库接近极限"));
+                    //            carrier.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "倒库接近极限"));
+                    //            PubMaster.Device.SetDevWorking(carrier.ID, false, out DeviceTypeE _, "倒库接近极限");
+                    //            PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceSortRunOutTrack, (ushort)carrier.ID, trans.id, track.id);
+                    //        }
+                    //    }
+                    //}
 
                     break;
                 #endregion

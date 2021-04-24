@@ -133,8 +133,10 @@ namespace task.device
                                     }
                                 }
 
-                                // 上下摆渡状态，对上轨道的摆渡车全停
-                                if (track != null && task.Position == DevCarrierPositionE.上下摆渡中)
+                                // 运输车作业中，上下摆渡状态，对上轨道的摆渡车全停
+                                if (track != null 
+                                    && task.Position == DevCarrierPositionE.上下摆渡中 
+                                    && task.NotInTask(DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                                 {
                                     PubTask.Ferry.StopFerryByTrackId(track.id, string.Format("运输车[ {0} ], 轨道[ {1} ], 上下摆渡中", task.Device.name, track.name));
                                 }
