@@ -1,7 +1,7 @@
 ﻿using enums;
 using GalaSoft.MvvmLight;
 using module.device;
-using System;
+using System.Drawing;
 
 namespace wcs.Data.View
 {
@@ -57,8 +57,8 @@ namespace wcs.Data.View
 
         #region[字段]
         private byte deviceid;      //设备号
-        private bool loadstatus1;   //货物状态1 左
-        private bool isload2;   //货物状态2 右
+        private byte isload1;   //货物状态1 左
+        private byte isload2;   //货物状态2 右
         private bool isneed1;   //需求信号1 左
         private bool isneed2;   //需求信号2 右
         private byte fullqty;       //满砖数量
@@ -74,6 +74,10 @@ namespace wcs.Data.View
         private TileShiftStatusE shiftstatus;   //转产状态
         private uint setgoods;   //设定品种
         private byte setlevel;   //设定等级
+
+
+        private Brush isload1brush;   //货物状态1 颜色
+        private Brush isload2brush;   //货物状态2 颜色
         #endregion
 
         #region[属性]
@@ -83,16 +87,27 @@ namespace wcs.Data.View
             get => deviceid;
         }
 
-        public bool IsLoad1//货物状态1 左
+        public byte IsLoad1//货物状态1 左
         {
-            set => Set(ref loadstatus1, value);
-            get => loadstatus1;
+            set => Set(ref isload1, value);
+            get => isload1;
         }
 
-        public bool IsLoad2//货物状态2 右
+        public byte IsLoad2//货物状态2 右
         {
             set => Set(ref isload2, value);
             get => isload2;
+        }
+
+        public Brush IsLoad1Brush
+        {
+            get => isload1brush;
+            set => Set(ref isload1brush, value);
+        }
+        public Brush IsLoad2Brush
+        {
+            get => isload2brush;
+            set => Set(ref isload2brush, value);
         }
 
         public bool IsNeed1//需求信号1 左
@@ -192,6 +207,18 @@ namespace wcs.Data.View
             DeviceID = st.DeviceID;
             IsLoad1 = st.Load1;
             IsLoad2 = st.Load2;
+            switch (IsLoad1)
+            {
+                case 0:
+                    IsLoad1Brush = new SolidBrush(Color.Gray);
+                    break;
+                case 1:
+                    IsLoad1Brush = new SolidBrush(Color.Yellow);
+                    break;
+                case 2:
+                    IsLoad1Brush = new SolidBrush(Color.Orange);
+                    break;
+            }
             IsNeed1 = st.Need1;
             IsNeed2 = st.Need2;
             FullQty = st.FullQty;
