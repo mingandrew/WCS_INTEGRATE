@@ -1115,24 +1115,14 @@ namespace resource.track
             Track t = TrackList.Find(c => c.id == trackid);
             if (t != null)
             {
-                if (t.InType(TrackTypeE.储砖_出入))
+                switch (PubMaster.Device.GetDeviceType(ferryid))
                 {
-                    switch (PubMaster.Device.GetDeviceType(ferryid))
-                    {
-                        case DeviceTypeE.上摆渡:
-                            code = t.ferry_down_code;
-                            break;
-                        case DeviceTypeE.下摆渡:
-                            code = t.ferry_up_code;
-                            break;
-                        default:
-                            code = t.TrackCode;
-                            break;
-                    }
-                }
-                else
-                {
-                    code = t.TrackCode;
+                    case DeviceTypeE.上摆渡:
+                        code = t.ferry_down_code;
+                        break;
+                    case DeviceTypeE.下摆渡:
+                        code = t.ferry_up_code;
+                        break;
                 }
             }
             return code;
