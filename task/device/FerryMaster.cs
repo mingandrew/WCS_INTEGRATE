@@ -625,7 +625,7 @@ namespace task.device
                 {
                     FerryTask task = DevList.Find(c => c.ID == ferryid);
 
-                    if (!IsAllowToMove(task, out result))
+                    if (!IsAllowToMove(task, trackid, out result))
                     {
                         task.DoStop("不允许定位");
                         return false;
@@ -730,7 +730,7 @@ namespace task.device
             {
                 FerryTask task = DevList.Find(c => c.ID == id);
 
-                if (!IsAllowToMove(task, out result))
+                if (!IsAllowToMove(task, 0, out result))
                 {
                     task.DoStop("摆渡车复位原点");
                     return false;
@@ -784,7 +784,7 @@ namespace task.device
             FerryTask task = DevList.Find(c => c.ID == ferryid);
             try
             {
-                if (!IsAllowToMove(task, out result))
+                if (!IsAllowToMove(task, to_track_id, out result))
                 {
                     return false;
                 }
@@ -1728,7 +1728,7 @@ namespace task.device
         /// <summary>
         /// 摆渡车是否可移动
         /// </summary>
-        public bool IsAllowToMove(FerryTask task, out string result)
+        public bool IsAllowToMove(FerryTask task, uint totrackid, out string result)
         {
             // 检查摆渡车状态
             if (!CheckFerryStatus(task, out result))
@@ -1741,7 +1741,7 @@ namespace task.device
             }
 
             // 检查是否存在目的位置移动
-            if (task.RecordTraId > 0)
+            if (task.RecordTraId > 0 && task.RecordTraId != totrackid)
             {
                 result = string.Format("摆渡车正移至[ {0} ]，等待到位完成或执行终止",
                     PubMaster.Track.GetTrackName(task.RecordTraId));
