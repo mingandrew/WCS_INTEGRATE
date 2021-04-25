@@ -1176,7 +1176,7 @@ namespace task.rf
                 if (pack != null && pack.Id > 0// && pack.Value1 > 0
                     )
                 {
-                    if (PubTask.Ferry.StopFerry(pack.Id, "平板终止摆渡车", out string result))
+                    if (PubTask.Ferry.StopFerry(pack.Id, "平板终止摆渡车", "人为", out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.TaskFerryStop, result);
                     }
@@ -1200,7 +1200,7 @@ namespace task.rf
                     {
                         type = DevFerryResetPosE.后退复位;
                     }
-                    if (PubTask.Ferry.ReSetFerry(pack.Id, type, out string result))
+                    if (PubTask.Ferry.ReSetFerry(pack.Id, type, "平板", out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.TaskFerryReset, result);
                     }

@@ -1123,8 +1123,7 @@ namespace resource.goods
                 double dirhours = (DateTime.Now - (DateTime)stock1.produce_time).TotalHours;
                 if (minStockTime == 0 || dirhours < 0 || dirhours >= minStockTime)
                 {
-                    if (!PubMaster.Track.IsEmtpy(stock1.track_id) && 
-                        PubMaster.Track.IsTrackEnable(stock1.track_id, TrackStatusE.仅上砖))
+                    if (PubMaster.Track.IsNotEmtyp4Up(stock1.track_id))
                     {
                         allocatstocks.Add(stock1);
                     }
@@ -1181,7 +1180,7 @@ namespace resource.goods
                 }
             );
 
-            return stocks.FindAll(c => PubMaster.Track.IsTrackEnable(c.track_id, TrackStatusE.仅上砖));
+            return stocks.FindAll(c => PubMaster.Track.IsNotEmtyp4Up(c.track_id));
         }
 
         /// <summary>

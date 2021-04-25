@@ -1066,6 +1066,46 @@ namespace resource.track
             return TrackList.Exists(c => c.id == track_id && c.StockStatus == TrackStockStatusE.空砖);
         }
 
+        /// <summary>
+        /// 判断是否空砖但非停用-上砖轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsEmtyp4Up(uint trackid)
+        {
+            return TrackList.Exists(c => c.id == trackid && c.InStatus(TrackStatusE.仅上砖, TrackStatusE.启用) && c.InStockStatus(TrackStockStatusE.空砖) && c.AlertStatus == TrackAlertE.正常);
+        }
+
+        /// <summary>
+        /// 判断是否非空砖但非停用-上砖轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsNotEmtyp4Up(uint trackid)
+        {
+            return TrackList.Exists(c => c.id == trackid && c.InStatus(TrackStatusE.仅上砖, TrackStatusE.启用) && c.NotInStockStatus(TrackStockStatusE.空砖) && c.AlertStatus == TrackAlertE.正常);
+        }
+
+        /// <summary>
+        /// 判断是否空砖但非停用-下砖轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsEmtyp4Down(uint trackid)
+        {
+            return TrackList.Exists(c => c.id == trackid && c.InStatus(TrackStatusE.仅下砖, TrackStatusE.启用) && c.InStockStatus(TrackStockStatusE.空砖) && c.AlertStatus == TrackAlertE.正常);
+        }
+
+        /// <summary>
+        /// 判断是否非空砖但非停用-下砖轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsNotEmtyp4Down(uint trackid)
+        {
+            return TrackList.Exists(c => c.id == trackid && c.InStatus(TrackStatusE.仅下砖, TrackStatusE.启用) && c.NotInStockStatus(TrackStockStatusE.空砖) && c.AlertStatus == TrackAlertE.正常);
+        }
+
         public bool IsStopUsing(uint track_id, TransTypeE transType)
         {
             switch (transType)

@@ -1201,7 +1201,7 @@ namespace task.trans
                                             && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                         {
                                             // 有货的话就只能找空轨道
-                                            if (isload && !PubMaster.Track.IsEmtpy(t))
+                                            if (isload && !PubMaster.Track.IsEmtyp4Up(t))
                                             {
                                                 continue;
                                             }
@@ -4719,7 +4719,7 @@ namespace task.trans
                                 {
                                     try
                                     {
-                                        PubTask.Ferry.StopFerry(item.take_ferry_id, "【平板任务开关】- 终止T摆渡车", out string result);
+                                        PubTask.Ferry.StopFerry(item.take_ferry_id, "【平板任务开关】- 终止T摆渡车", "逻辑", out string result);
                                     }
                                     catch (Exception e)
                                     {
@@ -4731,7 +4731,7 @@ namespace task.trans
                                 {
                                     try
                                     {
-                                        PubTask.Ferry.StopFerry(item.give_ferry_id, "【平板任务开关】- 终止G摆渡车", out string result);
+                                        PubTask.Ferry.StopFerry(item.give_ferry_id, "【平板任务开关】- 终止G摆渡车", "逻辑", out string result);
                                     }
                                     catch (Exception e)
                                     {
