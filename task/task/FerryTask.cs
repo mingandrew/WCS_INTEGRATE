@@ -230,7 +230,7 @@ namespace task.task
         internal void DoLocate(ushort trackcode, uint ltrack, uint recodeTraid)
         {
             // 记录点未清零，不发其他定位
-            if (RecordTraId > 0 && RecordTraId != ltrack) return;
+            if (RecordTraId > 0 && RecordTraId != recodeTraid) return;
 
             // 记录目标点
             RecordTraId = recodeTraid;
