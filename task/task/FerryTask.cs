@@ -161,7 +161,6 @@ namespace task.task
         public bool IsNotDoingTask
         {
             get => Status == DevFerryStatusE.停止 
-                && RecordTraId == 0
                 && (DevStatus.CurrentTask == DevStatus.FinishTask // 当前&完成 一致
                     || DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
                     || DevStatus.CurrentTask == DevFerryTaskE.终止// 当前终止就当它没作业
