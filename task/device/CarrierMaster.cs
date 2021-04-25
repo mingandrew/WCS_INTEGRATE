@@ -112,7 +112,7 @@ namespace task.device
                                 {
                                     if (track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                                     {
-                                        PubTask.Ferry.StopFerryByFerryTrackId(track.id, string.Format("运输车[ {0} ],运输车有执行指令", task.Device.name));
+                                        PubTask.Ferry.StopFerryByFerryTrackId(track.id, string.Format("运输车[ {0} ], 在摆渡车上[ {1} ], 执行[ {2} ]中", task.Device.name, track.name, task.OnGoingOrder), "锁定");
                                     }
                                 }
 
@@ -129,7 +129,7 @@ namespace task.device
 
                                     if (task.OnGoingOrder == DevCarrierOrderE.定位指令)
                                     {
-                                        PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id, string.Format("运输车[ {0} ], 轨道[ {1} ], 运输车定位到摆渡车", task.Device.name, track.name));
+                                        PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id, string.Format("运输车[ {0} ], 定位[ {1} -> {2} ]", task.Device.name, track.name, targettrack.name), "锁定");
                                     }
                                 }
 

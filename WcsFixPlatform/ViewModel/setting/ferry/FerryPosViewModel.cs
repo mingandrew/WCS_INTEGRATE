@@ -242,7 +242,7 @@ namespace wcs.ViewModel
                     ClearInput();
                     break;
                 case "stopdev":
-                    if (!PubTask.Ferry.StopFerry(_selectferry.id, "对位界面终止", out string result))
+                    if (!PubTask.Ferry.StopFerry(_selectferry.id, "对位界面终止", "逻辑", out string result))
                     {
                         Growl.Info(result);
                         return;
@@ -342,7 +342,7 @@ namespace wcs.ViewModel
 
         private void ReSetFerry(DevFerryResetPosE type)
         {
-            if (!PubTask.Ferry.ReSetFerry(_selectferry.id, type, out string result))
+            if (!PubTask.Ferry.ReSetFerry(_selectferry.id, type, "PC", out string result))
             {
                 Growl.Warning(result);
                 return;

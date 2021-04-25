@@ -241,5 +241,26 @@ namespace module.track
         {
             return !status.Contains(TrackStatus);
         }
+
+
+        /// <summary>
+        /// 检查是否符合库存状态
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool InStockStatus(params TrackStockStatusE[] status)
+        {
+            return status.Contains(StockStatus);
+        }
+
+        /// <summary>
+        /// 检查是否不符合库存状态
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool NotInStockStatus(params TrackStockStatusE[] status)
+        {
+            return !status.Contains(StockStatus);
+        }
     }
 }

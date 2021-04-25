@@ -279,12 +279,12 @@ namespace task.task
         /// 终止
         /// </summary>
         /// <param name="memo"></param>
-        internal void DoStop(string memo)
+        internal void DoStop(string memo, string purpose)
         {
             DevTcp?.SendCmd(DevFerryCmdE.终止任务, 0, 0, 0);
             // 清除 记录目标点
             RecordTraId = 0;
-            DevTcp.AddStatusLog(string.Format("终止-清除记录目标[ {0} ]", memo));
+            DevTcp.AddStatusLog(string.Format("终止[ {0} ], 目的[ {1} ]", memo, purpose));
         }
 
         internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber)
