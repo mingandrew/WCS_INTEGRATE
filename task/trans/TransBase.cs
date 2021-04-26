@@ -315,47 +315,19 @@ namespace task.trans
             }
         }
 
-        internal void SetStatus(StockTrans trans, TransStatusE status, string memo = "")
-        {
-            if (trans.TransStaus != status)
-            {
-                mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", trans.id, trans.TransStaus, status, memo));
-                trans.TransStaus = status;
-                trans.TransStausStayTime = DateTime.Now;
-                PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Status);
-
-                if (status == TransStatusE.取消)
-                {
-                    SetCancel(trans);
-                }
-
-                //SendMsg(trans);
-                SetStepLog(trans, true, (uint)status, string.Format("切换流程[ {0} ]；{1}；", status, memo));
-
-                if (status == TransStatusE.完成)
-                {
-                    if (trans.InType(TransTypeE.上砖任务, TransTypeE.同向上砖, TransTypeE.手动上砖))
-                    {
-                        //完成需求
-                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.id);
-                    }
-
-                    if (trans.InType(TransTypeE.下砖任务, TransTypeE.同向下砖, TransTypeE.手动下砖))
-                    {
-                        //完成需求
-                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.id);
-                    }
-                }
-            }
-        }
-
         /// <summary>
         /// 记录步骤日志到界面
-        /// -code规则(随意不重复的2位数+TransStatusE + TransTypeE)
+        /// -自定义code4位数规则(随意不重复的2位数 + TransTypeE的2位数)
+        /// -任务状态(code - TransStatusE)
+        /// -流程前提(code - 100~199)
+        /// -任务属性(code - 200~299)
+        /// -摆渡步骤(code - 300~399)
+        /// -运输步骤(code - 400~499)
+        /// -轨道步骤(code - 500~599)
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="isOK"></param>
-        /// <param name="code">规则(随意不重复的2位数+TransStatusE + TransTypeE)</param>
+        /// <param name="code">规则(随意不重复的2位数 + TransTypeE的2位数)</param>
         /// <param name="info"></param>
         /// <param name="isRepeat">是否允许重复</param>
         internal void SetStepLog(StockTrans trans, bool isOK, uint code, string info, bool isRepeat = false)
@@ -373,6 +345,43 @@ namespace task.trans
             }
         }
 
+        #region 设定任务属性（code-200~299）
+
+        internal void SetStatus(StockTrans trans, TransStatusE status, string memo = "")
+        {
+            if (trans.TransStaus != status)
+            {
+                mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", trans.id, trans.TransStaus, status, memo));
+                trans.TransStaus = status;
+                trans.TransStausStayTime = DateTime.Now;
+                PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Status);
+
+                if (status == TransStatusE.取消)
+                {
+                    SetCancel(trans);
+                }
+
+                if (status == TransStatusE.完成)
+                {
+                    if (trans.InType(TransTypeE.上砖任务, TransTypeE.同向上砖, TransTypeE.手动上砖))
+                    {
+                        //完成需求
+                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.id);
+                    }
+
+                    if (trans.InType(TransTypeE.下砖任务, TransTypeE.同向下砖, TransTypeE.手动下砖))
+                    {
+                        //完成需求
+                        PubTask.TileLifterNeed.FinishTileLifterNeed(trans.id);
+                    }
+                }
+
+                //SendMsg(trans);
+                SetStepLog(trans, true, (uint)status, string.Format("切换流程[ {0} ]；{1}；", status, memo));
+
+            }
+        }
+
         internal void SetCarrier(StockTrans trans, uint carrierid, string memo = "")
         {
             if (trans.carrier_id != carrierid)
@@ -382,7 +391,7 @@ namespace task.trans
                 trans.carrier_id = carrierid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.CarrierId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 99, string.Format("锁定运输车[ {0} ]；{1}；", devname, memo));
+                SetStepLog(trans, true, 200, string.Format("锁定运输车[ {0} ]；{1}；", devname, memo));
             }
         }
 
@@ -395,7 +404,7 @@ namespace task.trans
                 trans.take_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeFerryId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 98, string.Format("锁定接车摆渡车[ {0} ]；{1}；", devname, memo));
+                SetStepLog(trans, true, 201, string.Format("锁定接车摆渡车[ {0} ]；{1}；", devname, memo));
             }
         }
 
@@ -408,7 +417,7 @@ namespace task.trans
                 trans.give_ferry_id = ferryid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.GiveFerryId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 97, string.Format("锁定送车摆渡车[ {0} ]；{1}；", devname, memo));
+                SetStepLog(trans, true, 202, string.Format("锁定送车摆渡车[ {0} ]；{1}；", devname, memo));
             }
         }
 
@@ -426,7 +435,7 @@ namespace task.trans
                 trans.tilelifter_id = tileid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TileId);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 96, string.Format("重新锁定砖机[ {0} ]；{1}；", devname, memo));
+                SetStepLog(trans, true, 203, string.Format("重新锁定砖机[ {0} ]；{1}；", devname, memo));
             }
         }
 
@@ -438,7 +447,7 @@ namespace task.trans
                 trans.load_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.LoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 95, string.Format("运输车[ {0} ]取砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                SetStepLog(trans, true, 204, string.Format("运输车[ {0} ]取砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
             }
         }
 
@@ -450,7 +459,7 @@ namespace task.trans
                 trans.unload_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.UnLoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 94, string.Format("运输车[ {0} ]放砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                SetStepLog(trans, true, 205, string.Format("运输车[ {0} ]放砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
             }
         }
 
@@ -464,7 +473,7 @@ namespace task.trans
                 trans.finish_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Finish);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 93, string.Format("任务流程结束；"));
+                SetStepLog(trans, true, 206, string.Format("任务流程结束；"));
             }
         }
 
@@ -477,7 +486,7 @@ namespace task.trans
                 trans.take_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeSite);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 92, string.Format("重新分配取货轨道[ {0} ]；", traname));
+                SetStepLog(trans, true, 207, string.Format("重新分配取货轨道[ {0} ]；", traname));
                 return true;
             }
             return false;
@@ -492,7 +501,7 @@ namespace task.trans
                 trans.give_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.GiveSite);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 91, string.Format("重新分配卸货轨道[ {0} ]；", traname));
+                SetStepLog(trans, true, 208, string.Format("重新分配卸货轨道[ {0} ]；", traname));
                 return true;
             }
             return false;
@@ -505,7 +514,7 @@ namespace task.trans
                 string traname = PubMaster.Track.GetTrackName(traid);
                 mLog.Status(true, string.Format("任务[ {0} ], 完成轨道[ {1} ], 备注[ {2} ]", trans.id, traname, memo));
                 trans.finish_track_id = traid;
-                SetStepLog(trans, true, 90, string.Format("重新分配结束回轨轨道[ {0} ]；{1}；", traname, memo));
+                SetStepLog(trans, true, 209, string.Format("重新分配结束回轨轨道[ {0} ]；{1}；", traname, memo));
                 return true;
             }
             return false;
@@ -547,6 +556,9 @@ namespace task.trans
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Line);
             }
         }
+
+        #endregion
+
         #endregion
 
         #region[获取交易]
@@ -673,6 +685,178 @@ namespace task.trans
         {
             return TransList.Exists(c => !c.finish && c.tilelifter_id == devid && c.InTrack(trackid));
         }
+
+        #endregion
+
+        #region [记录步骤信息]
+
+        #region 摆渡车（code-300~399）
+
+        /// <summary>
+        /// 分配接车摆渡车失败记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal bool LogForTakeFerry(StockTrans trans, string memo = "")
+        {
+            if (trans.take_ferry_id > 0) return false;
+
+            SetStepLog(trans, false, 300, string.Format("分配接车摆渡车失败，尝试继续分配；{0}；", memo), true);
+            return true;
+        }
+
+        /// <summary>
+        /// 分配送车摆渡车失败记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal bool LogForGiveFerry(StockTrans trans, string memo = "")
+        {
+            if (trans.give_ferry_id > 0) return false;
+
+            SetStepLog(trans, false, 301, string.Format("分配送车摆渡车失败，尝试继续分配；{0}；", memo), true);
+            return true;
+        }
+
+        /// <summary>
+        /// 移动摆渡车记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForFerryMove(StockTrans trans, uint ferryid, uint trackid, string memo = "")
+        {
+            SetStepLog(trans, true, 302, string.Format("控制摆渡车[ {0} ]移至[ {1} ]；{2}；",
+                PubMaster.Device.GetDeviceName(ferryid),
+                PubMaster.Track.GetTrackName(trackid), memo), true);
+        }
+
+        #endregion
+
+        #region 运输车（code-400~499）
+
+        /// <summary>
+        /// 分配运输车失败记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal bool LogForCarrier(StockTrans trans, string memo = "")
+        {
+            if (trans.carrier_id > 0) return false;
+
+            SetStepLog(trans, false, 400, string.Format("分配运输车失败，尝试继续分配；{0}；", memo), true);
+            return true;
+        }
+
+        /// <summary>
+        /// 运输车原地放砖记录
+        /// </summary>
+        /// <param name="trans"></param>
+        internal void LogForCarrierGiving(StockTrans trans)
+        {
+            SetStepLog(trans, true, 401, string.Format("待运输车[ {0} ]空闲，控制其放下砖；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id)));
+        }
+
+        /// <summary>
+        /// 移动运输车记录（去轨道）
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierToTrack(StockTrans trans, uint trackid)
+        {
+            SetStepLog(trans, true, 402, string.Format("控制运输车[ {0} ]移至[ {1} ]；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                PubMaster.Track.GetTrackName(trackid)));
+        }
+
+        /// <summary>
+        /// 移动运输车记录（去摆渡）
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierToFerry(StockTrans trans, uint trackid, uint ferryid)
+        {
+            SetStepLog(trans, true, 403, string.Format("两车都在[ {0} ]，控制运输车[ {1} ]移至摆渡车[ {2} ]；",
+                PubMaster.Track.GetTrackName(trackid),
+                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                PubMaster.Device.GetDeviceName(ferryid)));
+        }
+
+        /// <summary>
+        /// 移动运输车记录（取砖）
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierTake(StockTrans trans, uint trackid)
+        {
+            SetStepLog(trans, true, 404, string.Format("控制运输车[ {0} ]移至[ {1} ]取砖；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                PubMaster.Track.GetTrackName(trackid)));
+        }
+
+        /// <summary>
+        /// 移动运输车记录（放砖）
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierGive(StockTrans trans, uint trackid)
+        {
+            SetStepLog(trans, true, 405, string.Format("控制运输车[ {0} ]移至[ {1} ]放砖；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                PubMaster.Track.GetTrackName(trackid)));
+        }
+
+        /// <summary>
+        /// 移动运输车记录（倒库接力）
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierSortRelay(StockTrans trans, uint trackid)
+        {
+            SetStepLog(trans, true, 406, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库接力；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                PubMaster.Track.GetTrackName(trackid)));
+        }
+
+        /// <summary>
+        /// 运输车暂不能取砖记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierNoTake(StockTrans trans, uint trackid)
+        {
+            SetStepLog(trans, false, 407, string.Format("判断运输车[ {0} ]暂时不可移至[ {1} ]取砖；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                PubMaster.Track.GetTrackName(trackid)));
+        }
+
+        #endregion
+
+        #region 轨道（code-500~599）
+
+        /// <summary>
+        /// 轨道设为满砖记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="trackid"></param>
+        internal void LogForTrackFull(StockTrans trans, uint trackid)
+        {
+            SetStepLog(trans, true, 500, string.Format("检测到轨道[ {0} ]无法存入下一车，已设为满砖轨道；",
+                PubMaster.Track.GetTrackName(trackid)));
+        }
+
+        /// <summary>
+        /// 轨道设为空砖记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="trackid"></param>
+        internal void LogForTrackNull(StockTrans trans, uint trackid)
+        {
+            SetStepLog(trans, true, 501, string.Format("系统已无库存,自动调整轨道[ {0} ]为空轨道；",
+                PubMaster.Track.GetTrackName(trackid)));
+        }
+
+        #endregion
 
         #endregion
 

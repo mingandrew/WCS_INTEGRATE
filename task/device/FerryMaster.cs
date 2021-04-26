@@ -1504,10 +1504,10 @@ namespace task.device
 
                             result = result + ferry.Device.name + ",";
                         }
-                        result = result + "摆渡车不符合状态，不能分配，分配条件：【启用】【通讯正常】【没载车】【停止】【自动】【没有被分配到其他任务】";
+                        result = string.Format("任务ID[{0}]分配的摆渡车[{1}]不符合状态，不能分配，分配条件：[启用] [通讯正常] [没载车] [停止] [自动模式] [没有被分配到其他任务]", trans.id, result);
                         return ferryid != 0;
                     }
-                    result = result.Equals("") ? "没有能够去取/卸货轨道的摆渡车" : result;
+                    result = result.Equals("") ? string.Format("任务ID[{0}]没有能够去取/卸货轨道的摆渡车", trans.id) : result;
                 }
                 finally { Monitor.Exit(_obj); }
             }

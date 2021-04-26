@@ -179,7 +179,7 @@
                 </hc:Interaction.Triggers>
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="对位" Tag="devtocode" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        <MenuItem Header="定位" Tag="devtocode" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="全部重新发送" Tag="resendall" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
                                   Visibility="{Binding SuperVisor, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                     </ContextMenu>

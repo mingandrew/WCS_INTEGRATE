@@ -2034,13 +2034,13 @@ namespace task.device
 
                 if (string.IsNullOrEmpty(carNames))
                 {
-                    result = string.Format("{0}砖机分配的储砖轨道里没有符合状态的运输车，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】",
-                                PubMaster.Device.GetDeviceName(trans.tilelifter_id), PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
+                    result = string.Format("任务ID[{0}]分配的储砖轨道里没有符合状态的运输车，分配条件：[启用] [通讯正常] [停止] [指令完成] [能取{1}的砖] [没有被分配到其他任务]",
+                                trans.id, PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
                 }
                 else
                 {
-                    result = string.Format("{0}运输车不符合状态，不能分配，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】",
-                                carNames, PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
+                    result = string.Format("任务ID[{2}]分配的运输车[{0}]不符合状态，不能分配，分配条件：[启用] [通讯正常] [停止] [指令完成] [能取{1}的砖] [没有被分配到其他任务]",
+                                carNames, PubMaster.Goods.GetGoodsSizeName(trans.goods_id), trans.id);
                 }
             }
 

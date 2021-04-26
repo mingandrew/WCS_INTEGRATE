@@ -107,8 +107,8 @@ namespace module.goods
             }
 
             // 信息格式
-            string msg = string.Format(@"[{0}]>>{1}:[{2}]-{3}({4})
-", DateTime.Now, TransStaus, isOk ? "✔" : "❌", info, code);
+            string msg = string.Format(@"[{0}]>>{1}:[{2}]-({3})-{4}
+", DateTime.Now, TransStaus, isOk ? "✔" : "❌", code, info);
 
             StepLog.StepCode = code;
             StepLog.StepInfo = msg;
