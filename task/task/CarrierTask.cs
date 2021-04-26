@@ -1224,12 +1224,16 @@ namespace task.device
 
         internal bool InTask(params DevCarrierOrderE[] order)
         {
+            if (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无 )
+            {
+                return order.Contains(OnGoingOrder);
+            }
             return order.Contains(CurrentOrder) || order.Contains(OnGoingOrder);
         }
 
         internal bool NotInTask(params DevCarrierOrderE[] order)
         {
-            return !order.Contains(CurrentOrder) && !order.Contains(OnGoingOrder);
+            return !InTask(order);
         }
 
         #endregion
