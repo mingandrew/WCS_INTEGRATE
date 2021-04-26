@@ -4701,54 +4701,54 @@ namespace task.trans
                             try
                             {
                                 SetStatus(item, TransStatusE.完成, "平板任务开关-清除任务");
-                                if (item.carrier_id > 0)
-                                {
-                                    try
-                                    {
-                                        PubTask.Carrier.DoOrder(item.carrier_id, new CarrierActionOrder()
-                                        {
-                                            Order = DevCarrierOrderE.终止指令
-                                        }, "【平板任务开关】- 终止小车");
+                                //    if (item.carrier_id > 0)
+                                //    {
+                                //        try
+                                //        {
+                                //            PubTask.Carrier.DoOrder(item.carrier_id, new CarrierActionOrder()
+                                //            {
+                                //                Order = DevCarrierOrderE.终止指令
+                                //            }, "【平板任务开关】- 终止小车");
 
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine(e.StackTrace);
-                                    }
-                                }
-                                if (item.take_ferry_id > 0)
-                                {
-                                    try
-                                    {
-                                        PubTask.Ferry.StopFerry(item.take_ferry_id, "【平板任务开关】- 终止T摆渡车", "逻辑", out string result);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine(e.StackTrace);
-                                    }
-                                }
+                                //        }
+                                //        catch (Exception e)
+                                //        {
+                                //            Console.WriteLine(e.StackTrace);
+                                //        }
+                                //    }
+                                //    if (item.take_ferry_id > 0)
+                                //    {
+                                //        try
+                                //        {
+                                //            PubTask.Ferry.StopFerry(item.take_ferry_id, "【平板任务开关】- 终止T摆渡车", "逻辑", out string result);
+                                //        }
+                                //        catch (Exception e)
+                                //        {
+                                //            Console.WriteLine(e.StackTrace);
+                                //        }
+                                //    }
 
-                                if (item.give_ferry_id > 0)
-                                {
-                                    try
-                                    {
-                                        PubTask.Ferry.StopFerry(item.give_ferry_id, "【平板任务开关】- 终止G摆渡车", "逻辑", out string result);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine(e.StackTrace);
-                                    }
-                                }
+                                //    if (item.give_ferry_id > 0)
+                                //    {
+                                //        try
+                                //        {
+                                //            PubTask.Ferry.StopFerry(item.give_ferry_id, "【平板任务开关】- 终止G摆渡车", "逻辑", out string result);
+                                //        }
+                                //        catch (Exception e)
+                                //        {
+                                //            Console.WriteLine(e.StackTrace);
+                                //        }
+                                //    }
                             }
                             catch (Exception e)
                             {
                                 Console.WriteLine(e.StackTrace);
                             }
 
-                            if (item.TransType == TransTypeE.倒库任务)
-                            {
+                            //if (item.TransType == TransTypeE.倒库任务)
+                            //{
 
-                            }
+                            //}
                         }
                     }
                 }

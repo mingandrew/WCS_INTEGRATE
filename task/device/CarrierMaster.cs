@@ -1246,14 +1246,14 @@ namespace task.device
                         // 手动中的直接终止
                         if (task.OperateMode == DevOperateModeE.手动 || cao.Order == DevCarrierOrderE.终止指令)
                         {
-                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 模式[ {1} ], 指令[ {2} ]", "手动/终止指令", task.OperateMode, cao.Order));
+                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 模式[ {1} ], 指令[ {2} ], 备注[ {3} ]", "手动/终止指令", task.OperateMode, cao.Order, memo));
                             return;
                         }
 
                         // 连续同类型指令 需要先终止 - 待 PLC 后续优化
                         if (task.CurrentOrder == cao.Order)
                         {
-                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ]", "发送同指令", cao.Order));
+                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
                             return;
                         }
 
