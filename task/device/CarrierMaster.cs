@@ -683,7 +683,9 @@ namespace task.device
                                     //&& (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
                                     //&& c.Status != DevCarrierStatusE.异常
                                     //&& c.CurrentOrder != c.FinishOrder
-                                    && (c.Status != DevCarrierStatusE.停止 || c.Position == DevCarrierPositionE.上下摆渡中 || c.OnGoingOrder == DevCarrierOrderE.定位指令)
+                                    && (c.Status != DevCarrierStatusE.停止 || c.Position == DevCarrierPositionE.上下摆渡中 
+                                            || c.InTask(DevCarrierOrderE.定位指令, DevCarrierOrderE.取砖指令, 
+                                                        DevCarrierOrderE.放砖指令, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
                                     );
         }
 
