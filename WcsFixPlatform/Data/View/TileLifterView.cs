@@ -57,8 +57,10 @@ namespace wcs.Data.View
 
         #region[字段]
         private byte deviceid;      //设备号
-        private byte isload1;   //货物状态1 左
-        private byte isload2;   //货物状态2 右
+        //private byte isload1;   //货物状态1 左
+        //private byte isload2;   //货物状态2 右
+        private bool isload1;   //货物状态1 左
+        private bool isload2;   //货物状态2 右
         private bool isneed1;   //需求信号1 左
         private bool isneed2;   //需求信号2 右
         private byte fullqty;       //满砖数量
@@ -87,13 +89,15 @@ namespace wcs.Data.View
             get => deviceid;
         }
 
-        public byte IsLoad1//货物状态1 左
+        //public byte IsLoad1//货物状态1 左
+        public bool IsLoad1//货物状态1 左
         {
             set => Set(ref isload1, value);
             get => isload1;
         }
 
-        public byte IsLoad2//货物状态2 右
+        //public byte IsLoad2//货物状态2 右
+        public bool IsLoad2//货物状态2 右
         {
             set => Set(ref isload2, value);
             get => isload2;
@@ -207,18 +211,20 @@ namespace wcs.Data.View
             DeviceID = st.DeviceID;
             IsLoad1 = st.Load1;
             IsLoad2 = st.Load2;
-            switch (IsLoad1)
-            {
-                case 0:
-                    IsLoad1Brush = new SolidBrush(Color.Gray);
-                    break;
-                case 1:
-                    IsLoad1Brush = new SolidBrush(Color.Yellow);
-                    break;
-                case 2:
-                    IsLoad1Brush = new SolidBrush(Color.Orange);
-                    break;
-            }
+            //IsLoad1 = (byte)st.LoadStatus1;
+            //IsLoad2 = (byte)st.LoadStatus2;
+            //switch (IsLoad1)
+            //{
+            //    case 0:
+            //        IsLoad1Brush = new SolidBrush(Color.Yellow);
+            //        break;
+            //    case 1:
+            //        IsLoad1Brush = new SolidBrush(Color.Yellow);
+            //        break;
+            //    case 2:
+            //        IsLoad1Brush = new SolidBrush(Color.Orange);
+            //        break;
+            //}
             IsNeed1 = st.Need1;
             IsNeed2 = st.Need2;
             FullQty = st.FullQty;

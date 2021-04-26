@@ -810,7 +810,7 @@ namespace task.device
 
             #region[检查基础信息]
 
-            if(task.DevConfig == null)
+            if (task.DevConfig == null)
             {
                 mlog.Warn(true, task.ID + "：没有 config");
                 return;
@@ -933,7 +933,7 @@ namespace task.device
             #region[自动离开]
 
             //工位1
-            if(!task.IsNeed_1 && task.IsInvo_1)
+            if (!task.IsNeed_1 && task.IsInvo_1)
             {
                 bool isOK = false;
                 switch (task.DevConfig.WorkMode)
@@ -1066,7 +1066,7 @@ namespace task.device
                     }
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid, 
+                        !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid,
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckInStrategy(task, task.DevConfig.left_track_id, gid);
@@ -1125,10 +1125,12 @@ namespace task.device
 
                     if (!CheckUpBrotherIsReady(task, true, true)) return;
 
+                    if (!CheckUpBrotherIsFullSign(task, true)) return;
+
                     #region[生成出库交易]
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.pre_goodid, 
+                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.pre_goodid,
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.left_track_id);
@@ -1299,6 +1301,8 @@ namespace task.device
 
                     if (!CheckUpBrotherIsReady(task, true, false)) return;
 
+                    if (!CheckUpBrotherIsFullSign(task, false)) return;
+
                     #region[生成出库交易]
 
                     if (task.DevConfig.do_cutover &&
@@ -1376,7 +1380,7 @@ namespace task.device
             #endregion
 
         }
-    
+
         /// <summary>
         /// 是否允许作为任务品种
         /// </summary>
@@ -1530,7 +1534,7 @@ namespace task.device
                     PubMaster.Warn.AddDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -1716,7 +1720,7 @@ namespace task.device
 
         internal List<TileLifterTask> GetDevTileLifters(List<uint> areaids)
         {
-            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+            return DevList.FindAll(c => areaids.Contains(c.AreaId));
         }
 
         internal List<TileLifterTask> GetDevTileLifters(List<DeviceTypeE> types)
@@ -1982,7 +1986,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 检查上砖机兄弟砖机是否满砖状态
+        /// 检查上砖机兄弟砖机是否满砖状态和介入状态
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
@@ -2003,21 +2007,6 @@ namespace task.device
                     {
                         if (brotaskin.IsNeed_2) return false;//右轨道检查需求2
                     }
-
-                    #region[开关-启用砖机的-满砖信号]
-                    if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
-                    {
-                        if (checkleft)
-                        {
-                            if (brotaskin.LoadStatus1 != DevLifterLoadE.满砖) return false;//左轨道检查满装状态1
-                        }
-                        else
-                        {
-                            if (brotaskin.LoadStatus2 != DevLifterLoadE.满砖) return false;//右轨道检查满砖状态2
-                        }
-                    }
-                    #endregion
-
                     return true;
                 }
                 return true;
@@ -2027,26 +2016,6 @@ namespace task.device
             if (brotask == null) return false;
             if (brotask.ConnStatus == SocketConnectStatusE.通信正常)
             {
-                #region[开关-启用砖机的-满砖信号]
-                if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
-                {
-                    if (checkleft)
-                    {
-                        if (task.LoadStatus2 == DevLifterLoadE.满砖 && brotask.IsEmpty_2)
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        if (task.LoadStatus1 == DevLifterLoadE.满砖 && brotask.IsEmpty_1)
-                        {
-                            return false;
-                        }
-                    }
-                }
-                #endregion
-
                 if (checkleft)
                 {
                     if ((brotask.IsNeed_1 || brotask.IsInvo_1) && brotask.IsEmpty_1) return true;//如果兄弟砖机左工位有需求或介入且无砖，就可以生成出库任务                       
@@ -2070,6 +2039,66 @@ namespace task.device
             }
         }
 
+
+        /// <summary>
+        /// 检查上砖机兄弟砖机是否满砖状态
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        private bool CheckUpBrotherIsFullSign(TileLifterTask task, bool checkleft)
+        {
+            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+            {
+                return true;
+            }
+            //外侧上砖机          
+            if (!task.HaveBrother)
+            {
+                TileLifterTask brotaskin = DevList.Find(c => c.BrotherId == task.ID);//查找有BrotherId是该砖机ID的砖机(及并联内侧上砖机)
+                if (brotaskin == null) return true;
+                if (task.IsWorking && brotaskin.ConnStatus == SocketConnectStatusE.通信正常)
+                {
+                    #region[检查远离摆渡车的砖机是否满砖状态]
+
+                    if (checkleft)
+                    {
+                        if (brotaskin.LoadStatus1 != DevLifterLoadE.满砖) return false;//左轨道检查满装状态1
+                    }
+                    else
+                    {
+                        if (brotaskin.LoadStatus2 != DevLifterLoadE.满砖) return false;//右轨道检查满砖状态2
+                    }
+
+                    #endregion
+                }
+                return true;
+            }
+
+            TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);//DevList.Find(c => c.BrotherId == task.ID)
+            if (brotask == null) return false;
+            if (brotask.ConnStatus == SocketConnectStatusE.通信正常)
+            {
+                #region[开关-启用砖机的-满砖信号]
+
+                if (checkleft)
+                {
+                    if (task.LoadStatus2 == DevLifterLoadE.满砖 && brotask.IsEmpty_2)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (task.LoadStatus1 == DevLifterLoadE.满砖 && brotask.IsEmpty_1)
+                    {
+                        return false;
+                    }
+                }
+
+                #endregion
+            }
+            return true;
+        }
         #endregion
 
         #region[发送信息]

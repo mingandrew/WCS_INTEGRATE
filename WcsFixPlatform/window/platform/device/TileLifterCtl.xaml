@@ -116,8 +116,15 @@
                             <DataTemplate>
                                 <Grid Margin="5,5,5,5">
                                     <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
-                                        <Ellipse Width="25" Height="25" Fill="{Binding IsLoad1Brush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
                                     </Border>
+                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                                            Visibility="{Binding IsLoad1,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource WarningBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>
+                                    <!--<Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                        <Ellipse Width="25" Height="25" Fill="{Binding IsLoad1Brush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                    </Border>-->
                                 </Grid>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
