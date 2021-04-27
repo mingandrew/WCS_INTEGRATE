@@ -46,6 +46,8 @@
         public static string UseUpSplitPoint = nameof(UseUpSplitPoint);                 //开关-启用上砖侧分割点坐标逻辑
         public static string CannotUseUpSplitStock = nameof(CannotUseUpSplitStock);     //开关-限制直接使用上砖侧分割点后的库存
         public static string EnableDiagnose = nameof(EnableDiagnose);                   //开关-启用分析服务
+
+        public static string UseTileFullSign = nameof(UseTileFullSign);                 //开关-启用砖机的-满砖信号
         #endregion
     }
 

@@ -447,7 +447,7 @@ namespace simtask
                             OnUnloading = true;
                         }
 
-                        if (TO_SITE == TargetTrack.rfid_1)
+                        if (TO_SITE == TargetTrack.rfid_1 || TO_SITE == TargetTrack.rfid_2)
                         {
                             int dif = NowTrack.Type == TrackTypeE.摆渡车_入 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);

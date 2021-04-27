@@ -76,6 +76,11 @@ namespace task.task
             get => !DevStatus?.Load1 ?? false;
         }
 
+        public DevLifterLoadE LoadStatus1
+        {
+            get => DevStatus?.LoadStatus1 ?? DevLifterLoadE.无砖;
+        }
+
         public bool IsLoad_2
         {
             get => DevStatus?.Load2 ?? false;
@@ -83,6 +88,11 @@ namespace task.task
         public bool IsEmpty_2
         {
             get => !DevStatus?.Load2 ?? false;
+        }
+
+        public DevLifterLoadE LoadStatus2
+        {
+            get => DevStatus?.LoadStatus2 ?? DevLifterLoadE.无砖;
         }
 
         public bool IsInvo_1

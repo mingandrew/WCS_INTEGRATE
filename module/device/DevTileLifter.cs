@@ -6,8 +6,10 @@ namespace module.device
     {
         #region[字段]
         private byte deviceid;      //设备号
-        private bool loadstatus1;   //货物状态1 左
-        private bool isload2;       //货物状态2 右
+        //private bool isload1;       //货物状态1 左
+        //private bool isload2;       //货物状态2 右
+        private byte isload1;       //货物状态1 左
+        private byte isload2;       //货物状态2 右
         private bool isneed1;       //需求信号1 左
         private bool isneed2;       //需求信号2 右
         private byte fullqty;       //满砖数量
@@ -47,19 +49,55 @@ namespace module.device
         /// <summary>
         /// 货物状态1 左
         /// </summary>
+        //public bool Load1
+        //{
+        //    set => Set(ref isload1, value);
+        //    get => isload1;
+        //}
+
+        /// <summary>
+        /// 货物状态1 左
+        /// </summary>
         public bool Load1
         {
-            set => Set(ref loadstatus1, value);
-            get => loadstatus1;
+            set => Set(ref isload1, (byte)(value ? 1 : 0));
+            get => LoadStatus1 != DevLifterLoadE.无砖;
         }
+
+        /// <summary>
+        /// 货物状态1 左
+        /// </summary>
+        public DevLifterLoadE LoadStatus1
+        {
+            set => Set(ref isload1, (byte)value);
+            get => (DevLifterLoadE)isload1;
+        }
+
+        /// <summary>
+        /// 货物状态2 右
+        /// </summary>
+        //public bool Load2
+        //{
+        //    set => Set(ref isload2,value);
+        //    get => isload2;
+        //}
 
         /// <summary>
         /// 货物状态2 右
         /// </summary>
         public bool Load2
         {
-            set => Set(ref isload2,value);
-            get => isload2;
+            set => Set(ref isload2, (byte)(value ? 1 : 0));
+            get => LoadStatus2 != DevLifterLoadE.无砖;
+        }
+
+        /// <summary>
+        /// 货物状态2 右
+        /// </summary>
+        public DevLifterLoadE LoadStatus2
+        {
+            set => Set(ref isload2, (byte)value);
+            get => (DevLifterLoadE)isload2;
         }
 
         /// <summary>

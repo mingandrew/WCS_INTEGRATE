@@ -73,8 +73,10 @@ namespace socket.process
 
             mDev.ReSetUpdate();
             mDev.DeviceID = st.DeviceID;
-            mDev.Load1 = st.LoadStatus1 == 1;
-            mDev.Load2 = st.LoadStatus2 == 1;
+            //mDev.Load1 = st.LoadStatus1 == 1;
+            //mDev.Load2 = st.LoadStatus2 == 1;
+            mDev.LoadStatus1 = (DevLifterLoadE)st.LoadStatus1;
+            mDev.LoadStatus2 = (DevLifterLoadE)st.LoadStatus2;
             mDev.Need1 = st.NeedStatus1 == 1;
             mDev.Need2 = st.NeedStatus2 == 1;
             mDev.FullQty = st.FullQty;

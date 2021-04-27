@@ -1125,6 +1125,8 @@ namespace task.device
 
                     if (!CheckUpBrotherIsReady(task, true, true)) return;
 
+                    if (!CheckUpBrotherIsFullSign(task, true)) return;
+
                     #region[生成出库交易]
 
                     if (task.DevConfig.do_cutover &&
@@ -1298,6 +1300,8 @@ namespace task.device
                     if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
 
                     if (!CheckUpBrotherIsReady(task, true, false)) return;
+
+                    if (!CheckUpBrotherIsFullSign(task, false)) return;
 
                     #region[生成出库交易]
 
@@ -2096,6 +2100,67 @@ namespace task.device
                     return brotask.Ignore_2;
                 }
             }
+        }
+
+
+        /// <summary>
+        /// 检查上砖机兄弟砖机是否满砖状态
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        private bool CheckUpBrotherIsFullSign(TileLifterTask task, bool checkleft)
+        {
+            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+            {
+                return true;
+            }
+            //外侧上砖机          
+            if (!task.HaveBrother)
+            {
+                TileLifterTask brotaskin = DevList.Find(c => c.BrotherId == task.ID);//查找有BrotherId是该砖机ID的砖机(及并联内侧上砖机)
+                if (brotaskin == null) return true;
+                if (task.IsWorking && brotaskin.ConnStatus == SocketConnectStatusE.通信正常)
+                {
+                    #region[检查远离摆渡车的砖机是否满砖状态]
+
+                    if (checkleft)
+                    {
+                        if (brotaskin.LoadStatus1 != DevLifterLoadE.满砖) return false;//左轨道检查满砖状态1
+                    }
+                    else
+                    {
+                        if (brotaskin.LoadStatus2 != DevLifterLoadE.满砖) return false;//右轨道检查满砖状态2
+                    }
+
+                    #endregion
+                }
+                return true;
+            }
+
+            TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);//DevList.Find(c => c.BrotherId == task.ID)
+            if (brotask == null) return false;
+            if (brotask.ConnStatus == SocketConnectStatusE.通信正常)
+            {
+                #region[开关-启用砖机的-满砖信号]
+
+                if (checkleft)
+                {
+                    if (task.LoadStatus2 == DevLifterLoadE.满砖 && brotask.IsEmpty_2)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (task.LoadStatus1 == DevLifterLoadE.满砖 && brotask.IsEmpty_1)
+                    {
+                        return false;
+                    }
+                }
+
+                #endregion
+            }
+            return true;
         }
 
         #endregion
