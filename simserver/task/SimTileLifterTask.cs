@@ -119,12 +119,14 @@ namespace simtask.task
                     {
                         DevStatus.Load1 = false;
                         DevStatus.Need1 = true;
+                        DevStatus.LoadStatus1 = DevLifterLoadE.无砖;
                     }
 
                     if(Device.Type2 == DeviceType2E.双轨 && DevStatus.Site2Qty == 0)
                     {
                         DevStatus.Load2 = false;
                         DevStatus.Need2 = true;
+                        DevStatus.LoadStatus2 = DevLifterLoadE.无砖;
                     }
 
                     if (Device.Type2 == DeviceType2E.单轨 
@@ -183,6 +185,7 @@ namespace simtask.task
                             DevStatus.Goods1 = DevStatus.SetGoods;
                             DevStatus.Load1 = true;
                             DevStatus.Need1 = true;
+                            DevStatus.LoadStatus1 = DevLifterLoadE.满砖;
                         }
                     }
 
@@ -193,6 +196,7 @@ namespace simtask.task
                             DevStatus.Goods2 = DevStatus.SetGoods;
                             DevStatus.Load2 = true;
                             DevStatus.Need2 = true;
+                            DevStatus.LoadStatus2 = DevLifterLoadE.满砖;
                         }
                     }
 

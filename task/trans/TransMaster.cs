@@ -1807,6 +1807,16 @@ namespace task.trans
 
                         #region[小车在摆渡车]
                         case TrackTypeE.摆渡车_出:
+                            #region[分配摆渡车]
+                            //还没有分配取货过程中的摆渡车
+                            if (trans.take_ferry_id == 0
+                                && PubTask.Carrier.IsStopFTask(trans.carrier_id))
+                            {
+                                AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                                //调度摆渡车接运输车
+                            }
+                            #endregion
+
                             if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                             {
                                 //小车回到原轨道

@@ -196,6 +196,9 @@ VALUES (65, 8, 'EnableDiagnose', '开关-启用分析服务', NULL, b'0', '', NU
 
 
 
+2021.04.27
+新增开关启用砖机的-满砖信号sql：
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (66, 8, 'UseTileFullSign', '开关-启用砖机的-满砖信号', NULL, b'0', '', NULL, NULL, NULL, NULL);
 
 
 

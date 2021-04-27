@@ -9,7 +9,8 @@
     public enum DevLifterLoadE
     {
         无砖,
-        有砖
+        有砖,
+        满砖
     }
 
     public enum DevLifterInvolE
