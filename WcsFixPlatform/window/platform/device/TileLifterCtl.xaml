@@ -19,7 +19,7 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
+                <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0" />
                 <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
                                 ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
@@ -116,11 +116,7 @@
                             <DataTemplate>
                                 <Grid Margin="5,5,5,5">
                                     <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                    </Border>
-                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
-                                            Visibility="{Binding IsLoad1,Converter={StaticResource Boolean2VisibilityConverter}}">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource WarningBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        <Ellipse Width="25" Height="25" Fill="{Binding IsLoad1Brush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
                                     </Border>
                                 </Grid>
                             </DataTemplate>
@@ -134,11 +130,7 @@
                             <DataTemplate>
                                 <Grid Margin="5,5,5,5">
                                     <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                    </Border>
-                                    <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
-                                            Visibility="{Binding IsLoad2,Converter={StaticResource Boolean2VisibilityConverter}}">
-                                        <Ellipse Width="25" Height="25" Fill="{DynamicResource WarningBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        <Ellipse Width="25" Height="25" Fill="{Binding IsLoad2Brush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
                                     </Border>
                                 </Grid>
                             </DataTemplate>
@@ -233,7 +225,7 @@
                     <DataGridTextColumn Binding="{Binding ShiftStatus}" Header="转产状态"/>
 
 
-                 
+
                     <!--<DataGridTextColumn Binding="{Binding Goods1}" Header="左工位品种ID" Visibility="Hidden"/>
                     <DataGridTextColumn Binding="{Binding Goods2}" Header="右工位品种ID" Visibility="Hidden"/>
                     <DataGridTextColumn Binding="{Binding SetGoods}" Header="设定品种ID" Visibility="Hidden"/>
