@@ -253,8 +253,8 @@ namespace module.device
         public override string ToString()
         {
             return string.Format("物1[ {0} ], 物2[ {1} ], 需1[ {2} ], 需2[ {3} ], 满[ {4} ], 工1[ {5} ], 工1[ {6} ], 介1[ {7} ], 介2[ {8} ], 操作[ {9} ], " +
-                "位1[ {10} ], 位2[ {11} ], 转产[ {12} ], 接收[ {13} ], 模式[ {14} ], 设定品种[ {15} ], 设定等级[ {16} ], 转产信号[ {17} ], 备用设备[ {18} ]", 
-                S(Load1), S(Load2), S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,  
+                "位1[ {10} ], 位2[ {11} ], 转产[ {12} ], 接收[ {13} ], 模式[ {14} ], 设定品种[ {15} ], 设定等级[ {16} ], 转产信号[ {17} ], 备用设备[ {18} ]",
+                LoadStatus1, LoadStatus2, S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,  
                 Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel, S(NeedSytemShift), BackupShiftDev);
         }
 
