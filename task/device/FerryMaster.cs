@@ -676,8 +676,11 @@ namespace task.device
                 {
                     foreach (FerryTask item in ferrys)
                     {
-                        item.DoStop(memo, "逻辑安全");
-                        mlog.Info(true, string.Format(@"摆渡车[ {0} ],  [ {1} ]", item.Device.name, memo));
+                        if (item.IsNotDoingTask)
+                        {
+                            item.DoStop(memo, "逻辑安全");
+                            mlog.Info(true, string.Format(@"摆渡车[ {0} ],  [ {1} ]", item.Device.name, memo));
+                        }
                     }
                 }
             }

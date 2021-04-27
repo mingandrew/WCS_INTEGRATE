@@ -1,7 +1,7 @@
 ﻿using enums;
 using GalaSoft.MvvmLight;
 using module.device;
-using System;
+using System.Windows.Media;
 
 namespace wcs.Data.View
 {
@@ -57,8 +57,8 @@ namespace wcs.Data.View
 
         #region[字段]
         private byte deviceid;      //设备号
-        private bool loadstatus1;   //货物状态1 左
-        private bool isload2;   //货物状态2 右
+        //private DevLifterLoadE isload1;   //货物状态1 左
+        //private DevLifterLoadE isload2;   //货物状态2 右
         private bool isneed1;   //需求信号1 左
         private bool isneed2;   //需求信号2 右
         private byte fullqty;       //满砖数量
@@ -74,6 +74,10 @@ namespace wcs.Data.View
         private TileShiftStatusE shiftstatus;   //转产状态
         private uint setgoods;   //设定品种
         private byte setlevel;   //设定等级
+
+
+        private SolidColorBrush isload1brush = Gray;   //货物状态1 颜色
+        private SolidColorBrush isload2brush = Gray;   //货物状态2 颜色
         #endregion
 
         #region[属性]
@@ -83,16 +87,24 @@ namespace wcs.Data.View
             get => deviceid;
         }
 
-        public bool IsLoad1//货物状态1 左
-        {
-            set => Set(ref loadstatus1, value);
-            get => loadstatus1;
-        }
+        private DevLifterLoadE LoadStatus1 { set; get; }//货物状态1 左
 
-        public bool IsLoad2//货物状态2 右
+        private DevLifterLoadE LoadStatus2 { set; get; }//货物状态2 右
+
+        #region[工位状态]
+        private static SolidColorBrush Gray = new SolidColorBrush(Color.FromRgb(224,224,224));
+        private static SolidColorBrush Yellow = new SolidColorBrush(Color.FromRgb(238, 170, 34));
+        private static SolidColorBrush Orange = new SolidColorBrush(Color.FromRgb(255, 94, 3));
+        #endregion
+        public SolidColorBrush IsLoad1Brush
         {
-            set => Set(ref isload2, value);
-            get => isload2;
+            get => isload1brush;
+            set => Set(ref isload1brush, value);
+        }
+        public SolidColorBrush IsLoad2Brush
+        {
+            get => isload2brush;
+            set => Set(ref isload2brush, value);
         }
 
         public bool IsNeed1//需求信号1 左
@@ -190,8 +202,41 @@ namespace wcs.Data.View
             StrategyInE instrategy, StrategyOutE outstrategy, bool working, string tid, DevWorkTypeE wtype)
         {
             DeviceID = st.DeviceID;
-            IsLoad1 = st.Load1;
-            IsLoad2 = st.Load2;
+            if(LoadStatus1 != st.LoadStatus1)
+            {
+                switch (st.LoadStatus1)
+                {
+                    case DevLifterLoadE.无砖:
+                        IsLoad1Brush = Gray;
+                        break;
+                    case DevLifterLoadE.有砖:
+                        IsLoad1Brush = Yellow;
+                        break;
+                    case DevLifterLoadE.满砖:
+                        IsLoad1Brush = Orange;
+                        break;
+                }
+                LoadStatus1 = st.LoadStatus1;
+            }
+
+
+            if (LoadStatus2 != st.LoadStatus2)
+            {
+                switch (st.LoadStatus1)
+                {
+                    case DevLifterLoadE.无砖:
+                        IsLoad2Brush = Gray;
+                        break;
+                    case DevLifterLoadE.有砖:
+                        IsLoad2Brush = Yellow;
+                        break;
+                    case DevLifterLoadE.满砖:
+                        IsLoad2Brush = Orange;
+                        break;
+                }
+                LoadStatus2 = st.LoadStatus2;
+            }
+
             IsNeed1 = st.Need1;
             IsNeed2 = st.Need2;
             FullQty = st.FullQty;
