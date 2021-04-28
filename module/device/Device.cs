@@ -1,4 +1,6 @@
 ﻿using enums;
+using System;
+using System.Linq;
 
 namespace module.device
 {
@@ -48,5 +50,14 @@ namespace module.device
             set => att2 = (byte)value;
         }
 
+        public bool InType(DeviceTypeE[] types)
+        {
+            return types.Contains(Type);
+        }
+
+        public bool NotInType(DeviceTypeE[] types)
+        {
+            return !types.Contains(Type);
+        }
     }
 }

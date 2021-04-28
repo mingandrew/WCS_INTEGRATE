@@ -1,7 +1,9 @@
 ﻿using enums;
 using resource;
+using task.diagnose.trans;
+using task.trans;
 
-namespace task.trans.diagnose
+namespace task.diagnose
 {
     /// <summary>
     /// 分析任务管理
@@ -10,6 +12,7 @@ namespace task.trans.diagnose
     {
         #region[分析]
         SortTaskDiagnose SortDiagnose;
+        MoveCarDiagnose MoveDiagnose;
         #endregion
 
         /// <summary>
@@ -19,6 +22,7 @@ namespace task.trans.diagnose
         public DiagnoseServer(TransMaster trans)
         {
             SortDiagnose = new SortTaskDiagnose(trans);
+            MoveDiagnose = new MoveCarDiagnose(trans);
         }
 
         /// <summary>
@@ -30,7 +34,11 @@ namespace task.trans.diagnose
 
             try
             {
-                SortDiagnose?.Diagnose();
+                //分析倒库：暂停倒库，恢复倒库
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSortDiagnose)) SortDiagnose?.Diagnose();
+                //分析分配运输车：移车任务
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableMoveCarDiagnose))  MoveDiagnose?.Diagnose();
+
             }
             catch { }
         }

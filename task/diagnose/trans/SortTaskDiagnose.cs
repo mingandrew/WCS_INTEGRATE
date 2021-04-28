@@ -3,19 +3,16 @@ using module.goods;
 using module.line;
 using module.track;
 using resource;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using task.trans;
 using tool.mlog;
 
-namespace task.trans.diagnose
+namespace task.diagnose.trans
 {
     /// <summary>
     /// 分析倒库任务是否需要暂停，并且是否释放小车，优先上砖
     /// </summary>
-    public class SortTaskDiagnose : BaseDiagnose
+    public class SortTaskDiagnose : TransBaseDiagnose
     {
         public SortTaskDiagnose(TransMaster m) : base(m)
         {

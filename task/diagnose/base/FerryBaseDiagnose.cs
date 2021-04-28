@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using task.device;
 using tool.mlog;
 
-namespace task.trans
+namespace task.diagnose
 {
-    /// <summary>
-    /// 任务分析类
-    /// </summary>
-    public abstract class BaseDiagnose
+    public abstract class FerryBaseDiagnose
     {
-        protected TransMaster _M {private set; get; }
+        protected FerryMaster _M { private set; get; }
         internal Log _mLog;
-        public BaseDiagnose(TransMaster master)
+        public FerryBaseDiagnose(FerryMaster master)
         {
             _M = master;
         }

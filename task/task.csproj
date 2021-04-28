@@ -62,6 +62,8 @@
     <Compile Include="device\TileLifterMaster.cs" />
     <Compile Include="device\TileLifterNeedMaster.cs" />
     <Compile Include="device\TrafficControlMaster.cs" />
+    <Compile Include="diagnose\base\FerryBaseDiagnose.cs" />
+    <Compile Include="diagnose\trans\MoveCarDiagnose.cs" />
     <Compile Include="ping\PingMaster.cs" />
     <Compile Include="rf\RfMaster.cs" />
     <Compile Include="task\CarrierTask.cs" />
@@ -70,10 +72,10 @@
     <Compile Include="task\FerryTask.cs" />
     <Compile Include="task\TaskBase.cs" />
     <Compile Include="task\TileLifterTask.cs" />
-    <Compile Include="trans\diagnose\DiagnoseServer.cs" />
-    <Compile Include="trans\diagnose\SortTaskDiagnose.cs" />
+    <Compile Include="diagnose\DiagnoseServer.cs" />
+    <Compile Include="diagnose\trans\SortTaskDiagnose.cs" />
     <Compile Include="trans\TransBase.cs" />
-    <Compile Include="trans\diagnose\BaseDiagnose.cs" />
+    <Compile Include="diagnose\base\TransBaseDiagnose.cs" />
     <Compile Include="trans\TransMaster.cs" />
   </ItemGroup>
   <ItemGroup>

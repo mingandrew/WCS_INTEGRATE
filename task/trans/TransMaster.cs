@@ -2,7 +2,6 @@
 using enums.track;
 using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
-using module.area;
 using module.goods;
 using module.tiletrack;
 using module.track;
@@ -3548,8 +3547,9 @@ namespace task.trans
 
                                             foreach (uint t in tids)
                                             {
-                                                if (!IsTraInTrans(t) && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) &&
-                                                    !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                                if (!IsTraInTrans(t) 
+                                                    && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t) 
+                                                    && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                                 {
                                                     if (SetTakeSite(trans, t))
                                                     {
@@ -4167,12 +4167,14 @@ namespace task.trans
 
                         List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, PubMaster.Track.GetTrackOrder(trackid));
 
-                        List<AreaDeviceTrack> traone = PubMaster.Area.GetFerryTrackId(trackid);
+                        //能去这个取货/卸货轨道的所有配置的摆渡车信息
+                        List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(trackid);
+
                         foreach (uint t in tids)
                         {
                             if (!IsTraInTrans(t)
                                 && !PubTask.Carrier.HaveInTrack(t, carrierid)
-                                && PubMaster.Area.ExistFerryToBothTrack(traone, t))
+                                && PubMaster.Area.ExistFerryWithTrack(ferryids, t))
                             {
                                 givetrackid = t;
                                 break;
@@ -4686,10 +4688,9 @@ namespace task.trans
         /// 是否允许继续分配运输车
         /// </summary>
         /// <returns></returns>
-        private bool IsAllowToHaveCarTask(uint area, ushort line, TransTypeE tt)
+        internal bool IsAllowToHaveCarTask(uint area, ushort line, TransTypeE tt)
         {
-            int count = TransList.Count(c => !c.finish && c.area_id == area && c.line == line
-                                && c.TransType == tt && c.carrier_id > 0);
+            int count = TransList.Count(c => !c.finish && c.area_id == area && c.line == line && c.TransType == tt && c.carrier_id > 0);
             switch (tt)
             {
                 case TransTypeE.手动下砖:
@@ -4712,8 +4713,19 @@ namespace task.trans
         /// <returns></returns>
         internal bool IsExistsTask(uint area, TransTypeE tt)
         {
-            return TransList.Exists(c => !c.finish && c.area_id == area && c.TransType == tt &&
-                (c.take_ferry_id == 0 || c.give_ferry_id == 0));
+            return TransList.Exists(c => !c.finish && c.area_id == area && c.TransType == tt &&  (c.take_ferry_id == 0 || c.give_ferry_id == 0));
+        }
+
+        /// <summary>
+        /// 是否存在区域线路类型的任务
+        /// </summary>
+        /// <param name="area">区域ID</param>
+        /// <param name="line">线路ID</param>
+        /// <param name="types">任务类型</param>
+        /// <returns></returns>
+        public bool ExistAreaLineType(uint area, uint line, params TransTypeE[] types)
+        {
+            return TransList.Exists(c => c.area_id == area && c.line == line && c.InType(types));
         }
 
         /// <summary>
