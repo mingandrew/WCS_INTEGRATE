@@ -139,6 +139,16 @@ namespace task.task
             }
         }
 
+
+        /// <summary>
+        /// 摆渡目的轨道ID
+        /// </summary>
+        public uint TargetTrackId
+        {
+            get => PubMaster.Track.GetAreaTrack(ID, (ushort)AreaId, Type, DevStatus.TargetSite);
+        }
+
+
         /// <summary>
         /// 摆渡轨道ID
         /// </summary>
@@ -723,6 +733,24 @@ namespace task.task
         private bool On(byte b, byte p)
         {
             return (b >> p) % 2 == 1;
+        }
+
+        #endregion
+
+        #region [数据信息]
+
+        /// <summary>
+        /// 获取当前摆渡车信息
+        /// 运动/指令/位置
+        /// </summary>
+        /// <returns></returns>
+        public string GetInfo()
+        {
+            return string.Format("摆渡车[ {0} ], 设备状态[ {1} ], 当前指令[{2} ], 完成指令[{3} ], 当前轨道[ {4} ], 目的轨道[ {5} ], 记录轨道[ {6} ]",
+                Device.name, DevStatus.DeviceStatus, DevStatus.CurrentTask, DevStatus.FinishTask, 
+                PubMaster.Track.GetTrackName(GetFerryCurrentTrackId()), 
+                PubMaster.Track.GetTrackName(TargetTrackId), 
+                PubMaster.Track.GetTrackName(RecordTraId));
         }
 
         #endregion
