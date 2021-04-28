@@ -549,7 +549,7 @@ namespace simtask
                 #endregion
 
                 #region[前进倒库]
-                case DevCarrierOrderE.前进倒库:
+                case DevCarrierOrderE.往前倒库:
                     //从摆渡车进入轨道的过程
                     if (EndTrack != null && NowTrack != null
                         && NowTrack.id != EndTrack.id
@@ -645,7 +645,7 @@ namespace simtask
                                 }
                                 else
                                 {
-                                    FinishAndStop(DevCarrierOrderE.前进倒库);
+                                    FinishAndStop(DevCarrierOrderE.往前倒库);
                                 }
                                 break;
                         }
@@ -742,7 +742,7 @@ namespace simtask
                                 }
                                 else
                                 {
-                                    FinishAndStop(DevCarrierOrderE.前进倒库);
+                                    FinishAndStop(DevCarrierOrderE.往前倒库);
                                 }
                                 break;
                         }
@@ -753,7 +753,7 @@ namespace simtask
                 #endregion
 
                 #region[后退倒库]
-                case DevCarrierOrderE.后退倒库:
+                case DevCarrierOrderE.往后倒库:
                     break;
                 #endregion
 
@@ -1167,8 +1167,8 @@ namespace simtask
                 }
             }
 
-            if (cmd.CarrierOrder == DevCarrierOrderE.前进倒库
-                || cmd.CarrierOrder == DevCarrierOrderE.后退倒库)
+            if (cmd.CarrierOrder == DevCarrierOrderE.往前倒库
+                || cmd.CarrierOrder == DevCarrierOrderE.往后倒库)
             {
                 if(TO_POINT != ZERO_POINT)
                 {

@@ -303,6 +303,7 @@ namespace task.device
                 DevStatus.TargetPoint = 0;
                 DevStatus.CurrentOrder = DevCarrierOrderE.无;
                 DevStatus.FinishOrder = DevCarrierOrderE.无;
+                DevStatus.Position = DevCarrierPositionE.异常;
                 CurrentTrackId = 0;
                 TargetTrackId = 0;
                 LastTrackId = 0;
@@ -1234,6 +1235,22 @@ namespace task.device
         internal bool NotInTask(params DevCarrierOrderE[] order)
         {
             return !InTask(order);
+        }
+
+        #endregion
+
+        #region [数据信息]
+
+        /// <summary>
+        /// 获取当前运输车信息
+        /// 运动/指令/位置
+        /// </summary>
+        /// <returns></returns>
+        public string GetInfo()
+        {
+            return string.Format("运输车[ {0} ], 设备状态[ {1} ], 位置状态[ {2} ], 当前指令[ {3} ], 完成指令[ {4} ], 记录指令[ {5} ], 当前轨道[ {6} ], 目的轨道[ {7} ]",
+                Device.name, DevStatus.DeviceStatus, DevStatus.Position, DevStatus.CurrentOrder, DevStatus.FinishOrder, OnGoingOrder,
+                PubMaster.Track.GetTrackName(CurrentTrackId), PubMaster.Track.GetTrackName(TargetTrackId));
         }
 
         #endregion

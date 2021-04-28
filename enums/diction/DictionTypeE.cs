@@ -48,6 +48,8 @@
         public static string EnableDiagnose = nameof(EnableDiagnose);                   //开关-启用分析服务
 
         public static string UseTileFullSign = nameof(UseTileFullSign);                 //开关-启用砖机的-满砖信号
+
+        public static string EnableCarrierTraffic = nameof(EnableCarrierTraffic);                 //开关-启用运输车交管摆渡车
         #endregion
     }
 

@@ -45,6 +45,9 @@
         FailAllocateFerry, //分配摆渡车失败
 
         UpTileEmptyNeedAndNoBack, //任务中上砖机没有需求信号且小车无轨可回
+
+        CarrierFreeButMoveInFerry, //运输车空闲状态(停止/指令完成)，但处于上下摆渡中
+        CarrierFreeInFerryButLocErr, //运输车空闲状态(停止/指令完成)在摆渡上，但当前轨道有误
     }
 
     /// <summary>

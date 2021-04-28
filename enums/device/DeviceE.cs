@@ -80,6 +80,7 @@
     /// </summary>
     public enum TrafficControlStatusE
     {
+        初始化,
         交管中,
         已完成,
     }

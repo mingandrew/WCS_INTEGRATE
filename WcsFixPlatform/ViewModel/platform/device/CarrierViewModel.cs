@@ -139,7 +139,15 @@ namespace wcs.ViewModel
                         break;
 
                     case 24://清空设备信息
-                        PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
+                        Growl.Ask("清除前请确认小车位于安全且不干扰作业的位置，如：所在轨道已停用，是维修轨道等", isConfirmed =>
+                        {
+                            if (isConfirmed)
+                            {
+                                string msg = PubTask.Carrier.ClearTaskStatus(DeviceSelected.ID);
+                                Growl.Info(msg);
+                            }
+                            return true;
+                        });
                         break;
 
                     default:

@@ -2268,7 +2268,7 @@ namespace task.trans
                         {
                             AddMoveCarrierTask(trans.take_track_id, fullcarrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
                         }
-                        else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
+                        else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                         {
                             havecarintake = false;
                         }
@@ -2330,8 +2330,8 @@ namespace task.trans
                         case TrackTypeE.储砖_入:
                             if (trans.take_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                                 {
                                     SetStatus(trans, TransStatusE.倒库中);
                                 }
@@ -2341,8 +2341,8 @@ namespace task.trans
 
                             if (trans.give_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                                 {
                                     if (!trans.IsReleaseGiveFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
@@ -2365,7 +2365,7 @@ namespace task.trans
                                         //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
-                                            Order = DevCarrierOrderE.前进倒库,
+                                            Order = DevCarrierOrderE.往前倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                             //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
@@ -2425,7 +2425,7 @@ namespace task.trans
                                         //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
-                                            Order = DevCarrierOrderE.前进倒库,
+                                            Order = DevCarrierOrderE.往前倒库,
                                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                             //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                             MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
@@ -2449,7 +2449,7 @@ namespace task.trans
                 #region[小车倒库]
                 case TransStatusE.倒库中:
 
-                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
+                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                     {
                         if (!PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
                         {
@@ -2466,7 +2466,7 @@ namespace task.trans
                             //继续倒库
                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                             {
-                                Order = DevCarrierOrderE.前进倒库,
+                                Order = DevCarrierOrderE.往前倒库,
                                 CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                 //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                 MoveCount = (byte)PubMaster.Goods.GetTrackStockCount(trans.take_track_id)
@@ -2718,8 +2718,8 @@ namespace task.trans
                         case TrackTypeE.储砖_入:
                             if (trans.take_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                                 {
                                     SetStatus(trans, TransStatusE.倒库中);
                                 }
@@ -2729,8 +2729,8 @@ namespace task.trans
 
                             if (trans.give_track_id == track.id)
                             {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
+                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                                 {
                                     if (!trans.IsReleaseGiveFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
@@ -2755,7 +2755,7 @@ namespace task.trans
                                         //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
-                                            Order = DevCarrierOrderE.前进倒库,
+                                            Order = DevCarrierOrderE.往前倒库,
                                             CheckTra = gtrack.ferry_down_code,
                                             ToSite = (ushort)(gtrack.split_point + 50),
                                             MoveCount = (byte)PubMaster.Goods.GetBehindUpSplitStockCount(gtrack.id, gtrack.up_split_point)
@@ -2818,7 +2818,7 @@ namespace task.trans
                                         //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
-                                            Order = DevCarrierOrderE.前进倒库,
+                                            Order = DevCarrierOrderE.往前倒库,
                                             CheckTra = gtrack.ferry_down_code,
                                             ToSite = (ushort)(gtrack.split_point + 50),
                                             MoveCount = (byte)PubMaster.Goods.GetBehindUpSplitStockCount(gtrack.id, gtrack.up_split_point)
@@ -2841,7 +2841,7 @@ namespace task.trans
 
                 #region[小车倒库]
                 case TransStatusE.倒库中:
-                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.前进倒库, DevCarrierOrderE.后退倒库))
+                    if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                     {
                         SetStatus(trans, TransStatusE.小车回轨);
                     }
@@ -5244,7 +5244,7 @@ namespace task.trans
                 //后退至轨道倒库
                 PubTask.Carrier.DoOrder(carrier_id, new CarrierActionOrder()
                 {
-                    Order = DevCarrierOrderE.前进倒库,
+                    Order = DevCarrierOrderE.往前倒库,
                     CheckTra = track.ferry_down_code,
                     ToSite = (ushort)(track.split_point + 50),//倒库时，不能超过脉冲(出库轨道附件脉冲位置)
                     MoveCount = (byte)PubMaster.Goods.GetBehindUpSplitStockCount(track.id, track.up_split_point)
@@ -5264,7 +5264,7 @@ namespace task.trans
         /// <returns></returns>
         private bool CheckCarrierInSortTaskAndAddTask(StockTrans trans, uint carrier_id, uint track_id)
         {
-            if (PubTask.Carrier.IsCarrierInTask(carrier_id, DevCarrierOrderE.前进倒库))
+            if (PubTask.Carrier.IsCarrierInTask(carrier_id, DevCarrierOrderE.往前倒库))
             {
                 Track track = PubMaster.Track.GetTrack(track_id);
                 if (PubMaster.Goods.ExistStockInTrack(track_id))

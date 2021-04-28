@@ -19,7 +19,7 @@ namespace resource.module.modulesql
         public List<TrafficControl> QueryTrafficCtlList()
         {
             List<TrafficControl> list = new List<TrafficControl>();
-            string sql = string.Format("SELECT t.* FROM traffic_control AS t WHERE t.traffic_control_status = 0 ORDER BY t.create_time");
+            string sql = string.Format("SELECT t.* FROM traffic_control AS t WHERE t.traffic_control_status <> {0} ORDER BY t.create_time", (int)TrafficControlStatusE.已完成);
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {
@@ -27,8 +27,8 @@ namespace resource.module.modulesql
             }
             return list;
         }
-
         #endregion
+
 
         #region[添加]
 
