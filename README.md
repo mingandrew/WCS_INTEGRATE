@@ -204,7 +204,7 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 2021.04.28
 新增开关启用运输车交管摆渡车，新增报警sql:
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name` , `bool_value`) VALUES (69, 8, 'UseTileFullSign', '开关-启用运输车交管摆渡车', b'0');
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name` , `bool_value`) VALUES (69, 8, 'EnableCarrierTraffic', '开关-启用运输车交管摆渡车', b'0');
 
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VALUES (225, 3, 'CarrierFreeButMoveInFerry', '运输车空闲状态(停止/指令完成)但处于上下摆渡中' , '运输车空闲状态(停止/指令完成)但处于上下摆渡中，无法解锁相应摆渡车');
 
