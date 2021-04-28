@@ -5,7 +5,7 @@ using resource;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using task.trans.diagnose;
+using task.diagnose;
 using tool.mlog;
 using tool.timer;
 

@@ -4,6 +4,7 @@ using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
 using module.area;
 using module.device;
+using module.goods;
 using module.msg;
 using module.rf;
 using module.track;
@@ -152,13 +153,52 @@ namespace resource.track
             return TrackList.FindAll(c => c.area == areaid);
         }
 
-        public List<uint> GetAreaSortOutTrack(uint areaid, uint line)
+        /// <summary>
+        /// 获取区域线路轨道指定类型的轨道的ID
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <param name="line">线路ID</param>
+        /// <param name="types">轨道类型</param>
+        /// <returns></returns>
+        public List<uint> GetAreaSortOutTrack(uint areaid, uint line, params TrackTypeE[] types)
         {
             return TrackList.FindAll(c => c.area == areaid 
                                     && c.line == line 
-                                    && c.Type == TrackTypeE.储砖_出)
+                                    && c.InType(types))
                 ?.Select(c => c.id).ToList() ?? new List<uint>();
         }
+
+        /// <summary>
+        /// 查找区域、线路、砖机配置的轨道
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <param name="line">线路ID</param>
+        /// <param name="tileid">砖机ID</param>
+        /// <param name="types">轨道类型/param>
+        /// <returns></returns>
+        public List<uint> GetAreaLineAndTileTrack(uint areaid, uint line, uint tileid, params TrackTypeE[] types)
+        {
+            List<uint> trackid = new List<uint>();
+            //查找砖机配置的轨道
+            if(tileid != 0)
+            {
+                List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, tileid);
+                List<uint> tiletraids = list?.Select(c => c.track_id).ToList() ?? new List<uint>();
+                trackid.AddRange(tiletraids);
+            }
+
+            //查找区域线路的所有轨道
+            foreach (var item in TrackList.FindAll(c=>c.area == areaid && c.line == line && c.InType(types)))
+            {
+                if (!trackid.Contains(item.id))
+                {
+                    trackid.Add(item.id);
+                }
+            }
+
+            return trackid;
+        }
+
         #endregion
 
         #region[获取属性]
@@ -1698,7 +1738,6 @@ namespace resource.track
         {
             return GetTrack(id)?.GetStatusLog() ?? "";
         }
-
         #endregion
     }
 }

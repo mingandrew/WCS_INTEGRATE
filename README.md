@@ -210,6 +210,10 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VA
 
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `string_value`) VALUES (226, 3, 'CarrierFreeInFerryButLocErr', '运输车空闲状态(停止/指令完成)在摆渡上，但当前轨道有误' , '运输车空闲状态(停止/指令完成)在摆渡上，但当前轨道有误，无法解锁相应摆渡车');
 
+新增字典分析服务开关sql:
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (67, 8, 'EnableSortDiagnose', '开关-启用倒库分析服务', NULL, b'0', '', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (68, 8, 'EnableMoveCarDiagnose', '开关-启用移车分析服务', NULL, b'0', '', NULL, NULL, NULL, NULL);
 
 
 

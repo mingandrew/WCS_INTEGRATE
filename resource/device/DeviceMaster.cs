@@ -3,6 +3,7 @@ using module.device;
 using module.goods;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using tool.mlog;
 
@@ -76,6 +77,16 @@ namespace resource.device
         public List<Device> GetFerrys()
         {
             return DeviceList.FindAll(c => c.Type == DeviceTypeE.上摆渡 || c.Type == DeviceTypeE.下摆渡);
+        }
+
+        internal List<uint> GetFerryIds()
+        {
+            return DeviceList.FindAll(c => c.Type == DeviceTypeE.上摆渡 || c.Type == DeviceTypeE.下摆渡)?.Select(c=>c.id).ToList();
+        }
+
+        internal List<uint> GetFerryIds(params DeviceTypeE[] types)
+        {
+            return DeviceList.FindAll(c =>c.InType(types))?.Select(c => c.id).ToList();
         }
 
         public List<Device> GetTileLifters()
