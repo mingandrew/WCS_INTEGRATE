@@ -174,7 +174,7 @@ namespace resource.goods
                         }
                         else
                         {
-                            count = (loc - track.limit_point) / safe;
+                            count =(int)Math.Round(((double)(loc - track.limit_point) / safe)); 
                         }
                         ableqty = count;
                         if (count < stockqty)

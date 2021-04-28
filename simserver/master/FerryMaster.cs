@@ -352,6 +352,7 @@ namespace simtask.master
                     task.DevStatus.CurrentTask = DevFerryTaskE.终止;
                     task.DevStatus.FinishTask = DevFerryTaskE.终止;
                     task.DevStatus.TargetSite = 0;
+                    task.DevStatus.DeviceStatus = DevFerryStatusE.停止;
                     break;
                     #endregion
             }

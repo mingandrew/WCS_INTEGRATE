@@ -10,6 +10,7 @@ using module.track;
 using resource;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using task.task;
 using tool.mlog;
@@ -1786,6 +1787,16 @@ namespace task.device
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 获取通讯且启用的摆渡ID集
+        /// </summary>
+        /// <param name="ferryids"></param>
+        /// <returns></returns>
+        public List<uint> GetWorkingAndEnable(List<uint> ferryids)
+        {
+            return DevList.FindAll(c => c.IsWorking && c.IsEnable && ferryids.Contains(c.ID))?.Select(c=>c.ID).ToList();
         }
 
         #endregion
