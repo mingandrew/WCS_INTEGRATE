@@ -1810,7 +1810,7 @@ namespace task.device
                                 && carrier.OperateMode == DevOperateModeE.自动)
                             {
                                 if (carrier.Status == DevCarrierStatusE.停止
-                                    && (carrier.CurrentOrder == carrier.FinishOrder || carrier.CurrentOrder == DevCarrierOrderE.无))
+                                    && carrier.IsNotDoingTask)
                                 {
                                     carrierid = carrier.ID;
                                     return true;
@@ -1865,7 +1865,8 @@ namespace task.device
                 List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
 
                 //能去这个取货/卸货轨道的所有配置的摆渡车信息
-                List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(ferrytype, trans.take_track_id,  trans.give_track_id);
+                List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(ferrytype, trans.take_track_id, trans.give_track_id);
+                ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
 
                 string carNames = "";
 
