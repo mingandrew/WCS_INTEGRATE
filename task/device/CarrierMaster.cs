@@ -1482,6 +1482,7 @@ namespace task.device
 
                 //能去这个倒库轨道所有配置的摆渡车轨道信息
                 List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(DeviceTypeE.上摆渡, trans.give_track_id);
+                ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
 
                 string carNames = "";
 
@@ -2173,11 +2174,13 @@ namespace task.device
             {
                 tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
                 ferryids = PubMaster.Area.GetWithTracksFerryIds(ferrytype, trans.take_track_id, trans.give_track_id);
+                ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
             }
             else
             {
                 tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.give_track_id, PubMaster.Track.GetTrackOrder(trans.give_track_id));
                 ferryids = PubMaster.Area.GetWithTracksFerryIds(ferrytype, trans.give_track_id);
+                ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
             }
 
             string carNames = "";

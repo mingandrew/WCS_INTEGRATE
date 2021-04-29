@@ -286,7 +286,7 @@ namespace resource.area
         /// <returns></returns>
         public List<uint> GetWithTracksFerryIds(DeviceTypeE ferrytype, params uint[] traids)
         {
-            List<uint> ferryids = PubMaster.Device.GetFerryIds(ferrytype);
+            List<uint> ferryids = PubMaster.Device.GetDevIds(ferrytype);
             return GetWithTracksFerryIds(ferryids, traids);
         }
 
@@ -312,7 +312,7 @@ namespace resource.area
 
             if (ferryids == null)
             {
-                ferryids = PubMaster.Device.GetFerryIds(DeviceTypeE.上摆渡, DeviceTypeE.下摆渡);
+                ferryids = PubMaster.Device.GetDevIds(DeviceTypeE.上摆渡, DeviceTypeE.下摆渡);
             }
             //查找能满砖所有轨道的摆渡车
             bool havealltrack;
