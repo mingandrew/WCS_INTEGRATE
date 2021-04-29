@@ -351,7 +351,8 @@ namespace task.trans
         {
             if (trans.TransStaus != status)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ]", trans.id, trans.TransStaus, status, memo));
+                mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ], 持续[ {4} ]", 
+                    trans.id, trans.TransStaus, status, memo, trans.GetStatusTimeStr()));
                 trans.TransStaus = status;
                 trans.TransStausStayTime = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Status);

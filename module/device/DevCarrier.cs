@@ -325,7 +325,7 @@ namespace module.device
         /// </summary>
         public bool lastFlag = false;
         public DateTime freeTime = DateTime.Now;
-        double last_time = 0;
+        double free_minutes = 0;
         #endregion
 
         #region[日志]
@@ -336,7 +336,7 @@ namespace module.device
             //第二天则复位数据
             if (DateTime.Now.Date != freeTime.Date)
             {
-                last_time = 0;
+                free_minutes = 0;
                 freeTime = DateTime.Now;
                 lastFlag = false;
             }
@@ -350,21 +350,21 @@ namespace module.device
                 }
                 else
                 {
-                    last_time = DateTime.Now.Subtract(freeTime).TotalMinutes + last_time;
+                    free_minutes = DateTime.Now.Subtract(freeTime).TotalMinutes + free_minutes;
                     freeTime = DateTime.Now;
                 }
             }
             else if (lastFlag)
             {
-                last_time = DateTime.Now.Subtract(freeTime).TotalMinutes + last_time;
+                free_minutes = DateTime.Now.Subtract(freeTime).TotalMinutes + free_minutes;
                 lastFlag = false;
             }
             #endregion
 
             return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 指令[ {5} ], 完成[ {6} ], " +
-               "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], 维持时间[ {15}分钟 ]",
+               "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], 维持时间[ {15} ]",
                DeviceStatus, CurrentSite, CurrentPoint, TargetSite, TargetPoint, CurrentOrder, FinishOrder,
-               LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount, last_time.ToString("0.0"));
+               LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount, GetFreeTimeStr());
         }
 
         /// <summary>
@@ -392,6 +392,18 @@ namespace module.device
             return string.Format("一[ {0} ], 二[ {1} ], 三[ {2} ], 四[ {3} ], 五[ {4} ], 六[ {5} ], 七[ {6} ], 八[ {7} ], 九[ {8} ], 十[ {9} ]," +
                 "预1[ {10} ],预2[ {11} ],预3[ {12} ],预4[ {13}",
                 Aler1, Aler2, Aler3, Aler4, Aler5, Aler6, Aler7, Aler8, Aler9, Aler10, Reserve1, Reserve2, Reserve3, Reserve4);
+        }
+
+        public string GetFreeTimeStr()
+        {
+            double hours = free_minutes / 60;
+            double minutes = free_minutes % 60;
+            if (hours >= 1)
+            {
+                return string.Format("{0}时 {1}分", hours.ToString("0"), minutes.ToString("0.0"));
+            }
+
+            return string.Format("{0}分", minutes.ToString("0.0"));
         }
         #endregion
     }
