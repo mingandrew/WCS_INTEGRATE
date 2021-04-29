@@ -157,5 +157,21 @@ namespace module.goods
         {
             return string.Format("标识[ {0} ], 类型[ {1} ], 小车[ {2} ], 取货[ {3} ], 卸货[ {4} ]", id, TransType, carrier_id, take_track_id, give_track_id);
         }
+
+        public string GetStatusTimeStr()
+        {
+            TimeSpan span = DateTime.Now.Subtract(TransStausStayTime);
+            if(span.TotalHours >= 1)
+            {
+                return string.Format("{0}时 {1}分 {2}秒", span.Hours, span.Minutes, span.Seconds);
+            }
+
+            if(span.TotalMinutes >= 1)
+            {
+                return string.Format("{0}分 {1}秒", span.Minutes, span.Seconds);
+            }
+
+            return string.Format("{0}秒", span.Seconds);
+        }
     }
 }

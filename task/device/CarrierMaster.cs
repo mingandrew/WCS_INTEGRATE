@@ -1233,7 +1233,7 @@ namespace task.device
         /// <summary>
         /// 是否加入运输交管摆渡
         /// </summary>
-        /// <param name="devid"></param>
+        /// <param name="task"></param>
         /// <param name="track"></param>
         /// <param name="msg"></param>
         /// <returns></returns>
