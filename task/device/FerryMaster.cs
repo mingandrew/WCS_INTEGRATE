@@ -1726,14 +1726,13 @@ namespace task.device
                     }
 
                     FerryTask task = DevList.Find(c => c.FerryTrackId == tt.id);
+                    if (!CheckFerryStatus(task, out result))
+                    {
+                        return false;
+                    }
                     if (!task.IsOnSite(ft.ferry_up_code) && !task.IsOnSite(ft.ferry_down_code))
                     {
                         result = "摆渡车没到位！";
-                        return false;
-                    }
-
-                    if (!CheckFerryStatus(task, out result))
-                    {
                         return false;
                     }
 
@@ -1742,6 +1741,17 @@ namespace task.device
                     {
                         return true;
                     }
+
+                    if (task.Status == DevFerryStatusE.设备故障)
+                    {
+                        result = "摆渡车故障!";
+                        return false;
+                    }
+                }
+                else
+                {
+                    result = "小车当前地标无相关轨道数据!";
+                    return false;
                 }
             }
             catch { }

@@ -68,25 +68,19 @@ namespace resource.device
             return DeviceList.FindAll(c => types.Contains(c.Type) && areaids.Contains(c.area));
         }
 
-
         public List<Device> GetDevices(List<DeviceTypeE> types, uint areaid)
         {
             return DeviceList.FindAll(c => c.area == areaid && types.Contains(c.Type));
         }
 
+        internal List<uint> GetDevIds(params DeviceTypeE[] types)
+        {
+            return DeviceList.FindAll(c => c.InType(types))?.Select(c => c.id).ToList();
+        }
+
         public List<Device> GetFerrys()
         {
             return DeviceList.FindAll(c => c.Type == DeviceTypeE.上摆渡 || c.Type == DeviceTypeE.下摆渡);
-        }
-
-        internal List<uint> GetFerryIds()
-        {
-            return DeviceList.FindAll(c => c.Type == DeviceTypeE.上摆渡 || c.Type == DeviceTypeE.下摆渡)?.Select(c=>c.id).ToList();
-        }
-
-        internal List<uint> GetFerryIds(params DeviceTypeE[] types)
-        {
-            return DeviceList.FindAll(c =>c.InType(types))?.Select(c => c.id).ToList();
         }
 
         public List<Device> GetTileLifters()
