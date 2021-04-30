@@ -1247,7 +1247,7 @@ namespace task.device
 
             if (track.NotInType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
             {
-                msg = string.Format("指令涉及轨道[ {0} ]不是摆轨，不用交管摆渡", track.name);
+                msg = string.Format("不用交管摆渡, 指令涉及轨道[ {0} ]不是摆渡轨道类型", track.name);
                 return true;
             }
 

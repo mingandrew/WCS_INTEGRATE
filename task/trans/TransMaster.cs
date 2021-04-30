@@ -3818,10 +3818,11 @@ namespace task.trans
                         // 优先移动到空轨道
                         List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
 
-                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, PubMaster.Track.GetTrackOrder(trackid));
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, track.order);
 
                         //能去这个取货/卸货轨道的所有配置的摆渡车信息
                         List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(trackid);
+                        ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
 
                         foreach (uint t in tids)
                         {
@@ -3834,32 +3835,6 @@ namespace task.trans
                             }
                         }
 
-                        //if (PubMaster.Track.IsTrackFree(track.right_track_id)
-                        //    && !IsTraInTrans(track.right_track_id)
-                        //    && !PubTask.Carrier.HaveInTrack(track.right_track_id))
-                        //{
-                        //    givetrackid = track.right_track_id;
-                        //}
-                        //else if (PubMaster.Track.IsTrackFree(track.left_track_id)
-                        //    && !IsTraInTrans(track.left_track_id)
-                        //    && !PubTask.Carrier.HaveInTrack(track.right_track_id))
-                        //{
-                        //    givetrackid = track.left_track_id;
-                        //}
-
-                        //if (givetrackid == 0)
-                        //{
-                        //    List<Track> tracklist = PubMaster.Track.GetTrackInTypeFree(track.area, totracktype);
-                        //    foreach (Track tra in tracklist)
-                        //    {
-                        //        if (!IsTraInTrans(tra.id)
-                        //            && !PubTask.Carrier.HaveInTrack(tra.id))
-                        //        {
-                        //            givetrackid = tra.id;
-                        //            break;
-                        //        }
-                        //    }
-                        //}
                         break;
                     case MoveTypeE.释放摆渡车:
                         break;
