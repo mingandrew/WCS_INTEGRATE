@@ -808,13 +808,25 @@ namespace task.trans
         }
 
         /// <summary>
+        /// 移动运输车记录（倒库）
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierSort(StockTrans trans, uint trackid, string memo = "")
+        {
+            SetStepLog(trans, true, 406, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库；{2}；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id),
+                PubMaster.Track.GetTrackName(trackid), memo));
+        }
+
+        /// <summary>
         /// 移动运输车记录（倒库接力）
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="memo"></param>
         internal void LogForCarrierSortRelay(StockTrans trans, uint trackid)
         {
-            SetStepLog(trans, true, 406, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库接力；",
+            SetStepLog(trans, true, 407, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库接力；",
                 PubMaster.Device.GetDeviceName(trans.carrier_id),
                 PubMaster.Track.GetTrackName(trackid)));
         }
@@ -826,7 +838,7 @@ namespace task.trans
         /// <param name="memo"></param>
         internal void LogForCarrierNoTake(StockTrans trans, uint trackid)
         {
-            SetStepLog(trans, false, 407, string.Format("判断运输车[ {0} ]暂时不可移至[ {1} ]取砖；",
+            SetStepLog(trans, false, 408, string.Format("判断运输车[ {0} ]暂时不可移至[ {1} ]取砖；",
                 PubMaster.Device.GetDeviceName(trans.carrier_id),
                 PubMaster.Track.GetTrackName(trackid)));
         }

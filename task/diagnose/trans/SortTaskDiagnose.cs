@@ -93,12 +93,12 @@ namespace task.diagnose.trans
                         List<uint> ferrys = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.上摆渡, areaid, track.id, item.give_track_id, 0, false);
                         if (ferrys.Count > 0)
                         {
-                            _M.SetStatus(item, TransStatusE.倒库暂停, string.Format("上砖任务[ {0} ]需要车, 暂停倒库的小车[ {1} ]的任务[ {2} ]",
+                            _M.SetStatus(item, TransStatusE.倒库暂停, string.Format("上砖任务[ {0} ]需要车, 暂停倒库运输车[ {1} ]的任务[ {2} ]",
                                 trans.ToString(), PubMaster.Device.GetDeviceName(item.carrier_id), item.ToString()));
 
                             try
                             {
-                                _mLog.Status(true, string.Format("上砖任务[ {0} ]需要车, 暂停倒库的小车[ {1} ]的任务[ {2} ]", trans.ToString(),
+                                _mLog.Status(true, string.Format("上砖任务[ {0} ]需要车, 暂停倒库运输车[ {1} ]的任务[ {2} ]", trans.ToString(),
                                     PubMaster.Device.GetDeviceName(item.carrier_id), item.ToString()));
                             }
                             catch { }
@@ -118,11 +118,11 @@ namespace task.diagnose.trans
                         List<uint> ferrys = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.上摆渡, areaid, track.id, item.give_track_id, 0, false);
                         if (ferrys.Count > 0)
                         {
-                            _M.SetStatus(item, TransStatusE.倒库暂停, string.Format("上砖任务[ {0} ]需要车, 暂停倒库的小车[ {1} ]的任务[ {2} ]",
+                            _M.SetStatus(item, TransStatusE.倒库暂停, string.Format("上砖任务[ {0} ]需要车, 暂停倒库运输车[ {1} ]的任务[ {2} ]",
                                 trans.ToString(), PubMaster.Device.GetDeviceName(item.carrier_id), item.ToString()));
                             try
                             {
-                                _mLog.Status(true, string.Format("上砖任务[ {0} ]需要车, 暂停倒库的小车[ {1} ]的任务[ {2} ]", trans.ToString(),
+                                _mLog.Status(true, string.Format("上砖任务[ {0} ]需要车, 暂停倒库运输车[ {1} ]的任务[ {2} ]", trans.ToString(),
                                     PubMaster.Device.GetDeviceName(item.carrier_id), item.ToString()));
                             }
                             catch { }

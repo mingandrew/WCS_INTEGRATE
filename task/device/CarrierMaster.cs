@@ -311,6 +311,14 @@ namespace task.device
             return DevList.Exists(c => (c.TargetTrackId == trackid || c.CurrentTrackId == trackid) && c.IsLoad());
         }
 
+        /// <summary>
+        /// 存在其他运输车在当前任务双轨道中
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="trackid2"></param>
+        /// <param name="cid"></param>
+        /// <param name="carrierid"></param>
+        /// <returns></returns>
         internal bool HaveInTrackButCarrier(uint trackid, uint trackid2, uint cid, out uint carrierid)
         {
             CarrierTask task = DevList.Find(c => (c.CurrentTrackId == trackid || c.CurrentTrackId == trackid2) && c.ID != cid);
@@ -1194,7 +1202,7 @@ namespace task.device
                     result = msg;
                     return false;
                 }
-                result = result + "\n\t" + msg;
+                if(!string.IsNullOrEmpty(msg)) result = result + "\n\t" + msg;
             }
 
             if (toRFID > 0)
@@ -1209,7 +1217,7 @@ namespace task.device
                 {
                     return false;
                 }
-                result = result + "\n\t" + msg;
+                if (!string.IsNullOrEmpty(msg)) result = result + "\n\t" + msg;
             }
 
             if (overRFID > 0)
@@ -1224,7 +1232,7 @@ namespace task.device
                 {
                     return false;
                 }
-                result = result + "\n\t" + msg;
+                if (!string.IsNullOrEmpty(msg)) result = result + "\n\t" + msg;
             }
 
             return true;
@@ -1241,13 +1249,15 @@ namespace task.device
         {
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.EnableCarrierTraffic))
             {
-                msg = string.Format("未打开运输车交管开关");
+                //msg = string.Format("未打开运输车交管开关");
+                msg = "";
                 return true;
             }
 
             if (track.NotInType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
             {
-                msg = string.Format("指令涉及轨道[ {0} ]不是摆轨，不用交管摆渡", track.name);
+                //msg = string.Format("指令涉及轨道[ {0} ]不是摆轨，不用交管摆渡", track.name);
+                msg = "";
                 return true;
             }
 
@@ -2489,7 +2499,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 判断是否有小车在同一个轨道并且位置在指定小车的前面(脉冲值更小)
+        /// 判断是否有小车在同一个轨道并且位置在指定小车的前面(脉冲值更大)
         /// </summary>
         /// <param name="carrier_id"></param>
         /// <param name="trackid"></param>
@@ -2562,7 +2572,7 @@ namespace task.device
             return DevList.Exists(c => c.ID == carrier_id
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
-                                    && ((site > 0 && c.TargetSite == site) || (point > 0 && c.TargetPoint == point))
+                                    && ((site > 0 && c.TargetSite > 0 && c.TargetSite == site) || (point > 0 && c.TargetPoint > 0 && c.TargetPoint == point))
                                     );
         }
 
