@@ -34,6 +34,7 @@ namespace socket.tcp
         internal Log _mLog;
         //internal DateTime? LastSendTime;
         internal MTimer mTimer;
+        internal DateTime lastfunctime = DateTime.Now;
 
         internal object _senobj;
         #endregion

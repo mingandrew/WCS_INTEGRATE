@@ -26,6 +26,11 @@ namespace socket.tcp
         #region[发送信息]        
         public void SendCmd(DevCarrierCmdE type)
         {
+            if (type == DevCarrierCmdE.查询 && DateTime.Now.Subtract(lastfunctime).TotalMilliseconds <= 1000)
+            {
+                return;
+            }
+
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try
@@ -53,6 +58,8 @@ namespace socket.tcp
         public void SendCmd(DevCarrierCmdE type, DevCarrierOrderE order,
             ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, byte v6)
         {
+            lastfunctime = DateTime.Now;
+
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try
@@ -261,7 +268,7 @@ namespace socket.tcp
                 byte[] pdata = new byte[SocketConst.CARRIER_STATUS_SIZE];
                 Array.Copy(data, 0, pdata, 0, SocketConst.CARRIER_STATUS_SIZE);
                 DevCarrier device = mProcess.GetStatus(pdata);
-                if (device.IsUpdate 
+                if (device.IsUpdate
                     || device.IsCurrentSiteUpdate
                     || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, DevID, 2))
                 {
