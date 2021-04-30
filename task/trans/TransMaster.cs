@@ -4681,10 +4681,11 @@ namespace task.trans
                         // 优先移动到空轨道
                         List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
 
-                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, PubMaster.Track.GetTrackOrder(trackid));
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, track.order);
 
                         //能去这个取货/卸货轨道的所有配置的摆渡车信息
                         List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(trackid);
+                        ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
 
                         foreach (uint t in tids)
                         {

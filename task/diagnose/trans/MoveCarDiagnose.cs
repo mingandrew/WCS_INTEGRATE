@@ -46,7 +46,7 @@ namespace task.diagnose.trans
         }
 
         /// <summary>
-        /// 
+        /// 检查任务-生成移车
         /// </summary>
         /// <param name="trans"></param>
         private void CheckTransAndAddMoveTask(StockTrans trans)
