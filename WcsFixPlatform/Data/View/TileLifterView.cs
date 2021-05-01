@@ -222,7 +222,7 @@ namespace wcs.Data.View
 
             if (LoadStatus2 != st.LoadStatus2)
             {
-                switch (st.LoadStatus1)
+                switch (st.LoadStatus2)
                 {
                     case DevLifterLoadE.无砖:
                         IsLoad2Brush = Gray;
