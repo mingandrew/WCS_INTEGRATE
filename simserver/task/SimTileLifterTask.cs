@@ -10,7 +10,7 @@ namespace simtask.task
     {
         #region[配置信息]
 
-        private byte FULL_QTY = 50;
+        private byte FULL_QTY = 30;
 
         #endregion
 

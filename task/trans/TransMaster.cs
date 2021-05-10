@@ -2676,7 +2676,7 @@ namespace task.trans
                     if (PubTask.Carrier.IsStopFTask(trans.carrier_id)
                         && (track.id == trans.take_track_id
                                 || (track.id == trans.give_track_id
-                                    && PubTask.Carrier.IsCarrierInTrackSmallerSite(trans.carrier_id, trans.give_track_id))))
+                                    && !PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))))
                     {
                         #region 【任务步骤记录】
                         LogForCarrierToTrack(trans, trans.give_track_id);
@@ -3270,9 +3270,9 @@ namespace task.trans
 
                     // 任务运输车回到出库轨道头
                     if (PubTask.Carrier.IsStopFTask(trans.carrier_id)
-                        && (track.id == trans.take_track_id
+                        && (track.id == track.brother_track_id
                                 || (track.id == trans.give_track_id
-                                    && PubTask.Carrier.IsCarrierInTrackSmallerSite(trans.carrier_id, trans.give_track_id))))
+                                    && !PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))))
                     {
                         #region 【任务步骤记录】
                         LogForCarrierToTrack(trans, trans.give_track_id);
