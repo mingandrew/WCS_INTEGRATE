@@ -3632,7 +3632,7 @@ namespace task.trans
 
                             if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
-                                if (LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                                if (!LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
                                 {
                                     #region 【任务步骤记录】
                                     LogForFerryMove(trans, trans.take_ferry_id, trans.give_track_id, res);
@@ -3674,7 +3674,7 @@ namespace task.trans
 
                             if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                             {
-                                if (LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                                if (!LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
                                 {
                                     #region 【任务步骤记录】
                                     LogForFerryMove(trans, trans.take_ferry_id, trans.give_track_id, res);
