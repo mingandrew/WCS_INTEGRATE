@@ -3352,12 +3352,6 @@ namespace task.trans
         /// <param name="trans"></param>
         public override void DoMoveCarrier(StockTrans trans)
         {
-            // 运行前提
-            if (!RunPremise(trans, out Track track))
-            {
-                return;
-            }
-
             bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             uint ferryTraid;
             string res = "";
@@ -3366,6 +3360,12 @@ namespace task.trans
             {
                 #region[移车中]
                 case TransStatusE.移车中:
+                    // 运行前提
+                    if (!RunPremise(trans, out Track track))
+                    {
+                        return;
+                    }
+
                     switch (track.Type)
                     {
                         #region[上砖机轨道]
