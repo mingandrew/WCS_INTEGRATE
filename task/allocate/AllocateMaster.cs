@@ -95,6 +95,11 @@ namespace task.allocate
             }
             else
             {
+                if (!PubMaster.Dic.IsSwitchOnOff(DicTag.EnableLimitAllocate))
+                {
+                    return;
+                }
+
                 /*【极限混砖】常规分配不到符合的轨道
                  * 1.没空轨道
                  * 2.砖机品种没有对应品种的未满轨道

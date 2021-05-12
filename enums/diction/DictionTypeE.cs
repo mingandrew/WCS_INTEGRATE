@@ -57,6 +57,7 @@
         public static string SeamlessMoveToFerry = nameof(SeamlessMoveToFerry);     //开关-无缝上摆渡
         public static string UseTileFullSign = nameof(UseTileFullSign);                             //开关-启用砖机的-满砖信号
         public static string EnableCarrierTraffic = nameof(EnableCarrierTraffic);               //开关-启用运输车交管摆渡车
+        public static string EnableLimitAllocate = nameof(EnableLimitAllocate);               //开关-启用下砖入库极限混砖
 
         #endregion
 
