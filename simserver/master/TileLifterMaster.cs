@@ -149,22 +149,97 @@ namespace simtask.master
             }
         }
 
-        public void SetLoadStatus(uint deviceID, bool status, bool setleft)
+        public void SetLoadStatus(uint deviceID, bool setleft, out string shiftmsg)
+        {
+            shiftmsg = "";
+            SimTileLifterTask task = DevList.Find(c => c.ID == deviceID);
+            if (task != null)
+            {
+                if (setleft)//left
+                {
+                    if (task.DevConfig.left_track_id == 0) return;
+                    switch (task.DevStatus.LoadStatus1)
+                    {
+                        case DevLifterLoadE.无砖:
+                            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+                            {
+                                task.DevStatus.LoadStatus1 = DevLifterLoadE.有砖;
+                                shiftmsg = string.Format("[ {0} ]： 切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.无砖, DevLifterLoadE.有砖);
+                            }
+                            else
+                            {
+                                task.SetSite1Status(task.DevStatus.SetGoods, task.FULL_QTY, DevLifterLoadE.有砖);
+                                shiftmsg = string.Format("[ {0} ]： 切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.无砖, DevLifterLoadE.有砖);
+                            }
+                            break;
+                        case DevLifterLoadE.有砖:
+                            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+                            {
+                                task.SetSite1Status(task.DevStatus.SetGoods, task.FULL_QTY, DevLifterLoadE.满砖);
+                                shiftmsg = string.Format("[ {0} ]：切换：[ {1} ] - > [ {2} ], 数量：[ {3} ]", task.Device.name, DevLifterLoadE.有砖, DevLifterLoadE.满砖, task.FULL_QTY);
+                            }
+                            else
+                            {
+                                task.SetSite1Status(0, 0, DevLifterLoadE.无砖);
+                                shiftmsg = string.Format("[ {0} ]：切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.有砖, DevLifterLoadE.无砖);
+                            }
+                            break;
+                        case DevLifterLoadE.满砖:
+                            task.SetSite1Status(0, 0, DevLifterLoadE.无砖);
+                            shiftmsg = string.Format("[ {0} ]：切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.满砖, DevLifterLoadE.无砖);
+                            break;
+                    }
+                }
+                else if (!setleft)
+                {
+                    if (task.DevConfig.right_track_id == 0) return;
+                    switch (task.DevStatus.LoadStatus2)
+                    {
+                        case DevLifterLoadE.无砖:
+                            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+                            {
+                                task.DevStatus.LoadStatus2 = DevLifterLoadE.有砖;
+                                shiftmsg = string.Format("[ {0} ]： 切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.无砖, DevLifterLoadE.有砖);
+                            }
+                            else
+                            {
+                                task.SetSite2Status(task.DevStatus.SetGoods, task.FULL_QTY, DevLifterLoadE.有砖);
+                                shiftmsg = string.Format("[ {0} ]： 切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.无砖, DevLifterLoadE.有砖);
+                            }
+                            break;
+                        case DevLifterLoadE.有砖:
+                            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign))
+                            {
+                                task.SetSite2Status(task.DevStatus.SetGoods, task.FULL_QTY, DevLifterLoadE.满砖);
+                                shiftmsg = string.Format("[ {0} ]：切换：[ {1} ] - > [ {2} ], 数量：[ {3} ]", task.Device.name, DevLifterLoadE.有砖, DevLifterLoadE.满砖, task.FULL_QTY);
+                            }
+                            else
+                            {
+                                task.SetSite2Status(0, 0, DevLifterLoadE.无砖);
+                                shiftmsg = string.Format("[ {0} ]：切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.有砖, DevLifterLoadE.无砖);
+                            }
+                            break;
+                        case DevLifterLoadE.满砖:
+                            task.SetSite2Status(0, 0, DevLifterLoadE.无砖);
+                            shiftmsg = string.Format("[ {0} ]：切换：[ {1} ] - > [ {2} ]", task.Device.name, DevLifterLoadE.满砖, DevLifterLoadE.无砖);
+                            break;
+                    }
+                }
+            }
+        }
+
+        public void SetLoadStatusNeed(uint deviceID, bool need, bool setleft)
         {
             SimTileLifterTask task = DevList.Find(c => c.ID == deviceID);
             if (task != null)
             {
                 if (setleft)//left
                 {
-                    task.DevStatus.Goods1 = task.DevStatus.SetGoods;
-                    task.IsLoad_1 = status;
-                    task.IsNeed_1 = true;
+                    task.IsNeed_1 = !task.IsNeed_1;
                 }
-                else if (!setleft && task.Device.Type2 == DeviceType2E.双轨)
+                else if (!setleft)
                 {
-                    task.DevStatus.Goods2 = task.DevStatus.SetGoods;
-                    task.IsLoad_2 = status;
-                    task.IsNeed_2 = true;
+                    task.IsNeed_2 = !task.IsNeed_2;
                 }
             }
         }
@@ -176,68 +251,6 @@ namespace simtask.master
             {
                 task.DevStatus.NeedSytemShift = true;
             }
-        }
-
-
-        internal bool DoUnload(uint trackid)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    List<SimTileLifterTask> tasks = DevList.FindAll(c => c.IsWorkingTrack(trackid));
-                    if (tasks.Count > 0)
-                    {
-                        if(tasks.Count == 1)
-                        {
-                            tasks[0].DoTrackUnload(trackid);
-                        }
-                        foreach (SimTileLifterTask task in tasks)
-                        {
-                            if (task.IsTrackLoad(trackid))
-                            {
-                                task.DoTrackUnload(trackid);
-                                break;
-                            }
-                        }
-
-                        return true;
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-            return false;
-        }
-
-
-        internal bool DoLoad(uint trackid)
-        {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
-            {
-                try
-                {
-                    List<SimTileLifterTask> tasks = DevList.FindAll(c => c.IsWorkingTrack(trackid));
-                    if (tasks.Count > 0)
-                    {
-                        if(tasks.Count == 1)
-                        {
-                            tasks[0].DoTrackLoad(trackid);
-                        }
-                        foreach (SimTileLifterTask task in tasks)
-                        {
-                            if (task.IsTrackUnLoad(trackid))
-                            {
-                                task.DoTrackLoad(trackid);
-                                break;
-                            }
-                        }
-
-                        return true;
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
-            }
-            return false;
         }
 
         public void StartOrStopWork(uint devid, bool isstart)
@@ -296,7 +309,7 @@ namespace simtask.master
                                 task.DevStatus.Load1 = true;
                                 task.DevStatus.Site1Qty = task.DevStatus.FullQty;
                                 task.DevStatus.Goods1 = 0;
-                                task.DevStatus.LoadStatus1 = DevLifterLoadE.满砖;
+                                task.DevStatus.LoadStatus1 = PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign) ? DevLifterLoadE.满砖 : DevLifterLoadE.有砖;
                             }
                             task.IsInvo_1 = false;
                         }
@@ -335,7 +348,7 @@ namespace simtask.master
                                 task.DevStatus.Need2 = false;
                                 task.DevStatus.Load2 = true;
                                 task.DevStatus.Site2Qty = task.DevStatus.FullQty;
-                                task.DevStatus.LoadStatus2 = DevLifterLoadE.满砖;
+                                task.DevStatus.LoadStatus2 = PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign) ? DevLifterLoadE.满砖 : DevLifterLoadE.有砖;
                             }
                             task.IsInvo_2 = false;
                         }
@@ -368,12 +381,12 @@ namespace simtask.master
                     task.DevStatus.WorkMode = cmd.WorkMode;
                     if (cmd.SetFullType == TileFullE.设为满砖)
                     {
-                        if (task.IsLoad_1)
+                        if (task.IsGood_1 || task.IsFull_1 || task.DevStatus.Site1Qty >0)
                         {
                             task.DevStatus.Need1 = true;
                         }
 
-                        if (task.IsLoad_2)
+                        if (task.IsGood_2 || task.IsFull_2 || task.DevStatus.Site2Qty > 0)
                         {
                             task.DevStatus.Need2 = true;
                         }
@@ -407,7 +420,6 @@ namespace simtask.master
         }
 
         #endregion
-
 
         #region[发送信息]
 

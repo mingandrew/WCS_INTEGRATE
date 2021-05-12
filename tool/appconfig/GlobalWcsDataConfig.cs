@@ -48,7 +48,6 @@ namespace tool.appconfig
             SaveDebugConfig();
             #endregion
 
-
             #region[模拟系统设备信息]
             if (DebugConfig.IsDebug)
             {
@@ -75,7 +74,6 @@ namespace tool.appconfig
                 SimulateConfig = new SimulateConfig();
             }
             #endregion
-
 
         }
 

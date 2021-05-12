@@ -78,23 +78,30 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
-                                                <Button Content="工位1满" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
-                                                              Command="{Binding DataContext.TileSite1FullCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+
+                                                <Button Content="工位1-状态切换" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
+                                                        Visibility="{Binding ShowTrack_One, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                              Command="{Binding DataContext.TileSite1ShiftCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
-                                                <Button Content="工位2满" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" Margin="20,0,0,0" FontSize="16"
-                                                        Visibility="{Binding IsTwoTrackTile, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                                              Command="{Binding DataContext.TileSite2FullCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
-                                                <Button Content="工位1空" HorizontalAlignment="Center" Style="{StaticResource ButtonDanger}" Margin="20,0,0,0" FontSize="16"
-                                                              Command="{Binding DataContext.TileSite1EmptyCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
-                                                <Button Content="工位2空" HorizontalAlignment="Center" Style="{StaticResource ButtonDanger}" Margin="20,0,0,0" FontSize="16"
-                                                        Visibility="{Binding IsTwoTrackTile, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                                              Command="{Binding DataContext.TileSite2EmptyCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
+                                                <Button Content="工位2-状态切换" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" Margin="20,0,0,0" FontSize="16"
+                                                        Visibility="{Binding ShowTrack_Two, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                        Command="{Binding DataContext.TileSite2ShiftCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
+                                                <Button Content="工位1-需求" HorizontalAlignment="Center" Style="{StaticResource ButtonDanger}" Margin="20,0,0,0" FontSize="16"
+                                                        Visibility="{Binding ShowTrack_One, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                        Command="{Binding DataContext.TileSite1NeedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
+                                                <Button Content="工位2-需求" HorizontalAlignment="Center" Style="{StaticResource ButtonDanger}" Margin="20,0,0,0" FontSize="16"
+                                                        Visibility="{Binding ShowTrack_Two, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                        Command="{Binding DataContext.TileSite2NeedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
                                                 <Button Content="请求转产" HorizontalAlignment="Center" Style="{StaticResource ButtonWarning}" Margin="20,0,0,0" FontSize="16"
-                                                              Command="{Binding DataContext.TileRequireShiftCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                                        Command="{Binding DataContext.TileRequireShiftCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
 
                                             </StackPanel>
                                         </DataTemplate>

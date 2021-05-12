@@ -1423,8 +1423,12 @@ namespace resource.track
         /// </summary>
         public List<Track> GetUpSortTrack()
         {
-            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 && c.Type == TrackTypeE.储砖_出 && c.StockStatus == TrackStockStatusE.有砖
-            && GetAndRefreshUpCount(c.id) == 0 && PubMaster.Goods.GetStocks(c.id).Count > 0 && c.up_split_point != 0);
+            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 
+                                                        && c.InType(TrackTypeE.储砖_出)
+                                                        && c.InStockStatus( TrackStockStatusE.有砖)
+                                                        && c.up_split_point != 0
+                                                        && GetAndRefreshUpCount(c.id) == 0 
+                                                        && PubMaster.Goods.GetStocks(c.id).Count > 1);
         }
 
 

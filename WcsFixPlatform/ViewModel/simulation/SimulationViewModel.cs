@@ -3,6 +3,7 @@ using enums.track;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.goods;
 using module.track;
@@ -139,10 +140,11 @@ namespace wcs.ViewModel
 
         #region[砖机]
         public RelayCommand<SimDeviceView> TileChangeWorkCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileChangeWork)).Value;
-        public RelayCommand<SimDeviceView> TileSite1FullCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Full)).Value;
-        public RelayCommand<SimDeviceView> TileSite2FullCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Full)).Value;
-        public RelayCommand<SimDeviceView> TileSite1EmptyCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Empty)).Value;
-        public RelayCommand<SimDeviceView> TileSite2EmptyCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Empty)).Value;
+        public RelayCommand<SimDeviceView> TileSite1ShiftCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Shift)).Value;
+        public RelayCommand<SimDeviceView> TileSite2ShiftCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Shift)).Value;
+        public RelayCommand<SimDeviceView> TileSite1NeedCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Need)).Value;
+        public RelayCommand<SimDeviceView> TileSite2NeedCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Need)).Value;
+
         public RelayCommand<SimDeviceView> TileRequireShiftCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileRequireShift)).Value;
         #endregion
 
@@ -319,35 +321,38 @@ namespace wcs.ViewModel
             }
         }
 
-        private void TileSite1Full(SimDeviceView dev)
+        private void TileSite1Shift(SimDeviceView dev)
         {
             if (dev != null)
             {
-                SimServer.TileLifter.SetLoadStatus(dev.dev_id, true, true);
+                SimServer.TileLifter.SetLoadStatus(dev.dev_id, true, out string shiftmsg);
+
+                Growl.Success(shiftmsg);
             }
         }
 
-        private void TileSite2Full(SimDeviceView dev)
+        private void TileSite2Shift(SimDeviceView dev)
         {
             if (dev != null)
             {
-                SimServer.TileLifter.SetLoadStatus(dev.dev_id, true, false);
+                SimServer.TileLifter.SetLoadStatus(dev.dev_id, false, out string shiftmsg);
+
+                Growl.Success(shiftmsg);
             }
         }
 
-        private void TileSite1Empty(SimDeviceView dev)
+        private void TileSite1Need(SimDeviceView dev)
         {
             if (dev != null)
             {
-                SimServer.TileLifter.SetLoadStatus(dev.dev_id, false, true);
+                SimServer.TileLifter.SetLoadStatusNeed(dev.dev_id, true, true);
             }
         }
-
-        private void TileSite2Empty(SimDeviceView dev)
+        private void TileSite2Need(SimDeviceView dev)
         {
             if (dev != null)
             {
-                SimServer.TileLifter.SetLoadStatus(dev.dev_id, false, false);
+                SimServer.TileLifter.SetLoadStatusNeed(dev.dev_id, true, false);
             }
         }
 

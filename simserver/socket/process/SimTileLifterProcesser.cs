@@ -22,8 +22,8 @@ namespace simserver.simsocket.process
 
             st.Head = ShiftBytes(SimSocketConst.TILELIFTER_STATUS_HEAD_KEY);
             st.DeviceID = dev.DeviceID;
-            st.LoadStatus1 = (byte)(dev.Load1 ? 0x01 : 0x00);
-            st.LoadStatus2 = (byte)(dev.Load2 ? 0x01 : 0x00);
+            st.LoadStatus1 = (byte)dev.LoadStatus1;
+            st.LoadStatus2 = (byte)dev.LoadStatus2;
             st.NeedStatus1 = (byte)(dev.Need1 ? 0x01 : 0x00);
             st.NeedStatus2 = (byte)(dev.Need2 ? 0x01 : 0x00);
             st.FullQty = dev.FullQty;
