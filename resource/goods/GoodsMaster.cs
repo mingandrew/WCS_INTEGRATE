@@ -2691,7 +2691,7 @@ namespace resource.goods
         /// </summary>
         /// <param name="track_id">检查轨道</param>
         /// <returns></returns>
-        public bool IsTopStockBehindUpSplitPoint(uint track_id)
+        public bool IsTopStockBehindUpSplitPoint(uint track_id, out uint stockid)
         {
             Track track = PubMaster.Track.GetTrack(track_id);
             if (track != null)
@@ -2699,10 +2699,11 @@ namespace resource.goods
                 Stock topstock = GetTrackTopStock(track_id);
                 if (topstock != null)
                 {
+                    stockid = topstock.id;
                     return track.up_split_point > topstock.location;
                 }
             }
-
+            stockid = 0;
             return false;
         }
 
@@ -2796,6 +2797,21 @@ namespace resource.goods
         public int GetBehindUpSplitStockCount(uint trackid, int upsplitpoint)
         {
             return StockList.Count(c => c.track_id == trackid && c.location < upsplitpoint);
+        }
+
+        /// <summary>
+        /// 判断是否只存在最后一个库存（脉冲小于顶部库存）
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        public bool IsOnlyOneWithStock(uint stockid)
+        {
+            Stock stock = GetStock(stockid);
+            if(stock != null)
+            {
+                return StockList.Count(c => c.track_id == stock.track_id && c.location <= stock.location) == 1;
+            }
+            return false;
         }
         #endregion
     }

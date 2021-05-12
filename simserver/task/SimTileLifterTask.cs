@@ -1,6 +1,7 @@
 ﻿using enums;
 using module.device;
 using module.deviceconfig;
+using resource;
 using System;
 using tool.appconfig;
 
@@ -10,7 +11,7 @@ namespace simtask.task
     {
         #region[配置信息]
 
-        private byte FULL_QTY = 30;
+        public byte FULL_QTY = 30;
 
         #endregion
 
@@ -26,6 +27,7 @@ namespace simtask.task
         public DateTime? LastPiecesTime { set; get; }
         public byte OnePiecesUsedTime { set; get; }
         public bool IsLeftWork { set; get; } = true;
+        public bool IsOneTrack { set; get; } = false;
 
         #endregion
 
@@ -47,24 +49,61 @@ namespace simtask.task
             set => DevStatus.Need2 = value;
         }
 
-        public bool IsLoad_1
+        /// <summary>
+        /// 是否是有砖
+        /// </summary>
+        public bool IsFull_1
         {
-            get => DevStatus.Load1;
-            set => DevStatus.Load1 = value;
+            get => DevStatus.LoadStatus1 == DevLifterLoadE.满砖;
         }
 
-        public bool IsLoad_2
+        /// <summary>
+        /// 是否是空
+        /// </summary>
+        public bool IsEmpty_1
         {
-            get => DevStatus.Load2;
-            set => DevStatus.Load2 = value;
+            get => DevStatus.LoadStatus1 == DevLifterLoadE.无砖;
         }
+
+        /// <summary>
+        /// 是否是空投
+        /// </summary>
+        public bool IsGood_1
+        {
+            get => DevStatus.LoadStatus1 == DevLifterLoadE.有砖;
+        }
+
+        /// <summary>
+        /// 是否是有砖
+        /// </summary>
+        public bool IsFull_2
+        {
+            get => DevStatus.LoadStatus2 == DevLifterLoadE.满砖;
+        }
+
+        /// <summary>
+        /// 是否是空
+        /// </summary>
+        public bool IsEmpty_2
+        {
+            get => DevStatus.LoadStatus2 == DevLifterLoadE.无砖;
+        }
+
+        /// <summary>
+        /// 是否是空投
+        /// </summary>
+        public bool IsGood_2
+        {
+            get => DevStatus.LoadStatus2 == DevLifterLoadE.有砖;
+        }
+
 
         public bool IsInvo_1
         {
-            get => DevStatus.Involve1 ;
+            get => DevStatus.Involve1;
             set => DevStatus.Involve1 = value;
         }
-        
+
         public bool IsInvo_2
         {
             get => DevStatus.Involve2;
@@ -113,56 +152,54 @@ namespace simtask.task
         {
             if (Working)
             {
-                if(Type == DeviceTypeE.上砖机)
+
+                bool usefull = PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign);
+                if (Type == DeviceTypeE.上砖机)
                 {
-                    if(DevStatus.Site1Qty == 0)
+                    if (DevConfig.left_track_id != 0 && DevStatus.Site1Qty == 0 && IsGood_1)
                     {
-                        DevStatus.Load1 = false;
                         DevStatus.Need1 = true;
-                        DevStatus.LoadStatus1 = DevLifterLoadE.无砖;
                     }
 
-                    if(Device.Type2 == DeviceType2E.双轨 && DevStatus.Site2Qty == 0)
+                    if (DevConfig.right_track_id != 0 && DevStatus.Site2Qty == 0 && IsGood_2)
                     {
-                        DevStatus.Load2 = false;
                         DevStatus.Need2 = true;
-                        DevStatus.LoadStatus2 = DevLifterLoadE.无砖;
                     }
 
-                    if (Device.Type2 == DeviceType2E.单轨 
-                            && DevStatus.Load1 
-                            && !DevStatus.Involve1)
+                    if (IsOneTrack)
                     {
-                        CheckTimeToAct();
-                    }else
+                        if ((IsGood_1 || IsFull_1 || IsGood_2 || IsFull_2) && !IsInvo_1 && !IsInvo_2)
+                        {
+                            CheckTimeToAct();
+                        }
+
+                        return;
+                    }
+                    else
                     {
                         if (IsInvo_1 && IsInvo_2) return;
-
                         if (IsLeftWork
-                            && !DevStatus.Load1
-                            && DevStatus.Need1
-                            && DevStatus.Load2
-                            && !DevStatus.Involve2)
+                            && IsEmpty_1
+                            && IsNeed_1
+                            && (IsGood_2 || IsFull_2)
+                            && !IsInvo_2)
                         {
-                            DevStatus.Site2Qty = FULL_QTY;
                             IsLeftWork = false;
                             return;
                         }
 
                         if (!IsLeftWork
-                            && !DevStatus.Load2
-                            && DevStatus.Need2
-                            && DevStatus.Load1
-                            && !DevStatus.Involve1)
+                            && IsEmpty_2
+                            && IsNeed_2
+                            && (IsGood_1 || IsFull_1)
+                            && !IsInvo_1)
                         {
-                            DevStatus.Site1Qty = FULL_QTY;
                             IsLeftWork = true;
                             return;
                         }
 
-                        if (!IsLeftWork && !DevStatus.Involve1 && DevStatus.Load1 && DevStatus.Involve2)
+                        if (!IsLeftWork && !DevStatus.Involve1 && IsFull_1 && DevStatus.Involve2)
                         {
-                            DevStatus.Site1Qty = FULL_QTY;
                             IsLeftWork = true;
                             return;
                         }
@@ -170,22 +207,26 @@ namespace simtask.task
                         CheckTimeToAct();
                     }
                 }
-                else if(Type == DeviceTypeE.下砖机)
+                else if (Type == DeviceTypeE.下砖机)
                 {
                     DevStatus.Goods1 = DevStatus.Need1 ? DevStatus.SetGoods : 0;
                     DevStatus.Goods2 = DevStatus.Need2 ? DevStatus.SetGoods : 0;
 
-                    DevStatus.Load1 = DevStatus.Site1Qty > 0;
-                    DevStatus.Load2 = DevStatus.Site2Qty > 0;
+                    if(DevStatus.LoadStatus1 == DevLifterLoadE.无砖 && DevStatus.Site1Qty > 0)
+                    {
+                        DevStatus.LoadStatus1 = DevLifterLoadE.有砖;
+                    }
+
+                    if (DevStatus.LoadStatus2 == DevLifterLoadE.无砖 && DevStatus.Site2Qty > 0)
+                    {
+                        DevStatus.LoadStatus2 = DevLifterLoadE.有砖;
+                    }
 
                     if (DevStatus.FullQty == DevStatus.Site1Qty)
                     {
                         if (!DevStatus.Involve1)
                         {
-                            DevStatus.Goods1 = DevStatus.SetGoods;
-                            DevStatus.Load1 = true;
                             DevStatus.Need1 = true;
-                            DevStatus.LoadStatus1 = DevLifterLoadE.满砖;
                         }
                     }
 
@@ -193,43 +234,45 @@ namespace simtask.task
                     {
                         if (!DevStatus.Involve2)
                         {
-                            DevStatus.Goods2 = DevStatus.SetGoods;
-                            DevStatus.Load2 = true;
                             DevStatus.Need2 = true;
-                            DevStatus.LoadStatus2 = DevLifterLoadE.满砖;
                         }
                     }
 
-                    if (Device.Type2 == DeviceType2E.单轨 && !DevStatus.Load1 && !DevStatus.Involve1)
+                    if (IsOneTrack)
                     {
-                        CheckTimeToAct();
-                    }else
+                        if ((IsGood_1 || IsFull_1 || IsGood_2 || IsFull_2) && !IsInvo_1 && !IsInvo_2)
+                        {
+                            CheckTimeToAct();
+                        }
+                        return;
+                    }
+                    else
                     {
                         if (IsInvo_1 && IsInvo_2) return;
 
-                        if (IsLeftWork 
-                            && DevStatus.Load1 
-                            && DevStatus.Need1
-                            && !DevStatus.Load2
-                            && !DevStatus.Involve2)
+                        if (IsLeftWork
+                            && (IsGood_1 || IsFull_1)
+                            && IsNeed_1
+                            && !IsGood_2
+                            && !IsInvo_2)
                         {
                             DevStatus.Site2Qty = 0;
                             IsLeftWork = false;
                             return;
                         }
 
-                        if(!IsLeftWork 
-                            && DevStatus.Load2
-                            && DevStatus.Need2
-                            && !DevStatus.Load1
-                            && !DevStatus.Involve1)
+                        if (!IsLeftWork
+                            && (IsGood_2 || IsFull_2)
+                            && IsNeed_2
+                            && !IsGood_1
+                            && !IsInvo_1)
                         {
                             DevStatus.Site1Qty = 0;
                             IsLeftWork = true;
                             return;
                         }
 
-                        if(!IsLeftWork && !DevStatus.Involve1 && !DevStatus.Load1 && DevStatus.Involve2)
+                        if (!IsLeftWork && !DevStatus.Involve1 && IsGood_1 && DevStatus.Involve2)
                         {
                             DevStatus.Site1Qty = 0;
                             IsLeftWork = true;
@@ -264,14 +307,14 @@ namespace simtask.task
         {
             if (Type == DeviceTypeE.上砖机)
             {
-                if (DevStatus.Site1Qty > 0)
+                if (!IsNeed_1 && DevStatus.Site1Qty > 0)
                 {
                     DevStatus.Site1Qty--;
                 }
             }
             else
             {
-                if (DevStatus.Site1Qty < DevStatus.FullQty)
+                if (!IsNeed_1 && DevStatus.Site1Qty < DevStatus.FullQty)
                 {
                     DevStatus.Site1Qty++;
                 }
@@ -282,14 +325,14 @@ namespace simtask.task
         {
             if (Type == DeviceTypeE.上砖机)
             {
-                if (DevStatus.Site2Qty > 0)
+                if (!IsNeed_2 && DevStatus.Site2Qty > 0)
                 {
                     DevStatus.Site2Qty--;
                 }
             }
             else
             {
-                if (DevStatus.Site2Qty < DevStatus.FullQty)
+                if (!IsNeed_2 && DevStatus.Site2Qty < DevStatus.FullQty)
                 {
                     DevStatus.Site2Qty++;
                 }
@@ -301,7 +344,7 @@ namespace simtask.task
         /// </summary>
         internal void SetupTile()
         {
-            if(Type == DeviceTypeE.上砖机)
+            if (Type == DeviceTypeE.上砖机)
             {
                 DevStatus.FullQty = 30;
                 OnePiecesUsedTime = 3;
@@ -316,84 +359,31 @@ namespace simtask.task
             DevStatus.ShiftStatus = TileShiftStatusE.复位;
             DevStatus.SetGoods = DevConfig.goods_id;
             DevStatus.SetLevel = DevConfig.level;
+
+            if (DevConfig.left_track_id != 0)
+            {
+                IsLeftWork = true;
+            }
+
+            if (DevConfig.left_track_id == 0 && DevConfig.right_track_id != 0)
+            {
+                IsLeftWork = false;
+            }
+
+            if (DevConfig.left_track_id == 0 || DevConfig.right_track_id == 0)
+            {
+                IsOneTrack = true;
+            }
         }
 
-        internal bool IsTrackLoad(uint trackid)
-        {
-            if (DevConfig.left_track_id == trackid)
-            {
-                return IsLoad_1 && IsNeed_1;
-            }
-
-            if (DevConfig.right_track_id == trackid)
-            {
-                return IsLoad_2 && IsNeed_2;
-            }
-            return false;
-        }
-
-        internal bool IsTrackUnLoad(uint trackid)
-        {
-            if (DevConfig.left_track_id == trackid)
-            {
-                return !IsLoad_1 && IsNeed_1;
-            }
-
-            if (DevConfig.right_track_id == trackid)
-            {
-                return !IsLoad_2 && IsNeed_2;
-            }
-            return false;
-        }
 
         internal bool IsWorkingTrack(uint trackid)
         {
             return DevConfig.left_track_id == trackid || DevConfig.right_track_id == trackid;
         }
 
-        internal void DoTrackUnload(uint trackid)
-        {
-            //左轨道
-            if(DevConfig.left_track_id == trackid)
-            {
-                DevStatus.Load1 = false;
-                DevStatus.Need1 = false;
-                if (Device.Type2 == DeviceType2E.单轨)
-                {
-                    DevStatus.Site1Qty = 0;
-                }
-            }
-
-            //右轨道
-            if(DevConfig.right_track_id == trackid)
-            {
-                DevStatus.Load2 = false;
-                DevStatus.Need2 = false;
-            }
-        }
-
-        internal void DoTrackLoad(uint trackid)
-        {
-            //左轨道
-            if (DevConfig.left_track_id == trackid)
-            {
-                DevStatus.Load1 = true;
-                DevStatus.Need1 = false;
-                if (Device.Type2 == DeviceType2E.单轨)
-                {
-                    DevStatus.Site1Qty = FULL_QTY;
-                }
-            }
-
-            //右轨道
-            if (DevConfig.right_track_id == trackid)
-            {
-                DevStatus.Load2 = true;
-                DevStatus.Need2 = false;
-            }
-        }
-
         #endregion
+
         #region[模拟配置文件初始化]
 
         internal void SetUpSimulate(SimTileLifter sim)
@@ -405,8 +395,8 @@ namespace simtask.task
             IsLeftWork = sim.IsLeftWork;
             IsNeed_1 = sim.IsNeed_1;
             IsNeed_2 = sim.IsNeed_2;
-            IsLoad_1 = sim.IsLoad_1;
-            IsLoad_2 = sim.IsLoad_2;
+            DevStatus.LoadStatus1 = sim.LoadStatus1;
+            DevStatus.LoadStatus2 = sim.LoadStatus2;
             IsInvo_1 = sim.IsInvo_1;
             IsInvo_2 = sim.IsInvo_2;
         }
@@ -421,12 +411,30 @@ namespace simtask.task
             sim.IsLeftWork = IsLeftWork;
             sim.IsNeed_1 = IsNeed_1;
             sim.IsNeed_2 = IsNeed_2;
-            sim.IsLoad_1 = IsLoad_1;
-            sim.IsLoad_2 = IsLoad_2;
+            sim.LoadStatus1 = DevStatus.LoadStatus1;
+            sim.LoadStatus2 = DevStatus.LoadStatus2;
             sim.IsInvo_1 = IsInvo_1;
             sim.IsInvo_2 = IsInvo_2;
             return sim;
         }
-            #endregion
+        #endregion
+
+        #region[其他方法]
+
+        public void SetSite1Status(uint gid, byte qty, DevLifterLoadE status)
+        {
+            DevStatus.Goods1 = gid;
+            DevStatus.Site1Qty = qty;
+            DevStatus.LoadStatus1 = status;
+        }
+
+        public void SetSite2Status(uint gid, byte qty, DevLifterLoadE status)
+        {
+            DevStatus.Goods2 = gid;
+            DevStatus.Site2Qty = qty;
+            DevStatus.LoadStatus2 = status;
+        }
+
+        #endregion
     }
 }

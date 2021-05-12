@@ -133,8 +133,8 @@ namespace tool.appconfig
         public bool IsLeftWork { set; get; } = true;
         public bool IsNeed_1 { set; get; }
         public bool IsNeed_2 { set; get; }
-        public bool IsLoad_1 { set; get; }
-        public bool IsLoad_2 { set; get; }
+        public DevLifterLoadE LoadStatus1 { set; get; }
+        public DevLifterLoadE LoadStatus2 { set; get; }
         public bool IsInvo_1 { set; get; }
         public bool IsInvo_2 { set; get; }
     }

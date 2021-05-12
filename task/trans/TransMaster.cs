@@ -5768,8 +5768,9 @@ namespace task.trans
             //4.判断轨道中是否已经有其他车在倒库了
             if (PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.上砖侧倒库, track_id, carrier_id)) return false;
 
-            //5.轨道的头部库存位置处于则给小车发送倒库任务
-            if (PubMaster.Goods.IsTopStockBehindUpSplitPoint(track_id))
+            //5.轨道的头部库存位置处于分割点后（分割点后不止一个库存）则给小车发送倒库任务
+            if (PubMaster.Goods.IsTopStockBehindUpSplitPoint(track_id, out uint stockid)
+                && !PubMaster.Goods.IsOnlyOneWithStock(stockid))
             {
                 //后退至轨道倒库
                 PubTask.Carrier.DoOrder(carrier_id, new CarrierActionOrder()
@@ -5869,12 +5870,13 @@ namespace task.trans
             if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
             {
                 //【使用分割点、不限制使用分割点后的库存】
-                //2.判断库存所在位置是否轨道分割点后面
+                //2.判断库存所在位置是否轨道分割点后面，并且库存不止一车
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)
                     && !PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock)
-                    && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid))
+                    && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid)
+                    && !PubMaster.Goods.IsOnlyOneWithStock(stockid))
                 {
-                    //在分割点后的库存需要
+                    //在分割点后的库存需要（库存大于1）
                     return false;
                 }
 
