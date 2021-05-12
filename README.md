@@ -217,6 +217,14 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 
 
+2021.05.12
+更新报警提示信息sql：
+UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'DownTileHaveNotTrackToStore', `name` = '砖机找不到空闲轨道存放', `int_value` = NULL, `bool_value` = NULL, `string_value` = '砖机找不到合适轨道（品种及状态允许且无任务锁定）存砖', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL WHERE `id` = 207;
+UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'UpTileHaveNoTrackToOut', `name` = '砖机找不到有砖轨道上砖', `int_value` = NULL, `bool_value` = NULL, `string_value` = '砖机找不到合适轨道（品种及状态允许且无任务锁定）上砖', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL WHERE `id` = 210;
+UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'TransHaveNotTheGiveTrack', `name` = '任务进行中没有发现合适的轨道卸砖', `int_value` = NULL, `bool_value` = NULL, `string_value` = '任务中没有合适轨道（品种及状态允许且无任务锁定）卸砖', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL WHERE `id` = 217;
+
+新增开关启用下砖入库极限混砖sql:
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (70, 8, 'EnableLimitAllocate', '开关-启用下砖入库极限混砖', NULL, b'0', NULL, NULL, NULL, NULL, NULL);
 
 
 
