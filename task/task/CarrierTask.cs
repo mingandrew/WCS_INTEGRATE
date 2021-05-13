@@ -107,7 +107,7 @@ namespace task.device
         /// <summary>
         /// 取货RFID
         /// </summary>
-        public ushort TakePoint
+        public ushort TakeSite
         {
             get => DevStatus?.TakeSite ?? 0;
         }
@@ -115,7 +115,7 @@ namespace task.device
         /// <summary>
         /// 取货坐标
         /// </summary>
-        public ushort TakeSite
+        public ushort TakePoint
         {
             get => DevStatus?.TakePoint ?? 0;
         }
@@ -123,7 +123,7 @@ namespace task.device
         /// <summary>
         /// 卸货RFID
         /// </summary>
-        public ushort GivePoint
+        public ushort GiveSite
         {
             get => DevStatus?.GiveSite ?? 0;
         }
@@ -131,7 +131,7 @@ namespace task.device
         /// <summary>
         /// 卸货坐标
         /// </summary>
-        public ushort GiveSite
+        public ushort GivePoint
         {
             get => DevStatus?.GivePoint ?? 0;
         }
@@ -209,8 +209,8 @@ namespace task.device
         {
             return Load == DevCarrierLoadE.有货
                 || (Load == DevCarrierLoadE.异常
-                    && TakePoint > 0
-                    && TakeSite > 0);
+                    && TakeSite > 0
+                    && TakePoint > 0);
         }
 
         /// <summary>
@@ -221,8 +221,8 @@ namespace task.device
         {
             return Load == DevCarrierLoadE.无货
                 || (Load == DevCarrierLoadE.异常
-                    && GivePoint > 0
-                    && GiveSite > 0);
+                    && GiveSite > 0
+                    && GivePoint > 0);
         }
 
         /// <summary>

@@ -137,5 +137,15 @@ namespace tool.appconfig
         public DevLifterLoadE LoadStatus2 { set; get; }
         public bool IsInvo_1 { set; get; }
         public bool IsInvo_2 { set; get; }
+        public byte Site1Qty { set; get; }
+        public byte Site2Qty { set; get; }
+        public uint Good1 { set; get; }
+        public uint Good2 { set; get; }
+        public TileShiftStatusE ShiftStatus { set; get; }
+        public bool ShiftAccept { set; get; }
+        public TileWorkModeE WorkMode { set; get; }
+        public DevOperateModeE OperateMode { set; get; }
+        public bool NeedSystemShift { set; get; }
+        public byte BackUpShiftDev { set; get; }
     }
 }

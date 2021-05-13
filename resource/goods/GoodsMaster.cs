@@ -1334,7 +1334,7 @@ namespace resource.goods
                             SetStockPosType(topStock, StockPosE.中部);
                         }
 
-                        short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id).Min(c => c.pos);
+                        short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id)?.Min(c => c.pos) ?? 0;
                         stock.pos = (short)(FinalStockPos - 1);
                         stock.PosType = StockPosE.头部;
                     }
@@ -1346,7 +1346,7 @@ namespace resource.goods
                             SetStockPosType(Bottomstock, StockPosE.中部);
                         }
 
-                        short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id).Max(c => c.pos);
+                        short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id)?.Max(c => c.pos) ?? 0;
                         stock.pos = (short)(FinalStockPos + 1);
                         stock.PosType = StockPosE.尾部;
                     }
@@ -2790,13 +2790,42 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 获取分割点后的库存数量
+        /// 获取指定脉冲-后的库存数量
         /// </summary>
-        /// <param name="take_track_id"></param>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="point">脉冲</param>
         /// <returns></returns>
-        public int GetBehindUpSplitStockCount(uint trackid, int upsplitpoint)
+        public int GetBehindPointStockCount(uint trackid, int point)
         {
-            return StockList.Count(c => c.track_id == trackid && c.location < upsplitpoint);
+            return StockList.Count(c => c.track_id == trackid && c.location < point);
+        }
+
+        /// <summary>
+        /// 获取指定脉冲-前的库存数量
+        /// </summary>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="point">脉冲</param>
+        /// <returns></returns>
+        public int GetInfrontPointStockCount(uint trackid, int point)
+        {
+            return StockList.Count(c => c.track_id == trackid && c.location > point);
+        }
+
+        /// <summary>
+        /// 获取指定脉冲前面最大的库存位置脉冲
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public ushort GetInfrontPointStockMaxLocation(uint trackid, int point)
+        {
+            List<Stock> list = StockList.FindAll(c => c.track_id == trackid && c.location > point);
+            if(list.Count > 1)
+            {
+                return list.Max(c => c.location);
+            }
+
+            return 0;
         }
 
         /// <summary>

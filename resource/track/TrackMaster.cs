@@ -606,6 +606,17 @@ namespace resource.track
             return TrackList.FindAll(c => c.area == areaid && c.Type == type)
                 ?.Select(c => c.rfid_1).ToList() ?? new List<ushort>();
         }
+
+        /// <summary>
+        /// 判断是否存在该类型的轨道
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <param name="types">轨道类型</param>
+        /// <returns></returns>
+        public bool ExistTrackInType(uint areaid, params TrackTypeE[] types)
+        {
+            return TrackList.Exists(c => c.area == areaid && types.Contains(c.Type));
+        }
         #endregion
 
         #region[更改]

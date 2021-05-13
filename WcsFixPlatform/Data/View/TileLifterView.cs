@@ -257,7 +257,6 @@ namespace wcs.Data.View
             SetLevel = st.SetLevel;
             ShiftStatus = st.ShiftStatus;
 
-
             Working = working;
             LastTrackId = tid;
             WorkType = wtype;
