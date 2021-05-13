@@ -814,7 +814,7 @@ namespace task.trans
         /// <param name="memo"></param>
         internal void LogForCarrierSort(StockTrans trans, uint trackid, string memo = "")
         {
-            SetStepLog(trans, true, 406, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库；{2}；",
+            SetStepLog(trans, true, 406, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库-数量[ {2} ]；",
                 PubMaster.Device.GetDeviceName(trans.carrier_id),
                 PubMaster.Track.GetTrackName(trackid), memo));
         }
