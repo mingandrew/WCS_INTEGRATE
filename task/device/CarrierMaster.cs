@@ -1007,7 +1007,7 @@ namespace task.device
                         }
 
                         if (track.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入)
-                            && (site%100) >= 48) //中间地标尾数是 48
+                            && site >= track.rfid_2) //最大定位RFID
 
                         {
                             result = "当前储砖轨道位置不能再前进了！";
@@ -1016,7 +1016,7 @@ namespace task.device
 
                         order = DevCarrierOrderE.定位指令;
                         checkTra = track.ferry_down_code;
-                        toRFID = (ushort)(checkTra * 100 + 48); // 中间地标尾数是 48
+                        toRFID = track.rfid_2; // 中间地标 最大定位RFID
                         #endregion
                         break;
 

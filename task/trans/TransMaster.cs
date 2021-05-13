@@ -2393,8 +2393,7 @@ namespace task.trans
 
                                     if (isnotload)
                                     {
-                                        // 将出入库轨道所有库存加起来一起给,大不了空跑一趟
-                                        int count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id) + PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
+                                        int count = PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
 
                                         #region 【任务步骤记录】
                                         LogForCarrierSort(trans, trans.give_track_id, count.ToString());
