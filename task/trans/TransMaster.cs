@@ -2555,7 +2555,7 @@ namespace task.trans
                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.终止指令
-                            });
+                            }, "倒库中相关任务轨道出现其他运输车");
 
                             PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
                                 (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
@@ -2620,7 +2620,7 @@ namespace task.trans
                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
                             Order = DevCarrierOrderE.终止指令
-                        });
+                        }, "前方有其他运输车将至");
 
                         #region 【任务步骤记录】
                         SetStepLog(trans, false, 1702, string.Format("终止运输车[ {0} ]，检测到前方可能有其他运输车进入轨道",
@@ -2637,7 +2637,7 @@ namespace task.trans
                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
                             Order = DevCarrierOrderE.终止指令
-                        });
+                        }, "前方存在其他运输车");
 
                         if (HaveCarrierInTrans(othercarrier))
                         {
@@ -2797,7 +2797,7 @@ namespace task.trans
                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
                             Order = DevCarrierOrderE.终止指令
-                        });
+                        }, "倒库任务取消流程中");
 
                         #region 【任务步骤记录】
                         SetStepLog(trans, false, 2002, string.Format("终止运输车[ {0} ]，准备回到出库侧轨道取消倒库任务；",
@@ -3151,7 +3151,7 @@ namespace task.trans
                             PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.终止指令
-                            });
+                            }, "倒库中相关任务轨道出现其他运输车");
 
                             PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
                                 (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
@@ -3216,7 +3216,7 @@ namespace task.trans
                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
                             Order = DevCarrierOrderE.终止指令
-                        });
+                        }, "前方有其他运输车将至");
 
                         #region 【任务步骤记录】
                         SetStepLog(trans, false, 1708, string.Format("终止运输车[ {0} ]，检测到前方可能有其他运输车进入轨道",
@@ -3233,7 +3233,7 @@ namespace task.trans
                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
                             Order = DevCarrierOrderE.终止指令
-                        });
+                        }, "前方存在其他运输车");
 
                         if (HaveCarrierInTrans(othercarrier))
                         {
