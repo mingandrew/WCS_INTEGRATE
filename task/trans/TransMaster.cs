@@ -2404,14 +2404,25 @@ namespace task.trans
                                     {
                                         Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
 
+                                        byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(gtrack.id, gtrack.up_split_point);
+                                        if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber))
+                                        {
+                                            byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(gtrack.area, gtrack.line);
+
+                                            if (line_max_move > 0 && movecount > line_max_move)
+                                            {
+                                                movecount = line_max_move;
+                                            }
+                                        }
+
                                         //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.往前倒库,
                                             CheckTra = gtrack.ferry_down_code,
                                             ToSite = (ushort)(gtrack.split_point + 50),
-                                            MoveCount = (byte)PubMaster.Goods.GetBehindPointStockCount(gtrack.id, gtrack.up_split_point)
-                                        }) ;
+                                            MoveCount = movecount
+                                        });
                                     }
                                 }
                             }
@@ -2467,13 +2478,24 @@ namespace task.trans
                                     {
                                         Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
 
+                                        byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(gtrack.id, gtrack.up_split_point);
+                                        if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber))
+                                        {
+                                            byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(gtrack.area, gtrack.line);
+
+                                            if (line_max_move > 0 && movecount > line_max_move)
+                                            {
+                                                movecount = line_max_move;
+                                            }
+                                        }
+
                                         //后退至轨道倒库
                                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.往前倒库,
                                             CheckTra = gtrack.ferry_down_code,
                                             ToSite = (ushort)(gtrack.split_point + 50),
-                                            MoveCount = (byte)PubMaster.Goods.GetBehindPointStockCount(gtrack.id, gtrack.up_split_point)
+                                            MoveCount = movecount
                                         });
                                     }
                                 }
@@ -2701,11 +2723,15 @@ namespace task.trans
                         else
                         {
                             byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, track.up_split_point);
-                            byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
 
-                            if(line_max_move >0 && movecount > line_max_move)
+                            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber))
                             {
-                                movecount = line_max_move;
+                                byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
+
+                                if (line_max_move > 0 && movecount > line_max_move)
+                                {
+                                    movecount = line_max_move;
+                                }
                             }
 
                             //后退至轨道倒库
