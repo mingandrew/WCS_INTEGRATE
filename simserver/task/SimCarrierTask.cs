@@ -229,61 +229,67 @@ namespace simtask
 
                 #region[定位指令]
                 case DevCarrierOrderE.定位指令:
-
-                    switch (TargetTrack.Type)
+                    if(TargetTrack != null)
                     {
-                        case TrackTypeE.上砖轨道:
+                        switch (TargetTrack.Type)
+                        {
+                            case TrackTypeE.上砖轨道:
 
-                            break;
-                        case TrackTypeE.下砖轨道:
+                                break;
+                            case TrackTypeE.下砖轨道:
 
-                            break;
-                        case TrackTypeE.储砖_入:
-                            if (TO_SITE == TargetTrack.rfid_1)
-                            {
-                                SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                DevStatus.CurrentPoint = TargetTrack.limit_point;
-                            }
-                            else if (TO_SITE == TargetTrack.rfid_2)
-                            {
-                                SetNowTrack(TargetTrack, TargetTrack.rfid_2);
-                                DevStatus.CurrentPoint = TargetTrack.limit_point_up;
-                            }
-                            break;
-                        case TrackTypeE.储砖_出:
+                                break;
+                            case TrackTypeE.储砖_入:
+                                if (TO_SITE == TargetTrack.rfid_1)
+                                {
+                                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+                                    DevStatus.CurrentPoint = TargetTrack.limit_point;
+                                }
+                                else if (TO_SITE == TargetTrack.rfid_2)
+                                {
+                                    SetNowTrack(TargetTrack, TargetTrack.rfid_2);
+                                    DevStatus.CurrentPoint = TargetTrack.limit_point_up;
+                                }
+                                break;
+                            case TrackTypeE.储砖_出:
 
-                            if (TO_SITE == TargetTrack.rfid_1)
-                            {
+                                if (TO_SITE == TargetTrack.rfid_1)
+                                {
+                                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+                                    DevStatus.CurrentPoint = TargetTrack.limit_point_up;
+                                }
+                                break;
+                            case TrackTypeE.储砖_出入:
+                                if (TO_SITE == TargetTrack.rfid_1)
+                                {
+                                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+                                    DevStatus.CurrentPoint = TargetTrack.limit_point;
+                                }
+                                else if (TO_SITE == TargetTrack.rfid_2)
+                                {
+                                    SetNowTrack(TargetTrack, TargetTrack.rfid_2);
+                                    DevStatus.CurrentPoint = TargetTrack.limit_point_up;
+                                }
+                                break;
+                            case TrackTypeE.摆渡车_入:
+                                DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
                                 SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                DevStatus.CurrentPoint = TargetTrack.limit_point_up;
-                            }
-                            break;
-                        case TrackTypeE.储砖_出入:
-                            if(TO_SITE == TargetTrack.rfid_1)
-                            {
+                                break;
+                            case TrackTypeE.摆渡车_出:
+                                DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
                                 SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                DevStatus.CurrentPoint = TargetTrack.limit_point;
-                            }else if(TO_SITE == TargetTrack.rfid_2)
-                            {
-                                SetNowTrack(TargetTrack, TargetTrack.rfid_2);
-                                DevStatus.CurrentPoint = TargetTrack.limit_point_up;
-                            }
-                            break;
-                        case TrackTypeE.摆渡车_入:
-                            DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
-                            SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                            break;
-                        case TrackTypeE.摆渡车_出:
-                            DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
-                            SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                            break;
-                        default:
-                            break;
+                                break;
+                        }
                     }
 
                     if(DevStatus.CurrentSite == DevStatus.TargetSite)
                     {
                         DevStatus.TargetSite = ZERO_SITE;
+                        FinishAndStop(DevCarrierOrderE.定位指令);
+                    }
+
+                    if(TargetTrack == null && TO_POINT == DevStatus.CurrentPoint)
+                    {
                         FinishAndStop(DevCarrierOrderE.定位指令);
                     }
 

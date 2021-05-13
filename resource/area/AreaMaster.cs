@@ -718,8 +718,16 @@ namespace resource.area
 
         #region[线管理]
 
-
-
+        /// <summary>
+        /// 获取线配置的区域线路接力倒库最大倒库数量
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public byte GetLineUpSortMaxNumber(uint areaid, ushort line)
+        {
+            return LineList.Find(c => c.area_id == areaid && c.line == line)?.max_upsort_num ?? 0;
+        }
 
         #endregion
     }

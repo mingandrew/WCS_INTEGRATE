@@ -227,7 +227,12 @@ UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'TransHaveNotTheGiveTrack', 
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (70, 8, 'EnableLimitAllocate', '开关-启用下砖入库极限混砖', NULL, b'0', NULL, NULL, NULL, NULL, NULL);
 
 
+2021.05.12
+新增开关-接力限制倒库数量【在线路上配置】sql:
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (71, 8, 'UpSortUseMaxNumber', '开关-接力限制倒库数量', NULL, b'0', NULL, NULL, NULL, NULL, NULL);
+
+线路添加-接力限制倒库数量
 
 
-
+ALTER TABLE `line` ADD COLUMN `max_upsort_num` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '接力限制倒库数量';
 

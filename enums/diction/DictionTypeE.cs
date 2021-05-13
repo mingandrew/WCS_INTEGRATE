@@ -66,6 +66,7 @@
         public static string UpTaskIgnoreSortTask = nameof(UpTaskIgnoreSortTask);          //开关-允许倒库时可以上砖
         public static string UseUpSplitPoint = nameof(UseUpSplitPoint);                             //开关-启用上砖侧分割点坐标逻辑
         public static string CannotUseUpSplitStock = nameof(CannotUseUpSplitStock);    //开关-限制直接使用上砖侧分割点后的库存
+        public static string UpSortUseMaxNumber = nameof(UpSortUseMaxNumber);     //开关-接力倒库使用倒库最大数量【在线路上配置】
 
         #endregion
 

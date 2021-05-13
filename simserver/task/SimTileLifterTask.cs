@@ -156,13 +156,15 @@ namespace simtask.task
                 bool usefull = PubMaster.Dic.IsSwitchOnOff(DicTag.UseTileFullSign);
                 if (Type == DeviceTypeE.上砖机)
                 {
-                    if (DevConfig.left_track_id != 0 && DevStatus.Site1Qty == 0 && IsGood_1)
+                    if (DevConfig.left_track_id != 0 && DevStatus.Site1Qty == 0 && !IsInvo_1)
                     {
+                        DevStatus.LoadStatus1 = DevLifterLoadE.无砖;
                         DevStatus.Need1 = true;
                     }
 
-                    if (DevConfig.right_track_id != 0 && DevStatus.Site2Qty == 0 && IsGood_2)
+                    if (DevConfig.right_track_id != 0 && DevStatus.Site2Qty == 0 && !IsInvo_2)
                     {
+                        DevStatus.LoadStatus2 = DevLifterLoadE.无砖;
                         DevStatus.Need2 = true;
                     }
 
@@ -240,7 +242,7 @@ namespace simtask.task
 
                     if (IsOneTrack)
                     {
-                        if ((IsGood_1 || IsFull_1 || IsGood_2 || IsFull_2) && !IsInvo_1 && !IsInvo_2)
+                        if ((!IsFull_1 || !IsFull_2) && !IsInvo_1 && !IsInvo_2)
                         {
                             CheckTimeToAct();
                         }
@@ -399,6 +401,16 @@ namespace simtask.task
             DevStatus.LoadStatus2 = sim.LoadStatus2;
             IsInvo_1 = sim.IsInvo_1;
             IsInvo_2 = sim.IsInvo_2;
+            DevStatus.Site1Qty = sim.Site1Qty ;
+            DevStatus.Site2Qty = sim.Site2Qty;
+            DevStatus.Goods1 = sim.Good1;
+            DevStatus.Goods2 = sim.Good2;
+            DevStatus.ShiftStatus = sim.ShiftStatus;
+            DevStatus.ShiftAccept = sim.ShiftAccept;
+            DevStatus.WorkMode = sim.WorkMode;
+            DevStatus.OperateMode = sim.OperateMode;
+            DevStatus.NeedSytemShift = sim.NeedSystemShift;
+            DevStatus.BackupShiftDev = sim.BackUpShiftDev;
         }
 
         internal SimTileLifter SaveSimulate()
@@ -415,6 +427,17 @@ namespace simtask.task
             sim.LoadStatus2 = DevStatus.LoadStatus2;
             sim.IsInvo_1 = IsInvo_1;
             sim.IsInvo_2 = IsInvo_2;
+            sim.Site1Qty = DevStatus.Site1Qty;
+            sim.Site2Qty = DevStatus.Site2Qty;
+            sim.Good1 = DevStatus.Goods1;
+            sim.Good2 = DevStatus.Goods2;
+            sim.ShiftStatus = DevStatus.ShiftStatus;
+            sim.ShiftAccept = DevStatus.ShiftAccept;
+            sim.WorkMode = DevStatus.WorkMode;
+            sim.OperateMode = DevStatus.OperateMode;
+            sim.NeedSystemShift = DevStatus.NeedSytemShift;
+            sim.BackUpShiftDev = DevStatus.BackupShiftDev;
+            
             return sim;
         }
         #endregion

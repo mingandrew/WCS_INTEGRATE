@@ -13,5 +13,9 @@
         public ushort sort_task_qty { set; get; }
         public ushort up_task_qty { set; get; }
         public ushort down_task_qty { set; get; }
+        /// <summary>
+        /// 接力倒库最大倒库数量
+        /// </summary>
+        public byte max_upsort_num { get; set; }
     }
 }
