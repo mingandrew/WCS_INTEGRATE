@@ -1655,7 +1655,8 @@ namespace task.trans
                                         if (PubTask.Carrier.IsStopFTask(trans.carrier_id)
                                             && LockFerryAndAction(trans, trans.give_ferry_id, trans.finish_track_id, track.id, out ferryTraid, out string _))
                                         {
-                                            if (!CheckTrackStockStillCanUse(trans.carrier_id, trans.finish_track_id)
+                                            if ((!PubMaster.Track.IsEmtpy(trans.finish_track_id)
+                                                && !CheckTrackStockStillCanUse(trans.carrier_id, trans.finish_track_id))
                                                 || CheckHaveCarrierInOutTrack(trans.carrier_id, trans.finish_track_id, out string result))
                                             {
                                                 SetFinishSite(trans, 0, "轨道不满足状态重新分配");
