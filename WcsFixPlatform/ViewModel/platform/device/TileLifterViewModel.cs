@@ -251,6 +251,8 @@ namespace wcs.ViewModel
                                 if (PubMaster.DevConfig.SetInStrategy(DeviceSelected.ID, instrategy, inworktype))
                                 {
                                     PubTask.TileLifter.UpdateTileInStrategry(DeviceSelected.ID, instrategy, inworktype);
+                                    //清除没有策略的报警
+                                    PubMaster.Warn.RemoveDevWarn(enums.warning.WarningTypeE.TileNoneStrategy, (ushort)DeviceSelected.ID);
                                 }
                             }
 
@@ -261,6 +263,8 @@ namespace wcs.ViewModel
                                     && PubMaster.DevConfig.SetOutStrategy(DeviceSelected.ID, outstrategy, worktype))
                                 {
                                     PubTask.TileLifter.UpdateTileOutStrategry(DeviceSelected.ID, outstrategy, worktype);
+                                    //清除没有策略的报警
+                                    PubMaster.Warn.RemoveDevWarn(enums.warning.WarningTypeE.TileNoneStrategy, (ushort)DeviceSelected.ID);
                                 }
                             }
                         }
