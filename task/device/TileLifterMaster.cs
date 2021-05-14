@@ -1983,6 +1983,7 @@ namespace task.device
             {
                 case StrategyOutE.无:
                     iseffect = true;
+                    PubMaster.Warn.AddDevWarn(WarningTypeE.TileNoneStrategy, (ushort)task.ID);
                     break;
                 case StrategyOutE.同机同轨:
                     iseffect = PubTask.Trans.HaveInLifter(task.ID);
