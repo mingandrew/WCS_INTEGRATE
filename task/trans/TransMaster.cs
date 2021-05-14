@@ -1949,8 +1949,9 @@ namespace task.trans
                                                 return;
                                             }
 
-                                            if (!CheckTrackStockStillCanUse(trans.carrier_id, trans.finish_track_id)
-                                                || CheckHaveCarrierInOutTrack(trans.carrier_id, trans.finish_track_id, out result))
+                                            if ((!PubMaster.Track.IsEmtpy(trans.finish_track_id)
+                                                && !CheckTrackStockStillCanUse(trans.carrier_id, trans.finish_track_id))
+                                                || CheckHaveCarrierInOutTrack(trans.carrier_id, trans.finish_track_id, out string result))
                                             {
                                                 SetFinishSite(trans, 0, "轨道不满足状态重新分配");
                                                 return;
