@@ -1,10 +1,10 @@
 @echo off
 
-set srcDir="本地LOG路径"
+set srcDir="D:\KEDA\Log"
 
-set daysAgo=30
+set daysAgo=90
 
-echo Delete the Log 30 days ago...
+echo Delete the Log 90 days ago...
 
 forfiles /p %srcDir% /s /d -%daysAgo% /c "cmd /c del /f /s /q @path && rd /s /q @path"
 
