@@ -236,3 +236,5 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 ALTER TABLE `line` ADD COLUMN `max_upsort_num` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '接力限制倒库数量';
 
+2021.05.17 添加轨道脉冲设置
+INSERT INTO `wcs_rl`.`wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (34, '轨道脉冲配置', 0, 'TrackSetPoint', NULL, 'DarkPrimaryBrush', 'ConfigGeometry', 'TrackSetPointCtl', 'PC轨道脉冲配置');

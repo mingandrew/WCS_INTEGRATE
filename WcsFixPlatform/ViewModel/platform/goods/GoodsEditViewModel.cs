@@ -11,6 +11,7 @@ using resource;
 using System;
 using System.Collections.Generic;
 using task;
+using tool.appconfig;
 using wcs.Data.View;
 using wcs.Dialog;
 
@@ -63,7 +64,11 @@ namespace wcs.ViewModel
         public Area SelectArea
         {
             get => selectarea;
-            set => Set(ref selectarea, value);
+            set
+            {
+                Set(ref selectarea, value);
+                SetDefaultData();
+            }
         }
         
         public DictionDtl SelectLevel
@@ -77,7 +82,6 @@ namespace wcs.ViewModel
             get => areas;
             set => Set(ref areas, value);
         }
-
 
         public List<DictionDtl> LevelList
         {
@@ -245,6 +249,7 @@ namespace wcs.ViewModel
                 else
                 {
                     PubTask.Rf.SendGoodDic2ToAll();
+                    GlobalWcsDataConfig.DefaultConfig.UpdateAreaDefault(SelectArea.id, Pieces, size_id, (byte)SelectLevel.int_value);
                 }
             }
             else
@@ -280,8 +285,8 @@ namespace wcs.ViewModel
                 Name = "";
                 Color = "";
                 Memo = "";
-                SelectArea = AreaList.Find(c => c.id == area_id);
                 Pieces = 0;
+                SelectArea = AreaList.Find(c => c.id == area_id);
             }
             else
             {
@@ -304,6 +309,23 @@ namespace wcs.ViewModel
         private DictionDtl GetLevelDtl(uint levelvalue)
         {
             return LevelList.Find(c => c.int_value == levelvalue);
+        }
+
+        private void SetDefaultData()
+        {
+            if (!mIsAdd) return;
+            if (SelectArea == null) return;
+            AreaDefaultData defaultData = GlobalWcsDataConfig.DefaultConfig.GetAreaDefault(SelectArea.id);
+            if (defaultData != null)
+            {
+                Pieces = defaultData.Last_Good_Qty;
+                SetSizeInfo(PubMaster.Goods.GetSize(defaultData.Last_Good_SizeId));
+                SelectLevel = GetLevelDtl(defaultData.Last_Good_Level);
+            }
+            else
+            {
+                Pieces = 50;
+            }
         }
         #endregion
     }

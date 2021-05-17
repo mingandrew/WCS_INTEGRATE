@@ -154,6 +154,17 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 获取区域指定类型的轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public Track GetAreaTrack(uint areaid, TrackTypeE type)
+        {
+            return TrackList.Find(c => c.area == areaid && c.Type == type);
+        }
+
+        /// <summary>
         /// 获取区域线路轨道指定类型的轨道的ID
         /// </summary>
         /// <param name="areaid">区域ID</param>
@@ -1720,6 +1731,116 @@ namespace resource.track
         public string GetTrackStatusLogInfo(uint id)
         {
             return GetTrack(id)?.GetStatusLog() ?? "";
+        }
+        #endregion
+
+        #region[更新轨道脉冲]
+
+        /// <summary>
+        /// 更新轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool UpdateTrackLimitOut(uint areaid, ushort point)
+        {
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入));
+            if (tracks.Count > 0)
+            {
+                foreach (var item in tracks)
+                {
+                    item.limit_point_up = point;
+                    PubMaster.Mod.TraSql.EditTrack(item, TrackUpdateE.Point);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 更新轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool UpdateTrackLimitIn(uint areaid, ushort point)
+        {
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入));
+            if (tracks.Count > 0)
+            {
+                foreach (var item in tracks)
+                {
+                    item.limit_point = point;
+                    PubMaster.Mod.TraSql.EditTrack(item, TrackUpdateE.Point);
+                }
+                return true;
+            }
+            return false;
+        }
+        
+
+        /// <summary>
+        /// 更新轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool UpdateTrackFirstIn(uint areaid, ushort point)
+        {
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_入));
+            if (tracks.Count > 0)
+            {
+                foreach (var item in tracks)
+                {
+                    item.split_point = point;
+                    PubMaster.Mod.TraSql.EditTrack(item, TrackUpdateE.Point);
+                }
+                return true;
+            }
+            return false;
+        }
+
+
+        /// <summary>
+        /// 更新轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool UpdateTrackLastOut(uint areaid, ushort point)
+        {
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_出));
+            if (tracks.Count > 0)
+            {
+                foreach (var item in tracks)
+                {
+                    item.split_point = point;
+                    PubMaster.Mod.TraSql.EditTrack(item, TrackUpdateE.Point);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 更新轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool UpdateTrackSortOut(uint areaid, ushort point)
+        {
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_出));
+            if (tracks.Count > 0)
+            {
+                foreach (var item in tracks)
+                {
+                    item.up_split_point = point;
+                    PubMaster.Mod.TraSql.EditTrack(item, TrackUpdateE.Point);
+                }
+                return true;
+            }
+            return false;
         }
         #endregion
     }

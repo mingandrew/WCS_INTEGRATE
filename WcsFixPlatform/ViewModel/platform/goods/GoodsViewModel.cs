@@ -81,6 +81,7 @@ namespace wcs.ViewModel
             if (PubMaster.Area.IsSingleArea(out uint areaid))
             {
                 ShowAreaFileter = false;
+                filterareaid = areaid;
             }
         }
         private void GoodsUpdate(MsgAction msg)

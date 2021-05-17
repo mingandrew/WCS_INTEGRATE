@@ -62,6 +62,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<TrackAllocateViewModel>();
             SimpleIoc.Default.Register<TrackLogViewModel>();
             SimpleIoc.Default.Register<TileTrackViewModel>();
+            SimpleIoc.Default.Register<TrackSetPointViewModel>();
 
             SimpleIoc.Default.Register<MenuViewModel>();
             SimpleIoc.Default.Register<UserViewModel>();
@@ -111,6 +112,7 @@ namespace wcs.ViewModel
         public TrackViewModel Track => ServiceLocator.Current.GetInstance<TrackViewModel>();
         public TrackLogViewModel TrackLog => ServiceLocator.Current.GetInstance<TrackLogViewModel>();
         public TrackSelectViewModel TrackSelect => ServiceLocator.Current.GetInstance<TrackSelectViewModel>();
+        public TrackSetPointViewModel TrackSetPoint => ServiceLocator.Current.GetInstance<TrackSetPointViewModel>();
         public ChangeStrategyDialogViewModel StrategyChange => ServiceLocator.Current.GetInstance<ChangeStrategyDialogViewModel>();
         public FerryAutoPosDialogViewModel FerryAutoPos => ServiceLocator.Current.GetInstance<FerryAutoPosDialogViewModel>();
         public FerryCopyPosDialogViewModel FerryCopyPos => ServiceLocator.Current.GetInstance<FerryCopyPosDialogViewModel>();

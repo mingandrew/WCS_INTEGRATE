@@ -1414,12 +1414,12 @@ namespace task.device
                     List<uint> ferryids;
                     Track carrierTrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                     bool isCarInFerry = false;
-                    if (carrierTrack.Type == enums.track.TrackTypeE.摆渡车_入 || carrierTrack.Type == enums.track.TrackTypeE.摆渡车_出)
+                    if (carrierTrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                     {
                         isCarInFerry = true;
                     }
 
-                    if (trans.TransType == TransTypeE.倒库任务)
+                    if (trans.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
                     {
                         ferryids = PubMaster.Area.GetFerryWithTrackInOut(ferrytype, trans.area_id, 0, trans.give_track_id, isCarInFerry ? 0 : carrierTrack.id, false);
                     }

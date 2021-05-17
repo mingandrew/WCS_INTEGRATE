@@ -291,6 +291,7 @@
     <Compile Include="ViewModel\setting\menu\MenuViewModel.cs" />
     <Compile Include="ViewModel\setting\module\ModuleSelectViewModel.cs" />
     <Compile Include="ViewModel\setting\toolbar\ToolBarViewModel.cs" />
+    <Compile Include="ViewModel\setting\track\TrackSetPointViewModel.cs" />
     <Compile Include="ViewModel\setting\user\UserEditViewModel.cs" />
     <Compile Include="ViewModel\setting\user\UserViewModel.cs" />
     <Compile Include="ViewModel\simulation\SimulationViewModel.cs" />
@@ -369,6 +370,9 @@
     </Compile>
     <Compile Include="window\setting\toolbar\MainToolBarCtl.xaml.cs">
       <DependentUpon>MainToolBarCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\setting\track\TrackSetPointCtl.xaml.cs">
+      <DependentUpon>TrackSetPointCtl.xaml</DependentUpon>
     </Compile>
     <Compile Include="window\setting\user\UserCtl.xaml.cs">
       <DependentUpon>UserCtl.xaml</DependentUpon>
@@ -636,6 +640,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="window\setting\track\TrackSetPointCtl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="window\setting\user\UserCtl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -858,6 +866,7 @@
       <LastGenOutput>LangProvider1.cs</LastGenOutput>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>

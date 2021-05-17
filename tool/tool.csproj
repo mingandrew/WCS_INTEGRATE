@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="appconfig\DebugConfig.cs" />
+    <Compile Include="appconfig\DefaultConfig.cs" />
     <Compile Include="appconfig\MysqlConfig.cs" />
     <Compile Include="appconfig\GlobalWcsDataConfig.cs" />
     <Compile Include="appconfig\SimulateConfig.cs" />
