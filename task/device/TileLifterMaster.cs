@@ -1682,26 +1682,29 @@ namespace task.device
                 foreach (Stock stock in allocatestocks)
                 {
                     //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
-                    if (!PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id))
+                    if (PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id))
                     {
-                        PubMaster.Track.UpdateRecentGood(stock.track_id, goodid);
-                        PubMaster.Track.UpdateRecentTile(stock.track_id, tileid);
-
-                        if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
-                        {
-                            //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
-                        }
-                        else
-                        {
-                            //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
-                        }
-
-                        //PubMaster.Goods.AddStockOutLog(stock.id, tiletrackid, tileid);
-                        isallocate = true;
                         break;
                     }
+
+                    PubMaster.Track.UpdateRecentGood(stock.track_id, goodid);
+                    PubMaster.Track.UpdateRecentTile(stock.track_id, tileid);
+
+                    if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
+                    {
+                        //生成出库交易
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
+                    }
+                    else
+                    {
+                        //生成出库交易
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
+                    }
+
+                    //PubMaster.Goods.AddStockOutLog(stock.id, tiletrackid, tileid);
+                    isallocate = true;
+                    break;
+                    
                 }
             }
 
