@@ -1530,10 +1530,11 @@ namespace resource.track
 
         public bool HaveTrackInGoodFrist(uint areaid, uint tilelifterid, uint goodsid, uint currentTake, out uint trackid)
         {
-            List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
-
-            //1.查看是否有最近下砖品种轨道
-            List<Track> recentusetracks = GetRecentTileTracks(devtrack, tilelifterid);
+            if (currentTake == 0)
+            {
+                trackid = 0;
+                return false;
+            }
 
             #region[判断是否使用分割点后的库存做出库任务]
             bool isnotuseupsplitstock = false;
@@ -1546,61 +1547,28 @@ namespace resource.track
             }
             #endregion
 
-            foreach (Track track in recentusetracks)
+            Track track = PubMaster.Track.GetTrack(currentTake);
+            if (track == null )
             {
-                if (currentTake != 0 && currentTake != track.id)
-                {
-                    UpdateRecentTile(track.id, 0);
-                    UpdateRecentGood(track.id, 0);
-                    continue;
-                }
-                else
-                {
-                    if (track.StockStatus == TrackStockStatusE.空砖
-                        || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
-                        || track.AlertStatus != TrackAlertE.正常
-                        || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0)
-                        )
-                    {
-                        UpdateRecentTile(track.id, 0);
-                        UpdateRecentGood(track.id, 0);
-                        PubMaster.DevConfig.SetLastTrackId(tilelifterid, 0);                        
-                        continue;
-                    }
-
-                    // 只上满砖轨道
-                    //if (track.StockStatus == TrackStockStatusE.满砖)
-                    //{
-                    trackid = track.id;
-                    return true;
-                    //}
-                }
-            }
-            uint currenttra = PubMaster.DevConfig.GetLastTrackId(tilelifterid);
-            if (currenttra != 0)
-            {
-                Track track = PubMaster.Track.GetTrack(currenttra);
-                if (track != null
-                    &&  track.StockStatus == TrackStockStatusE.空砖
-                           || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
-                           || track.AlertStatus != TrackAlertE.正常
-                           || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0)
-                           )
-                {
-                    UpdateRecentTile(track.id, 0);
-                    UpdateRecentGood(track.id, 0);
-                    PubMaster.DevConfig.SetLastTrackId(tilelifterid, 0);
-
-                }
-                else
-                {
-                    trackid = currenttra;
-                    return true;
-                }
+                trackid = 0;
+                return false;
             }
 
-            trackid = 0;
-            return false;
+            if (track.StockStatus == TrackStockStatusE.空砖
+                    || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
+                    || track.AlertStatus != TrackAlertE.正常
+                    || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0)
+                    )
+            {
+                UpdateRecentTile(track.id, 0);
+                UpdateRecentGood(track.id, 0);
+                PubMaster.DevConfig.SetLastTrackId(tilelifterid, 0);
+                trackid = 0;
+                return false;
+            }
+
+            trackid = track.id;
+            return true;
         }
 
         public bool HaveEmptyTrackInTile(ushort areaid, uint devid)
