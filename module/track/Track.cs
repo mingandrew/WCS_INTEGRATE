@@ -62,14 +62,14 @@ namespace module.track
         public ushort limit_point { set; get; }
 
         /// <summary>
-        /// 轨道上砖极限点坐标
+        /// 轨道上砖极限点坐标【定位点脉冲】
         /// </summary>
         public ushort limit_point_up { set; get; }
 
         /// <summary>
-        /// 上砖侧分割点坐标
+        /// 上砖侧分割点坐标【上砖接力倒库点】
         /// </summary>
-        public int up_split_point { get; set; }
+        public ushort up_split_point { get; set; }
 
         public ushort line { set; get; }//线
         /// <summary>

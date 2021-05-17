@@ -1,0 +1,334 @@
+﻿<UserControl x:Class="wcs.window.TrackSetPointCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.window"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d"  Background="{StaticResource RegionBrush}"
+             DataContext="{Binding TrackSetPoint,Source={StaticResource Locator}}"
+             MinWidth="800" MinHeight="600">
+    <hc:TransitioningContentControl>
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="5,10,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
+                                ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <hc:Interaction.Triggers>
+                        <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                            <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                        </hc:RoutedEventTrigger>
+                    </hc:Interaction.Triggers>
+
+                    <hc:ButtonGroup.ItemTemplate>
+                        <DataTemplate DataType="mwindow:AreaRadioBtn">
+                            <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
+                                         Style="{StaticResource RadioGroupItemBaseStyle}" 
+                                         Width="100" Height="40" MinHeight="35" MinWidth="80"
+                                         BorderBrush="{StaticResource BorderBrush}"
+                                         Background="{StaticResource RegionBrush}"
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                        </DataTemplate>
+                    </hc:ButtonGroup.ItemTemplate>
+                </hc:ButtonGroup>
+            </Grid>
+
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" MinHeight="100"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="0.8*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition MaxHeight="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition MaxWidth="10"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition MaxWidth="10"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition MaxWidth="10"/>
+                            <ColumnDefinition Width="0.8*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal">
+                            <TextBlock Text="出定位脉冲" FontSize="18" VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                        <StackPanel  Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal"
+                                     Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <TextBlock Text="接力点脉冲" VerticalAlignment="Bottom" FontSize="18"/>
+                        </StackPanel>
+                        <StackPanel  Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="3"  HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <TextBlock Text="出最后一车脉冲" VerticalAlignment="Bottom" FontSize="18"/>
+                        </StackPanel>
+                        <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7" Height="20" Fill="#FF2432BF"/>
+                        <Rectangle Grid.Row="1" Grid.Column="1" Height="12" Fill="#FFDBF00D"/>
+                        <Rectangle Grid.Row="1" Grid.Column="3" Height="12" Fill="#FFDBF00D" Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <Rectangle Grid.Row="1" Grid.Column="5" Height="12" Fill="#FFDBF00D" Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"  Text="{Binding Out_Loc_Point}" VerticalAlignment="Top" FontSize="18"/>
+                        <TextBlock Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2"  Text="{Binding Out_Sort_Point}" VerticalAlignment="Top" FontSize="18"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2"  Text="{Binding Out_Last_Point}" VerticalAlignment="Top" FontSize="18"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                    </Grid>
+
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition MaxHeight="15"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*"/>
+                            <ColumnDefinition MaxWidth="10"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition MaxWidth="10"/>
+                            <ColumnDefinition Width="0.5*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" 
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <TextBlock Text="入第一车脉冲" VerticalAlignment="Bottom" FontSize="18"/>
+                        </StackPanel>
+                        <StackPanel  Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2"  HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
+                            <TextBlock  Text="入定位脉冲" VerticalAlignment="Bottom" FontSize="18"/>
+                        </StackPanel>
+                        <Rectangle Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" Height="20" Fill="#FF2432BF"/>
+                        <Rectangle Grid.Row="1" Grid.Column="1" Height="12" Fill="#FFDBF00D" Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <Rectangle Grid.Row="1" Grid.Column="4" Height="12" Fill="#FFDBF00D"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"  Text="{Binding In_First_Point}" VerticalAlignment="Top" FontSize="18"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2"  Text="{Binding In_Loc_Point}" VerticalAlignment="Top" FontSize="18"
+                                   HorizontalAlignment="Right"/>
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="1" HorizontalAlignment="Left" Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="{Binding InOrOutGridLen}"/>
+                        <RowDefinition Height="{Binding InOrOutGridLen}"/>
+                        <RowDefinition Height="{Binding InOutGridLen}"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Column="0"  Style="{StaticResource MBorder_LT}" Padding="10,0,0,0">
+                        <TextBlock Text="每车间隔[脉冲]："  VerticalAlignment="Center" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}">
+                        <Label Content="{Binding Each_Stack_Point}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource MBorder_LT}" Padding="10,0,0,0">
+                        <TextBlock Text="1脉冲等于[厘米]："   VerticalAlignment="Center" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Column="3" MinWidth="150" Style="{StaticResource MBorder_LTR}">
+                        <Label Content="{Binding Point_To_Cm}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+
+                    <Border Grid.Row="1" Grid.Column="0"  Style="{StaticResource MBorder_LT}" Padding="10,0,0,0">
+                        <TextBlock Text="出轨道长度[米]："  VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Row="1"  Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}">
+                        <Label Content="{Binding Out_Track_Len}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+                    <Border Grid.Row="1"  Grid.Column="2" Style="{StaticResource MBorder_LT}" Padding="10,0,0,0">
+                        <TextBlock Text="入轨道长度[米]："   VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Row="1" Grid.Column="3" MinWidth="150" Style="{StaticResource MBorder_LTR}">
+                        <Label Content="{Binding In_Track_Len}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+
+                    <Border Grid.Row="2" Grid.Column="0"  Style="{StaticResource MBorder_LT}" Padding="10,0,0,0">
+                        <TextBlock Text="出轨可放车数："  VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Row="2"  Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}">
+                        <Label Content="{Binding Out_Stack_Qty}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+                    <Border Grid.Row="2"  Grid.Column="2" Style="{StaticResource MBorder_LT}" Padding="10,0,0,0">
+                        <TextBlock Text="入轨可放车数："   VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Row="2" Grid.Column="3" MinWidth="150" Style="{StaticResource MBorder_LTR}">
+                        <Label Content="{Binding In_Stack_Qty}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+
+
+                    <Border Grid.Row="3" Grid.Column="0"  Style="{StaticResource MBorder_LTB}" Padding="10,0,0,0">
+                        <TextBlock Text="轨道长度[米]："  VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Row="3"  Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LTB}">
+                        <Label Content="{Binding Inout_Track_Len}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+                    <Border Grid.Row="3"  Grid.Column="2" Style="{StaticResource MBorder_LTB}" Padding="10,0,0,0">
+                        <TextBlock Text="可放车数："   VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="20"/>
+                    </Border>
+                    <Border Grid.Row="3" Grid.Column="3" MinWidth="150" Style="{StaticResource MBorder_LTRB}">
+                        <Label Content="{Binding Inout_Stack_Qty}" Margin="5" FontSize="20" Width="150" Height="40" BorderThickness="0"/>
+                    </Border>
+                </Grid>
+                <TabControl Grid.Row="2">
+                    <TabItem Header="基础点设置" FontSize="20">
+                        <Grid>
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MinWidth="180"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition MinWidth="120"/>
+                                    <ColumnDefinition MinWidth="180"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition MinWidth="120"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Grid.Column="0"  Style="{StaticResource MBorder_LT}" MinWidth="130">
+                                    <TextBlock Text="出定位脉冲："  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}">
+                                    <TextBox Text="{Binding Set_Out_Loc_Point, Mode=TwoWay}" Margin="5"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="2" MinWidth="100" Style="{StaticResource MBorder_LT}">
+                                    <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="out_loc_point" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LT}" MinWidth="130">
+                                    <TextBlock Text="入定位脉冲："   VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="4" MinWidth="150" Style="{StaticResource MBorder_LT}">
+                                    <TextBox Text="{Binding Set_In_Loc_Point,Mode=TwoWay}" Margin="5"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="5" MinWidth="100" Style="{StaticResource MBorder_LTR}">
+                                    <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="in_loc_point" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBlock Text="中间间隔(米)：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBox Text="{Binding Middle_Space_M, Mode=TwoWay}" Margin="5"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Button Content="计算" Style="{StaticResource ButtonWarning}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="cal_mid_space_out_more" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LT}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBlock Text="出比入多(米)：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="4" MinWidth="150" Style="{StaticResource MBorder_LT}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBox Text="{Binding Out_More_Than_In, Mode=TwoWay}" Margin="5"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="5" Style="{StaticResource MBorder_LTR}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Button Content="计算" Style="{StaticResource ButtonWarning}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="cal_mid_space_out_more" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LTB}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBlock Text="入第一车脉冲：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LTB}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBox Text="{Binding Set_In_First_Point}" Margin="5" IsReadOnly="True"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MBorder_LTB}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="in_first_point" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LTB}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBlock Text="出最后一车脉冲： " VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="4" MinWidth="150" Style="{StaticResource MBorder_LTB}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <TextBox Text="{Binding Set_Out_Last_Point}" Margin="5" IsReadOnly="True"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="5" Style="{StaticResource MBorder_LTRB}"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                    <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="out_last_point" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                                <Border  BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Grid.ColumnSpan="6"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityReConverter}}"></Border>
+                            </Grid>
+                        </Grid>
+
+                    </TabItem>
+                    <TabItem Header="接力点设置" FontSize="20"
+                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <Grid>
+                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition MinWidth="120"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                
+                                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                                    <TextBlock Text="第几车开始接力：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}">
+                                    <TextBox Text="{Binding Set_Out_Sort_Qty, Mode=TwoWay}" Margin="5"/>
+                                </Border>
+                                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LTR}">
+                                    <Button Content="计算" Style="{StaticResource ButtonWarning}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="out_sort_point_calculate" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                                
+                                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                                    <TextBlock Text="接力点脉冲：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LTB}">
+                                    <TextBox Text="{Binding Set_Out_Sort_Point}" Margin="5" IsReadOnly="True"/>
+                                </Border>
+                                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LTRB}">
+                                    <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="out_sort_point" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+    </hc:TransitioningContentControl>
+</UserControl>

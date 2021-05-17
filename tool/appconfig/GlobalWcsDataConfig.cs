@@ -75,6 +75,26 @@ namespace tool.appconfig
             }
             #endregion
 
+            #region[默认配置信息]
+            if (File.Exists(DefaultConfig.SavePath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(DefaultConfig.SavePath);
+                    DefaultConfig = (string.IsNullOrEmpty(json) ? new DefaultConfig() : JsonConvert.DeserializeObject<DefaultConfig>(json)) ?? new DefaultConfig();
+                }
+                catch
+                {
+                    DefaultConfig = new DefaultConfig();
+                }
+            }
+            else
+            {
+                DefaultConfig = new DefaultConfig();
+            }
+            SaveDefaultConfig();
+            #endregion
+
         }
 
         public static void SaveMysqlConfig()
@@ -153,9 +173,35 @@ namespace tool.appconfig
 
             }
         }
+        public static void SaveDefaultConfig()
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(DefaultConfig);
+                if (!Directory.Exists(DefaultConfig.Path))
+                {
+                    Directory.CreateDirectory(DefaultConfig.Path);
+                }
+                using (FileStream fs = new FileStream(DefaultConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    fs.Seek(fs.Length, SeekOrigin.Current);
+
+                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+
+                    fs.Write(data, 0, data.Length);
+
+                    fs.Close();
+                }
+            }
+            catch (Exception )
+            {
+
+            }
+        }
 
         public static MysqlConfig MysqlConfig { get; set; }
         public static DebugConfig DebugConfig { get; set; }
         public static SimulateConfig SimulateConfig { get; set; }
+        public static DefaultConfig DefaultConfig { get; set; }
     }
 }
