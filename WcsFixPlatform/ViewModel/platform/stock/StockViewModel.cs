@@ -46,7 +46,7 @@ namespace wcs.ViewModel
             get => _list;
             set => Set(ref _list, value);
         }
-
+        
         public Stock SelectStock
         {
             get => _selectstock;
@@ -165,16 +165,16 @@ namespace wcs.ViewModel
                         }
                         break;
                     case 1://添加
-                        if (List.Count == 0)
-                        {
-                            TrackGoodsSelected();
-                        }
-                        else
-                        {
-                            Stock stock = List[0];
-                            ushort pis = stock.stack > 0 ? (ushort)(stock.pieces / stock.stack) : (ushort)1;
-                            TrackStockAdd(stock.goods_id, pis);
-                        }
+                           //if (List.Count == 0)
+                           //{
+                        TrackGoodsSelected();
+                        //}
+                        //else
+                        //{
+                        //    Stock stock = List[0];
+                        //    ushort pis = stock.stack > 0 ? (ushort)(stock.pieces / stock.stack) : (ushort)1;
+                        //    TrackStockAdd(stock.goods_id, pis);
+                        //}
                         break;
                     case 2://更换品种
                         ChangeGoodAsync();
@@ -252,6 +252,44 @@ namespace wcs.ViewModel
                     else
                     {
                         Growl.Warning(res);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 显示修改库存界面
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <param name="trackid"></param>
+        /// <param name="oldgoodid"></param>
+        /// <param name="newgoodid"></param>
+        private async void ShowOneStockGoodEditDialog(uint stockid, uint trackid, uint oldgoodid, uint newgoodid)
+        {
+            DialogResult result = await HandyControl.Controls.Dialog.Show<StockGoodEditDialog>()
+                .Initialize<StockGoodEditViewModel>((vm) =>
+                {
+                    vm.SetInitValue(trackid, oldgoodid, newgoodid);
+                }).GetResultAsync<DialogResult>();
+
+            if (result.p1 is bool rs && rs && result.p2 is bool changedate)
+            {
+                string msg = "确定要更改品种吗？";
+                DateTime? nd = null;
+                if (changedate && result.p3 is DateTime newdate)
+                {
+                    msg += "更新时间为:" + newdate.ToString();
+                    nd = newdate;
+                }
+                MessageBoxResult ars = HandyControl.Controls.MessageBox.Show(msg, "警告",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (ars == MessageBoxResult.Yes)
+                {
+                    if (PubMaster.Goods.ChangeOneStock(stockid, trackid, newgoodid, changedate, nd))
+                    {
+                        Growl.Success("更改成功！");
+                        ActionStock("0");
                     }
                 }
             }
@@ -389,9 +427,27 @@ namespace wcs.ViewModel
             }
         }
 
-        private void EditStock()
+        private async void EditStock()
         {
             if (!CheckSelectItem()) return;
+            uint area = SelectStock.area;
+            DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
+             .Initialize<GoodsSelectViewModel>((vm) =>
+             {
+                 vm.SetAreaFilter(area, false);
+                 vm.QueryGood();
+             }).GetResultAsync<DialogResult>();
+
+            if (result.p1 is bool rs && result.p2 is GoodsView good)
+            {
+                Stock stock = SelectStock;
+                if (stock.goods_id == good.ID)
+                {
+                    Growl.Warning("库存品种相同，不用修改！");
+                    return;
+                }
+                ShowOneStockGoodEditDialog(stock.id, stock.track_id, stock.goods_id, good.ID);
+            }
         }
 
         private bool CheckSelectItem()
