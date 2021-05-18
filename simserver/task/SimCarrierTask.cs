@@ -1298,6 +1298,18 @@ namespace simtask
             DevStatus.TargetSite = ZERO_SITE;
             DevStatus.TargetPoint = ZERO_POINT;
             DevStatus.DeviceStatus = DevCarrierStatusE.停止;
+
+            if(NowTrack!=null)
+            {
+                if(NowTrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
+                {
+                    DevStatus.Position = DevCarrierPositionE.在摆渡上;
+                }
+                else
+                {
+                    DevStatus.Position = DevCarrierPositionE.在轨道上;
+                }
+            }
         }
         #endregion
 

@@ -404,16 +404,29 @@ namespace task.device
         /// </summary>
         /// <param name="carrier_id"></param>
         /// <returns></returns>
-        internal bool IsStopFTask(uint carrier_id)
+        internal bool IsStopFTask(uint carrier_id,  Track track = null)
         {
+            if(track != null)
+            {
+                if(track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
+                {
+                    return DevList.Exists(c => c.ID == carrier_id
+                           && c.ConnStatus == SocketConnectStatusE.通信正常
+                           && c.OperateMode == DevOperateModeE.自动
+                           && c.Status == DevCarrierStatusE.停止
+                           && c.IsNotDoingTask
+                           && c.Position == DevCarrierPositionE.在摆渡上
+                           && c.CurrentSite == track.rfid_1);
+                }
+            }
             return DevList.Exists(c => c.ID == carrier_id
-                        && c.ConnStatus == SocketConnectStatusE.通信正常
-                        && c.OperateMode == DevOperateModeE.自动
-                        && c.Status == DevCarrierStatusE.停止
-                        && c.IsNotDoingTask
-                        //&& (c.CurrentOrder == c.FinishOrder || c.CurrentOrder == DevCarrierOrderE.无)
-                        //&& (c.Position != DevCarrierPositionE.上下摆渡中 && c.Position != DevCarrierPositionE.异常) //小车冲过头？
-                        );
+                           && c.ConnStatus == SocketConnectStatusE.通信正常
+                           && c.OperateMode == DevOperateModeE.自动
+                           && c.Status == DevCarrierStatusE.停止
+                           && c.IsNotDoingTask
+                           //&& (c.CurrentOrder == c.FinishOrder || c.CurrentOrder == DevCarrierOrderE.无)
+                           //&& (c.Position != DevCarrierPositionE.上下摆渡中 && c.Position != DevCarrierPositionE.异常) //小车冲过头？
+                           );
         }
 
         internal Track GetCarrierTrack(uint carrier_id)
@@ -683,7 +696,7 @@ namespace task.device
                 {
                     //报警
                     mErrorLog.Error(true, string.Format("【放砖】小车[ {0} ]尝试在轨道[ {1} ]上放砖; 状态[ {2} ]",
-                        task.Device.name, track.GetLog(), task.DevStatus.GetGiveString()));
+                        task.Device.name, track?.GetLog() ?? task.DevStatus.CurrentSite+"", task.DevStatus.GetGiveString()));
                 }
             }
 
@@ -717,12 +730,25 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveTaskForFerry(uint ferrytraid)
         {
+            Track track = PubMaster.Track.GetTrack(ferrytraid);
+            if (track != null && track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
+            {
+                return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid)
+                                       && (c.Status != DevCarrierStatusE.停止 
+                                               || c.Position != DevCarrierPositionE.在摆渡上
+                                               || !c.IsNotDoingTask
+                                               || c.CurrentSite != track.rfid_1 //不在摆渡车的点上
+                                               // || c.InTask(DevCarrierOrderE.定位指令, DevCarrierOrderE.取砖指令,
+                                               //           DevCarrierOrderE.放砖指令, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                               )
+                                       );
+            }
             return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid)
                                     //&& c.ConnStatus == SocketConnectStatusE.通信正常
                                     //&& (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
                                     //&& c.Status != DevCarrierStatusE.异常
                                     //&& c.CurrentOrder != c.FinishOrder
-                                    && (c.Status != DevCarrierStatusE.停止 || c.Position == DevCarrierPositionE.上下摆渡中 
+                                    && (c.Status != DevCarrierStatusE.停止 || c.Position != DevCarrierPositionE.在摆渡上 
                                             || c.InTask(DevCarrierOrderE.定位指令, DevCarrierOrderE.取砖指令, 
                                                         DevCarrierOrderE.放砖指令, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                                     );
