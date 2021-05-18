@@ -129,7 +129,9 @@ namespace task
         public void RemoveWarning(uint warnid)
         {
             Warning warn = List.Find(c => c.id == warnid);
-            if (warn != null)
+            if (warn != null && warn.type != (byte)WarningTypeE.DownTaskSwitchClosed 
+                             && warn.type != (byte)WarningTypeE.UpTaskSwitchClosed
+                             && warn.type != (byte)WarningTypeE.SortTaskSwitchClosed)
             {
                 RemoveWarning(warn);
             }
@@ -373,6 +375,47 @@ namespace task
             }
         }
 
+        #endregion
+
+        #region[区域警告]
+
+        /// <summary>
+        /// 添加区域报警
+        /// </summary>
+        /// <param name="warntype"></param>
+        /// <param name="areaid"></param>
+        /// <param name="result"></param>
+        public void AddAreaWarn(WarningTypeE warntype, ushort areaid, string result = "")
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.area_id == areaid && !c.resolve);
+            if (warn == null)
+            {
+                if (stopwarnadding) return;
+                if ((DateTime.Now - inittime).TotalSeconds < 20) return;
+                warn = new Warning()
+                {
+                    area_id = areaid,
+                    type = (byte)warntype,
+                };
+                string areaName = PubMaster.Area.GetName(areaid);
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                warn.content = areaName + ": " + warnmsg + " > " + result;
+                AddWaring(warn);
+            }
+        }
+
+        /// <summary>
+        /// 清除区域报警
+        /// </summary>
+        /// <param name="transid"></param>
+        public void RemoveAreaWarn(WarningTypeE warntype, ushort areaid)
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.area_id == areaid && !c.resolve);
+            if (warn != null)
+            {
+                RemoveWarning(warn);
+            }
+        }
         #endregion
     }
 }

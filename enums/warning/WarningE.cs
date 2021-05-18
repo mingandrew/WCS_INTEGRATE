@@ -48,6 +48,10 @@
 
         CarrierFreeButMoveInFerry, //运输车空闲状态(停止/指令完成)，但处于上下摆渡中
         CarrierFreeInFerryButLocErr, //运输车空闲状态(停止/指令完成)在摆渡上，但当前轨道有误
+
+        DownTaskSwitchClosed,//【下砖任务开关】关闭
+        UpTaskSwitchClosed,//【上砖任务开关】关闭
+        SortTaskSwitchClosed//【倒库任务开关】关闭
     }
 
     /// <summary>
