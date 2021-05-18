@@ -1,4 +1,5 @@
 ﻿using enums;
+using enums.warning;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using module.diction;
@@ -314,6 +315,43 @@ namespace wcs.ViewModel
         private void ChangeSwitch(string tag, bool onoff)
         {
             PubMaster.Dic.UpdateSwitch(tag, onoff, false);
+
+            #region[开关的报警]
+            string areaid = System.Text.RegularExpressions.Regex.Replace(tag, @"[^0-9]+", "");
+            bool f = uint.TryParse(areaid, out uint aid);
+
+            if (aid != 0)
+            {
+                if (tag.Contains("Down"))
+                {
+                    if (onoff)
+                    {
+                        PubMaster.Warn.RemoveAreaWarn(WarningTypeE.DownTaskSwitchClosed, (ushort)aid);
+                    }
+                    else
+                        PubMaster.Warn.AddAreaWarn(WarningTypeE.DownTaskSwitchClosed, (ushort)aid);
+                }
+                else if (tag.Contains("Up"))
+                {
+                    if (onoff)
+                    {
+                        PubMaster.Warn.RemoveAreaWarn(WarningTypeE.UpTaskSwitchClosed, (ushort)aid);
+                    }
+                    else
+                        PubMaster.Warn.AddAreaWarn(WarningTypeE.UpTaskSwitchClosed, (ushort)aid);
+                }
+                else if (tag.Contains("Sort"))
+                {
+                    if (onoff)
+                    {
+                        PubMaster.Warn.RemoveAreaWarn(WarningTypeE.SortTaskSwitchClosed, (ushort)aid);
+                    }
+                    else
+                        PubMaster.Warn.AddAreaWarn(WarningTypeE.SortTaskSwitchClosed, (ushort)aid);
+                }
+            }
+
+            #endregion
         }
 
         private void TaskSwitchUpdate(DictionDtl dtl)
@@ -328,7 +366,7 @@ namespace wcs.ViewModel
                             Down_1 = dtl.bool_value;
                             break;
                         case DicSwitchTag.Area1Sort:
-                            Sort_1 = dtl.bool_value;
+                            Sort_1 = dtl.bool_value; 
                             break;
                         case DicSwitchTag.Area1Up:
                             Up_1 = dtl.bool_value;

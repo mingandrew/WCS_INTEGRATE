@@ -49,8 +49,13 @@
         CarrierFreeButMoveInFerry, //运输车空闲状态(停止/指令完成)，但处于上下摆渡中
         CarrierFreeInFerryButLocErr, //运输车空闲状态(停止/指令完成)在摆渡上，但当前轨道有误
 
+
         TheEarliestStockInDown,// 以先进先出为原则，发现最早的库存在下砖入库侧轨道，暂无法上砖
         PreventTimeConflict,// 不允许下砖连续下满同一条轨道，需变更轨道下砖，防止时间冲突
+
+        DownTaskSwitchClosed,//【下砖任务开关】关闭
+        UpTaskSwitchClosed,//【上砖任务开关】关闭
+        SortTaskSwitchClosed//【倒库任务开关】关闭
     }
 
     /// <summary>

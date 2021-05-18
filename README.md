@@ -238,3 +238,8 @@ ALTER TABLE `line` ADD COLUMN `max_upsort_num` tinyint(3) UNSIGNED NULL DEFAULT 
 
 2021.05.17 添加轨道脉冲设置
 INSERT INTO `wcs_rl`.`wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (34, '轨道脉冲配置', 0, 'TrackSetPoint', NULL, 'DarkPrimaryBrush', 'ConfigGeometry', 'TrackSetPointCtl', 'PC轨道脉冲配置');
+
+2021.05.18 添加开关的报警信息：
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (227, 3, 'DownTaskSwitchClosed', '【下砖任务开关】关闭', NULL, NULL, '【下砖任务开关】已关闭', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (228, 3, 'UpTaskSwitchClosed', '【上砖任务开关】关闭', NULL, NULL, '【上砖任务开关】已关闭', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (229, 3, 'SortTaskSwitchClosed', '【倒库任务开关】关闭', NULL, NULL, '【倒库任务开关】已关闭', NULL, NULL, NULL, NULL);
