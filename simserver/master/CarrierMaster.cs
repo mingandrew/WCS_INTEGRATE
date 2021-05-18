@@ -183,6 +183,8 @@ namespace simtask.master
                     task.DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
 
                     task.DevStatus.DeviceStatus = DevCarrierStatusE.停止;
+
+                    task.DevStatus.TargetSite = 0;
                     break;
                 default:
                     break;
