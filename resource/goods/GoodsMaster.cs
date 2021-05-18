@@ -269,7 +269,7 @@ namespace resource.goods
         public List<Goods> GetStockOutGoodsList(uint filterarea)
         {
             List<uint> goodsids = StockList.FindAll(c => c.area == filterarea
-                && (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入)).Select(t => t.goods_id).ToList();
+                && (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入) && c.PosType == StockPosE.头部).Select(t => t.goods_id).ToList();
             List<Goods> glist = new List<Goods>();
             glist.AddRange(GoodsList.FindAll(c => c.area_id == filterarea && (goodsids.Contains(c.id) || c.empty)));
             return glist;
@@ -681,6 +681,42 @@ namespace resource.goods
                     }
 
                     StockSumChangeGood(trackid, goodid);
+                    SortSumList();
+                    return true;
+                }
+                finally { Monitor.Exit(_so); }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 修改一个库存的品种（和生产时间）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="goodid"></param>
+        /// <param name="changedate"></param>
+        /// <param name="newdate"></param>
+        /// <returns></returns>
+        public bool ChangeOneStock(uint stockid, uint trackid, uint goodid, bool changedate , DateTime? newdate)
+        {
+            if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    Stock stock = StockList.Find(c => c.id == stockid);
+                    if (stock == null)
+                    {
+                        return false;
+                    }
+                    if (changedate && newdate != null)
+                    {
+                        stock.produce_time = newdate;
+                    }
+                    stock.goods_id = goodid;
+                    PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Goods);
+
+                    RemoveTrackSum(trackid);
+                    CheckTrackSum(trackid);
                     SortSumList();
                     return true;
                 }
