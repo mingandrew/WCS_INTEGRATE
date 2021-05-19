@@ -131,7 +131,7 @@ namespace task.trans
                         }
 
                         CheckTrackSort();  //包装前无需倒库
-                        CheckUpTrackSort(); //上砖侧倒库
+                        //CheckUpTrackSort(); //上砖侧倒库
                     }
                     catch (Exception e)
                     {
@@ -162,7 +162,7 @@ namespace task.trans
         public abstract void DoManualInTrans(StockTrans trans);//手动入库
         public abstract void DoManualOutTrans(StockTrans trans);//手动出库
         public abstract void CheckTrackSort();
-        public abstract void CheckUpTrackSort();
+        //public abstract void CheckUpTrackSort();
         protected abstract void SendMsg(StockTrans trans);
         #endregion
 
