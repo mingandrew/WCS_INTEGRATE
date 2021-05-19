@@ -631,12 +631,13 @@ namespace task.trans
         /// <param name="goodsId"></param>
         /// <param name="tasktype"></param>
         /// <returns></returns>
-        internal bool HaveInGoods(uint areaId, uint goodsId, TransTypeE tasktype)
+        internal bool HaveInGoods(uint areaId, uint goodsId, TransTypeE tasktype, List<uint> tileids)
         {
             try
             {
                 return TransList.Exists(c => !c.finish && c.area_id == areaId
-                                && c.TransType == tasktype && c.goods_id == goodsId);
+                        && tileids.Contains(c.tilelifter_id)
+                    && c.TransType == tasktype && c.goods_id == goodsId);
             }
             catch { }
             return true;

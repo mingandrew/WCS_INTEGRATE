@@ -1958,7 +1958,13 @@ namespace task.device
                     iseffect = PubTask.Trans.ExistInTileTrack(task.ID, trackid);
                     break;
                 case StrategyInE.同规同轨:
-                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, goodsId, TransTypeE.下砖任务);
+                    // 获取所有同策略砖机
+                    List<uint> tileids = new List<uint>();
+                    foreach (TileLifterTask item in DevList.FindAll(c => c.InStrategy == task.InStrategy))
+                    {
+                        tileids.Add(item.ID);
+                    }
+                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, goodsId, TransTypeE.下砖任务, tileids);
                     break;
             }
             return iseffect;
@@ -2000,7 +2006,13 @@ namespace task.device
                     iseffect = PubTask.Trans.HaveInLifter(task.ID);
                     break;
                 case StrategyOutE.同规同轨:
-                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.DevConfig.goods_id, TransTypeE.上砖任务);
+                    // 获取所有同策略砖机
+                    List<uint> tileids = new List<uint>();
+                    foreach (TileLifterTask item in DevList.FindAll(c => c.OutStrategy == task.OutStrategy))
+                    {
+                        tileids.Add(item.ID);
+                    }
+                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.DevConfig.goods_id, TransTypeE.上砖任务, tileids);
                     break;
                 case StrategyOutE.优先上砖:
                     iseffect = PubTask.Trans.ExistInTileTrack(task.ID, trackid);
