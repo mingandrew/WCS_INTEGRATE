@@ -3885,53 +3885,54 @@ namespace task.trans
 
         #endregion
 
-        #region[检查轨道/添加上砖侧倒库任务]
+        #region[已不用]--[检查轨道/添加上砖侧倒库任务]
         /// <summary>
+        /// 不用的原因如下：可能已接力倒库已生成，但运输车还没去take_track，上砖车就回轨了，停在摆渡车上，卡住了接力倒库的分配摆渡车
         /// 检查上砖轨道进行倒库
         /// 1.检查入库满砖轨道
         /// 2.生成倒库任务
         /// </summary>
-        public override void CheckUpTrackSort()
-        {
-            if (!PubMaster.Track.IsUpSplit()) return;
-
-            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return;
-
-            List<Track> tracks = PubMaster.Track.GetUpSortTrack();
-            foreach (Track track in tracks)
-            {
-                if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.上砖)) continue;
-
-                int count = GetAreaSortTaskCount(track.area, track.line);
-                if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
-
-                if (TransList.Exists(c => !c.finish && (c.take_track_id == track.id
-                                        || c.give_track_id == track.id
-                                        || c.finish_track_id == track.id)))
-                {
-                    continue;
-                }
-
-                uint goodsid = PubMaster.Goods.GetGoodsId(track.id);
-
-                if (goodsid != 0)
-                {
-                    uint stockid = PubMaster.Goods.GetTrackStockId(track.id);
-                    if (stockid == 0) continue;
-                    uint tileid = PubMaster.Goods.GetStockTileId(stockid);
-
-                    uint tileareaid = PubMaster.Area.GetAreaDevAreaId(tileid);
-
-                    if (!PubMaster.Track.IsEarlyFullTimeOver(track.id))
-                    {
-                        continue;
-                    }
-
-                    AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.上砖侧倒库, goodsid, stockid, track.id, track.id
-                        , TransStatusE.检查轨道, 0, track.line);
-                }
-            }
-        }
+        //public override void CheckUpTrackSort()
+        //{
+        //    if (!PubMaster.Track.IsUpSplit()) return;
+        //
+        //    if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return;
+        //
+        //    List<Track> tracks = PubMaster.Track.GetUpSortTrack();
+        //    foreach (Track track in tracks)
+        //    {
+        //        if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.上砖)) continue;
+        //
+        //        int count = GetAreaSortTaskCount(track.area, track.line);
+        //        if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
+        //
+        //        if (TransList.Exists(c => !c.finish && (c.take_track_id == track.id
+        //                                || c.give_track_id == track.id
+        //                                || c.finish_track_id == track.id)))
+        //        {
+        //            continue;
+        //        }
+        //
+        //        uint goodsid = PubMaster.Goods.GetGoodsId(track.id);
+        //
+        //        if (goodsid != 0)
+        //        {
+        //            uint stockid = PubMaster.Goods.GetTrackStockId(track.id);
+        //            if (stockid == 0) continue;
+        //            uint tileid = PubMaster.Goods.GetStockTileId(stockid);
+        //
+        //            uint tileareaid = PubMaster.Area.GetAreaDevAreaId(tileid);
+        //
+        //            if (!PubMaster.Track.IsEarlyFullTimeOver(track.id))
+        //            {
+        //                continue;
+        //            }
+        //
+        //            AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.上砖侧倒库, goodsid, stockid, track.id, track.id
+        //                , TransStatusE.检查轨道, 0, track.line);
+        //        }
+        //    }
+        //}
         #endregion
 
         #region[添加移车任务]
