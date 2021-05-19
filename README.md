@@ -243,3 +243,19 @@ INSERT INTO `wcs_rl`.`wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (227, 3, 'DownTaskSwitchClosed', '【下砖任务开关】关闭', NULL, NULL, '【下砖任务开关】已关闭', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (228, 3, 'UpTaskSwitchClosed', '【上砖任务开关】关闭', NULL, NULL, '【上砖任务开关】已关闭', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (229, 3, 'SortTaskSwitchClosed', '【倒库任务开关】关闭', NULL, NULL, '【倒库任务开关】已关闭', NULL, NULL, NULL, NULL);
+
+
+
+2021.05.19
+关于上下砖时间限制作业轨道
+
+新增字段 sql:
+ALTER TABLE `config_tilelifter` ADD COLUMN `non_work_track_id` int(11) UNSIGNED NULL DEFAULT NULL COMMENT '砖机不作业轨道' AFTER `last_track_id`;
+
+新增开关 sql:
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (72, 8, 'EnableStockTimeForUp', '开关-启用上砖库存时间限制', NULL, b'0', '品种库存最早时间在入库侧-停止上砖且报警', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (73, 8, 'EnableStockTimeForDown', '开关-启用下砖库存时间限制', NULL, b'0', '不得连续下满同一条轨道-仅剩最后一条轨道时停止下砖且报警', NULL, NULL, NULL, NULL);
+
+新增报警 sql:
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (230, 3, 'TheEarliestStockInDown', '最早的库存在下砖入库侧轨道', NULL, NULL, '以先进先出为原则，发现最早的库存在下砖入库侧轨道，暂无法上砖', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (231, 3, 'PreventTimeConflict', '不能连续下砖但仅剩最后一条轨道', NULL, NULL, '不允许同品种下砖连续下满同一条轨道，需变更轨道下砖，防止时间冲突', NULL, NULL, NULL, NULL);

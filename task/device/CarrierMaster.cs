@@ -988,6 +988,12 @@ namespace task.device
                             return false;
                         }
 
+                        if (!PubMaster.Track.IsTrackFull(track.brother_track_id))
+                        {
+                            result = "对应的入库轨道还没有满砖！";
+                            return false;
+                        }
+
                         if (!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
                         {
                             return false;

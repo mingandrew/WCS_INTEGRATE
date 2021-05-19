@@ -154,6 +154,17 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 获取区域指定类型的轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public Track GetAreaTrack(uint areaid, TrackTypeE type)
+        {
+            return TrackList.Find(c => c.area == areaid && c.Type == type);
+        }
+
+        /// <summary>
         /// 获取区域指定类型的轨道ID
         /// </summary>
         /// <param name="area"></param>
