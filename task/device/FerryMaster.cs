@@ -182,6 +182,12 @@ namespace task.device
                                     task.DoStop("下定位到位", "到位锁定");
                                     Thread.Sleep(1000);
                                 }
+
+                                if (task.DevStatus.CurrentTask == task.DevStatus.FinishTask && task.DevStatus.TargetSite == 0)
+                                {
+                                    task.DoStop("摆渡车定位任务已完成", "摆渡车定位任务完成后，清除目标点");
+                                    Thread.Sleep(1000);
+                                }
                             }
 
                             #region 上砖待命点 (单摆渡对多上砖机)
