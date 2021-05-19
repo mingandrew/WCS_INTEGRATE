@@ -1,5 +1,6 @@
 ﻿using enums;
 using enums.track;
+using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
 using module.area;
 using module.goods;
@@ -389,6 +390,12 @@ namespace resource.goods
             {
                 try
                 {
+                    // 时间判断
+                    if (produceTime != null && !PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)produceTime, out rs))
+                    {
+                        return false;
+                    }
+
                     Goods addgood = GetGoods(goodsid);
                     if (addgood == null || addgood.empty)
                     {
@@ -598,6 +605,162 @@ namespace resource.goods
             }
             return false;
         }
+
+
+
+        /// <summary>
+        /// 获取最早的品种库存
+        /// </summary>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public uint GetTheEarliestStock(uint goodid)
+        {
+            uint trackid = 0;
+            List<Stock> stklist = StockList.FindAll(c => c.goods_id == goodid);
+            if (stklist != null && stklist.Count > 0)
+            {
+                stklist.Sort(
+                    (x, y) =>
+                    {
+                        if (x.produce_time is DateTime xtime && y.produce_time is DateTime ytime)
+                        {
+                            return xtime.CompareTo(ytime);
+                        }
+                        return 0;
+                    }
+                );
+                trackid = stklist[0].track_id;
+            }
+
+            return trackid;
+        }
+
+        /// <summary>
+        /// 获取最晚的品种库存
+        /// </summary>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public uint GetTheLatestStock(uint goodid)
+        {
+            uint trackid = 0;
+            List<Stock> stklist = StockList.FindAll(c => c.goods_id == goodid);
+            if (stklist != null && stklist.Count > 0)
+            {
+                stklist.Sort(
+                    (x, y) =>
+                    {
+                        if (x.produce_time is DateTime xtime && y.produce_time is DateTime ytime)
+                        {
+                            return ytime.CompareTo(xtime);
+                        }
+                        return 0;
+                    }
+                );
+                trackid = stklist[0].track_id;
+            }
+
+            return trackid;
+        }
+
+        /// <summary>
+        /// 获取指定轨道类型最早的品种库存
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="goodid"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public Stock GetTheEarliestStock(uint goodid, params TrackTypeE[] types)
+        {
+            Stock stk = null;
+            List<Stock> stklist = StockList.FindAll(c => c.goods_id == goodid && types.Contains(c.TrackType));
+            if (stklist != null && stklist.Count > 0)
+            {
+                stklist.Sort(
+                    (x, y) =>
+                    {
+                        if (x.produce_time is DateTime xtime && y.produce_time is DateTime ytime)
+                        {
+                            return xtime.CompareTo(ytime);
+                        }
+                        return 0;
+                    }
+                );
+                stk = stklist[0];
+            }
+
+            return stk;
+        }
+
+        /// <summary>
+        /// 获取指定轨道类型最晚的品种库存
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="goodid"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public Stock GetTheLatestStock(uint goodid, params TrackTypeE[] types)
+        {
+            Stock stk = null;
+            List<Stock> stklist = StockList.FindAll(c => c.goods_id == goodid && types.Contains(c.TrackType));
+            if (stklist != null && stklist.Count > 0)
+            {
+                stklist.Sort(
+                    (x, y) =>
+                    {
+                        if (x.produce_time is DateTime xtime && y.produce_time is DateTime ytime)
+                        {
+                            return ytime.CompareTo(xtime);
+                        }
+                        return 0;
+                    }
+                );
+                stk = stklist[0];
+            }
+
+            return stk;
+        }
+
+        /// <summary>
+        /// 是否允许操作库存（时间判断）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="goodid"></param>
+        /// <param name="producetime"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool IsAllowToOperateStock(uint trackid, uint goodid, DateTime producetime, out string result)
+        {
+            result = "";
+            Track tra = PubMaster.Track.GetTrack(trackid);
+            Stock stk = null;
+            switch (tra.Type)
+            {
+                case TrackTypeE.储砖_入:
+                    // 时间要比出库侧都晚
+                    stk = GetTheLatestStock(goodid, TrackTypeE.储砖_出);
+                    if (stk != null && stk.produce_time != null && producetime != null
+                        && DateTime.Compare((DateTime)stk.produce_time, (DateTime)producetime) > 0)
+                    {
+                        result = "生产时间要比所有出库侧轨道同品种库存都晚";
+                        return false;
+                    }
+                    break;
+                case TrackTypeE.储砖_出:
+                    // 时间要比入库侧都早
+                    stk = GetTheEarliestStock(goodid, TrackTypeE.储砖_入);
+                    if (stk != null && stk.produce_time != null && producetime != null
+                        && DateTime.Compare((DateTime)stk.produce_time, (DateTime)producetime) < 0)
+                    {
+                        result = "生产时间要比所有入库侧轨道同品种库存都早";
+                        return false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
+
         #endregion
 
         #endregion
@@ -663,12 +826,19 @@ namespace resource.goods
             }
         }
 
-        public bool ChangeStockGood(uint trackid, uint goodid, bool changedate, DateTime? newdate)
+        public bool ChangeStockGood(uint trackid, uint goodid, bool changedate, DateTime? newdate, out string res)
         {
+            res = "";
             if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
             {
                 try
                 {
+                    // 时间判断
+                    if (newdate != null && !PubMaster.Goods.IsAllowToOperateStock(trackid, goodid, (DateTime)newdate, out res))
+                    {
+                        return false;
+                    }
+
                     List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
                     foreach (Stock stock in stocks)
                     {
@@ -1066,6 +1236,22 @@ namespace resource.goods
         {
             allocatstocks = new List<Stock>();
 
+            #region 时间判断
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableStockTimeForUp))
+            {
+                // 当最早的库存在入库侧，停止作业且报警
+                Stock stk = GetTheEarliestStock(goodsid, TrackTypeE.储砖_入, TrackTypeE.储砖_出);
+                if (stk != null && stk.TrackType == TrackTypeE.储砖_入)
+                {
+                    PubMaster.Warn.AddTaskWarn(WarningTypeE.TheEarliestStockInDown, (ushort)tilelifterid, tilelifterid, 
+                        string.Format("[ {0} ]最早的库存在[ {1} ]", 
+                            GetGoodsName(stk.goods_id), PubMaster.Track.GetTrackName(stk.track_id)));
+                    return false;
+                }
+            }
+            PubMaster.Warn.RemoveTaskWarn(WarningTypeE.TheEarliestStockInDown, tilelifterid);
+            #endregion
+
             #region[ 判断是否使用分割点后的库存做出库任务]
             bool isnotuseupsplitstock = false;
             //默认出库轨道库存是不管分割点的
@@ -1095,17 +1281,8 @@ namespace resource.goods
             }
 
             stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
-            //foreach (Stock stock in stocks)
-            //{
-            //    //优先取非满的轨道
-            //    if (stock.pos > 1 && PubMaster.Track.IsTrackHaveStock(stock.track_id)
-            //        && PubMaster.Track.IsTrackEnable(stock.track_id))
-            //    {
-            //        allocatstocks.Add(stock);
-            //    }
-            //}
 
-            //全部都是满砖，则找时间最早的库存
+            // 找时间最早的库存
             stocks.Sort(
                 (x, y) => 
                 {
@@ -2095,6 +2272,38 @@ namespace resource.goods
             }
 
             traids.AddRange(emptylist);
+
+            #region 下砖机不作业轨道报警判断
+            // 同品种的空轨道不作业
+            if (emptylist != null && emptylist.Count > 0) 
+            {
+                // 是否停止作业且报警提示
+                bool isopen = PubMaster.Dic.IsSwitchOnOff(DicTag.EnableStockTimeForDown);
+                int count = emptylist.Count;
+
+                uint NonWorkTrackid = PubMaster.DevConfig.GetNonWorkTrackId(devid);
+
+                if (NonWorkTrackid > 0 && emptylist.Contains(NonWorkTrackid))
+                {
+                    Track nwTrack = PubMaster.Track.GetTrack(NonWorkTrackid);
+                    if (nwTrack.Type == TrackTypeE.储砖_入
+                        && nwTrack.recent_goodid == goodsid 
+                        && (count > 1 || (count == 1 && isopen ))
+                        )
+                    {
+                        traids.Remove(NonWorkTrackid);
+                    }
+                }
+
+                if (isopen && traids.Count == 0)
+                {
+                    PubMaster.Warn.AddTaskWarn(WarningTypeE.PreventTimeConflict, (ushort)devid, devid,
+                        string.Format("[ {0} ]不能连续下满[ {1} ]",
+                            GetGoodsName(goodsid), PubMaster.Track.GetTrackName(NonWorkTrackid)));
+                }
+            }
+            #endregion
+
             return traids.Count > 0;
         }
 

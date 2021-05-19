@@ -779,7 +779,11 @@ namespace task.device
             }
         }
 
-        public void ReseTileCurrentTake(uint takeid)
+        /// <summary>
+        /// 重置上砖机优先作业轨道
+        /// </summary>
+        /// <param name="takeid"></param>
+        public void ReseUpTileCurrentTake(uint takeid)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
             {
@@ -1582,6 +1586,8 @@ namespace task.device
                     uint transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid, 0, line);
 
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
+                    PubMaster.Warn.RemoveTaskWarn(WarningTypeE.PreventTimeConflict, tileid);
+
                     if (islimitallocate)
                     {
                         mlog.Status(true, string.Format("极限混砖【砖机：{0}，{1}】【轨道：{2}，{3}】【任务：{4}】",
@@ -1612,7 +1618,7 @@ namespace task.device
         {
             bool isallocate = false;
 
-            // 1.查看当前作业轨道是否能作业
+            // 1.查看当前设定优先作业轨道是否能作业
             if (PubMaster.Track.HaveTrackInGoodFrist(areaid, tileid, goodid, currentid, out uint trackid))
             {
                 //判断是否轨道是否已经有任务占用[忽略倒库任务]
@@ -1624,7 +1630,7 @@ namespace task.device
                     {
                         PubMaster.Track.UpdateRecentTile(trackid, 0);
                         PubMaster.Track.UpdateRecentGood(trackid, 0);
-                        PubTask.TileLifter.ReseTileCurrentTake(trackid);
+                        PubTask.TileLifter.ReseUpTileCurrentTake(trackid);
                         return;
                     }
                     if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
@@ -1642,39 +1648,40 @@ namespace task.device
                 }
             }
 
-            // 2.查看是否存在未空砖但无库存的轨道
-            else if (PubMaster.Track.HaveTrackInGoodButNotStock(areaid, tileid, goodid, out List<uint> trackids))
-            {
-                foreach (uint tra in trackids)
-                {
-                    //判断是否轨道是否已经有任务占用[忽略倒库任务]
-                    if (!PubTask.Trans.HaveInTrackButSortTask(tra))
-                    {
-                        uint stockid = PubMaster.Goods.GetTrackTopStockId(tra);
-                        //有库存但是不是砖机需要的品种
-                        if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goodid))
-                        {
-                            PubMaster.Track.UpdateRecentTile(tra, 0);
-                            PubMaster.Track.UpdateRecentGood(tra, 0);
-                            return;
-                        }
-                        if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
-                        {
-                            //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tra, tiletrackid, 0, line);
-                        }
-                        else
-                        {
-                            //生成出库交易
-                            PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tra, tiletrackid, 0, line);
-                        }
+            #region  2.查看是否存在未空砖但无库存的轨道 - 停用，无库存一定空轨
+            //else if (PubMaster.Track.HaveTrackInGoodButNotStock(areaid, tileid, goodid, out List<uint> trackids))
+            //{
+            //    foreach (uint tra in trackids)
+            //    {
+            //        //判断是否轨道是否已经有任务占用[忽略倒库任务]
+            //        if (!PubTask.Trans.HaveInTrackButSortTask(tra))
+            //        {
+            //            uint stockid = PubMaster.Goods.GetTrackTopStockId(tra);
+            //            //有库存但是不是砖机需要的品种
+            //            if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goodid))
+            //            {
+            //                PubMaster.Track.UpdateRecentTile(tra, 0);
+            //                PubMaster.Track.UpdateRecentGood(tra, 0);
+            //                return;
+            //            }
+            //            if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
+            //            {
+            //                //生成出库交易
+            //                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tra, tiletrackid, 0, line);
+            //            }
+            //            else
+            //            {
+            //                //生成出库交易
+            //                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tra, tiletrackid, 0, line);
+            //            }
 
-                        //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
-                        isallocate = true;
-                        break;
-                    }
-                }
-            }
+            //            //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
+            //            isallocate = true;
+            //            break;
+            //        }
+            //    }
+            //}
+            #endregion
 
             // 3.分配库存
             else if (PubMaster.Goods.GetStock(areaid, tileid, goodid, out List<Stock> allocatestocks))
@@ -1711,6 +1718,7 @@ namespace task.device
             if (isallocate)
             {
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileHaveNotStockToOut, (ushort)tileid);
+                PubMaster.Warn.RemoveTaskWarn(WarningTypeE.TheEarliestStockInDown, tileid);
             }
             else
             {

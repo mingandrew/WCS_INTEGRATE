@@ -55,6 +55,11 @@ namespace module.deviceconfig
         public uint last_track_id { set; get; }
 
         /// <summary>
+        /// 不允许作业轨道ID
+        /// </summary>
+        public uint non_work_track_id { set; get; }
+
+        /// <summary>
         /// 转产 旧品种ID
         /// </summary>
         public uint old_goodid { set; get; }

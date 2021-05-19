@@ -423,6 +423,63 @@ namespace resource.device
             return false;
         }
 
+        #region 不作业轨道
+
+        /// <summary>
+        /// 获取砖机不作业轨道ID
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetNonWorkTrackId(uint devid)
+        {
+            return GetTileLifter(devid)?.non_work_track_id ?? 0;
+        }
+
+        /// <summary>
+        /// 设置下砖机不作业轨道
+        /// </summary>
+        /// <param name="takeid"></param>
+        public void SetDownTileNonWorkTrack(uint tarckid)
+        {
+            // 根据当前作业轨道获取所有下砖机
+            List<ConfigTileLifter> ctls = ConfigTileLifterList.FindAll(c => c.last_track_id == tarckid && c.WorkMode == TileWorkModeE.下砖);
+
+            if (ctls != null && ctls.Count > 0)
+            {
+                foreach (ConfigTileLifter item in ctls)
+                {
+                    SetNonWorkTrackId(item.goods_id, item.non_work_track_id, tarckid);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 更新不作业轨道
+        /// </summary>
+        /// <param name="goodsid"></param>
+        /// <param name="oldtarckid"></param>
+        /// <param name="newtrackid"></param>
+        private void SetNonWorkTrackId(uint goodsid, uint oldtarckid, uint newtrackid)
+        {
+            foreach (ConfigTileLifter ctl in ConfigTileLifterList.FindAll(c => c.goods_id == goodsid && c.non_work_track_id == oldtarckid && c.WorkMode == TileWorkModeE.下砖))
+            {
+                if (ctl.non_work_track_id != newtrackid)
+                {
+                    try
+                    {
+                        mLog.Status(true, string.Format("【更新不作业轨道】砖机[ {0} ], 轨道[ {1} -> {2} ]",
+                            PubMaster.Device.GetDeviceName(ctl.id),
+                            PubMaster.Track.GetTrackName(oldtarckid, oldtarckid + ""),
+                            PubMaster.Track.GetTrackName(newtrackid, newtrackid + "")));
+                    }
+                    catch { }
+                    ctl.non_work_track_id = newtrackid;
+                    PubMaster.Mod.DevConfigSql.EditNonWorkTrackId(ctl);
+                }
+            }
+        }
+
+        #endregion
 
         #region [串联砖机]
 
@@ -844,6 +901,7 @@ namespace resource.device
                 backup_dev.OutStrategey = need_dev.OutStrategey;
                 backup_dev.WorkType = need_dev.WorkType;
                 backup_dev.last_track_id = need_dev.last_track_id;
+                backup_dev.non_work_track_id = need_dev.non_work_track_id;
                 backup_dev.old_goodid = need_dev.old_goodid;
                 backup_dev.goods_id = need_dev.goods_id;
                 backup_dev.pre_goodid = need_dev.pre_goodid;

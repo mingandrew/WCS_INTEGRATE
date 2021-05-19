@@ -726,9 +726,13 @@ namespace task.rf
                         return;
                     }
 
-                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime))
+                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime, out string res))
                     {
-                        SendSucc2Rf(msg.MEID, FunTag.UpdateStockGood, "");
+                        SendSucc2Rf(msg.MEID, FunTag.UpdateStockGood, res);
+                    }
+                    else
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.UpdateStockGood, res);
                     }
                 }
             }

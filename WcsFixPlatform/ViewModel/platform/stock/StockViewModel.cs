@@ -106,7 +106,7 @@ namespace wcs.ViewModel
         }
 
         /// <summary>
-        /// 刷新轨道库存
+        /// 转移轨道库存
         /// </summary>
         private void ShiftStock()
         {
@@ -244,10 +244,14 @@ namespace wcs.ViewModel
 
                 if (ars == MessageBoxResult.Yes)
                 {
-                    if (PubMaster.Goods.ChangeStockGood(trackid, newgoodid, changedate, nd))
+                    if (PubMaster.Goods.ChangeStockGood(trackid, newgoodid, changedate, nd, out string res))
                     {
                         Growl.Success("更改成功！");
                         ActionStock("0");
+                    }
+                    else
+                    {
+                        Growl.Warning(res);
                     }
                 }
             }

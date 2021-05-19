@@ -59,6 +59,9 @@
         public static string EnableCarrierTraffic = nameof(EnableCarrierTraffic);               //开关-启用运输车交管摆渡车
         public static string EnableLimitAllocate = nameof(EnableLimitAllocate);               //开关-启用下砖入库极限混砖
 
+        public static string EnableStockTimeForUp = nameof(EnableStockTimeForUp);               //开关-启用上砖库存时间限制（品种库存最早时间在入库侧-停止上砖且报警）
+        public static string EnableStockTimeForDown = nameof(EnableStockTimeForDown);     //开关-启用下砖库存时间限制（不得连续下满同一条轨道-仅剩最后一条轨道时停止下砖且报警）
+
         #endregion
 
         #region[接力倒库、倒库同时上砖开关]

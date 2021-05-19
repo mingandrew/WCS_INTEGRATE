@@ -520,7 +520,7 @@ namespace task.device
                 {
                     PubMaster.Track.UpdateStockStatus(CurrentTrackId, TrackStockStatusE.空砖, Device.name + "运输车检测无砖,自动调整轨道为空");
                     PubMaster.Goods.ClearTrackEmtpy(CurrentTrackId);
-                    PubTask.TileLifter.ReseTileCurrentTake(CurrentTrackId);
+                    PubTask.TileLifter.ReseUpTileCurrentTake(CurrentTrackId);
                     PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车检测无砖");
                 }
                 //DoStop();
@@ -559,7 +559,7 @@ namespace task.device
                 {
                     PubMaster.Track.UpdateStockStatus(CurrentTrackId, TrackStockStatusE.空砖, Device.name + "运输车倒库无砖,自动调整轨道为空");
                     PubMaster.Goods.ClearTrackEmtpy(CurrentTrackId);
-                    PubTask.TileLifter.ReseTileCurrentTake(CurrentTrackId);
+                    PubTask.TileLifter.ReseUpTileCurrentTake(CurrentTrackId);
                     PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车倒库无砖");
                 }
                 //DoStop();

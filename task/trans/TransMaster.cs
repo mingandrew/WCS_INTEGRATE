@@ -1449,7 +1449,7 @@ namespace task.trans
 
                                             if (SetTakeSite(trans, t))
                                             {
-                                                SetStatus(trans, TransStatusE.取消, "工位非无货需求，取消任务");
+                                                SetStatus(trans, TransStatusE.取消, "工位非无货需求，取消任务，优先寻找空轨道");
 
                                                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
                                                 return;
@@ -1483,7 +1483,7 @@ namespace task.trans
                                         {
                                             PubMaster.Track.UpdateStockStatus(trans.take_track_id, TrackStockStatusE.空砖, "系统已无库存,自动调整轨道为空");
                                             PubMaster.Goods.ClearTrackEmtpy(trans.take_track_id);
-                                            PubTask.TileLifter.ReseTileCurrentTake(trans.take_track_id);
+                                            PubTask.TileLifter.ReseUpTileCurrentTake(trans.take_track_id);
                                             PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.take_track_id, TrackLogE.空轨道, "无库存数据");
 
                                             #region 【任务步骤记录】
@@ -1844,23 +1844,26 @@ namespace task.trans
                                                         SetFinishSite(trans, trackid, "还车轨道分配轨道[2]");
                                                         isallocate = true;
                                                     }
-                                                    // 2.查看是否存在未空砖但无库存的轨道
-                                                    else if (PubMaster.Track.HaveTrackInGoodButNotStock(trans.area_id, trans.tilelifter_id,
-                                                        trans.goods_id, out List<uint> trackids))
-                                                    {
-                                                        foreach (var tid in trackids)
-                                                        {
-                                                            if (!HaveInTrackButSortTask(tid)
-                                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
-                                                                && !CheckHaveCarrierInOutTrack(trans.carrier_id, trackid, out string _)
-                                                                && CheckTrackStockStillCanUse(trans.carrier_id, trackid))
-                                                            {
-                                                                SetFinishSite(trans, tid, "还车轨道分配轨道[3]");
-                                                                isallocate = true;
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
+
+                                                    #region  2.查看是否存在未空砖但无库存的轨道 - 停用，无库存一定空轨
+                                                    //else if (PubMaster.Track.HaveTrackInGoodButNotStock(trans.area_id, trans.tilelifter_id,
+                                                    //    trans.goods_id, out List<uint> trackids))
+                                                    //{
+                                                    //    foreach (var tid in trackids)
+                                                    //    {
+                                                    //        if (!HaveInTrackButSortTask(tid)
+                                                    //            && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
+                                                    //            && !CheckHaveCarrierInOutTrack(trans.carrier_id, trackid, out string _)
+                                                    //            && CheckTrackStockStillCanUse(trans.carrier_id, trackid))
+                                                    //        {
+                                                    //            SetFinishSite(trans, tid, "还车轨道分配轨道[3]");
+                                                    //            isallocate = true;
+                                                    //            break;
+                                                    //        }
+                                                    //    }
+                                                    //}
+                                                    #endregion
+
                                                     // 3.分配库存
                                                     else if (!isallocate && PubMaster.Goods.GetStock(trans.area_id, trans.tilelifter_id,
                                                         trans.goods_id, out List<Stock> allocatestocks))
@@ -1951,9 +1954,9 @@ namespace task.trans
 
                                             if ((!PubMaster.Track.IsEmtpy(trans.finish_track_id)
                                                 && !CheckTrackStockStillCanUse(trans.carrier_id, trans.finish_track_id))
-                                                || CheckHaveCarrierInOutTrack(trans.carrier_id, trans.finish_track_id, out string result))
+                                                || CheckHaveCarrierInOutTrack(trans.carrier_id, trans.finish_track_id, out  result))
                                             {
-                                                SetFinishSite(trans, 0, "轨道不满足状态重新分配");
+                                                SetFinishSite(trans, 0, "轨道不满足状态，重新分配");
                                                 return;
                                             }
 
@@ -4143,7 +4146,7 @@ namespace task.trans
                                         {
                                             PubMaster.Track.UpdateStockStatus(trans.take_track_id, TrackStockStatusE.空砖, "系统已无库存,自动调整轨道为空");
                                             PubMaster.Goods.ClearTrackEmtpy(trans.take_track_id);
-                                            PubTask.TileLifter.ReseTileCurrentTake(trans.take_track_id);
+                                            PubTask.TileLifter.ReseUpTileCurrentTake(trans.take_track_id);
                                             PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.take_track_id, TrackLogE.空轨道, "无库存数据");
                                         }
 
@@ -4404,22 +4407,25 @@ namespace task.trans
                                                         trans.finish_track_id = trackid;
                                                         isallocate = true;
                                                     }
-                                                    // 2.查看是否存在未空砖但无库存的轨道
-                                                    else if (PubMaster.Track.HaveTrackInGoodButNotStock(trans.area_id, trans.tilelifter_id,
-                                                        trans.goods_id, out List<uint> trackids))
-                                                    {
-                                                        foreach (var tid in trackids)
-                                                        {
-                                                            if (!IsTraInTrans(tid)
-                                                                && !PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id)
-                                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid))
-                                                            {
-                                                                trans.finish_track_id = tid;
-                                                                isallocate = true;
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
+
+                                                    #region 2.查看是否存在未空砖但无库存的轨道 - 停用，无库存一定空轨
+                                                    //else if (PubMaster.Track.HaveTrackInGoodButNotStock(trans.area_id, trans.tilelifter_id,
+                                                    //    trans.goods_id, out List<uint> trackids))
+                                                    //{
+                                                    //    foreach (var tid in trackids)
+                                                    //    {
+                                                    //        if (!IsTraInTrans(tid)
+                                                    //            && !PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id)
+                                                    //            && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid))
+                                                    //        {
+                                                    //            trans.finish_track_id = tid;
+                                                    //            isallocate = true;
+                                                    //            break;
+                                                    //        }
+                                                    //    }
+                                                    //}
+                                                    #endregion
+
                                                     // 3.分配库存
                                                     else if (!isallocate && PubMaster.Goods.GetStock(trans.area_id, trans.tilelifter_id,
                                                         trans.goods_id, out List<Stock> allocatestocks))

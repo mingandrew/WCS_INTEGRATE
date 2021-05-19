@@ -137,13 +137,13 @@ namespace wcs.ViewModel
             }
             else
             {
-                if (PubMaster.Track.HaveTrackInGoodButNotStock(device.area, device.id, GoodsId, out List<uint> trackids))
-                {
-                    foreach (var trackid in trackids)
-                    {
-                        TrackIdsList.Add(PubMaster.Track.GetTrack(trackid));
-                    }
-                }
+                //if (PubMaster.Track.HaveTrackInGoodButNotStock(device.area, device.id, GoodsId, out List<uint> trackids))
+                //{
+                //    foreach (var trackid in trackids)
+                //    {
+                //        TrackIdsList.Add(PubMaster.Track.GetTrack(trackid));
+                //    }
+                //}
                 //分配库存
                 List<Stock> stocks = PubMaster.Goods.GetStock(device.area, device.id, GoodsId);
                 foreach (Stock stock in stocks)

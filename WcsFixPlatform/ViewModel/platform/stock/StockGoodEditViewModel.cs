@@ -4,6 +4,7 @@ using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.track;
 using module.window;
+using resource;
 using System;
 
 namespace wcs.ViewModel
@@ -101,6 +102,14 @@ namespace wcs.ViewModel
                     Growl.Warning("请选择更改后的日期");
                     return;
                 }
+
+                // 时间判断
+                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, NewGoodsId, (DateTime)NewDate, out string res))
+                {
+                    Growl.Warning(res);
+                    return;
+                }
+
                 Result.p2 = true;
                 Result.p3 = NewDate;
             }

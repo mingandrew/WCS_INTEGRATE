@@ -133,9 +133,9 @@ namespace resource.track
             return TrackList.Find(c => c.area == area && types.Contains(c.Type) && c.IsInTrack(trackrfid));
         }
 
-        public TrackTypeE GetTrackType(ushort area, ushort trackrfid)
+        public TrackTypeE GetTrackType(ushort trackrfid)
         {
-            return TrackList.Find(c => c.area == area && c.IsInTrack(trackrfid)).Type;
+            return TrackList.Find(c =>c.IsInTrack(trackrfid)).Type;
         }
 
         public TrackTypeE GetTrackType(uint track_id)
@@ -151,6 +151,17 @@ namespace resource.track
         public List<Track> GetAreaTracks(uint areaid)
         {
             return TrackList.FindAll(c => c.area == areaid);
+        }
+
+        /// <summary>
+        /// 获取区域指定类型的轨道ID
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public List<uint> GetAreaTrackIdList(uint area, params TrackTypeE[] types)
+        {
+            return TrackList.FindAll(c => c.area == area && c.InType(types))?.Select(c => c.id).ToList() ?? new List<uint>();
         }
 
         /// <summary>
@@ -803,13 +814,20 @@ namespace resource.track
         {
             if (track != null)
             {
+                if (track.StockStatus == status) return;
+
                 if (!isAllow && track.InType(TrackTypeE.储砖_出入) && track.StockStatus == TrackStockStatusE.满砖 && status == TrackStockStatusE.有砖)
                 {
                     return;
                 }
 
-                //if (track.Status == TrackGoodStatusE.满砖 && status == TrackGoodStatusE.有砖) return;
-                if (track.StockStatus == status) return;
+                #region 入库侧轨道满砖-下砖机标记不作业轨道
+                if (track.InType(TrackTypeE.储砖_入) && status == TrackStockStatusE.满砖)
+                {
+                    PubMaster.DevConfig.SetDownTileNonWorkTrack(track.id);
+                }
+                #endregion
+
                 try
                 {
                     mLog.Status(true, string.Format("轨道[ {0} ], 货物[ {1} -> {2} ], 备注[ {3} ]", track.name, track.StockStatus, status, memo));

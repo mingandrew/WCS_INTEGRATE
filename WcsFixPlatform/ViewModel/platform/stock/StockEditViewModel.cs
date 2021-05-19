@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Command;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.goods;
+using module.track;
 using module.window;
 using resource;
 using System;
@@ -114,8 +115,14 @@ namespace wcs.ViewModel
                     return;
                 }
 
+                // 时间判断
+                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)producetime, out string res))
+                {
+                    Growl.Warning(res);
+                    return;
+                }
 
-                if (StockQty == 0 || StockQty > 50)
+                if (StockQty <= 0 || StockQty >= 50)
                 {
                     Growl.Warning("请输入正确范围的数量!");
                     return;

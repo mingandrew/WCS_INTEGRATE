@@ -180,7 +180,15 @@ WHERE id = {0}", dev.id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goo
 
         internal void EditLastTrackId(ConfigTileLifter dev)
         {
-            string sql = string.Format("UPDATE config_tilelifter SET last_track_id = {0}  WHERE id = {1}", dev.last_track_id, dev.id);
+            string sql = string.Format("UPDATE config_tilelifter SET last_track_id = {1} WHERE id = {0}", 
+                dev.id, dev.last_track_id);
+            mSql.ExcuteSql(sql);
+        }
+
+        internal void EditNonWorkTrackId(ConfigTileLifter dev)
+        {
+            string sql = string.Format("UPDATE config_tilelifter SET non_work_track_id = {1}  WHERE id = {0}",
+                dev.id, dev.non_work_track_id);
             mSql.ExcuteSql(sql);
         }
 
