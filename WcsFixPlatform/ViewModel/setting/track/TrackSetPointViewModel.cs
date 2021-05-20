@@ -295,28 +295,46 @@ namespace wcs.ViewModel
 
                 case "out_sort_point":
 
-                    if (Set_Out_Sort_Point <= 0)
+                    if(Set_Out_Sort_Qty == 0)
                     {
-                        Growl.Warning("请输入正确的倒库脉冲！");
-                        return;
-                    }
+                        string tip3 = "确认重置接力脉冲为零吗？";
 
-                    if (Set_Out_Sort_Point <= Out_Last_Point || Set_Out_Sort_Point >= Out_Loc_Point)
+                        MessageBoxResult rs3 = HandyControl.Controls.MessageBox.Show(tip3, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        if (rs3 == MessageBoxResult.OK || rs3 == MessageBoxResult.Yes)
+                        {
+                            PubMaster.Track.UpdateTrackSortOut(filterareaid, Set_Out_Sort_Point);
+                        }
+                    }
+                    else
                     {
-                        Growl.Warning("倒库接力脉冲需要在出轨道范围内！");
-                        return;
-                    }
+                        if (Set_Out_Sort_Point <= 0)
+                        {
+                            Growl.Warning("请输入正确的倒库脉冲！");
+                            return;
+                        }
 
-                    if (PubMaster.Track.UpdateTrackSortOut(filterareaid, Set_Out_Sort_Point))
-                    {
-                        Growl.Success("更新成功！");
-                    }
+                        if (Set_Out_Sort_Point <= Out_Last_Point || Set_Out_Sort_Point >= Out_Loc_Point)
+                        {
+                            Growl.Warning("倒库接力脉冲需要在出轨道范围内！");
+                            return;
+                        }
 
+                        if (PubMaster.Track.UpdateTrackSortOut(filterareaid, Set_Out_Sort_Point))
+                        {
+                            Growl.Success("更新成功！");
+                        }
+                    }
                     GlobalWcsDataConfig.DefaultConfig.UpdateAreaPointSortQty(filterareaid, Set_Out_Sort_Qty);
 
                     break;
                     
                 case "out_sort_point_calculate":
+
+                    if(Set_Out_Sort_Qty <= 0)
+                    {
+                        Set_Out_Sort_Point = 0;
+                        return;
+                    }
 
                     if(Set_Out_Sort_Qty <= 1)
                     {

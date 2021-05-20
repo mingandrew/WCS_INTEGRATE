@@ -252,10 +252,10 @@ namespace wcs.ViewModel
                 case "devtocode":
                     if (SelectPos != null && SelectPos.Ferry_Code > 0)
                     {
-                        string tipwaring = "确认发送对位：" + SelectPos.Ferry_Code + " 给" + _selectferry.name + "吗？";
-                        MessageBoxResult rs = HandyControl.Controls.MessageBox.Show(tipwaring, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        string tip1 = "确认发送对位：" + SelectPos.Ferry_Code + " 给" + _selectferry.name + "吗？";
+                        MessageBoxResult rs1 = HandyControl.Controls.MessageBox.Show(tip1, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
-                        if (rs == MessageBoxResult.Yes)
+                        if (rs1 == MessageBoxResult.Yes ||  rs1  == MessageBoxResult.OK)
                         {
                             bool isdownferry = _selectferry.Type == DeviceTypeE.下摆渡;
                             if (!PubTask.Ferry.DoManualLocate(_selectferry.id, SelectPos.Track_Id, isdownferry, out result))
@@ -275,10 +275,20 @@ namespace wcs.ViewModel
                     SetFerryPos();
                     break;
                 case "leftreset":
-                    ReSetFerry(DevFerryResetPosE.前进复位);
+                    string tip2 = "确认发送[前进复位] 给" + _selectferry.name + "吗？";
+                    MessageBoxResult rs2 = HandyControl.Controls.MessageBox.Show(tip2, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if(rs2 == MessageBoxResult.OK || rs2 == MessageBoxResult.Yes)
+                    {
+                        ReSetFerry(DevFerryResetPosE.前进复位);
+                    }
                     break;
                 case "rightreset":
-                    ReSetFerry(DevFerryResetPosE.后退复位);
+                    string tip3 = "确认发送[后退复位] 给" + _selectferry.name + "吗？";
+                    MessageBoxResult rs3 = HandyControl.Controls.MessageBox.Show(tip3, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (rs3 == MessageBoxResult.OK || rs3 == MessageBoxResult.Yes)
+                    {
+                        ReSetFerry(DevFerryResetPosE.后退复位);
+                    }
                     break;
                 case "showferry":
                     ShowFerryPosPanal();
