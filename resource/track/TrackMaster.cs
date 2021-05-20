@@ -1311,7 +1311,21 @@ namespace resource.track
         /// <returns></returns>
         public List<Track> GetFullInTrackList()
         {
-            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 && c.StockStatus == TrackStockStatusE.满砖 && c.Type == TrackTypeE.储砖_入);
+            List<Track> tracks = new List<Track>();
+
+            // 获取所有满砖轨道（按头部库存时间从早到晚顺序）
+            List<Stock> stocks = PubMaster.Goods.GetStocksOrderByTop(TrackTypeE.储砖_入);
+
+            foreach (Stock item in stocks)
+            {
+                Track tra = GetTrack(item.track_id);
+                if (tra.TrackStatus == TrackStatusE.启用 && tra.StockStatus == TrackStockStatusE.满砖 && tra.Type == TrackTypeE.储砖_入)
+                {
+                    tracks.Add(tra);
+                }
+            }
+
+            return tracks;
         }
 
         /// <summary>

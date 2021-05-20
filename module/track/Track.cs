@@ -130,11 +130,6 @@ namespace module.track
             return RFIDs.Contains(rfid);
         }
 
-        public int TrackCode
-        {
-            get => ferry_down_code + ferry_up_code;
-        }
-
         public TrackAlertE AlertStatus
         {
             get => (TrackAlertE)alert_status;

@@ -122,7 +122,35 @@ namespace resource.goods
             return StockList.FindAll(c => c.track_id == traid);
         }
 
+        /// <summary>
+        /// 获取指定类型轨道上的所有头部库存（按时间从早到晚）
+        /// </summary>
+        /// <param name="tt"></param>
+        /// <returns></returns>
+        public List<Stock> GetStocksOrderByTop(TrackTypeE tt)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.TrackType == tt && c.PosType == StockPosE.头部);
 
+            if (stocks.Count == 0)
+            {
+                //找不到库存
+                return stocks;
+            }
+
+            // 按时间从早到晚
+            stocks.Sort(
+                (x, y) =>
+                {
+                    if (x.produce_time is DateTime xtime && y.produce_time is DateTime ytime)
+                    {
+                        return xtime.CompareTo(ytime);
+                    }
+                    return 0;
+                }
+            );
+
+            return stocks;
+        }
 
         /// <summary>
         /// 检查轨道是否能够添加对应数量的库存
@@ -2336,6 +2364,10 @@ namespace resource.goods
                     PubMaster.Warn.AddTaskWarn(WarningTypeE.PreventTimeConflict, (ushort)devid, devid,
                         string.Format("[ {0} ]不能连续下满[ {1} ]",
                             GetGoodsName(goodsid), PubMaster.Track.GetTrackName(NonWorkTrackid)));
+                }
+                else
+                {
+                    PubMaster.Warn.RemoveTaskWarn(WarningTypeE.PreventTimeConflict, devid);
                 }
             }
             #endregion
