@@ -2230,7 +2230,6 @@ namespace task.trans
             bool isload, isnotload;
             uint ferryTraid;
             string res = "";
-
             switch (trans.TransStaus)
             {
                 #region[检查轨道]
@@ -2397,7 +2396,7 @@ namespace task.trans
 
                                     if (isnotload)
                                     {
-                                        int count = PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
+                                        int count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
 
                                         #region 【任务步骤记录】
                                         LogForCarrierSort(trans, trans.give_track_id, count.ToString());
