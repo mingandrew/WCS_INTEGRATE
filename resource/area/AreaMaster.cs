@@ -632,6 +632,17 @@ namespace resource.area
             return AreaList.Find(c => c.id == id)?.full_qty ?? 0;
         }
 
+        /// <summary>
+        /// 获取对应砖机的指定轨道的优先级
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetAreaDevTrackPrior(uint devid, uint trackid)
+        {
+            return AreaDevTraList.Find(c => c.device_id == devid && c.track_id == trackid)?.prior ?? 0;
+        }
+
         #endregion
 
         #region[更改]

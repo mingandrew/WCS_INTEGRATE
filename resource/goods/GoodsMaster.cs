@@ -2335,11 +2335,17 @@ namespace resource.goods
                 }
             }
 
+            //排序空轨道
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableDownTrackOrder) && emptylist.Count > 0)
+            {
+                emptylist = OrderEmptyTrackList(devid, list, emptylist);
+            }
+
             traids.AddRange(emptylist);
 
             #region 下砖机不作业轨道报警判断
             // 同品种的空轨道不作业
-            if (emptylist != null && emptylist.Count > 0) 
+            if (emptylist != null && emptylist.Count > 0)
             {
                 // 是否停止作业且报警提示
                 bool isopen = PubMaster.Dic.IsSwitchOnOff(DicTag.EnableStockTimeForDown);
@@ -2351,8 +2357,8 @@ namespace resource.goods
                 {
                     Track nwTrack = PubMaster.Track.GetTrack(NonWorkTrackid);
                     if (nwTrack.Type == TrackTypeE.储砖_入
-                        && nwTrack.recent_goodid == goodsid 
-                        && (count > 1 || (count == 1 && isopen ))
+                        && nwTrack.recent_goodid == goodsid
+                        && (count > 1 || (count == 1 && isopen))
                         )
                     {
                         traids.Remove(NonWorkTrackid);
@@ -2373,6 +2379,48 @@ namespace resource.goods
             #endregion
 
             return traids.Count > 0;
+        }
+
+        private List<uint> OrderEmptyTrackList(uint devid, List<AreaDeviceTrack> list, List<uint> emptylist)
+        {
+
+            //是否按顺序放砖1->2->3->4的顺序
+            //获取砖机最近的下砖轨道的优先级
+            uint lasttrack = PubMaster.DevConfig.GetLastTrackId(devid);
+            ushort lasttrackprior = PubMaster.Area.GetAreaDevTrackPrior(devid, lasttrack);
+
+            if (lasttrackprior != 0)
+            {
+                //获取空轨道的优先级
+                List<AreaDeviceTrack> emptyADTList = list.FindAll(c => emptylist.Contains(c.track_id));
+                //按顺序保存轨道信息
+                List<AreaDeviceTrack> emptyListLargeOrder = new List<AreaDeviceTrack>();
+                List<AreaDeviceTrack> emptyListLessOrder = new List<AreaDeviceTrack>();
+                List<uint> emptyListOrder = new List<uint>();
+
+                if (emptylist.Contains(lasttrack))
+                {
+                    emptyListOrder.Add(lasttrack);
+                }
+
+                emptyListLargeOrder = emptyADTList.FindAll(c => c.prior > lasttrackprior);
+                if (emptyListLargeOrder != null && emptyListLargeOrder.Count > 0)
+                {
+                    emptyListLargeOrder.Sort((x, y) => x.prior.CompareTo(y.prior));
+                    emptyListOrder.AddRange(emptyListLargeOrder.Select(c => c.track_id));
+                }
+
+                emptyListLessOrder = emptyADTList.FindAll(c => c.prior < lasttrackprior);
+                if (emptyListLessOrder != null && emptyListLessOrder.Count > 0)
+                {
+                    emptyListLessOrder.Sort((x, y) => x.prior.CompareTo(y.prior));
+                    emptyListOrder.AddRange(emptyListLessOrder.Select(c => c.track_id));
+                }
+
+                emptylist = emptyListOrder;
+            }
+
+            return emptylist;
         }
 
         /// <summary>

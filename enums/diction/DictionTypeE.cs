@@ -63,6 +63,8 @@
         public static string EnableStockTimeForUp = nameof(EnableStockTimeForUp);               //开关-启用上砖库存时间限制（品种库存最早时间在入库侧-停止上砖且报警）
         public static string EnableStockTimeForDown = nameof(EnableStockTimeForDown);     //开关-启用下砖库存时间限制（不得连续下满同一条轨道-仅剩最后一条轨道时停止下砖且报警）
 
+        public static string EnableDownTrackOrder = nameof(EnableDownTrackOrder);     //开关-启用下砖顺序存放（下砖时按轨道顺序存放）
+
         #endregion
 
         #region[接力倒库、倒库同时上砖开关]

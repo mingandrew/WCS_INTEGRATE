@@ -237,7 +237,7 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 ALTER TABLE `line` ADD COLUMN `max_upsort_num` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '接力限制倒库数量';
 
 2021.05.17 添加轨道脉冲设置
-INSERT INTO `wcs_rl`.`wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (34, '轨道脉冲配置', 0, 'TrackSetPoint', NULL, 'DarkPrimaryBrush', 'ConfigGeometry', 'TrackSetPointCtl', 'PC轨道脉冲配置');
+INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (34, '轨道脉冲配置', 0, 'TrackSetPoint', NULL, 'DarkPrimaryBrush', 'ConfigGeometry', 'TrackSetPointCtl', 'PC轨道脉冲配置');
 
 2021.05.18 添加开关的报警信息：
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (227, 3, 'DownTaskSwitchClosed', '【下砖任务开关】关闭', NULL, NULL, '【下砖任务开关】已关闭', NULL, NULL, NULL, NULL);
@@ -259,3 +259,10 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 新增报警 sql:
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (230, 3, 'TheEarliestStockInDown', '最早的库存在下砖入库侧轨道', NULL, NULL, '以先进先出为原则，发现最早的库存在下砖入库侧轨道，暂无法上砖', NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (231, 3, 'PreventTimeConflict', '不能连续下砖但仅剩最后一条轨道', NULL, NULL, '不允许同品种下砖连续下满同一条轨道，需变更轨道下砖，防止时间冲突', NULL, NULL, NULL, NULL);
+
+
+2021.05.21
+关于下砖时按轨道顺序存放
+
+新增开关 sql:
+INSERT INTO `wcs_xrj_yh`.`diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (74, 8, 'EnableDownTrackOrder', '开关-启用下砖顺序存放', NULL, b'0', '下砖时按轨道顺序存放', NULL, NULL, NULL, NULL);
