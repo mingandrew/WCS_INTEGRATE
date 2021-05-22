@@ -266,3 +266,8 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 新增开关 sql:
 INSERT INTO `wcs_xrj_yh`.`diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (74, 8, 'EnableDownTrackOrder', '开关-启用下砖顺序存放', NULL, b'0', '下砖时按轨道顺序存放', NULL, NULL, NULL, NULL);
+
+
+2021.05.21
+更新上砖机的最近轨道为0，让上砖机按照时间顺序上砖
+update config_tilelifter set last_track_id = 0 where work_mode = 1;
