@@ -2534,6 +2534,7 @@ namespace task.device
             return DevList.Exists(c => c.ID == carrier_id
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
+                                    && !c.IsNotDoingTask
                                     && Orders.Contains(c.CurrentOrder)
                                     && c.CurrentOrder != c.FinishOrder);
         }
@@ -2550,6 +2551,7 @@ namespace task.device
                                     && c.ConnStatus == SocketConnectStatusE.通信正常
                                     && c.OperateMode == DevOperateModeE.自动
                                     && c.Status == DevCarrierStatusE.停止
+                                    && c.IsNotDoingTask
                                     && Order.Contains(c.CurrentOrder)
                                     && c.CurrentOrder == c.FinishOrder);
         }

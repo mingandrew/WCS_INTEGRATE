@@ -2356,20 +2356,12 @@ namespace task.trans
                     {
                         #region[小车在储砖轨道]
                         case TrackTypeE.储砖_入:
-                            if (trans.take_track_id == track.id)
-                            {
-                                if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
-                                {
-                                    SetStatus(trans, TransStatusE.倒库中);
-                                }
-                            }
-                            break;
                         case TrackTypeE.储砖_出:
-                            if (trans.give_track_id == track.id)
+                            if (trans.give_track_id == track.id || trans.take_track_id == track.id)
                             {
                                 if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                                    //|| PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                    )
                                 {
                                     if (!trans.IsReleaseGiveFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
@@ -2962,7 +2954,8 @@ namespace task.trans
                             if (trans.give_track_id == track.id)
                             {
                                 if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
-                                    || PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                                    //|| PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                    )
                                 {
                                     if (!trans.IsReleaseGiveFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
