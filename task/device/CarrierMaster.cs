@@ -650,10 +650,17 @@ namespace task.device
                     switch (track.Type)
                     {
                         case TrackTypeE.上砖轨道:
-                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentSite);
+
+                            uint tileid = PubMaster.DevConfig.GetTileInPoint(track.id, task.CurrentSite);
+                            uint gid = PubTask.TileLifter.GetTileTrackGid(tileid, track.id);
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, tileid, gid, true);
                             break;
+
                         case TrackTypeE.下砖轨道:
-                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, task.CurrentSite);
+
+                            tileid = PubMaster.DevConfig.GetTileInPoint(track.id, task.CurrentSite);
+                            gid = PubTask.TileLifter.GetTileTrackGid(tileid, track.id);
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInTileTrack(track.id, tileid, gid) ;
                             if(task.DevConfig.stock_id == 0)
                             {
                                 if(PubTask.TileLifter.AddTileStockInTrack(track.id, task.CurrentSite, out uint stockid))

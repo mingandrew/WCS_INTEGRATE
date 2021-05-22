@@ -714,6 +714,7 @@ namespace task.device
 
             return altertileinfo;
         }
+
         #endregion
 
         #region[数据更新]
@@ -1558,6 +1559,8 @@ namespace task.device
                     PubMaster.Track.UpdateStockStatus(tiletrackid, TrackStockStatusE.有砖, "下砖");
                     PubMaster.Goods.AddStockInLog(stockid);
                 }
+
+                PubMaster.Goods.RemoveTileTrackOtherStock(tileid, tiletrackid, goodid);
             }
         }
 
@@ -2439,6 +2442,39 @@ namespace task.device
             }
             finally { Monitor.Exit(_obj); }
 
+        }
+
+        #endregion
+
+        #region[获取属性]
+
+
+        /// <summary>
+        /// 获取砖机工位对应的品种
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal uint GetTileTrackGid(uint tileid, uint trackid)
+        {
+            uint gid = 0;
+            TileLifterTask task = GetTileLifter(tileid);
+            if(task != null)
+            {
+                if(task.DevConfig.left_track_id == trackid)
+                {
+                    gid = task.DevStatus.Goods1;
+                }else if(task.DevConfig.right_track_id == trackid)
+                {
+                    gid = task.DevStatus.Goods1;
+                }
+
+                if (gid == 0)
+                {
+                    gid = task.DevConfig.goods_id;
+                }
+            }
+            return gid;
         }
 
         #endregion

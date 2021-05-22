@@ -509,7 +509,7 @@ namespace resource.device
         /// <param name="trackid"></param>
         /// <param name="site"></param>
         /// <returns></returns>
-        internal uint GetTileInPoint(uint trackid, ushort site)
+        public uint GetTileInPoint(uint trackid, ushort site)
         {
             return ConfigTileLifterList.Find(c => (c.left_track_id == trackid && c.left_track_point == site)
                     || (c.right_track_id == trackid && c.right_track_point == site))?.id ?? 0 ;

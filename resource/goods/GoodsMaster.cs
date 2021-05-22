@@ -3,6 +3,7 @@ using enums.track;
 using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
 using module.area;
+using module.deviceconfig;
 using module.goods;
 using module.msg;
 using module.other;
@@ -11,6 +12,7 @@ using module.track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using tool.mlog;
 
@@ -79,6 +81,7 @@ namespace resource.goods
         private List<GoodSize> GoodSizeList { set; get; }
         private MsgAction mMsg;
         private Log _mlog;
+        protected readonly string timeformat = "yyyy-MM-dd HH:mm:ss";
         #endregion
 
         #region[获取对象]
@@ -472,10 +475,15 @@ namespace resource.goods
                     }
                     #endregion
 
+                    StringBuilder builder = new StringBuilder();
+                    builder.Append(string.Format("【添加库存-{0}】轨道[ {1} ], 数量[ {2} ], 品种[ {3} ], 片数[ {4} ], 时间[ {5} ], ID们:",
+                        memo, track.name, stockqty, addgood.info, pieces, produceTime?.ToString(timeformat)));
+
                     //手动添加库存并计算脉冲
                     for (int i = 0; i < stockqty; i++)
                     {
                         StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                        builder.Append(StockId + ", ");
                         if (nextstockloc > 0)
                         {
                             UpdateStockLocation(StockId, nextstockloc);
@@ -495,6 +503,7 @@ namespace resource.goods
                     {
                         PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.有砖, memo);
                     }
+                    _mlog.Status(true, builder.ToString());
                     rs = "";
                     return true;
                 }
@@ -597,17 +606,30 @@ namespace resource.goods
         /// 获取指定砖机轨道等待库存ID
         /// </summary>
         /// <param name="trackid">砖机轨道</param>
-        /// <param name="site">地标</para/m>
+        /// <param name="tileid">砖机ID</para>
+        /// <param name="gid">品种ID</para>
+        /// <param name="givemeone">对地要求没有就早一个</para>
         /// <returns></returns>
-        public uint GetStockInTileTrack(uint trackid, ushort site)
+        public uint GetStockInTileTrack(uint trackid, uint tileid, uint gid, bool givemeone = false)
         {
-            uint tileid = PubMaster.DevConfig.GetTileInPoint(trackid, site);
             Stock stock = null;
             if (tileid > 0)
             {
-                stock = StockList.Find(c => c.track_id == trackid && c.tilelifter_id == tileid);
+                if(gid > 0)
+                {
+                    stock = StockList.Find(c => c.track_id == trackid && c.tilelifter_id == tileid && c.goods_id == gid);
+                }
+                else
+                {
+                    stock = StockList.Find(c => c.track_id == trackid && c.tilelifter_id == tileid);
+                }
             }
             else
+            {
+                stock = StockList.Find(c => c.track_id == trackid);
+            }
+
+            if(givemeone && stock == null)
             {
                 stock = StockList.Find(c => c.track_id == trackid);
             }
@@ -1747,6 +1769,25 @@ namespace resource.goods
             {
                 PubMaster.Mod.GoodSql.AddStockInLog(stock);
             }
+        }
+
+        /// <summary>
+        /// 删除砖机轨道多余的库存信息
+        /// </summary>
+        /// <param name="tileid">砖机ID</param>
+        /// <param name="tiletrackid">砖机轨道</param>
+        /// <param name="goodid">品种ID</param>
+        public void RemoveTileTrackOtherStock(uint tileid, uint tiletrackid, uint goodid)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == tiletrackid && c.tilelifter_id == tileid && c.goods_id != goodid);
+            if (stocks == null || stocks.Count == 0) return;
+            string trackname = PubMaster.Track.GetTrackName(tiletrackid);
+            foreach (Stock item in stocks)
+            {
+                PubMaster.Mod.GoodSql.DeleteStock(item);
+                AddStockLog(string.Format("【删除砖机多余库存】轨道[ {0} ], 库存[ {1} ]", trackname, item.ToString()));
+            }
+            StockList.RemoveAll(c => c.track_id == tiletrackid && c.tilelifter_id == tileid && c.goods_id != goodid);
         }
 
         /// <summary>
