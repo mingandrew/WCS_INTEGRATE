@@ -3215,27 +3215,30 @@ namespace task.trans
                                 && 1 < PubMaster.Goods.GetBehindPointStockCount(trans.give_track_id, track.up_split_point))
                             {
                                 ushort topoint = 0;
-                                ushort nowpoint = PubTask.Carrier.GetCarrierUnloadPointOrNowPoint(trans.carrier_id);
-                                if (nowpoint == 0)
+                                //ushort nowpoint = PubTask.Carrier.GetCarrierUnloadPointOrNowPoint(trans.carrier_id);
+                                ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
+                                ushort givepoint = PubTask.Carrier.GetCarrierUnloadPoint(trans.carrier_id);
+                                if (nowpoint == 0 || givepoint == 0)
                                 {
                                     topoint = track.split_point;
-                                    return;
+                                    //return;
                                 }
                                 else
                                 {
+                                    topoint = givepoint;
                                     topoint -= (ushort)(2 * PubMaster.Goods.GetStackSafe(0, 0));
-                                }
-
-                                if (Math.Abs(nowpoint - topoint) <= 100)
-                                {
-                                    SetStatus(trans, TransStatusE.接力等待);
-                                    return;
                                 }
 
                                 //需要定位的位置比出轨道最后取货点都小则用
                                 if (topoint <= track.split_point)
                                 {
                                     topoint = track.split_point;
+                                }
+
+                                if (Math.Abs(nowpoint - topoint) <= 100)
+                                {
+                                    SetStatus(trans, TransStatusE.接力等待);
+                                    return;
                                 }
 
                                 //定位到当前卸货位置或当前位置往后两个车位

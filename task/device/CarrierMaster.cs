@@ -2442,6 +2442,33 @@ namespace task.device
             return carrier.CurrentPoint;
         }
 
+        /// <summary>
+        /// 获取运输车卸货脉冲
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <returns></returns>
+        internal ushort GetCarrierUnloadPoint(uint carrier_id)
+        {
+            CarrierTask carrier = DevList.Find(c => c.ID == carrier_id);
+            if (carrier == null) return 0;
+
+            if (carrier.GivePoint != 0) return carrier.GivePoint;
+            return 0;
+        }
+
+        /// <summary>
+        /// 获取运输车当前的位置脉冲
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <returns></returns>
+        internal ushort GetCarrierNowPoint(uint carrier_id)
+        {
+            CarrierTask carrier = DevList.Find(c => c.ID == carrier_id);
+            if (carrier == null) return 0;
+            
+            return carrier.CurrentPoint;
+        }
+
         #endregion
 
         #region[判断条件]
