@@ -741,6 +741,11 @@ namespace task.device
                                 if (tilelifter.IsUpdate
                                     || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, tilelifter.ID, 10))
                                     MsgSend(task, tilelifter);
+                                if (task.Ignore_1 || task.Ignore_2)
+                                {
+                                    task.Ignore_1 = false;
+                                    task.Ignore_2 = false;
+                                }
                             }
                             CheckConn(task);
                         }
@@ -1116,7 +1121,7 @@ namespace task.device
                     if (task.HaveBrother)
                     {
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
-                        if (!brotask.IsInvo_1 && brotask.IsEmpty_1)
+                        if (!brotask.IsInvo_1 && brotask.IsEmpty_1 && brotask.ConnStatus == SocketConnectStatusE.通信正常) 
                         {
                             Thread.Sleep(1000);
                             brotask.Do1Invo(DevLifterInvolE.介入);
@@ -1292,7 +1297,7 @@ namespace task.device
                     if (task.HaveBrother)
                     {
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
-                        if (!brotask.IsInvo_2 && brotask.IsEmpty_2)
+                        if (!brotask.IsInvo_2 && brotask.IsEmpty_2 && brotask.ConnStatus == SocketConnectStatusE.通信正常)
                         {
                             Thread.Sleep(1000);
                             brotask.Do2Invo(DevLifterInvolE.介入);
