@@ -1751,7 +1751,7 @@ namespace task.device
 
                     if(carrier != null
                         && carrier.IsNotDoingTask  
-                        && PubTask.Trans.IsCarrierInTrans(carrier.ID, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
+                        && PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
                     {
                         carrier = null;
                     }
@@ -2670,9 +2670,9 @@ namespace task.device
         /// <param name="site"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        internal bool IsCarrierTargetMatches(uint carrier_id, ushort site = 0, ushort point = 0)
+        internal bool IsCarrierTargetMatches(uint carrier_id, ushort site = 0, ushort point = 0, bool checkswitch = true)
         {
-            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.SeamlessMoveToFerry))
+            if (checkswitch && !PubMaster.Dic.IsSwitchOnOff(DicTag.SeamlessMoveToFerry))
             {
                 return false;
             }
@@ -2803,7 +2803,7 @@ namespace task.device
                             carrier = DevList.Find(c => c.ID != carrierid
                                                 && (c.CurrentTrackId == track.id || c.CurrentTrackId == track.brother_track_id)
                                                 && (c.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库) 
-                                                         || PubTask.Trans.IsCarrierInTrans(c.ID, TransTypeE.上砖侧倒库, TransTypeE.倒库任务)));
+                                                         || PubTask.Trans.IsCarrierInTrans(c.ID, track.id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务)));
                             if (carrier != null )
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
@@ -2814,7 +2814,7 @@ namespace task.device
                             carrier = DevList.Find(c => c.ID != carrierid
                                && c.CurrentTrackId == track.id 
                                && c.NotInTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库) 
-                               && !PubTask.Trans.IsCarrierInTrans(c.ID, TransTypeE.上砖侧倒库, TransTypeE.倒库任务));
+                               && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid,  TransTypeE.上砖侧倒库, TransTypeE.倒库任务));
                             if (carrier != null)
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);

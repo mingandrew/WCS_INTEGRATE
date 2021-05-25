@@ -2791,7 +2791,8 @@ namespace task.trans
 
                     // 除了定位和放砖，其他全停
                     if (!PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.定位指令, DevCarrierOrderE.放砖指令)
-                        || (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.定位指令) && !PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, torfid)))
+                        || (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.定位指令) 
+                                && !PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, torfid, 0, false)))
                     {
                         //终止
                         PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
@@ -6125,9 +6126,9 @@ namespace task.trans
         /// <param name="carrier"></param>
         /// <param name="types"></param>
         /// <returns></returns>
-        public bool IsCarrierInTrans(uint carrier, params TransTypeE[] types)
+        public bool IsCarrierInTrans(uint carrier, uint trackid,  params TransTypeE[] types)
         {
-            return TransList.Exists(c => c.carrier_id == carrier && types.Contains(c.TransType));
+            return TransList.Exists(c => c.carrier_id == carrier && c.InTrack(trackid) && types.Contains(c.TransType));
         }
         #endregion
     }
