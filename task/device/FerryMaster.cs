@@ -39,7 +39,7 @@ namespace task.device
         private bool _IsSetting;
         private bool _IsRefreshPos;
         private List<FerryPosSet> _FerryPosSetList;
-        private Log mlog;
+        private Log mlog, mPosLog;
         private bool isWcsStoping = false;
         private List<FerryPos> PosList { set; get; }
         #endregion
@@ -55,6 +55,7 @@ namespace task.device
         public FerryMaster()
         {
             mlog = (Log)new LogFactory().GetLog("Ferry", false);
+            mPosLog = (Log)new LogFactory().GetLog("摆渡对位", false);
             mTimer = new MTimer();
             _objmsg = new object();
             mMsg = new MsgAction();
@@ -261,7 +262,12 @@ namespace task.device
             }
         }
 
-
+        /// <summary>
+        /// 清除其他轨道位置信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="rs"></param>
+        /// <returns></returns>
         public bool DoClearOtherTrackPos(uint id, out string rs)
         {
             rs = "";
@@ -277,6 +283,8 @@ namespace task.device
                 if (!task._cleaning)
                 {
                     List<FerryPos> ferryPos = PubMaster.Track.GetFerryPos(id);
+
+                    mPosLog.Status(true, string.Format("摆渡车[ {0} ], 清除其他轨道位置信息", task.Device.name));
                     task.StartClearOtherTrackPos(ferryPos);
                     return true;
                 }
@@ -707,8 +715,15 @@ namespace task.device
             }
         }
 
-
-        public bool SetFerryPos(uint id, ushort ferry_code, int intpos, out string result)
+        /// <summary>
+        /// 设置摆渡对位值
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ferry_code"></param>
+        /// <param name="intpos"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool SetFerryPos(uint id, ushort ferry_code, int intpos, string memo, out string result)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -722,6 +737,7 @@ namespace task.device
                 {
                     return false;
                 }
+                mPosLog.Status(true, string.Format("摆渡车[ {0} ], 设置轨道[ {1} ], 值[ {2} ], 备注[ {3} ]", task.Device.name, ferry_code, intpos, memo));
                 task.DoSiteUpdate(ferry_code, intpos);
                 //_FerrySiteCode = ferry_code;
                 return true;
@@ -766,6 +782,12 @@ namespace task.device
             }
         }
 
+        /// <summary>
+        /// 复制选定砖机对位数据或者重新发送一遍
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public bool ReSendAllFerryPose(uint id, out string result)
         {
             result = "";
@@ -774,6 +796,7 @@ namespace task.device
             {
                 if (!task.IsSendAll)
                 {
+                    mPosLog.Status(true, string.Format("摆渡车[ {0} ], 全部发送一遍", task.Device.name));
                     task.DoSendAllPose();
                     return true;
                 }
@@ -1354,12 +1377,26 @@ namespace task.device
             _IsSetting = _FerryPosSetList.Count != 0;
         }
 
-        public void AutoPosMsgSend(uint ferryid, DevFerryAutoPosE posside, ushort starttrack, byte tracknumber)
+        /// <summary>
+        /// 自动对位
+        /// </summary>
+        /// <param name="ferryid"></param>
+        /// <param name="posside"></param>
+        /// <param name="starttrack"></param>
+        /// <param name="tracknumber"></param>
+        /// <param name="memo"></param>
+        public void AutoPosMsgSend(uint ferryid, DevFerryAutoPosE posside, ushort starttrack, byte tracknumber, string memo)
         {
             FerryTask task = DevList.Find(c => c.ID == ferryid);
-            task.DoAutoPos(posside, starttrack, tracknumber);
+            task.DoAutoPos(posside, starttrack, tracknumber, memo);
+            mPosLog.Status(true, string.Format("摆渡车[ {0} ], 开始自动对位, 对位测[ {1} ], 开始轨道[ {2} ], 对位数量[ {3} ], 备注[ {4} ]", task.Device.name, posside, starttrack, tracknumber, memo));
         }
 
+        /// <summary>
+        /// 查询摆渡对位信息
+        /// </summary>
+        /// <param name="ferryid"></param>
+        /// <param name="trackcode"></param>
         public void QueryPosList(uint ferryid, ushort trackcode)
         {
             FerryTask task = DevList.Find(c => c.ID == ferryid);
@@ -1376,6 +1413,7 @@ namespace task.device
                     EndRefreshPosList();
                     PosList.AddRange(PubMaster.Mod.TraSql.QueryFerryPosList(ferryid));
                     _IsRefreshPos = true;
+                    mPosLog.Status(true, string.Format("摆渡车[ {0} ], 刷新轨道坐标", PubMaster.Device.GetDeviceName(ferryid)));
                 }
                 finally
                 {

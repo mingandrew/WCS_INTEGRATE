@@ -342,7 +342,7 @@ namespace wcs.ViewModel
                 return;
             }
 
-            if (!PubTask.Ferry.SetFerryPos(_selectferry.id, SelectPos.Ferry_Code, intpos, out string result))
+            if (!PubTask.Ferry.SetFerryPos(_selectferry.id, SelectPos.Ferry_Code, intpos, "PC", out string result))
             {
                 Growl.Warning(result);
                 return;
@@ -390,6 +390,9 @@ namespace wcs.ViewModel
             PubTask.Ferry.RefreshPosList(_selectferry.id);
         }
 
+        /// <summary>
+        /// 复制选定砖机对位数据或者重新发送一遍
+        /// </summary>
         private void ResendAll()
         {
             if (!PubTask.Ferry.ReSendAllFerryPose(_selectferry.id, out string result))

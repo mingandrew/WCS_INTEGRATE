@@ -270,6 +270,7 @@ namespace task.task
         {
             byte[] b = BitConverter.GetBytes(trackcode);
             DevTcp?.SendCmd(DevFerryCmdE.设置轨道坐标, b[1], b[0], trackpos);
+            DevTcp.AddStatusLog(string.Format("设置轨道坐标, 轨道[ {0} ], 位置[ {1} ]", Device.name, trackcode, trackpos));
         }
 
         internal void DoReSet(DevFerryResetPosE resetpos)
@@ -297,10 +298,12 @@ namespace task.task
             DevTcp.AddStatusLog(string.Format("终止[ {0} ], 目的[ {1} ]", memo, purpose));
         }
 
-        internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber)
+        internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber, string memo)
         {
             byte[] b = BitConverter.GetBytes(starttrack);
             DevTcp?.SendAutoPosCmd(DevFerryCmdE.自动对位, b[1], b[0], (byte)posside, tracknumber);
+            DevTcp.AddStatusLog(string.Format("摆渡车[ {0} ], 开始自动对位, 对位测[ {1} ], 开始轨道[ {2} ], 对位数量[ {3} ], 备注[ {4} ]",
+                Device.name, posside, starttrack, tracknumber, memo));
         }
 
 

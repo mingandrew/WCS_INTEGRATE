@@ -135,7 +135,7 @@ namespace wcs.ViewModel
                 return;
             }
 
-            PubTask.Ferry.AutoPosMsgSend(SELECTFERRY.id, AUTOPOSSIDE, STARTTRACKCODE, TRACKNUMBER);
+            PubTask.Ferry.AutoPosMsgSend(SELECTFERRY.id, AUTOPOSSIDE, STARTTRACKCODE, TRACKNUMBER, "PC");
             CloseAction?.Invoke();
         }
 

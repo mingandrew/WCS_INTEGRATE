@@ -1146,7 +1146,7 @@ namespace task.rf
                 if (pack != null && pack.FerryId > 0 && pack.PosCode > 0 && pack.Position != 0)
                 {
                     int trackcode = PubMaster.Track.GetTrackCode(pack.PosCode, pack.FerryId);
-                    if (trackcode > 0 && !PubTask.Ferry.SetFerryPos(pack.FerryId, (ushort)trackcode, pack.Position, out string result))
+                    if (trackcode > 0 && !PubTask.Ferry.SetFerryPos(pack.FerryId, (ushort)trackcode, pack.Position, "平板", out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdateFerryPos, result);
                     }
@@ -1235,7 +1235,7 @@ namespace task.rf
                     }
                     else
                     {
-                        PubTask.Ferry.AutoPosMsgSend(pack.DevId, pack.PosSide, (ushort)pack.StartTrack, (byte)pack.TrackQty);
+                        PubTask.Ferry.AutoPosMsgSend(pack.DevId, pack.PosSide, (ushort)pack.StartTrack, (byte)pack.TrackQty, "平板");
                         SendSucc2Rf(msg.MEID, FunTag.TaskFerryAutoPos, "ok");
                     }
                 }
