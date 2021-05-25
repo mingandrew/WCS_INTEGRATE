@@ -67,11 +67,6 @@ namespace task.device
                     {
                         TrafficCtlList.RemoveAll(c => c.TrafficControlStatus == TrafficControlStatusE.已完成);
 
-                        if (!PubMaster.Dic.IsSwitchOnOff(DicTag.EnableCarrierTraffic))
-                        {
-                            TrafficCtlList.RemoveAll(c => c.TrafficControlType == TrafficControlTypeE.运输车交管摆渡车);
-                        }
-
                         if (TrafficCtlList != null || TrafficCtlList.Count != 0)
                         {
                             foreach (TrafficControl ctl in TrafficCtlList)
@@ -356,6 +351,14 @@ namespace task.device
             try
             {
                 string res = "";
+
+                // 关闭 直接完成
+                if (!PubMaster.Dic.IsSwitchOnOff(DicTag.EnableCarrierTraffic))
+                {
+                    res = "关闭 - 运输车交管摆渡车";
+                    goto FinallyLogYes;
+                }
+
                 CarrierTask carrier = PubTask.Carrier.GetDevCarrier(ctl.control_id);
                 FerryTask ferry = PubTask.Ferry.GetFerry(ctl.restricted_id);
 
