@@ -304,8 +304,10 @@ namespace resource.diction
             DictionDtl dtl = GetDtlInCode(tag);
             if (dtl != null && dtl.bool_value != onoff)
             {
+                bool before = dtl.bool_value;
                 dtl.bool_value = onoff;
                 PubMaster.Mod.DicSql.EditDicDtlValue(dtl, ValueTypeE.Boolean);
+                mLog.Info(true, string.Format(@"在开关【{0}】里,编辑【{1}】 -> 【{2}】,备注：【{3}】", dtl.name, before, onoff, fromrf ? "平板" : "电脑"));
                 if (fromrf)
                 {
                     Messenger.Default.Send(dtl, MsgToken.TaskSwitchUpdate);
