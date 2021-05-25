@@ -1548,11 +1548,6 @@ namespace task.device
                 foreach (uint traid in tids)
                 {
                     if (!PubMaster.Track.IsStoreType(traid)) continue;
-                    //轨道已有任务的话就不分配轨道里的运输车
-                    if (PubTask.Trans.IsTraInTransWithLock(traid))
-                    {
-                        continue;
-                    }
                     List<CarrierTask> tasks = DevList.FindAll(c => c.CurrentTrackId == traid);
                     if (tasks.Count > 0)
                     {
@@ -1953,11 +1948,6 @@ namespace task.device
                 foreach (uint traid in tids)
                 {
                     if (!PubMaster.Track.IsStoreType(traid)) continue;
-                    //轨道已有任务的话就不分配轨道里的运输车
-                    if (PubTask.Trans.IsTraInTransWithLock(traid))
-                    {
-                        continue;
-                    }
                     List<CarrierTask> tasks = DevList.FindAll(c => c.CurrentTrackId == traid);
                     if (tasks.Count > 0)
                     {
