@@ -145,6 +145,7 @@ namespace wcs.ViewModel
                         case ActionTypeE.Add:
                             break;
                         case ActionTypeE.Update:
+
                             break;
                         case ActionTypeE.Delete:
                             List.Remove(view);

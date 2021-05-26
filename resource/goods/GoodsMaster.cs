@@ -950,6 +950,7 @@ namespace resource.goods
             List<StockSum> sums = StockSumList.FindAll(c => c.track_id == trackid);
             if (sums.Count == 1)
             {
+                SendSumMsg(sums[0], ActionTypeE.Delete);
                 sums[0].goods_id = goodid;
                 sums[0].produce_time = GetEarliestTime(trackid);
                 SendSumMsg(sums[0], ActionTypeE.Update);
