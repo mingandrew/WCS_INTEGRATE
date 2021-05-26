@@ -2283,11 +2283,19 @@ namespace task.device
 
                 if (task.DevConfig.left_track_id == taketrackid)
                 {
+                    if (!task.IsInvo_1 && task.IsNeed_1 && task.IsLoad_1)
+                    {
+                        task.Do1Invo(DevLifterInvolE.介入);
+                    }
                     return task.IsNeed_1 && task.IsLoad_1 && task.IsInvo_1;
                 }
 
                 if (task.DevConfig.right_track_id == taketrackid)
                 {
+                    if (!task.IsInvo_2 && task.IsNeed_2 && task.IsLoad_2)
+                    {
+                        task.Do2Invo(DevLifterInvolE.介入);
+                    }
                     return task.IsNeed_2 && task.IsLoad_2 && task.IsInvo_2;
                 }
 
