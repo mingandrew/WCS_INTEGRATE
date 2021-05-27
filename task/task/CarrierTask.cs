@@ -342,6 +342,14 @@ namespace task.device
             {
                 OnGoingOrder = cao.Order;
             }
+
+            if(cao.Order == DevCarrierOrderE.往前倒库 || cao.Order == DevCarrierOrderE.往后倒库)
+            {
+                if(cao.MoveCount == 0)
+                {
+                    cao.MoveCount = 1;
+                }
+            }
             DevTcp?.SendCmd(DevCarrierCmdE.执行指令, cao.Order, cao.CheckTra, cao.ToRFID, cao.ToSite, cao.OverRFID, cao.OverSite, cao.MoveCount);
         }
 

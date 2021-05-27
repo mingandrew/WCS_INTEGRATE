@@ -3095,7 +3095,7 @@ namespace task.trans
 
                                         if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber))
                                         {
-                                            byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
+                                            byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(gtrack.area, gtrack.line);
 
                                             if (line_max_move > 0 && movecount > line_max_move)
                                             {
@@ -4491,7 +4491,7 @@ namespace task.trans
                                             }
                                             else
                                             {
-                                                //PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.前进至点);
+                                                //前进至点
                                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                                 {
                                                     Order = DevCarrierOrderE.定位指令,
