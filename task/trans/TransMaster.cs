@@ -3091,7 +3091,7 @@ namespace task.trans
 
                                         Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
 
-                                        byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, track.up_split_point);
+                                        byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(gtrack.id, gtrack.up_split_point);
 
                                         if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber))
                                         {
