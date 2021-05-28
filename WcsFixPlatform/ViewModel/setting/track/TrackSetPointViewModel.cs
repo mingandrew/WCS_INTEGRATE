@@ -453,7 +453,7 @@ namespace wcs.ViewModel
             if (In_Loc_Point <= 0) return;
             if (Out_Loc_Point <= 0) return;
 
-            Set_Out_Last_Point = (ushort)((Out_Loc_Point + In_Loc_Point) / 2 - ((Out_More_Than_In - Middle_Space_M / 2) * 100 / Point_To_Cm));
+            Set_Out_Last_Point = (ushort)((Out_Loc_Point + In_Loc_Point) / 2 - ((Out_More_Than_In - Middle_Space_M) / 2 * 100 / Point_To_Cm));
             Set_In_First_Point = (ushort)(Set_Out_Last_Point - Middle_Space_M * 100 / Point_To_Cm);
         }
 
