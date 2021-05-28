@@ -1279,6 +1279,15 @@ namespace resource.track
             return TrackList.Exists(c => c.id == traid && c.IsFerryTrack());
         }
 
+        public bool IsUpAreaTrack(uint traid)
+        {
+            return TrackList.Exists(c => c.id == traid && c.IsUpAreaTrack());
+        }
+        public bool IsDownAreaTrack(uint traid)
+        {
+            return TrackList.Exists(c => c.id == traid && c.IsDownAreaTrack());
+        }
+
         /// <summary>
         /// 更新轨道状态发送更新信息
         /// </summary>

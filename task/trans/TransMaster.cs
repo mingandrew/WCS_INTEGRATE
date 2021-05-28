@@ -2328,7 +2328,7 @@ namespace task.trans
                     break;
                 #endregion
 
-                #region[调度车到倒库轨道]
+                #region[移车中 - 调度车到倒库轨道]
                 case TransStatusE.移车中:
                     // 运行前提
                     if (!RunPremise(trans, out track))
@@ -2512,7 +2512,7 @@ namespace task.trans
                     break;
                 #endregion
 
-                #region[小车倒库]
+                #region[倒库中 - 小车倒库]
                 case TransStatusE.倒库中:
                     // 运行前提
                     if (!RunPremise(trans, out track))
@@ -2598,7 +2598,7 @@ namespace task.trans
                     break;
                 #endregion
 
-                #region[调度小车回到满砖轨道]
+                #region[小车回轨 - 调度小车回到满砖轨道]
                 case TransStatusE.小车回轨:
                     // 运行前提
                     if (!RunPremise(trans, out track))

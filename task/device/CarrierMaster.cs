@@ -51,7 +51,6 @@ namespace task.device
             Messenger.Default.Register<SocketMsgMod>(this, MsgToken.CarrierMsgUpdate, CarrierMsgUpdate);
         }
 
-
         public void Start()
         {
             List<Device> carriers = PubMaster.Device.GetDeviceList(DeviceTypeE.运输车);
@@ -1246,6 +1245,7 @@ namespace task.device
                     result = string.Format("找不到当前轨道ID[ {0} ]相关轨道数据", task.CurrentTrackId);
                     return false;
                 }
+
                 if (!IsAddTrafficControl(task, track, out string msg))
                 {
                     result = msg;

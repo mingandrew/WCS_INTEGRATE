@@ -347,6 +347,17 @@ namespace resource.area
         }
 
         /// <summary>
+        /// 查看是否摆渡车分配的轨道里面是否配置了另外一个轨道
+        /// </summary>
+        /// <param name="ferryid">已经配置了A轨道的摆渡车信息</param>
+        /// <param name="trackid">需要检查是否配了的B轨道</param>
+        /// <returns></returns>
+        public bool ExistFerryWithTrack(uint ferryid, uint trackid)
+        {
+            return AreaDevTraList.Exists(c => ferryid == c.device_id && c.track_id == trackid);
+        }
+
+        /// <summary>
         /// 获取摆渡车ID或摆渡车轨道的ID
         /// </summary>
         /// <param name="trans"></param>

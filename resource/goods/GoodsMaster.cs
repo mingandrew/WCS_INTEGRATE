@@ -543,8 +543,9 @@ namespace resource.goods
         /// <returns></returns>
         public Stock GetTrackButtomStock(uint trackid)
         {
-            Stock stock = StockList.Find(c => c.track_id == trackid && c.PosType == StockPosE.尾部);
-            if (stock == null)
+            Stock stock = null;
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.PosType == StockPosE.尾部);
+            if (stocks == null || stocks.Count ==0)
             {
                 List<Stock> list = StockList.FindAll(c => c.track_id == trackid);
                 if (list.Count > 0)
@@ -552,6 +553,12 @@ namespace resource.goods
                     list.Sort((x, y) => x.pos.CompareTo(y.pos));
                     stock = list[list.Count - 1];
                 }
+            }
+            else
+            {
+                if(stocks.Count >1)
+                    stocks.Sort((x, y) => x.location.CompareTo(y.location));
+                stock = stocks[0];
             }
             return stock;
         }
@@ -1495,6 +1502,7 @@ namespace resource.goods
                 }
 
                 #endregion
+
                 #region[更新储砖轨道]
 
                 //将库存 移入 储砖轨道
@@ -1617,10 +1625,13 @@ namespace resource.goods
                     }
                     else
                     {
-                        Stock Bottomstock = StockList.Find(c => c.track_id == stock.track_id && c.PosType == StockPosE.尾部);
-                        if (Bottomstock != null)
+                        List<Stock> Bottomstock = StockList.FindAll(c => c.track_id == stock.track_id && c.PosType == StockPosE.尾部);
+                        if (Bottomstock != null && Bottomstock.Count > 0)
                         {
-                            SetStockPosType(Bottomstock, StockPosE.中部);
+                            foreach (var item in Bottomstock)
+                            {
+                                SetStockPosType(item, StockPosE.中部);
+                            }
                         }
 
                         short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id)?.Max(c => c.pos) ?? 0;
@@ -1874,9 +1885,9 @@ namespace resource.goods
                 List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
                 if (stocks.Count > 1)
                 {
-                    stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
-                    SetStockPosType(stocks[stocks.Count -1], StockPosE.尾部);
-                    return stocks[stocks.Count - 1].id;
+                    stocks.Sort((x, y) => x.location.CompareTo(y.location));
+                    SetStockPosType(stocks[0], StockPosE.尾部);
+                    return stocks[0].id;
                 }
             }
             return 0;
@@ -2723,11 +2734,18 @@ namespace resource.goods
                 {
                     case TransTypeE.下砖任务:
                     case TransTypeE.手动下砖:
-                        Stock bottom = stocks.Find(c => c.PosType == StockPosE.尾部);
-                        if (bottom == null)//如果找不到尾部则找最后的一个库存
+                        List<Stock> bottoms = stocks.FindAll(c => c.PosType == StockPosE.尾部);
+                        Stock bottom = null;
+                        if(bottoms != null && bottoms.Count >= 1)
                         {
-                            stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
-                            bottom = stocks[stocks.Count - 1];
+                            bottoms.Sort((x, y) => x.location.CompareTo(y.location));
+                            bottom = bottoms[0];
+                        }
+
+                        if (bottoms == null || bottoms.Count <= 0)//如果找不到尾部则找最后的一个库存
+                        {
+                            stocks.Sort((x, y) => x.location.CompareTo(y.location));
+                            bottom = stocks[0];
                         }
                         ushort safe = GetStackSafe(bottom.goods_id, carrierid);
                         ushort limit = PubMaster.Track.GetTrackLimitPoint(trackid);
