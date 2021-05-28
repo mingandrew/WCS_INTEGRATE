@@ -271,3 +271,9 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 2021.05.22
 更新上砖机的最近轨道为0，让上砖机按照时间顺序上砖
 update config_tilelifter set last_track_id = 0 where work_mode = 1;
+
+
+
+2021.05.28
+移除运输车配置库存ID外键：
+ALTER TABLE `config_carrier` DROP FOREIGN KEY `carrier_stock_id_fk`;
