@@ -531,6 +531,10 @@ namespace task.device
                     PubTask.TileLifter.ReseUpTileCurrentTake(CurrentTrackId);
                     PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车检测无砖");
                 }
+                else
+                {
+                    PubMaster.Goods.CheckStockTop(CurrentTrackId);
+                }
                 //DoStop();
             }
             else
@@ -569,6 +573,10 @@ namespace task.device
                     PubMaster.Goods.ClearTrackEmtpy(CurrentTrackId);
                     PubTask.TileLifter.ReseUpTileCurrentTake(CurrentTrackId);
                     PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车倒库无砖");
+                }
+                else
+                {
+                    PubMaster.Goods.CheckStockTop(CurrentTrackId);
                 }
                 //DoStop();
             }

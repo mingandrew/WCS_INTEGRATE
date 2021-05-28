@@ -1243,6 +1243,19 @@ namespace resource.goods
                         continue;
                     }
                 }
+
+                if (PubMaster.DevConfig.GetCarrierByStockid(s.id, out string carname))
+                {
+                    try
+                    {
+                        AddStockLog(string.Format("【删除库存】【删除失败，库存已绑定{3}运输车】- 库存[ {0} ], 轨道[ {1} ], 备注[ {2} ]", s.ToString()
+                            , PubMaster.Track.GetTrackName(s.track_id)
+                            , memo, carname));
+                    }
+                    catch { }
+                    continue;
+                }
+
                 StockList.Remove(s);
                 PubMaster.Mod.GoodSql.DeleteStock(s);
                 try
