@@ -1320,6 +1320,13 @@ namespace task.device
             // 是否存在被运输车交管
             if (PubTask.TrafficControl.ExistsTrafficControl(TrafficControlTypeE.运输车交管摆渡车, ferryid, out uint carid))
             {
+                if (task.ID == carid)
+                {
+                    //msg = "小车连续交管相同的摆渡车，直接放行";
+                    msg = "";
+                    return true;
+                }
+
                 msg = string.Format("摆渡车[ {0} ]已被运输车[ {0} ]交管", 
                     PubMaster.Device.GetDeviceName(ferryid),
                     PubMaster.Device.GetDeviceName(carid));
