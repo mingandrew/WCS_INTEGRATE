@@ -1819,13 +1819,13 @@ namespace task.device
                 return false;
             }
 
-            if(task.Type == DeviceTypeE.上摆渡 && !PubMaster.Track.IsUpAreaTrack(totrackid))
+            if(totrackid != 0 && task.Type == DeviceTypeE.上摆渡 && !PubMaster.Track.IsUpAreaTrack(totrackid))
             {
                 result = string.Format("上摆渡，不能定位到轨道[ {0} ]", PubMaster.Track.GetTrackName(totrackid));
                 return false;
             }
 
-            if (task.Type == DeviceTypeE.下摆渡 && !PubMaster.Track.IsDownAreaTrack(totrackid))
+            if (totrackid != 0 && task.Type == DeviceTypeE.下摆渡 && !PubMaster.Track.IsDownAreaTrack(totrackid))
             {
                 result = string.Format("下摆渡，不能定位到轨道[ {0} ]", PubMaster.Track.GetTrackName(totrackid));
                 return false;
