@@ -878,10 +878,10 @@ namespace resource.device
             {
                 try
                 {
-                    if (backup_dev.alter_dev_id == need_dev.id)
-                    {
-                        return true;
-                    }
+                    //if (backup_dev.alter_dev_id == need_dev.id)
+                    //{
+                    //    return true;
+                    //}
 
                     if (!backup_dev.IsInBackUpList(need_id))
                     {
