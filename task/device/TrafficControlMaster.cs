@@ -274,10 +274,14 @@ namespace task.device
                 PubMaster.Mod.TrafficCtlSql.EditTrafficCtl(ctl, TrafficControlUpdateE.Status);
             }
 
-            mLog.Status(true, string.Format("交管ID[ {0} ], 状态[ {1} ], 交管车[ {2} ], 被交管车[ {3} ], 备注[ {4} ]", ctl.id, ctl.TrafficControlStatus,
-                PubMaster.Device.GetDeviceName(ctl.control_id), 
-                PubMaster.Device.GetDeviceName(ctl.restricted_id), 
-                memo));
+            if (!memo.Equals(ctl.Memo))
+            {
+                mLog.Status(true, string.Format("交管ID[ {0} ], 状态[ {1} ], 交管车[ {2} ], 被交管车[ {3} ], 备注[ {4} ]", ctl.id, ctl.TrafficControlStatus,
+                    PubMaster.Device.GetDeviceName(ctl.control_id),
+                    PubMaster.Device.GetDeviceName(ctl.restricted_id),
+                    memo));
+                ctl.Memo = memo;
+            }
 
             if (ctl.TrafficControlType == TrafficControlTypeE.摆渡车交管摆渡车 && status == TrafficControlStatusE.已完成)
             {
@@ -669,7 +673,7 @@ namespace task.device
             uint conid = PubTask.Ferry.GetFerryTransId(tc.control_id);
             if (conid > 0)
             {
-                PubTask.Trans.ClueViewByTransID(resid);
+                PubTask.Trans.ClueViewByTransID(conid);
             }
         }
 

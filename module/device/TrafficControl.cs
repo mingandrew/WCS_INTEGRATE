@@ -88,6 +88,6 @@ namespace module.device
             get => (TrafficControlStatusE)traffic_control_status;
             set => traffic_control_status = (byte)value;
         }
-
+        public string Memo { get; set; } = "";
     }
 }

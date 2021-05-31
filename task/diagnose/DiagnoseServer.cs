@@ -1,5 +1,6 @@
 ﻿using enums;
 using resource;
+using System;
 using task.diagnose.trans;
 using task.trans;
 
@@ -26,12 +27,25 @@ namespace task.diagnose
         }
 
         /// <summary>
+        /// 分析服务不用频繁执行（3s 检查一次）
+        /// 1:过
+        /// 2:过
+        /// 3:检查
+        /// </summary>
+        private byte CountRun = 1;
+        /// <summary>
         /// 执行分析
         /// </summary>
         public void Diagnose()
         {
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.EnableDiagnose)) return;
 
+            if(CountRun < 3)
+            {
+                CountRun++;
+                return;
+            }
+            CountRun = 1;
             try
             {
                 //分析倒库：暂停倒库，恢复倒库

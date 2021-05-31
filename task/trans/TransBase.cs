@@ -334,12 +334,12 @@ namespace task.trans
         {
             if (!string.IsNullOrEmpty(info))
             {
-                // log
-                mLog.Info(true, string.Format("任务[ {0} ], 步骤[ {1} ({2}) ]-[ {3} ]", trans.id, trans.TransStaus, code, info));
-
                 // 界面显示
                 if (trans.LogStep(isOK, code, info, isRepeat))
                 {
+                    // log
+                    mLog.Info(true, string.Format("任务[ {0} ], 步骤[ {1} ({2}) ]-[ {3} ]", trans.id, trans.TransStaus, code, info));
+
                     SendMsg(trans);
                 }
             }
@@ -448,7 +448,7 @@ namespace task.trans
                 trans.load_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.LoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 204, string.Format("运输车[ {0} ]取砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                SetStepLog(trans, true, 204, string.Format("运输车[ {0} ], 取砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
             }
         }
 
@@ -460,7 +460,7 @@ namespace task.trans
                 trans.unload_time = DateTime.Now;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.UnLoadTime);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 205, string.Format("运输车[ {0} ]放砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                SetStepLog(trans, true, 205, string.Format("运输车[ {0} ], 放砖完毕；", PubMaster.Device.GetDeviceName(trans.carrier_id)));
             }
         }
 
