@@ -556,6 +556,7 @@ namespace simtask
 
                 #region[前进倒库]
                 case DevCarrierOrderE.往前倒库:
+                    //return;
                     //从摆渡车进入轨道的过程
                     if (EndTrack != null && NowTrack != null
                         && NowTrack.id != EndTrack.id

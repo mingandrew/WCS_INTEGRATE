@@ -715,6 +715,13 @@ namespace task.device
             {
                 //根据小车当前的位置更新库存对应所在的轨道
                 PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, task.CurrentOrder + "", task.ID);
+
+                if(!task.IsNotDoingTask 
+                    && task.IsLoad()
+                    && (task.CurrentOrder == DevCarrierOrderE.往前倒库 || task.CurrentOrder == DevCarrierOrderE.往后倒库))
+                {
+                    PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.CurrentPoint);
+                }
             }
 
             #endregion
@@ -2895,6 +2902,18 @@ namespace task.device
             return DevList.Exists(c => c.ID == carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite <= track.rfid_1);
         }
 
+
+        /// <summary>
+        /// 判断小车是否处于轨道地标位置
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        internal bool IsFreeCarrierInTrack(uint carrier_id, uint track_id)
+        {
+            Track track = PubMaster.Track.GetTrack(track_id);
+            return DevList.Exists(c => c.ID != carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite >= track.rfid_1);
+        }
         #endregion
     }
 

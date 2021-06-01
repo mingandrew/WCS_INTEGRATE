@@ -1045,6 +1045,16 @@ namespace task.trans
                         return;
                     }
 
+                    //存在接力倒库/倒库任务
+                    //1.库存剩最后一车的任务
+                    if(!CheckTrackStockStillCanUse(0, trans.take_track_id, trans.stock_id))
+                    {
+                        #region 【任务步骤记录】
+                        SetStepLog(trans, false, 1501, string.Format("等待接力库存条件；"));
+                        #endregion
+                        return;
+                    }
+
                     if (!IsAllowToHaveCarTask(trans.area_id, trans.line, trans.TransType))
                     {
                         #region 【任务步骤记录】
@@ -6154,9 +6164,9 @@ namespace task.trans
         /// <summary>
         /// 判断轨道是否能继续作业
         /// </summary>
-        /// <param name="carrierid"></param>
-        /// <param name="trackid"></param>
-        /// <param name="stockid"></param>
+        /// <param name="carrierid">运输车ID</param>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="stockid">库存ID</param>
         /// <returns></returns>
         private bool CheckTrackStockStillCanUse(uint carrierid, uint trackid, uint stockid = 0)
         {
@@ -6195,7 +6205,7 @@ namespace task.trans
                 }
 
                 //5.存在空闲小车停在轨道头
-                if (PubTask.Carrier.IsCarrierInTrackBiggerSite(carrierid, trackid))
+                if (carrierid != 0 && PubTask.Carrier.IsFreeCarrierInTrack(carrierid, trackid))
                 {
                     return false;
                 }
