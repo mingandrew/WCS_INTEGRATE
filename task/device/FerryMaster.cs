@@ -1215,7 +1215,7 @@ namespace task.device
                         // 没有移动则生成交管
                         if (isAdd)
                         {
-                            uint standbyTraID = PubMaster.Track.GetTrackIDByOrder((ushort)other.AreaId, other.Type, standbyOrder);
+                            uint standbyTraID = PubMaster.Track.GetTrackIDByOrder(other.ID, (ushort)other.AreaId, other.Type, standbyOrder);
                             // 加入交管
                             PubTask.TrafficControl.AddTrafficControl(new TrafficControl()
                             {
