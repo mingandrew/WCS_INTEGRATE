@@ -277,3 +277,7 @@ update config_tilelifter set last_track_id = 0 where work_mode = 1;
 2021.05.28
 移除运输车配置库存ID外键：
 ALTER TABLE `config_carrier` DROP FOREIGN KEY `carrier_stock_id_fk`;
+
+
+2021.06.01
+有备用砖机的项目，需要提前配置好摆渡车的轨道，因为启用备用砖机时，摆渡车的分配轨道不变，能去的轨道不会改！！！！！！！

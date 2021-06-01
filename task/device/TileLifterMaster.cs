@@ -192,14 +192,13 @@ namespace task.device
                                         #region [完成]
                                         if (task.DevConfig.do_shift)
                                         {
-                                            task.DoShift(TileShiftCmdE.复位);
-                                            Thread.Sleep(1000);
-
                                             task.DevConfig.do_shift = false;
                                             task.DevConfig.old_goodid = 0;
                                             PubMaster.DevConfig.SetTileLifterGoods(task.ID, task.DevConfig.goods_id);
                                             break;
                                         }
+                                        task.DoShift(TileShiftCmdE.复位);
+                                        Thread.Sleep(1000);
                                         #endregion
                                         break;
                                     default:

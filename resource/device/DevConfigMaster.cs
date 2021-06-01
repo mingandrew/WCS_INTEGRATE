@@ -924,23 +924,25 @@ namespace resource.device
                 PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByDevId(need_id, backup_id);
 
 
-                // 找出backup砖机的左右轨道id，然后删除这些轨道id的信息
-                PubMaster.Mod.AreaSql.DeleteAreaDeviceTrackByTrackId(backup_dev.left_track_id);
-                if (backup_dev.right_track_id != 0)
-                {
-                    PubMaster.Mod.AreaSql.DeleteAreaDeviceTrackByTrackId(backup_dev.right_track_id);
-                }
+                #region[设置摆渡车对应到达砖机轨道--已停用，不能修改摆渡车的配置]
+                //// 找出backup砖机的左右轨道id，然后删除这些轨道id的信息
+                //PubMaster.Mod.AreaSql.DeleteAreaDeviceTrackByTrackId(backup_dev.left_track_id);
+                //if (backup_dev.right_track_id != 0)
+                //{
+                //    PubMaster.Mod.AreaSql.DeleteAreaDeviceTrackByTrackId(backup_dev.right_track_id);
+                //}
 
-                // 找出need砖机的左右轨道id，然后将那些信息复制一份给backup砖机，注意修改信息中轨道id为backup砖机的左右轨道id
-                PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.left_track_id, backup_dev.left_track_id);
-                if (need_dev.right_track_id != 0 && backup_dev.right_track_id != 0)
-                {
-                    PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.right_track_id, backup_dev.right_track_id);
-                }
-                else if (backup_dev.right_track_id != 0)
-                {
-                    PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.left_track_id, backup_dev.right_track_id);
-                }
+                //// 找出need砖机的左右轨道id，然后将那些信息复制一份给backup砖机，注意修改信息中轨道id为backup砖机的左右轨道id
+                //PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.left_track_id, backup_dev.left_track_id);
+                //if (need_dev.right_track_id != 0 && backup_dev.right_track_id != 0)
+                //{
+                //    PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.right_track_id, backup_dev.right_track_id);
+                //}
+                //else if (backup_dev.right_track_id != 0)
+                //{
+                //    PubMaster.Mod.AreaSql.CopyOtherDeviceTrackByTrackId(need_dev.left_track_id, backup_dev.right_track_id);
+                //}
+                #endregion
 
                 PubMaster.Area.Refresh(false, false, false, true);
                 #endregion
