@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using tool;
 
 namespace resource.module.modulesql
@@ -33,6 +34,29 @@ namespace resource.module.modulesql
         }
 
         #region[查询]
+
+
+        internal uint QueryTableMaxId(string tablename, string column = "id")
+        {
+            try
+            {
+                string sql = string.Format("select max({0}) as id from {1}", column, tablename);
+                DataTable dt = mSql.ExecuteQuery(@sql);
+                if (!mSql.IsNoData(dt))
+                {
+                    object value = dt.Rows[0][column];
+                    if (value != null)
+                    {
+                        if (uint.TryParse(value.ToString(), out uint maxid))
+                        {
+                            return maxid;
+                        }
+                    }
+                }
+            }
+            catch { }
+            return 1;
+        }
 
         #endregion
 

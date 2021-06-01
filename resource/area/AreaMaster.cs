@@ -434,6 +434,8 @@ namespace resource.area
             ushort prior = (ushort)AreaDevTraList.Count(c => c.area_id == toareaid && c.device_id == tile.id);
             prior++;
             AreaDeviceTrack areatradev;
+
+            uint maxid = PubMaster.Mod.AreaSql.GetAreaDevTraMaxId();
             foreach (uint trackid in trackids)
             {
                 if (AreaDevTraList.Exists(c => c.area_id == toareaid && c.device_id == tile.id && c.track_id == trackid))
@@ -443,6 +445,7 @@ namespace resource.area
 
                 areatradev = new AreaDeviceTrack()
                 {
+                    id = ++maxid,
                     area_id = toareaid,
                     device_id = tile.id,
                     track_id = trackid,
@@ -494,6 +497,8 @@ namespace resource.area
             ushort prior = (ushort)AreaDevTraList.Count(c => c.area_id == toareaid && c.device_id == ferry.id);
             prior++;
             AreaDeviceTrack areatradev;
+
+            uint maxid = PubMaster.Mod.AreaSql.GetAreaDevTraMaxId();
             foreach (uint trackid in trackids)
             {
                 if (AreaDevTraList.Exists(c=>c.area_id == toareaid && c.device_id == ferry.id && c.track_id == trackid))
@@ -503,11 +508,13 @@ namespace resource.area
 
                 areatradev = new AreaDeviceTrack()
                 {
+                    id = ++maxid,
                     area_id = toareaid,
                     device_id = ferry.id,
                     track_id = trackid,
                     prior = prior,
                 };
+
                 PubMaster.Mod.AreaSql.AddAreaDeviceTrack(areatradev);
                 prior += 1;
             }
@@ -551,8 +558,10 @@ namespace resource.area
                 return;
             }
 
+            uint maxid = PubMaster.Mod.AreaSql.GetAreaDevTraMaxId();
             AreaDeviceTrack areatradev = new AreaDeviceTrack()
             {
+                id = ++maxid,
                 area_id = toareaid,
                 device_id = dev.id,
                 track_id = trackid,

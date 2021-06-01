@@ -75,6 +75,10 @@ namespace resource.module.modulesql
             return list;
         }
 
+        public uint GetAreaDevTraMaxId()
+        {
+            return QueryTableMaxId("area_device_track");
+        }
         #endregion
 
         #region[添加]
@@ -106,8 +110,8 @@ namespace resource.module.modulesql
         
         internal bool AddAreaDeviceTrack(AreaDeviceTrack areadevtra)
         {
-            string str = "INSERT INTO `area_device_track`(`area_id`, `device_id`, `track_id`, `prior`) VALUES('{0}', '{1}', '{2}', '{3}')";
-            string sql = string.Format(@str, areadevtra.area_id, areadevtra.device_id, areadevtra.track_id, areadevtra.prior);
+            string str = "INSERT INTO `area_device_track`(`id`, `area_id`, `device_id`, `track_id`, `prior`) VALUES('{0}', '{1}', '{2}', '{3}', '{4}')";
+            string sql = string.Format(@str,areadevtra.id,  areadevtra.area_id, areadevtra.device_id, areadevtra.track_id, areadevtra.prior);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
