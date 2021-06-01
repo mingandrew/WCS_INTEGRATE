@@ -837,7 +837,7 @@ namespace task.device
                 {
                     //摆渡车目标轨道号
                     uint trid = PubMaster.Track.GetTrackId(ferryid, (ushort)task.AreaId, task.DevStatus.TargetSite);
-                    if (task.DevStatus.TargetSite != 0 && trid != to_track_id)
+                    if (task.DevStatus.TargetSite != 0 && trid != to_track_id && trid != 0)
                     {
                         Thread.Sleep(500);
                         task.DoStop("定位完成1", "消除目标点");
@@ -1215,7 +1215,7 @@ namespace task.device
                         // 没有移动则生成交管
                         if (isAdd)
                         {
-                            uint standbyTraID = PubMaster.Track.GetTrackIDByOrder(other.ID, (ushort)other.AreaId, other.Type, standbyOrder);
+                            uint standbyTraID = PubMaster.Track.GetTrackIDByOrder((ushort)other.AreaId, other.Type, standbyOrder);
                             // 加入交管
                             PubTask.TrafficControl.AddTrafficControl(new TrafficControl()
                             {

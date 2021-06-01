@@ -549,22 +549,18 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 根据order查找对应的储砖轨道ID,且摆渡车是有配置能去的轨道
+        /// 根据order查找对应的储砖轨道ID
         /// </summary>
         /// <returns></returns>
-        public uint GetTrackIDByOrder(uint devid, ushort area, DeviceTypeE type, int order)
+        public uint GetTrackIDByOrder(ushort area, DeviceTypeE type, int order)
         {
-            //获取摆渡车能去的轨道
-            List<AreaDeviceTrack> list = PubMaster.Area.GetDevTrackList(devid);
             if (type == DeviceTypeE.上摆渡)
             {
                 return TrackList.Find(c => c.area == area && c.order == order 
-                            && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道)
-                            && list.Exists(d => d.track_id == c.id))?.id ?? 0;
+                            && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道))?.id ?? 0;
             }
             return TrackList.Find(c => c.area == area && c.order == order 
-                            && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道)
-                            && list.Exists(d => d.track_id == c.id))?.id ?? 0;
+                            && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道))?.id ?? 0;
         }
 
         /// <summary>
