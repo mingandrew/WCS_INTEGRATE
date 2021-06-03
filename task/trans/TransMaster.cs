@@ -2540,38 +2540,25 @@ namespace task.trans
                     isload = PubTask.Carrier.IsLoad(trans.carrier_id);
                     isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
 
-                    // 轨道有其他小车
-                    if (PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
+                    // 【不允许接力 && 轨道有其他小车】
+                    if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask)
+                        && PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
                     {
-                        // 接力 - 不管
-                        if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
+                        #region 【任务步骤记录】
+                        SetStepLog(trans, false, 1602, string.Format("检测到倒库轨道中有其他运输车[ {0} ], 强制终止倒库运输车[ {1} ]",
+                            PubMaster.Device.GetDeviceName(carrierid),
+                            PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                        #endregion
+
+                        //终止
+                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
-                            #region 【任务步骤记录】
-                            SetStepLog(trans, false, 1502, string.Format("检测到出库轨道有运输车[ {0} ]接力上砖",
-                                PubMaster.Device.GetDeviceName(carrierid)));
-                            #endregion
-                            return;
-                        }
-                        // 不接力 - 终止且报警
-                        else
-                        {
-                            #region 【任务步骤记录】
-                            SetStepLog(trans, false, 1602, string.Format("检测到倒库轨道中有其他运输车[ {0} ], 强制终止倒库运输车[ {1} ]",
-                                PubMaster.Device.GetDeviceName(carrierid),
-                                PubMaster.Device.GetDeviceName(trans.carrier_id)));
-                            #endregion
+                            Order = DevCarrierOrderE.终止指令
+                        }, "倒库中相关任务轨道出现其他运输车");
 
-                            //终止
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                            {
-                                Order = DevCarrierOrderE.终止指令
-                            }, "倒库中相关任务轨道出现其他运输车");
+                        PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
 
-                            PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
-                                (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
-
-                            return;
-                        }
+                        return;
                     }
 
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
@@ -3160,38 +3147,27 @@ namespace task.trans
                     isload = PubTask.Carrier.IsLoad(trans.carrier_id);
                     isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
 
-                    // 轨道有其他小车
-                    if (PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
+                    // 【不允许接力-轨道有其他小车】
+                    if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask)
+                        && PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
                     {
-                        // 接力 - 不管
-                        if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
-                        {
-                            #region 【任务步骤记录】
-                            SetStepLog(trans, false, 1508, string.Format("检测到出库轨道有运输车[ {0} ]接力上砖",
-                                PubMaster.Device.GetDeviceName(carrierid)));
-                            #endregion
-                            return;
-                        }
                         // 不接力 - 终止且报警
-                        else
+                        #region 【任务步骤记录】
+                        SetStepLog(trans, false, 1608, string.Format("检测到倒库轨道中有其他运输车[ {0} ], 强制终止倒库运输车[ {1} ]",
+                            PubMaster.Device.GetDeviceName(carrierid),
+                            PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                        #endregion
+
+                        //终止
+                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                         {
-                            #region 【任务步骤记录】
-                            SetStepLog(trans, false, 1608, string.Format("检测到倒库轨道中有其他运输车[ {0} ], 强制终止倒库运输车[ {1} ]",
-                                PubMaster.Device.GetDeviceName(carrierid),
-                                PubMaster.Device.GetDeviceName(trans.carrier_id)));
-                            #endregion
+                            Order = DevCarrierOrderE.终止指令
+                        }, "倒库中相关任务轨道出现其他运输车");
 
-                            //终止
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
-                            {
-                                Order = DevCarrierOrderE.终止指令
-                            }, "倒库中相关任务轨道出现其他运输车");
+                        PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
+                            (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
 
-                            PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
-                                (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
-
-                            return;
-                        }
+                        return;
                     }
 
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
@@ -5959,9 +5935,10 @@ namespace task.trans
                 }
             }
 
-            //允许倒库的时候上砖
+           //允许倒库的时候上砖
             if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
             {
+                //但前面不能允许有运输车
                 if (PubTask.Carrier.ExistCarBehind(devid, givetrackid, out uint otherid))
                 {
                     result = string.Format("倒库轨道有其他车[ {0} ]，不能执行倒库指令", PubMaster.Device.GetDeviceName(otherid));
@@ -5969,7 +5946,8 @@ namespace task.trans
                 }
             }
             else
-            {
+            { 
+                //倒库的时候不允许上砖
                 if (PubTask.Carrier.HaveInTrackButCarrier(taketrackid, givetrackid, devid, out uint othercarid))
                 {
                     result = string.Format("倒库轨道有其他车[ {0} ]，不能执行倒库指令", PubMaster.Device.GetDeviceName(othercarid));

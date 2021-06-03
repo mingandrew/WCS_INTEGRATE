@@ -554,13 +554,30 @@ namespace resource.track
         /// <returns></returns>
         public uint GetTrackIDByOrder(ushort area, DeviceTypeE type, int order)
         {
+            List<Track> tracks;
             if (type == DeviceTypeE.上摆渡)
             {
-                return TrackList.Find(c => c.area == area && c.order == order 
-                            && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道))?.id ?? 0;
+                tracks =  TrackList.FindAll(c => c.area == area && c.order == order 
+                            && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道));
+
             }
-            return TrackList.Find(c => c.area == area && c.order == order 
-                            && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道))?.id ?? 0;
+            else
+            {
+                tracks = TrackList.FindAll(c => c.area == area && c.order == order
+                            && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道));
+            }
+
+            if(tracks !=null && tracks.Count > 1)
+            {
+                tracks.Sort((x, y) => y.type.CompareTo(x.type));
+            }
+
+            if(tracks != null && tracks.Count >= 1)
+            {
+                return tracks[0].id;
+            }
+
+            return 0;
         }
 
         /// <summary>

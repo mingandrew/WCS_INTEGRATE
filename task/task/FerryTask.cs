@@ -270,7 +270,7 @@ namespace task.task
         {
             byte[] b = BitConverter.GetBytes(trackcode);
             DevTcp?.SendCmd(DevFerryCmdE.设置轨道坐标, b[1], b[0], trackpos);
-            DevTcp.AddStatusLog(string.Format("设置轨道坐标, 轨道[ {0} ], 位置[ {1} ]", Device.name, trackcode, trackpos));
+            DevTcp.AddStatusLog(string.Format("设置轨道坐标, 轨道[ {0} ], 位置[ {1} ], 值[ {2} ]", Device.name, trackcode, trackpos));
         }
 
         internal void DoReSet(DevFerryResetPosE resetpos)
