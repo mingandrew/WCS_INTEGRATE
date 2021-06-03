@@ -2587,12 +2587,12 @@ namespace task.trans
                             #endregion
 
                             //前进放砖
-                            CarrierActionOrder cao = new CarrierActionOrder
+                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.放砖指令,
                                 CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                 ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id)
-                            };
+                            });
 
                             return;
                         }
