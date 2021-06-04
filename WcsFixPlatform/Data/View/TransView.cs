@@ -20,6 +20,7 @@ namespace wcs.Data.View
         private uint stock_id;
         private uint take_track_id;
         private uint give_track_id;
+        private uint finish_track_id;
         private uint tilelifter_id;
         private uint take_ferry_id;//取货摆渡车
         private uint give_ferry_id;//卸货摆渡车
@@ -37,31 +38,31 @@ namespace wcs.Data.View
         public uint Id
         {
             get => id;
-            set => id = value;
+            set => Set(ref id, value);
         }
 
         public uint Area_id
         {
             get => area_id;
-            set => area_id = value;
+            set => Set(ref area_id, value);
         }
 
         public uint Goods_id
         {
             get => goods_id;
-            set => goods_id = value;
+            set => Set(ref goods_id, value);
         }
 
         public uint Stock_id
         {
             get => stock_id;
-            set => stock_id = value;
+            set => Set(ref stock_id, value);
         }
 
         public TransTypeE TransType
         {
             get => trans_type;
-            set => trans_type = value;
+            set => Set(ref trans_type, value);
         }
 
         public TransStatusE TransStaus
@@ -73,50 +74,61 @@ namespace wcs.Data.View
         public uint Take_track_id
         {
             get => take_track_id;
-            set => take_track_id = value;
+            set => Set(ref take_track_id, value);
         }
         public uint Give_track_id
         {
             get => give_track_id;
-            set => give_track_id = value;
+            set => Set(ref give_track_id, value);
+        }
+        public uint Finish_track_id
+        {
+            get => finish_track_id;
+            set => Set(ref finish_track_id, value);
         }
         public uint Tilelifter_id
         {
             get => tilelifter_id;
-            set => tilelifter_id = value;
+            set => Set(ref tilelifter_id, value);
         }
         public uint Take_ferry_id
         {
             get => take_ferry_id;
-            set => take_ferry_id = value;
+            set => Set(ref take_ferry_id, value);
         }
         public uint Give_ferry_id
         {
             get => give_ferry_id;
-            set => give_ferry_id = value;
+            set => Set(ref give_ferry_id, value);
         }
         public uint Carrier_id
         {
             get => carrier_id;
-            set => carrier_id = value;
+            set => Set(ref carrier_id, value);
         }
 
         public DateTime? Create_time
         {
             get => create_time;
-            set => create_time = value;
+            set => Set(ref create_time, value);
         }
 
         public DateTime? Load_time
         {
             get => load_time;
-            set => load_time = value;
+            set => Set(ref load_time, value);
         }
 
         public DateTime? Unload_time
         {
             get => unload_time;
-            set => unload_time = value;
+            set => Set(ref unload_time, value);
+        }
+
+        public DateTime? Finish_time
+        {
+            get => finish_time;
+            set => Set(ref finish_time, value);
         }
 
         public string TCmsg
@@ -152,10 +164,11 @@ namespace wcs.Data.View
             Carrier_id = trans.carrier_id;
             Take_track_id = trans.take_track_id;
             Give_track_id = trans.give_track_id;
+            Finish_track_id = trans.finish_track_id;
             Load_time = trans.load_time;
             Unload_time = trans.unload_time;
             finish = trans.finish;
-            finish_time = trans.finish_time;
+            Finish_time = trans.finish_time;
 
             if (trans.StepLog != null)
             {
@@ -180,7 +193,7 @@ namespace wcs.Data.View
         }
 
         /// <summary>
-        /// 在界面展示超过1消失，然后清掉该任务
+        /// 在界面展示超过1h，然后清掉该任务
         /// </summary>
         /// <returns></returns>
         public bool IsOver1Hours()

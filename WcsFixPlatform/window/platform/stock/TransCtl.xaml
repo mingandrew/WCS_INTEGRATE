@@ -38,18 +38,19 @@
 
         </Grid>
         <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0" MinWidth="250">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70*"/>
+                <RowDefinition Height="5*"/>
+                <RowDefinition Height="25*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
                 <TabControl>
                     <hc:Interaction.Triggers>
                         <hc:RoutedEventTrigger RoutedEvent="TabControl.SelectionChanged">
                             <hc:EventToCommand Command="{Binding TabSelectedCmd}" PassEventArgsToCommand="True"/>
                         </hc:RoutedEventTrigger>
                     </hc:Interaction.Triggers>
-                    <TabItem Header="进行中" FontSize="22" Height="50" Tag="RECENT">
+                    <TabItem Header="进行中" FontSize="20" Height="40" Width="250" Tag="RECENT">
                         <DataGrid ItemsSource="{Binding TListView}" SelectionUnit="FullRow" SelectionMode="Single"
                                 CanUserAddRows="False" hc:DataGridAttach.ShowRowNumber="False" CanUserDeleteRows="False" 
                                 CanUserSortColumns="False" CanUserReorderColumns="False" IsReadOnly="True" CanUserResizeColumns="False"
@@ -74,12 +75,25 @@
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
                             <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Id}" Header="任务编号"/>
                                 <DataGridTextColumn Binding="{Binding TransType}" Header="任务类型"/>
                                 <DataGridTextColumn Binding="{Binding TransStaus}" Header="任务状态"/>
+                                <DataGridTextColumn Binding="{Binding Take_track_id,Converter={StaticResource TrackId2NameConverter}}" Header="取货轨道"/>
+                                <DataGridTextColumn Binding="{Binding Give_track_id,Converter={StaticResource TrackId2NameConverter}}" Header="卸货轨道"/>
+                                <DataGridTextColumn Binding="{Binding Finish_track_id,Converter={StaticResource TrackId2NameConverter}}" Header="结束轨道"/>
+                                <DataGridTextColumn Binding="{Binding Tilelifter_id,Converter={StaticResource DevId2NameConverter}}" Header="砖机"/>
+                                <DataGridTextColumn Binding="{Binding Carrier_id,Converter={StaticResource DevId2NameConverter}}" Header="运输车"/>
+                                <DataGridTextColumn Binding="{Binding Take_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(接)"/>
+                                <DataGridTextColumn Binding="{Binding Give_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(送)"/>
+                                <DataGridTextColumn Binding="{Binding Goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="任务品种"/>
+                                <DataGridTextColumn Binding="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Header="创建时间"/>
+                                <DataGridTextColumn Binding="{Binding Load_time,Converter={StaticResource Date2StringConverter}}" Header="取货时间"/>
+                                <DataGridTextColumn Binding="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Header="放货时间"/>
+                                <DataGridTextColumn Binding="{Binding Finish_time,Converter={StaticResource Date2StringConverter}}" Header="完成时间"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
-                    <TabItem Header="已完成" FontSize="22" Height="50" Tag="FINISH">
+                    <TabItem Header="已完成" FontSize="20" Height="40" Width="250" Tag="FINISH">
                         <DataGrid ItemsSource="{Binding FTListView}" SelectionUnit="FullRow" SelectionMode="Single"
                                 CanUserAddRows="False" hc:DataGridAttach.ShowRowNumber="False" CanUserDeleteRows="False" 
                                 CanUserSortColumns="False" CanUserReorderColumns="False" IsReadOnly="True" CanUserResizeColumns="False"
@@ -96,133 +110,41 @@
                                 </Style>
                             </DataGrid.ColumnHeaderStyle>
                             <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Id}" Header="任务编号"/>
                                 <DataGridTextColumn Binding="{Binding TransType}" Header="任务类型"/>
                                 <DataGridTextColumn Binding="{Binding TransStaus}" Header="任务状态"/>
+                                <DataGridTextColumn Binding="{Binding Take_track_id,Converter={StaticResource TrackId2NameConverter}}" Header="取货轨道"/>
+                                <DataGridTextColumn Binding="{Binding Give_track_id,Converter={StaticResource TrackId2NameConverter}}" Header="卸货轨道"/>
+                                <DataGridTextColumn Binding="{Binding Finish_track_id,Converter={StaticResource TrackId2NameConverter}}" Header="结束轨道"/>
+                                <DataGridTextColumn Binding="{Binding Tilelifter_id,Converter={StaticResource DevId2NameConverter}}" Header="砖机"/>
+                                <DataGridTextColumn Binding="{Binding Carrier_id,Converter={StaticResource DevId2NameConverter}}" Header="运输车"/>
+                                <DataGridTextColumn Binding="{Binding Take_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(接)"/>
+                                <DataGridTextColumn Binding="{Binding Give_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(送)"/>
+                                <DataGridTextColumn Binding="{Binding Goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="任务品种"/>
+                                <DataGridTextColumn Binding="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Header="创建时间"/>
+                                <DataGridTextColumn Binding="{Binding Load_time,Converter={StaticResource Date2StringConverter}}" Header="取货时间"/>
+                                <DataGridTextColumn Binding="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Header="放货时间"/>
+                                <DataGridTextColumn Binding="{Binding Finish_time,Converter={StaticResource Date2StringConverter}}" Header="完成时间"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </TabItem>
                 </TabControl>
-
             </Grid>
-            <Grid Grid.Column="1" Margin="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Grid>
-                    <TextBlock Grid.Row="0" Text="详细信息" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" Margin="10"/>
-                </Grid>
-                <Grid Grid.Row="1"  Background="White">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition Width="auto"/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition />
-                        <RowDefinition Height="3*"/>
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="ID:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="0" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="品种:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="1" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="取货轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="1" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="卸货轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="2" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="上下砖机:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="2" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="运输车:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10"/>
-                    </Border>
-                    <Border Grid.Row="3" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="接车摆渡:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="3" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="送车摆渡:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="4" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="摆渡交管:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="5" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="创建时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="5" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="执行时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="6" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
-                        <TextBlock Text="取货时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-                    <Border Grid.Row="6" Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
-                        <TextBlock Text="卸货时间:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
+            
+            <StackPanel Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal"
+                        Background="AntiqueWhite">
+                <TextBlock Text="摆渡车交管情况 → " Style="{StaticResource TextBlockTitleBold}" />
+                <TextBlock Text="{Binding TCmsg}" Style="{StaticResource TextBlockTitleBold}" TextWrapping="Wrap"/>
+            </StackPanel>
+            
+            <RichTextBox Grid.Row="2" Margin="0,1,0,0" BorderThickness="3" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True">
+                <FlowDocument FontSize="18">
+                    <Paragraph>
+                        <Run Text="{Binding StepInfo, Mode=OneWay}"/>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
 
-                    <Border Grid.Row="7" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1">
-                        <TextBlock Text="步骤信息:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                    </Border>
-
-                    <Border Grid.Row="0" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="{Binding Id}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="0" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
-                        <TextBlock Text="{Binding Goods_id,Converter={StaticResource GoodId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="1" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="{Binding Take_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="1" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
-                        <TextBlock Text="{Binding Give_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="2" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="{Binding Tilelifter_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="2" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
-                        <TextBlock Text="{Binding Carrier_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="3" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0">
-                        <TextBlock Text="{Binding Take_ferry_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="3" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
-                        <TextBlock Text="{Binding Give_ferry_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="4" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0" Grid.ColumnSpan="3">
-                        <TextBlock Text="{Binding TCmsg}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" TextWrapping="Wrap"/>
-                    </Border>
-                    <Border Grid.Row="5" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,0" >
-                        <TextBlock Text="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="5" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0" >
-                        <TextBlock Text="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="6" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,0,1" >
-                        <TextBlock Text="{Binding Load_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-                    <Border Grid.Row="6" Grid.Column="3" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1" >
-                        <TextBlock Text="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                    </Border>
-
-                    <RichTextBox Grid.Row="7" Grid.Column="1" BorderThickness="1,1,1,1" Grid.ColumnSpan="3" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True">
-                        <FlowDocument FontSize="18">
-                            <Paragraph>
-                                <Run Text="{Binding StepInfo, Mode=OneWay}"/>
-                            </Paragraph>
-                        </FlowDocument>
-                    </RichTextBox>
-
-                </Grid>
-            </Grid>
         </Grid>
     </Grid>
 </UserControl>

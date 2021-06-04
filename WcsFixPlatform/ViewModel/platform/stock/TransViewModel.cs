@@ -47,25 +47,7 @@ namespace wcs.ViewModel
         private TransView recentTask, finishTask;
         private bool m_finish_tab_show;
 
-        private uint id;
-        private TransTypeE trans_type;
-        private TransStatusE trans_status;
-        private uint goods_id;
-        private uint stock_id;
-        private uint take_track_id;
-        private uint give_track_id;
-        private uint tilelifter_id;
-        private uint take_ferry_id;//取货摆渡车
-        private uint give_ferry_id;//卸货摆渡车
-        private uint carrier_id;
-        private DateTime? create_time;
-        private DateTime? load_time;
-        private DateTime? unload_time;
-        private bool finish;
-        private DateTime? finish_time;
-
         private string tcmsg;//交管信息
-
         private string stepinfo;//步骤信息
 
         #endregion
@@ -98,90 +80,6 @@ namespace wcs.ViewModel
 
         }
 
-        public uint Id
-        {
-            get => id;
-            set => Set(ref id, value);
-        }
-
-        public TransTypeE TransType
-        {
-            get => trans_type;
-            set => Set(ref trans_type, value);
-        }
-
-        public TransStatusE TransStaus
-        {
-            get => trans_status;
-            set => Set(ref trans_status, value);
-        }
-
-        public uint Goods_id
-        {
-            get => goods_id;
-            set => Set(ref goods_id, value);
-        }
-
-        public uint Take_track_id
-        {
-            get => take_track_id;
-            set => Set(ref take_track_id, value);
-        }
-        public uint Give_track_id
-        {
-            get => give_track_id;
-            set => Set(ref give_track_id, value);
-        }
-        public uint Tilelifter_id
-        {
-            get => tilelifter_id;
-            set => Set(ref tilelifter_id, value);
-        }
-        public uint Take_ferry_id
-        {
-            get => take_ferry_id;
-            set => Set(ref take_ferry_id, value);
-        }
-        public uint Give_ferry_id
-        {
-            get => give_ferry_id;
-            set => Set(ref give_ferry_id, value);
-        }
-        public uint Carrier_id
-        {
-            get => carrier_id;
-            set => Set(ref carrier_id, value);
-        }
-
-        public DateTime? Create_time
-        {
-            get => create_time;
-            set => Set(ref create_time, value);
-        }
-
-        public DateTime? Load_time
-        {
-            get => load_time;
-            set => Set(ref load_time, value);
-        }
-
-        public DateTime? Unload_time
-        {
-            get => unload_time;
-            set => Set(ref unload_time, value);
-        }
-
-        public DateTime? Finish_time
-        {
-            get => finish_time;
-            set => Set(ref finish_time, value);
-        }
-        public bool Finish
-        {
-            get => finish;
-            set => Set(ref finish, value);
-        }
-
         /// <summary>
         /// 交管消息
         /// </summary>
@@ -191,6 +89,9 @@ namespace wcs.ViewModel
             set => Set(ref tcmsg, value);
         }
 
+        /// <summary>
+        /// 步骤信息
+        /// </summary>
         public string StepInfo
         {
             get => stepinfo;
@@ -323,29 +224,16 @@ namespace wcs.ViewModel
         /// <param name="module"></param>
         private void Update(TransView module)
         {
-            if (module == null)
+            if (module != null)
             {
-                module = new TransView(new StockTrans()
-                {
-                    TransType = TransTypeE.其他,
-                    TransStaus = TransStatusE.其他,
-                });
+                TCmsg = module.TCmsg;
+                StepInfo = module.StepInfo;
             }
-            Id = module.Id;
-            TransType = module.TransType;
-            TransStaus = module.TransStaus;
-            Goods_id = module.Goods_id;
-            Take_ferry_id = module.Take_ferry_id;
-            Give_ferry_id = module.Give_ferry_id;
-            Take_track_id = module.Take_track_id;
-            Give_track_id = module.Give_track_id;
-            Tilelifter_id = module.Tilelifter_id;
-            Carrier_id = module.Carrier_id;
-            Create_time = module.Create_time;
-            Load_time = module.Load_time;
-            Unload_time = module.Unload_time;
-            TCmsg = module.TCmsg;
-            StepInfo = module.StepInfo;
+            else
+            {
+                TCmsg = "";
+                StepInfo = "";
+            }
         }
 
         /// <summary>
@@ -404,7 +292,7 @@ namespace wcs.ViewModel
                 recentTask = null;
                 if (!m_finish_tab_show)
                 {
-                    Update(null);
+                    Update(recentTask);
                 }
             }
         }
@@ -448,4 +336,5 @@ namespace wcs.ViewModel
 
         }
     }
+
 }
