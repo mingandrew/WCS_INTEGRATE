@@ -96,7 +96,7 @@ namespace module.deviceconfig
         public bool can_alter { set; get; }
 
         /// <summary>
-        /// 备用的砖机选项列表id（用'#'隔开）
+        /// 备用的砖机选项列表id（用','隔开）
         /// </summary>
         public string alter_ids { set; get; }
 

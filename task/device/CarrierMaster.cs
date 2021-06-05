@@ -845,9 +845,9 @@ namespace task.device
                 DevCarrierOrderE order = DevCarrierOrderE.终止指令;
                 ushort checkTra = 0;//校验轨道号
                 ushort toRFID = 0;//目标点
-                ushort toSite = 0;//目标脉冲
+                ushort toPoint = 0;//目标脉冲
                 ushort overRFID = 0;//结束点
-                ushort overSite = 0;//结束脉冲
+                ushort overPoint = 0;//结束脉冲
                 byte moveCount = 0;//倒库数量
                 uint ferryTraid = 0;//摆渡轨道ID
                 switch (carriertask)
@@ -1105,7 +1105,7 @@ namespace task.device
                                 }
                                 if (tt.InType(TrackTypeE.储砖_出))
                                 {
-                                    toSite = tt.split_point;
+                                    toPoint = tt.split_point;
                                 }
                                 overRFID = tt.rfid_2;
                                 break;
@@ -1129,7 +1129,7 @@ namespace task.device
                                 }
                                 if (tt.InType(TrackTypeE.储砖_入))
                                 {
-                                    toSite = tt.split_point;
+                                    toPoint = tt.split_point;
                                     overRFID = tt.rfid_1;
                                 }
 
@@ -1152,9 +1152,9 @@ namespace task.device
                     Order = order,
                     CheckTra = checkTra,
                     ToRFID = toRFID,
-                    ToSite = toSite,
+                    ToPoint = toPoint,
                     OverRFID = overRFID,
-                    OverSite = overSite,
+                    OverPoint = overPoint,
                     MoveCount = moveCount
                 },string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo));
 
@@ -1210,9 +1210,9 @@ namespace task.device
                         {
                             cao.OverRFID = 0;
                         }
-                        if (cao.ToSite == cao.OverSite)
+                        if (cao.ToPoint == cao.OverPoint)
                         {
-                            cao.OverSite = 0;
+                            cao.OverPoint = 0;
                         }
 
                         #region 交管摆渡车
@@ -2481,7 +2481,28 @@ namespace task.device
             if (carrier == null) return 0;
             
             return carrier.CurrentPoint;
+        }        
+        
+        /// <summary>
+        /// 获取运输车当前脉冲和卸货脉冲
+        /// </summary>
+        /// <param name="carrier_id">运输车ID</param>
+        /// <param name="current">当前脉冲</param>
+        /// <param name="give">卸货脉冲</param>
+        internal void GetCarrierNowUnloadPoint(uint carrier_id, out ushort current, out ushort give)
+        {
+            CarrierTask carrier = DevList.Find(c => c.ID == carrier_id);
+            if (carrier == null)
+            {
+                current = 0;
+                give = 0;
+                return;
+            }
+            current = carrier.CurrentPoint;
+            give = carrier.GivePoint;
         }
+
+
 
         #endregion
 
@@ -2937,7 +2958,7 @@ namespace task.device
         /// <summary>
         /// 定位坐标
         /// </summary>
-        public ushort ToSite { set; get; } = 0;
+        public ushort ToPoint { set; get; } = 0;
         /// <summary>
         /// 结束RFID
         /// </summary>
@@ -2945,7 +2966,7 @@ namespace task.device
         /// <summary>
         /// 结束坐标
         /// </summary>
-        public ushort OverSite { set; get; } = 0;
+        public ushort OverPoint { set; get; } = 0;
         /// <summary>
         /// 倒库数量
         /// </summary>

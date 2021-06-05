@@ -2348,47 +2348,85 @@ namespace resource.goods
         #region[分配轨道]
 
         /// <summary>
-        /// 分配储砖轨道：根据区域/下砖设备/品种
+        /// 分配储砖轨道：根据区域/下砖设备/品种        
+        /// 1、找同品种未满入轨道
+        /// 2、优先找出轨道同品种空的入轨道（不能连续两次下同一条轨道）
+        /// 3、找空的出轨道对应空的入轨道
+        /// 4、找出轨道入库时间最早时间的空入轨道
         /// </summary>
         /// <param name="areaid">下砖区域</param>
         /// <param name="devid">分配设备</param>
         /// <param name="goodsid">品种</param>
-        /// <param name="givetrackid">分配轨道</param>
+        /// <param name="traids">符合的轨道列表</param>
         /// <returns></returns>
         public bool AllocateGiveTrack(uint areaid, uint devid, uint goodsid, out List<uint> traids)
         {
             List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
             traids = new List<uint>();
-            List<uint> emptylist = new List<uint>();
-            List<TrackStoreCount> trackstores = new List<TrackStoreCount>();
+            ///
+            List<TrackStoreCount> trackstores = new List<TrackStoreCount>();//1.[同品种,未满] 入
+            List<uint> same_out_good_in = new List<uint>(); //[同品种] 出 -   [空] 入
+            List<uint> empty_out_and_in = new List<uint>(); //[空] 出 -   [空] 入
+            List<uint> empty_in = new List<uint>();                 //[有] 出 - [空] 入
+
+            List<uint> emptylist = new List<uint>();//所有空轨道列表
+
             uint storecount = 0;
             foreach (AreaDeviceTrack adt in list)
             {
+                Track track = PubMaster.Track.GetTrack(adt.track_id);
                 //是否是储砖轨道
-                if (!PubMaster.Track.IsStoreGiveTrack(adt.track_id)) continue;
+                if (!track.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入)) continue;
 
                 //轨道是否启用
-                if (!PubMaster.Track.IsTrackEnable(adt.track_id, TrackStatusE.仅下砖)) continue;
+                if (!(track.AlertStatus == TrackAlertE.正常 
+                        && (track.TrackStatus == TrackStatusE.启用 || track.TrackStatus == TrackStatusE.仅下砖))) continue;
 
                 //轨道满否
-                if (PubMaster.Track.IsTrackFull(adt.track_id)) continue;
-
-                //[可以放任何品种] 空轨道，轨道没有库存
-                if (PubMaster.Track.IsEmtpy(adt.track_id)
-                    && IsTrackStockEmpty(adt.track_id)
-                    && IsTrackOkForGoods(adt.track_id, goodsid))
-                {
-                    emptylist.Add(adt.track_id);
-                }
+                if (track.StockStatus == TrackStockStatusE.满砖) continue;
 
                 //是否已存同品种并且未满
                 if (IsTrackFineToStore(adt.track_id, goodsid, out storecount))
                 {
+                    /// 1、找同品种未满入轨道
                     trackstores.Add(new TrackStoreCount()
                     {
                         trackid = adt.track_id,
                         storecount = storecount
                     });
+                }
+
+                //[可以放任何品种] 空轨道，轨道没有库存
+                if (track.StockStatus == TrackStockStatusE.空砖
+                    && IsTrackStockEmpty(adt.track_id)
+                    && IsTrackOkForGoods(adt.track_id, goodsid))
+                {
+                    #region[出入轨道]
+                    if (track.Type == TrackTypeE.储砖_出入)
+                    {
+                        // 3、找空的出轨道对应空的入轨道
+                        empty_in.Add(adt.track_id);
+                        continue;
+                    }
+                    #endregion
+
+                    #region[入库轨道】
+                    // 2、优先找出轨道同品种空的入轨道（不能连续两次下同一条轨道）
+                    if (PubMaster.Goods.HaveGoodInTrack(track.brother_track_id, goodsid))
+                    {
+                        // [同品种] 出 -   [空] 入
+                        same_out_good_in.Add(adt.track_id);
+                    }
+                    else if (PubMaster.Track.IsEmtpy(track.brother_track_id))
+                    {
+                        empty_out_and_in.Add(adt.track_id);
+                    }
+                    else
+                    {
+                        //[有] 出 - [空] 入
+                        empty_in.Add(adt.track_id);
+                    }
+                    #endregion
                 }
             }
 
@@ -2401,8 +2439,13 @@ namespace resource.goods
                 }
             }
 
+            emptylist.AddRange(same_out_good_in);
+            emptylist.AddRange(empty_out_and_in);
+            emptylist.AddRange(empty_in);
+
             //排序空轨道
-            if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableDownTrackOrder) && emptylist.Count > 0)
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableDownTrackOrder) 
+                && emptylist.Count > 0)
             {
                 emptylist = OrderEmptyTrackList(devid, list, emptylist);
             }
@@ -2447,9 +2490,19 @@ namespace resource.goods
             return traids.Count > 0;
         }
 
+        /// <summary>
+        /// 判断轨道是否存在该品种的库存
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="goodsid"></param>
+        /// <returns></returns>
+        private bool HaveGoodInTrack(uint id, uint goodsid)
+        {
+            return StockList.Exists(c => c.track_id == id && c.goods_id == goodsid);
+        }
+
         private List<uint> OrderEmptyTrackList(uint devid, List<AreaDeviceTrack> list, List<uint> emptylist)
         {
-
             //是否按顺序放砖1->2->3->4的顺序
             //获取砖机最近的下砖轨道的优先级
             uint lasttrack = PubMaster.DevConfig.GetLastTrackId(devid);

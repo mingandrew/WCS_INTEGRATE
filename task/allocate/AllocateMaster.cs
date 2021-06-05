@@ -66,8 +66,11 @@ namespace task.allocate
 
         /// <summary>
         /// 入库分配轨道
-        /// 1.常规分配
-        /// 2.继续满砖分配
+        /// 1、找同品种未满入轨道
+        /// 2、优先找出轨道同品种空的入轨道（不能连续两次下同一条轨道）
+        /// 3、找空的出轨道对应空的入轨道
+        /// 4、找出轨道入库时间最早时间的空入轨道
+        /// 5、不存在空轨道的情况下，极限混砖【有开关】
         /// </summary>
         /// <param name="areaid">区域ID</param>
         /// <param name="tileid">砖机ID</param>
@@ -82,7 +85,7 @@ namespace task.allocate
             lastgoodid = 0;
             islimitallocate = false;
 
-            //【常规分配轨道】
+            //【常规分配轨道 1-4】
             if (PubMaster.Goods.AllocateGiveTrack(areaid, tileid, goodid, out List<uint> traids))
             {
                 foreach (uint traid in traids)
@@ -93,7 +96,7 @@ namespace task.allocate
                     return;
                 }
             }
-            else
+            else//【极限混砖 5】
             {
                 if (!PubMaster.Dic.IsSwitchOnOff(DicTag.EnableLimitAllocate))
                 {
