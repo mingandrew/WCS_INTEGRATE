@@ -7,9 +7,12 @@ namespace tool.appconfig
     public class SimulateConfig
     {
         public static readonly string Path = $"{AppDomain.CurrentDomain.BaseDirectory}config";
-        public static readonly string FileName = $"\\SimulateConfig.json";
+        public static readonly string FileName = $"\\SimulateConfig_{{0}}.json";
         public static readonly string SavePath = $"{Path}{FileName}";
-
+        public string GetSavePath(string sqlservername)
+        {
+            return string.Format(SavePath, sqlservername);
+        }
         public List<SimCarrier> SimCarrierList { set; get; }
         public List<SimFerry> SimFerryList { set; get; }
         public List<SimTileLifter> SimTileLifterList { set; get; }

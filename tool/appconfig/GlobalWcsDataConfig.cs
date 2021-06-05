@@ -51,11 +51,11 @@ namespace tool.appconfig
             #region[模拟系统设备信息]
             if (DebugConfig.IsDebug)
             {
-                if (File.Exists(SimulateConfig.SavePath))
+                if (File.Exists(string.Format(SimulateConfig.SavePath, MysqlConfig.Database)))
                 {
                     try
                     {
-                        var json = File.ReadAllText(SimulateConfig.SavePath);
+                        var json = File.ReadAllText(string.Format(SimulateConfig.SavePath, MysqlConfig.Database));
                         SimulateConfig = (string.IsNullOrEmpty(json) ? new SimulateConfig() : JsonConvert.DeserializeObject<SimulateConfig>(json)) ?? new SimulateConfig();
                     }
                     catch
@@ -157,7 +157,7 @@ namespace tool.appconfig
                 {
                     Directory.CreateDirectory(SimulateConfig.Path);
                 }
-                using (FileStream fs = new FileStream(SimulateConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                using (FileStream fs = new FileStream(string.Format(SimulateConfig.SavePath, MysqlConfig.Database), FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
                 {
                     fs.Seek(fs.Length, SeekOrigin.Current);
 
