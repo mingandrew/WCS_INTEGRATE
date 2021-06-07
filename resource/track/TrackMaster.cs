@@ -1900,6 +1900,16 @@ namespace resource.track
             }
             return false;
         }
+
+        /// <summary>
+        /// 获取区域上砖机的所有轨道
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <returns></returns>
+        public List<uint> GetUpTileTracks(uint area_id)
+        {
+            return TrackList.FindAll(c => c.area == area_id && c.Type == TrackTypeE.上砖轨道)?.Select(c => c.id).ToList();
+        }
         #endregion
     }
 }

@@ -11,19 +11,34 @@ namespace tool.appconfig
 
         public List<BigConfigItem> BigConfigList { set; get; } = new List<BigConfigItem>();
 
+        /// <summary>
+        /// 是否释放上砖摆渡车
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <returns></returns>
         public bool IsFreeUpFerry(uint areaid)
         {
             return GetItem(areaid)?.FreeUpFerry ?? false;
         }
 
+        /// <summary>
+        /// 释放释放下砖摆渡车
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <returns></returns>
         public bool IsFreeDownFerry(uint areaid)
         {
             return GetItem(areaid)?.FreeDownFerry ?? false;
         }
 
-        public bool IsUpTaskNotTake(uint areaid)
+        /// <summary>
+        /// 上砖任务新分配逻辑
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <returns></returns>
+        public bool IsUpTaskNewAllocate(uint areaid)
         {
-            return GetItem(areaid)?.UpTaskBackNotTake ?? false;
+            return GetItem(areaid)?.UpTaskNewAllocate ?? false;
         }
 
         public BigConfigItem GetItem(uint areaid)
@@ -36,7 +51,7 @@ namespace tool.appconfig
                     AreaId = areaid,
                     FreeDownFerry = false,
                     FreeUpFerry = false,
-                    UpTaskBackNotTake = false
+                    UpTaskNewAllocate = false
                 };
                 BigConfigList.Add(item);
                 GlobalWcsDataConfig.SaveBigConifg();
@@ -49,8 +64,8 @@ namespace tool.appconfig
     public class BigConfigItem
     {
         public uint AreaId { set; get; }
-        public bool FreeUpFerry { set; get; }
-        public bool FreeDownFerry { set; get; }
-        public bool UpTaskBackNotTake { set; get; }
+        public bool FreeUpFerry { set; get; }//是否释放上砖摆渡车
+        public bool FreeDownFerry { set; get; }//是否释放下砖摆渡车
+        public bool UpTaskNewAllocate { set; get; }//上砖任务新分配逻辑
     }
 }

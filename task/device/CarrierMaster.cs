@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using tool.appconfig;
 using tool.mlog;
 using tool.timer;
 
@@ -1742,38 +1743,231 @@ namespace task.device
 
             CarrierTask carrier = null;
 
-            #region [1.取货轨道是否有车]
-            List<CarrierTask> taketrackcarriers = DevList.FindAll(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
-            if(taketrackcarriers.Count > 0)
+            if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id)
+                && trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖))
             {
-                //脉冲大的排在前面
-                taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
-                carrier = taketrackcarriers[0];
-                if (trans.TransType == TransTypeE.上砖任务)
+
+                #region[1.先找砖机轨道的空闲运输车]
+
+                if (carrier == null)
                 {
-                    if (!carrier.IsNotDoingTask
-                        && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                    List<uint> uptiletraids = PubMaster.Track.GetUpTileTracks(trans.area_id);
+                    // 按离取货点近远排序
+                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(uptiletraids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+
+                    //能去这个取货/卸货轨道的所有配置的摆渡车信息
+                    List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(ferrytype, trans.take_track_id, trans.give_track_id);
+                    ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
+
+                    string carNames = "";
+                    // 优先车：同侧无砖
+                    List<CarrierTask> first_allocate_cars = new List<CarrierTask>();
+                    // 次级车：同侧载砖
+                    List<CarrierTask> second_allocate_cars = new List<CarrierTask>();
+                    foreach (uint traid in tids)
                     {
-                        carrier = null;
+                        List<CarrierTask> tasks = DevList.FindAll(c => c.CurrentTrackId == traid);
+                        if (tasks.Count > 0)
+                        {
+                            // 每条轨道只拿一车出来加以选择
+                            CarrierTask tracar = null;
+                            ushort dis = 0;
+                            bool isUp = false;
+                            foreach (CarrierTask item in tasks)
+                            {
+                                if (item == null) continue;
+                                if (!item.IsWorking) continue;
+                                if (item.ConnStatus == SocketConnectStatusE.通信正常
+                                    && item.Status == DevCarrierStatusE.停止
+                                    && item.OperateMode == DevOperateModeE.自动
+                                    && item.IsNotDoingTask
+                                    && item.DevConfig.IsUseGoodsSize(goodssizeID))
+                                {
+                                    //是否有能够到达该轨道的摆渡车
+                                    if (!PubMaster.Area.ExistFerryWithTrack(ferryids, item.CurrentTrackId))
+                                    {
+                                        continue;
+                                    }
+
+                                    isUp = false;
+                                    // 需要小车后退作业的，以最小脉冲为准
+                                    if (dis == 0 || dis > item.CurrentPoint)
+                                    {
+                                        tracar = item;
+                                        dis = item.CurrentPoint;
+                                    }
+                                }
+                            }
+
+                            if (tracar == null || dis == 0) continue;
+                            carNames += string.Format("[{0}]", tracar.Device.name);
+                            if (tracar.IsNotLoad())
+                            {
+                                first_allocate_cars.Add(tracar);
+                            }
+                            else
+                            {
+                                second_allocate_cars.Add(tracar);
+                            }
+                        }
                     }
 
-                    if(carrier != null
-                        && carrier.IsNotDoingTask  
-                        && PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
+                    if (first_allocate_cars != null && first_allocate_cars.Count > 0)
                     {
-                        carrier = null;
+                        foreach (CarrierTask car in first_allocate_cars)
+                        {
+                            if (CheckCarrierIsFree(car)
+                                && car.DevConfig.IsUseGoodsSize(goodssizeID)
+                                && !PubTask.Trans.HaveInCarrier(car.ID))
+                            {
+                                carrierid = car.ID;
+                                return true;
+                            }
+                        }
+                    }
+
+                    if (second_allocate_cars != null && second_allocate_cars.Count > 0)
+                    {
+                        foreach (CarrierTask car in second_allocate_cars)
+                        {
+                            if (CheckCarrierIsFree(car)
+                                && car.DevConfig.IsUseGoodsSize(goodssizeID)
+                                && !PubTask.Trans.HaveInCarrier(car.ID))
+                            {
+                                carrierid = car.ID;
+                                return true;
+                            }
+                        }
+                    }
+
+                }
+
+                #endregion
+
+                #region [2.上砖机轨道是否有车]
+
+                //入库任务 -> 储砖入，出入
+                //出库任务 -> 砖机轨道
+                if(carrier == null)
+                {
+                    carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
+                }
+
+                #endregion
+
+                #region [3.取货轨道是否有车]
+                if(carrier == null)
+                {
+                    //入库任务 -> 砖机轨道
+                    //出库任务 -> 储砖出，出入
+                    List<CarrierTask> taketrackcarriers = DevList.FindAll(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
+                    if (taketrackcarriers.Count > 0)
+                    {
+                        //脉冲大的排在前面
+                        taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
+                        carrier = taketrackcarriers[0];
+                        if (trans.TransType == TransTypeE.上砖任务)
+                        {
+                            if (!carrier.IsNotDoingTask
+                                && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                            {
+                                carrier = null;
+                            }
+
+                            if (carrier != null
+                                && carrier.IsNotDoingTask
+                                && PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
+                            {
+                                carrier = null;
+                            }
+                        }
                     }
                 }
-            }
-            #endregion
+                #endregion
 
-            #region [2.卸货轨道是否有车]
-            if (carrier == null)
+                #region [4.前面找到车了，如果空闲则分配，否则等待]
+
+                if (carrier != null)
+                {
+                    if (!carrier.IsWorking)
+                    {
+                        result = "运输车已停用！";
+                        mlog.Status(true, string.Format("小车已停用-跳过分配\n" +
+                            "小车：{0}\n" +
+                            "任务：{1}", carrier.DevStatus.ToString(), trans.ToString()));
+                        carrier = null; // 继续往下找
+                                        //return false;
+                    }
+                    else
+                    {
+                        if (carrier.ConnStatus == SocketConnectStatusE.通信正常
+                            && carrier.OperateMode == DevOperateModeE.自动)
+                        {
+                            if (carrier.Status == DevCarrierStatusE.停止
+                                && carrier.IsNotDoingTask)
+                            {
+                                carrierid = carrier.ID;
+                                return true;
+                            }
+                        }
+
+                        if (CheckCarrierFreeNoTask(carrier))
+                        {
+                            carrierid = carrier.ID;
+                            return true;
+                        }
+                    }
+
+                    if (carrier != null)
+                    {
+                        result = string.Format("取/卸货轨道上有运输车{0}，但运输车不符合状态，不能分配，分配条件：【启用】【通讯正常】【停止】【任务完成】【能取{1}的砖】【没有被分配到其他任务】",
+                                               carrier.Device.name, PubMaster.Goods.GetGoodsSizeName(trans.goods_id));
+                    }
+                }
+
+                #endregion
+
+            }
+            else
             {
-                carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
-            }
 
-            #endregion
+                #region [1.取货轨道是否有车]
+                //入库任务 -> 砖机轨道
+                //出库任务 -> 储砖出，出入
+                List<CarrierTask> taketrackcarriers = DevList.FindAll(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
+                if (taketrackcarriers.Count > 0)
+                {
+                    //脉冲大的排在前面
+                    taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
+                    carrier = taketrackcarriers[0];
+                    if (trans.TransType == TransTypeE.上砖任务)
+                    {
+                        if (!carrier.IsNotDoingTask
+                            && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                        {
+                            carrier = null;
+                        }
+
+                        if (carrier != null
+                            && carrier.IsNotDoingTask
+                            && PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
+                        {
+                            carrier = null;
+                        }
+                    }
+                }
+                #endregion
+
+                #region [2.卸货轨道是否有车]
+                if (carrier == null)
+                {
+                    //入库任务 -> 储砖入，出入
+                    //出库任务 -> 砖机轨道
+                    carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
+                }
+
+                #endregion
+            }
 
             #region [3.摆渡车上是否有车]
             if (carrier == null)

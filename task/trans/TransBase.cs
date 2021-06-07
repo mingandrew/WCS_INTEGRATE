@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using task.diagnose;
+using task.trans.transtask;
 using tool.mlog;
 using tool.timer;
 
@@ -30,6 +31,12 @@ namespace task.trans
 
         #endregion
 
+        #region[任务】
+
+        InTaskTrans _InTrans;
+
+        #endregion
+
         #region[构造函数/初始化/启动/停止]
         public TransBase()
         {
@@ -45,6 +52,8 @@ namespace task.trans
         protected void InitDiagnore(TransMaster trans)
         {
             MDiagnoreServer = new DiagnoseServer(trans);
+
+            _InTrans = new InTaskTrans(trans);
         }
 
         private void InitTrans()
@@ -100,6 +109,7 @@ namespace task.trans
                                 {
                                     case TransTypeE.下砖任务:
                                         DoInTrans(trans);
+                                        //_InTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.上砖任务:
                                         DoOutTrans(trans);
@@ -499,7 +509,7 @@ namespace task.trans
             }
         }
 
-        internal void SetFinish(StockTrans trans)
+        public void SetFinish(StockTrans trans)
         {
             if (trans.finish_time == null)
             {
@@ -513,7 +523,7 @@ namespace task.trans
             }
         }
 
-        protected bool SetTakeSite(StockTrans trans, uint traid)
+        public bool SetTakeSite(StockTrans trans, uint traid)
         {
             if (trans.take_track_id != traid)
             {
@@ -528,7 +538,7 @@ namespace task.trans
             return false;
         }
 
-        protected bool SetGiveSite(StockTrans trans, uint traid)
+        public bool SetGiveSite(StockTrans trans, uint traid)
         {
             if (trans.give_track_id != traid)
             {
@@ -543,7 +553,7 @@ namespace task.trans
             return false;
         }
 
-        protected bool SetFinishSite(StockTrans trans, uint traid, string memo)
+        public bool SetFinishSite(StockTrans trans, uint traid, string memo)
         {
             if (trans.finish_track_id != traid)
             {
@@ -556,7 +566,7 @@ namespace task.trans
             return false;
         }
 
-        protected void SetStock(StockTrans trans, uint stockid)
+        public void SetStock(StockTrans trans, uint stockid)
         {
             if (trans.stock_id != stockid)
             {
@@ -565,7 +575,7 @@ namespace task.trans
             }
         }
 
-        protected void SetCancel(StockTrans trans)
+        public void SetCancel(StockTrans trans)
         {
             if (!trans.cancel)
             {
@@ -575,7 +585,7 @@ namespace task.trans
             }
         }
 
-        protected void SetReTake(StockTrans trans, uint taketraid, uint stockid, uint carrierid, TransStatusE status)
+        public void SetReTake(StockTrans trans, uint taketraid, uint stockid, uint carrierid, TransStatusE status)
         {
             trans.take_track_id = taketraid;
             trans.stock_id = stockid;
@@ -584,7 +594,7 @@ namespace task.trans
             PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.ReTake);
         }
 
-        protected void SetLine(StockTrans trans, ushort line)
+        public void SetLine(StockTrans trans, ushort line)
         {
             if (line > 0)
             {

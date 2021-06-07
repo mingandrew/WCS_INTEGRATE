@@ -1,5 +1,6 @@
 ﻿using enums;
 using module.device;
+using module.deviceconfig;
 using module.goods;
 using System;
 using System.Collections.Generic;
@@ -99,6 +100,11 @@ namespace resource.device
             return DeviceList.FindAll(c => devids.Contains(c.id));
         }
 
+        public List<Device> GetTileLifters(uint areaid, DeviceTypeE type)
+        {
+            return DeviceList.FindAll(c => c.area == areaid && c.Type == type) ;
+        }
+
         public List<Device> GetFerrys(uint areaid)
         {
             List<uint> devids = PubMaster.Area.GetAreaFerryIds(areaid);
@@ -192,7 +198,6 @@ namespace resource.device
                 }
             }
         }
-
         #endregion
 
     }

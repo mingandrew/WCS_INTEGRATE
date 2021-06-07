@@ -2424,6 +2424,16 @@ namespace task.device
             return gid;
         }
 
+        /// <summary>
+        /// 判断区域上砖机是否有需求
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <returns></returns>
+        internal bool IsUpTileHaveNeed(uint area_id)
+        {
+            return DevList.Exists(c => c.AreaId == area_id && c.Type == DeviceTypeE.上砖机 && (c.IsNeed_1 || c.IsNeed_2));
+        }
+
         #endregion
     }
 }

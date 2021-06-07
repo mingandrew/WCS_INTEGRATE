@@ -318,7 +318,14 @@ namespace simtask
                             OnLoading = true;
                         }
 
-                        if (TO_SITE == TargetTrack.rfid_1)
+                        if(TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.储砖_出入)
+                        {
+                            DevStatus.CurrentPoint = TargetTrack.limit_point;
+                            SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+                            OnLoading = true;
+                        }
+
+                        if (TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.下砖轨道)
                         {
                             int dif = NowTrack.Type == TrackTypeE.摆渡车_入 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
@@ -1148,15 +1155,20 @@ namespace simtask
 
                 //在摆渡车出上执行取货指令
                 if (cmd.CarrierOrder == DevCarrierOrderE.取砖指令
-                    && TO_POINT != 0
                     && EndTrack != null
-                    && (EndTrack.Type == TrackTypeE.储砖_出 || EndTrack.Type == TrackTypeE.储砖_出入))
+                    &&((EndTrack.Type == TrackTypeE.储砖_出 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
                 {
                     GIVE_STOCK_POINT = 0;
                     Stock stock = PubMaster.Goods.GetTrackTopStock(EndTrack.id);
                     if (stock != null)
                     {
                         TAKE_STOCK_POINT = stock.location;
+                    }
+
+                    if (EndTrack.Type == TrackTypeE.储砖_出入 && TO_SITE != 0)
+                    {
+                        TO_SITE = 0;
+                        TO_POINT = EndTrack.limit_point;
                     }
                 }
 
