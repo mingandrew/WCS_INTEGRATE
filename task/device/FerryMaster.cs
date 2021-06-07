@@ -11,6 +11,7 @@ using resource;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using task.task;
 using tool.mlog;
@@ -39,7 +40,7 @@ namespace task.device
         private bool _IsSetting;
         private bool _IsRefreshPos;
         private List<FerryPosSet> _FerryPosSetList;
-        private Log mlog, mPosLog;
+        private Log mlog, mPosLog, mAllocateLog;
         private bool isWcsStoping = false;
         private List<FerryPos> PosList { set; get; }
         #endregion
@@ -56,6 +57,7 @@ namespace task.device
         {
             mlog = (Log)new LogFactory().GetLog("Ferry", false);
             mPosLog = (Log)new LogFactory().GetLog("摆渡对位", false);
+            mAllocateLog = (Log)new LogFactory().GetLog("摆渡分配", false);
             mTimer = new MTimer();
             _objmsg = new object();
             mMsg = new MsgAction();
@@ -670,7 +672,7 @@ namespace task.device
                     }
 
                     task.DoLocate(ferrycode, task.DevConfig.track_id, trackid);
-                    mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动定位[ {1} ]", task.ID, ferrycode));
+                    mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动定位[ {1} ]", task.Device.name, tra.name));
                     return true;
                 }
                 finally
@@ -1465,102 +1467,140 @@ namespace task.device
 
                     if (ferrys.Count > 0)
                     {
-                        int safedis = PubMaster.Dic.GetDtlIntCode(DicTag.FerryAvoidNumber);
-                        //判断是否存在有摆渡车已被锁
-                        if (ferrys.Exists(c => c.IsFerryLock()) && ferrys.Exists(c => !c.IsFerryLock()))
+                        #region[减少避让，交叉定位]
+                        if (ferrys.Count > 1)
                         {
-                            List<FerryTask> ferryLockeds = ferrys.FindAll(c => c.IsFerryLock());
-                            List<FerryTask> ferryUnLockeds = ferrys.FindAll(c => !c.IsFerryLock());
-
-                            foreach (FerryTask fUnLocked in ferryUnLockeds)
+                            int safedis = PubMaster.Dic.GetDtlIntCode(DicTag.FerryAvoidNumber);
+                            //判断是否存在有摆渡车已被锁
+                            if (ferrys.Exists(c => c.IsFerryLock()) && ferrys.Exists(c => !c.IsFerryLock()))
                             {
-                                if (CheckFerryStatus(fUnLocked) && (fUnLocked.IsStillLockInTrans(trans.id) || fUnLocked.IsFerryFree()))
+                                List<FerryTask> ferryLockeds = ferrys.FindAll(c => c.IsFerryLock());
+                                List<FerryTask> ferryUnLockeds = ferrys.FindAll(c => !c.IsFerryLock());
+
+                                foreach (FerryTask fUnLocked in ferryUnLockeds)
                                 {
-                                    //摆渡车所对着的轨道id
-                                    //uint taskUnLockedTrackId = ferrytype == DeviceTypeE.上摆渡 ? fUnLocked.DownTrackId : fUnLocked.UpTrackId;
-                                    uint taskUnLockedTrackId = fUnLocked.GetFerryCurrentTrackId();
+                                    if (CheckFerryStatus(fUnLocked) && (fUnLocked.IsStillLockInTrans(trans.id) || fUnLocked.IsFerryFree()))
+                                    {
+                                        //摆渡车所对着的轨道id
+                                        //uint taskUnLockedTrackId = ferrytype == DeviceTypeE.上摆渡 ? fUnLocked.DownTrackId : fUnLocked.UpTrackId;
+                                        uint taskUnLockedTrackId = fUnLocked.GetFerryCurrentTrackId();
 
-                                    //摆渡车的当前轨道的顺序
-                                    short taskUnLockedCurrentOrder = PubMaster.Track.GetTrackOrder(taskUnLockedTrackId);
+                                        //摆渡车的当前轨道的顺序
+                                        short taskUnLockedCurrentOrder = PubMaster.Track.GetTrackOrder(taskUnLockedTrackId);
 
-                                    int leftCompare, rightCompare;
-                                    if (taskUnLockedCurrentOrder >= carrierTrackOrder)
-                                    {
-                                        leftCompare = carrierTrackOrder - safedis;
-                                        rightCompare = taskUnLockedCurrentOrder + safedis;
-                                    }
-                                    else
-                                    {
-                                        leftCompare = taskUnLockedCurrentOrder - safedis;
-                                        rightCompare = carrierTrackOrder + safedis;
-                                    }
-                                    leftCompare = leftCompare < 0 ? 0 : leftCompare;
-                                    bool isChosen = true;
-                                    foreach (FerryTask fLocked in ferryLockeds)
-                                    {
-                                        if (!CheckFerryStatus(fLocked, out string r))
+                                        int leftCompare, rightCompare;
+                                        if (taskUnLockedCurrentOrder >= carrierTrackOrder)
                                         {
-                                            continue;
+                                            leftCompare = carrierTrackOrder - safedis;
+                                            rightCompare = taskUnLockedCurrentOrder + safedis;
                                         }
-
-                                        if (CheckFerryStatus(fLocked) && fLocked.IsStillLockInTrans(trans.id))
+                                        else
                                         {
-                                            ferryid = fLocked.ID;
+                                            leftCompare = taskUnLockedCurrentOrder - safedis;
+                                            rightCompare = carrierTrackOrder + safedis;
+                                        }
+                                        leftCompare = leftCompare < 0 ? 0 : leftCompare;
+                                        bool isChosen = true;
+                                        foreach (FerryTask fLocked in ferryLockeds)
+                                        {
+                                            if (!CheckFerryStatus(fLocked, out string r))
+                                            {
+                                                continue;
+                                            }
+
+                                            if (CheckFerryStatus(fLocked) && fLocked.IsStillLockInTrans(trans.id))
+                                            {
+                                                ferryid = fLocked.ID;
+                                                return true;
+                                            }
+                                            //上锁摆渡车所对着的轨道id
+                                            //uint taskLockedTrackId = ferrytype == DeviceTypeE.上摆渡 ? fLocked.DownTrackId : fLocked.UpTrackId;
+                                            uint taskLockedTrackId = fLocked.GetFerryCurrentTrackId();
+
+                                            //上锁摆渡车的当前轨道的顺序
+                                            short taskLockedCurrentOrder = PubMaster.Track.GetTrackOrder(taskLockedTrackId);
+
+                                            //上锁摆渡车的目的轨道的位置顺序
+                                            short taskLockedTargetOrder = PubMaster.Track.GetTrackBySite((ushort)fLocked.AreaId, fLocked.Type, fLocked.DevStatus.TargetSite)?.order ?? 0;
+
+                                            if ((leftCompare < taskLockedCurrentOrder && taskLockedCurrentOrder < rightCompare)
+                                                   || (leftCompare < taskLockedTargetOrder && taskLockedTargetOrder < rightCompare))
+                                            {
+                                                isChosen = false;
+                                                break;
+                                            }
+                                        }
+                                        if (isChosen)
+                                        {
+                                            ferryid = fUnLocked.ID;
                                             return true;
                                         }
-                                        //上锁摆渡车所对着的轨道id
-                                        //uint taskLockedTrackId = ferrytype == DeviceTypeE.上摆渡 ? fLocked.DownTrackId : fLocked.UpTrackId;
-                                        uint taskLockedTrackId = fLocked.GetFerryCurrentTrackId();
-
-                                        //上锁摆渡车的当前轨道的顺序
-                                        short taskLockedCurrentOrder = PubMaster.Track.GetTrackOrder(taskLockedTrackId);
-
-                                        //上锁摆渡车的目的轨道的位置顺序
-                                        short taskLockedTargetOrder = PubMaster.Track.GetTrackBySite((ushort)fLocked.AreaId, fLocked.Type, fLocked.DevStatus.TargetSite)?.order ?? 0;
-
-                                        if ((leftCompare < taskLockedCurrentOrder && taskLockedCurrentOrder < rightCompare)
-                                               || (leftCompare < taskLockedTargetOrder && taskLockedTargetOrder < rightCompare))
-                                        {
-                                            isChosen = false;
-                                            break;
-                                        }
                                     }
-                                    if (isChosen)
-                                    {
-                                        ferryid = fUnLocked.ID;
-                                        return true;
-                                    }
+                                    continue; //当前空闲摆渡车分配不了，就分配下一辆摆渡车
                                 }
-                                continue; //当前空闲摆渡车分配不了，就分配下一辆摆渡车
                             }
                         }
+                        #endregion
 
                         long distance = 999;
+                        bool isoneferry = false;
+                        string allocateinfo = string.Empty;
+                        if(ferrys.Count == 1)
+                        {
+                            isoneferry = true;
+                        }
+
                         //如何判断哪个摆渡车最好储砖
                         foreach (FerryTask ferry in ferrys)
                         {
-                            if (CheckFerryStatus(ferry) && (ferry.IsStillLockInTrans(trans.id) || ferry.IsFerryFree()))
+                            if (!(ferry.IsStillLockInTrans(trans.id) || ferry.IsFerryFree()))
                             {
-                                // 摆渡车对应轨道号
-                                Track ferryTrack = PubMaster.Track.GetTrack(ferry.GetFerryCurrentTrackId());
-
-                                if (ferryTrack == null || ferryTrack.order == 0)
-                                {
-                                    continue;
-
-                                }
-                                //摆渡车跟运输车轨道的差绝对值,   数据库 在录入的轨道order时，砖机轨道的顺序是对着的那条储砖轨道的顺序
-                                long d = Math.Abs(ferryTrack.order - carrierTrack.order);
-                                if (distance > d)
-                                {
-                                    distance = d;
-                                    ferryid = ferry.ID;
-                                }
+                                allocateinfo = AddFerryAllocateLog(trans, ferry.Device.name, string.Format("已被锁定，锁定任务[ {0} ],", ferry.TransId));
+                                continue;
                             }
 
+                            if (!CheckFerryStatusResult(ferry, out string res))
+                            {
+                                allocateinfo = AddFerryAllocateLog(trans, ferry.Device.name, res);
+                                continue;
+                            }
+
+                            // 摆渡车对应轨道号
+                            Track ferryTrack = PubMaster.Track.GetTrack(ferry.GetFerryCurrentTrackId());
+
+                            if (ferryTrack == null)
+                            {
+                                allocateinfo = AddFerryAllocateLog(trans, ferry.Device.name, string.Format("摆渡所在轨道为空, 前标[ {0} ], 后标[ {1} ]", ferry.UpSite, ferry.DownSite));
+                                continue;
+                            }
+
+                            if(ferryTrack.order == 0)
+                            {
+                                allocateinfo = AddFerryAllocateLog(trans, ferry.Device.name, string.Format("摆渡所在轨道[ {0} ]未配置顺序", ferryTrack.name));
+                                continue;
+                            }
+
+                            //摆渡车跟运输车轨道的差绝对值,   数据库 在录入的轨道order时，砖机轨道的顺序是对着的那条储砖轨道的顺序
+                            long d = Math.Abs(ferryTrack.order - carrierTrack.order);
+                            if (distance > d)
+                            {
+                                distance = d;
+                                ferryid = ferry.ID;
+                            }
                             result = result + ferry.Device.name + ",";
                         }
-                        result = string.Format("任务ID[{0}]分配的摆渡车[{1}]不符合状态，不能分配，分配条件：[启用] [通讯正常] [没载车] [停止] [自动模式] [没有被分配到其他任务]", trans.id, result);
+
+                        if(ferryid == 0)
+                        {
+                            if (isoneferry)
+                            {
+                                result = allocateinfo;
+                            }
+                            else
+                            {
+                                result = string.Format("任务ID[{0}]分配的摆渡车[{1}]不符合状态，不能分配，分配条件：[启用] [通讯正常] [没载车] [停止] [自动模式] [没有被分配到其他任务]", trans.id, result);
+                            }
+                        }
                         return ferryid != 0;
                     }
                     result = result.Equals("") ? string.Format("任务ID[{0}]没有能够去取/卸货轨道的摆渡车", trans.id) : result;
@@ -1587,6 +1627,43 @@ namespace task.device
 
             return false;
         }
+
+
+        /// <summary>
+        /// 检查摆渡车状态
+        /// </summary>
+        /// <param name="ferry"></param>
+        /// <returns></returns>
+        private bool CheckFerryStatusResult(FerryTask ferry, out string result)
+        {
+            if(ferry.ConnStatus != SocketConnectStatusE.通信正常)
+            {
+                result = "设备通信故障";
+                return false;
+            }
+
+            if(ferry.OperateMode != DevOperateModeE.自动)
+            {
+                result = "非自动模式";
+                return false;
+            }
+
+            if (ferry.Status != DevFerryStatusE.停止)
+            {
+                result = "未停止";
+                return false;
+            }
+
+            if (ferry.Load != DevFerryLoadE.空)
+            {
+                result = "非空";
+                return false;
+            }
+            result = "";
+            return true;
+        }
+
+
 
         #endregion
 
@@ -1858,6 +1935,27 @@ namespace task.device
                 task.IsWorking = working;
                 MsgSend(task, task.DevStatus);
             }
+        }
+
+        #endregion
+
+        #region[摆渡车分配日志]
+        private string tempferryallocatmsg = string.Empty;
+        private string AddFerryAllocateLog(StockTrans trans, string ferryname, string log)
+        {
+            try
+            {
+                string msg = string.Format("任务[ {0} ], 摆渡车[ {1} ], 分配失败, 原因[ {2} ]", trans.id, ferryname, log);
+                if (msg.Equals(tempferryallocatmsg))
+                {
+                    return msg;
+                }
+                tempferryallocatmsg = msg;
+                mAllocateLog.Status(true, msg);
+                return msg;
+            }
+            catch { }
+            return "";
         }
 
         #endregion

@@ -95,6 +95,27 @@ namespace tool.appconfig
             SaveDefaultConfig();
             #endregion
 
+            #region[大配置]
+
+            if (File.Exists(BigConifg.SavePath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(BigConifg.SavePath);
+                    BigConifg = (string.IsNullOrEmpty(json) ? new BigConifg() : JsonConvert.DeserializeObject<BigConifg>(json)) ?? new BigConifg();
+                }
+                catch
+                {
+                    BigConifg = new BigConifg();
+                }
+            }
+            else
+            {
+                BigConifg = new BigConifg();
+            }
+            SaveBigConifg();
+
+            #endregion
         }
 
         public static void SaveMysqlConfig()
@@ -198,10 +219,36 @@ namespace tool.appconfig
 
             }
         }
+        public static void SaveBigConifg()
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(BigConifg);
+                if (!Directory.Exists(BigConifg.Path))
+                {
+                    Directory.CreateDirectory(BigConifg.Path);
+                }
+                using (FileStream fs = new FileStream(BigConifg.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                {
+                    fs.Seek(fs.Length, SeekOrigin.Current);
+
+                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
+
+                    fs.Write(data, 0, data.Length);
+
+                    fs.Close();
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
 
         public static MysqlConfig MysqlConfig { get; set; }
         public static DebugConfig DebugConfig { get; set; }
         public static SimulateConfig SimulateConfig { get; set; }
         public static DefaultConfig DefaultConfig { get; set; }
+        public static BigConifg BigConifg { get; set; }
     }
 }

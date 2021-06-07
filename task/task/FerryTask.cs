@@ -364,7 +364,7 @@ namespace task.task
                 return true;
             }
 
-            if (IsLockOverTime() && IsLock)
+            if (IsLock && IsLockOverTime())
             {
                 IsLock = false;
                 TransId = 0;

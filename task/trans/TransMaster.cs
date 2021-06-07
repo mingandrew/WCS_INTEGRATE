@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using task.device;
+using tool.appconfig;
 
 namespace task.trans
 {
@@ -589,6 +590,8 @@ namespace task.trans
                                         && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                                 {
                                     trans.IsReleaseGiveFerry = true;
+
+                                    FreeGiveFerry(trans);
                                 }
                             }
 
@@ -1087,14 +1090,16 @@ namespace task.trans
                         return;
                     }
 
-                    if (trans.take_ferry_id != 0 && !PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id))
+                    if (trans.take_ferry_id != 0 
+                        && !trans.IsReleaseTakeFerry
+                        && !PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id))
                     {
                         return;
                     }
 
                     #region[分配摆渡车]
                     //还没有分配取货过程中的摆渡车
-                    if (trans.take_ferry_id == 0)
+                    if (trans.take_ferry_id == 0 && !trans.IsReleaseTakeFerry)
                     {
                         string msg = AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
 
@@ -1685,6 +1690,19 @@ namespace task.trans
 
                         #region[小车在上砖轨道]
                         case TrackTypeE.上砖轨道:
+
+                            //判断小车是否已上轨道，是则解锁摆渡车
+                            if (GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id))
+                            {
+                                if (!trans.IsReleaseTakeFerry
+                                    && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
+                                    && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
+                                {
+                                    trans.IsReleaseTakeFerry = true;
+                                    FreeTakeFerry(trans);
+                                }
+                            }
+
                             if (isnotload)
                             {
                                 //发送离开给上砖机
@@ -2008,25 +2026,39 @@ namespace task.trans
                                                 }
                                                 else
                                                 {
-                                                    #region 【任务步骤记录】
-                                                    LogForCarrierTake(trans, trans.finish_track_id);
-                                                    #endregion
-
-                                                    //后退取砖
-                                                    cao.Order = DevCarrierOrderE.取砖指令;
-                                                    cao.CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id);
-                                                    TrackTypeE tt = PubMaster.Track.GetTrackType(trans.finish_track_id);
-                                                    if (tt == TrackTypeE.储砖_出入)
+                                                    if (GlobalWcsDataConfig.BigConifg.IsUpTaskNotTake(trans.area_id))
                                                     {
-                                                        // 去入库地标取，回轨道出库地标
+                                                        #region 【任务步骤记录】
+                                                        LogForCarrierToTrack(trans, trans.finish_track_id);
+                                                        #endregion
+
+                                                        //后退至点
+                                                        cao.Order = DevCarrierOrderE.定位指令;
+                                                        cao.CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id);
                                                         cao.ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id);
-                                                        cao.OverRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id);
                                                     }
                                                     else
                                                     {
-                                                        // 去分段点取，回轨道出库地标
-                                                        cao.ToPoint = PubMaster.Track.GetTrackSplitPoint(trans.finish_track_id);
-                                                        cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id);
+                                                        #region 【任务步骤记录】
+                                                        LogForCarrierTake(trans, trans.finish_track_id);
+                                                        #endregion
+
+                                                        //后退取砖
+                                                        cao.Order = DevCarrierOrderE.取砖指令;
+                                                        cao.CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id);
+                                                        TrackTypeE tt = PubMaster.Track.GetTrackType(trans.finish_track_id);
+                                                        if (tt == TrackTypeE.储砖_出入)
+                                                        {
+                                                            // 去入库地标取，回轨道出库地标
+                                                            cao.ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id);
+                                                            cao.OverRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id);
+                                                        }
+                                                        else
+                                                        {
+                                                            // 去分段点取，回轨道出库地标
+                                                            cao.ToPoint = PubMaster.Track.GetTrackSplitPoint(trans.finish_track_id);
+                                                            cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id);
+                                                        }
                                                     }
                                                 }
 
@@ -2046,7 +2078,6 @@ namespace task.trans
                                                     ToRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id),
                                                 });
                                             }
-
                                         }
                                     }
                                 }
@@ -2373,11 +2404,11 @@ namespace task.trans
                                     //|| PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
                                     )
                                 {
-                                    if (!trans.IsReleaseGiveFerry
+                                    if (!trans.IsReleaseTakeFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
                                          && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
                                     {
-                                        trans.IsReleaseGiveFerry = true;
+                                        trans.IsReleaseTakeFerry = true;
                                     }
 
                                     SetStatus(trans, TransStatusE.倒库中);
@@ -2955,11 +2986,11 @@ namespace task.trans
                                     //|| PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
                                     )
                                 {
-                                    if (!trans.IsReleaseGiveFerry
+                                    if (!trans.IsReleaseTakeFerry
                                          && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
                                          && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
                                     {
-                                        trans.IsReleaseGiveFerry = true;
+                                        trans.IsReleaseTakeFerry = true;
                                     }
 
                                     SetStatus(trans, TransStatusE.倒库中);

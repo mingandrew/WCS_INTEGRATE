@@ -443,6 +443,20 @@ namespace task.trans
             }
         }
 
+        internal void FreeTakeFerry(StockTrans trans, string memo = "")
+        {
+            string devname = PubMaster.Device.GetDeviceName(trans.take_ferry_id);
+            mLog.Status(true, string.Format("任务[ {0} ], 解锁T摆渡车[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
+            SetStepLog(trans, true, 210, string.Format("解锁接车摆渡车[ {0} ]；{1}；", devname, memo));
+        }
+
+        internal void FreeGiveFerry(StockTrans trans, string memo = "")
+        {
+            string devname = PubMaster.Device.GetDeviceName(trans.give_ferry_id);
+            mLog.Status(true, string.Format("任务[ {0} ], 解锁G摆渡车[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
+            SetStepLog(trans, true, 211, string.Format("解锁送车摆渡车[ {0} ]；{1}；", devname, memo));
+        }
+
         /// <summary>
         /// 重新分配砖机
         /// </summary>

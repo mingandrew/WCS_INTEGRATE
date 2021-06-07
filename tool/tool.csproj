@@ -89,6 +89,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="appconfig\BigConifg.cs" />
     <Compile Include="appconfig\DebugConfig.cs" />
     <Compile Include="appconfig\DefaultConfig.cs" />
     <Compile Include="appconfig\MysqlConfig.cs" />
