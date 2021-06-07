@@ -471,7 +471,7 @@ namespace task.device
                             }
                             else
                             {
-                                if (bro != null && bro.IsNeed_1)
+                                if (bro != null && bro.IsNeed_1 && bro.Type == DeviceTypeE.下砖机)
                                 {
                                     return true;
                                 }
@@ -518,7 +518,7 @@ namespace task.device
                             }
                             else
                             {
-                                if (bro != null && bro.IsNeed_2)
+                                if (bro != null && bro.IsNeed_2 && bro.Type == DeviceTypeE.下砖机)
                                 {
                                     return true;
                                 }
