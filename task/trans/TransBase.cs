@@ -377,6 +377,27 @@ namespace task.trans
                     }
                 }
 
+                // 重置所有设备分配
+                if (status == TransStatusE.调度设备)
+                {
+                    if (trans.take_ferry_id > 0)
+                    {
+                        trans.IsReleaseTakeFerry = true;
+                        SetTakeFerry(trans, 0, "解锁分配设备，重新恢复任务");
+                    }
+
+                    if (trans.give_ferry_id > 0)
+                    {
+                        trans.IsReleaseGiveFerry = true;
+                        SetGiveFerry(trans, 0, "解锁分配设备，重新恢复任务");
+                    }
+
+                    if (trans.carrier_id > 0)
+                    {
+                        SetCarrier(trans, 0, "解锁分配设备，重新恢复任务");
+                    }
+                }
+
                 //SendMsg(trans);
                 SetStepLog(trans, true, (uint)status, string.Format("切换流程[ {0} ]；{1}；", status, memo));
 
