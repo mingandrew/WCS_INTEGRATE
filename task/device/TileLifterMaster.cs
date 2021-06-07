@@ -367,20 +367,13 @@ namespace task.device
 
         public void DoInv(uint devid, bool isone, DevLifterInvolE type)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            if (isone)
             {
-                try
-                {
-                    if (isone)
-                    {
-                        DevList.Find(c => c.ID == devid)?.Do1Invo(type);
-                    }
-                    else
-                    {
-                        DevList.Find(c => c.ID == devid)?.Do2Invo(type);
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
+                DevList.Find(c => c.ID == devid)?.Do1Invo(type);
+            }
+            else
+            {
+                DevList.Find(c => c.ID == devid)?.Do2Invo(type);
             }
         }
 
@@ -392,25 +385,20 @@ namespace task.device
         /// <returns></returns>
         public void DoIgnore(uint devid, bool isone)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
+                TileLifterTask task = DevList.Find(c => c.ID == devid);
+                if (task == null) return;
+                if (isone)
                 {
-                    TileLifterTask task = DevList.Find(c => c.ID == devid);
-                    if (task == null) return;
-                    if (isone)
-                    {
-                        task.Ignore_1 = true;
-                    }
-                    else
-                    {
-                        task.Ignore_2 = true;
-                    }
-
-
+                    task.Ignore_1 = true;
                 }
-                finally { Monitor.Exit(_obj); }
+                else
+                {
+                    task.Ignore_2 = true;
+                }
             }
+            catch { }
         }
 
         /// <summary>
@@ -423,219 +411,200 @@ namespace task.device
         /// <returns></returns>
         internal bool DoInvLeave(uint tilelifter_id, uint leavetrackid)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
+                TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
+                if (task != null)
                 {
-                    TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
-                    if (task != null)
+                    TileLifterTask bro;
+                    //离开砖机并且同时离开兄弟砖机
+                    if (task.HaveBrother)
                     {
-                        TileLifterTask bro;
-                        //离开砖机并且同时离开兄弟砖机
+                        bro = DevList.Find(c => c.ID == task.BrotherId);
+                    }
+                    else
+                    {
+                        bro = DevList.Find(c => c.BrotherId == task.ID);
+                    }
+
+                    if (task.DevConfig.left_track_id == leavetrackid)
+                    {
                         if (task.HaveBrother)
                         {
-                            bro = DevList.Find(c => c.ID == task.BrotherId);
+                            if (task.IsInvo_1)
+                            {
+                                task.Do1Invo(DevLifterInvolE.离开);
+                            }
+
+                            if (task.Type == DeviceTypeE.上砖机)
+                            {
+                                if (!task.IsInvo_1)
+                                {
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                            if (bro.IsInvo_1)
+                            {
+                                bro.Do1Invo(DevLifterInvolE.离开);
+                            }
+
+                            if (!task.IsInvo_1 && !bro.IsInvo_1)
+                            {
+                                return true;
+                            }
                         }
                         else
                         {
-                            bro = DevList.Find(c => c.BrotherId == task.ID);
-                        }
-
-                        if (task.DevConfig.left_track_id == leavetrackid)
-                        {
-                            if (task.HaveBrother)
+                            if (bro != null && bro.IsNeed_1 && bro.Type == DeviceTypeE.下砖机)
                             {
-                                if (task.IsInvo_1)
-                                {
-                                    task.Do1Invo(DevLifterInvolE.离开);
-                                }
+                                return true;
+                            }
 
-                                if (task.Type == DeviceTypeE.上砖机)
-                                {
-                                    if (!task.IsInvo_1)
-                                    {
-                                        return true;
-                                    }
-                                    return false;
-                                }
-
-                                if (bro.IsInvo_1)
-                                {
-                                    bro.Do1Invo(DevLifterInvolE.离开);
-                                }
-
-                                if (!task.IsInvo_1 && !bro.IsInvo_1)
-                                {
-                                    return true;
-                                }
+                            if (task.IsInvo_1)
+                            {
+                                task.Do1Invo(DevLifterInvolE.离开);
                             }
                             else
                             {
-                                if (bro != null && bro.IsNeed_1 && bro.Type == DeviceTypeE.下砖机)
-                                {
-                                    return true;
-                                }
-
-                                if (task.IsInvo_1)
-                                {
-                                    task.Do1Invo(DevLifterInvolE.离开);
-                                }
-                                else
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
+                    }
 
-
-                        if (task.DevConfig.right_track_id == leavetrackid)
+                    if (task.DevConfig.right_track_id == leavetrackid)
+                    {
+                        if (task.HaveBrother)
                         {
-                            if (task.HaveBrother)
+                            if (task.IsInvo_2)
                             {
-                                if (task.IsInvo_2)
-                                {
-                                    task.Do2Invo(DevLifterInvolE.离开);
-                                }
+                                task.Do2Invo(DevLifterInvolE.离开);
+                            }
 
-                                if (task.Type == DeviceTypeE.上砖机)
-                                {
-                                    if (!task.IsInvo_2)
-                                    {
-                                        return true;
-                                    }
-                                    return false;
-                                }
-
-                                if (bro.IsInvo_2)
-                                {
-                                    bro.Do2Invo(DevLifterInvolE.离开);
-                                }
-
-                                if (!task.IsInvo_2 && !bro.IsInvo_2)
+                            if (task.Type == DeviceTypeE.上砖机)
+                            {
+                                if (!task.IsInvo_2)
                                 {
                                     return true;
                                 }
+                                return false;
+                            }
+
+                            if (bro.IsInvo_2)
+                            {
+                                bro.Do2Invo(DevLifterInvolE.离开);
+                            }
+
+                            if (!task.IsInvo_2 && !bro.IsInvo_2)
+                            {
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            if (bro != null && bro.IsNeed_2 && bro.Type == DeviceTypeE.下砖机)
+                            {
+                                return true;
+                            }
+
+                            if (task.IsInvo_2)
+                            {
+                                task.Do2Invo(DevLifterInvolE.离开);
                             }
                             else
                             {
-                                if (bro != null && bro.IsNeed_2 && bro.Type == DeviceTypeE.下砖机)
-                                {
-                                    return true;
-                                }
-
-                                if (task.IsInvo_2)
-                                {
-                                    task.Do2Invo(DevLifterInvolE.离开);
-                                }
-                                else
-                                {
-                                    return true;
-                                }
+                                return true;
                             }
                         }
                     }
                 }
-                finally { Monitor.Exit(_obj); }
             }
+            catch { }
             return false;
         }
 
         internal bool IsTrackEmtpy(uint tileid, uint trackid)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            TileLifterTask task = DevList.Find(c => c.ID == tileid);
+            if (task != null)
             {
-                try
+                if (task.DevConfig.left_track_id == trackid && task.IsEmpty_1)
                 {
-                    TileLifterTask task = DevList.Find(c => c.ID == tileid);
-                    if (task != null)
-                    {
-                        if (task.DevConfig.left_track_id == trackid && task.IsEmpty_1)
-                        {
-                            return true;
-                        }
-
-                        if (task.DevConfig.right_track_id == trackid && task.IsEmpty_2)
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
-                finally { Monitor.Exit(_obj); }
+
+                if (task.DevConfig.right_track_id == trackid && task.IsEmpty_2)
+                {
+                    return true;
+                }
             }
             return false;
         }
 
         public void StartStopTileLifter(uint tileid, bool isstart)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            try
             {
-                try
+                TileLifterTask task = DevList.Find(c => c.ID == tileid);
+                if (task != null)
                 {
-                    TileLifterTask task = DevList.Find(c => c.ID == tileid);
-                    if (task != null)
+                    if (isstart)
                     {
-                        if (isstart)
+                        task.ReSetOffLineTime();
+                        if (!task.IsEnable)
                         {
-                            task.ReSetOffLineTime();
-                            if (!task.IsEnable)
-                            {
-                                task.SetEnable(isstart);
-                            }
-                            task.Start("手动启动");
+                            task.SetEnable(isstart);
                         }
-                        else
+                        task.Start("手动启动");
+                    }
+                    else
+                    {
+                        if (task.IsEnable)
                         {
-                            if (task.IsEnable)
-                            {
-                                task.SetEnable(isstart);
-                            }
-                            task.ReSetOfflineBreakTime();
-                            task.Stop("手动停止");
-                            PubMaster.Warn.RemoveDevWarn((ushort)task.ID);
+                            task.SetEnable(isstart);
+                        }
+                        task.ReSetOfflineBreakTime();
+                        task.Stop("手动停止");
+                        PubMaster.Warn.RemoveDevWarn((ushort)task.ID);
 
-                            PubTask.Ping.RemovePing(task.Device.ip);
-                        }
+                        PubTask.Ping.RemovePing(task.Device.ip);
                     }
                 }
-                finally { Monitor.Exit(_obj); }
+            }catch(Exception ex)
+            {
+                mlog.Error(true, ex.StackTrace);
             }
-
         }
 
         public void UpdateTileInStrategry(uint id, StrategyInE instrategy, DevWorkTypeE worktype)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
+                TileLifterTask task = DevList.Find(c => c.ID == id);
+                if (task != null)
                 {
-                    TileLifterTask task = DevList.Find(c => c.ID == id);
-                    if (task != null)
-                    {
-                        task.InStrategy = instrategy;
-                        task.WorkType = worktype;
-                        MsgSend(task, task.DevStatus);
-                    }
+                    task.InStrategy = instrategy;
+                    task.WorkType = worktype;
+                    MsgSend(task, task.DevStatus);
                 }
-                finally { Monitor.Exit(_obj); }
             }
+            catch { }
         }
 
         public void UpdateTileOutStrategry(uint id, StrategyOutE outstrategy, DevWorkTypeE worktype)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            try
             {
-                try
+                TileLifterTask task = DevList.Find(c => c.ID == id);
+                if (task != null)
                 {
-                    TileLifterTask task = DevList.Find(c => c.ID == id);
-                    if (task != null)
-                    {
-                        task.OutStrategy = outstrategy;
-                        task.WorkType = worktype;
-                        MsgSend(task, task.DevStatus);
-                    }
+                    task.OutStrategy = outstrategy;
+                    task.WorkType = worktype;
+                    MsgSend(task, task.DevStatus);
                 }
-                finally { Monitor.Exit(_obj); }
             }
+            catch { }
         }
 
         #endregion
@@ -790,16 +759,9 @@ namespace task.device
         /// <param name="takeid"></param>
         public void ReseUpTileCurrentTake(uint takeid)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            foreach (TileLifterTask t in DevList.FindAll(c => c.DevConfig.last_track_id == takeid && c.Type == DeviceTypeE.上砖机))
             {
-                try
-                {
-                    foreach (TileLifterTask t in DevList.FindAll(c => c.DevConfig.last_track_id == takeid && c.Type == DeviceTypeE.上砖机))
-                    {
-                        PubMaster.DevConfig.SetLastTrackId(t.ID, 0);
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
+                PubMaster.DevConfig.SetLastTrackId(t.ID, 0);
             }
         }
 
@@ -2263,43 +2225,34 @@ namespace task.device
         internal bool IsTakeReady(uint tilelifter_id, uint taketrackid, out string result)
         {
             result = "";
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
+            if (!CheckTileLifterStatus(task, out result))
             {
                 return false;
             }
-            try
+
+            if (!CheckBrotherIsReady(task, false, task.DevConfig.left_track_id == taketrackid))
             {
-                TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
-                if (!CheckTileLifterStatus(task, out result))
-                {
-                    return false;
-                }
-
-                if (!CheckBrotherIsReady(task, false, task.DevConfig.left_track_id == taketrackid))
-                {
-                    return false;
-                }
-
-                if (task.DevConfig.left_track_id == taketrackid)
-                {
-                    if (!task.IsInvo_1 && task.IsNeed_1 && task.IsLoad_1)
-                    {
-                        task.Do1Invo(DevLifterInvolE.介入);
-                    }
-                    return task.IsNeed_1 && task.IsLoad_1 && task.IsInvo_1;
-                }
-
-                if (task.DevConfig.right_track_id == taketrackid)
-                {
-                    if (!task.IsInvo_2 && task.IsNeed_2 && task.IsLoad_2)
-                    {
-                        task.Do2Invo(DevLifterInvolE.介入);
-                    }
-                    return task.IsNeed_2 && task.IsLoad_2 && task.IsInvo_2;
-                }
-
+                return false;
             }
-            finally { Monitor.Exit(_obj); }
+
+            if (task.DevConfig.left_track_id == taketrackid)
+            {
+                if (!task.IsInvo_1 && task.IsNeed_1 && task.IsLoad_1)
+                {
+                    task.Do1Invo(DevLifterInvolE.介入);
+                }
+                return task.IsNeed_1 && task.IsLoad_1 && task.IsInvo_1;
+            }
+
+            if (task.DevConfig.right_track_id == taketrackid)
+            {
+                if (!task.IsInvo_2 && task.IsNeed_2 && task.IsLoad_2)
+                {
+                    task.Do2Invo(DevLifterInvolE.介入);
+                }
+                return task.IsNeed_2 && task.IsLoad_2 && task.IsInvo_2;
+            }
             return false;
         }
 
@@ -2313,43 +2266,34 @@ namespace task.device
         internal bool IsGiveReady(uint tilelifter_id, uint givetrackid, out string result)
         {
             result = "";
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
+            if (!CheckTileLifterStatus(task, out result))
             {
                 return false;
             }
-            try
+
+            if (!CheckUpBrotherIsReady(task, false, task.DevConfig.left_track_id == givetrackid))
             {
-                TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
-                if (!CheckTileLifterStatus(task, out result))
-                {
-                    return false;
-                }
-
-                if (!CheckUpBrotherIsReady(task, false, task.DevConfig.left_track_id == givetrackid))
-                {
-                    return false;
-                }
-
-                if (task.DevConfig.left_track_id == givetrackid)
-                {
-                    if (!task.IsInvo_1 && task.IsNeed_1 && task.IsEmpty_1)
-                    {
-                        task.Do1Invo(DevLifterInvolE.介入);
-                    }
-                    return task.IsNeed_1 && task.IsEmpty_1 && task.IsInvo_1;
-                }
-
-                if (task.DevConfig.right_track_id == givetrackid)
-                {
-                    if (!task.IsInvo_2 && task.IsNeed_2 && task.IsEmpty_2)
-                    {
-                        task.Do2Invo(DevLifterInvolE.介入);
-                    }
-                    return task.IsNeed_2 && task.IsEmpty_2 && task.IsInvo_2;
-                }
-
+                return false;
             }
-            finally { Monitor.Exit(_obj); }
+
+            if (task.DevConfig.left_track_id == givetrackid)
+            {
+                if (!task.IsInvo_1 && task.IsNeed_1 && task.IsEmpty_1)
+                {
+                    task.Do1Invo(DevLifterInvolE.介入);
+                }
+                return task.IsNeed_1 && task.IsEmpty_1 && task.IsInvo_1;
+            }
+
+            if (task.DevConfig.right_track_id == givetrackid)
+            {
+                if (!task.IsInvo_2 && task.IsNeed_2 && task.IsEmpty_2)
+                {
+                    task.Do2Invo(DevLifterInvolE.介入);
+                }
+                return task.IsNeed_2 && task.IsEmpty_2 && task.IsInvo_2;
+            }
             return false;
         }
 
@@ -2437,23 +2381,14 @@ namespace task.device
 
         public void UpdateWorking(uint devId, bool working, byte worktype)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            TileLifterTask task = DevList.Find(c => c.ID == devId);
+            if (task != null)
             {
-                return;
+                task.IsWorking = working;
+                if (worktype != 255)
+                    task.WorkType = (DevWorkTypeE)worktype;
+                MsgSend(task, task.DevStatus);
             }
-            try
-            {
-                TileLifterTask task = DevList.Find(c => c.ID == devId);
-                if (task != null)
-                {
-                    task.IsWorking = working;
-                    if (worktype != 255)
-                        task.WorkType = (DevWorkTypeE)worktype;
-                    MsgSend(task, task.DevStatus);
-                }
-            }
-            finally { Monitor.Exit(_obj); }
-
         }
 
         #endregion

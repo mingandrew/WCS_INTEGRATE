@@ -3179,6 +3179,30 @@ namespace resource.goods
             return false;
         }
 
+
+        /// <summary>
+        /// 判断库存所在位置是否轨道分割点后面
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        public bool ExistBehindUpSplitPoint(uint trackid, uint point)
+        {
+            return StockList.Exists(c => c.track_id == trackid && c.location >= point);
+        }
+
+        /// <summary>
+        /// 判断库存所在位置是否轨道分割点前面
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        public bool ExistInfrontUpSplitPoint(uint trackid, uint point)
+        {
+            return StockList.Exists(c => c.track_id == trackid && c.location <= point);
+        }
+
+
         /// <summary>
         /// 判断库存是否是头部库存信息
         /// </summary>

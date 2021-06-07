@@ -756,6 +756,14 @@ namespace task.task
                 PubMaster.Track.GetTrackName(RecordTraId));
         }
 
+        public void AddStatusLog(string log)
+        {
+            try
+            {
+                DevTcp.AddStatusLog(log);
+            }
+            catch { }
+        }
         #endregion
     }
 }

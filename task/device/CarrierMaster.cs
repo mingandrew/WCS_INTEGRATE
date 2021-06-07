@@ -226,7 +226,7 @@ namespace task.device
                     CarrierTask task = DevList.Find(c => c.ID == carrierid);
                     if (task != null && !task.IsWorking && !task.IsEnable)
                     {
-                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, DevFerryLoadE.空);
+                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, task.Device.name, DevFerryLoadE.空);
                         task.ClearDevStatus();
                         MsgSend(task, task.DevStatus);
                         return "清除成功";
@@ -244,38 +244,42 @@ namespace task.device
             return "稍后再试";
         }
 
+        /// <summary>
+        /// 连接/断开通讯
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <param name="isstart"></param>
         public void StartStopCarrier(uint carrierid, bool isstart)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            try
             {
-                try
+                CarrierTask task = DevList.Find(c => c.ID == carrierid);
+                if (task != null)
                 {
-                    CarrierTask task = DevList.Find(c => c.ID == carrierid);
-                    if (task != null)
+                    if (isstart)
                     {
-                        if (isstart)
+                        if (!task.IsEnable)
                         {
-                            if (!task.IsEnable)
-                            {
-                                task.SetEnable(isstart);
-                            }
-                            task.Start("手动启动");
+                            task.SetEnable(isstart);
                         }
-                        else
+                        task.Start("手动启动");
+                    }
+                    else
+                    {
+                        if (task.IsEnable)
                         {
-                            if (task.IsEnable)
-                            {
-                                task.SetEnable(isstart);
-                            }
-                            task.Stop("手动停止");
-                            PubMaster.Warn.RemoveDevWarn((ushort)task.ID);
-                            PubTask.Ping.RemovePing(task.Device.ip);
+                            task.SetEnable(isstart);
                         }
+                        task.Stop("手动停止");
+                        PubMaster.Warn.RemoveDevWarn((ushort)task.ID);
+                        PubTask.Ping.RemovePing(task.Device.ip);
                     }
                 }
-                finally { Monitor.Exit(_obj); }
             }
-
+            catch (Exception ex)
+            {
+                mlog.Error(true, ex.StackTrace);
+            }
         }
 
         #endregion
@@ -572,13 +576,13 @@ namespace task.device
                 {
                     case TrackTypeE.摆渡车_入:
                     case TrackTypeE.摆渡车_出:
-                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, DevFerryLoadE.载车);
+                        PubTask.Ferry.UpdateFerryWithTrackId(task.CurrentTrackId, task.Device.name, DevFerryLoadE.载车);
                         task.LastTrackId = task.CurrentTrackId;
                         break;
                     default:
                         if (task.LastTrackId != 0)
                         {
-                            PubTask.Ferry.UpdateFerryWithTrackId(task.LastTrackId, DevFerryLoadE.空);
+                            PubTask.Ferry.UpdateFerryWithTrackId(task.LastTrackId, task.Device.name, DevFerryLoadE.空);
                             task.LastTrackId = 0;
                         }
                         break;
@@ -1360,17 +1364,10 @@ namespace task.device
         /// <param name="site">复位脉冲</param>
         public void DoResetSite(uint devid, ushort rfid, ushort site)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            CarrierTask task = DevList.Find(c => c.ID == devid);
+            if (task != null)
             {
-                try
-                {
-                    CarrierTask task = DevList.Find(c => c.ID == devid);
-                    if (task != null)
-                    {
-                        task.DoResetSite(rfid, site);
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
+                task.DoResetSite(rfid, site);
             }
         }
 
@@ -1384,18 +1381,15 @@ namespace task.device
         {
             new Thread(() =>
             {
-                if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+                try
                 {
-                    try
+                    foreach (CarrierTask task in DevList.FindAll(c => c.AreaId == areaid))
                     {
-                        foreach (CarrierTask task in DevList.FindAll(c => c.AreaId == areaid))
-                        {
-                            if (!task.IsConnect) continue;
-                            task.DoResetSite(rfid, site);
-                        }
+                        if (!task.IsConnect) continue;
+                        task.DoResetSite(rfid, site);
                     }
-                    finally { Monitor.Exit(_obj); }
                 }
+                catch { }
             })
             {
                 IsBackground = true
@@ -2745,17 +2739,10 @@ namespace task.device
 
         public void SetCarrierAlert(uint carrierid, uint trackid, CarrierAlertE type, bool isalert)
         {
-            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(10)))
+            CarrierTask task = DevList.Find(c => c.ID == carrierid);
+            if (task != null)
             {
-                try
-                {
-                    CarrierTask task = DevList.Find(c => c.ID == carrierid);
-                    if (task != null)
-                    {
-                        task.SetAlert(type, trackid, isalert);
-                    }
-                }
-                finally { Monitor.Exit(_obj); }
+                task.SetAlert(type, trackid, isalert);
             }
         }
         #endregion
@@ -2764,21 +2751,12 @@ namespace task.device
 
         public void UpdateWorking(uint devId, bool working)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            CarrierTask task = DevList.Find(c => c.ID == devId);
+            if (task != null)
             {
-                return;
+                task.IsWorking = working;
+                MsgSend(task, task.DevStatus);
             }
-            try
-            {
-                CarrierTask task = DevList.Find(c => c.ID == devId);
-                if (task != null)
-                {
-                    task.IsWorking = working;
-                    MsgSend(task, task.DevStatus);
-                }
-            }
-            finally { Monitor.Exit(_obj); }
-
         }
 
         #endregion

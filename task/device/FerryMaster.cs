@@ -398,12 +398,19 @@ namespace task.device
             return DevList.Find(c => c.ID == devid)?.GetFerryCurrentTrackId() ?? 0;
         }
 
-        public void UpdateFerryWithTrackId(uint trackid, DevFerryLoadE devFerryLoadE)
+        /// <summary>
+        /// 更新摆渡车载车状态
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="carriername"></param>
+        /// <param name="devFerryLoadE"></param>
+        public void UpdateFerryWithTrackId(uint trackid, string carriername, DevFerryLoadE devFerryLoadE)
         {
             FerryTask ferry = GetFerryByTrackid(trackid);
             if (ferry != null && ferry.DevStatus.LoadStatus != devFerryLoadE)
             {
                 ferry.DevStatus.LoadStatus = devFerryLoadE;
+                ferry.AddStatusLog(string.Format("载车[ {0} ], 运输车[ {1} ]", devFerryLoadE, carriername));
                 MsgSend(ferry, ferry.DevStatus);
             }
         }
@@ -574,7 +581,7 @@ namespace task.device
             }
             catch (Exception ex)
             {
-                result = string.Format(@"摆渡车强制终止异常:", ex);
+                result = string.Format(@"摆渡车强制终止异常 : {0}:",ex.Message + ex.StackTrace);
                 mlog.Error(true, result);
             }
             return false;
@@ -725,11 +732,6 @@ namespace task.device
         /// <returns></returns>
         public bool SetFerryPos(uint id, ushort ferry_code, int intpos, string memo, out string result)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
-            {
-                result = "稍后再试！";
-                return false;
-            }
             try
             {
                 FerryTask task = DevList.Find(c => c.ID == id);
@@ -742,10 +744,12 @@ namespace task.device
                 //_FerrySiteCode = ferry_code;
                 return true;
             }
-            finally
+            catch(Exception e)
             {
-                Monitor.Exit(_obj);
+                mlog.Error(true, e);
             }
+            result = "找不到设备信息。";
+            return false;
         }
 
         /// <summary>
@@ -757,29 +761,16 @@ namespace task.device
         /// <returns></returns>
         public bool ReSetFerry(uint id, DevFerryResetPosE resettype, string memo, out string result)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            FerryTask task = DevList.Find(c => c.ID == id);
+            if (!IsAllowToMove(task, 0, out result))
             {
-                result = "稍后再试！";
+                task.DoStop(memo + "摆渡车复位原点", result);
                 return false;
             }
-            try
-            {
-                FerryTask task = DevList.Find(c => c.ID == id);
 
-                if (!IsAllowToMove(task, 0, out result))
-                {
-                    task.DoStop(memo + "摆渡车复位原点", result);
-                    return false;
-                }
-
-                task.DoReSet(resettype);
-                mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动复位[ {1} ]", task.ID, resettype));
-                return true;
-            }
-            finally
-            {
-                Monitor.Exit(_obj);
-            }
+            task.DoReSet(resettype);
+            mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动复位[ {1} ]", task.ID, resettype));
+            return true;
         }
 
         /// <summary>
@@ -1015,23 +1006,12 @@ namespace task.device
 
         internal bool UnlockFerry(StockTrans trans, uint ferryid)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            FerryTask task = DevList.Find(c => c.ID == ferryid);
+            if (task != null)
             {
-                return false;
+                task.SetFerryUnlock(trans.id);
             }
-            try
-            {
-                FerryTask task = DevList.Find(c => c.ID == ferryid);
-                if (task != null)
-                {
-                    task.SetFerryUnlock(trans.id);
-                }
-                return true;
-            }
-            finally
-            {
-                Monitor.Exit(_obj);
-            }
+            return true;
         }
 
         /// <summary>
@@ -1872,21 +1852,12 @@ namespace task.device
 
         public void UpdateWorking(uint devId, bool working)
         {
-            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            FerryTask task = DevList.Find(c => c.ID == devId);
+            if (task != null)
             {
-                return;
+                task.IsWorking = working;
+                MsgSend(task, task.DevStatus);
             }
-            try
-            {
-                FerryTask task = DevList.Find(c => c.ID == devId);
-                if (task != null)
-                {
-                    task.IsWorking = working;
-                    MsgSend(task, task.DevStatus);
-                }
-            }
-            finally { Monitor.Exit(_obj); }
-
         }
 
         #endregion
