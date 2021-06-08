@@ -78,8 +78,13 @@
     <Compile Include="diagnose\base\TransBaseDiagnose.cs" />
     <Compile Include="trans\TransMaster.cs" />
     <Compile Include="trans\transtask\BaseTaskTrans.cs" />
+    <Compile Include="trans\transtask\In2OutSortTrans.cs" />
     <Compile Include="trans\transtask\InTaskTrans.cs" />
+    <Compile Include="trans\transtask\MoveTaskTrans.cs" />
+    <Compile Include="trans\transtask\Out2OutSortTrans.cs" />
     <Compile Include="trans\transtask\OutTaskTrans.cs" />
+    <Compile Include="trans\transtask\OutTaskTransV2.cs" />
+    <Compile Include="trans\transtask\SameSideOutTrans.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\enums\enums.csproj">

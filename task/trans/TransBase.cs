@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using task.diagnose;
 using task.trans.transtask;
+using tool.appconfig;
 using tool.mlog;
 using tool.timer;
 
@@ -34,6 +35,14 @@ namespace task.trans
         #region[任务】
 
         InTaskTrans _InTrans;
+        OutTaskTrans _outTrans;
+        OutTaskTransV2 _outTransV2;
+
+        In2OutSortTrans _in2outSortTrans;
+        Out2OutSortTrans _out2outSortTrans;
+        MoveTaskTrans _moveTrans;
+        SameSideOutTrans _sameSideOutTrans;
+
 
         #endregion
 
@@ -54,6 +63,13 @@ namespace task.trans
             MDiagnoreServer = new DiagnoseServer(trans);
 
             _InTrans = new InTaskTrans(trans);
+            _outTrans = new OutTaskTrans(trans);
+            _outTransV2 = new OutTaskTransV2(trans);
+
+            _in2outSortTrans = new In2OutSortTrans(trans);
+            _out2outSortTrans = new Out2OutSortTrans(trans);
+            _moveTrans = new MoveTaskTrans(trans);
+            _sameSideOutTrans = new SameSideOutTrans(trans);
         }
 
         private void InitTrans()
@@ -108,29 +124,33 @@ namespace task.trans
                                 switch (trans.TransType)
                                 {
                                     case TransTypeE.下砖任务:
-                                        DoInTrans(trans);
-                                        //_InTrans.DoTrans(trans);
+                                        _InTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.上砖任务:
-                                        DoOutTrans(trans);
+                                        if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id))
+                                        {
+                                            _outTransV2.DoTrans(trans);
+                                        }
+                                        else
+                                        {
+                                            _outTrans.DoTrans(trans);
+                                        }
                                         break;
                                     case TransTypeE.倒库任务:
-                                        DoSortTrans(trans);
+                                        _in2outSortTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.移车任务:
-                                        DoMoveCarrier(trans);
+                                        _moveTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.手动下砖:
-                                        DoManualInTrans(trans);
                                         break;
                                     case TransTypeE.手动上砖:
-                                        DoManualOutTrans(trans);
                                         break;
                                     case TransTypeE.同向上砖:
-                                        DoSameSideOutTrans(trans);
+                                        _sameSideOutTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.上砖侧倒库:
-                                        DoUpSortTrans(trans);
+                                        _out2outSortTrans.DoTrans(trans);
                                         break;
                                 }
                             }
@@ -163,16 +183,7 @@ namespace task.trans
             }
         }
 
-        public abstract void DoInTrans(StockTrans trans);//下砖任务
-        public abstract void DoOutTrans(StockTrans trans);//上砖任务
-        public abstract void DoSameSideOutTrans(StockTrans trans);//同向出库
-        public abstract void DoSortTrans(StockTrans trans);//倒库
-        public abstract void DoUpSortTrans(StockTrans trans);//上砖侧倒库
-        public abstract void DoMoveCarrier(StockTrans trans);//移车
-        public abstract void DoManualInTrans(StockTrans trans);//手动入库
-        public abstract void DoManualOutTrans(StockTrans trans);//手动出库
         public abstract void CheckTrackSort();
-        //public abstract void CheckUpTrackSort();
         protected abstract void SendMsg(StockTrans trans);
         #endregion
 
