@@ -47,14 +47,15 @@ namespace tool.appconfig
 
         public List<AreaPointSetData> AreaPointList = new List<AreaPointSetData>();
 
-        public AreaPointSetData GetAreaPoint(uint areaid)
+        public AreaPointSetData GetAreaPoint(uint areaid, ushort lineid)
         {
-            AreaPointSetData data =AreaPointList.Find(c =>c.AreaId == areaid);
+            AreaPointSetData data =AreaPointList.Find(c =>c.AreaId == areaid && c.LineId == lineid);
             if(data == null)
             {
                 data = new AreaPointSetData()
                 {
-                    AreaId = areaid
+                    AreaId = areaid,
+                    LineId = lineid
                 };
 
                 AreaPointList.Add(data);
@@ -62,18 +63,18 @@ namespace tool.appconfig
             return data;
         }
 
-        public void UpdateAreaPoint(uint areaid, double outmore, double middlespace)
+        public void UpdateAreaPoint(uint areaid, ushort lineid, double outmore, double middlespace)
         {
-            AreaPointSetData data = GetAreaPoint(areaid);
+            AreaPointSetData data = GetAreaPoint(areaid, lineid);
             data.Out_More_Than_In = outmore;
             data.Middle_Space_M = middlespace;
 
             GlobalWcsDataConfig.SaveDefaultConfig();
         }
 
-        public void UpdateAreaPointSortQty(uint areaid, ushort setsortqty)
+        public void UpdateAreaPointSortQty(uint areaid, ushort lineid, ushort setsortqty)
         {
-            AreaPointSetData data = GetAreaPoint(areaid);
+            AreaPointSetData data = GetAreaPoint(areaid, lineid);
             data.Set_Out_Sort_Qty = setsortqty;
 
             GlobalWcsDataConfig.SaveDefaultConfig();
@@ -94,6 +95,7 @@ namespace tool.appconfig
     public class AreaPointSetData
     {
         public uint AreaId { set; get; }
+        public ushort LineId { set; get; }
         public double Out_More_Than_In { set; get; } = 1;
         public double Middle_Space_M { set; get; } = 4.7;
         public ushort Set_Out_Sort_Qty { set; get; }

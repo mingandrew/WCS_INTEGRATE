@@ -27,7 +27,7 @@ namespace wcs.ViewModel
 
         private void InitAreaRadio()
         {
-            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
 
         #region[字段]
@@ -35,6 +35,7 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0;
+        private ushort filterlineid = 0;
 
         private bool isnotinouttrack;
         private ushort out_loc_point, out_sort_point, out_last_point, in_first_point, in_loc_point;
@@ -218,7 +219,7 @@ namespace wcs.ViewModel
                         return;
                     }
 
-                    if(PubMaster.Track.UpdateTrackLimitOut(filterareaid, Set_Out_Loc_Point))
+                    if(PubMaster.Track.UpdateTrackLimitOut(filterareaid, filterlineid, Set_Out_Loc_Point))
                     {
                         Growl.Success("更新成功！");
                     }
@@ -240,7 +241,7 @@ namespace wcs.ViewModel
                         return;
                     }
 
-                    if (PubMaster.Track.UpdateTrackLimitIn(filterareaid, Set_In_Loc_Point))
+                    if (PubMaster.Track.UpdateTrackLimitIn(filterareaid, filterlineid, Set_In_Loc_Point))
                     {
                         Growl.Success("更新成功！");
                     }
@@ -262,7 +263,7 @@ namespace wcs.ViewModel
                         return;
                     }
 
-                    if (PubMaster.Track.UpdateTrackFirstIn(filterareaid, Set_In_First_Point))
+                    if (PubMaster.Track.UpdateTrackFirstIn(filterareaid, filterlineid, Set_In_First_Point))
                     {
                         Growl.Success("更新成功！");
                     }
@@ -284,7 +285,7 @@ namespace wcs.ViewModel
                         return;
                     }
 
-                    if (PubMaster.Track.UpdateTrackLastOut(filterareaid, Set_Out_Last_Point))
+                    if (PubMaster.Track.UpdateTrackLastOut(filterareaid, filterlineid, Set_Out_Last_Point))
                     {
                         Growl.Success("更新成功！");
                     }
@@ -302,7 +303,7 @@ namespace wcs.ViewModel
                         MessageBoxResult rs3 = HandyControl.Controls.MessageBox.Show(tip3, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                         if (rs3 == MessageBoxResult.OK || rs3 == MessageBoxResult.Yes)
                         {
-                            PubMaster.Track.UpdateTrackSortOut(filterareaid, Set_Out_Sort_Point);
+                            PubMaster.Track.UpdateTrackSortOut(filterareaid, filterlineid, Set_Out_Sort_Point);
                         }
                     }
                     else
@@ -319,12 +320,12 @@ namespace wcs.ViewModel
                             return;
                         }
 
-                        if (PubMaster.Track.UpdateTrackSortOut(filterareaid, Set_Out_Sort_Point))
+                        if (PubMaster.Track.UpdateTrackSortOut(filterareaid, filterlineid, Set_Out_Sort_Point))
                         {
                             Growl.Success("更新成功！");
                         }
                     }
-                    GlobalWcsDataConfig.DefaultConfig.UpdateAreaPointSortQty(filterareaid, Set_Out_Sort_Qty);
+                    GlobalWcsDataConfig.DefaultConfig.UpdateAreaPointSortQty(filterareaid, filterlineid, Set_Out_Sort_Qty);
 
                     break;
                     
@@ -356,7 +357,7 @@ namespace wcs.ViewModel
                 #region[保存轨道中间空间]
 
                 case "cal_mid_space_out_more":
-                    GlobalWcsDataConfig.DefaultConfig.UpdateAreaPoint(filterareaid, Out_More_Than_In, Middle_Space_M);
+                    GlobalWcsDataConfig.DefaultConfig.UpdateAreaPoint(filterareaid, filterlineid, Out_More_Than_In, Middle_Space_M);
                     CalculateFirstLast();
                     break;
                     #endregion
@@ -371,9 +372,10 @@ namespace wcs.ViewModel
         #region[方法]
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea(out uint areaid))
+            if (PubMaster.Area.IsSingleAreaLine(out uint areaid, out ushort lineid))
             {
                 filterareaid = areaid;
+                filterlineid = lineid;
                 ShowAreaFileter = false;
                 CheckAreaTrackPosSetShow(true);
                 GetAreaPointDefaultData();
@@ -384,9 +386,10 @@ namespace wcs.ViewModel
         {
             if (args.OriginalSource is RadioButton btn)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
+                if (btn.DataContext is MyRadioBtn radio)
                 {
-                    filterareaid = areaid;
+                    filterareaid = radio.AreaID;
+                    filterlineid = radio.Line;
                     CheckAreaTrackPosSetShow(true);
                     GetAreaPointDefaultData();
                 }
@@ -400,15 +403,17 @@ namespace wcs.ViewModel
                 ClearInput();
                 return;
             }
-            bool onlyinouttrack = PubMaster.Track.ExistTrackInType(filterareaid, TrackTypeE.储砖_出入);
+            bool onlyinouttrack = PubMaster.Track.ExistTrackInType(filterareaid, filterlineid, TrackTypeE.储砖_出入);
 
             IsNotInOutTrack = !onlyinouttrack;
             if (!onlyinouttrack)
             {
                 InOrOutGridLen = GridLength.Auto;
                 InOutGridLen = onegridlen;
-                Track outtrack = PubMaster.Track.GetAreaTrack(filterareaid, TrackTypeE.储砖_出);
-                Track intrack = PubMaster.Track.GetAreaTrack(filterareaid, TrackTypeE.储砖_入);
+                Track outtrack = PubMaster.Track.GetAreaTrack(filterareaid, filterlineid, TrackTypeE.储砖_出);
+                Track intrack = PubMaster.Track.GetAreaTrack(filterareaid, filterlineid, TrackTypeE.储砖_入);
+                if (outtrack == null || intrack == null) return;
+
                 In_Loc_Point = intrack.limit_point;
                 In_First_Point = intrack.split_point;
 
@@ -433,7 +438,9 @@ namespace wcs.ViewModel
             {
                 InOrOutGridLen = zerogridlen;
                 InOutGridLen = GridLength.Auto;
-                Track inouttrack = PubMaster.Track.GetAreaTrack(filterareaid, TrackTypeE.储砖_出入);
+                Track inouttrack = PubMaster.Track.GetAreaTrack(filterareaid, filterlineid, TrackTypeE.储砖_出入);
+                if (inouttrack == null) return;
+
                 In_Loc_Point = inouttrack.limit_point;
                 Out_Loc_Point = inouttrack.limit_point_up;
 
@@ -459,7 +466,7 @@ namespace wcs.ViewModel
 
         private void GetAreaPointDefaultData()
         {
-            AreaPointSetData data = GlobalWcsDataConfig.DefaultConfig.GetAreaPoint(filterareaid);
+            AreaPointSetData data = GlobalWcsDataConfig.DefaultConfig.GetAreaPoint(filterareaid, filterlineid);
             if(data != null)
             {
                 Middle_Space_M = data.Middle_Space_M;

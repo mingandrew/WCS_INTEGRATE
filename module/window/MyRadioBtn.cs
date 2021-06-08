@@ -8,6 +8,7 @@ namespace module.window
         public uint AreaID { set; get; }
         public string AreaName { set; get; }
         public string AreaTag { set; get; }
+        public ushort Line { set; get; }
         public CornerRadius BorderCorner { set; get; } = new CornerRadius(0);
 
     }

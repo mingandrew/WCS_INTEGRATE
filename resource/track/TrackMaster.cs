@@ -159,9 +159,9 @@ namespace resource.track
         /// <param name="areaid"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public Track GetAreaTrack(uint areaid, TrackTypeE type)
+        public Track GetAreaTrack(uint areaid, ushort lineid, TrackTypeE type)
         {
-            return TrackList.Find(c => c.area == areaid && c.Type == type);
+            return TrackList.Find(c => c.area == areaid && c.line == lineid && c.Type == type);
         }
 
         /// <summary>
@@ -652,9 +652,9 @@ namespace resource.track
         /// <param name="areaid">区域ID</param>
         /// <param name="types">轨道类型</param>
         /// <returns></returns>
-        public bool ExistTrackInType(uint areaid, params TrackTypeE[] types)
+        public bool ExistTrackInType(uint areaid, ushort lineid, params TrackTypeE[] types)
         {
-            return TrackList.Exists(c => c.area == areaid && types.Contains(c.Type));
+            return TrackList.Exists(c => c.area == areaid && c.line == lineid && types.Contains(c.Type));
         }
         #endregion
 
@@ -1800,9 +1800,9 @@ namespace resource.track
         /// <param name="areaid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public bool UpdateTrackLimitOut(uint areaid, ushort point)
+        public bool UpdateTrackLimitOut(uint areaid, ushort lineid, ushort point)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入));
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入));
             if (tracks.Count > 0)
             {
                 foreach (var item in tracks)
@@ -1821,9 +1821,9 @@ namespace resource.track
         /// <param name="areaid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public bool UpdateTrackLimitIn(uint areaid, ushort point)
+        public bool UpdateTrackLimitIn(uint areaid, ushort lineid, ushort point)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入));
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入));
             if (tracks.Count > 0)
             {
                 foreach (var item in tracks)
@@ -1843,9 +1843,9 @@ namespace resource.track
         /// <param name="areaid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public bool UpdateTrackFirstIn(uint areaid, ushort point)
+        public bool UpdateTrackFirstIn(uint areaid, ushort lineid, ushort point)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_入));
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_入));
             if (tracks.Count > 0)
             {
                 foreach (var item in tracks)
@@ -1865,9 +1865,9 @@ namespace resource.track
         /// <param name="areaid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public bool UpdateTrackLastOut(uint areaid, ushort point)
+        public bool UpdateTrackLastOut(uint areaid, ushort lineid, ushort point)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_出));
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_出));
             if (tracks.Count > 0)
             {
                 foreach (var item in tracks)
@@ -1886,9 +1886,9 @@ namespace resource.track
         /// <param name="areaid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public bool UpdateTrackSortOut(uint areaid, ushort point)
+        public bool UpdateTrackSortOut(uint areaid, ushort lineid, ushort point)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.InType(TrackTypeE.储砖_出));
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid &&  c.line == lineid && c.InType(TrackTypeE.储砖_出));
             if (tracks.Count > 0)
             {
                 foreach (var item in tracks)

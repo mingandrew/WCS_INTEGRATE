@@ -59,6 +59,7 @@ namespace resource.area
             {
                 LineList.Clear();
                 LineList.AddRange(PubMaster.Mod.AreaSql.QueryLineList());
+                LineList.Sort((x, y) => { return x.area_id == y.area_id ? x.line.CompareTo(y.line) : x.area_id.CompareTo(y.area_id); });
             }
         }
 
@@ -99,6 +100,47 @@ namespace resource.area
 
             return myradios;
         }
+
+        /// <summary>
+        /// 使用线路信息构造区域过滤信息
+        /// </summary>
+        /// <param name="iswithall"></param>
+        /// <returns></returns>
+        public IList<MyRadioBtn> GetAreaLineRadioList(bool iswithall = false)
+        {
+            List<MyRadioBtn> myradios = new List<MyRadioBtn>();
+
+            if (iswithall)
+            {
+                myradios.Add(new MyRadioBtn()
+                {
+                    AreaID = 0,
+                    AreaName = "全部",
+                    AreaTag = "0",
+                    Line = 0
+                });
+            }
+
+            foreach (Line line in LineList)
+            {
+                myradios.Add(new MyRadioBtn()
+                {
+                    AreaID = line.area_id,
+                    AreaName = line.name,
+                    AreaTag = line.area_id + "",
+                    Line = line.line
+                }); ;
+            }
+
+            if (myradios.Count >= 2)
+            {
+                myradios[0].BorderCorner = new System.Windows.CornerRadius(5, 0, 0, 5);
+                myradios[myradios.Count - 1].BorderCorner = new System.Windows.CornerRadius(0, 5, 5, 0);
+            }
+
+            return myradios;
+        }
+
 
         internal List<uint> GetAreaTileIds(uint areaid)
         {
@@ -681,6 +723,20 @@ namespace resource.area
             areaid = 0;
             return false;
         }
+
+        public bool IsSingleAreaLine(out uint areaid, out ushort lineid)
+        {
+            if(LineList.Count == 1)
+            {
+                areaid = LineList[0].area_id;
+                lineid = LineList[0].line;
+                return true;
+            }
+            areaid = 0;
+            lineid = 0;
+            return false;
+        }
+
 
         #endregion
 
