@@ -208,7 +208,7 @@ namespace wcs.ViewModel
                  {
                      vm.FilterArea = false;
                      vm.AreaId = 0;
-                     vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上摆渡, DeviceTypeE.下摆渡 });
+                     vm.SetSelectType(DeviceTypeE.上摆渡, DeviceTypeE.下摆渡);
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)
             {

@@ -813,6 +813,7 @@ namespace task.device
                     mMsg.o3 = task.IsWorking;
                     mMsg.o4 = task.CurrentTrackId;
                     mMsg.o5 = task.TargetTrackId;
+                    mMsg.o6 = task.CurrentTrackLine;
                     Messenger.Default.Send(mMsg, MsgToken.CarrierStatusUpdate);
                 }
                 finally
@@ -1743,7 +1744,7 @@ namespace task.device
 
             CarrierTask carrier = null;
 
-            if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id)
+            if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line)
                 && trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖))
             {
 

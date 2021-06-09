@@ -26,7 +26,7 @@ namespace wcs.ViewModel
             TrackView = System.Windows.Data.CollectionViewSource.GetDefaultView(TraList);
             TrackView.Filter = new Predicate<object>(OnFilterMovie);
 
-            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
 
         #region[字段]
@@ -37,6 +37,7 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0, filtertracktype = 0;
+        private ushort filterlineid = 0;
 
         private DateTime? refreshtime;
         private bool showareafilter;
@@ -147,7 +148,16 @@ namespace wcs.ViewModel
             filterareaid = areaid;
             if (isshow)
             {
-                ShowAreaFilter = !PubMaster.Area.IsSingleArea(out uint aid);
+                if(PubMaster.Area.IsSingleAreaLine(out uint aid, out ushort lineid))
+                {
+                    ShowAreaFilter = false;
+                    filterareaid = aid;
+                    filterlineid = lineid;
+                }
+                else
+                {
+                    ShowAreaFilter = true;
+                }
             }
             else
             {
@@ -218,23 +228,22 @@ namespace wcs.ViewModel
 
                 if (filtertracktype == 0)
                 {
-                    return view.area == filterareaid;
+                    return view.area == filterareaid && view.line == filterlineid;
                 }
 
-                return filterareaid == view.area && (TrackTypeE)filtertracktype == view.Type;
+                return filterareaid == view.area && filterlineid == view.line && (TrackTypeE)filtertracktype == view.Type;
             }
             return true;
         }
 
         private void CheckRadioBtn(RoutedEventArgs args)
         {
-            if (args.OriginalSource is RadioButton btn)
+            if (args.OriginalSource is RadioButton btn && btn.DataContext is MyRadioBtn radio)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
-                {
-                    filterareaid = areaid;
-                    TrackView.Refresh();
-                }
+                TrackSelected = null;
+                filterareaid = radio.AreaID;
+                filterlineid = radio.Line;
+                TrackView.Refresh();
             }
         }
 

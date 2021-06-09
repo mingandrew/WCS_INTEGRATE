@@ -46,16 +46,16 @@ namespace wcs.ViewModel
 
                 if (filtertracktype == 0)
                 {
-                    return view.Area == filterareaid;
+                    return view.Area == filterareaid && view.LineId == filterlineid;
                 }
 
-                return filterareaid == view.Area && (TrackTypeE)filtertracktype == view.Type;
+                return filterareaid == view.Area && filterlineid == view.LineId && (TrackTypeE)filtertracktype == view.Type;
             }
             return true;
         }
         private void InitAreaRadio()
         {
-            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
         #region[字段]
         private bool showareafilter = true;
@@ -64,6 +64,7 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0, filtertracktype = 0;
+        private ushort filterlineid = 0;
         #endregion
 
         #region[属性]
@@ -187,9 +188,11 @@ namespace wcs.ViewModel
         #region[方法]
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea(out uint areaid))
+            if (PubMaster.Area.IsSingleAreaLine(out uint areaid, out ushort lineid))
             {
                 ShowAreaFileter = false;
+                filterareaid = areaid;
+                filterlineid = lineid;
             }
         }
 
@@ -244,14 +247,12 @@ namespace wcs.ViewModel
 
         private void CheckRadioBtn(RoutedEventArgs args)
         {
-            if (args.OriginalSource is RadioButton btn)
+            if (args.OriginalSource is RadioButton btn && btn.DataContext is MyRadioBtn radio)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
-                {
-                    TrackSelected = null;
-                    filterareaid = areaid;
-                    DeviceView.Refresh();
-                }
+                TrackSelected = null;
+                filterareaid = radio.AreaID;
+                filterlineid = radio.Line;
+                DeviceView.Refresh();
             }
         }
 

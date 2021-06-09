@@ -40,10 +40,11 @@ namespace wcs.ViewModel
         }
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea(out uint areaid))
+            if (PubMaster.Area.IsSingleAreaLine(out uint areaid, out ushort lineid))
             {
                 ShowAreaFileter = false;
                 filterareaid = areaid;
+                filterlineid = lineid;
             }
         }
 
@@ -52,13 +53,15 @@ namespace wcs.ViewModel
             if (filterareaid == 0) return true;
             if (item is CarrierView view)
             {
-                return PubMaster.Area.IsFerryInArea(filterareaid, view.ID);
+                if (view.LineId == 0) return view.AreaId == filterareaid;
+                return view.AreaId == filterareaid && view.LineId == filterlineid;
+                //return PubMaster.Area.IsDeviceInArea(filterareaid, view.ID);
             }
             return true;
         }
         private void InitAreaRadio()
         {
-            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
         #region[字段]
 
@@ -67,6 +70,7 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0;
+        private ushort filterlineid = 0;
         private bool showareafilter = true;
         #endregion
 
@@ -199,7 +203,8 @@ namespace wcs.ViewModel
                 && msg.o2 is SocketConnectStatusE conn
                 && msg.o3 is bool working
                 && msg.o4 is uint currenttrackId
-                && msg.o5 is uint targettrackId)
+                && msg.o5 is uint targettrackId
+                && msg.o6 is ushort currenttrackline)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -211,22 +216,27 @@ namespace wcs.ViewModel
                             ID = msg.ID,
                             Name = msg.Name
                         };
+                        PubMaster.Device.GetDeviceAreaLine(view.ID, out uint areaid, out ushort lineid);
+                        view.AreaId = areaid;
+                        view.LineId = lineid;
                         DeviceList.Add(view);
                     }
                     view.Update(dev, conn, working, currenttrackId, targettrackId);
+                    if (view.UpdateLine(currenttrackline))
+                    {
+                        DeviceView.Refresh();
+                    }
                 });
             }
         }
 
         private void CheckRadioBtn(RoutedEventArgs args)
         {
-            if (args.OriginalSource is RadioButton btn)
+            if (args.OriginalSource is RadioButton btn && btn.DataContext is MyRadioBtn radio)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
-                {
-                    filterareaid = areaid;
-                    DeviceView.Refresh();
-                }
+                filterareaid = radio.AreaID;
+                filterlineid = radio.Line;
+                DeviceView.Refresh();
             }
         }
 

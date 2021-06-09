@@ -59,7 +59,13 @@ namespace resource.device
             return DeviceList.FindAll(c => c.Type == type);
         }
 
+
         public List<Device> GetDevices(List<DeviceTypeE> types)
+        {
+            return DeviceList.FindAll(c => types.Contains(c.Type));
+        }
+
+        public List<Device> GetDevices(params DeviceTypeE[] types)
         {
             return DeviceList.FindAll(c => types.Contains(c.Type));
         }
@@ -69,11 +75,15 @@ namespace resource.device
             return DeviceList.FindAll(c => types.Contains(c.Type) && areaids.Contains(c.area));
         }
 
-        public List<Device> GetDevices(List<DeviceTypeE> types, uint areaid)
+        public List<Device> GetDevices(uint areaid, params DeviceTypeE[] types)
         {
             return DeviceList.FindAll(c => c.area == areaid && types.Contains(c.Type));
         }
 
+        public List<Device> GetDevices(uint areaid, ushort lineid, params DeviceTypeE[] types)
+        {
+            return DeviceList.FindAll(c => c.area == areaid && c.line == lineid && types.Contains(c.Type));
+        }
         internal List<uint> GetDevIds(params DeviceTypeE[] types)
         {
             return DeviceList.FindAll(c => c.InType(types))?.Select(c => c.id).ToList();
@@ -197,6 +207,31 @@ namespace resource.device
                     PubMaster.Mod.DevSql.EditDeviceLine(backdev);
                 }
             }
+        }
+
+        /// <summary>
+        /// 获取设备配置的区域和线路
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        public void GetDeviceAreaLine(uint devid, out uint areaid, out ushort lineid)
+        {
+            Device dev = GetDevice(devid);
+            if (dev != null)
+            {
+                areaid = dev.area;
+                lineid = dev.line;
+                return;
+            }
+
+            areaid = 0;
+            lineid = 0;
+        }
+
+        public ushort GetDeviceLIne(uint devid)
+        {
+            return GetDevice(devid)?.line ?? 0;
         }
         #endregion
 

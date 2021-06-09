@@ -12,14 +12,15 @@ namespace wcs.Data.View
             Id = track.id;
             Name = track.name;
             Area = track.area;
+            LineId = track.line;
             Type = track.Type;
             Update(track);
         }
 
         #region[字段]
         private uint id;
+        
         private string name;
-        private ushort area;
         private TrackTypeE type;
         private TrackStockStatusE status;
         private TrackStatusE trackstatus;
@@ -55,11 +56,8 @@ namespace wcs.Data.View
             get => name;
             set => Set(ref name, value);
         }
-        public ushort Area
-        {
-            get => area;
-            set => Set(ref area, value);
-        }
+        public ushort Area { set; get; }
+        public ushort LineId { set; get; }
         public TrackTypeE Type
         {
             get => type;

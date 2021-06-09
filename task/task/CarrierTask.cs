@@ -14,6 +14,7 @@ namespace task.device
     public class CarrierTask : TaskBase
     {
         #region[属性]
+        public ushort CurrentTrackLine { set; get; }
         private uint currenttrackid;
         /// <summary>
         /// 当前运输车所在轨道ID
@@ -36,6 +37,7 @@ namespace task.device
                     }
                     catch { }
                     currenttrackid = value;
+                    CurrentTrackLine = PubMaster.Track.GetTrackLine(value);
                 }
             }
         }

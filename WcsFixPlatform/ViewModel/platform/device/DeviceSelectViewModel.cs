@@ -30,7 +30,7 @@ namespace wcs.ViewModel
         private Device selectdic;
         private bool _liftercheck, _ferrycheck, _carriercheck;
         private bool _lifterenable, _ferryenable, _carrierenable;
-        private List<DeviceTypeE> lastquerytype;
+        private DeviceTypeE[] lastquerytype;
 
         #endregion
 
@@ -96,6 +96,7 @@ namespace wcs.ViewModel
 
         public bool FilterArea { set; get; }
         public uint AreaId { set; get; }
+        public ushort LineId { set; get; }
         #endregion
 
         #region[命令]        
@@ -107,7 +108,7 @@ namespace wcs.ViewModel
 
         #region[方法]
 
-        public void SetSelectType(List<DeviceTypeE> types)
+        public void SetSelectType(params DeviceTypeE[] types)
         {
             GetDevce(types);
         }
@@ -131,7 +132,7 @@ namespace wcs.ViewModel
             }
         }
 
-        private void GetDevce(List<DeviceTypeE> types)
+        private void GetDevce(params DeviceTypeE[] types)
         {
             //if (DevList.Count > 0 && lastquerytype == type)
             //{
@@ -152,7 +153,14 @@ namespace wcs.ViewModel
             }
             else
             {
-                list.AddRange(PubMaster.Device.GetDevices(types, AreaId));
+                if(LineId > 0)
+                {
+                    list.AddRange(PubMaster.Device.GetDevices(AreaId, LineId, types));
+                }
+                else
+                {
+                    list.AddRange(PubMaster.Device.GetDevices(AreaId, types));
+                }
             }
 
             lastquerytype = types;

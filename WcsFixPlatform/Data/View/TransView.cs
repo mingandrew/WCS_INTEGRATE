@@ -15,7 +15,6 @@ namespace wcs.Data.View
         private uint id;
         private TransTypeE trans_type;
         private TransStatusE trans_status;
-        private uint area_id;
         private uint goods_id;
         private uint stock_id;
         private uint take_track_id;
@@ -41,12 +40,8 @@ namespace wcs.Data.View
             set => Set(ref id, value);
         }
 
-        public uint Area_id
-        {
-            get => area_id;
-            set => Set(ref area_id, value);
-        }
-
+        public uint Area_id { set; get; }
+        public ushort Line_id { set; get; }
         public uint Goods_id
         {
             get => goods_id;
@@ -148,6 +143,7 @@ namespace wcs.Data.View
         {
             Id = trans.id;
             Area_id = trans.area_id;
+            Line_id = trans.line;
             TransType = trans.TransType;
             Goods_id = trans.goods_id;
             Stock_id = trans.stock_id;

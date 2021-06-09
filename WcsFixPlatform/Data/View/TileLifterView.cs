@@ -8,6 +8,8 @@ namespace wcs.Data.View
     public class TileLifterView : ViewModelBase
     {
         public uint ID { set; get; }
+        public uint AreaId { set; get; }
+        public ushort LineId { set; get; }
         public string Name { set; get; }
         private uint goodsid;
         private bool working;

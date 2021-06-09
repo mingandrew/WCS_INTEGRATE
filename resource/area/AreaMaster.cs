@@ -156,7 +156,7 @@ namespace resource.area
                                     .Select(c=>c.device_id).ToList();
         }
 
-        public bool IsFerryInArea(uint filterareaid, uint iD)
+        public bool IsDeviceInArea(uint filterareaid, uint iD)
         {
             return AreaDevList.Exists(c => c.area_id == filterareaid && c.device_id == iD);
         }

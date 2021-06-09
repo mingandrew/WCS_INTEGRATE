@@ -198,7 +198,7 @@ namespace resource.device
         /// <returns></returns>
         public ushort GetCarrierLenghtByArea(uint areaid)
         {
-            List<Device> list = PubMaster.Device.GetDevices(new List<DeviceTypeE>() { DeviceTypeE.运输车 }, areaid);
+            List<Device> list = PubMaster.Device.GetDevices(areaid,DeviceTypeE.运输车);
             return ConfigCarrierList.Find(c => c.length > 0 && list.Exists(d=>d.id == c.id))?.length ?? 0;
         }
 

@@ -70,7 +70,7 @@ namespace wcs.ViewModel
                          .Initialize<DeviceSelectViewModel>((vm) =>
                          {
                              vm.FilterArea = false;
-                             vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上砖机, DeviceTypeE.下砖机, DeviceTypeE.砖机 });
+                             vm.SetSelectType(DeviceTypeE.上砖机, DeviceTypeE.下砖机, DeviceTypeE.砖机 );
                          }).GetResultAsync<DialogResult>();
                         if (result.p1 is bool rs && result.p2 is Device dev)
                         {

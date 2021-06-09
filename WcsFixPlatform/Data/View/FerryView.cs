@@ -7,6 +7,8 @@ namespace module.window.device
     public class FerryView : ViewModelBase
     {
         public uint ID { set; get; }
+        public uint AreaId { set; get; }
+        public ushort LineId { set; get; }
         public string Name { set; get; }
         private bool working;
 

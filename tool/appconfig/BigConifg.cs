@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace tool.appconfig
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class BigConifg
     {
         public static readonly string Path = $"{AppDomain.CurrentDomain.BaseDirectory}config";
@@ -16,9 +19,9 @@ namespace tool.appconfig
         /// </summary>
         /// <param name="areaid"></param>
         /// <returns></returns>
-        public bool IsFreeUpFerry(uint areaid)
+        public bool IsFreeUpFerry(uint areaid, ushort lineid)
         {
-            return GetItem(areaid)?.FreeUpFerry ?? false;
+            return GetItem(areaid, lineid)?.FreeUpFerry ?? false;
         }
 
         /// <summary>
@@ -26,9 +29,9 @@ namespace tool.appconfig
         /// </summary>
         /// <param name="areaid"></param>
         /// <returns></returns>
-        public bool IsFreeDownFerry(uint areaid)
+        public bool IsFreeDownFerry(uint areaid, ushort lineid)
         {
-            return GetItem(areaid)?.FreeDownFerry ?? false;
+            return GetItem(areaid, lineid)?.FreeDownFerry ?? false;
         }
 
         /// <summary>
@@ -36,19 +39,26 @@ namespace tool.appconfig
         /// </summary>
         /// <param name="areaid"></param>
         /// <returns></returns>
-        public bool IsUpTaskNewAllocate(uint areaid)
+        public bool IsUpTaskNewAllocate(uint areaid, ushort lineid)
         {
-            return GetItem(areaid)?.UpTaskNewAllocate ?? false;
+            return GetItem(areaid, lineid)?.UpTaskNewAllocate ?? false;
         }
 
-        public BigConfigItem GetItem(uint areaid)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public BigConfigItem GetItem(uint areaid, ushort lineid)
         {
-            BigConfigItem item = BigConfigList.Find(c=>c.AreaId == areaid);
+            BigConfigItem item = BigConfigList.Find(c=>c.AreaId == areaid && c.LineId == lineid);
             if (item == null)
             {
                 item = new BigConfigItem()
                 {
                     AreaId = areaid,
+                    LineId = lineid,
                     FreeDownFerry = false,
                     FreeUpFerry = false,
                     UpTaskNewAllocate = false
@@ -58,12 +68,12 @@ namespace tool.appconfig
             }
             return item;
         }
-
     }
 
     public class BigConfigItem
     {
-        public uint AreaId { set; get; }
+        public uint AreaId { set; get; }//区域
+        public ushort LineId { set; get; }//线路
         public bool FreeUpFerry { set; get; }//是否释放上砖摆渡车
         public bool FreeDownFerry { set; get; }//是否释放下砖摆渡车
         public bool UpTaskNewAllocate { set; get; }//上砖任务新分配逻辑

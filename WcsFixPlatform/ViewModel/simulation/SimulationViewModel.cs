@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using task;
@@ -77,6 +76,7 @@ namespace wcs.ViewModel
         public ICollectionView CarrierView { set; get; }
         #region[库存测试]
         public ObservableCollection<Stock> StockList { set; get; }
+
         public string TrackName
         {
             get => trackname;
@@ -88,6 +88,7 @@ namespace wcs.ViewModel
             get => stockpoint;
             set => Set(ref stockpoint, value);
         }
+
         #endregion
 
         public bool SimServerRun
@@ -144,23 +145,24 @@ namespace wcs.ViewModel
         public RelayCommand<SimDeviceView> TileSite2ShiftCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Shift)).Value;
         public RelayCommand<SimDeviceView> TileSite1NeedCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Need)).Value;
         public RelayCommand<SimDeviceView> TileSite2NeedCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Need)).Value;
-
         public RelayCommand<SimDeviceView> TileRequireShiftCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileRequireShift)).Value;
         #endregion
 
         #region[运输车]
+
         public RelayCommand<SimDeviceView> CarrierSetInitSiteCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(CarrierSetInitSite)).Value;
 
         #endregion
 
         #region[摆渡车]
+
         public RelayCommand<SimDeviceView> FerrySetInitSiteCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(FerrySetInitSite)).Value;
 
         #endregion
 
         #region[库存测试]
-        public RelayCommand<string> StockTestBtnCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(StockTestBtn)).Value;
 
+        public RelayCommand<string> StockTestBtnCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(StockTestBtn)).Value;
 
         #endregion
 
@@ -348,6 +350,7 @@ namespace wcs.ViewModel
                 SimServer.TileLifter.SetLoadStatusNeed(dev.dev_id, true, true);
             }
         }
+
         private void TileSite2Need(SimDeviceView dev)
         {
             if (dev != null)
@@ -373,7 +376,7 @@ namespace wcs.ViewModel
             DialogResult result = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
                              .Initialize<TrackSelectViewModel>((vm) =>
                              {
-                                 vm.SetAreaFilter(dev.area_id, false);
+                                 vm.SetAreaFilter(dev.area_id, true);
                                  vm.QueryAreaTrack(dev.area_id);
                              }).GetResultAsync<DialogResult>();
             if (result.p1 is Track tra)
@@ -463,7 +466,6 @@ namespace wcs.ViewModel
         }
 
         #region[库存测试]
-
 
         private async void StockTestBtn(string tag)
         {

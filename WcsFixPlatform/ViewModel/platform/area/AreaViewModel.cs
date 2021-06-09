@@ -40,6 +40,7 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private uint SelectAreaId = 0;
+        private ushort SelectLineId = 0;
         private bool _refrdev, _refareatrac, _refrtra, _refrtraprior;
         private string _tabtag;
 
@@ -191,10 +192,11 @@ namespace wcs.ViewModel
 
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea(out uint areaid))
+            if (PubMaster.Area.IsSingleAreaLine(out uint areaid, out ushort lineid))
             {
                 ShowAreaFileter = false;
                 SelectAreaId = areaid;
+                SelectLineId = lineid;
                 RefreshDev();
             }
         }
@@ -202,38 +204,37 @@ namespace wcs.ViewModel
         #region[区域按钮/Tab切换]
         private void InitAreaRadio()
         {
-            AreaRadio = PubMaster.Area.GetAreaRadioList(false);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(false);
         }
 
         private void CheckRadioBtn(RoutedEventArgs args)
         {
-            if (args.OriginalSource is RadioButton btn)
+            if (args.OriginalSource is RadioButton btn && btn.DataContext is MyRadioBtn radio)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
+                SelectAreaId = radio.AreaID;
+                SelectLineId = radio.Line;
+
+                _refrdev = false;
+                _refrtra = false;
+                _refrtraprior = false;
+                _refareatrac = false;
+                switch (_tabtag)
                 {
-                    SelectAreaId = areaid;
-                    _refrdev = false;
-                    _refrtra = false;
-                    _refrtraprior = false;
-                    _refareatrac = false;
-                    switch (_tabtag)
-                    {
-                        case "device":
-                            RefreshDev();
-                            break;
-                        case "areatrack":
-                            RefreshAreaTrack();
-                            break;
-                    }
-                    FerryName = "";
-                    _selectferry = null;
-                    TileName = "";
-                    _selecttile = null;
-                    FerryTrackSelect = null;
-                    TileTrackSelect = null;
-                    FerryTraList.Clear();
-                    TileTraList.Clear();
+                    case "device":
+                        RefreshDev();
+                        break;
+                    case "areatrack":
+                        RefreshAreaTrack();
+                        break;
                 }
+                FerryName = "";
+                _selectferry = null;
+                TileName = "";
+                _selecttile = null;
+                FerryTrackSelect = null;
+                TileTrackSelect = null;
+                FerryTraList.Clear();
+                TileTraList.Clear();
             }
         }
 
@@ -364,7 +365,18 @@ namespace wcs.ViewModel
             DevList.Clear();
             foreach (var item in PubMaster.Area.GetAreaDevList(SelectAreaId))
             {
-                DevList.Add(item);
+                if(SelectLineId > 0)
+                {
+                    ushort lineid = PubMaster.Device.GetDeviceLIne(item.device_id);
+                    if(lineid ==0 || ( lineid != 0 && SelectLineId == lineid))
+                    {
+                        DevList.Add(item);
+                    }
+                }
+                else
+                {
+                    DevList.Add(item);
+                }
             }
 
             DeviceView.Refresh();
@@ -394,7 +406,8 @@ namespace wcs.ViewModel
                    {
                        vm.FilterArea = false;
                        vm.AreaId = 0;
-                       vm.SetSelectType(new List<DeviceTypeE>() { _filterdevtype });
+                       vm.LineId = 0;
+                       vm.SetSelectType(_filterdevtype);
                    }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)
             {
@@ -441,7 +454,18 @@ namespace wcs.ViewModel
             AreaTrackList.Clear();
             foreach (var item in PubMaster.Area.GetAreaTracks(SelectAreaId))
             {
-                AreaTrackList.Add(item);
+                if (SelectLineId > 0)
+                {
+                    ushort lineid = PubMaster.Track.GetTrackLine(item.track_id);
+                    if (lineid == 0 || (lineid != 0 && SelectLineId == lineid))
+                    {
+                        AreaTrackList.Add(item);
+                    }
+                }
+                else
+                {
+                    AreaTrackList.Add(item);
+                }
             }
             _refareatrac = true;
         }
@@ -459,7 +483,18 @@ namespace wcs.ViewModel
             FerryTraList.Clear();
             foreach (var item in PubMaster.Area.GetAreaDevTraList(SelectAreaId, _selectferry.id))
             {
-                FerryTraList.Add(item);
+                if (SelectLineId > 0)
+                {
+                    ushort lineid = PubMaster.Device.GetDeviceLIne(item.device_id);
+                    if (lineid == 0 || (lineid != 0 && SelectLineId == lineid))
+                    {
+                        FerryTraList.Add(item);
+                    }
+                }
+                else
+                {
+                    FerryTraList.Add(item);
+                }
             }
 
             if (FerryTraList.Count == 0)
@@ -495,7 +530,9 @@ namespace wcs.ViewModel
                 {
                     vm.FilterArea = true;
                     vm.AreaId = SelectAreaId;
-                    vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上摆渡, DeviceTypeE.下摆渡 });
+                    vm.LineId = SelectLineId;
+
+                    vm.SetSelectType(DeviceTypeE.上摆渡, DeviceTypeE.下摆渡);
                 }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)
             {
@@ -588,7 +625,18 @@ namespace wcs.ViewModel
             TileTraList.Clear();
             foreach (var item in PubMaster.Area.GetAreaDevTraList(SelectAreaId, _selecttile.id))
             {
-                TileTraList.Add(item);
+                if (SelectLineId > 0)
+                {
+                    ushort lineid = PubMaster.Track.GetTrackLine(item.track_id);
+                    if (lineid == 0 || (lineid != 0 && SelectLineId == lineid))
+                    {
+                        TileTraList.Add(item);
+                    }
+                }
+                else
+                {
+                    TileTraList.Add(item);
+                }
             }
 
             if (TileTraList.Count == 0)
@@ -622,8 +670,9 @@ namespace wcs.ViewModel
                 .Initialize<DeviceSelectViewModel>((vm) =>
                 {
                     vm.AreaId = SelectAreaId;
+                    vm.LineId = SelectLineId;
                     vm.FilterArea = true;
-                    vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上砖机, DeviceTypeE.下砖机, DeviceTypeE.砖机 });
+                    vm.SetSelectType(DeviceTypeE.上砖机, DeviceTypeE.下砖机, DeviceTypeE.砖机);
                 }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)
             {

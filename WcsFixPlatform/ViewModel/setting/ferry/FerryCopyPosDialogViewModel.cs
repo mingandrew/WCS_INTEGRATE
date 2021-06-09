@@ -96,11 +96,11 @@ namespace wcs.ViewModel
                         vm.AreaId = 0;
                         if(to_ferry.Type == DeviceTypeE.上摆渡)
                         {
-                            vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.上摆渡 });
+                            vm.SetSelectType(DeviceTypeE.上摆渡 );
                         }
                         else
                         {
-                            vm.SetSelectType(new List<DeviceTypeE>() { DeviceTypeE.下摆渡 });
+                            vm.SetSelectType(DeviceTypeE.下摆渡 );
                         }
                     }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)

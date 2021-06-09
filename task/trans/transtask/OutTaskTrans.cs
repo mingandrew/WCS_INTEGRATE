@@ -689,7 +689,7 @@ namespace task.trans.transtask
                 case TrackTypeE.上砖轨道:
 
                     //判断小车是否已上轨道，是则解锁摆渡车
-                    if (GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id))
+                    if (GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line))
                     {
                         if (!trans.IsReleaseTakeFerry
                             && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)

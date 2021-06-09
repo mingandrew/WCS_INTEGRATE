@@ -127,7 +127,7 @@ namespace task.trans
                                         _InTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.上砖任务:
-                                        if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id))
+                                        if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line))
                                         {
                                             _outTransV2.DoTrans(trans);
                                         }

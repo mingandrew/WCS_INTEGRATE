@@ -29,7 +29,7 @@ namespace wcs.ViewModel
 
             PubTask.Trans.GetAllTrans();
 
-            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
 
             TListView = System.Windows.Data.CollectionViewSource.GetDefaultView(MList);
             TListView.Filter = new Predicate<object>(OnFilterMovie);
@@ -43,6 +43,7 @@ namespace wcs.ViewModel
         #region[字段]      
         private bool showareafilter = true;
         private uint filterareaid = 0;
+        private ushort filterlineid = 0;
         private TransView selectedtask, selectedftask;
         private TransView recentTask, finishTask;
         private bool m_finish_tab_show;
@@ -124,9 +125,11 @@ namespace wcs.ViewModel
         #region[方法]
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea(out uint areaid))
+            if (PubMaster.Area.IsSingleAreaLine(out uint areaid, out ushort lineid))
             {
                 ShowAreaFileter = false;
+                filterareaid = areaid;
+                filterlineid = lineid;
             }
         }
         bool OnFilterMovie(object item)
@@ -134,21 +137,19 @@ namespace wcs.ViewModel
             if (filterareaid == 0) return true;
             if (item is TransView trans)
             {
-                return trans.Area_id == filterareaid;
+                return trans.Area_id == filterareaid && trans.Line_id == filterlineid ;
             }
             return true;
         }
 
         private void CheckRadioBtn(RoutedEventArgs args)
         {
-            if (args.OriginalSource is RadioButton btn)
+            if (args.OriginalSource is RadioButton btn && btn.DataContext is MyRadioBtn radio)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
-                {
-                    filterareaid = areaid;
-                    TListView.Refresh();
-                    FTListView.Refresh();
-                }
+                filterareaid = radio.AreaID;
+                filterlineid = radio.Line;
+                TListView.Refresh();
+                FTListView.Refresh();
             }
         }
 

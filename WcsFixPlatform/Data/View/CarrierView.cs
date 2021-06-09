@@ -7,6 +7,8 @@ namespace wcs.Data.View
     public class CarrierView : ViewModelBase
     {
         public uint ID { set; get; }
+        public uint AreaId { set; get; }
+        public ushort LineId { set; get; }
         public string Name { set; get; }
 
         private bool working;
@@ -370,6 +372,17 @@ namespace wcs.Data.View
             Working = working;
             CurrentTrackId = currenttrackId;
             TargetTrackId = targettrackId;
+        }
+
+        internal bool UpdateLine(ushort currenttrackline)
+        {
+            if (currenttrackline != 0 && LineId != currenttrackline)
+            {
+                LineId = currenttrackline;
+                return true;
+            }
+
+            return false;
         }
     }
 }

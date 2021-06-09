@@ -213,7 +213,7 @@ namespace wcs.ViewModel
                         return;
                     }
 
-                    if(Out_Last_Point > Set_Out_Loc_Point)
+                    if(Out_Last_Point > 0 && Out_Last_Point > Set_Out_Loc_Point)
                     {
                         Growl.Warning("出定位脉冲不能比出最后一车脉冲小！");
                         return;
@@ -235,7 +235,7 @@ namespace wcs.ViewModel
                         return;
                     }
 
-                    if (Set_In_Loc_Point > In_First_Point)
+                    if (Set_In_Loc_Point > In_First_Point && In_First_Point > 0)
                     {
                         Growl.Warning("入定位脉冲不能大于比入第一车脉冲！");
                         return;
