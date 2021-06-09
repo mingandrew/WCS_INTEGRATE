@@ -32,10 +32,11 @@ namespace wcs.ViewModel
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.TileLifterStatusUpdate, TileLifterStatusUpdate);
 
-            PubTask.TileLifter.GetAllTileLifter();
 
             DeviceView = System.Windows.Data.CollectionViewSource.GetDefaultView(DeviceList);
             DeviceView.Filter = new Predicate<object>(OnFilterMovie);
+
+            PubTask.TileLifter.GetAllTileLifter();
 
             CheckIsSingle();
         }

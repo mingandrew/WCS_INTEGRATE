@@ -1,5 +1,6 @@
 ﻿using module.area;
 using module.line;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using tool;
@@ -180,6 +181,14 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+
+        internal bool EditAreaLine(Line line)
+        {
+            string sql = "UPDATE `line` SET `max_upsort_num` = {0} WHERE `id` =  '{1}'";
+            sql = string.Format(sql, line.max_upsort_num, line.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
         #endregion
 
         #region[删除]

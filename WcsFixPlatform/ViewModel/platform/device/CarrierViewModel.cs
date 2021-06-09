@@ -32,10 +32,11 @@ namespace wcs.ViewModel
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.CarrierStatusUpdate, CarrierStatusUpdate);
 
-            PubTask.Carrier.GetAllCarrier();
-
             DeviceView = System.Windows.Data.CollectionViewSource.GetDefaultView(DeviceList);
             DeviceView.Filter = new Predicate<object>(OnFilterMovie);
+
+            PubTask.Carrier.GetAllCarrier();
+
             CheckIsSingle();
         }
         private void CheckIsSingle()

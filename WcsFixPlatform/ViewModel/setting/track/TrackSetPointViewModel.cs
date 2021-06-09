@@ -41,6 +41,7 @@ namespace wcs.ViewModel
         private ushort out_loc_point, out_sort_point, out_last_point, in_first_point, in_loc_point;
 
         private ushort set_in_loc_point, set_out_loc_point, set_in_first_point, set_out_last_point, set_out_sort_point, set_out_sort_qty, each_stack_point;
+        private byte set_each_sort_qty;
         private double point_to_cm, in_track_len, out_track_len, 
             inout_track_len, in_stack_qty, out_stack_qty, inout_stack_qty,
             middle_space_m, out_more_than_in;
@@ -88,6 +89,12 @@ namespace wcs.ViewModel
             get => set_out_sort_point;
             set => Set(ref set_out_sort_point, value);
         }
+        public byte Set_Each_Sort_Qty
+        {
+            get => set_each_sort_qty;
+            set => Set(ref set_each_sort_qty, value);
+        }
+
         public ushort Set_Out_Sort_Qty
         {
             get => set_out_sort_qty;
@@ -360,7 +367,14 @@ namespace wcs.ViewModel
                     GlobalWcsDataConfig.DefaultConfig.UpdateAreaPoint(filterareaid, filterlineid, Out_More_Than_In, Middle_Space_M);
                     CalculateFirstLast();
                     break;
-                    #endregion
+                #endregion
+
+                #region[倒库发几车]
+                case "each_sort_qty":
+                    PubMaster.Area.SetLineEachSortQty(filterareaid, filterlineid, Set_Each_Sort_Qty);
+                    Growl.Success("更新成功！");
+                    break;
+                 #endregion
             }
             Console.WriteLine(tag);
             CheckAreaTrackPosSetShow();
@@ -452,6 +466,8 @@ namespace wcs.ViewModel
                     Set_Out_Loc_Point = inouttrack.limit_point_up;
                 }
             }
+
+            Set_Each_Sort_Qty = PubMaster.Area.GetLineUpSortMaxNumber(filterareaid, filterlineid);
         }
 
         private void CalculateFirstLast()

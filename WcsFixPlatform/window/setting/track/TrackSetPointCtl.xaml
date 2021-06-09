@@ -301,6 +301,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition/>
                                     <RowDefinition/>
+                                    <RowDefinition/>
                                 </Grid.RowDefinitions>
                                 
                                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
@@ -314,15 +315,26 @@
                                             Tag="out_sort_point_calculate" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Border>
                                 
-                                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
                                     <TextBlock Text="接力点脉冲：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                 </Border>
-                                <Border Grid.Row="1" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LTB}">
+                                <Border Grid.Row="1" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}">
                                     <TextBox Text="{Binding Set_Out_Sort_Point}" Margin="5" IsReadOnly="True"/>
                                 </Border>
-                                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LTRB}">
+                                <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LTR}">
                                     <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
                                             Tag="out_sort_point" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Border>
+
+                                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                                    <TextBlock Text="倒几车(0:全部)：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LTB}">
+                                    <TextBox Text="{Binding Set_Each_Sort_Qty}" Margin="5"/>
+                                </Border>
+                                <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MBorder_LTRB}">
+                                    <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"
+                                            Tag="each_sort_qty" Command="{Binding TrackPointUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Border>
                             </Grid>
                         </Grid>

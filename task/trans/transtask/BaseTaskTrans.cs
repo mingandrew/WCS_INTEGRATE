@@ -58,7 +58,7 @@ namespace task.trans.transtask
                         ReturnDevBackToTrack(trans);
                         break;
                     case TransStatusE.倒库中:
-                        MovingCarrier(trans);
+                        SortingStock(trans);
                         break;
                     case TransStatusE.移车中:
                         MovingCarrier(trans);
@@ -119,7 +119,7 @@ namespace task.trans.transtask
         /// 倒库中
         /// </summary>
         /// <param name="trans"></param>
-        public abstract void SortingStockFromIn2Out(StockTrans trans);
+        public abstract void SortingStock(StockTrans trans);
 
         /// <summary>
         /// 移车中

@@ -31,10 +31,11 @@ namespace wcs.ViewModel
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.FerryStatusUpdate, FerryStatusUpdate);
 
-            PubTask.Ferry.GetAllFerry();
-
             DeviceView = System.Windows.Data.CollectionViewSource.GetDefaultView(DeviceList);
             DeviceView.Filter = new Predicate<object>(OnFilterMovie);
+
+            PubTask.Ferry.GetAllFerry();
+
             CheckIsSingle();
         }
         

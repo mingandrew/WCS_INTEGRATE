@@ -304,7 +304,7 @@ namespace task.trans.transtask
         /// 倒库中
         /// </summary>
         /// <param name="trans"></param>
-        public override void SortingStockFromIn2Out(StockTrans trans)
+        public override void SortingStock(StockTrans trans)
         {
             // 运行前提
             if (!_M.RunPremise(trans, out track))

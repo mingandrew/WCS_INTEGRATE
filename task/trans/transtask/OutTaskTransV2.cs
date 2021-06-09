@@ -965,7 +965,7 @@ namespace task.trans.transtask
 
         }
 
-        public override void SortingStockFromIn2Out(StockTrans trans)
+        public override void SortingStock(StockTrans trans)
         {
 
         }

@@ -816,6 +816,22 @@ namespace resource.area
             return LineList.Find(c => c.area_id == areaid && c.line == line)?.max_upsort_num ?? 0;
         }
 
+
+        /// <summary>
+        /// 更新线路倒库每次发送数量
+        /// </summary>
+        /// <param name="filterareaid"></param>
+        /// <param name="filterlineid"></param>
+        /// <param name="set_Each_Sort_Qty"></param>
+        public void SetLineEachSortQty(uint filterareaid, ushort filterlineid, byte eachsortqty)
+        {
+            Line line = GetLine(filterareaid, filterlineid);
+            if (line != null)
+            {
+                line.max_upsort_num = eachsortqty;
+                PubMaster.Mod.AreaSql.EditAreaLine(line);
+            }
+        }
         #endregion
     }
 }
