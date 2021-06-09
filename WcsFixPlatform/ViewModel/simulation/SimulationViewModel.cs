@@ -56,6 +56,7 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private uint SelectAreaId = 0;
+        private ushort SelectLineId = 0;
         private bool _reftile, _refcarrier, _refferry, _refferrypose;
         private string _tabtag;
 
@@ -176,17 +177,18 @@ namespace wcs.ViewModel
             if (SelectAreaId == 0) return true;
             if (item is SimDeviceView view)
             {
-                return view.area_id == SelectAreaId ;
+                return view.area_id == SelectAreaId && view.line_id == SelectLineId ;
             }
             return true;
         }
 
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea(out uint areaid))
+            if (PubMaster.Area.IsSingleAreaLine(out uint areaid, out ushort lineid))
             {
                 ShowAreaFileter = false;
                 SelectAreaId = areaid;
+                SelectLineId = lineid;
                 RefreshTile();
             }
         }
@@ -194,35 +196,33 @@ namespace wcs.ViewModel
         #region[区域按钮/Tab切换]
         private void InitAreaRadio()
         {
-            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
 
         private void CheckRadioBtn(RoutedEventArgs args)
         {
-            if (args.OriginalSource is RadioButton btn)
+            if (args.OriginalSource is RadioButton btn && btn.DataContext is MyRadioBtn radio)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
+                SelectAreaId = radio.AreaID;
+                SelectLineId = radio.Line;
+                _reftile = false;
+                _refferry = false;
+                _refcarrier = false;
+                _refferrypose = false;
+                switch (_tabtag)
                 {
-                    SelectAreaId = areaid;
-                    _reftile = false;
-                    _refferry = false;
-                    _refcarrier = false;
-                    _refferrypose = false;
-                    switch (_tabtag)
-                    {
-                        case "tile":
-                            RefreshTile();
-                            break;
-                        case "carrier":
-                            RefreshCarrier();
-                            break;
-                        case "ferry":
-                            RefreshFerry();
-                            break;
-                        case "ferrypose":
-                            RefreshFerryPose();
-                            break;
-                    }
+                    case "tile":
+                        RefreshTile();
+                        break;
+                    case "carrier":
+                        RefreshCarrier();
+                        break;
+                    case "ferry":
+                        RefreshFerry();
+                        break;
+                    case "ferrypose":
+                        RefreshFerryPose();
+                        break;
                 }
             }
         }

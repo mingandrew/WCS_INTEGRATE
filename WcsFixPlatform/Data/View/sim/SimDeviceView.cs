@@ -9,6 +9,7 @@ namespace wcs.Data.View.sim
     {
         private bool working;
         public uint area_id { set; get; }
+        public ushort line_id { set; get; }
         public string dev_name { set; get; }
         public uint dev_id { set; get; }
         public DeviceTypeE DevType { set; get; }
@@ -22,6 +23,7 @@ namespace wcs.Data.View.sim
         public SimDeviceView(SimTaskBase task)
         {
             area_id = task.Device.area;
+            line_id = task.LineId;
             dev_id = task.Device.id;
             DevType = task.Device.Type;
 

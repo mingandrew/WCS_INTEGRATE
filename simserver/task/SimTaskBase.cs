@@ -18,6 +18,11 @@ namespace simtask.task
             get => Device?.area ?? 0;
         }
 
+        public ushort LineId
+        {
+            get => Device?.line ?? 0;
+        }
+
         public uint ID
         {
             get => Device?.id ?? 0;
