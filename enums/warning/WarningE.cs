@@ -55,7 +55,10 @@
 
         DownTaskSwitchClosed,//【下砖任务开关】关闭
         UpTaskSwitchClosed,//【上砖任务开关】关闭
-        SortTaskSwitchClosed//【倒库任务开关】关闭
+        SortTaskSwitchClosed,//【倒库任务开关】关闭
+
+        SortFinishButDownExistStock,//倒库指令完成，但入库轨道还有库存
+        //运输车倒库完成后入库轨道还有库存，请在核实并修改入库轨道的库存之后，1.如果需要继续倒库，请手动给运输车发倒库任务，2.如果不需要继续倒库，请取消当前轨道的倒库任务
     }
 
     /// <summary>

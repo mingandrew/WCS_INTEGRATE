@@ -400,6 +400,14 @@ namespace task.trans.transtask
                 return;
             }
 
+            if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                           //|| PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                           )
+            {
+                _M.SetStatus(trans, TransStatusE.倒库中);
+                PubMaster.Warn.RemoveTaskWarn(WarningTypeE.SortFinishButDownExistStock, trans.id);
+            }
+
             // 任务运输车前面即将有车
             if (PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
             {
@@ -487,7 +495,9 @@ namespace task.trans.transtask
                 // 入库侧仍还有库存
                 if (PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
                 {
-                    _M.SetStatus(trans, TransStatusE.移车中, "入库侧还有库存没倒完，重新发起倒库指令");
+                    //_M.SetStatus(trans, TransStatusE.移车中, "入库侧还有库存没倒完，重新发起倒库指令");
+                    //报警运输车倒库后入库轨道还有库存，请在核实并修改入库轨道的库存后，1.如果需要继续倒库，请手动给运输车发倒库任务，2.如果不需要继续倒库，请取消当前轨道的倒库任务并修改轨道状态为空砖/有砖
+                    PubMaster.Warn.AddTaskWarn(WarningTypeE.SortFinishButDownExistStock, (ushort)trans.carrier_id, trans.id);
                     return;
                 }
 

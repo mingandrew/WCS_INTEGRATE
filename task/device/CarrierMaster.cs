@@ -1022,6 +1022,12 @@ namespace task.device
                         checkTra = track.ferry_down_code;
                         moveCount = (byte)PubMaster.Goods.GetTrackStockCount(track.brother_track_id);
 
+                        if (PubMaster.Goods.ExistStockInTrack(track.id))
+                        {
+                            byte UpSortCount = (byte)PubMaster.Goods.GetTrackStockCount(track.id);
+                            moveCount += UpSortCount;
+                        }
+
                         #endregion
                         break;
 
