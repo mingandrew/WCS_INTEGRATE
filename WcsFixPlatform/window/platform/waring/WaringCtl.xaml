@@ -40,18 +40,20 @@
                     </Grid>
                 </Grid>
                 <Grid Visibility="{Binding SHOWSTATUSERROR}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
+
                     <Border Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Center" VerticalAlignment="Center"
                             BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                         <Border Background="{DynamicResource AccentBrush}"  Width="80" Height="80" CornerRadius="40" HorizontalAlignment="Center" VerticalAlignment="Center"
                             BorderBrush="White" BorderThickness="5">
                             <Grid>
                                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="警告" Foreground="{DynamicResource TextIconBrush}" FontSize="25"/>
-                                <Button Content="" Width="45" Height="30" Background="Transparent"
-                                    Command="{Binding ShowErrorListCmd}" BorderBrush="Transparent"/>
                                 <Label Content="{Binding ERRORCOUNT}" FontSize="20" Foreground="White" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Bottom" Margin="0,0,0,-8"/>
                             </Grid>
                         </Border>
                     </Border>
+                    <Button BorderBrush="Transparent" Background="Transparent" Command="{Binding ShowErrorListCmd}"
+                            Margin="0,25,0,0" Padding="0" Width="95" Height="65"  >
+                    </Button>
                 </Grid>
                 <Grid Visibility="{Binding SHOWSTATUSOK}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
                     <Border BorderBrush="{StaticResource BorderBrush}" Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"

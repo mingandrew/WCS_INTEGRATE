@@ -287,3 +287,7 @@ ALTER TABLE `config_carrier` DROP FOREIGN KEY `carrier_stock_id_fk`;
 更新倒库完成后入库还有库存报警
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (232, 3, 'SortFinishButDownExistStock', '倒库指令已完成，入库还有库存', NULL, NULL, '运输车倒库完成后入库轨道还有库存，请在核实并修改入库轨道的库存之后，1.如果需要继续倒库，请手动给运输车发倒库任务，2.如果不需要继续倒库，请取消当前轨道的倒库任务和修改轨道状态为有砖/空砖', NULL, NULL, NULL, NULL);
 
+
+2021.06.11
+更新倒库空砖报警修改
+UPDATE `diction_dtl` SET `string_value` = '倒库空砖，请检测光电是否正常和轨道库存是否正确' WHERE `id` = 114;
