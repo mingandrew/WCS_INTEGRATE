@@ -56,7 +56,20 @@ namespace tool.appconfig
         }
 
         /// <summary>
-        /// 
+        /// 1.不需要接力运输车把库存放下才取<br/>
+        /// 2.接力前面没有砖都可以进去取砖<br/>
+        /// 3.让上砖的车与接力车防撞触发停止，接力车放下砖，取货车取砖<br/>
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public bool IsNotNeedSortToSplitUpPlace(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.NotNeedSortToSplitUpPlace ?? false;
+        }
+
+        /// <summary>
+        /// 不需要接力运输车把库存放下才取
         /// </summary>
         /// <param name="areaid"></param>
         /// <param name="lineid"></param>
@@ -91,5 +104,11 @@ namespace tool.appconfig
         public bool FreeDownFerry { set; get; }//是否释放下砖摆渡车
         public bool UpTaskNewAllocate { set; get; }//上砖任务新分配逻辑
         public bool InMoveWhenFull { set; get; }//出入库轨道，满砖移车
+        /// <summary>
+        /// 1.不需要接力运输车把库存放下才取<br/>
+        /// 2.接力前面没有砖都可以进去取砖<br/>
+        /// 3.让上砖的车与接力车防撞触发停止，接力车放下砖，取货车取砖<br/>
+        /// </summary>
+        public bool NotNeedSortToSplitUpPlace { set; get; }
     }
 }

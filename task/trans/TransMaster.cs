@@ -1400,7 +1400,7 @@ namespace task.trans
         /// <param name="trackid"></param>
         /// <param name="stockid"></param>
         /// <returns></returns>
-        public bool CheckStockIsableToTake(uint carrierid, uint trackid, uint stockid = 0)
+        public bool CheckStockIsableToTake(StockTrans trans, uint carrierid, uint trackid, uint stockid = 0)
         {
             if (stockid == 0)
             {
@@ -1415,16 +1415,20 @@ namespace task.trans
                 //【使用分割点、不限制使用分割点后的库存】
                 //2.判断库存所在位置是否轨道分割点后面，并且库存不止一车
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)
-                    && !PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock)
-                    && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid)
-                    && !PubMaster.Goods.IsOnlyOneWithStock(stockid))
+                    && !PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock))
                 {
-                    //在分割点后的库存需要（库存大于1）
-                    return false;
+                    if (!GlobalWcsDataConfig.BigConifg.IsNotNeedSortToSplitUpPlace(trans.area_id, trans.line)
+                        && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid)
+                        && !PubMaster.Goods.IsOnlyOneWithStock(stockid))
+                    {
+                        //在分割点后的库存需要（库存大于1）
+                        return false;
+                    }
                 }
 
                 //3.判断是否存在运输车绑定了该库存
-                if (PubTask.Carrier.ExistCarrierBindStock(carrierid, stockid))
+                if (!GlobalWcsDataConfig.BigConifg.IsNotNeedSortToSplitUpPlace(trans.area_id, trans.line)
+                    && PubTask.Carrier.ExistCarrierBindStock(carrierid, stockid))
                 {
                     return false;
                 }
@@ -1446,7 +1450,7 @@ namespace task.trans
         /// <param name="trackid">轨道ID</param>
         /// <param name="stockid">库存ID</param>
         /// <returns></returns>
-        public bool CheckTrackStockStillCanUse(uint carrierid, uint trackid, uint stockid = 0)
+        public bool CheckTrackStockStillCanUse(StockTrans trans, uint carrierid, uint trackid, uint stockid = 0)
         {
             if (stockid == 0)
             {
@@ -1463,6 +1467,7 @@ namespace task.trans
                 //2.判断库存所在位置是否轨道分割点后面
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)
                     && PubMaster.Dic.IsSwitchOnOff(DicTag.CannotUseUpSplitStock)
+                    && !GlobalWcsDataConfig.BigConifg.IsNotNeedSortToSplitUpPlace(trans.area_id, trans.line)
                     && PubMaster.Goods.IsStockBehindUpSplitPoint(trackid, stockid))
                 {
                     //在分割点后的库存,则不能进行取货操作

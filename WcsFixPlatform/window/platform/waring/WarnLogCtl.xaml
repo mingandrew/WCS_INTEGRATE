@@ -58,11 +58,11 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding area_id}" Header="id" MaxWidth="150" Visibility="Hidden"/>
                 <DataGridTextColumn Binding="{Binding type}" Header="类型"  Visibility="Hidden"/>
-                <DataGridTextColumn Binding="{Binding createtime,Converter={StaticResource Date2StringLongConverter}}" Header="开始" Width="auto"/>
-                <DataGridTextColumn Binding="{Binding resolvetime,Converter={StaticResource Date2StringLongConverter}}" Header="结束" Width="auto"/>
-                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备" Width="auto"/>
+                <DataGridTextColumn Binding="{Binding createtime,Converter={StaticResource Date2StringLongConverter}}" Header="开始" MinWidth="180"/>
+                <DataGridTextColumn Binding="{Binding resolvetime,Converter={StaticResource Date2StringLongConverter}}" Header="结束" MinWidth="180"/>
+                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备" MinWidth="80"/>
                 <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Visibility="Hidden"/>
-                <DataGridTemplateColumn Header="警告" Width="1*">
+                <DataGridTemplateColumn Header="警告" Width="*" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock TextWrapping="Wrap" Text="{Binding content}"/>

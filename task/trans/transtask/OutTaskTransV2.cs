@@ -51,7 +51,7 @@ namespace task.trans.transtask
 
             //存在接力倒库/倒库任务
             //1.库存剩最后一车的任务
-            if (!_M.CheckTrackStockStillCanUse(0, trans.take_track_id, trans.stock_id))
+            if (!_M.CheckTrackStockStillCanUse(trans, 0, trans.take_track_id, trans.stock_id))
             {
                 #region 【任务步骤记录】
                 _M.SetStepLog(trans, false, 1501, string.Format("等待接力库存条件；"));
@@ -481,7 +481,7 @@ namespace task.trans.transtask
                                             return;
                                         }
 
-                                        if (!_M.CheckStockIsableToTake(trans.carrier_id, trans.take_track_id, trans.stock_id))
+                                        if (!_M.CheckStockIsableToTake(trans, trans.carrier_id, trans.take_track_id, trans.stock_id))
                                         {
                                             #region 【任务步骤记录】
                                             _M.LogForCarrierNoTake(trans, trans.take_track_id);
