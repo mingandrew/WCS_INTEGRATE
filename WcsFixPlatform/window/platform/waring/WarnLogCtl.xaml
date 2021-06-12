@@ -27,17 +27,25 @@
                 <ComboBoxItem Content="轨道读点"  Tag="6"/>
                 <ComboBoxItem Content="阅读器断开"  Tag="100"/>
             </hc:ComboBox>
-            <TextBlock Text="日期：" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}"/>
+            <Border  Width="100" HorizontalAlignment="Center" Margin="0" Padding="0">
+                <TextBlock Text="{Binding SelectDeviceName}"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+            </Border>
+            <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding DevSelectedCmd}" FontSize="16" Height="35"/>
+            
+            <TextBlock Text="日期：" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
             <hc:DateTimePicker Width="200"  ShowClearButton="True" SelectedDateTime="{Binding STARTDATE,Mode=TwoWay}" Margin="5"/>
             <TextBlock Text="至" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}"/>
             <hc:DateTimePicker Width="200" ShowClearButton="True" SelectedDateTime="{Binding STOPDATE,Mode=TwoWay}" Margin="5"/>
-
             <Button Content="查询" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
                   Tag="1"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-            <Button Content="今天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
-                  Tag="2"   Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-            <Button Content="昨天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+            <Button Content="半小时" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                  Tag="2"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+            <Button Content="一个钟" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
                   Tag="3"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+            <Button Content="今天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                  Tag="4"   Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+            <Button Content="昨天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                  Tag="5"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
 
         </WrapPanel>
         <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontSize="20" RowHeaderWidth="50"  hc:DataGridAttach.ShowRowNumber="True"
@@ -49,12 +57,18 @@
 
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding area_id}" Header="id" MaxWidth="150" Visibility="Hidden"/>
-                <DataGridTextColumn Binding="{Binding type}" Header="类型" />
-                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备"/>
-                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道"/>
-                <DataGridTextColumn Binding="{Binding content}" Header="警告"/>
-                <DataGridTextColumn Binding="{Binding createtime,Converter={StaticResource Date2StringLongConverter}}" Header="开始"/>
-                <DataGridTextColumn Binding="{Binding resolvetime,Converter={StaticResource Date2StringLongConverter}}" Header="结束"/>
+                <DataGridTextColumn Binding="{Binding type}" Header="类型"  Visibility="Hidden"/>
+                <DataGridTextColumn Binding="{Binding createtime,Converter={StaticResource Date2StringLongConverter}}" Header="开始" Width="auto"/>
+                <DataGridTextColumn Binding="{Binding resolvetime,Converter={StaticResource Date2StringLongConverter}}" Header="结束" Width="auto"/>
+                <DataGridTextColumn Binding="{Binding dev_id, Converter={StaticResource DevId2NameConverter}}" Header="设备" Width="auto"/>
+                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道" Visibility="Hidden"/>
+                <DataGridTemplateColumn Header="警告" Width="1*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock TextWrapping="Wrap" Text="{Binding content}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

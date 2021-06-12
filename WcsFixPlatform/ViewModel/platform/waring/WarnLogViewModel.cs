@@ -1,12 +1,17 @@
-﻿using GalaSoft.MvvmLight;
+﻿using enums;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using HandyControl.Controls;
+using HandyControl.Tools.Extension;
 using module;
+using module.device;
+using module.window;
 using resource;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
+using wcs.Dialog;
 
 namespace wcs.ViewModel
 {
@@ -25,10 +30,16 @@ namespace wcs.ViewModel
         private DateTime? startdate;
         private DateTime? stopdate;
         private ComboBoxItem warntypecb;
-
+        private Device selectdevice;
+        private string selectdevname;
         #endregion
 
         #region[属性]
+        public string SelectDeviceName
+        {
+            get => selectdevname;
+            set => Set(ref selectdevname, value);
+        }
 
         public DateTime? STARTDATE
         {
@@ -59,17 +70,41 @@ namespace wcs.ViewModel
         /// 查询生产记录
         /// </summary>
         public RelayCommand<string> SearchConsumelogCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(SearchConsumelog)).Value;
+        public RelayCommand DevSelectedCmd => new Lazy<RelayCommand>(() => new RelayCommand(DevSelected)).Value;
 
         #endregion
 
         #region[方法]
+
+
+        private async void DevSelected()
+        {
+            DialogResult result = await HandyControl.Controls.Dialog.Show<DeviceSelectDialog>()
+                   .Initialize<DeviceSelectViewModel>((vm) =>
+                   {
+                       vm.FilterArea = false;
+                       vm.AreaId = 0;
+                       vm.LineId = 0;
+                       vm.SetSelectType(DeviceTypeE.运输车);
+                   }).GetResultAsync<DialogResult>();
+            if (result.p1 is bool rs && result.p2 is Device dev)
+            {
+                selectdevice = dev;
+                SelectDeviceName = dev.name;
+            }
+            else
+            {
+                selectdevice = null;
+                SelectDeviceName = "";
+            }
+        }
 
         /// <summary>
         /// 查询数据库
         /// </summary>
         private void SearchConsumelog(string tag)
         {
-            if ((DateTime.Now - lastquerytime).TotalSeconds < 3)
+            if ((DateTime.Now - lastquerytime).TotalMilliseconds < 950)
             {
                 Growl.Warning("请不要频繁刷新!");
                 return;
@@ -94,15 +129,28 @@ namespace wcs.ViewModel
                 switch (type)
                 {
                     case 1:
-                        break;
 
-                    case 2://今天
+                        break;
+                    case 2://半小时
                         DateTime today = DateTime.Now;
+                        today = today.AddHours(-0.5);
+                        STARTDATE = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, 00);
+                        STOPDATE = new DateTime(today.Year, today.Month, today.Day, 23, 59, 59);
+                        break;
+                    case 3: //一个钟
+                        today = DateTime.Now;
+                        today = today.AddHours(-1);
+                        STARTDATE = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, 00);
+                        STOPDATE = new DateTime(today.Year, today.Month, today.Day, 23, 59, 59);
+
+                        break;
+                    case 4://今天
+                        today = DateTime.Now;
                         STARTDATE = new DateTime(today.Year, today.Month, today.Day, 0, 00, 00);
                         STOPDATE = new DateTime(today.Year, today.Month, today.Day, 23, 59, 59);
                         break;
 
-                    case 3://昨天
+                    case 5://昨天
                         today = DateTime.Now;
                         today = today.AddDays(-1);
                         STARTDATE = new DateTime(today.Year, today.Month, today.Day, 0, 00, 00);
@@ -124,7 +172,7 @@ namespace wcs.ViewModel
 
                 }
 
-                List<Warning> list = PubMaster.Mod.WarnSql.QueryWarningLog(wtype, start, stop);
+                List<Warning> list = PubMaster.Mod.WarnSql.QueryWarningLog(wtype, start, stop, selectdevice?.id ?? 0);
 
                 LogList.Clear();
                 if (list.Count > 0)
@@ -137,6 +185,7 @@ namespace wcs.ViewModel
                         }
                         LogList.Add(md);
                     }
+                    Growl.Success("查询成功！");
                 }
                 else
                 {
