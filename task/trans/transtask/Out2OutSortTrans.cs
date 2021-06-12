@@ -312,8 +312,10 @@ namespace task.trans.transtask
                 return;
             }
 
-            // 小车不在本轨道
-            if (track.id != trans.take_track_id && track.id != trans.give_track_id)
+            // 小车不在本轨道 或 兄弟轨道
+            if (track.id != trans.take_track_id 
+                && track.id != trans.give_track_id 
+                && track.brother_track_id != trans.take_track_id)
             {
                 _M.SetStatus(trans, TransStatusE.完成, "倒库中的运输车在其他轨道，结束任务");
                 return;
@@ -385,8 +387,25 @@ namespace task.trans.transtask
                         }
                         else
                         {
-                            topoint = givepoint;
-                            topoint -= (ushort)(2 * PubMaster.Goods.GetStackSafe(0, 0));
+                            Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
+                            if (bestock_one != null)
+                            {
+                                if (Math.Abs(bestock_one.location - givepoint) <= 200)
+                                {
+                                    bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, bestock_one.location);
+                                }
+                            }
+
+                            if (bestock_one != null)
+                            {
+                                topoint = bestock_one.location;
+                                topoint += (ushort)(2 * PubMaster.Goods.GetStackSafe(0, 0));
+                            }
+                            else
+                            {
+                                topoint = givepoint;
+                                topoint -= (ushort)(2 * PubMaster.Goods.GetStackSafe(0, 0));
+                            }
                         }
 
                         //需要定位的位置比出轨道最后取货点都小则用

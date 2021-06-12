@@ -1,4 +1,5 @@
 ﻿using enums;
+using enums.track;
 using module.goods;
 using module.track;
 using System;
@@ -68,6 +69,7 @@ namespace task.trans.transtask
                         break;
                     case TransStatusE.完成:
                         FinishStockTrans(trans);
+                        FinishAndReleaseFerry(trans);
                         break;
                     case TransStatusE.取消:
                         CancelStockTrans(trans);
@@ -90,6 +92,8 @@ namespace task.trans.transtask
 
             }
         }
+
+        #region[任务调度逻辑]
 
         /// <summary>
         /// 调度设备
@@ -162,6 +166,33 @@ namespace task.trans.transtask
         /// </summary>
         /// <param name="trans"></param>
         public abstract void Out2OutRelayWait(StockTrans trans);
+
         public abstract void OtherAction(StockTrans trans);
+
+        #endregion
+
+        #region[其他判断]
+
+        /// <summary>
+        /// 完成任务的同时判断是否需要释放运输车
+        /// </summary>
+        /// <param name="trans"></param>
+        private void FinishAndReleaseFerry(StockTrans trans)
+        {
+            if (trans.carrier_id == 0) return;
+            track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
+            if (track == null || track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出)) return;
+            if (trans.take_ferry_id != 0)
+            {
+                PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id);
+            }
+
+            if (trans.give_ferry_id != 0)
+            {
+                PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id);
+            }
+        }
+
+        #endregion
     }
 }
