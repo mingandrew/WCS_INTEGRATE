@@ -291,3 +291,11 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 2021.06.11
 更新倒库空砖报警修改
 UPDATE `diction_dtl` SET `string_value` = '倒库空砖，请检测光电是否正常和轨道库存是否正确' WHERE `id` = 114;
+
+
+# 2021.06.11 线路开关
+
+ALTER TABLE `line` ADD COLUMN `onoff_up` bit(1) NULL COMMENT '上砖开关' AFTER `max_upsort_num`;
+ALTER TABLE `line` ADD COLUMN `onoff_down` bit(1) NULL COMMENT '下砖开关' AFTER `onoff_up`;
+ALTER TABLE `line` ADD COLUMN `onoff_sort` bit(1) NULL COMMENT '倒库开关' AFTER `onoff_down`;
+ALTER TABLE `line` ADD COLUMN `line_type` byte NULL COMMENT '线类型：0窑后 1包装前' AFTER `onoff_sort`;

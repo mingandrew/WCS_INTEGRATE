@@ -1009,7 +1009,8 @@ namespace task.device
                         return;
                     }
 
-                    if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
+                    //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
+                    if (!PubMaster.Area.IsLineDownOnoff(task.AreaId, task.Device.line)) return;
 
                     #region[介入]
 
@@ -1069,7 +1070,8 @@ namespace task.device
 
                 else if (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.IsEmpty_1)
                 {
-                    if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.上砖)) return;
+                    //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.上砖)) return;
+                    if (!PubMaster.Area.IsLineUpOnoff(task.AreaId, task.Device.line)) return;
 
                     #region[介入]
 
@@ -1185,7 +1187,8 @@ namespace task.device
                         return;
                     }
 
-                    if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
+                    //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
+                    if (!PubMaster.Area.IsLineDownOnoff(task.AreaId, task.Device.line)) return;
 
 
                     #region[介入]
@@ -1245,7 +1248,8 @@ namespace task.device
                 #region[上砖机-空砖]
                 else if (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.IsEmpty_2)
                 {
-                    if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.上砖)) return;
+                    //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.上砖)) return;
+                    if (!PubMaster.Area.IsLineUpOnoff(task.AreaId, task.Device.line)) return;
 
                     #region[介入]
 

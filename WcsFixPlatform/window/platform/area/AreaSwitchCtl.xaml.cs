@@ -1,9 +1,7 @@
-﻿using System.Windows.Controls;
-
-namespace wcs.window
+﻿namespace wcs.window
 {
     /// <summary>
-    /// DeviceCtl.xaml 的交互逻辑
+    /// AreaSwitchCtl.xaml 的交互逻辑
     /// </summary>
     public partial class AreaSwitchCtl
     {

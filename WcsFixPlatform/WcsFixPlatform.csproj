@@ -118,6 +118,7 @@
     <Compile Include="Data\Model\TabItemModel.cs" />
     <Compile Include="Data\Model\WinCtlModel.cs" />
     <Compile Include="Data\MyResourceToken.cs" />
+    <Compile Include="Data\View\AreaLineView.cs" />
     <Compile Include="Data\View\BackupTileLifterView.cs" />
     <Compile Include="Data\View\CarrierView.cs" />
     <Compile Include="Data\View\FerryPosView.cs" />
@@ -242,6 +243,7 @@
     <Compile Include="Tools\Provider\EnumDataProvider.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\MViewModel.cs" />
+    <Compile Include="ViewModel\platform\area\AreaLineSwitchModel.cs" />
     <Compile Include="ViewModel\platform\area\AreaSwitchViewModel.cs" />
     <Compile Include="ViewModel\platform\area\AreaViewModel.cs" />
     <Compile Include="ViewModel\platform\BindingProxy.cs" />
@@ -296,11 +298,14 @@
     <Compile Include="ViewModel\setting\user\UserViewModel.cs" />
     <Compile Include="ViewModel\simulation\SimulationViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Compile Include="window\platform\area\AreaSwitchCtl.xaml.cs">
-      <DependentUpon>AreaSwitchCtl.xaml</DependentUpon>
+    <Compile Include="window\platform\area\AreaSwitchCtl_V1.xaml.cs">
+      <DependentUpon>AreaSwitchCtl_V1.xaml</DependentUpon>
     </Compile>
     <Compile Include="window\platform\area\AreaCtl.xaml.cs">
       <DependentUpon>AreaCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\area\AreaSwitchCtl.xaml.cs">
+      <DependentUpon>AreaSwitchCtl.xaml</DependentUpon>
     </Compile>
     <Compile Include="window\platform\device\DeviceCtl.xaml.cs">
       <DependentUpon>DeviceCtl.xaml</DependentUpon>
@@ -540,11 +545,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="window\platform\area\AreaSwitchCtl.xaml">
+    <Page Include="window\platform\area\AreaSwitchCtl_V1.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="window\platform\area\AreaCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\area\AreaSwitchCtl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

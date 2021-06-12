@@ -30,6 +30,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<DictionSelectViewModel>();
 
             SimpleIoc.Default.Register<AreaViewModel>();
+            SimpleIoc.Default.Register<AreaLineSwitchModel>();
             SimpleIoc.Default.Register<AreaSwitchViewModel>();
             SimpleIoc.Default.Register<TileLifterViewModel>();
             SimpleIoc.Default.Register<FerryViewModel>();
@@ -99,6 +100,7 @@ namespace wcs.ViewModel
 
         #region[Éè±¸/Ó²¼þ]
         public AreaViewModel Area => ServiceLocator.Current.GetInstance<AreaViewModel>();
+        public AreaLineSwitchModel AreaLineSwitch => ServiceLocator.Current.GetInstance<AreaLineSwitchModel>();
         public DeviceViewModel Device => ServiceLocator.Current.GetInstance<DeviceViewModel>();
         public DeviceEditViewModel DevEdit => ServiceLocator.Current.GetInstance<DeviceEditViewModel>();
         public AreaSwitchViewModel AreaSwitch => ServiceLocator.Current.GetInstance<AreaSwitchViewModel>();

@@ -6,6 +6,7 @@ using module.track;
 using resource;
 using System.Collections.Generic;
 using task.device;
+using tool.appconfig;
 
 namespace task.trans.transtask
 {
@@ -664,27 +665,29 @@ namespace task.trans.transtask
 
                         #endregion
 
-                        #region 移车 -停用
+                        #region 移车 - 出入库轨道满砖则移车到空轨道
 
-                        //if (PubMaster.Track.IsTrackFull(trans.give_track_id))
-                        //{
-                        //    // 优先移动到空轨道
-                        //    List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出入);
+                        if (PubMaster.Track.IsTrackFull(trans.give_track_id)
+                            && GlobalWcsDataConfig.BigConifg.IsMoveWhenFull(trans.area_id, trans.line)
+                            && PubMaster.Track.IsTrackType(trans.give_track_id, TrackTypeE.储砖_出入))
+                        {
+                            // 优先移动到空轨道
+                            List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出入);
 
-                        //    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, track.id, PubMaster.Track.GetTrack(track.id).order);
+                            List<uint> tids = PubMaster.Track.SortTrackIdsWithLineOrder(trackids, track.id, PubMaster.Track.GetTrack(track.id).order);
 
-                        //    foreach (uint t in tids)
-                        //    {
-                        //        if (!_M.IsTraInTrans(t) && 
-                        //            PubMaster.Track.IsTrackEmtpy(t) &&
-                        //            PubMaster.Area.isFerryWithTrack(trans.area_id, trans.give_ferry_id, t) &&
-                        //            !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
-                        //        {
-                        //            trans.finish_track_id = t;
-                        //            return;
-                        //        }
-                        //    }
-                        //}
+                            foreach (uint t in tids)
+                            {
+                                if (!_M.IsTraInTrans(t) 
+                                    && PubMaster.Track.IsTrackEmtpy(t) 
+                                    && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, t) 
+                                    && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                {
+                                    trans.finish_track_id = t;
+                                    return;
+                                }
+                            }
+                        }
 
                         #endregion
 
@@ -865,7 +868,9 @@ namespace task.trans.transtask
         }
 
         /// <summary>
-        /// 移车中
+        /// 【移车中】<br/>
+        /// 1.出入库满砖<br/>
+        /// 2.将运输车移到其他轨道<br/>
         /// </summary>
         /// <param name="trans"></param>
         public override void MovingCarrier(StockTrans trans)
@@ -907,7 +912,7 @@ namespace task.trans.transtask
                 #region[小车在摆渡车上]
                 case TrackTypeE.摆渡车_入:
                     //小车在摆渡车上
-                    if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
+                    if (PubTask.Ferry.IsLoad(trans.give_ferry_id)
                         && PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
                     {
                         if (trans.finish_track_id == 0)

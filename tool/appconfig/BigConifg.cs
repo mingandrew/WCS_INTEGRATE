@@ -45,6 +45,17 @@ namespace tool.appconfig
         }
 
         /// <summary>
+        /// 判断是否启用轨道满砖则移到空轨道
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public bool IsMoveWhenFull(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.InMoveWhenFull ?? false;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="areaid"></param>
@@ -61,13 +72,15 @@ namespace tool.appconfig
                     LineId = lineid,
                     FreeDownFerry = false,
                     FreeUpFerry = false,
-                    UpTaskNewAllocate = false
+                    UpTaskNewAllocate = false,
+                    InMoveWhenFull = false
                 };
                 BigConfigList.Add(item);
                 GlobalWcsDataConfig.SaveBigConifg();
             }
             return item;
         }
+
     }
 
     public class BigConfigItem
@@ -77,5 +90,6 @@ namespace tool.appconfig
         public bool FreeUpFerry { set; get; }//是否释放上砖摆渡车
         public bool FreeDownFerry { set; get; }//是否释放下砖摆渡车
         public bool UpTaskNewAllocate { set; get; }//上砖任务新分配逻辑
+        public bool InMoveWhenFull { set; get; }//出入库轨道，满砖移车
     }
 }

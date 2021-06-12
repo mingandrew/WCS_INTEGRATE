@@ -3254,6 +3254,28 @@ namespace resource.goods
         }
 
         /// <summary>
+        /// 获取指定点后的库存位置
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public Stock GetStockBehindStockPoint(uint trackid, ushort point)
+        {
+            Track track = PubMaster.Track.GetTrack(trackid);
+            if (track != null)
+            {
+                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.location < point);
+                if (stocks.Count > 0)
+                {
+                    //从小到大
+                    stocks.Sort((x, y) => x.location.CompareTo(y.location));
+                    return stocks[stocks.Count - 1];
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// 判断顶部库存是否是该品种
         /// </summary>
         /// <param name="finish_track_id"></param>

@@ -1,4 +1,6 @@
-﻿namespace module.line
+﻿using enums;
+
+namespace module.line
 {
     /// <summary>
     /// 线的概念
@@ -17,5 +19,17 @@
         /// 接力倒库最大倒库数量
         /// </summary>
         public byte max_upsort_num { get; set; }
+        public bool onoff_up { set; get; }
+        public bool onoff_down { set; get; }
+        public bool onoff_sort { set; get; }
+        public byte line_type { set; get; }
+
+        /// <summary>
+        /// 线路类型
+        /// </summary>
+        public LineTypeE LineType
+        {
+            get => (LineTypeE)line_type;
+        }
     }
 }

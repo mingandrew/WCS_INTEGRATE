@@ -1,13 +1,16 @@
 ﻿using enums;
 using enums.track;
+using GalaSoft.MvvmLight.Messaging;
 using module.area;
 using module.device;
 using module.goods;
 using module.line;
+using module.rf;
 using module.window;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using tool.mlog;
 
 namespace resource.area
 {
@@ -22,6 +25,8 @@ namespace resource.area
             AreaTraList = new List<AreaTrack>();
             AreaDevTraList = new List<AreaDeviceTrack>();
             LineList = new List<Line>();
+
+            mLog = (Log)new LogFactory().GetLog("线路信息", false);
         }
 
         public void Start()
@@ -61,6 +66,11 @@ namespace resource.area
                 LineList.AddRange(PubMaster.Mod.AreaSql.QueryLineList());
                 LineList.Sort((x, y) => { return x.area_id == y.area_id ? x.line.CompareTo(y.line) : x.area_id.CompareTo(y.area_id); });
             }
+        }
+
+        public List<Line> GetLineList()
+        {
+            return LineList;
         }
 
         public uint GetAreaId(uint id)
@@ -174,6 +184,8 @@ namespace resource.area
         private List<AreaTrack> AreaTraList { set; get; }
         private List<AreaDeviceTrack> AreaDevTraList { set; get; }
         private List<Line> LineList { set; get; }
+
+        private Log mLog;
         #endregion
 
         #region[获取对象]
@@ -654,6 +666,16 @@ namespace resource.area
             return AreaDevList.Find(c => c.device_id == tileid)?.area_id ?? 0;
         }
 
+        /// <summary>
+        /// 根据线路信息ID获取线路
+        /// </summary>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public Line GetLineById(ushort lineid)
+        {
+            return LineList.Find(c => c.id  == lineid);
+        }
+
         public Line GetLine(uint areaid, ushort line)
         {
             return LineList.Find(c => c.area_id == areaid && c.line == line);
@@ -831,6 +853,125 @@ namespace resource.area
                 line.max_upsort_num = eachsortqty;
                 PubMaster.Mod.AreaSql.EditAreaLine(line);
             }
+        }
+
+        private void GetTaskSwitch(Line line, ref List<TaskSwitch> list)
+        {
+            list.Add(new TaskSwitch()
+            {
+                id = line.id * 1000 + 1,
+                code = line.id + ":" + ((byte)OnOffTaskE.上砖),
+                name = line.name + "上砖开关",
+                onoff = line.onoff_up
+            });
+
+            list.Add(new TaskSwitch()
+            {
+                id = line.id * 1000 + 2,
+                code = line.id + ":" + ((byte)OnOffTaskE.下砖),
+                name = line.name + "下砖开关",
+                onoff = line.onoff_down
+            });
+
+            if (line.LineType == LineTypeE.窑后)
+            {
+                list.Add(new TaskSwitch()
+                {
+                    id = line.id * 1000 + 3,
+                    code = line.id + ":" +((byte)OnOffTaskE.倒库),
+                    name = line.name + "倒库开关",
+                    onoff = line.onoff_sort
+                });
+            }
+        }
+
+        public List<TaskSwitch> GetAreaLineSwitch()
+        {
+            List<TaskSwitch> list = new List<TaskSwitch>();
+            foreach (Line line in LineList)
+            {
+                GetTaskSwitch(line, ref list);
+            }
+            return list;
+        }
+
+        public List<TaskSwitch> GetAreaLineSwitch(List<uint> areaids)
+        {
+            List<TaskSwitch> list = new List<TaskSwitch>();
+            foreach (Line line in LineList.FindAll(c => areaids.Contains(c.area_id)))
+            {
+                GetTaskSwitch(line, ref list);
+            }
+            return list;
+        }
+
+        public bool UpdateLineSwitch(ushort lineid, OnOffTaskE onofftype, bool onoff, string memo, out string result, bool isfromrf = false)
+        {
+            Line line = GetLineById(lineid);
+            if(line != null)
+            {
+                result = "开关没有改变";
+                switch (onofftype)
+                {
+                    case OnOffTaskE.上砖:
+                        if (line.onoff_up == onoff) return false;
+                        line.onoff_up = onoff;
+                        break;
+                    case OnOffTaskE.下砖:
+                        if (line.onoff_down == onoff) return false;
+                        line.onoff_down = onoff;
+                        break;
+                    case OnOffTaskE.倒库:
+                        if (line.onoff_sort == onoff) return false;
+                        line.onoff_sort = onoff;
+                        break;
+                }
+
+                PubMaster.Mod.AreaSql.EditAreaLineOnoff(line);
+                if (isfromrf)
+                {
+                    Messenger.Default.Send(line, MsgToken.LineSwitchUpdate);
+                }
+                mLog.Status(true, string.Format("[任务开关], 线路[ {0} ], 类型[ {1} ], 开关[ {2} ], 备注[ {3} ]", line.name, onofftype, onoff, memo));
+            }
+
+            result = "找不到开关信息";
+            return false;
+        }
+
+
+        /// <summary>
+        /// 判断区域线路倒库开关
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public bool IsLineSortOnoff(uint area, ushort line)
+        {
+            return GetLine(area, line)?.onoff_sort ?? false;
+        }
+
+
+        /// <summary>
+        /// 判断区域线路下砖开关
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public bool IsLineDownOnoff(uint area, ushort line)
+        {
+            return GetLine(area, line)?.onoff_down ?? false;
+        }
+
+        /// <summary>
+        /// 判断区域线路上砖开关
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public bool IsLineUpOnoff(uint area, ushort line)
+        {
+            return GetLine(area, line)?.onoff_up ?? false;
         }
         #endregion
     }

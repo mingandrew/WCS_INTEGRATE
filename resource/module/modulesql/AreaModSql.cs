@@ -189,6 +189,16 @@ namespace resource.module.modulesql
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
+
+        internal bool EditAreaLineOnoff(Line line)
+        {
+            string sql = "UPDATE `line` SET `onoff_up` = {0}, `onoff_down` = {1}, `onoff_sort` = {2} WHERE `id` =  '{3}'";
+            sql = string.Format(sql, line.onoff_up, line.onoff_down, line.onoff_sort, line.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+
         #endregion
 
         #region[删除]

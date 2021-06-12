@@ -31,11 +31,11 @@ namespace resource.module.modulesql
         }
 
         /// <summary>
-        /// 查询下砖记录
+        /// 报警日志
         /// </summary>
         /// <param name="start"></param>
         /// <param name="stop"></param>
-        public List<Warning> QueryWarningLog(byte wtype, DateTime start, DateTime stop)
+        public List<Warning> QueryWarningLog(byte wtype, DateTime start, DateTime stop, uint devid = 0)
         {
             List<Warning> list = new List<Warning>();
             string sql = "SELECT t.id, t.area_id, t.type, t.resolve, t.dev_id, t.trans_id, t.track_id, t.content," +
@@ -46,7 +46,13 @@ namespace resource.module.modulesql
                 sql += string.Format("t.type= {0} and ", wtype);
             }
 
-            sql += string.Format("t.createtime >= '{0}' and t.createtime <= '{1}' limit 200", start.ToString(timeformat), stop.ToString(timeformat));
+            if(devid != 0)
+            {
+                sql += string.Format("t.dev_id= {0} and ", devid);
+            }
+
+            sql += string.Format("t.createtime >= '{0}' and t.createtime <= '{1}' limit 300", start.ToString(timeformat), stop.ToString(timeformat));
+
 
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))

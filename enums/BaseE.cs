@@ -79,4 +79,16 @@
         UInt64 = 12,
     }
 
+    public enum LineTypeE
+    {
+        窑后,
+        包装前
+    }
+
+    public enum OnOffTaskE
+    {
+        上砖,
+        下砖,
+        倒库
+    }
 }

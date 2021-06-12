@@ -1450,11 +1450,13 @@ namespace task.rf
             TaskSwitchPack pack = new TaskSwitchPack();
             if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
-                pack.AddSwitch(PubMaster.Dic.GetSwitchDtl(areaids));
+                //pack.AddSwitch(PubMaster.Dic.GetSwitchDtl(areaids));
+                pack.AddSwitch(PubMaster.Area.GetAreaLineSwitch(areaids));
             }
             else
             {
-                pack.AddSwitch(PubMaster.Dic.GetSwitchDtl());
+                //pack.AddSwitch(PubMaster.Dic.GetSwitchDtl());
+                pack.AddSwitch(PubMaster.Area.GetAreaLineSwitch());
             }
             SendSucc2Rf(msg.MEID, FunTag.QueryTaskSwitch, JsonTool.Serialize(pack));
         }
@@ -1464,44 +1466,61 @@ namespace task.rf
             TaskSwitch pack = JsonTool.Deserialize<TaskSwitch>(msg.Pack.Data);
             if (pack != null)
             {
-                if (PubMaster.Dic.UpdateSwitch(pack.code, pack.onoff, true))
+                string[] idtypes = pack.code.Split(':');
+                if(idtypes!=null 
+                    && idtypes.Length >1 
+                    && ushort.TryParse(idtypes[0], out ushort lineid) 
+                    && byte.TryParse(idtypes[1], out byte onffftype))
                 {
-                    SendSucc2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "ok");
-                    //关闭开关，执行人工作业
-                    if (!pack.onoff && pack.cleartask)
+                    if (PubMaster.Area.UpdateLineSwitch(lineid, (OnOffTaskE)onffftype, pack.onoff, "平板", out string result, true))
                     {
-                        bool isdown = pack.code.Contains(DicSwitchTag.Down);
-                        bool isup = pack.code.Contains(DicSwitchTag.Up);
-                        bool issort = pack.code.Contains(DicSwitchTag.Sort);
-                        uint areaid = 0;
-                        if (pack.code.Contains("1"))
-                        {
-                            areaid = 1;
-                        }
-                        else if (pack.code.Contains("2"))
-                        {
-                            areaid = 2;
-                        }
-                        else if (pack.code.Contains("3"))
-                        {
-                            areaid = 3;
-                        }
-                        else if (pack.code.Contains("4"))
-                        {
-                            areaid = 4;
-                        }
-                        else if (pack.code.Contains("5"))
-                        {
-                            areaid = 5;
-                        }
-                        if (areaid != 0 && (isdown || isup || issort))
-                        {
-                            if (isup) PubTask.Trans.StopAreaUp(areaid);
-                            if (isdown) PubTask.Trans.StopAreaDown(areaid);
-                            if (issort) PubTask.Trans.StopAreaSort(areaid);
-                        }
+                        SendSucc2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "ok");
                     }
                 }
+
+                if (pack.cleartask)
+                {
+                    SendFail2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "清除功能已禁用，终止任务请到任务信息操作！");
+                }
+
+                //if (PubMaster.Dic.UpdateSwitch(pack.code, pack.onoff, true))
+                //{
+                //    SendSucc2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "ok");
+                //    //关闭开关，执行人工作业
+                //    //if (!pack.onoff && pack.cleartask)
+                //    //{
+                //    //    bool isdown = pack.code.Contains(DicSwitchTag.Down);
+                //    //    bool isup = pack.code.Contains(DicSwitchTag.Up);
+                //    //    bool issort = pack.code.Contains(DicSwitchTag.Sort);
+                //    //    uint areaid = 0;
+                //    //    if (pack.code.Contains("1"))
+                //    //    {
+                //    //        areaid = 1;
+                //    //    }
+                //    //    else if (pack.code.Contains("2"))
+                //    //    {
+                //    //        areaid = 2;
+                //    //    }
+                //    //    else if (pack.code.Contains("3"))
+                //    //    {
+                //    //        areaid = 3;
+                //    //    }
+                //    //    else if (pack.code.Contains("4"))
+                //    //    {
+                //    //        areaid = 4;
+                //    //    }
+                //    //    else if (pack.code.Contains("5"))
+                //    //    {
+                //    //        areaid = 5;
+                //    //    }
+                //    //    if (areaid != 0 && (isdown || isup || issort))
+                //    //    {
+                //    //        if (isup) PubTask.Trans.StopAreaUp(areaid);
+                //    //        if (isdown) PubTask.Trans.StopAreaDown(areaid);
+                //    //        if (issort) PubTask.Trans.StopAreaSort(areaid);
+                //    //    }
+                //    //}
+                //}
             }
         }
         #endregion

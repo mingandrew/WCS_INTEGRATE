@@ -41,7 +41,8 @@ namespace task.trans
             List<Track> tracks = PubMaster.Track.GetFullInTrackList();
             foreach (Track track in tracks)
             {
-                if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.倒库)) continue;
+                //if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.倒库)) continue;
+                if (!PubMaster.Area.IsLineSortOnoff(track.area, track.line)) continue;
 
                 int count = GetAreaSortTaskCount(track.area, track.line);
                 if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;

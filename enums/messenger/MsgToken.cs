@@ -36,7 +36,7 @@ namespace enums
         public const string TransUpdate = nameof(TransUpdate);
         public const string GoodsUpdate = nameof(GoodsUpdate);
         public const string TaskSwitchUpdate = nameof(TaskSwitchUpdate);
-
+        public const string LineSwitchUpdate = nameof(LineSwitchUpdate);
 
         #region[模拟系统]
 

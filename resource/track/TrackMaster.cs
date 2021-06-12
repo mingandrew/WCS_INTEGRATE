@@ -548,6 +548,30 @@ namespace resource.track
             return tracks.Select(c => c.id).ToList();
         }
 
+
+        /// <summary>
+        /// [同线路]将轨道按照order进行排序
+        /// </summary>
+        /// <param name="trackids">需要排序的轨道ID列表</param>
+        /// <param name="tid">排序参照轨道</param>
+        /// <param name="order">排序参照轨道order</param>
+        /// <returns>返回一个以参考轨道为起点轨道id列表【越靠近参考轨道越前的】</returns>
+        public List<uint> SortTrackIdsWithLineOrder(List<uint> trackids, uint tid, short order)
+        {
+            Track track = GetTrack(tid);
+            List<Track> tracks = TrackList.FindAll(c => c.id != tid && c.line == track.line &&  trackids.Contains(c.id));
+            if (tracks.Count > 0)
+            {
+                tracks.Sort((x, y) =>
+                {
+                    int xorder = Math.Abs(x.order - order);
+                    int yorder = Math.Abs(y.order - order);
+                    return xorder.CompareTo(yorder);
+                });
+            }
+            return tracks.Select(c => c.id).ToList();
+        }
+
         /// <summary>
         /// 根据order查找对应的储砖轨道ID
         /// </summary>
