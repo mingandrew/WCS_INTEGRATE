@@ -579,8 +579,15 @@ namespace simtask
                         {
                             case SimCarrierSortStepE.获取取货库存位置:
                                 Stock behindstock = PubMaster.Goods.GetBehindUpSplitTopStock(EndTrack.id);
-                                TAKE_STOCK_POINT = behindstock.location;
-                                SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+                                if (behindstock != null)
+                                {
+                                    TAKE_STOCK_POINT = behindstock.location;
+                                    SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+                                }
+                                else
+                                {
+                                    FinishAndStop(DevCarrierOrderE.往前倒库);
+                                }
                                 break;
                             case SimCarrierSortStepE.前往取货库存位置:
                                 if (DevStatus.CurrentPoint == TAKE_STOCK_POINT)
