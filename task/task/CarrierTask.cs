@@ -48,6 +48,11 @@ namespace task.device
         public uint TargetTrackId { set; get; }
 
         /// <summary>
+        /// 即将前往的轨道ID
+        /// </summary>
+        public uint OnGoingTrackId { set; get; }
+
+        /// <summary>
         /// 上一次的摆渡车轨道id
         /// </summary>
         public uint LastTrackId { set; get; }
@@ -150,11 +155,11 @@ namespace task.device
                 {
                     if (value != DevCarrierOrderE.无)
                     {
-                        DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ]", value));
+                        DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ][ {1} ]", value, OnGoingTrackId));
                     }
                     else
                     {
-                        DevTcp.AddStatusLog(string.Format("【完成重置】[ {0} ]", value));
+                        DevTcp.AddStatusLog(string.Format("【完成重置】[ {0} ][ {1} ]", value, OnGoingTrackId));
                     }
                 }
                 _ongoingorder = value;
@@ -167,7 +172,7 @@ namespace task.device
             {
                 if (order != DevCarrierOrderE.无)
                 {
-                    DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ], {1}", order, memo));
+                    DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ], {1} [ {2} ]", order, memo, OnGoingTrackId));
                 }
             }
             _ongoingorder = order;
@@ -308,6 +313,7 @@ namespace task.device
                 DevStatus.Position = DevCarrierPositionE.异常;
                 CurrentTrackId = 0;
                 TargetTrackId = 0;
+                OnGoingTrackId = 0;
                 LastTrackId = 0;
             }
         }
@@ -335,8 +341,9 @@ namespace task.device
         /// <param name="overSite">结束坐标</param>
         /// <param name="moveCount">倒库数量</param>
         internal void DoOrder(CarrierActionOrder cao, string memo = null)
-        {
-            if(memo != null)
+       {
+            OnGoingTrackId = cao.ToTrackId;
+            if (memo != null)
             {
                 SetOnGoingOrderWithMemo(cao.Order, memo);
             }
@@ -370,6 +377,7 @@ namespace task.device
         /// </summary>
         internal void DoStop(string memo)
         {
+            OnGoingTrackId = 0;
             SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, memo);
             DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
         }
@@ -394,7 +402,13 @@ namespace task.device
                     || (DevStatus.OperateMode == DevOperateModeE.手动 && DevStatus.CurrentOrder == DevCarrierOrderE.终止指令)) // 仅判断手动情况的终止
                 )
             {
+                OnGoingTrackId = 0;
                 OnGoingOrder = DevCarrierOrderE.无;
+            }
+
+            if(CurrentTrackId == OnGoingTrackId)
+            {
+                OnGoingTrackId = 0;
             }
         }
 

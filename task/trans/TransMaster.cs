@@ -1305,7 +1305,8 @@ namespace task.trans
                     Order = DevCarrierOrderE.往前倒库,
                     CheckTra = track.ferry_down_code,
                     ToPoint = (ushort)(track.split_point + 50), //倒库时，不能超过脉冲(出库轨道附件脉冲位置)
-                    MoveCount = movecount
+                    MoveCount = movecount,
+                    ToTrackId = track.id
                 });
                 return true;
             }
@@ -1359,7 +1360,7 @@ namespace task.trans
                 return true;
             }
 
-            if (isignoresorttask && ExistSortBackTask(trackid))
+            if (isignoresorttask && ExistSortBackTask(trackid) && PubMaster.Goods.GetTrackStockCount(trackid) > 1)
             {
                 result = "轨道存在还车回轨的倒库任务";
                 return true;
@@ -1473,22 +1474,26 @@ namespace task.trans
                     //在分割点后的库存,则不能进行取货操作
                     return false;
                 }
+                ushort stockount = PubMaster.Goods.GetTrackStockCount(trackid);
 
-                //3.存在倒库完成的任务
-                if (ExistSortBackTask(trackid))
+                //3.库存大于1的同时，存在倒库完成的任务
+                if (stockount > 1 
+                    && ExistSortBackTask(trackid))
                 {
                     return false;
                 }
 
-                //4.库存只剩1个，并且有任务在当前轨道
-                if (PubMaster.Goods.GetTrackStockCount(trackid) <= 1
-                    && ExistSortTask(trackid))
-                {
-                    return false;
-                }
+                //4.库存只剩1个，并且有任务在当前轨道 【就算只有一车也要接力】
+                //if (stockount <= 1
+                //    && ExistSortTask(trackid))
+                //{
+                //    return false;
+                //}
 
                 //5.存在空闲小车停在轨道头
-                if (carrierid != 0 && PubTask.Carrier.IsFreeCarrierInTrack(carrierid, trackid))
+                if (carrierid != 0 
+                    && PubTask.Carrier.IsFreeCarrierInTrack(carrierid, trackid, out uint carid)
+                    && !IsCarrierInTrans(carid, trackid, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
                 {
                     return false;
                 }

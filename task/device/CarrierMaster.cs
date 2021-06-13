@@ -302,7 +302,7 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveInTrack(uint trackid)
         {
-            return DevList.Exists(c => c.TargetTrackId == trackid || c.CurrentTrackId == trackid);
+            return DevList.Exists(c => c.TargetTrackId == trackid || c.CurrentTrackId == trackid || c.OnGoingTrackId == trackid);
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveInTrackAndLoad(uint trackid)
         {
-            return DevList.Exists(c => (c.TargetTrackId == trackid || c.CurrentTrackId == trackid) && c.IsLoad());
+            return DevList.Exists(c => (c.TargetTrackId == trackid || c.CurrentTrackId == trackid || c.OnGoingTrackId == trackid) && c.IsLoad());
         }
 
         /// <summary>
@@ -751,7 +751,7 @@ namespace task.device
             Track track = PubMaster.Track.GetTrack(ferrytraid);
             if (track != null && track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
             {
-                return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid)
+                return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid || c.OnGoingTrackId == ferrytraid)
                                        && (c.Status != DevCarrierStatusE.停止 
                                                || c.Position != DevCarrierPositionE.在摆渡上
                                                || !c.IsNotDoingTask
@@ -761,7 +761,7 @@ namespace task.device
                                                )
                                        );
             }
-            return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid)
+            return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid || c.OnGoingTrackId == ferrytraid)
                                     //&& c.ConnStatus == SocketConnectStatusE.通信正常
                                     //&& (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
                                     //&& c.Status != DevCarrierStatusE.异常
@@ -856,6 +856,7 @@ namespace task.device
                 ushort overPoint = 0;//结束脉冲
                 byte moveCount = 0;//倒库数量
                 uint ferryTraid = 0;//摆渡轨道ID
+                uint toTrackid = 0;//目标轨道Id
                 switch (carriertask)
                 {
                     case DevCarrierTaskE.后退取砖:
@@ -1120,6 +1121,7 @@ namespace task.device
                                     toPoint = tt.split_point;
                                 }
                                 overRFID = tt.rfid_2;
+                                toTrackid = tt.id;
                                 break;
                             case DevCarrierTaskE.前进放砖:
                                 checkTra = tt.ferry_up_code;
@@ -1145,14 +1147,17 @@ namespace task.device
                                     overRFID = tt.rfid_1;
                                 }
 
+                                toTrackid = tt.id;
                                 break;
                             case DevCarrierTaskE.前进至点:
                                 checkTra = tt.ferry_up_code;
                                 toRFID = tt.rfid_1;
+                                toTrackid = tt.id;
                                 break;
                             case DevCarrierTaskE.后退至点:
                                 checkTra = tt.ferry_down_code;
                                 toRFID = tt.rfid_2;
+                                toTrackid = tt.id;
                                 break;
                         }
                     }
@@ -1167,7 +1172,8 @@ namespace task.device
                     ToPoint = toPoint,
                     OverRFID = overRFID,
                     OverPoint = overPoint,
-                    MoveCount = moveCount
+                    MoveCount = moveCount,
+                    ToTrackId = toTrackid
                 },string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo));
 
                 try
@@ -2890,7 +2896,7 @@ namespace task.device
         /// <returns></returns>
         internal bool ExistLocateTrack(uint carrier_id, uint track_id)
         {
-            return DevList.Exists(c =>c.ID != carrier_id && c.TargetTrackId == track_id);
+            return DevList.Exists(c =>c.ID != carrier_id && (c.TargetTrackId == track_id || c.OnGoingTrackId == track_id));
         }
 
         /// <summary>
@@ -3109,10 +3115,11 @@ namespace task.device
         /// <param name="carrier_id"></param>
         /// <param name="track_id"></param>
         /// <returns></returns>
-        internal bool IsFreeCarrierInTrack(uint carrier_id, uint track_id)
+        internal bool IsFreeCarrierInTrack(uint carrier_id, uint track_id, out uint carid)
         {
             Track track = PubMaster.Track.GetTrack(track_id);
-            return DevList.Exists(c => c.ID != carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite >= track.rfid_1);
+            carid = DevList.Find(c => c.ID != carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite >= track.rfid_1)?.ID ?? 0;
+            return carid > 0;
         }
         #endregion
     }
@@ -3150,5 +3157,9 @@ namespace task.device
         /// 倒库数量
         /// </summary>
         public byte MoveCount { set; get; } = 0;
+        /// <summary>
+        /// 前往作业轨道
+        /// </summary>
+        public uint ToTrackId { set; get; } = 0;
     }
 }
