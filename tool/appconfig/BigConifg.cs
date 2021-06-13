@@ -68,6 +68,18 @@ namespace tool.appconfig
             return GetItem(areaid, lineid)?.NotNeedSortToSplitUpPlace ?? false;
         }
 
+
+        /// <summary>
+        /// 接力暂停，运输车停止在放货点的几个车身位置
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public byte GetSortWaitNumberCarSpace(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.SortWaitNumberCarSpace ?? 3;
+        }
+
         /// <summary>
         /// 不需要接力运输车把库存放下才取
         /// </summary>
@@ -86,7 +98,8 @@ namespace tool.appconfig
                     FreeDownFerry = false,
                     FreeUpFerry = false,
                     UpTaskNewAllocate = false,
-                    InMoveWhenFull = false
+                    InMoveWhenFull = false,
+                    NotNeedSortToSplitUpPlace = false,
                 };
                 BigConfigList.Add(item);
                 GlobalWcsDataConfig.SaveBigConifg();
@@ -110,5 +123,9 @@ namespace tool.appconfig
         /// 3.让上砖的车与接力车防撞触发停止，接力车放下砖，取货车取砖<br/>
         /// </summary>
         public bool NotNeedSortToSplitUpPlace { set; get; }
+        /// <summary>
+        /// 接力暂停，运输车停止在放货点的几个车身位置
+        /// </summary>
+        public byte SortWaitNumberCarSpace { set; get; } = 3;
     }
 }

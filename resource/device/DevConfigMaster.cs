@@ -870,6 +870,17 @@ namespace resource.device
             return false;
         }
 
+        /// <summary>
+        /// 判断库存是否被绑定
+        /// </summary>
+        /// <param name="carid"></param>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        public bool IsCarrierBindStock(uint carid, uint stockid)
+        {
+            return ConfigCarrierList.Exists(c => c.id == carid && c.stock_id == stockid);
+        }
+
         #endregion
 
         #region[设置备用砖机的信息]

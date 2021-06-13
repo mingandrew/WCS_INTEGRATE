@@ -6,6 +6,8 @@ using module.track;
 using resource;
 using System;
 using task.device;
+using tool.appconfig;
+
 namespace task.trans.transtask
 {
     /// <summary>
@@ -373,6 +375,7 @@ namespace task.trans.transtask
                 // 无砖 - 回出库轨道头
                 if (isnotload)
                 {
+                    ushort carspace = GlobalWcsDataConfig.BigConifg.GetSortWaitNumberCarSpace(trans.area_id, trans.line);
                     //小车当前所在的轨道
                     if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber)
                         && 0 != PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line)
@@ -397,16 +400,15 @@ namespace task.trans.transtask
                             //        bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, bestock_one.location);
                             //    }
                             //}
-
                             if (bestock_one != null)
                             {
                                 topoint = bestock_one.location;
-                                topoint += (ushort)(3 * PubMaster.Goods.GetStackSafe(0, 0));
+                                topoint += (ushort)(carspace * PubMaster.Goods.GetStackSafe(0, 0));
                             }
                             else
                             {
                                 topoint = givepoint;
-                                topoint -= (ushort)(3 * PubMaster.Goods.GetStackSafe(0, 0));
+                                topoint -= (ushort)(carspace * PubMaster.Goods.GetStackSafe(0, 0));
                             }
                         }
 
@@ -428,7 +430,7 @@ namespace task.trans.transtask
                             Order = DevCarrierOrderE.定位指令,
                             CheckTra = track.ferry_down_code,
                             ToPoint = topoint,
-                        });
+                        }, string.Format("接力等待后退[ {0} ]车身的位置", carspace));
                     }
                     else
                     {
@@ -666,7 +668,6 @@ namespace task.trans.transtask
             }
         }
 
-
         /// <summary>
         /// 接力等待
         /// </summary>
@@ -683,17 +684,45 @@ namespace task.trans.transtask
             {
                 track = PubMaster.Track.GetTrack(trans.give_track_id);
             }
+            //当前车是否空闲
+            bool carrierfree = PubTask.Carrier.IsCarrierFree(trans.carrier_id);
+            if (!carrierfree) return;
+
+            //轨道存在其他车
+            bool havecarinfront = PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id, out uint othercarid);
+
+            //接力点前的库存数
+            int infrontstockcount = PubMaster.Goods.GetInfrontPointStockCount(track.id, track.up_split_point);
+
+            //接力点前没有库存，同时没车，则开始接力
+            bool upnonestock = false;
+            if (infrontstockcount  == 0
+                && !havecarinfront)
+            {
+                upnonestock = true;
+            }
+
+            //接力点前只有一车砖，同时有车取砖取了它
+            bool onestockcarloadit = false;
+            if(infrontstockcount ==1
+                && havecarinfront)
+            {
+                Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                if(topstock != null && topstock.location > track.up_split_point 
+                    && PubMaster.DevConfig.IsCarrierBindStock(othercarid, topstock.id))
+                {
+                    onestockcarloadit = true;
+                }
+            }
 
             //前面没有库存，继续倒库
-            if (PubMaster.Goods.GetInfrontPointStockCount(track.id, track.up_split_point) == 0
-                && PubTask.Carrier.IsCarrierFree(trans.carrier_id)
-                && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+            if (upnonestock || onestockcarloadit)
             {
                 //运输车当前脉冲
                 ushort carrierpoint = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
                 //大于运输车当前脉冲的库存位置【如果有：运输车需要前进至点然后再执行倒库，无则直接倒库】
                 ushort infrontcarstockloc = PubMaster.Goods.GetInfrontPointStockMaxLocation(track.id, carrierpoint);
-                if (infrontcarstockloc > 0)
+                if (upnonestock && infrontcarstockloc > 0)
                 {
                     infrontcarstockloc += (ushort)(2 * PubMaster.Goods.GetStackSafe(0, 0));
 
@@ -740,6 +769,7 @@ namespace task.trans.transtask
                 }
             }
         }
+        
         #region[其他流程]
 
         /// <summary>

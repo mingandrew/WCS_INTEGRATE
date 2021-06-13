@@ -11,6 +11,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -31,24 +32,29 @@
                 <TextBlock Text="{Binding SelectDeviceName}"  HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
             </Border>
             <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding DevSelectedCmd}" FontSize="16" Height="35"/>
-            
             <TextBlock Text="日期：" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
             <hc:DateTimePicker Width="200"  ShowClearButton="True" SelectedDateTime="{Binding STARTDATE,Mode=TwoWay}" Margin="5"/>
             <TextBlock Text="至" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}"/>
             <hc:DateTimePicker Width="200" ShowClearButton="True" SelectedDateTime="{Binding STOPDATE,Mode=TwoWay}" Margin="5"/>
+        </WrapPanel>
+
+        <WrapPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="10">
+            
             <Button Content="查询" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
                   Tag="1"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
             <Button Content="半小时" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
                   Tag="2"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
             <Button Content="一个钟" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
                   Tag="3"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+            <Button Content="两个钟" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                  Tag="4"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
             <Button Content="今天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
-                  Tag="4"   Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                  Tag="5"   Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
             <Button Content="昨天" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
-                  Tag="5"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                  Tag="6"  Command="{Binding SearchConsumelogCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
 
         </WrapPanel>
-        <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontSize="20" RowHeaderWidth="50"  hc:DataGridAttach.ShowRowNumber="True"
+        <DataGrid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="20" RowHeaderWidth="50"  hc:DataGridAttach.ShowRowNumber="True"
                       ItemsSource="{Binding LogList}"
                       SelectionUnit="FullRow" SelectionMode="Single"
                       CanUserAddRows="False" CanUserResizeColumns="False"

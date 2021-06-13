@@ -142,15 +142,21 @@ namespace wcs.ViewModel
                         today = today.AddHours(-1);
                         STARTDATE = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, 00);
                         STOPDATE = new DateTime(today.Year, today.Month, today.Day, 23, 59, 59);
-
                         break;
-                    case 4://今天
+                    case 4://两个钟
+                        today = DateTime.Now;
+                        today = today.AddHours(-2);
+                        STARTDATE = new DateTime(today.Year, today.Month, today.Day, today.Hour, today.Minute, 00);
+                        STOPDATE = new DateTime(today.Year, today.Month, today.Day, 23, 59, 59);
+                        break;
+
+                    case 5://今天
                         today = DateTime.Now;
                         STARTDATE = new DateTime(today.Year, today.Month, today.Day, 0, 00, 00);
                         STOPDATE = new DateTime(today.Year, today.Month, today.Day, 23, 59, 59);
                         break;
 
-                    case 5://昨天
+                    case 6://昨天
                         today = DateTime.Now;
                         today = today.AddDays(-1);
                         STARTDATE = new DateTime(today.Year, today.Month, today.Day, 0, 00, 00);
