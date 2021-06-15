@@ -169,6 +169,8 @@ namespace task.trans.transtask
                                 _M.LogForCarrierSort(trans, trans.give_track_id, movecount.ToString());
                                 #endregion
 
+                                int stockqty = PubMaster.Goods.GetTrackStockCount(track.id);
+
                                 //后退至轨道倒库
                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                 {
@@ -177,7 +179,7 @@ namespace task.trans.transtask
                                     ToPoint = (ushort)(track.split_point + 50),
                                     MoveCount = movecount,
                                     ToTrackId = track.id
-                                }, string.Format("接力脉冲[ {0} ]后, 有库存数[ {1} ]", track.up_split_point, movecount));
+                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]后, 有库存数[ {3} ]", stockqty, movecount, track.up_split_point, movecount));
                                 return;
                             }
                         }
@@ -279,6 +281,8 @@ namespace task.trans.transtask
                                 _M.LogForCarrierSort(trans, trans.give_track_id, movecount.ToString());
                                 #endregion
 
+                                int stockqty = PubMaster.Goods.GetTrackStockCount(gtrack.id);
+
                                 //后退至轨道倒库
                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                 {
@@ -287,7 +291,7 @@ namespace task.trans.transtask
                                     ToPoint = (ushort)(gtrack.split_point + 50),
                                     MoveCount = movecount,
                                     ToTrackId = gtrack.id
-                                }, string.Format("接力脉冲[ {0} ]后, 有库存数[ {1} ]", track.up_split_point, movecount));
+                                }, string.Format("轨道有库存数[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]后, 有库存数[ {3} ]", stockqty, movecount, gtrack.up_split_point, movecount));
 
                             }
                         }
@@ -433,7 +437,7 @@ namespace task.trans.transtask
 
                     if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber)
                         && 0 != PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line)
-                        && 1 < behindstockcount)
+                        && 1 <= behindstockcount)
                     {
                         dowait = true;
                     }
@@ -478,7 +482,8 @@ namespace task.trans.transtask
 
                         if (Math.Abs(nowpoint - topoint) <= 100)
                         {
-                            _M.SetStatus(trans, TransStatusE.接力等待);
+                            _M.SetStatus(trans, TransStatusE.接力等待,
+                                string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ]",trackstockcount, behindstockcount));
                             return;
                         }
 
@@ -488,11 +493,12 @@ namespace task.trans.transtask
                             Order = DevCarrierOrderE.定位指令,
                             CheckTra = track.ferry_down_code,
                             ToPoint = topoint,
-                        }, string.Format("接力等待后退[ {0} ]车身的位置", carspace));
+                        }, string.Format("接力等待后退[ {0} ]车身的位置，轨道有库存[ {1} ], 需接力库存[ {2} ]", carspace, trackstockcount, behindstockcount));
                     }
                     else
                     {
-                        _M.SetStatus(trans, TransStatusE.小车回轨);
+                        _M.SetStatus(trans, TransStatusE.小车回轨, 
+                            string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ]", trackstockcount, behindstockcount));
                     }
                 }
             }
@@ -839,7 +845,7 @@ namespace task.trans.transtask
                         ToPoint = (ushort)(track.split_point + 50),
                         MoveCount = movecount,
                         ToTrackId = track.id
-                    }, string.Format("当前脉冲[ {0} ]后, 有库存数[ {1} ]", nowpoint, movecount));
+                    }, string.Format("轨道有库存[ {0} ], 当前脉冲[ {1} ]后,有库存数[ {2} ]", stockqty, nowpoint, movecount));
                 }
             }
 
