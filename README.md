@@ -298,9 +298,15 @@ UPDATE `diction_dtl` SET `string_value` = '倒库空砖，请检测光电是否�
 ALTER TABLE `line` ADD COLUMN `onoff_up` bit(1) NULL COMMENT '上砖开关' AFTER `max_upsort_num`;
 ALTER TABLE `line` ADD COLUMN `onoff_down` bit(1) NULL COMMENT '下砖开关' AFTER `onoff_up`;
 ALTER TABLE `line` ADD COLUMN `onoff_sort` bit(1) NULL COMMENT '倒库开关' AFTER `onoff_down`;
-ALTER TABLE `line` ADD COLUMN `line_type` tinyint(3) NULL COMMENT '线类型：0窑后 1包装前' AFTER `onoff_sort`;
+ALTER TABLE `line` ADD COLUMN `line_type` tinyint(3) UNSIGNED NULL COMMENT '线类型：0窑后 1包装前' AFTER `onoff_sort`;
 
 
-2021.6.15 报警添加线路字段
+# 2021.6.15 报警添加线路字段
 
 ALTER TABLE `warning` ADD COLUMN `line_id` smallint(5) NULL COMMENT '线路ID' AFTER `area_id`;
+
+
+# 2021.03.15 报警字典添加等级
+
+ALTER TABLE `diction_dtl` ADD COLUMN `level` tinyint(3) UNSIGNED NULL COMMENT '等级';
+
