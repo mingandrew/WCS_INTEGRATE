@@ -6,6 +6,7 @@ namespace module
     {
         public uint id { set; get; }
         public ushort area_id { set; get; }
+        public ushort line_id { set; get; }
         public byte type { set; get; }
         public bool resolve { set; get; }
         public ushort dev_id { set; get; }

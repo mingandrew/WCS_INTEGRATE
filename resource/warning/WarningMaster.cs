@@ -417,5 +417,46 @@ namespace task
             }
         }
         #endregion
+
+        #region[线路报警]
+
+        /// <summary>
+        /// 添加[区域-线路]报警
+        /// </summary>
+        /// <param name="warntype"></param>
+        /// <param name="areaid"></param>
+        /// <param name="result"></param>
+        public void AddLineWarn(WarningTypeE warntype, ushort areaid, ushort lineid, string result = "")
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.area_id == areaid && c.line_id == lineid && !c.resolve);
+            if (warn == null)
+            {
+                if (stopwarnadding) return;
+                warn = new Warning()
+                {
+                    area_id = areaid,
+                    line_id = lineid,
+                    type = (byte)warntype,
+                };
+                string lineName = PubMaster.Area.GetLineName(areaid, lineid);
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                warn.content = lineName + ": " + warnmsg + " > " + result;
+                AddWaring(warn);
+            }
+        }
+
+        /// <summary>
+        /// 清除[区域-线路]报警
+        /// </summary>
+        /// <param name="transid"></param>
+        public void RemoveLineWarn(WarningTypeE warntype, ushort areaid, ushort lineid)
+        {
+            Warning warn = List.Find(c => c.type == (byte)warntype && c.area_id == areaid && c.line_id == lineid && !c.resolve);
+            if (warn != null)
+            {
+                RemoveWarning(warn);
+            }
+        }
+        #endregion
     }
 }

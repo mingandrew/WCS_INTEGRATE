@@ -1,5 +1,6 @@
 ﻿using enums;
 using enums.track;
+using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
 using module.area;
 using module.device;
@@ -65,6 +66,10 @@ namespace resource.area
                 LineList.Clear();
                 LineList.AddRange(PubMaster.Mod.AreaSql.QueryLineList());
                 LineList.Sort((x, y) => { return x.area_id == y.area_id ? x.line.CompareTo(y.line) : x.area_id.CompareTo(y.area_id); });
+                foreach (Line line in LineList)
+                {
+                    UpdateLineSwitchWarn(line);
+                }
             }
         }
 
@@ -681,6 +686,16 @@ namespace resource.area
             return LineList.Find(c => c.area_id == areaid && c.line == line);
         }
 
+        public string GetLineName(uint areaid, ushort line)
+        {
+            Line l = LineList.Find(c => c.area_id == areaid && c.line == line);
+            if (l != null)
+            {
+                return l.name;
+            }
+            return "";
+        }
+
         public bool IsSortTaskLimit(uint area, ushort line, int count)
         {
             if (line == 0)
@@ -928,11 +943,14 @@ namespace resource.area
                 }
 
                 PubMaster.Mod.AreaSql.EditAreaLineOnoff(line);
+                Refresh(false, false, false, false, true);//从数据库刷新开关状态
+
                 if (isfromrf)
                 {
                     Messenger.Default.Send(line, MsgToken.LineSwitchUpdate);
                 }
                 mLog.Status(true, string.Format("[任务开关], 线路[ {0} ], 类型[ {1} ], 开关[ {2} ], 备注[ {3} ]", line.name, onofftype, onoff, memo));
+                return true;
             }
 
             result = "找不到开关信息";
@@ -972,6 +990,42 @@ namespace resource.area
         public bool IsLineUpOnoff(uint area, ushort line)
         {
             return GetLine(area, line)?.onoff_up ?? false;
+        }
+
+        public void UpdateLineSwitchWarn(Line line)
+        {
+            if (line != null)
+            {
+                //下砖开关报警/消除
+                if (!line.onoff_down)
+                {
+                    PubMaster.Warn.AddLineWarn(WarningTypeE.DownTaskSwitchClosed, (ushort)line.area_id, line.line);
+                }
+                else
+                {
+                    PubMaster.Warn.RemoveLineWarn(WarningTypeE.DownTaskSwitchClosed, (ushort)line.area_id, line.line);
+                }
+
+                //上砖开关报警/消除
+                if (!line.onoff_up)
+                {
+                    PubMaster.Warn.AddLineWarn(WarningTypeE.UpTaskSwitchClosed, (ushort)line.area_id, line.line);
+                }
+                else
+                {
+                    PubMaster.Warn.RemoveLineWarn(WarningTypeE.UpTaskSwitchClosed, (ushort)line.area_id, line.line);
+                }
+
+                //倒库开关报警/消除
+                if (!line.onoff_sort && line.LineType == LineTypeE.窑后)
+                {
+                    PubMaster.Warn.AddLineWarn(WarningTypeE.SortTaskSwitchClosed, (ushort)line.area_id, line.line);
+                }
+                else
+                {
+                    PubMaster.Warn.RemoveLineWarn(WarningTypeE.SortTaskSwitchClosed, (ushort)line.area_id, line.line);
+                }
+            }
         }
         #endregion
     }
