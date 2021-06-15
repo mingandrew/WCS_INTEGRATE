@@ -69,9 +69,11 @@ namespace resource.module.modulesql
 
         internal bool AddWarning(Warning warn)
         {
-            string str = "INSERT INTO `warning`(`id`, `area_id`, `type`, `resolve`, `dev_id`, `trans_id`, `track_id`, `content`, `createtime`, `line_id`)" +
-                " VALUES('{0}', '{1}', '{2}', {3}, '{4}', '{5}', '{6}', '{7}', {8}, '{9}')";
-            string sql = string.Format(@str, warn.id, warn.area_id, warn.type, warn.resolve, warn.dev_id, warn.trans_id, warn.track_id, warn.content, GetTimeOrNull(warn.createtime), warn.line_id);
+            string str = "INSERT INTO `warning`(`id`, `area_id`, `type`, `resolve`, `dev_id`, `trans_id`, `track_id`, `content`, `createtime`, `line_id`, `level`)" +
+                " VALUES('{0}', '{1}', '{2}', {3}, '{4}', '{5}', '{6}', '{7}', {8}, {9}, {10})";
+            string sql = string.Format(@str, warn.id, warn.area_id, warn.type, warn.resolve, 
+                warn.dev_id, warn.trans_id, warn.track_id, warn.content, 
+                GetTimeOrNull(warn.createtime), warn.line_id, warn.level);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

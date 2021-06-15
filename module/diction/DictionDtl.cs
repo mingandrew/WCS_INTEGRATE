@@ -15,7 +15,7 @@ namespace module.diction
         public uint uint_value { set; get; }
         public int order { set; get; }
         public DateTime? updatetime { set; get; }
-
+        public byte level { set; get; }
         public string Tostr()
         {
             return string.Format(@"【{5}】- 整型：{0}，布尔：{1}，字符串：{2}，双精度{3}，无符号整型{4}", int_value, bool_value, string_value, double_value, uint_value, name);

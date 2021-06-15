@@ -1029,6 +1029,7 @@ namespace task.device
                             moveCount += UpSortCount;
                         }
 
+                        memo = string.Format("[ {0} ], 倒库数量[ {1} ]", memo, moveCount);
                         #endregion
                         break;
 

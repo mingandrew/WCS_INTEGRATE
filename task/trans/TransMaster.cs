@@ -1298,7 +1298,7 @@ namespace task.trans
                         movecount = line_max_move;
                     }
                 }
-
+                ushort stockqty = PubMaster.Goods.GetTrackStockCount(track.id);
                 //后退至轨道倒库
                 PubTask.Carrier.DoOrder(carrier_id, new CarrierActionOrder()
                 {
@@ -1307,7 +1307,7 @@ namespace task.trans
                     ToPoint = (ushort)(track.split_point + 50), //倒库时，不能超过脉冲(出库轨道附件脉冲位置)
                     MoveCount = movecount,
                     ToTrackId = track.id
-                });
+                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, track.up_split_point));
                 return true;
             }
             return false;

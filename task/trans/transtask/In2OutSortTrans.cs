@@ -196,7 +196,7 @@ namespace task.trans.transtask
                                     //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                     MoveCount = (byte)count,
                                     ToTrackId = trans.give_track_id
-                                });
+                                }, string.Format("入轨道有库存[ {0} ]， 出轨道有库存[ {1} ]", count, PubMaster.Goods.GetTrackStockCount(trans.give_track_id)));
                                 return;
                             }
                         }
@@ -277,21 +277,40 @@ namespace task.trans.transtask
                                     return;
                                 }
 
-                                int count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
 
                                 #region 【任务步骤记录】
-                                _M.LogForCarrierSort(trans, trans.give_track_id, count.ToString());
+
+                                _M.LogForCarrierToTrack(trans, trans.give_track_id);
+
                                 #endregion
 
-                                //后退至轨道倒库
+                                #region[先后退至点，在轨道后再执行倒库任务]
+
                                 PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
                                 {
-                                    Order = DevCarrierOrderE.往前倒库,
+                                    Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                    //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                    MoveCount = (byte)count,
+                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                     ToTrackId = trans.give_track_id
                                 });
+
+                                #endregion
+
+                                //int count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
+
+                                //#region 【任务步骤记录】
+                                //_M.LogForCarrierSort(trans, trans.give_track_id, count.ToString());
+                                //#endregion
+
+                                ////后退至轨道倒库
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.往前倒库,
+                                //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                //    //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                //    MoveCount = (byte)count,
+                                //    ToTrackId = trans.give_track_id
+                                //});
 
                             }
                         }

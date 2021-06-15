@@ -155,7 +155,7 @@ namespace task
                     track_id = (ushort)trackid
                 };
                 string devname = PubMaster.Device.GetDeviceName(devid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 if (trackid > 0)
                 {
                     string trackname = PubMaster.Track.GetTrackName(trackid);
@@ -165,7 +165,7 @@ namespace task
                 {
                     warn.content = devname + ": " + warnmsg;
                 }
-
+                warn.level = level;
                 if (otherdevid > 0)
                 {
                     warn.content += ": (" + PubMaster.Device.GetDeviceName(otherdevid) + ") ";
@@ -204,8 +204,9 @@ namespace task
                     track_id = alertidx
                 };
                 string devname = PubMaster.Device.GetDeviceName(devid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 warn.content = devname + ": " + warnmsg;
+                warn.level = level;
                 AddWaring(warn);
             }
         }
@@ -241,8 +242,9 @@ namespace task
                     track_id = alertidx
                 };
                 string devname = PubMaster.Device.GetDeviceName(devid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 warn.content = devname + ": " + warnmsg;
+                warn.level = level;
                 AddWaring(warn);
             }
         }
@@ -282,8 +284,9 @@ namespace task
                     trans_id = transid
                 };
                 string devname = PubMaster.Device.GetDeviceName(devid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 warn.content = devname + ": " + warnmsg;
+                warn.level = level;
                 AddWaring(warn);
             }
         }
@@ -302,8 +305,9 @@ namespace task
                     trans_id = transid
                 };
                 string devname = PubMaster.Device.GetDeviceName(devid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 warn.content = devname + ": " + warnmsg + " > " + result;
+                warn.level = level;
                 AddWaring(warn);
             }
         }
@@ -351,8 +355,9 @@ namespace task
                     type = (byte)warntype,
                 };
                 string traname = trackname ?? PubMaster.Track.GetTrackName(trackid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 warn.content = traname + ": " + warnmsg;
+                warn.level = level;
                 AddWaring(warn);
             }
         }
@@ -398,8 +403,9 @@ namespace task
                     type = (byte)warntype,
                 };
                 string areaName = PubMaster.Area.GetName(areaid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 warn.content = areaName + ": " + warnmsg + " > " + result;
+                warn.level = level;
                 AddWaring(warn);
             }
         }
@@ -439,8 +445,9 @@ namespace task
                     type = (byte)warntype,
                 };
                 string lineName = PubMaster.Area.GetLineName(areaid, lineid);
-                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString());
+                string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
                 warn.content = lineName + ": " + warnmsg + " > " + result;
+                warn.level = level;
                 AddWaring(warn);
             }
         }

@@ -301,12 +301,12 @@ ALTER TABLE `line` ADD COLUMN `onoff_sort` bit(1) NULL COMMENT '倒库开关' AF
 ALTER TABLE `line` ADD COLUMN `line_type` tinyint(3) UNSIGNED NULL COMMENT '线类型：0窑后 1包装前' AFTER `onoff_sort`;
 
 
-# 2021.6.15 报警添加线路字段
+# 2021.6.15 报警添加线路字段，等级字段
 
 ALTER TABLE `warning` ADD COLUMN `line_id` smallint(5) NULL COMMENT '线路ID' AFTER `area_id`;
+ALTER TABLE `warning` ADD COLUMN `level` TINYINT(3) UNSIGNED NULL COMMENT '等级';
 
 
 # 2021.03.15 报警字典添加等级
 
 ALTER TABLE `diction_dtl` ADD COLUMN `level` tinyint(3) UNSIGNED NULL COMMENT '等级';
-

@@ -179,7 +179,7 @@ namespace task.trans.transtask
                                     ToPoint = (ushort)(track.split_point + 50),
                                     MoveCount = movecount,
                                     ToTrackId = track.id
-                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]后, 有库存数[ {3} ]", stockqty, movecount, track.up_split_point, movecount));
+                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, track.up_split_point));
                                 return;
                             }
                         }
@@ -291,7 +291,7 @@ namespace task.trans.transtask
                                     ToPoint = (ushort)(gtrack.split_point + 50),
                                     MoveCount = movecount,
                                     ToTrackId = gtrack.id
-                                }, string.Format("轨道有库存数[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]后, 有库存数[ {3} ]", stockqty, movecount, gtrack.up_split_point, movecount));
+                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, gtrack.up_split_point));
 
                             }
                         }
@@ -845,7 +845,7 @@ namespace task.trans.transtask
                         ToPoint = (ushort)(track.split_point + 50),
                         MoveCount = movecount,
                         ToTrackId = track.id
-                    }, string.Format("轨道有库存[ {0} ], 当前脉冲[ {1} ]后,有库存数[ {2} ]", stockqty, nowpoint, movecount));
+                    }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, nowpoint));
                 }
             }
 

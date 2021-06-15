@@ -50,8 +50,23 @@ namespace task.device
         /// <summary>
         /// 即将前往的轨道ID
         /// </summary>
-        public uint OnGoingTrackId { set; get; }
-
+        public uint OnGoingTrackId
+        {
+            get => ongoingtrackid;
+            set
+            {
+                if (ongoingtrackid != value && value == 0)
+                {
+                    try
+                    {
+                        DevTcp.AddStatusLog("【到达目标轨道】");
+                    }
+                    catch { }
+                }
+                ongoingtrackid = value;
+            }
+        }
+        private uint ongoingtrackid;
         /// <summary>
         /// 上一次的摆渡车轨道id
         /// </summary>

@@ -160,6 +160,19 @@ namespace resource.diction
         {
             return DicDtlList.Find(c => c.code.Equals(code))?.string_value ?? code;
         }
+
+        public string GetDtlStrCode(string code, out  byte level)
+        {
+            DictionDtl dtl = DicDtlList.Find(c => c.code.Equals(code));
+            if (dtl != null)
+            {
+                level = dtl.level;
+                return dtl?.string_value ?? code;
+            }
+            level = 0;
+            return code;
+        }
+
         public string GetDtlStrCode(string code, int int_v)
         {
             return DicDtlList.Find(c => c.code.Equals(code) && c.int_value == int_v)?.name ?? "字典未配置";
