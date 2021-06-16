@@ -175,7 +175,7 @@ namespace task.trans.transtask
                                     PubMaster.Device.GetDeviceName(trans.carrier_id)));
                                 #endregion
 
-                                PubMaster.Warn.AddTaskWarn(WarningTypeE.CarrierLoadNotSortTask, (ushort)trans.carrier_id, trans.id);
+                                PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.CarrierLoadNotSortTask, (ushort)trans.carrier_id, trans.id);
 
                                 return;
                             }
@@ -260,7 +260,7 @@ namespace task.trans.transtask
                             PubMaster.Device.GetDeviceName(trans.carrier_id)));
                         #endregion
 
-                        PubMaster.Warn.AddTaskWarn(WarningTypeE.CarrierLoadSortTask, (ushort)trans.carrier_id, trans.id);
+                        PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.CarrierLoadSortTask, (ushort)trans.carrier_id, trans.id);
                     }
 
                     if (isnotload)
@@ -365,7 +365,7 @@ namespace task.trans.transtask
                     Order = DevCarrierOrderE.终止指令
                 }, "倒库中相关任务轨道出现其他运输车");
 
-                PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
+                PubMaster.Warn.AddDevWarn(trans.area_id, trans.line, WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
 
                 return;
             }
@@ -521,7 +521,7 @@ namespace task.trans.transtask
                 {
                     //_M.SetStatus(trans, TransStatusE.移车中, "入库侧还有库存没倒完，重新发起倒库指令");
                     //报警运输车倒库后入库轨道还有库存，请在核实并修改入库轨道的库存后，1.如果需要继续倒库，请手动给运输车发倒库任务，2.如果不需要继续倒库，请取消当前轨道的倒库任务并修改轨道状态为空砖/有砖
-                    PubMaster.Warn.AddTaskWarn(WarningTypeE.SortFinishButDownExistStock, (ushort)trans.carrier_id, trans.id);
+                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.SortFinishButDownExistStock, (ushort)trans.carrier_id, trans.id);
                     return;
                 }
 
@@ -571,6 +571,66 @@ namespace task.trans.transtask
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             ushort torfid = PubMaster.Track.GetTrackRFID2(trans.give_track_id);
+
+
+            // 任务运输车前面即将有车
+            if (PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
+            {
+                //终止
+                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                {
+                    Order = DevCarrierOrderE.终止指令
+                }, "前方有其他运输车将至");
+
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 1702, string.Format("终止运输车[ {0} ]，检测到前方可能有其他运输车进入轨道",
+                    PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                #endregion
+
+                return;
+            }
+
+            // 任务运输车前面有车
+            if (PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id, out uint othercarrier))
+            {
+                //终止
+                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                {
+                    Order = DevCarrierOrderE.终止指令
+                }, "前方存在其他运输车");
+
+                if (_M.HaveCarrierInTrans(othercarrier))
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 1802, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]绑定有任务，等待其任务完成；",
+                        PubMaster.Device.GetDeviceName(trans.carrier_id),
+                        PubMaster.Device.GetDeviceName(othercarrier)));
+                    #endregion
+                    return;
+                }
+
+                if (!PubTask.Carrier.IsCarrierFree(othercarrier))
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 1902, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                        PubMaster.Device.GetDeviceName(trans.carrier_id),
+                        PubMaster.Device.GetDeviceName(othercarrier)));
+                    #endregion
+                    return;
+                }
+
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 2002, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]，尝试对其生成移车任务；",
+                        PubMaster.Device.GetDeviceName(trans.carrier_id),
+                        PubMaster.Device.GetDeviceName(othercarrier)));
+                #endregion
+
+                //转移到同类型轨道
+                TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                track = PubTask.Carrier.GetCarrierTrack(othercarrier);
+                _M.AddMoveCarrierTask(track.id, othercarrier, tracktype, MoveTypeE.转移占用轨道);
+                return;
+            }
 
             // 到出库轨道就算完成
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))

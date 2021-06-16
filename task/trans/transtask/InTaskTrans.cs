@@ -457,7 +457,7 @@ namespace task.trans.transtask
                                 }
 
                                 bool isWarn = false;
-                                if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.tilelifter_id, trans.goods_id, out List<uint> traids))
+                                if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.line, trans.tilelifter_id, trans.goods_id, out List<uint> traids))
                                 {
                                     foreach (uint traid in traids)
                                     {
@@ -480,7 +480,7 @@ namespace task.trans.transtask
                                 }
                                 else
                                 {
-                                    PubMaster.Warn.AddTaskWarn(WarningTypeE.TransHaveNotTheGiveTrack, (ushort)trans.carrier_id, trans.id);
+                                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.TransHaveNotTheGiveTrack, (ushort)trans.carrier_id, trans.id);
 
                                     #region 【任务步骤记录】
                                     _M.SetStepLog(trans, false, 1600, string.Format("没有找到合适的轨道卸砖，继续尝试寻找其他轨道；"));

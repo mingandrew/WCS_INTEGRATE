@@ -375,7 +375,7 @@ namespace task.device
                     // 在摆渡上但运输车当前轨道与交管摆渡不符-报警
                     if (carrier.Position == DevCarrierPositionE.在摆渡上 && carrier.CurrentTrackId != ferry.DevConfig.track_id)
                     {
-                        PubMaster.Warn.AddTaskWarn(WarningTypeE.CarrierFreeInFerryButLocErr, (ushort)ctl.control_id, ctl.id, PubMaster.Device.GetDeviceName(ctl.restricted_id));
+                        PubMaster.Warn.AddTaskWarn(ferry.AreaId, ferry.Line, WarningTypeE.CarrierFreeInFerryButLocErr, (ushort)ctl.control_id, ctl.id, PubMaster.Device.GetDeviceName(ctl.restricted_id));
                         goto FinallyLogNo;
                     }
 
@@ -391,8 +391,7 @@ namespace task.device
                 if (!PubTask.Carrier.IsStopFTask(ctl.control_id)
                     && carrier.Position == DevCarrierPositionE.在轨道上
                     && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库, DevCarrierOrderE.取砖指令, DevCarrierOrderE.放砖指令, DevCarrierOrderE.定位指令)
-                    && carrier.CurrentTrackId != ferry.DevConfig.track_id
-                    && carrier.TargetTrackId != ferry.DevConfig.track_id)
+                    && carrier.NotInTrack(ferry.DevConfig.track_id))
                 {
                     res = string.Format("[ ✔ ]满足条件]: 运输车[ {0} ], 位置状态[ {1} ], 当前轨道[ {2} ], 执行指令[ {3} ] - 允许解锁摆渡车[ {4} ]",
                         PubMaster.Device.GetDeviceName(ctl.control_id),
@@ -421,7 +420,7 @@ namespace task.device
                 // 空闲但上下摆渡中-报警
                 if (PubTask.Carrier.IsStopFTask(ctl.control_id) && carrier.Position == DevCarrierPositionE.上下摆渡中)
                 {
-                    PubMaster.Warn.AddTaskWarn(WarningTypeE.CarrierFreeButMoveInFerry, (ushort)ctl.control_id, ctl.id, PubMaster.Device.GetDeviceName(ctl.restricted_id));
+                    PubMaster.Warn.AddTaskWarn(carrier.AreaId, carrier.Line, WarningTypeE.CarrierFreeButMoveInFerry, (ushort)ctl.control_id, ctl.id, PubMaster.Device.GetDeviceName(ctl.restricted_id));
                 }
 
                 // 数据全发

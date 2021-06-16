@@ -456,26 +456,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler1, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X0, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X0, (ushort)ID, 1);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X0, (ushort)ID);
 
             if (On(DevStatus.Aler1, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X1, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X1, (ushort)ID, 1);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X1, (ushort)ID);
 
             if (On(DevStatus.Aler1, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X2, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X2, (ushort)ID, 1);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler1, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X3, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X3, (ushort)ID, 1);
             }
             else
             {
@@ -484,7 +484,7 @@ namespace task.device
 
             if (On(DevStatus.Aler1, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X4, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X4, (ushort)ID, 1);
             }
             else
             {
@@ -493,7 +493,7 @@ namespace task.device
 
             if (On(DevStatus.Aler1, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X5, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X5, (ushort)ID, 1);
             }
             else
             {
@@ -503,7 +503,7 @@ namespace task.device
 
             if (On(DevStatus.Aler1, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X6, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X6, (ushort)ID, 1);
             }
             else
             {
@@ -512,7 +512,7 @@ namespace task.device
 
             if (On(DevStatus.Aler1, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA1X7, (ushort)ID, 1);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X7, (ushort)ID, 1);
             }
             else
             {
@@ -531,26 +531,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler2, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X0, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X0, (ushort)ID, 2);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA2X0, (ushort)ID);
 
             if (On(DevStatus.Aler2, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X1, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X1, (ushort)ID, 2);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA2X1, (ushort)ID);
 
             if (On(DevStatus.Aler2, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X2, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X2, (ushort)ID, 2);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA2X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler2, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X3, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X3, (ushort)ID, 2);
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
                 //3.运输车发终止任务
@@ -575,7 +575,7 @@ namespace task.device
 
             if (On(DevStatus.Aler2, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X4, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X4, (ushort)ID, 2);
             }
             else
             {
@@ -584,7 +584,7 @@ namespace task.device
 
             if (On(DevStatus.Aler2, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X5, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X5, (ushort)ID, 2);
             }
             else
             {
@@ -593,7 +593,7 @@ namespace task.device
 
             if (On(DevStatus.Aler2, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X6, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X6, (ushort)ID, 2);
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
                 //3.运输车发终止任务
@@ -621,7 +621,7 @@ namespace task.device
 
             if (On(DevStatus.Aler2, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA2X7, (ushort)ID, 2);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X7, (ushort)ID, 2);
             }
             else
             {
@@ -640,26 +640,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler3, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X0, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X0, (ushort)ID, 3);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA3X0, (ushort)ID);
 
             if (On(DevStatus.Aler3, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X1, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X1, (ushort)ID, 3);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA3X1, (ushort)ID);
 
             if (On(DevStatus.Aler3, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X2, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X2, (ushort)ID, 3);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA3X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler3, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X3, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X3, (ushort)ID, 3);
             }
             else
             {
@@ -668,7 +668,7 @@ namespace task.device
 
             if (On(DevStatus.Aler3, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X4, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X4, (ushort)ID, 3);
             }
             else
             {
@@ -677,7 +677,7 @@ namespace task.device
 
             if (On(DevStatus.Aler3, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X5, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X5, (ushort)ID, 3);
             }
             else
             {
@@ -686,7 +686,7 @@ namespace task.device
 
             if (On(DevStatus.Aler3, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X6, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X6, (ushort)ID, 3);
             }
             else
             {
@@ -695,7 +695,7 @@ namespace task.device
 
             if (On(DevStatus.Aler3, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA3X7, (ushort)ID, 3);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X7, (ushort)ID, 3);
             }
             else
             {
@@ -714,26 +714,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler4, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X0, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X0, (ushort)ID, 4);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA4X0, (ushort)ID);
 
             if (On(DevStatus.Aler4, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X1, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X1, (ushort)ID, 4);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA4X1, (ushort)ID);
 
             if (On(DevStatus.Aler4, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X2, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X2, (ushort)ID, 4);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA4X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler4, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X3, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X3, (ushort)ID, 4);
             }
             else
             {
@@ -742,7 +742,7 @@ namespace task.device
 
             if (On(DevStatus.Aler4, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X4, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X4, (ushort)ID, 4);
             }
             else
             {
@@ -751,7 +751,7 @@ namespace task.device
 
             if (On(DevStatus.Aler4, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X5, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X5, (ushort)ID, 4);
             }
             else
             {
@@ -760,7 +760,7 @@ namespace task.device
 
             if (On(DevStatus.Aler4, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X6, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X6, (ushort)ID, 4);
             }
             else
             {
@@ -769,7 +769,7 @@ namespace task.device
 
             if (On(DevStatus.Aler4, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA4X7, (ushort)ID, 4);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA4X7, (ushort)ID, 4);
             }
             else
             {
@@ -788,26 +788,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler5, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X0, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X0, (ushort)ID, 5);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X0, (ushort)ID);
 
             if (On(DevStatus.Aler5, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X1, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X1, (ushort)ID, 5);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X1, (ushort)ID);
 
             if (On(DevStatus.Aler5, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X2, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X2, (ushort)ID, 5);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA5X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler5, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X3, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X3, (ushort)ID, 5);
             }
             else
             {
@@ -816,7 +816,7 @@ namespace task.device
 
             if (On(DevStatus.Aler5, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X4, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X4, (ushort)ID, 5);
             }
             else
             {
@@ -825,7 +825,7 @@ namespace task.device
 
             if (On(DevStatus.Aler5, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X5, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X5, (ushort)ID, 5);
             }
             else
             {
@@ -834,7 +834,7 @@ namespace task.device
 
             if (On(DevStatus.Aler5, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X6, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X6, (ushort)ID, 5);
             }
             else
             {
@@ -843,7 +843,7 @@ namespace task.device
 
             if (On(DevStatus.Aler5, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA5X7, (ushort)ID, 5);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA5X7, (ushort)ID, 5);
             }
             else
             {
@@ -862,26 +862,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler6, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X0, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X0, (ushort)ID, 6);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X0, (ushort)ID);
 
             if (On(DevStatus.Aler6, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X1, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X1, (ushort)ID, 6);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X1, (ushort)ID);
 
             if (On(DevStatus.Aler6, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X2, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X2, (ushort)ID, 6);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA6X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler6, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X3, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X3, (ushort)ID, 6);
             }
             else
             {
@@ -890,7 +890,7 @@ namespace task.device
 
             if (On(DevStatus.Aler6, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X4, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X4, (ushort)ID, 6);
             }
             else
             {
@@ -899,7 +899,7 @@ namespace task.device
 
             if (On(DevStatus.Aler6, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X5, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X5, (ushort)ID, 6);
             }
             else
             {
@@ -908,7 +908,7 @@ namespace task.device
 
             if (On(DevStatus.Aler6, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X6, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X6, (ushort)ID, 6);
             }
             else
             {
@@ -917,7 +917,7 @@ namespace task.device
 
             if (On(DevStatus.Aler6, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA6X7, (ushort)ID, 6);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA6X7, (ushort)ID, 6);
             }
             else
             {
@@ -936,26 +936,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler7, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X0, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X0, (ushort)ID, 7);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X0, (ushort)ID);
 
             if (On(DevStatus.Aler7, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X1, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X1, (ushort)ID, 7);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X1, (ushort)ID);
 
             if (On(DevStatus.Aler7, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X2, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X2, (ushort)ID, 7);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA7X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler7, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X3, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X3, (ushort)ID, 7);
             }
             else
             {
@@ -964,7 +964,7 @@ namespace task.device
 
             if (On(DevStatus.Aler7, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X4, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X4, (ushort)ID, 7);
             }
             else
             {
@@ -973,7 +973,7 @@ namespace task.device
 
             if (On(DevStatus.Aler7, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X5, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X5, (ushort)ID, 7);
             }
             else
             {
@@ -982,7 +982,7 @@ namespace task.device
 
             if (On(DevStatus.Aler7, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X6, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X6, (ushort)ID, 7);
             }
             else
             {
@@ -991,7 +991,7 @@ namespace task.device
 
             if (On(DevStatus.Aler7, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA7X7, (ushort)ID, 7);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA7X7, (ushort)ID, 7);
             }
             else
             {
@@ -1010,26 +1010,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler8, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X0, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X0, (ushort)ID, 8);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X0, (ushort)ID);
 
             if (On(DevStatus.Aler8, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X1, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X1, (ushort)ID, 8);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X1, (ushort)ID);
 
             if (On(DevStatus.Aler8, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X2, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X2, (ushort)ID, 8);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA8X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler8, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X3, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X3, (ushort)ID, 8);
             }
             else
             {
@@ -1038,7 +1038,7 @@ namespace task.device
 
             if (On(DevStatus.Aler8, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X4, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X4, (ushort)ID, 8);
             }
             else
             {
@@ -1047,7 +1047,7 @@ namespace task.device
 
             if (On(DevStatus.Aler8, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X5, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X5, (ushort)ID, 8);
             }
             else
             {
@@ -1056,7 +1056,7 @@ namespace task.device
 
             if (On(DevStatus.Aler8, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X6, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X6, (ushort)ID, 8);
             }
             else
             {
@@ -1065,7 +1065,7 @@ namespace task.device
 
             if (On(DevStatus.Aler8, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA8X7, (ushort)ID, 8);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA8X7, (ushort)ID, 8);
             }
             else
             {
@@ -1084,26 +1084,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler9, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X0, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X0, (ushort)ID, 9);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X0, (ushort)ID);
 
             if (On(DevStatus.Aler9, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X1, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X1, (ushort)ID, 9);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X1, (ushort)ID);
 
             if (On(DevStatus.Aler9, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X2, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X2, (ushort)ID, 9);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA9X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler9, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X3, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X3, (ushort)ID, 9);
             }
             else
             {
@@ -1112,7 +1112,7 @@ namespace task.device
 
             if (On(DevStatus.Aler9, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X4, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X4, (ushort)ID, 9);
             }
             else
             {
@@ -1121,7 +1121,7 @@ namespace task.device
 
             if (On(DevStatus.Aler9, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X5, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X5, (ushort)ID, 9);
             }
             else
             {
@@ -1130,7 +1130,7 @@ namespace task.device
 
             if (On(DevStatus.Aler9, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X6, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X6, (ushort)ID, 9);
             }
             else
             {
@@ -1139,7 +1139,7 @@ namespace task.device
 
             if (On(DevStatus.Aler9, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA9X7, (ushort)ID, 9);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA9X7, (ushort)ID, 9);
             }
             else
             {
@@ -1158,26 +1158,26 @@ namespace task.device
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Aler10, 0))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X0, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X0, (ushort)ID, 10);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X0, (ushort)ID);
 
             if (On(DevStatus.Aler10, 1))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X1, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X1, (ushort)ID, 10);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X1, (ushort)ID);
 
             if (On(DevStatus.Aler10, 2))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X2, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X2, (ushort)ID, 10);
             }
             else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA10X2, (ushort)ID);
 
 
             if (On(DevStatus.Aler10, 3))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X3, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X3, (ushort)ID, 10);
             }
             else
             {
@@ -1186,7 +1186,7 @@ namespace task.device
 
             if (On(DevStatus.Aler10, 4))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X4, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X4, (ushort)ID, 10);
             }
             else
             {
@@ -1195,7 +1195,7 @@ namespace task.device
 
             if (On(DevStatus.Aler10, 5))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X5, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X5, (ushort)ID, 10);
             }
             else
             {
@@ -1204,7 +1204,7 @@ namespace task.device
 
             if (On(DevStatus.Aler10, 6))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X6, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X6, (ushort)ID, 10);
             }
             else
             {
@@ -1213,7 +1213,7 @@ namespace task.device
 
             if (On(DevStatus.Aler10, 7))
             {
-                PubMaster.Warn.AddCarrierWarn(CarrierWarnE.WarningA10X7, (ushort)ID, 10);
+                PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA10X7, (ushort)ID, 10);
             }
             else
             {
@@ -1287,6 +1287,16 @@ namespace task.device
             return !InTask(order);
         }
 
+        // c.TargetTrackId == trackid || c.CurrentTrackId == trackid || c.OnGoingTrackId == trackid
+        internal bool InTrack(uint trackid)
+        {
+            return CurrentTrackId == trackid || TargetTrackId == trackid || OnGoingTrackId == trackid;
+        }
+
+        internal bool NotInTrack(uint trackid)
+        {
+            return CurrentTrackId != trackid && TargetTrackId != trackid && OnGoingTrackId != trackid;
+        }
         #endregion
 
         #region [数据信息]
@@ -1298,9 +1308,9 @@ namespace task.device
         /// <returns></returns>
         public string GetInfo()
         {
-            return string.Format("运输车[ {0} ], 设备状态[ {1} ], 位置状态[ {2} ], 当前指令[ {3} ], 完成指令[ {4} ], 记录指令[ {5} ], 当前轨道[ {6} ], 目的轨道[ {7} ]",
+            return string.Format("运输车[ {0} ], 设备状态[ {1} ], 位置状态[ {2} ], 当前指令[ {3} ], 完成指令[ {4} ], 记录指令[ {5} ], 当前轨道[ {6} ], 目的轨道[ {7} & {8} ]",
                 Device.name, DevStatus.DeviceStatus, DevStatus.Position, DevStatus.CurrentOrder, DevStatus.FinishOrder, OnGoingOrder,
-                PubMaster.Track.GetTrackName(CurrentTrackId), PubMaster.Track.GetTrackName(TargetTrackId));
+                PubMaster.Track.GetTrackName(CurrentTrackId), PubMaster.Track.GetTrackName(TargetTrackId), PubMaster.Track.GetTrackName(OnGoingTrackId));
         }
 
         #endregion

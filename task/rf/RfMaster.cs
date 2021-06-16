@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Messaging;
 using module;
 using module.device;
 using module.diction;
+using module.line;
 using module.msg;
 using module.rf;
 using module.rf.carrier;
@@ -1472,55 +1473,37 @@ namespace task.rf
                     && ushort.TryParse(idtypes[0], out ushort lineid) 
                     && byte.TryParse(idtypes[1], out byte onffftype))
                 {
-                    if (PubMaster.Area.UpdateLineSwitch(lineid, (OnOffTaskE)onffftype, pack.onoff, "平板", out string result, true))
+                    OnOffTaskE switchtype = (OnOffTaskE)onffftype;
+                    if (PubMaster.Area.UpdateLineSwitch(lineid, switchtype, pack.onoff, "平板", out string result, true))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "ok");
                     }
-                }
 
-                if (pack.cleartask)
-                {
-                    SendFail2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "清除功能已禁用，终止任务请到任务信息操作！");
+                    bool allow = PubMaster.Dic.IsSwitchOnOff(DicTag.AllowClearTask, false);
+                    if (!pack.onoff && pack.cleartask && allow)
+                    {
+                        Line line = PubMaster.Area.GetLineById(lineid);
+                        if (line != null)
+                        {
+                            switch (switchtype)
+                            {
+                                case OnOffTaskE.上砖:
+                                    PubTask.Trans.StopAreaUp(line.area_id, line.line);
+                                    break;
+                                case OnOffTaskE.下砖:
+                                    PubTask.Trans.StopAreaDown(line.area_id, line.line);
+                                    break;
+                                case OnOffTaskE.倒库:
+                                    PubTask.Trans.StopAreaSort(line.area_id, line.line);
+                                    break;
+                            }
+                        }
+                    }
+                    else if (pack.cleartask && !allow)
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "清除功能已禁用，终止任务请到任务信息操作！");
+                    }
                 }
-
-                //if (PubMaster.Dic.UpdateSwitch(pack.code, pack.onoff, true))
-                //{
-                //    SendSucc2Rf(msg.MEID, FunTag.UpdateTaskSwitch, "ok");
-                //    //关闭开关，执行人工作业
-                //    //if (!pack.onoff && pack.cleartask)
-                //    //{
-                //    //    bool isdown = pack.code.Contains(DicSwitchTag.Down);
-                //    //    bool isup = pack.code.Contains(DicSwitchTag.Up);
-                //    //    bool issort = pack.code.Contains(DicSwitchTag.Sort);
-                //    //    uint areaid = 0;
-                //    //    if (pack.code.Contains("1"))
-                //    //    {
-                //    //        areaid = 1;
-                //    //    }
-                //    //    else if (pack.code.Contains("2"))
-                //    //    {
-                //    //        areaid = 2;
-                //    //    }
-                //    //    else if (pack.code.Contains("3"))
-                //    //    {
-                //    //        areaid = 3;
-                //    //    }
-                //    //    else if (pack.code.Contains("4"))
-                //    //    {
-                //    //        areaid = 4;
-                //    //    }
-                //    //    else if (pack.code.Contains("5"))
-                //    //    {
-                //    //        areaid = 5;
-                //    //    }
-                //    //    if (areaid != 0 && (isdown || isup || issort))
-                //    //    {
-                //    //        if (isup) PubTask.Trans.StopAreaUp(areaid);
-                //    //        if (isdown) PubTask.Trans.StopAreaDown(areaid);
-                //    //        if (issort) PubTask.Trans.StopAreaSort(areaid);
-                //    //    }
-                //    //}
-                //}
             }
         }
         #endregion

@@ -302,7 +302,7 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveInTrack(uint trackid)
         {
-            return DevList.Exists(c => c.TargetTrackId == trackid || c.CurrentTrackId == trackid || c.OnGoingTrackId == trackid);
+            return DevList.Exists(c => c.InTrack(trackid));
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace task.device
         /// <returns></returns>
         internal bool HaveInTrackAndLoad(uint trackid)
         {
-            return DevList.Exists(c => (c.TargetTrackId == trackid || c.CurrentTrackId == trackid || c.OnGoingTrackId == trackid) && c.IsLoad());
+            return DevList.Exists(c => c.InTrack(trackid) && c.IsLoad());
         }
 
         /// <summary>
@@ -535,7 +535,7 @@ namespace task.device
                 case SocketConnectStatusE.连接中:
                 case SocketConnectStatusE.连接断开:
                 case SocketConnectStatusE.主动断开:
-                    if (task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
+                    if (task.IsEnable) PubMaster.Warn.AddDevWarn(task.AreaId, task.Line, WarningTypeE.DeviceOffline, (ushort)task.ID);
                     PubTask.Ping.AddPing(task.Device.ip, task.Device.name);
                     break;
             }
@@ -751,7 +751,7 @@ namespace task.device
             Track track = PubMaster.Track.GetTrack(ferrytraid);
             if (track != null && track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
             {
-                return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid || c.OnGoingTrackId == ferrytraid)
+                return DevList.Exists(c => c.InTrack(ferrytraid)
                                        && (c.Status != DevCarrierStatusE.停止 
                                                || c.Position != DevCarrierPositionE.在摆渡上
                                                || !c.IsNotDoingTask
@@ -761,7 +761,7 @@ namespace task.device
                                                )
                                        );
             }
-            return DevList.Exists(c => (c.TargetTrackId == ferrytraid || c.CurrentTrackId == ferrytraid || c.OnGoingTrackId == ferrytraid)
+            return DevList.Exists(c => c.InTrack(ferrytraid)
                                     //&& c.ConnStatus == SocketConnectStatusE.通信正常
                                     //&& (c.OperateMode == DevOperateModeE.自动 || c.OperateMode == DevOperateModeE.手动)
                                     //&& c.Status != DevCarrierStatusE.异常
@@ -1459,7 +1459,7 @@ namespace task.device
                     }
                     else if (!IsGetCarrier && mTimer.IsOver(TimerTag.FailAllocateCarrier, trans.id, 10, 5))
                     {
-                        PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateCarrier, (ushort)trans.tilelifter_id, trans.id, result);
+                        PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.FailAllocateCarrier, (ushort)trans.tilelifter_id, trans.id, result);
                     }
                     return IsGetCarrier;
                 }

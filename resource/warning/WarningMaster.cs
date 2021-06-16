@@ -140,7 +140,7 @@ namespace task
 
         #region[设备警告]
 
-        public void AddDevWarn(WarningTypeE warntype, ushort devid, uint transid = 0, uint trackid = 0, uint otherdevid = 0)
+        public void AddDevWarn(uint areaid, ushort lineid, WarningTypeE warntype, ushort devid, uint transid = 0, uint trackid = 0, uint otherdevid = 0)
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && !c.resolve);
             if (warn == null)
@@ -149,6 +149,8 @@ namespace task
                 if ((DateTime.Now - inittime).TotalSeconds < 20) return;
                 warn = new Warning()
                 {
+                    area_id = (ushort)areaid,
+                    line_id = lineid,
                     dev_id = devid,
                     type = (byte)warntype,
                     trans_id = transid,
@@ -192,13 +194,15 @@ namespace task
 
         #region 运输车
 
-        public void AddCarrierWarn(CarrierWarnE warntype, ushort devid, ushort alertidx)
+        public void AddCarrierWarn(uint areaid, ushort lineid, CarrierWarnE warntype, ushort devid, ushort alertidx)
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && !c.resolve);
             if (warn == null)
             {
                 warn = new Warning()
                 {
+                    area_id = (ushort)areaid,
+                    line_id = lineid,
                     dev_id = devid,
                     type = (byte)warntype,
                     track_id = alertidx
@@ -230,13 +234,15 @@ namespace task
 
         #region 摆渡车
 
-        public void AddFerryWarn(FerryWarnE warntype, ushort devid, ushort alertidx)
+        public void AddFerryWarn(uint areaid, ushort lineid, FerryWarnE warntype, ushort devid, ushort alertidx)
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && !c.resolve);
             if (warn == null)
             {
                 warn = new Warning()
                 {
+                    area_id = (ushort)areaid,
+                    line_id = lineid,
                     dev_id = devid,
                     type = (byte)warntype,
                     track_id = alertidx
@@ -270,7 +276,7 @@ namespace task
 
         #region[任务警告]
 
-        public void AddTaskWarn(WarningTypeE warntype, ushort devid, uint transid = 0)
+        public void AddTaskWarn(uint areaid, ushort lineid, WarningTypeE warntype, ushort devid, uint transid = 0)
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && !c.resolve);
             if (warn == null)
@@ -279,6 +285,8 @@ namespace task
                 if ((DateTime.Now - inittime).TotalSeconds < 20) return;
                 warn = new Warning()
                 {
+                    area_id = (ushort)areaid,
+                    line_id = lineid,
                     dev_id = devid,
                     type = (byte)warntype,
                     trans_id = transid
@@ -291,7 +299,7 @@ namespace task
             }
         }
 
-        public void AddTaskWarn(WarningTypeE warntype, ushort devid, uint transid, string result = "")
+        public void AddTaskWarn(uint areaid, ushort lineid, WarningTypeE warntype, ushort devid, uint transid, string result = "")
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.dev_id == devid && c.trans_id == transid && !c.resolve);
             if (warn == null)
@@ -300,6 +308,8 @@ namespace task
                 if ((DateTime.Now - inittime).TotalSeconds < 20) return;
                 warn = new Warning()
                 {
+                    area_id = (ushort)areaid,
+                    line_id = lineid,
                     dev_id = devid,
                     type = (byte)warntype,
                     trans_id = transid
@@ -344,13 +354,15 @@ namespace task
 
         #region[轨道警告]
 
-        public void AddTraWarn(WarningTypeE warntype, ushort trackid, string trackname = null)
+        public void AddTraWarn(uint areaid, ushort lineid, WarningTypeE warntype, ushort trackid, string trackname = null)
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.track_id == trackid && !c.resolve);
             if (warn == null)
             {
                 warn = new Warning()
                 {
+                    area_id = (ushort)areaid,
+                    line_id = lineid,
                     track_id = trackid,
                     type = (byte)warntype,
                 };
@@ -390,7 +402,7 @@ namespace task
         /// <param name="warntype"></param>
         /// <param name="areaid"></param>
         /// <param name="result"></param>
-        public void AddAreaWarn(WarningTypeE warntype, ushort areaid, string result = "")
+        public void AddAreaWarn(uint areaid, ushort lineid, WarningTypeE warntype, string result = "")
         {
             Warning warn = List.Find(c => c.type == (byte)warntype && c.area_id == areaid && !c.resolve);
             if (warn == null)
@@ -399,7 +411,8 @@ namespace task
                 if ((DateTime.Now - inittime).TotalSeconds < 20) return;
                 warn = new Warning()
                 {
-                    area_id = areaid,
+                    area_id = (ushort)areaid,
+                    line_id = lineid,
                     type = (byte)warntype,
                 };
                 string areaName = PubMaster.Area.GetName(areaid);
@@ -463,6 +476,25 @@ namespace task
             {
                 RemoveWarning(warn);
             }
+        }
+        #endregion
+
+        #region[判断信息]
+
+
+        public bool HaveDevWarn(uint devid, ushort level)
+        {
+            return List.Exists(c => c.dev_id == devid && c.level >= level);
+        }
+
+        public bool HaveAreaWarn(uint areaid, ushort level)
+        {
+            return List.Exists(c => c.area_id == areaid && c.level >= level);
+        }
+
+        public bool HaveAreaLineWarn(uint areaid, ushort lineid, ushort level)
+        {
+            return List.Exists(c => c.area_id == areaid && c.line_id == lineid && c.level >= level);
         }
         #endregion
     }

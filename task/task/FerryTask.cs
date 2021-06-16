@@ -623,7 +623,7 @@ namespace task.task
             Track currentTrack = PubMaster.Track.GetTrack(currentTraid);
             if (currentTrack == null || currentTraid == 0 || currentTraid.Equals(0) || currentTraid.CompareTo(0) == 0)
             {
-                PubMaster.Warn.AddDevWarn(WarningTypeE.FerryNoLocation, (ushort)ID);
+                PubMaster.Warn.AddDevWarn(AreaId, Line, WarningTypeE.FerryNoLocation, (ushort)ID);
             }
             else
             {
@@ -640,7 +640,7 @@ namespace task.task
                 }
                 else
                 {
-                    PubMaster.Warn.AddDevWarn(WarningTypeE.FerryTargetUnconfigured, (ushort)ID);
+                    PubMaster.Warn.AddDevWarn(AreaId, Line, WarningTypeE.FerryTargetUnconfigured, (ushort)ID);
                 }
             }
             else
@@ -662,7 +662,7 @@ namespace task.task
             // 7 6 5 4   3 2 1 0 从零开始算
             if (On(DevStatus.Reserve, 0))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X0, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X0, (ushort)ID, 1);
             }
             else
             {
@@ -671,7 +671,7 @@ namespace task.task
 
             if (On(DevStatus.Reserve, 1))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X1, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X1, (ushort)ID, 1);
             }
             else
             {
@@ -680,7 +680,7 @@ namespace task.task
 
             if (On(DevStatus.Reserve, 2))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X2, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X2, (ushort)ID, 1);
             }
             else
             {
@@ -689,7 +689,7 @@ namespace task.task
 
             if (On(DevStatus.Reserve, 3))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X3, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X3, (ushort)ID, 1);
             }
             else
             {
@@ -698,7 +698,7 @@ namespace task.task
 
             if (On(DevStatus.Reserve, 4))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X4, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X4, (ushort)ID, 1);
             }
             else
             {
@@ -707,7 +707,7 @@ namespace task.task
 
             if (On(DevStatus.Reserve, 5))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X5, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X5, (ushort)ID, 1);
             }
             else
             {
@@ -716,7 +716,7 @@ namespace task.task
 
             if (On(DevStatus.Reserve, 6))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X6, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X6, (ushort)ID, 1);
             }
             else
             {
@@ -725,7 +725,7 @@ namespace task.task
 
             if (On(DevStatus.Reserve, 7))
             {
-                PubMaster.Warn.AddFerryWarn(FerryWarnE.WarningF_A1X7, (ushort)ID, 1);
+                PubMaster.Warn.AddFerryWarn(AreaId, Line, FerryWarnE.WarningF_A1X7, (ushort)ID, 1);
             }
             else
             {

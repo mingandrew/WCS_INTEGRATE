@@ -1512,7 +1512,7 @@ namespace resource.track
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.EarlyFull);
                 if (value)
                 {
-                    PubMaster.Warn.AddTraWarn(WarningTypeE.TrackEarlyFull, (ushort)track.id, track.name);
+                    PubMaster.Warn.AddTraWarn(track.area, track.line, WarningTypeE.TrackEarlyFull, (ushort)track.id, track.name);
                 }
                 else
                 {

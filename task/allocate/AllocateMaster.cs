@@ -78,7 +78,7 @@ namespace task.allocate
         /// <param name="givetrackid">入库分配轨道</param>
         /// <param name="lastgoodid">极限满砖分配时，轨道的上个品种</param>
         /// <param name="islimitallocate">是否使用了极限满砖分配</param>
-        public void AllocateInGiveTrack(uint areaid, uint tileid, uint goodid, 
+        public void AllocateInGiveTrack(uint areaid, ushort lineid, uint tileid, uint goodid, 
             out uint givetrackid, out uint lastgoodid, out bool islimitallocate)
         {
             givetrackid = 0;
@@ -86,7 +86,7 @@ namespace task.allocate
             islimitallocate = false;
 
             //【常规分配轨道 1-4】
-            if (PubMaster.Goods.AllocateGiveTrack(areaid, tileid, goodid, out List<uint> traids))
+            if (PubMaster.Goods.AllocateGiveTrack(areaid, lineid, tileid, goodid, out List<uint> traids))
             {
                 foreach (uint traid in traids)
                 {

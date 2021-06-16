@@ -329,7 +329,7 @@ namespace wcs.ViewModel
                         PubMaster.Warn.RemoveAreaWarn(WarningTypeE.DownTaskSwitchClosed, (ushort)aid);
                     }
                     else
-                        PubMaster.Warn.AddAreaWarn(WarningTypeE.DownTaskSwitchClosed, (ushort)aid);
+                        PubMaster.Warn.AddAreaWarn(aid, 0, WarningTypeE.DownTaskSwitchClosed);
                 }
                 else if (tag.Contains("Up"))
                 {
@@ -338,7 +338,7 @@ namespace wcs.ViewModel
                         PubMaster.Warn.RemoveAreaWarn(WarningTypeE.UpTaskSwitchClosed, (ushort)aid);
                     }
                     else
-                        PubMaster.Warn.AddAreaWarn(WarningTypeE.UpTaskSwitchClosed, (ushort)aid);
+                        PubMaster.Warn.AddAreaWarn(aid, 0, WarningTypeE.UpTaskSwitchClosed);
                 }
                 else if (tag.Contains("Sort"))
                 {
@@ -347,7 +347,7 @@ namespace wcs.ViewModel
                         PubMaster.Warn.RemoveAreaWarn(WarningTypeE.SortTaskSwitchClosed, (ushort)aid);
                     }
                     else
-                        PubMaster.Warn.AddAreaWarn(WarningTypeE.SortTaskSwitchClosed, (ushort)aid);
+                        PubMaster.Warn.AddAreaWarn(aid, 0, WarningTypeE.SortTaskSwitchClosed);
                 }
             }
 

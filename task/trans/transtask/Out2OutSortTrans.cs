@@ -146,7 +146,7 @@ namespace task.trans.transtask
                                     PubMaster.Device.GetDeviceName(trans.carrier_id)));
                                 #endregion
 
-                                PubMaster.Warn.AddTaskWarn(WarningTypeE.CarrierLoadNotSortTask, (ushort)trans.carrier_id, trans.id);
+                                PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.CarrierLoadNotSortTask, (ushort)trans.carrier_id, trans.id);
 
                                 return;
                             }
@@ -244,7 +244,7 @@ namespace task.trans.transtask
                             PubMaster.Device.GetDeviceName(trans.carrier_id)));
                         #endregion
 
-                        PubMaster.Warn.AddTaskWarn(WarningTypeE.CarrierLoadSortTask, (ushort)trans.carrier_id, trans.id);
+                        PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.CarrierLoadSortTask, (ushort)trans.carrier_id, trans.id);
 
                         return;
                     }
@@ -382,7 +382,7 @@ namespace task.trans.transtask
                     Order = DevCarrierOrderE.终止指令
                 }, "倒库中相关任务轨道出现其他运输车");
 
-                PubMaster.Warn.AddDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack,
+                PubMaster.Warn.AddDevWarn(trans.area_id, trans.line, WarningTypeE.HaveOtherCarrierInSortTrack,
                     (ushort)trans.carrier_id, trans.id, trans.take_track_id, carrierid);
 
                 return;
@@ -697,7 +697,7 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CancelStockTrans(StockTrans trans)
         {
-
+            _M.SetStatus(trans, TransStatusE.小车回轨, "取消任务，让运输车回轨道！");
         }
 
         /// <summary>

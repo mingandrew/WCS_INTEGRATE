@@ -59,14 +59,12 @@ namespace task.trans
                 //    PubMaster.Warn.RemoveTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id);
                 //}
 
-                if (TransList.Exists(c => !c.finish && (c.take_track_id == track.id
-                                        || c.give_track_id == track.id
-                                        || c.finish_track_id == track.id)))
+                if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
+
+                if (TransList.Exists(c => !c.finish && c.InTrack(track.id)))
                 {
                     continue;
                 }
-
-                if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
 
                 uint goodsid = PubMaster.Goods.GetGoodsId(track.id);
 
@@ -229,7 +227,7 @@ namespace task.trans
 
         #region[添加手动任务]
 
-        public bool AddManualTrans(ushort area, uint devid, TransTypeE transtype, uint goods_id, uint taketrackid, uint givetrackid, TransStatusE transtatus, out string result)
+        public bool AddManualTrans(ushort area, ushort line, uint devid, TransTypeE transtype, uint goods_id, uint taketrackid, uint givetrackid, TransStatusE transtatus, out string result)
         {
             result = "";
             if (transtype == TransTypeE.手动下砖)
@@ -275,7 +273,7 @@ namespace task.trans
                 //分配放货点
                 if (stockid != 0
                     && givetrackid == 0
-                    && PubMaster.Goods.AllocateGiveTrack(area, devid, goods_id, out List<uint> traids))
+                    && PubMaster.Goods.AllocateGiveTrack(area, line, devid, goods_id, out List<uint> traids))
                 {
                     foreach (uint traid in traids)
                     {
@@ -363,7 +361,7 @@ namespace task.trans
 
                 }
                 //分配库存
-                else if (PubMaster.Goods.GetStock(area, devid, goods_id, out List<Stock> allocatestocks))
+                else if (PubMaster.Goods.GetStock(area, line, devid, goods_id, out List<Stock> allocatestocks))
                 {
                     foreach (Stock stock in allocatestocks)
                     {
@@ -517,7 +515,7 @@ namespace task.trans
             else if (ferryid == 0 && mTimer.IsOver(TimerTag.FailAllocateFerry, trans.take_track_id, 10, 5))
             {
                 result = string.Format("{0},{1}货摆渡车", result, allotogiveferry ? "卸" : "取");
-                PubMaster.Warn.AddTaskWarn(WarningTypeE.FailAllocateFerry, (ushort)trans.tilelifter_id, trans.id, result);
+                PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.FailAllocateFerry, (ushort)trans.tilelifter_id, trans.id, result);
             }
 
             return result;
@@ -923,15 +921,17 @@ namespace task.trans
                                 }
                                 break;
                             case TransTypeE.倒库任务:
+                            case TransTypeE.上砖侧倒库:
                                 SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                 return true;
                             case TransTypeE.移车任务:
                                 SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                 return true;
                             case TransTypeE.其他:
-
+                                SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                 break;
                             default:
+                                SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                 break;
                         }
                     }
@@ -1024,7 +1024,7 @@ namespace task.trans
                     StockTrans trans = TransList.Find(c => c.id == id);
                     if (trans != null)
                     {
-                        if (trans.InType(TransTypeE.倒库任务))
+                        if (trans.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
                         {
                             result = "倒库任务不可以强制完成，建议执行取消任务操作";
                             return false;
@@ -1094,7 +1094,7 @@ namespace task.trans
         #endregion
 
         #region[开关联动-取消对应的任务]
-        private void StopAreaTask(uint areaid, TransTypeE[] types)
+        private void StopAreaTask(uint areaid, ushort lineid, TransTypeE[] types)
         {
             if (Monitor.TryEnter(_for, TimeSpan.FromSeconds(1)))
             {
@@ -1102,6 +1102,7 @@ namespace task.trans
                 {
                     List<StockTrans> trans = TransList.FindAll(c => !c.finish
                                                 && c.area_id == areaid
+                                                && c.line == lineid
                                                 && types.Contains(c.TransType));
                     if (trans != null)
                     {
@@ -1168,19 +1169,19 @@ namespace task.trans
             }
         }
 
-        internal void StopAreaUp(uint areaid)
+        internal void StopAreaUp(uint areaid, ushort lineid)
         {
-            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖 });
+            StopAreaTask(areaid, lineid, new TransTypeE[] { TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖 });
         }
 
-        internal void StopAreaDown(uint areaid)
+        internal void StopAreaDown(uint areaid, ushort lineid)
         {
-            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.下砖任务, TransTypeE.手动下砖 });
+            StopAreaTask(areaid, lineid, new TransTypeE[] { TransTypeE.下砖任务, TransTypeE.手动下砖 });
         }
 
-        internal void StopAreaSort(uint areaid)
+        internal void StopAreaSort(uint areaid, ushort lineid)
         {
-            StopAreaTask(areaid, new TransTypeE[] { TransTypeE.倒库任务 });
+            StopAreaTask(areaid, lineid, new TransTypeE[] { TransTypeE.倒库任务 });
         }
 
         #endregion

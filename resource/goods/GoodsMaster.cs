@@ -1339,7 +1339,7 @@ namespace resource.goods
         /// <param name="stockid"></param>
         /// <param name="taketrackid"></param>
         /// <returns></returns>
-        public bool GetStock(uint areaid, uint tilelifterid, uint goodsid, out List<Stock> allocatstocks)
+        public bool GetStock(uint areaid, ushort lineid, uint tilelifterid, uint goodsid, out List<Stock> allocatstocks)
         {
             allocatstocks = new List<Stock>();
 
@@ -1350,7 +1350,7 @@ namespace resource.goods
                 Stock stk = GetTheEarliestStock(goodsid, TrackTypeE.储砖_入, TrackTypeE.储砖_出);
                 if (stk != null && stk.TrackType == TrackTypeE.储砖_入)
                 {
-                    PubMaster.Warn.AddTaskWarn(WarningTypeE.TheEarliestStockInDown, (ushort)tilelifterid, tilelifterid, 
+                    PubMaster.Warn.AddTaskWarn(areaid, lineid, WarningTypeE.TheEarliestStockInDown, (ushort)tilelifterid, tilelifterid, 
                         string.Format("[ {0} ]最早的库存在[ {1} ]", 
                             GetGoodsName(stk.goods_id), PubMaster.Track.GetTrackName(stk.track_id)));
                     return false;
@@ -2359,7 +2359,7 @@ namespace resource.goods
         /// <param name="goodsid">品种</param>
         /// <param name="traids">符合的轨道列表</param>
         /// <returns></returns>
-        public bool AllocateGiveTrack(uint areaid, uint devid, uint goodsid, out List<uint> traids)
+        public bool AllocateGiveTrack(uint areaid, ushort lineid, uint devid, uint goodsid, out List<uint> traids)
         {
             List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
             traids = new List<uint>();
@@ -2476,7 +2476,7 @@ namespace resource.goods
 
                 if (isopen && traids.Count == 0)
                 {
-                    PubMaster.Warn.AddTaskWarn(WarningTypeE.PreventTimeConflict, (ushort)devid, devid,
+                    PubMaster.Warn.AddTaskWarn(areaid, lineid, WarningTypeE.PreventTimeConflict, (ushort)devid, devid,
                         string.Format("[ {0} ]不能连续下满[ {1} ]",
                             GetGoodsName(goodsid), PubMaster.Track.GetTrackName(NonWorkTrackid)));
                 }

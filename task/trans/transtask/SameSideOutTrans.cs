@@ -573,7 +573,7 @@ namespace task.trans.transtask
                                             #endregion
 
                                             // 3.分配库存
-                                            else if (!isallocate && PubMaster.Goods.GetStock(trans.area_id, trans.tilelifter_id,
+                                            else if (!isallocate && PubMaster.Goods.GetStock(trans.area_id, trans.line, trans.tilelifter_id,
                                                 trans.goods_id, out List<Stock> allocatestocks))
                                             {
                                                 foreach (Stock stock in allocatestocks)
