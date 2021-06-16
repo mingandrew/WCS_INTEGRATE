@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using task.task;
+using tool.appconfig;
 using tool.mlog;
 using tool.timer;
 
@@ -58,7 +59,8 @@ namespace task.device
                 TileLifterTask task = new TileLifterTask
                 {
                     Device = dev,
-                    DevConfig = PubMaster.DevConfig.GetTileLifter(dev.id)
+                    DevConfig = PubMaster.DevConfig.GetTileLifter(dev.id),
+                    Config_Light = GlobalWcsDataConfig.AlertLightConfig.GetDevLight(dev.id)
                 };
                 task.Start("调度启动开始连接");
                 DevList.Add(task);
@@ -321,6 +323,48 @@ namespace task.device
 
                             #endregion
 
+                            #region[报警灯逻辑]
+
+                            if(task.Config_Light != null && task.Config_Light.HaveLight)
+                            {
+                                bool havewarn = false;
+                                //自管砖机本身的报警信息
+                                if (task.Config_Light.OnlyMyself)
+                                {
+                                    havewarn = PubMaster.Warn.HaveDevWarn(task.ID, task.Config_Light.WarnLevel);
+                                }
+                                //自管区域的报警信息
+                                else if (task.Config_Light.OnlyArea)
+                                {
+                                    havewarn = PubMaster.Warn.HaveAreaWarn(task.AreaId, task.Config_Light.WarnLevel);
+                                }
+                                //自管区域线路的报警信息
+                                else if (task.Config_Light.OnlyLine)
+                                {
+                                    havewarn = PubMaster.Warn.HaveAreaLineWarn(task.AreaId, task.Line, task.Config_Light.WarnLevel);
+                                }
+
+                                ///有报警，灯关 则 开灯
+                                if (havewarn)
+                                {
+                                    if (task.LightOff)
+                                    {
+                                        task.DoLight(TileLightShiftE.灯开);
+                                        Thread.Sleep(500);
+                                    }
+                                }
+                                //无报警，灯开 则 关灯
+                                else
+                                {
+                                    if (task.LightOn)
+                                    {
+                                        task.DoLight(TileLightShiftE.灯关);
+                                        Thread.Sleep(500);
+                                    }
+                                }
+                            }
+
+                            #endregion
                         }
                         catch (Exception e)
                         {
@@ -742,7 +786,7 @@ namespace task.device
                 case SocketConnectStatusE.连接中:
                 case SocketConnectStatusE.连接断开:
                 case SocketConnectStatusE.主动断开:
-                    if (task.IsEnable) PubMaster.Warn.AddDevWarn(WarningTypeE.DeviceOffline, (ushort)task.ID);
+                    if (task.IsEnable) PubMaster.Warn.AddDevWarn(task.AreaId, task.Line, WarningTypeE.DeviceOffline, (ushort)task.ID);
                     PubTask.Ping.AddPing(task.Device.ip, task.Device.name);
                     break;
             }
@@ -853,7 +897,7 @@ namespace task.device
                                 }
                                 else
                                 {
-                                    PubMaster.Warn.AddDevWarn(WarningTypeE.UpTilePreGoodNotSet, (ushort)task.ID);
+                                    PubMaster.Warn.AddDevWarn(task.AreaId, task.Line, WarningTypeE.UpTilePreGoodNotSet, (ushort)task.ID);
                                 }
                             }
                             else
@@ -1030,7 +1074,7 @@ namespace task.device
                     #region[生成入库交易]
 
                     uint gid = task.DevStatus.Goods1;
-                    if (!IsAllowToBeTaskGoods(task.ID, gid))
+                    if (!IsAllowToBeTaskGoods(task.AreaId, task.Line, task.ID, gid))
                     {
                         // 砖机回馈品种有问题，直接报警 沿用当前设定品种进行作业
                         if (task.DevConfig.goods_id == 0) return;
@@ -1209,7 +1253,7 @@ namespace task.device
                     #region[生成入库交易]
 
                     uint gid = task.DevStatus.Goods2;
-                    if (!IsAllowToBeTaskGoods(task.ID, gid))
+                    if (!IsAllowToBeTaskGoods(task.AreaId, task.Line, task.ID, gid))
                     {
                         // 砖机回馈品种有问题，直接报警 沿用当前设定品种进行作业
                         if (task.DevConfig.goods_id == 0) return;
@@ -1361,19 +1405,19 @@ namespace task.device
         /// </summary>
         /// <param name="goodsid"></param>
         /// <returns></returns>
-        private bool IsAllowToBeTaskGoods(uint tileid, uint goodsid)
+        private bool IsAllowToBeTaskGoods(uint areaid, ushort lineid, uint tileid, uint goodsid)
         {
             // 无品种反馈
             if (goodsid == 0)
             {
-                PubMaster.Warn.AddDevWarn(WarningTypeE.TileGoodsIsZero, (ushort)tileid);
+                PubMaster.Warn.AddDevWarn(areaid, lineid, WarningTypeE.TileGoodsIsZero, (ushort)tileid);
                 return false;
             }
 
             // 无品种数据
             if (PubMaster.Goods.GetGoods(goodsid) == null)
             {
-                PubMaster.Warn.AddDevWarn(WarningTypeE.TileGoodsIsNull, (ushort)tileid);
+                PubMaster.Warn.AddDevWarn(areaid, lineid, WarningTypeE.TileGoodsIsNull, (ushort)tileid);
                 return false;
             }
 
@@ -1426,7 +1470,7 @@ namespace task.device
             {
                 if (PubTask.Trans.IsTraInTransWithLock(lasttrack))
                 {
-                    PubMaster.Warn.AddDevWarn(WarningTypeE.TileMixLastTrackInTrans, (ushort)tileid, 0, lasttrack);
+                    PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.TileMixLastTrackInTrans, (ushort)tileid, 0, lasttrack);
                     return;
                 }
 
@@ -1547,7 +1591,7 @@ namespace task.device
             //分配放货点
             if (stockid != 0)
             {
-                PubTask.Allocate.AllocateInGiveTrack(areaid, tileid, goodid,
+                PubTask.Allocate.AllocateInGiveTrack(areaid, line, tileid, goodid,
                     out uint givetrackid, out uint lastgoodid, out bool islimitallocate);
 
                 if (givetrackid != 0)
@@ -1573,7 +1617,7 @@ namespace task.device
                 }
                 else if (stockid != 0)
                 {
-                    PubMaster.Warn.AddDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
+                    PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
                 }
             }
             
@@ -1657,7 +1701,7 @@ namespace task.device
             #endregion
 
             // 3.分配库存
-            else if (PubMaster.Goods.GetStock(areaid, tileid, goodid, out List<Stock> allocatestocks))
+            else if (PubMaster.Goods.GetStock(areaid, line, tileid, goodid, out List<Stock> allocatestocks))
             {
                 foreach (Stock stock in allocatestocks)
                 {
@@ -1695,7 +1739,7 @@ namespace task.device
             }
             else
             {
-                PubMaster.Warn.AddDevWarn(WarningTypeE.UpTileHaveNotStockToOut, (ushort)tileid);
+                PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.UpTileHaveNotStockToOut, (ushort)tileid);
             }
 
         }
@@ -1756,7 +1800,7 @@ namespace task.device
 
             if (!isallocate)
             {
-                PubMaster.Warn.AddDevWarn(WarningTypeE.UpTileHaveNoTrackToOut, (ushort)tileid);
+                PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.UpTileHaveNoTrackToOut, (ushort)tileid);
             }
         }
 
@@ -1919,7 +1963,7 @@ namespace task.device
 
                 case StrategyInE.无:
                     iseffect = true;
-                    PubMaster.Warn.AddDevWarn(WarningTypeE.TileNoneStrategy, (ushort)task.ID);
+                    PubMaster.Warn.AddDevWarn(task.AreaId, task.Line, WarningTypeE.TileNoneStrategy, (ushort)task.ID);
                     break;
                 case StrategyInE.同机同轨://同一砖机同时只派发一个任务【间接限制了会下不同轨道】
                     iseffect = PubTask.Trans.HaveInLifter(task.ID);
@@ -1973,7 +2017,7 @@ namespace task.device
             {
                 case StrategyOutE.无:
                     iseffect = true;
-                    PubMaster.Warn.AddDevWarn(WarningTypeE.TileNoneStrategy, (ushort)task.ID);
+                    PubMaster.Warn.AddDevWarn(task.AreaId, task.Line, WarningTypeE.TileNoneStrategy, (ushort)task.ID);
                     break;
                 case StrategyOutE.同机同轨:
                     iseffect = PubTask.Trans.HaveInLifter(task.ID);

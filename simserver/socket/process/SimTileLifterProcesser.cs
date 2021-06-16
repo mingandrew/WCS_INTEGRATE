@@ -41,7 +41,7 @@ namespace simserver.simsocket.process
             st.SetLevel = dev.SetLevel;
             st.NeedSytemShift = (byte)(dev.NeedSytemShift ? 0x01 : 0x00);
             st.BackupShiftDev = dev.BackupShiftDev;
-            st.Reserve1 = dev.reserve1;
+            st.AlertLightStatus = dev.alertlightstatus;
             st.Reserve2 = dev.reserve2;
             st.Reserve3 = dev.reserve3;
             st.Reserve4 = dev.reserve4;

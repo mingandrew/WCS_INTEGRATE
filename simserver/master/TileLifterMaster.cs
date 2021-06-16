@@ -280,8 +280,12 @@ namespace simtask.master
         {
             switch (cmd.Command)
             {
+                #region[查询]
                 case DevLifterCmdTypeE.查询:
                     break;
+                #endregion
+
+                #region[介入1]
                 case DevLifterCmdTypeE.介入1:
                     if(task.DevConfig.WorkMode == TileWorkModeE.下砖)
                     {
@@ -319,6 +323,9 @@ namespace simtask.master
                         }
                     }
                     break;
+                #endregion
+
+                #region[介入2]
                 case DevLifterCmdTypeE.介入2:
 
                     if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
@@ -358,6 +365,9 @@ namespace simtask.master
                         }
                     }
                     break;
+                #endregion
+
+                #region[转产]
                 case DevLifterCmdTypeE.转产:
                     switch (cmd.ShiftType)
                     {
@@ -376,8 +386,10 @@ namespace simtask.master
                             break;
                     }
                     break;
+                #endregion
+
+                #region[模式]
                 case DevLifterCmdTypeE.模式:
-                    #region[模式]
                     task.DevStatus.WorkMode = cmd.WorkMode;
                     if (cmd.SetFullType == TileFullE.设为满砖)
                     {
@@ -391,20 +403,32 @@ namespace simtask.master
                             task.DevStatus.Need2 = true;
                         }
                     }
-                    #endregion
                     break;
-                case DevLifterCmdTypeE.等级:
-                    #region[等级]
+                #endregion
 
+                #region[等级]
+                case DevLifterCmdTypeE.等级:
                     task.DevStatus.SetLevel = cmd.Level;
 
-                    #endregion
                     break;
+                #endregion
+
+                #region[复位转产]
                 case DevLifterCmdTypeE.复位转产:
                     task.DevStatus.NeedSytemShift = false;
                     break;
+                #endregion
+
+                #region[复位转产]
+                case DevLifterCmdTypeE.开关灯:
+                    task.DevStatus.AlertLightStatus = cmd.Value1;
+                    break;
+                #endregion
+
+                #region[复位转产]
                 default:
                     break;
+                #endregion
             }
 
             ServerSend(task.DevId, task.DevStatus);

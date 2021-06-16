@@ -30,7 +30,7 @@ namespace socket.process
         public byte Site2Qty;       //工位2数量
         public byte NeedSytemShift; //砖机需转产信号
         public byte BackupShiftDev; //切换砖机设备号
-        public byte Reserve1;       //预留1
+        public byte AlertLightStatus;       //报警灯状态
         public byte Reserve2;       //预留2
         public byte Reserve3;       //预留3
         public byte Reserve4;       //预留4
@@ -94,7 +94,7 @@ namespace socket.process
             mDev.SetLevel = st.SetLevel;
             mDev.NeedSytemShift = st.NeedSytemShift == 1;
             mDev.BackupShiftDev = st.BackupShiftDev;
-            mDev.reserve1 = st.Reserve1;
+            mDev.AlertLightStatus = st.AlertLightStatus;
             mDev.reserve2 = st.Reserve2;
             mDev.reserve3 = st.Reserve3;
             mDev.reserve4 = st.Reserve4;

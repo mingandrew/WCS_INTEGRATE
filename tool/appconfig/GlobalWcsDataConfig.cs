@@ -116,119 +116,69 @@ namespace tool.appconfig
             SaveBigConifg();
 
             #endregion
+
+            #region[报警灯配置信息]
+
+            if (File.Exists(DevLightConfig.SavePath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(DevLightConfig.SavePath);
+                    AlertLightConfig = (string.IsNullOrEmpty(json) ? new DevLightConfig() : JsonConvert.DeserializeObject<DevLightConfig>(json)) ?? new DevLightConfig();
+                }
+                catch
+                {
+                    AlertLightConfig = new DevLightConfig();
+                }
+            }
+            else
+            {
+                AlertLightConfig = new DevLightConfig();
+            }
+            SaveAlertLightConfig();
+
+            #endregion
         }
 
         public static void SaveMysqlConfig()
         {
-            try
-            {
-                var json = JsonConvert.SerializeObject(MysqlConfig);
-                if (!Directory.Exists(MysqlConfig.Path))
-                {
-                    Directory.CreateDirectory(MysqlConfig.Path);
-                }
-                using (FileStream fs = new FileStream(MysqlConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    fs.Seek(fs.Length, SeekOrigin.Current);
-
-                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
-
-                    fs.Write(data, 0, data.Length);
-
-                    fs.Close();
-                }
-            }catch(Exception )
-            {
-
-            }
-            
+            SaveJsonObj(MysqlConfig, MysqlConfig.Path, MysqlConfig.SavePath);
         }
 
         public static void SaveDebugConfig()
         {
-            try
-            {
-                var json = JsonConvert.SerializeObject(DebugConfig);
-                if (!Directory.Exists(DebugConfig.Path))
-                {
-                    Directory.CreateDirectory(DebugConfig.Path);
-                }
-                using (FileStream fs = new FileStream(DebugConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    fs.Seek(fs.Length, SeekOrigin.Current);
-
-                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
-
-                    fs.Write(data, 0, data.Length);
-
-                    fs.Close();
-                }
-            }catch(Exception )
-            {
-
-            }
+            SaveJsonObj(DebugConfig, DebugConfig.Path, DebugConfig.SavePath);
         }
 
         public static void SaveSimulateConfig()
         {
-            try
-            {
-                var json = JsonConvert.SerializeObject(SimulateConfig);
-                if (!Directory.Exists(SimulateConfig.Path))
-                {
-                    Directory.CreateDirectory(SimulateConfig.Path);
-                }
-                using (FileStream fs = new FileStream(string.Format(SimulateConfig.SavePath, MysqlConfig.Database), FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    fs.Seek(fs.Length, SeekOrigin.Current);
-
-                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
-
-                    fs.Write(data, 0, data.Length);
-
-                    fs.Close();
-                }
-            }
-            catch (Exception )
-            {
-
-            }
+            SaveJsonObj(SimulateConfig, SimulateConfig.Path, SimulateConfig.SavePath);
         }
         public static void SaveDefaultConfig()
         {
-            try
-            {
-                var json = JsonConvert.SerializeObject(DefaultConfig);
-                if (!Directory.Exists(DefaultConfig.Path))
-                {
-                    Directory.CreateDirectory(DefaultConfig.Path);
-                }
-                using (FileStream fs = new FileStream(DefaultConfig.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
-                {
-                    fs.Seek(fs.Length, SeekOrigin.Current);
-
-                    byte[] data = System.Text.Encoding.UTF8.GetBytes(json);
-
-                    fs.Write(data, 0, data.Length);
-
-                    fs.Close();
-                }
-            }
-            catch (Exception )
-            {
-
-            }
+            SaveJsonObj(DefaultConfig, DefaultConfig.Path, DefaultConfig.SavePath);
         }
         public static void SaveBigConifg()
         {
+            SaveJsonObj(BigConifg, BigConifg.Path, BigConifg.SavePath);
+        }
+
+        public static void SaveAlertLightConfig()
+        {
+            SaveJsonObj(AlertLightConfig, DevLightConfig.Path, DevLightConfig.SavePath);
+        }
+
+        #region[保存配置文件]
+        public static void SaveJsonObj(object obj, string dirpath, string savepath)
+        {
             try
             {
-                var json = JsonConvert.SerializeObject(BigConifg);
-                if (!Directory.Exists(BigConifg.Path))
+                var json = JsonConvert.SerializeObject(obj);
+                if (!Directory.Exists(dirpath))
                 {
-                    Directory.CreateDirectory(BigConifg.Path);
+                    Directory.CreateDirectory(dirpath);
                 }
-                using (FileStream fs = new FileStream(BigConifg.SavePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+                using (FileStream fs = new FileStream(savepath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
                 {
                     fs.Seek(fs.Length, SeekOrigin.Current);
 
@@ -244,11 +194,13 @@ namespace tool.appconfig
 
             }
         }
+        #endregion
 
         public static MysqlConfig MysqlConfig { get; set; }
         public static DebugConfig DebugConfig { get; set; }
         public static SimulateConfig SimulateConfig { get; set; }
         public static DefaultConfig DefaultConfig { get; set; }
         public static BigConifg BigConifg { get; set; }
+        public static DevLightConfig AlertLightConfig { get; set; }
     }
 }

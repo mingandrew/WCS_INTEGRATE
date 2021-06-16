@@ -65,6 +65,7 @@
 
         public static string EnableDownTrackOrder = nameof(EnableDownTrackOrder);     //开关-启用下砖顺序存放（下砖时按轨道顺序存放）
 
+        public static string AllowClearTask = nameof(AllowClearTask);     //开关-允许清除任务
         #endregion
 
         #region[接力倒库、倒库同时上砖开关]

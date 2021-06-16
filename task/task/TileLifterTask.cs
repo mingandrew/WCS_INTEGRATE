@@ -3,6 +3,7 @@ using module.device;
 using module.deviceconfig;
 using socket.tcp;
 using System;
+using tool.appconfig;
 
 namespace task.task
 {
@@ -165,6 +166,22 @@ namespace task.task
         }
         #endregion
 
+        #region[报警灯]
+
+        /// <summary>
+        /// 是否有报警灯信息
+        /// </summary>
+        public DevLight Config_Light { set; get; }
+        /// <summary>
+        /// 灯亮
+        /// </summary>
+        public bool LightOn { get => DevStatus.AlertLightStatus == 1; }
+        /// <summary>
+        /// 灯灭
+        /// </summary>
+        public bool LightOff { get => DevStatus.AlertLightStatus == 0; }
+        #endregion
+
         #region[构造/启动/停止]
         public TileLifterTcp DevTcp { set; get; }
         public DevTileLifter DevStatus { set; get; }
@@ -232,6 +249,11 @@ namespace task.task
         internal void DoTileShiftSignal(TileAlertShiftE ts)
         {
             DevTcp?.SendCmd(DevLifterCmdTypeE.复位转产, (byte)ts, 0, 0);
+        }
+
+        internal void DoLight(TileLightShiftE light)
+        {
+            DevTcp?.SendCmd(DevLifterCmdTypeE.开关灯, (byte)light, 0, 0);
         }
 
         internal void SetInTaskStatus(bool status)
