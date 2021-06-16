@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using module.device;
+using module.goods;
 using module.msg;
 using module.track;
 using module.window;
@@ -24,13 +25,19 @@ namespace wcs.ViewModel
         public TrackViewModel() : base("Track")
         {
             _tracklist = new ObservableCollection<TrackView>();
+            _out_tracklist = new ObservableCollection<TrackView>();
             InitAreaRadio();
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.TrackStatusUpdate, TrackStatusUpdate);
+            Messenger.Default.Register<MsgAction>(this, MsgToken.StockSumeUpdate, StockSumeUpdate);
+
             InitTrask();
 
-            DeviceView = System.Windows.Data.CollectionViewSource.GetDefaultView(TrackList);
-            DeviceView.Filter = new Predicate<object>(OnFilterMovie);
+            TrackView = System.Windows.Data.CollectionViewSource.GetDefaultView(TrackList);
+            TrackView.Filter = new Predicate<object>(OnFilterMovie);
+
+            OutTrackView = System.Windows.Data.CollectionViewSource.GetDefaultView(OutTrackList);
+            OutTrackView.Filter = new Predicate<object>(OnFilterMovie);
             CheckIsSingle();
         }
 
@@ -53,14 +60,17 @@ namespace wcs.ViewModel
             }
             return true;
         }
+
         private void InitAreaRadio()
         {
             AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
+
         #region[字段]
         private bool showareafilter = true;
         private ObservableCollection<TrackView> _tracklist;
-        private TrackView _trackselected;
+        private ObservableCollection<TrackView> _out_tracklist;
+        private TrackView _trackselected, _outtrackselected;
 
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0, filtertracktype = 0;
@@ -80,7 +90,8 @@ namespace wcs.ViewModel
             set => Set(ref _arearadio, value);
         }
 
-        public ICollectionView DeviceView { set; get; }
+        public ICollectionView TrackView { set; get; }
+        public ICollectionView OutTrackView { set; get; }
 
         public ObservableCollection<TrackView> TrackList
         {
@@ -88,10 +99,22 @@ namespace wcs.ViewModel
             set => Set(ref _tracklist, value);
         }
 
+        public ObservableCollection<TrackView> OutTrackList
+        {
+            get => _out_tracklist;
+            set => Set(ref _out_tracklist, value);
+        }
+
         public TrackView TrackSelected
         {
             get => _trackselected;
             set => Set(ref _trackselected, value);
+        }
+
+        public TrackView OutTrackSelected
+        {
+            get => _outtrackselected;
+            set => Set(ref _outtrackselected, value);
         }
 
         #endregion
@@ -103,18 +126,15 @@ namespace wcs.ViewModel
 
         private void TrackUpdate(string tag)
         {
-            if(TrackSelected == null)
+            string[] tags = tag.Split(':');
+            if(tags != null && tags.Length > 1 && int.TryParse(tags[0], out int type) && int.TryParse(tags[1], out int value))
             {
-                Growl.Warning("请先选择轨道!");
-                return;
-            }
+                if (!GetSelectTrackId(value, out uint trackid)) return;
 
-            if(int.TryParse(tag, out int type))
-            {
                 switch (type)
                 {
                     case 1://启用
-                        if(!PubMaster.Track.SetTrackStatus(TrackSelected.Id, TrackStatusE.启用, out string result, "PC手动"))
+                        if(!PubMaster.Track.SetTrackStatus(trackid, TrackStatusE.启用, out string result, "PC手动"))
                         {
                             Growl.Warning(result);
                             return;
@@ -123,7 +143,7 @@ namespace wcs.ViewModel
 
                         break;
                     case 2://停用
-                        if (!PubMaster.Track.SetTrackStatus(TrackSelected.Id, TrackStatusE.停用, out result, "PC手动"))
+                        if (!PubMaster.Track.SetTrackStatus(trackid, TrackStatusE.停用, out result, "PC手动"))
                         {
                             Growl.Warning(result);
                             return;
@@ -131,28 +151,28 @@ namespace wcs.ViewModel
                         Growl.Success("修改成功！");
                         break;
                     case 3://空砖
-                        if (!PubMaster.Track.SetStockStatus(TrackSelected.Id, TrackStockStatusE.空砖, out result, "PC手动"))
+                        if (!PubMaster.Track.SetStockStatus(trackid, TrackStockStatusE.空砖, out result, "PC手动"))
                         {
                             Growl.Warning(result);
                             return;
                         }
                         break;
                     case 4://有砖
-                        if (!PubMaster.Track.SetStockStatus(TrackSelected.Id, TrackStockStatusE.有砖, out result, "PC手动"))
+                        if (!PubMaster.Track.SetStockStatus(trackid, TrackStockStatusE.有砖, out result, "PC手动"))
                         {
                             Growl.Warning(result);
                             return;
                         }
                         break;
                     case 5://满砖
-                        if (!PubMaster.Track.SetStockStatus(TrackSelected.Id, TrackStockStatusE.满砖, out result, "PC手动"))
+                        if (!PubMaster.Track.SetStockStatus(trackid, TrackStockStatusE.满砖, out result, "PC手动"))
                         {
                             Growl.Warning(result);
                             return;
                         }
                         break;
                     case 6://仅上砖
-                        if (!PubMaster.Track.SetTrackStatus(TrackSelected.Id, TrackStatusE.仅上砖, out result, "PC手动"))
+                        if (!PubMaster.Track.SetTrackStatus(trackid, TrackStatusE.仅上砖, out result, "PC手动"))
                         {
                             Growl.Warning(result);
                             return;
@@ -160,7 +180,7 @@ namespace wcs.ViewModel
                         Growl.Success("修改成功！");
                         break;
                     case 7://仅下砖
-                        if (!PubMaster.Track.SetTrackStatus(TrackSelected.Id, TrackStatusE.仅下砖, out result, "PC手动"))
+                        if (!PubMaster.Track.SetTrackStatus(trackid, TrackStatusE.仅下砖, out result, "PC手动"))
                         {
                             Growl.Warning(result);
                             return;
@@ -183,6 +203,33 @@ namespace wcs.ViewModel
             }
         }
 
+        public bool GetSelectTrackId(int type, out uint trackid)
+        {
+            if(type == 1)
+            {
+                if(TrackSelected != null)
+                {
+                    trackid = TrackSelected.Id;
+                    return true;
+                }
+
+                Growl.Warning("请在左列表选择轨道！");
+            }
+
+            if(type == 2)
+            {
+                if (OutTrackSelected != null)
+                {
+                    trackid = OutTrackSelected.Id;
+                    return true;
+                }
+
+                Growl.Warning("请在右列表选择轨道！");
+            }
+            trackid = 0;
+            return false;
+        }
+
         #endregion
 
         #region[方法]
@@ -202,11 +249,16 @@ namespace wcs.ViewModel
             List<Track> trasks = PubMaster.Track.GetTrackList();
             foreach (Track track in trasks)
             {
+                TrackView view = new TrackView(track);
+                view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(track.id));
                 if (track.Type == TrackTypeE.储砖_入
-                    || track.Type == TrackTypeE.储砖_出
                     || track.Type == TrackTypeE.储砖_出入)
                 {
-                    TrackList.Add(new TrackView(track));
+                    TrackList.Add(view);
+                }
+                else if (track.Type == TrackTypeE.储砖_出)
+                {
+                    OutTrackList.Add(view);
                 }
             }
         }
@@ -216,7 +268,6 @@ namespace wcs.ViewModel
             if (msg.o1 is Track track)
             {
                 if (track.Type == TrackTypeE.储砖_入
-                    || track.Type == TrackTypeE.储砖_出
                     || track.Type == TrackTypeE.储砖_出入)
                 {
                     Application.Current.Dispatcher.Invoke(() =>
@@ -230,6 +281,49 @@ namespace wcs.ViewModel
                         view.Update(track);
                     });
                 }
+
+                if (track.Type == TrackTypeE.储砖_出)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        TrackView view = OutTrackList.FirstOrDefault(c => c.Id == track.id);
+                        if (view == null)
+                        {
+                            view = new TrackView(track);
+                            OutTrackList.Add(view);
+                        }
+                        view.Update(track);
+                    });
+                }
+            }
+        }
+
+
+        private void StockSumeUpdate(MsgAction msg)
+        {
+            if (msg.o1 is StockSum sum)
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    switch (sum.TrackType)
+                    {
+                        case TrackTypeE.储砖_入:
+                        case TrackTypeE.储砖_出入:
+                            TrackView view = TrackList.FirstOrDefault(c => c.Id == sum.track_id);
+                            if (view != null)
+                            {
+                                view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(sum.track_id));
+                            }
+                            break;
+                        case TrackTypeE.储砖_出:
+                            TrackView outview = OutTrackList.FirstOrDefault(c => c.Id == sum.track_id);
+                            if (outview != null)
+                            {
+                                outview.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(sum.track_id));
+                            }
+                            break;
+                    }
+                });
             }
         }
 
@@ -240,7 +334,7 @@ namespace wcs.ViewModel
                 if (uint.TryParse(btn.Tag.ToString(), out uint type))
                 {
                     filtertracktype = type;
-                    DeviceView.Refresh();
+                    TrackView.Refresh();
                 }
             }
         }
@@ -252,7 +346,8 @@ namespace wcs.ViewModel
                 TrackSelected = null;
                 filterareaid = radio.AreaID;
                 filterlineid = radio.Line;
-                DeviceView.Refresh();
+                TrackView.Refresh();
+                OutTrackView.Refresh();
             }
         }
 

@@ -29,6 +29,7 @@ namespace wcs.Data.View
         private ushort right_distance;
         private int max_store;
         private string memo;
+        private ushort stock_qty;
         private SolidColorBrush trackbrush, trackfbrush, stockbrush;
 
         #region[轨道状态]
@@ -98,6 +99,12 @@ namespace wcs.Data.View
         {
             get => memo;
             set => Set(ref memo, value);
+        }
+
+        public ushort StockQty
+        {
+            get => stock_qty;
+            set => Set(ref stock_qty, value);
         }
 
         public SolidColorBrush TrackBrush
@@ -174,6 +181,11 @@ namespace wcs.Data.View
                 default:
                     break;
             }
+        }
+
+        public void UpdateStockQty(ushort qty)
+        {
+            StockQty = qty;
         }
     }
 }
