@@ -152,7 +152,30 @@ namespace resource.goods
                 }
             );
 
-            return stocks;
+            List<Stock> afterlist = new List<Stock>();
+
+            if (stocks.Count > 0)
+            {
+                List<uint> nowuptilegood = PubMaster.DevConfig.GetUpTileGood();
+                List<uint> preuptilegood = PubMaster.DevConfig.GetUpTilePreGood();
+
+                if (nowuptilegood != null && nowuptilegood.Count > 0)
+                {
+                    List<Stock> nowlist = stocks.FindAll(c => nowuptilegood.Exists(n => n == c.goods_id));
+                    afterlist.AddRange(nowlist);
+                    stocks.RemoveAll(c => nowuptilegood.Exists(n => n == c.goods_id));
+                }
+
+                if (preuptilegood != null && preuptilegood.Count > 0 && stocks.Count > 0)
+                {
+                    List<Stock> prelist = stocks.FindAll(c => preuptilegood.Exists(n => n == c.goods_id));
+                    afterlist.AddRange(prelist);
+                    stocks.RemoveAll(c => preuptilegood.Exists(n => n == c.goods_id));
+                }
+            }
+
+            afterlist.AddRange(stocks);
+            return afterlist;
         }
 
         /// <summary>
