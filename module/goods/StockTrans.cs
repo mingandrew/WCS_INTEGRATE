@@ -62,23 +62,11 @@ namespace module.goods
         /// 是否已经释放放货摆渡车
         /// </summary>
         public bool IsReleaseGiveFerry { set; get; }
+
         /// <summary>
         /// 作业的取砖放砖信号
         /// </summary>
         public bool IsSignalProcess { set; get; }
-
-        public bool IsSiteSame(StockTrans trans)
-        {
-            return take_track_id == trans.take_track_id || give_track_id == trans.give_track_id
-                || take_track_id == trans.give_track_id || give_track_id == trans.take_track_id;
-        }
-
-        public bool HaveTrack(uint tra1_id, uint tra2_id)
-        {
-            return take_track_id == tra1_id || give_track_id == tra1_id
-                || take_track_id == tra2_id || give_track_id == tra2_id
-                || finish_track_id == tra2_id || finish_track_id == tra1_id;
-        }
 
         /// <summary>
         /// 任务步骤信息
