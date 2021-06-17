@@ -350,7 +350,7 @@ namespace task.trans.transtask
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
 
             // 【不允许接力 && 轨道有其他小车】
-            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask)
+            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask)
                 && PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
             {
                 #region 【任务步骤记录】

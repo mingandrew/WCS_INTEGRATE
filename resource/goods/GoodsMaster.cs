@@ -932,6 +932,7 @@ namespace resource.goods
 
                     StockSumChangeGood(trackid, goodid);
                     SortSumList();
+                    SendTrackStockQtyChangeMsg(trackid);
                     return true;
                 }
                 finally { Monitor.Exit(_so); }
@@ -984,6 +985,8 @@ namespace resource.goods
                 sums[0].goods_id = goodid;
                 sums[0].produce_time = GetEarliestTime(trackid);
                 SendSumMsg(sums[0], ActionTypeE.Update);
+
+                SendTrackStockQtyChangeMsg(trackid);
             }
             else if (sums.Count > 0)
             {
@@ -1007,6 +1010,8 @@ namespace resource.goods
                 StockSumList.Add(newsum);
 
                 SendSumMsg(newsum, ActionTypeE.Add);
+
+                SendTrackStockQtyChangeMsg(trackid);
             }
         }
 
@@ -1211,6 +1216,8 @@ namespace resource.goods
             }
             catch { }
             StockSumChange(stock, 0);
+            SendTrackStockQtyChangeMsg(stock.track_id);
+
             if (stock.PosType == StockPosE.头部)
             {
                 CheckStockTop(stock.track_id);
@@ -1243,7 +1250,9 @@ namespace resource.goods
                 StockList.Remove(s);
                 PubMaster.Mod.GoodSql.DeleteStock(s);
                 StockSumChange(s, 0);
+                SendTrackStockQtyChangeMsg(s.track_id);
             }
+
         }
 
         /// <summary>
@@ -1296,6 +1305,7 @@ namespace resource.goods
                 }
                 catch { }
                 StockSumChange(s, 0);
+                SendTrackStockQtyChangeMsg(s.track_id);
             }
         }
 
@@ -1587,6 +1597,10 @@ namespace resource.goods
                 //}
 
                 #endregion
+
+
+                SendTrackStockQtyChangeMsg(from_track_id);
+                SendTrackStockQtyChangeMsg(to_track_id);
             }
         }
 
@@ -2306,6 +2320,15 @@ namespace resource.goods
         }
 
         /// <summary>
+        /// 轨道库存数量编号
+        /// </summary>
+        /// <param name="trackid"></param>
+        private void SendTrackStockQtyChangeMsg(uint trackid)
+        {
+            Messenger.Default.Send(trackid, MsgToken.TrackStockQtyUpdate);
+        }
+
+        /// <summary>
         /// 刷新轨道的库存概况
         /// </summary>
         /// <param name="trackId"></param>
@@ -2340,6 +2363,8 @@ namespace resource.goods
                 }
                 SortSumList();
             }
+
+            SendTrackStockQtyChangeMsg(trackId);
         }
         #endregion
 

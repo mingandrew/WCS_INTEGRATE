@@ -723,11 +723,16 @@ namespace task.trans
         {
             try
             {
-                //是否忽略倒库任务绑定的轨道
+                //是否开启【接力倒库轨道可以同时上砖】
                 bool ignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+                //是否开启【出入倒库轨道可以同时上砖】
+                bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
+
                 return TransList.Exists(c => !c.finish
-                            && (!ignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
-                            && c.InTrack(trackid));
+                            && c.InTrack(trackid)
+                            && (!ignoresort || c.NotInType(TransTypeE.上砖侧倒库))
+                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务)));
             }
             catch { }
             return true;

@@ -29,7 +29,7 @@ namespace wcs.ViewModel
             InitAreaRadio();
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.TrackStatusUpdate, TrackStatusUpdate);
-            Messenger.Default.Register<MsgAction>(this, MsgToken.StockSumeUpdate, StockSumeUpdate);
+            Messenger.Default.Register<uint>(this, MsgToken.TrackStockQtyUpdate, TrackStockQtyUpdate);
 
             InitTrask();
 
@@ -301,29 +301,24 @@ namespace wcs.ViewModel
         }
 
 
-        private void StockSumeUpdate(MsgAction msg)
+        private void TrackStockQtyUpdate(uint trackid)
         {
-            if (msg.o1 is StockSum sum)
+            if (trackid >0)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    switch (sum.TrackType)
+                    TrackView view = TrackList.FirstOrDefault(c => c.Id == trackid);
+                    if (view != null)
                     {
-                        case TrackTypeE.储砖_入:
-                        case TrackTypeE.储砖_出入:
-                            TrackView view = TrackList.FirstOrDefault(c => c.Id == sum.track_id);
-                            if (view != null)
-                            {
-                                view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(sum.track_id));
-                            }
-                            break;
-                        case TrackTypeE.储砖_出:
-                            TrackView outview = OutTrackList.FirstOrDefault(c => c.Id == sum.track_id);
-                            if (outview != null)
-                            {
-                                outview.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(sum.track_id));
-                            }
-                            break;
+                        view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(trackid));
+                    }
+                    else
+                    {
+                        TrackView outview = OutTrackList.FirstOrDefault(c => c.Id == trackid);
+                        if (outview != null)
+                        {
+                            outview.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(trackid));
+                        }
                     }
                 });
             }
