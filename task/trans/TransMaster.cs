@@ -41,27 +41,17 @@ namespace task.trans
             List<Track> tracks = PubMaster.Track.GetFullInTrackList();
             foreach (Track track in tracks)
             {
-                //if (!PubMaster.Dic.IsAreaTaskOnoff(track.area, DicAreaTaskE.倒库)) continue;
                 if (!PubMaster.Area.IsLineSortOnoff(track.area, track.line)) continue;
+
+                if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
 
                 int count = GetAreaSortTaskCount(track.area, track.line);
                 if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
 
-                //if (PubTask.Carrier.HaveUnFinishSortCar(track.area)) continue;
-
-                //if (!PubMaster.Goods.ExistStockInTrack(track.id))
-                //{
-                //    PubMaster.Warn.AddTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id, track.name);
-                //    continue;
-                //}
-                //else
-                //{
-                //    PubMaster.Warn.RemoveTraWarn(WarningTypeE.TrackFullButNoneStock, (ushort)track.id);
-                //}
-
-                if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
-
-                if (TransList.Exists(c => !c.finish && c.InTrack(track.id)))
+                //同时判断入库
+                //不判断出轨道，出现回轨分配出轨道，如果限制出轨道（回轨空轨道），很可能会进行了下一个轨道
+                //但是分配车时判断出轨道是否有任务
+                if (TransList.Exists(c => !c.finish && c.InTrack(track.id)))// || c.InTrack(track.brother_track_id)
                 {
                     continue;
                 }
@@ -88,7 +78,6 @@ namespace task.trans
 
                     PubMaster.Track.SetTrackEaryFull(track.id, false, null);
 
-                    //PubMaster.Track.SetSortTrackStatus(track.id, track.brother_track_id, TrackStatusE.启用, TrackStatusE.倒库中);
                     AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, stockid, track.id, track.brother_track_id
                         , TransStatusE.检查轨道, 0, track.line);
                 }
@@ -670,11 +659,17 @@ namespace task.trans
                                     && c.InTrack(trans.take_track_id, trans.give_track_id));
         }
 
+        /// <summary>
+        /// 是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <returns></returns>
         public bool HaveTaskSortTrackId(StockTrans trans)
         {
             return TransList.Exists(c => c.id != trans.id
+                                    && !c.finish
                                     && c.TransStaus != TransStatusE.完成
-                                    && c.IsSiteSame(trans));
+                                    && c.InTrack(trans.take_track_id, trans.give_track_id));
         }
 
         public bool HaveCarrierInTrans(StockTrans trans)
