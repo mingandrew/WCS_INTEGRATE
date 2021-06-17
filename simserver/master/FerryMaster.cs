@@ -349,6 +349,7 @@ namespace simtask.master
                 case DevFerryCmdE.自动对位:
                     break;
                 case DevFerryCmdE.终止任务:
+                    task.IsLocating = false;
                     task.DevStatus.CurrentTask = DevFerryTaskE.终止;
                     task.DevStatus.FinishTask = DevFerryTaskE.终止;
                     task.DevStatus.TargetSite = 0;

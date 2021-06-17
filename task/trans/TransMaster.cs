@@ -614,11 +614,16 @@ namespace task.trans
         {
             try
             {
-                //是否忽略倒库任务绑定的轨道
+                //是否开启【接力倒库轨道可以同时上砖】
                 bool ignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+                //是否开启【出入倒库轨道可以同时上砖】
+                bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
+
                 return TransList.Exists(c => !c.finish
-                            && (!ignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库))
-                            && (c.stock_id == stockid || c.InTrack(trackid)));
+                            && (c.stock_id == stockid || c.InTrack(trackid))
+                            && (!ignoresort || c.NotInType(TransTypeE.上砖侧倒库))
+                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务)));
             }
             catch (Exception)
             {
@@ -648,15 +653,21 @@ namespace task.trans
         /// <returns></returns>
         public bool HaveTaskInTrackButSort(StockTrans trans)
         {
-            //是否开启【倒库轨道可以同时上砖】
+            //是否开启【接力倒库轨道可以同时上砖】
             bool ignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+            //是否开启【出入倒库轨道可以同时上砖】
+            bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
 
             return TransList.Exists(c => c.id != trans.id
                                     && c.TransStaus != TransStatusE.完成
+                                    && c.InTrack(trans.take_track_id, trans.give_track_id)
                                     && (!ignoresort
-                                            || !(c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
-                                            || c.NotInType(TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
-                                    && c.InTrack(trans.take_track_id, trans.give_track_id));
+                                            || !(c.InType(TransTypeE.上砖侧倒库) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
+                                            || c.NotInType(TransTypeE.上砖侧倒库))
+                                    && (!inoutignoresort
+                                            || !(c.InType(TransTypeE.倒库任务) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
+                                            || c.NotInType(TransTypeE.倒库任务)));
         }
 
         /// <summary>
@@ -1189,10 +1200,9 @@ namespace task.trans
         /// <param name="traid"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public bool IsTrasInTransWithType(uint traid, TransTypeE type)
+        public bool IsTrasInTransWithType(uint traid, params TransTypeE[] types)
         {
-            return TransList.Exists(c => !c.finish && c.TransType == type
-                && (c.give_track_id == traid || c.take_track_id == traid || c.finish_track_id == traid));
+            return TransList.Exists(c => !c.finish && types.Contains(c.TransType) && c.InTrack(traid));
         }
 
         /// <summary>
@@ -1231,8 +1241,10 @@ namespace task.trans
                 }
             }
 
-           //允许倒库的时候上砖
-            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
+            //允许倒库的时候上砖
+            //是否开启【出入倒库轨道可以同时上砖】
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask)
+                || PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask))
             {
                 //但前面不能允许有运输车
                 if (PubTask.Carrier.ExistCarBehind(devid, givetrackid, out uint otherid))
@@ -1341,22 +1353,26 @@ namespace task.trans
         public bool CheckHaveCarrierInOutTrack(uint carrierid, uint trackid, out string result)
         {
             result = "";
+            //是否开启【接力倒库轨道可以同时上砖】
             bool isignoresorttask = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+            //是否开启【出入倒库轨道可以同时上砖】
+            bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
 
             //1.不允许，则不可以有车
             //2.允许，则不可以有非倒库车
-            if (!isignoresorttask && PubTask.Carrier.HaveInTrack(trackid, carrierid, out uint othercarid))
+            if (!isignoresorttask && !inoutignoresort && PubTask.Carrier.HaveInTrack(trackid, carrierid, out uint othercarid))
             {
                 result = string.Format("存在运输车[ {0} ]", PubMaster.Device.GetDeviceName(othercarid));
                 return true;
             }
 
-            if (isignoresorttask && PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.上砖任务, trackid, carrierid, out result))
+            if ((isignoresorttask || inoutignoresort) && PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.上砖任务, trackid, carrierid, out result))
             {
                 return true;
             }
 
-            if (isignoresorttask && ExistSortBackTask(trackid) && PubMaster.Goods.GetTrackStockCount(trackid) > 1)
+            if ((isignoresorttask || inoutignoresort) && ExistSortBackTask(trackid) && PubMaster.Goods.GetTrackStockCount(trackid) > 1)
             {
                 result = "轨道存在还车回轨的倒库任务";
                 return true;
@@ -1405,9 +1421,15 @@ namespace task.trans
             }
             if (stockid == 0) return false;
 
+            //是否开启【接力倒库轨道可以同时上砖】
+            bool isignoresorttask = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+            //是否开启【出入倒库轨道可以同时上砖】
+            bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
+
             //判断运输车是否能进入轨道
             //1.允许倒库的过程中使用同轨道上砖
-            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
+            if (isignoresorttask || inoutignoresort)
             {
                 //【使用分割点、不限制使用分割点后的库存】
                 //2.判断库存所在位置是否轨道分割点后面，并且库存不止一车
@@ -1456,9 +1478,26 @@ namespace task.trans
 
             if (stockid == 0) return false;
 
+            //是否忽略接力倒库任务绑定的轨道
+            bool isignoresorttask = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
+
+            //是否开启【出入倒库轨道可以同时上砖】
+            bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
+
+            if (!isignoresorttask && IsTrasInTransWithType(trackid, TransTypeE.上砖侧倒库))
+            {
+                return false;
+            }
+
+
+            if (!inoutignoresort && IsTrasInTransWithType(trackid, TransTypeE.倒库任务))
+            {
+                return false;
+            }
+
             //判断运输车是否能进入轨道
             //1.允许倒库的过程中使用同轨道上砖
-            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask))
+            if (isignoresorttask || inoutignoresort)
             {
                 //【使用分割点、限制使用分割点后的库存】
                 //2.判断库存所在位置是否轨道分割点后面
