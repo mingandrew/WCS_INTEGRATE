@@ -279,6 +279,7 @@ namespace wcs.ViewModel
                             TrackList.Add(view);
                         }
                         view.Update(track);
+                        view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(track.id));
                     });
                 }
 
@@ -293,6 +294,7 @@ namespace wcs.ViewModel
                             OutTrackList.Add(view);
                         }
                         view.Update(track);
+                        view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(track.id));
                     });
                 }
             }
