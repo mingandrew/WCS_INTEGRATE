@@ -99,7 +99,7 @@ namespace socket.tcp
 
         internal override void SendMsg(SocketMsgTypeE type, SocketConnectStatusE status, IDevice device)
         {
-            if (Monitor.TryEnter(mMsgMod, TimeSpan.FromSeconds(2)))
+            if (Monitor.TryEnter(mMsgMod, TimeSpan.FromMilliseconds(500)))
             {
                 try
                 {

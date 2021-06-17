@@ -490,7 +490,7 @@ namespace task.device
             if (isWcsStoping) return;
             if (mod != null)
             {
-                if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+                if (Monitor.TryEnter(_obj, TimeSpan.FromMilliseconds(500)))
                 {
                     try
                     {
