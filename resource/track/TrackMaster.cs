@@ -1357,6 +1357,9 @@ namespace resource.track
 
         /// <summary>
         /// 获取入库满砖轨道
+        /// 1.优先砖机当前上砖品种
+        /// 2.优先砖机当前预约品种
+        /// 3.按入库时间最早
         /// </summary>
         /// <returns></returns>
         public List<Track> GetFullInTrackList()

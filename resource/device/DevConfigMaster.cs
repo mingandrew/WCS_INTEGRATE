@@ -3,6 +3,7 @@ using module.device;
 using module.deviceconfig;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using tool.mlog;
 
 namespace resource.device
@@ -1039,6 +1040,28 @@ namespace resource.device
             }
             return false;
         }
+        #endregion
+
+        #region[获取品种]
+
+        /// <summary>
+        /// 获取上砖机当前品种列表
+        /// </summary>
+        /// <returns></returns>
+        public List<uint> GetUpTileGood()
+        {
+            return ConfigTileLifterList.FindAll(c => c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.goods_id)?.ToList() ?? new List<uint>() ;
+        }
+
+        /// <summary>
+        /// 获取下砖机当前预设品种列表
+        /// </summary>
+        /// <returns></returns>
+        public List<uint> GetUpTilePreGood()
+        {
+            return ConfigTileLifterList.FindAll(c => c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.pre_goodid)?.ToList() ?? new List<uint>();
+        }
+
         #endregion
 
         #endregion
