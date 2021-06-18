@@ -164,34 +164,32 @@ namespace task.device
         public DevCarrierOrderE OnGoingOrder
         {
             get => _ongoingorder;
-            set
-            {
-                if (_ongoingorder != value)
-                {
-                    if (value != DevCarrierOrderE.无)
-                    {
-                        DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ][ {1} ]", value, OnGoingTrackId));
-                    }
-                    else
-                    {
-                        DevTcp.AddStatusLog(string.Format("【完成重置】[ {0} ][ {1} ]", value, OnGoingTrackId));
-                    }
-                }
-                _ongoingorder = value;
-            }
+            set => _ongoingorder = value;
         }
 
-        public void SetOnGoingOrderWithMemo(DevCarrierOrderE order, string memo)
+        /// <summary>
+        /// 更新运输车当前任务指令
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="transid"></param>
+        /// <param name="memo"></param>
+        public void SetOnGoingOrderWithMemo(DevCarrierOrderE order, uint transid, string memo = "")
         {
             if (_ongoingorder != order)
             {
                 if (order != DevCarrierOrderE.无)
                 {
-                    DevTcp.AddStatusLog(string.Format("【发送任务】[ {0} ], {1} [ {2} ]", order, memo, OnGoingTrackId));
+                    DevTcp.AddStatusLog(string.Format("【发送任务】任务[ {0} ], 指令[ {1} ], 备注[ {2} ]", transid, order, memo));
+                }
+                else
+                {
+                    DevTcp.AddStatusLog(string.Format("【完成重置】[ {0} ]", order));
                 }
             }
             _ongoingorder = order;
         }
+
+
 
         private DevCarrierOrderE _ongoingorder = DevCarrierOrderE.无;
 
@@ -355,17 +353,10 @@ namespace task.device
         /// <param name="overRFID">结束RFID</param>
         /// <param name="overSite">结束坐标</param>
         /// <param name="moveCount">倒库数量</param>
-        internal void DoOrder(CarrierActionOrder cao, string memo = null)
+        internal void DoOrder(CarrierActionOrder cao, uint transid, string memo = null)
        {
             OnGoingTrackId = cao.ToTrackId;
-            if (memo != null)
-            {
-                SetOnGoingOrderWithMemo(cao.Order, memo);
-            }
-            else
-            {
-                OnGoingOrder = cao.Order;
-            }
+            SetOnGoingOrderWithMemo(cao.Order, transid, memo);
 
             if(cao.Order == DevCarrierOrderE.往前倒库 || cao.Order == DevCarrierOrderE.往后倒库)
             {
@@ -390,10 +381,10 @@ namespace task.device
         /// <summary>
         /// 终止指令
         /// </summary>
-        internal void DoStop(string memo)
+        internal void DoStop(uint tranid, string memo)
         {
             OnGoingTrackId = 0;
-            SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, memo);
+            SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, tranid,  memo);
             DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
         }
 
@@ -422,6 +413,12 @@ namespace task.device
             }
 
             if(CurrentTrackId == OnGoingTrackId)
+            {
+                OnGoingTrackId = 0;
+            }
+            else if(OnGoingTrackId != 0 
+                && InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库) 
+                && PubMaster.Track.IsBrotherTrack(CurrentTrackId, OnGoingTrackId))
             {
                 OnGoingTrackId = 0;
             }

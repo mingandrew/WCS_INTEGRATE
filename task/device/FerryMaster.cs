@@ -176,19 +176,19 @@ namespace task.device
                                 //上砖测轨道ID 或 下砖测轨道ID
                                 if (task.IsUpLight && task.UpTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
                                 {
-                                    task.DoStop("上定位到位", "到位锁定");
+                                    task.DoStop(0, "上定位到位", "到位锁定");
                                     Thread.Sleep(1000);
                                 }
 
                                 if (task.IsDownLight && task.DownTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
                                 {
-                                    task.DoStop("下定位到位", "到位锁定");
+                                    task.DoStop(0, "下定位到位", "到位锁定");
                                     Thread.Sleep(1000);
                                 }
 
                                 if (task.DevStatus.CurrentTask == task.DevStatus.FinishTask && task.DevStatus.TargetSite == 0)
                                 {
-                                    task.DoStop("摆渡车定位任务已完成", "摆渡车定位任务完成后，清除目标点");
+                                    task.DoStop(0, "摆渡车定位任务已完成", "摆渡车定位任务完成后，清除目标点");
                                     Thread.Sleep(1000);
                                 }
                             }
@@ -567,7 +567,7 @@ namespace task.device
         /// <param name="id"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool StopFerry(uint id, string memo, string purpose, out string result)
+        public bool StopFerry(uint transid, uint id, string memo, string purpose, out string result)
         {
             result = "";
             try
@@ -577,7 +577,7 @@ namespace task.device
                 {
                     return false;
                 }
-                task.DoStop(memo, purpose);
+                task.DoStop(transid, memo, purpose);
                 mlog.Info(true, string.Format(@"摆渡车[ {0} ], 终止[ {1} ], 目的[ {2} ]", task.Device.name, memo, purpose));
                 return true;
             }
@@ -661,7 +661,7 @@ namespace task.device
 
                     if (!IsAllowToMove(task, trackid, out result))
                     {
-                        task.DoStop("手动摆渡车定位", result);
+                        task.DoStop(0, "手动摆渡车定位", result);
                         return false;
                     }
 
@@ -671,7 +671,7 @@ namespace task.device
                         return false;
                     }
 
-                    task.DoLocate(ferrycode, task.DevConfig.track_id, trackid);
+                    task.DoLocate(0, ferrycode, task.DevConfig.track_id, trackid);
                     mlog.Info(true, string.Format(@"摆渡车[ {0} ],  手动定位[ {1} ]", task.Device.name, tra.name));
                     return true;
                 }
@@ -693,7 +693,7 @@ namespace task.device
             uint ferryid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(trackid);
             if (ferryid > 0)
             {
-                StopFerry(ferryid, memo, purpose, out string _);
+                StopFerry(0, ferryid, memo, purpose, out string _);
             }
         }
 
@@ -712,7 +712,7 @@ namespace task.device
                     {
                         if (item.IsNotDoingTask)
                         {
-                            item.DoStop(memo, "逻辑安全");
+                            item.DoStop(0, memo, "逻辑安全");
                             mlog.Info(true, string.Format(@"摆渡车[ {0} ],  [ {1} ]", item.Device.name, memo));
                         }
                     }
@@ -766,7 +766,7 @@ namespace task.device
             FerryTask task = DevList.Find(c => c.ID == id);
             if (!IsAllowToMove(task, 0, out result))
             {
-                task.DoStop(memo + "摆渡车复位原点", result);
+                task.DoStop(0, memo + "摆渡车复位原点", result);
                 return false;
             }
 
@@ -809,7 +809,7 @@ namespace task.device
         /// <param name="to_track_id"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        internal bool DoLocateFerry(uint ferryid, uint to_track_id, out string result)
+        internal bool DoLocateFerry(uint transid, uint ferryid, uint to_track_id, out string result)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -833,7 +833,7 @@ namespace task.device
                     if (task.DevStatus.TargetSite != 0 && trid != to_track_id && trid != 0)
                     {
                         Thread.Sleep(500);
-                        task.DoStop("定位完成1", "消除目标点");
+                        task.DoStop(transid, "定位完成1", "消除目标点");
                         result = string.Format("[ {0} ]: 消除残留目标点", task.Device.name, "定位完成1");
                         return false;
                     }
@@ -849,7 +849,7 @@ namespace task.device
                         else
                         {
                             Thread.Sleep(500);
-                            task.DoStop("定位完成2", "消除目标点");
+                            task.DoStop(transid, "定位完成2", "消除目标点");
                             result = string.Format("[ {0} ]: 到位执行终止, [ {1} ]", task.Device.name, "定位完成2");
                         }
 
@@ -867,7 +867,7 @@ namespace task.device
                         else
                         {
                             Thread.Sleep(500);
-                            task.DoStop("定位完成3", "消除目标点");
+                            task.DoStop(transid, "定位完成3", "消除目标点");
                             result = string.Format("[ {0} ]: 到位执行终止, [ {1} ]", task.Device.name, "定位完成3");
                         }
 
@@ -993,7 +993,7 @@ namespace task.device
                     // 发送定位
                     if (PubMaster.Track.GetTrackFerryCode(to_track_id, task.Type, out ushort trackferrycode, out result))
                     {
-                        task.DoLocate(trackferrycode, task.DevConfig.track_id, to_track_id);
+                        task.DoLocate(transid, trackferrycode, task.DevConfig.track_id, to_track_id);
                     }
                 }
             }

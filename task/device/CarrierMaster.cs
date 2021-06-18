@@ -122,7 +122,7 @@ namespace task.device
                                     // 判断是否有摆渡车
                                     if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetSite, out string result, true))
                                     {
-                                        task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 其他[ {2} ]", "摆渡车状态不对", track.Type, result));
+                                        task.DoStop(0, string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 其他[ {2} ]", "摆渡车状态不对", track.Type, result));
                                         Thread.Sleep(500);
                                     }
 
@@ -143,7 +143,7 @@ namespace task.device
                                 // 是否存在被运输车交管的摆渡车
                                 if (PubTask.TrafficControl.ExistsTrafficControl(TrafficControlTypeE.运输车交管摆渡车, task.ID, out uint ferryid))
                                 {
-                                    PubTask.Ferry.StopFerry(ferryid, "运输车交管", "逻辑", out string result);
+                                    PubTask.Ferry.StopFerry(0, ferryid, "运输车交管", "逻辑", out string result);
                                 }
 
                                 #endregion
@@ -565,7 +565,7 @@ namespace task.device
             {
                 if (task.CurrentOrder != DevCarrierOrderE.终止指令 && task.CurrentOrder != DevCarrierOrderE.无)
                 {
-                    task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 指令[ {2} ]", "手动操作小车", track?.Type, task.CurrentOrder));
+                    task.DoStop(0, string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 指令[ {2} ]", "手动操作小车", track?.Type, task.CurrentOrder));
                 }
             }
             #endregion
@@ -1165,7 +1165,7 @@ namespace task.device
                 }
 
                 // 发送指令
-                DoOrder(devid, new CarrierActionOrder()
+                DoOrder(devid, 0, new CarrierActionOrder()
                 {
                     Order = order,
                     CheckTra = checkTra,
@@ -1201,7 +1201,7 @@ namespace task.device
         /// <param name="devid"></param>
         /// <param name="cao"></param>
         /// <param name="memo">备注：非空则记录信息</param>
-        public void DoOrder(uint devid, CarrierActionOrder cao, string memo = "")
+        public void DoOrder(uint devid, uint transid, CarrierActionOrder cao, string memo = "")
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -1213,14 +1213,14 @@ namespace task.device
                         // 手动中的直接终止
                         if (task.OperateMode == DevOperateModeE.手动 || cao.Order == DevCarrierOrderE.终止指令)
                         {
-                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 模式[ {1} ], 指令[ {2} ], 备注[ {3} ]", "手动/终止指令", task.OperateMode, cao.Order, memo));
+                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 模式[ {1} ], 指令[ {2} ], 备注[ {3} ]", "手动/终止指令", task.OperateMode, cao.Order, memo));
                             return;
                         }
 
                         // 连续同类型指令 需要先终止 - 待 PLC 后续优化
                         if (task.CurrentOrder == cao.Order)
                         {
-                            task.DoStop(string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
+                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
                             return;
                         }
 
@@ -1243,7 +1243,7 @@ namespace task.device
                         mlog.Info(true, string.Format(@"[ {0} ], 交管摆渡判断：{1}", task.Device.name, result));
                         #endregion
 
-                        task.DoOrder(cao, memo);
+                        task.DoOrder(cao, transid, memo);
                     }
                 }
                 finally { Monitor.Exit(_obj); }

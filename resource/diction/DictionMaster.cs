@@ -5,6 +5,7 @@ using module.rf;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using tool.mlog;
 
 namespace resource.diction
@@ -221,7 +222,7 @@ namespace resource.diction
             result = "";
             if (PubMaster.Mod.DicSql.AddDiction(dic))
             {
-                mLog.Info(true, string.Format(@"新增字典名【{0}】", dic.name));
+                mLog.Info(true, string.Format(@"新增字典[ {0} ]", dic.ToString()));
                 Refresh(true, false);
                 return true;
             }
@@ -236,7 +237,7 @@ namespace resource.diction
                 result = "添加失败！";
                 return false;
             }
-            mLog.Info(true, string.Format(@"在字典ID【{0}】里,添加字典细节{1}", dtl.diction_id, dtl.ToString()));
+            mLog.Info(true, string.Format(@"添加子字典[ {0} ]", dtl.ToString()));
             Refresh(false, true);
             return true;
         }
@@ -245,13 +246,13 @@ namespace resource.diction
         {
             result = "";
             Diction d = GetDiction(dic.id);
-            SetValue(d, dic);
+            string log = SetValue(d, dic);
             if (!PubMaster.Mod.DicSql.EditDiction(d))
             {
                 result = "数据没有更改！";
                 return false;
             }
-            mLog.Info(true, string.Format(@"编辑字典名【{0}】", dic.name));
+            mLog.Info(true, string.Format(@"修改字典[ {0} & {1} ], {2}", dic.id, d.name, log));
             Refresh(true, false);
             return true;
         }
@@ -260,52 +261,105 @@ namespace resource.diction
         {
             result = "";
             DictionDtl d = GetDictionDtl(dtl.id);
-            SetValue(d, dtl, dicType);
+            string log = SetValue(d, dtl, dicType);
             if (!PubMaster.Mod.DicSql.EditDicDtlValue(d, dicType))
             {
                 result = "添加失败！";
                 return false;
             }
-            mLog.Info(true, string.Format(@"在字典ID【{0}】里,编辑字典细节{1}", d.diction_id, d.ToString()));
+            mLog.Info(true, string.Format(@"修改子字典[ {0} & {1} ], {2}", d.diction_id, d.name, log));
             Refresh(false, true);
             return true;
         }
 
-        public void SetValue(Diction odic, Diction ndic)
+        public string SetValue(Diction odic, Diction ndic)
         {
+            StringBuilder builder = new StringBuilder();
+            if (odic.name != ndic.name)
+            {
+                builder.Append(string.Format("名称[ {0} -> {1} ], ", odic.name, ndic.name));
+            }
             odic.name = ndic.name;
+
+            if (odic.isadd != ndic.isadd)
+            {
+                builder.Append(string.Format("添加[ {0} -> {1} ], ", odic.isadd, ndic.isadd));
+            }
             odic.isadd = ndic.isadd;
+
+            if (odic.isedit != ndic.isedit)
+            {
+                builder.Append(string.Format("编辑[ {0} -> {1} ], ", odic.isedit, ndic.isedit));
+            }
             odic.isedit = ndic.isedit;
+
+            if (odic.isdelete != ndic.isdelete)
+            {
+                builder.Append(string.Format("删除[ {0} -> {1} ], ", odic.isdelete, ndic.isdelete));
+            }
             odic.isdelete = ndic.isdelete;
+
+            if (odic.type != ndic.type)
+            {
+                builder.Append(string.Format("类型[ {0} -> {1} ], ", odic.type, ndic.type));
+            }
             odic.type = ndic.type;
+
+            if (odic.valuetype != ndic.valuetype)
+            {
+                builder.Append(string.Format("值类型[ {0} -> {1} ], ", odic.valuetype, ndic.valuetype));
+            }
             odic.valuetype = ndic.valuetype;
+
+            if (odic.authorizelevel != ndic.authorizelevel)
+            {
+                builder.Append(string.Format("等级[ {0} -> {1} ], ", odic.authorizelevel, ndic.authorizelevel));
+            }
             odic.authorizelevel = ndic.authorizelevel;
+
+            return builder.ToString();
         }
 
-        public void SetValue(DictionDtl oldv, DictionDtl newv, ValueTypeE type)
+        public string SetValue(DictionDtl oldv, DictionDtl newv, ValueTypeE type)
         {
+            StringBuilder builder = new StringBuilder();
+            if(oldv.order != newv.order)
+            {
+                builder.Append(string.Format("顺序[ {0} -> {1} ], ", oldv.order, newv.order));
+            }
             oldv.order = newv.order;
+
+            if (!oldv.name.Equals(newv.name))
+            {
+                builder.Append(string.Format("名称[ {0} -> {1} ], ", oldv.name, newv.name));
+            }
             oldv.name = newv.name;
             switch (type)
             {
                 case ValueTypeE.Integer:
+                    builder.Append(string.Format("int值[ {0} -> {1} ]", oldv.int_value, newv.int_value));
                     oldv.int_value = newv.int_value;
                     break;
                 case ValueTypeE.Boolean:
+                    builder.Append(string.Format("bool值[ {0} -> {1} ]", oldv.bool_value, newv.bool_value));
                     oldv.bool_value = newv.bool_value;
                     break;
                 case ValueTypeE.String:
+                    builder.Append(string.Format("str值[ {0} -> {1} ]", oldv.string_value, newv.string_value));
                     oldv.string_value = newv.string_value;
                     break;
                 case ValueTypeE.Double:
+                    builder.Append(string.Format("doub值[ {0} -> {1} ]", oldv.double_value, newv.double_value));
                     oldv.double_value = newv.double_value;
                     break;
                 case ValueTypeE.UInteger:
+                    builder.Append(string.Format("uint值[ {0} -> {1} ]", oldv.uint_value, newv.uint_value));
                     oldv.uint_value = newv.uint_value;
                     break;
                 default:
                     break;
             }
+            return builder.ToString();
         }
 
         #endregion

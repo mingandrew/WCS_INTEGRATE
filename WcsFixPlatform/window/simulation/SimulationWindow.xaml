@@ -66,9 +66,7 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <ToggleButton IsChecked="{Binding Working}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"
-                                                              Command="{Binding DataContext.TileChangeWorkCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                                <ToggleButton IsChecked="{Binding Working, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

@@ -189,7 +189,7 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //后退至轨道倒库
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.往前倒库,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
@@ -211,7 +211,7 @@ namespace task.trans.transtask
 
                             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
                             {
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.放砖指令
                                 });
@@ -237,7 +237,7 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //前进至摆渡车
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
@@ -286,7 +286,7 @@ namespace task.trans.transtask
 
                                 #region[先后退至点，在轨道后再执行倒库任务]
 
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
@@ -303,7 +303,7 @@ namespace task.trans.transtask
                                 //#endregion
 
                                 ////后退至轨道倒库
-                                //PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 //{
                                 //    Order = DevCarrierOrderE.往前倒库,
                                 //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
@@ -360,7 +360,7 @@ namespace task.trans.transtask
                 #endregion
 
                 //终止
-                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.终止指令
                 }, "倒库中相关任务轨道出现其他运输车");
@@ -383,7 +383,7 @@ namespace task.trans.transtask
                     #endregion
 
                     //前进放砖
-                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                     {
                         Order = DevCarrierOrderE.放砖指令,
                         CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
@@ -435,7 +435,7 @@ namespace task.trans.transtask
             if (PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
             {
                 //终止
-                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.终止指令
                 }, "前方有其他运输车将至");
@@ -451,18 +451,21 @@ namespace task.trans.transtask
             // 任务运输车前面有车
             if (PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id, out uint othercarrier))
             {
+                string othername = PubMaster.Device.GetDeviceName(othercarrier);
+                string carname = PubMaster.Device.GetDeviceName(trans.carrier_id);
+
                 //终止
-                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.终止指令
-                }, "前方存在其他运输车");
+                }, string.Format("前方存在其他运输车[ {0} ] ", othername));
 
                 if (_M.HaveCarrierInTrans(othercarrier))
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 1802, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]绑定有任务，等待其任务完成；",
-                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                        PubMaster.Device.GetDeviceName(othercarrier)));
+                        carname,
+                        othername));
                     #endregion
                     return;
                 }
@@ -471,16 +474,16 @@ namespace task.trans.transtask
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 1902, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]状态不满足(需通讯正常且启用，停止且无执行指令)；",
-                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                        PubMaster.Device.GetDeviceName(othercarrier)));
+                        carname,
+                        othername));
                     #endregion
                     return;
                 }
 
                 #region 【任务步骤记录】
                 _M.SetStepLog(trans, false, 2002, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]，尝试对其生成移车任务；",
-                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                        PubMaster.Device.GetDeviceName(othercarrier)));
+                        carname,
+                        othername));
                 #endregion
 
                 //转移到同类型轨道
@@ -501,7 +504,7 @@ namespace task.trans.transtask
                 #endregion
 
                 // 前进至点
-                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.定位指令,
                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
@@ -577,7 +580,7 @@ namespace task.trans.transtask
             if (PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
             {
                 //终止
-                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.终止指令
                 }, "前方有其他运输车将至");
@@ -593,18 +596,20 @@ namespace task.trans.transtask
             // 任务运输车前面有车
             if (PubTask.Carrier.ExistCarInFront(trans.carrier_id, trans.give_track_id, out uint othercarrier))
             {
+                string othername = PubMaster.Device.GetDeviceName(othercarrier);
+                string carname = PubMaster.Device.GetDeviceName(trans.carrier_id);
                 //终止
-                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.终止指令
-                }, "前方存在其他运输车");
+                }, string.Format("前方存在其他运输车[ {0} ]", othername));
 
                 if (_M.HaveCarrierInTrans(othercarrier))
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 1802, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]绑定有任务，等待其任务完成；",
-                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                        PubMaster.Device.GetDeviceName(othercarrier)));
+                        carname,
+                        othername));
                     #endregion
                     return;
                 }
@@ -613,16 +618,16 @@ namespace task.trans.transtask
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 1902, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]状态不满足(需通讯正常且启用，停止且无执行指令)；",
-                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                        PubMaster.Device.GetDeviceName(othercarrier)));
+                        carname,
+                        othername));
                     #endregion
                     return;
                 }
 
                 #region 【任务步骤记录】
                 _M.SetStepLog(trans, false, 2002, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]，尝试对其生成移车任务；",
-                        PubMaster.Device.GetDeviceName(trans.carrier_id),
-                        PubMaster.Device.GetDeviceName(othercarrier)));
+                        carname,
+                        othername));
                 #endregion
 
                 //转移到同类型轨道
@@ -651,7 +656,7 @@ namespace task.trans.transtask
                         if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
                         {
                             //下降放货
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.放砖指令
                             });
@@ -666,7 +671,7 @@ namespace task.trans.transtask
                         #endregion
 
                         // 前进至点
-                        PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                         {
                             Order = DevCarrierOrderE.定位指令,
                             CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
@@ -684,7 +689,7 @@ namespace task.trans.transtask
                         && !PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, torfid, 0, false)))
             {
                 //终止
-                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.终止指令
                 }, "倒库任务取消流程中");
@@ -714,7 +719,7 @@ namespace task.trans.transtask
                     #endregion
 
                     //前进至点
-                    PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                     {
                         Order = DevCarrierOrderE.定位指令,
                         CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),

@@ -186,7 +186,7 @@ namespace wcs.ViewModel
                         break;
 
                     case 5://中止
-                        if (!PubTask.Ferry.StopFerry(DeviceSelected.ID, "PC终止", "人为", out string rs))
+                        if (!PubTask.Ferry.StopFerry(0, DeviceSelected.ID, "PC终止", "人为", out string rs))
                         {
                             Growl.Info(rs);
                             return;

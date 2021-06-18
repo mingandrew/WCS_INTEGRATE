@@ -1094,7 +1094,7 @@ namespace task.trans
 
             return ferryid != 0
                 && PubTask.Ferry.TryLock(trans, ferryid, carriertrackid)
-                && PubTask.Ferry.DoLocateFerry(ferryid, locatetrackid, out result);
+                && PubTask.Ferry.DoLocateFerry(trans.id, ferryid, locatetrackid, out result);
             //&& PubTask.Carrier.IsStopFTask(trans.carrier_id, track); 移出单独判断，考虑无缝上摆渡，不卡运输车
         }
 
@@ -1274,7 +1274,7 @@ namespace task.trans
         /// <param name="carrier_id"></param>
         /// <param name="track_id"></param>
         /// <returns></returns>
-        public bool CheckTopStockAndSendSortTask(uint carrier_id, uint track_id)
+        public bool CheckTopStockAndSendSortTask(uint tranid, uint carrier_id, uint track_id)
         {
             //1.打开使用-开关(使用上砖侧分割点坐标)
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return false;
@@ -1309,7 +1309,7 @@ namespace task.trans
                 }
                 ushort stockqty = PubMaster.Goods.GetTrackStockCount(track.id);
                 //后退至轨道倒库
-                PubTask.Carrier.DoOrder(carrier_id, new CarrierActionOrder()
+                PubTask.Carrier.DoOrder(carrier_id, tranid, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.往前倒库,
                     CheckTra = track.ferry_down_code,

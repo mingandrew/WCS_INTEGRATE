@@ -163,7 +163,7 @@ namespace task.trans.transtask
                         if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
                         {
                             //下降放货
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.放砖指令
                             });
@@ -190,7 +190,7 @@ namespace task.trans.transtask
                             #endregion
 
                             //后退至摆渡车
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.定位指令,
                                 CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
@@ -270,7 +270,7 @@ namespace task.trans.transtask
                                     torfid = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
                                 }
                                 //后退取砖
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.取砖指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
@@ -327,7 +327,7 @@ namespace task.trans.transtask
                                     torfid = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
                                 }
                                 //后退取砖
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.取砖指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
@@ -400,7 +400,7 @@ namespace task.trans.transtask
                             #endregion
 
                             //前进至摆渡车
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.定位指令,
                                 CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
@@ -538,7 +538,7 @@ namespace task.trans.transtask
                                         PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
                                     }
                                     cao.ToTrackId = trans.give_track_id;
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, cao);
+                                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
                                     return;
                                 }
                             }
@@ -801,7 +801,7 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //前进至点
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
@@ -849,7 +849,7 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //前进至摆渡车
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
@@ -944,7 +944,7 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //前进至点
-                                PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
@@ -1006,7 +1006,7 @@ namespace task.trans.transtask
                             #endregion
 
                             //后退至摆渡车
-                            PubTask.Carrier.DoOrder(trans.carrier_id, new CarrierActionOrder()
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.定位指令,
                                 CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),

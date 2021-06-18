@@ -330,7 +330,7 @@ namespace task.device
                 if (IsAllowToMoveForFerry(ctl.control_id, ctl.to_track_id, out res))
                 {
                     // 让交管车定位到结束点
-                    if (PubTask.Ferry.DoLocateFerry(ctl.control_id, ctl.to_track_id, out res))
+                    if (PubTask.Ferry.DoLocateFerry(ctl.id, ctl.control_id, ctl.to_track_id, out res))
                     {
                         //SetStatus(ctl, TrafficControlStatusE.已完成, result);
                         //return;
