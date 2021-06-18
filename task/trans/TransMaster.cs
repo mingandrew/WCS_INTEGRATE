@@ -179,7 +179,8 @@ namespace task.trans
                     case MoveTypeE.转移占用轨道://优先到空轨道
 
                         // 优先移动到空轨道
-                        List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
+                        //List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
+                        List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(track.area, track.line, totracktype);
 
                         List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, track.order);
 
