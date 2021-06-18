@@ -426,12 +426,19 @@ namespace task.trans.transtask
                     int behindstockcount = PubMaster.Goods.GetBehindPointStockCount(trans.give_track_id, nowpoint);
 
                     //分段接力
-                    bool separesort = (PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber) && (0 != PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line)));
+                    bool separesort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber) && (0 != PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line));
 
                     //分段接力接力完成有库存，则后退等待全部库存出完
                     if (separesort && trackstockcount >= 1)
                     {
                         dowait = true;
+                    }
+
+                    //砖机不再使用该品种
+                    if (behindstockcount <= 0 && !PubMaster.DevConfig.IsHaveSameTileNowGood(trans.goods_id, TileWorkModeE.上砖))
+                    {
+                        _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
+                        dowait = false;
                     }
 
                     if (dowait)
@@ -785,8 +792,16 @@ namespace task.trans.transtask
                 }
             }
 
+            //砖机不再使用该品种
+            bool nonetileusegood = false;
+            if(!PubMaster.DevConfig.IsHaveSameTileNowGood(trans.goods_id, TileWorkModeE.上砖))
+            {
+                nonetileusegood = true;
+                _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
+            }
+
             //前面没有库存，继续倒库
-            if (upnonestock || onestockcarloadit)
+            if (upnonestock || onestockcarloadit || nonetileusegood)
             {
                 #region[前进定位然后再接力]
                 ////运输车当前脉冲

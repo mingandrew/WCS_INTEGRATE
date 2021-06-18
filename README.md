@@ -315,5 +315,5 @@ ALTER TABLE `diction_dtl` ADD COLUMN `level` tinyint(3) UNSIGNED NULL COMMENT '�
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (75, 8, 'AllowClearTask', '开关-是否能使用平板清除按钮', NULL, NULL, '是否能使用平板清除按钮', NULL, NULL, NULL, NULL, NULL); 
 
 
-# 2021.06.17 添加字典控制是否能使用平板清除按钮
+# 2021.06.17 添加开关-允许出入倒库时可以上砖
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (76, 8, 'UpTaskIgnoreInoutSortTask', '开关-允许出入倒库时可以上砖', NULL, NULL, '开关-允许出入倒库时可以上砖', NULL, NULL, NULL, NULL, NULL);
