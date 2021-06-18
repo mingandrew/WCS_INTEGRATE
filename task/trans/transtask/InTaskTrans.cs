@@ -677,7 +677,8 @@ namespace task.trans.transtask
                             && PubMaster.Track.IsTrackType(trans.give_track_id, TrackTypeE.储砖_出入))
                         {
                             // 优先移动到空轨道
-                            List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出入);
+                            //List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出入);
+                            List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出入);
 
                             List<uint> tids = PubMaster.Track.SortTrackIdsWithLineOrder(trackids, track.id, PubMaster.Track.GetTrack(track.id).order);
 
