@@ -236,14 +236,14 @@ namespace task.task
         /// <param name="trackcode"></param>
         /// <param name="ltrack"></param>
         /// <param name="recodeTraid"></param>
-        internal void DoLocate(ushort trackcode, uint ltrack, uint recodeTraid)
+        internal void DoLocate(uint transid, ushort trackcode, uint ltrack, uint recodeTraid)
         {
             // 记录点未清零，不发其他定位
             if (RecordTraId > 0 && RecordTraId != recodeTraid) return;
 
             // 记录目标点
             RecordTraId = recodeTraid;
-            DevTcp.AddStatusLog(string.Format("记录目标[ {0} ]", PubMaster.Track.GetTrackName(RecordTraId)));
+            DevTcp.AddStatusLog(string.Format("任务[ {0} ], 记录目标[ {1} ]", transid, PubMaster.Track.GetTrackName(RecordTraId)));
 
             int speed = 2; // 快速移动
 
@@ -290,12 +290,12 @@ namespace task.task
         /// 终止
         /// </summary>
         /// <param name="memo"></param>
-        internal void DoStop(string memo, string purpose)
+        internal void DoStop(uint transid, string memo, string purpose)
         {
             DevTcp?.SendCmd(DevFerryCmdE.终止任务, 0, 0, 0);
             // 清除 记录目标点
             RecordTraId = 0;
-            DevTcp.AddStatusLog(string.Format("终止[ {0} ], 目的[ {1} ]", memo, purpose));
+            DevTcp.AddStatusLog(string.Format("任务[ {0} ], 终止[ {1} ], 目的[ {2} ]", transid, memo, purpose));
         }
 
         internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber, string memo)

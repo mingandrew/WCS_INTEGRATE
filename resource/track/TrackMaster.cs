@@ -1129,7 +1129,13 @@ namespace resource.track
             return storecount;
         }
 
-        internal bool IsBrotherTrack(uint taketrackid, uint givetrackid)
+        /// <summary>
+        /// 判断轨道是否为兄弟轨道
+        /// </summary>
+        /// <param name="taketrackid"></param>
+        /// <param name="givetrackid"></param>
+        /// <returns></returns>
+        public bool IsBrotherTrack(uint taketrackid, uint givetrackid)
         {
             return TrackList.Exists(c => c.id == taketrackid && c.brother_track_id == givetrackid);
         }

@@ -20,5 +20,11 @@ namespace module.diction
         {
             get => (ValueTypeE)valuetype;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Id[ {0} ], 名称[ {1} ], 类型[ {2} & {3} ], 可加[ {4} ], 可编辑[ {5} ], 可删除[ {6} ], 等级[ {7} ], 值类型[ {8} & {9} ]",
+                 id, name, Type, type, isadd, isedit, isdelete, authorizelevel, ValueType, valuetype);
+        }
     }
 }

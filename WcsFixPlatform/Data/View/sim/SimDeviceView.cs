@@ -7,16 +7,22 @@ namespace wcs.Data.View.sim
 {
     public class SimDeviceView : ViewModelBase
     {
-        private bool working;
+        private bool? working;
         public uint area_id { set; get; }
         public ushort line_id { set; get; }
         public string dev_name { set; get; }
         public uint dev_id { set; get; }
         public DeviceTypeE DevType { set; get; }
-        public bool Working
+        public bool? Working
         {
             get => working;
-            set => Set(ref working, value);
+            set
+            {
+                if(Set(ref working, value))
+                {
+                    SimServer.TileLifter.StartOrStopWork(dev_id, (bool)value);
+                }
+            }
         }
         public bool IsTwoTrackTile { set; get; }
 
