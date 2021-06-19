@@ -905,6 +905,17 @@ namespace task.trans
                 PubMaster.Track.GetTrackName(trackid)));
         }
 
+        /// <summary>
+        /// 运输车取砖失败的记录
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="memo"></param>
+        internal void LogForCarrierGetStockFalse(StockTrans trans)
+        {
+            SetStepLog(trans, false, 409, string.Format("[ {0} ]运输车取砖空砖，请检查取砖光电是否异常不亮，(如运输车在储砖轨道请核实轨道库存)，最后给运输车发终止指令；",
+                PubMaster.Device.GetDeviceName(trans.carrier_id)));
+        }
+
         #endregion
 
         #region 轨道（code-500~599）
