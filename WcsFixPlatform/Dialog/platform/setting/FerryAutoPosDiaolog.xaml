@@ -56,7 +56,7 @@
             <StackPanel Grid.Row="5" Grid.ColumnSpan="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,30,0,10">
 
                 <Button Width="150" Height="40" Margin="0,0,50,0" Tag="doshift" Command="{Binding ClearCmd}"
-                        Style="{StaticResource ButtonDanger}" Content="清空其他轨道" FontSize="20"/>
+                        Style="{StaticResource ButtonDanger}" Content="清理无关轨道" FontSize="20"/>
 
                 <Button Width="150" Height="40" Margin="50,0,0,0" Tag="doshift" Command="{Binding ComfirmCmd}"  
                         Style="{StaticResource ButtonPrimary}" Content="确定发送对位" FontSize="20"/>

@@ -78,7 +78,6 @@
                             <MenuItem Header="满砖" Tag="5:1" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                             <MenuItem Header="仅上砖" Tag="6:1" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                             <MenuItem Header="仅下砖" Tag="7:1" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                            <!--<MenuItem Header="清空优先" Tag="8:1" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
                         </ContextMenu>
                     </DataGrid.ContextMenu>
 
@@ -173,7 +172,6 @@
                             <MenuItem Header="满砖" Tag="5:2" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                             <MenuItem Header="仅上砖" Tag="6:2" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                             <MenuItem Header="仅下砖" Tag="7:2" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                            <!--<MenuItem Header="清空优先" Tag="8:2" Command="{Binding TrackUpdateCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
                         </ContextMenu>
                     </DataGrid.ContextMenu>
 
@@ -197,7 +195,7 @@
                         <DataGridTextColumn Binding="{Binding Type}" Header="类型" Visibility="Collapsed"/>
                         <DataGridTemplateColumn>
                             <DataGridTemplateColumn.Header>
-                                <TextBlock Text="轨道"/>
+                                <TextBlock Text="状态"/>
                             </DataGridTemplateColumn.Header>
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

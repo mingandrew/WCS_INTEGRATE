@@ -22,7 +22,7 @@
             <TextBlock Text="{Binding SelectFerryName}" Width="140" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
             <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding DeviceSelectedCmd}" FontSize="16" Height="35"/>
             <Button Content="清除" Style="{StaticResource ButtonInfo}" Tag="cleardev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
-            <Button Content="停止" Style="{StaticResource ButtonDanger}" Tag="stopdev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
+            <Button Content="终止" Style="{StaticResource ButtonDanger}" Tag="stopdev" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0" FontSize="16" Height="35"/>
             <Button Content="刷新轨道坐标" Style="{StaticResource ButtonPrimary}" Command="{Binding QueryPosCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10,0,0,0"  FontSize="16" Height="35"
                     Visibility="{Binding SHOWFERRYPOS, Converter={StaticResource Boolean2VisibilityConverter}}"/>
             <TextBlock Text="← 务必在摆渡车【自动对位】完成后刷新一次重获对位数据" Style="{StaticResource TextBlockDefaultDanger}" FontSize="10" Margin="5,0,0,0" 
@@ -49,13 +49,13 @@
                 <RowDefinition MinHeight="45"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LTRB}">
-                <TextBlock Text="光电" Style="{StaticResource TextBlockLarge}"/>
+                <TextBlock Text="到位信号" Style="{StaticResource TextBlockLarge}"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="0"  Style="{StaticResource MBorder_L}">
-                <TextBlock Text="上砖" Style="{StaticResource TextBlockSubTitle}"/>
+                <TextBlock Text="前侧" Style="{StaticResource TextBlockSubTitle}"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_L}">
-                <TextBlock Text="下砖" Style="{StaticResource TextBlockSubTitle}"/>
+                <TextBlock Text="后侧" Style="{StaticResource TextBlockSubTitle}"/>
             </Border>
             <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_L}">
                 <Grid>
@@ -132,10 +132,10 @@
                 <Button Content="设置" Style="{StaticResource ButtonPrimary}" Tag="updatesetpos" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
             </Border>
             <Border Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTB}">
-                <Button Content="前进复位" Style="{StaticResource ButtonPrimary}" Tag="leftreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+                <Button Content="前进回原点" Style="{StaticResource ButtonPrimary}" Tag="leftreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
             </Border>
             <Border Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTRB}">
-                <Button Content="后退复位" Style="{StaticResource ButtonPrimary}" Tag="rightreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+                <Button Content="后退回原点" Style="{StaticResource ButtonPrimary}" Tag="rightreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
             </Border>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0" >

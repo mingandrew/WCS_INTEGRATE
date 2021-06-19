@@ -108,7 +108,7 @@
                     <DataGridTextColumn Binding="{Binding UpTrackId,Converter={StaticResource TrackId2NameConverter}}" Header="前侧站点"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="前侧光电"/>
+                            <TextBlock Text="前侧到位信号"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -127,7 +127,7 @@
                     <DataGridTextColumn Binding="{Binding DownTrackId,Converter={StaticResource TrackId2NameConverter}}" Header="后侧站点"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
-                            <TextBlock Text="后侧光电"/>
+                            <TextBlock Text="后侧到位信号"/>
                         </DataGridTemplateColumn.Header>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -144,7 +144,6 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding WorkMode}" Header="操作模式"/>
-                    <DataGridTextColumn Binding="{Binding Reserve}" Header="预留" Visibility="Collapsed"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
