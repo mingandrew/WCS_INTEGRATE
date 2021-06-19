@@ -41,11 +41,11 @@ namespace simserver.simsocket.process
             st.SetLevel = dev.SetLevel;
             st.NeedSytemShift = (byte)(dev.NeedSytemShift ? 0x01 : 0x00);
             st.BackupShiftDev = dev.BackupShiftDev;
-            st.AlertLightStatus = dev.alertlightstatus;
-            st.Reserve2 = dev.reserve2;
-            st.Reserve3 = dev.reserve3;
-            st.Reserve4 = dev.reserve4;
-            st.Reserve5 = dev.reserve5;
+            st.AlertLightStatus = dev.AlertLightStatus;
+            st.Reserve2 = dev.Reserve2;
+            st.Reserve3 = dev.Reserve3;
+            st.Reserve4 = dev.Reserve4;
+            st.MarkCode = dev.MarkCode;
 
             st.Tail = ShiftBytes(SimSocketConst.TAIL_KEY);
 

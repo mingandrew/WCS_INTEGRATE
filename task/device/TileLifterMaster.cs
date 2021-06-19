@@ -325,7 +325,7 @@ namespace task.device
 
                             #region[报警灯逻辑]
 
-                            if(task.Config_Light != null && task.Config_Light.HaveLight)
+                            if (task.Config_Light != null && task.Config_Light.HaveLight)
                             {
                                 bool havewarn = false;
                                 //自管砖机本身的报警信息
@@ -374,7 +374,11 @@ namespace task.device
                         {
                             if (task.IsEnable && task.IsConnect)
                             {
-                                task.DoQuery();
+                                // 超过 10s 没有更新过设备状态就查询一次
+                                if (task.IsRefreshTimeOver(10))
+                                {
+                                    task.DoQuery();
+                                }
                             }
                         }
                     }
@@ -615,7 +619,8 @@ namespace task.device
                         PubTask.Ping.RemovePing(task.Device.ip);
                     }
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 mlog.Error(true, ex.StackTrace);
             }
@@ -748,6 +753,7 @@ namespace task.device
                             {
                                 task.ReSetRefreshTime();
                                 task.DevStatus = tilelifter;
+                                task.DoReply(); // 接收后回复PLC
                                 CheckDev(task);
 
                                 if (tilelifter.IsUpdate
@@ -825,7 +831,7 @@ namespace task.device
 
             #region[检查基础信息]
 
-            if(task.DevConfig == null)
+            if (task.DevConfig == null)
             {
                 mlog.Warn(true, task.ID + "：没有 config");
                 return;
@@ -948,7 +954,7 @@ namespace task.device
             #region[自动离开]
 
             //工位1
-            if(!task.IsNeed_1 && task.IsInvo_1)
+            if (!task.IsNeed_1 && task.IsInvo_1)
             {
                 bool isOK = false;
                 switch (task.DevConfig.WorkMode)
@@ -1082,7 +1088,7 @@ namespace task.device
                     }
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid, 
+                        !IsAllowToWorkForCutover(gid, task.DevConfig.pre_goodid,
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckInStrategy(task, task.DevConfig.left_track_id, gid);
@@ -1128,7 +1134,7 @@ namespace task.device
                     if (task.HaveBrother)
                     {
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
-                        if (!brotask.IsInvo_1 && brotask.IsEmpty_1 && brotask.ConnStatus == SocketConnectStatusE.通信正常) 
+                        if (!brotask.IsInvo_1 && brotask.IsEmpty_1 && brotask.ConnStatus == SocketConnectStatusE.通信正常)
                         {
                             Thread.Sleep(1000);
                             brotask.Do1Invo(DevLifterInvolE.介入);
@@ -1147,7 +1153,7 @@ namespace task.device
                     #region[生成出库交易]
 
                     if (task.DevConfig.do_cutover &&
-                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.pre_goodid, 
+                        !IsAllowToWorkForCutover(task.DevConfig.goods_id, task.DevConfig.pre_goodid,
                                 task.DevConfig.WorkMode, task.DevConfig.WorkModeNext)) return;
 
                     bool iseffect = CheckOutStrategy(task, task.DevConfig.left_track_id);
@@ -1399,7 +1405,7 @@ namespace task.device
             #endregion
 
         }
-    
+
         /// <summary>
         /// 是否允许作为任务品种
         /// </summary>
@@ -1503,18 +1509,19 @@ namespace task.device
             stockid = 0;
             TileLifterTask tile = null;
             //查找轨道同时配置了该工位的砖机
-             List <TileLifterTask> tiles = DevList.FindAll(c => c.DevConfig.InTrack(trackid) && c.DevConfig.InTrackSite(tracksite));
-            if(tiles.Count > 0)
+            List<TileLifterTask> tiles = DevList.FindAll(c => c.DevConfig.InTrack(trackid) && c.DevConfig.InTrackSite(tracksite));
+            if (tiles.Count > 0)
             {
                 tile = tiles[0];
-            }else
+            }
+            else
             {
                 //查找配置轨道的所有砖机
                 tiles = DevList.FindAll(c => c.DevConfig.InTrack(trackid));
                 foreach (var item in tiles)
                 {
                     //如果工位1数量达到满砖数量则设置为该砖机
-                    if(item.DevConfig.left_track_id == trackid && item.DevStatus.Site1Qty == item.DevStatus.FullQty)
+                    if (item.DevConfig.left_track_id == trackid && item.DevStatus.Site1Qty == item.DevStatus.FullQty)
                     {
                         tile = item;
                         break;
@@ -1528,7 +1535,7 @@ namespace task.device
                     }
                 }
 
-                if(tile == null)
+                if (tile == null)
                 {
                     tile = tiles[0];
                 }
@@ -1620,7 +1627,7 @@ namespace task.device
                     PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -1728,7 +1735,7 @@ namespace task.device
                     //PubMaster.Goods.AddStockOutLog(stock.id, tiletrackid, tileid);
                     isallocate = true;
                     break;
-                    
+
                 }
             }
 
@@ -1811,7 +1818,7 @@ namespace task.device
 
         internal List<TileLifterTask> GetDevTileLifters(List<uint> areaids)
         {
-            return DevList.FindAll(c=>areaids.Contains(c.AreaId));
+            return DevList.FindAll(c => areaids.Contains(c.AreaId));
         }
 
         internal List<TileLifterTask> GetDevTileLifters(List<DeviceTypeE> types)
@@ -2454,12 +2461,13 @@ namespace task.device
         {
             uint gid = 0;
             TileLifterTask task = GetTileLifter(tileid);
-            if(task != null)
+            if (task != null)
             {
-                if(task.DevConfig.left_track_id == trackid)
+                if (task.DevConfig.left_track_id == trackid)
                 {
                     gid = task.DevStatus.Goods1;
-                }else if(task.DevConfig.right_track_id == trackid)
+                }
+                else if (task.DevConfig.right_track_id == trackid)
                 {
                     gid = task.DevStatus.Goods1;
                 }

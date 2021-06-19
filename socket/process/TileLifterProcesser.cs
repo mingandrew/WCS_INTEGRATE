@@ -29,12 +29,12 @@ namespace socket.process
         public byte SetLevel;       //设定等级
         public byte Site2Qty;       //工位2数量
         public byte NeedSytemShift; //砖机需转产信号
-        public byte BackupShiftDev; //切换砖机设备号
+        public byte BackupShiftDev; //备用机-切换砖机设备号
         public byte AlertLightStatus;       //报警灯状态
         public byte Reserve2;       //预留2
         public byte Reserve3;       //预留3
         public byte Reserve4;       //预留4
-        public byte Reserve5;       //预留5
+        public byte MarkCode;       //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         public ushort Tail;         //命令字尾【0xFF,0xFE】
     }
 
@@ -50,7 +50,8 @@ namespace socket.process
         public byte Command;   //控制码
         public byte Value1;         //值1
         public byte Value2;        //值2
-        public uint Value3;          //值3
+        public uint Value3;          //值3-6
+        public byte Value7;        //值7
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
@@ -73,8 +74,6 @@ namespace socket.process
 
             mDev.ReSetUpdate();
             mDev.DeviceID = st.DeviceID;
-            //mDev.Load1 = st.LoadStatus1 == 1;
-            //mDev.Load2 = st.LoadStatus2 == 1;
             mDev.LoadStatus1 = (DevLifterLoadE)st.LoadStatus1;
             mDev.LoadStatus2 = (DevLifterLoadE)st.LoadStatus2;
             mDev.Need1 = st.NeedStatus1 == 1;
@@ -95,23 +94,26 @@ namespace socket.process
             mDev.NeedSytemShift = st.NeedSytemShift == 1;
             mDev.BackupShiftDev = st.BackupShiftDev;
             mDev.AlertLightStatus = st.AlertLightStatus;
-            mDev.reserve2 = st.Reserve2;
-            mDev.reserve3 = st.Reserve3;
-            mDev.reserve4 = st.Reserve4;
-            mDev.reserve5 = st.Reserve5;
+            mDev.Reserve2 = st.Reserve2;
+            mDev.Reserve3 = st.Reserve3;
+            mDev.Reserve4 = st.Reserve4;
+            mDev.MarkCode = st.MarkCode;
             return mDev;
         }
 
-        internal byte[] GetCmd(string devid, DevLifterCmdTypeE type, byte value1, byte value2, uint value3)
+        internal byte[] GetCmd(string devid, DevLifterCmdTypeE type, byte value1, byte value2, uint value3, byte mark)
         {
-            TileCmdStruct cmd = new TileCmdStruct();
-            cmd.Head = ShiftBytes(SocketConst.TILELIFTER_CMD_HEAD_KEY);
-            cmd.DeviceID = byte.Parse(devid);
-            cmd.Command = (byte)type;
-            cmd.Value1 = value1;
-            cmd.Value2 = value2;
-            cmd.Value3 = ShiftBytes(value3);
-            cmd.Tail = ShiftBytes(SocketConst.TAIL_KEY);
+            TileCmdStruct cmd = new TileCmdStruct
+            {
+                Head = ShiftBytes(SocketConst.TILELIFTER_CMD_HEAD_KEY),
+                DeviceID = byte.Parse(devid),
+                Command = (byte)type,
+                Value1 = value1,
+                Value2 = value2,
+                Value3 = ShiftBytes(value3),
+                Value7 = mark,
+                Tail = ShiftBytes(SocketConst.TAIL_KEY)
+            };
 
             return StructToBuffer(cmd);
         }

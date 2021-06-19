@@ -19,22 +19,34 @@ namespace task.task
             get => DevConfig?.HaveBrother ?? true;
         }
 
+        /// <summary>
+        /// 兄弟砖机ID
+        /// </summary>
         public uint BrotherId
         {
             get => DevConfig.brother_dev_id;
         }
 
+        /// <summary>
+        /// 是否双工位
+        /// </summary>
         public bool IsTwoTrack
         {
             get => Device.Type2 == DeviceType2E.双轨;
         }
 
+        /// <summary>
+        /// 入库策略
+        /// </summary>
         public StrategyInE InStrategy
         {
             get => DevConfig?.InStrategey ?? StrategyInE.同机同轨;
             set => DevConfig.InStrategey = value;
         }
 
+        /// <summary>
+        /// 出库策略
+        /// </summary>
         public StrategyOutE OutStrategy
         {
             get => DevConfig?.OutStrategey ?? StrategyOutE.同规同轨;
@@ -48,7 +60,10 @@ namespace task.task
         {
             get => Device.TileLifterType;
         }
-        
+
+        /// <summary>
+        /// 是否允许切换作业模式
+        /// </summary>
         public bool IsCanCutover
         {
             get => DevConfig?.can_cutover ?? false;
@@ -57,113 +72,144 @@ namespace task.task
 
         #region[属性]
 
+        /// <summary>
+        /// 工位1-左-需求信号
+        /// </summary>
         public bool IsNeed_1
         {
             get => DevStatus?.Need1 ?? false;
         }
 
+        /// <summary>
+        /// 工位2-右-需求信号
+        /// </summary>
         public bool IsNeed_2
         {
             get => DevStatus?.Need2 ?? false;
         }
 
+        /// <summary>
+        /// 工位1-左-是否有货
+        /// </summary>
         public bool IsLoad_1
         {
             get => DevStatus?.Load1 ?? false;
         }
 
+        /// <summary>
+        /// 工位1-左-是否无货
+        /// </summary>
         public bool IsEmpty_1
         {
             get => !DevStatus?.Load1 ?? false;
         }
 
+        /// <summary>
+        /// 工位1-左-载货状态
+        /// </summary>
         public DevLifterLoadE LoadStatus1
         {
             get => DevStatus?.LoadStatus1 ?? DevLifterLoadE.无砖;
         }
 
+        /// <summary>
+        /// 工位2-右-是否有货
+        /// </summary>
         public bool IsLoad_2
         {
             get => DevStatus?.Load2 ?? false;
         }
+        /// <summary>
+        /// 工位2-右-是否无货
+        /// </summary>
         public bool IsEmpty_2
         {
             get => !DevStatus?.Load2 ?? false;
         }
 
+        /// <summary>
+        /// 工位2-右-载货状态
+        /// </summary>
         public DevLifterLoadE LoadStatus2
         {
             get => DevStatus?.LoadStatus2 ?? DevLifterLoadE.无砖;
         }
 
+        /// <summary>
+        /// 工位1-左-是否介入
+        /// </summary>
         public bool IsInvo_1
         {
             get => DevStatus?.Involve1 ?? false;
         }
-        
+
+        /// <summary>
+        /// 工位2-右-是否介入
+        /// </summary>
         public bool IsInvo_2
         {
             get => DevStatus?.Involve2 ?? false;
         }
 
+        /// <summary>
+        /// 工位满砖层数
+        /// </summary>
         public byte FullQty
         {
             get => DevStatus?.FullQty ?? 66;
         }
 
+        /// <summary>
+        /// 工位1-左-当前层数
+        /// </summary>
         public byte Site1Qty
         {
             get => DevStatus?.Site1Qty ?? FullQty;
         }
 
+        /// <summary>
+        /// 工位2-右-当前层数
+        /// </summary>
         public byte Site2Qty
         {
             get => DevStatus?.Site2Qty ?? FullQty;
         }
 
+        /// <summary>
+        /// 转产状态
+        /// </summary>
         public TileShiftStatusE TileShiftStatus
         {
             get => DevStatus?.ShiftStatus ?? TileShiftStatusE.完成;
         }
 
-        public bool StopOneTime { set; get; }
-
-        public bool Ignore_1 = false;//忽略1
-
-        public bool Ignore_2 = false;//忽略2
-
-        #endregion
-
-        #region[下砖/上砖策略]
+        /// <summary>
+        /// 工位1-左-是否忽略
+        /// </summary>
+        public bool Ignore_1 = false;
 
         /// <summary>
-        /// 入库策略
+        /// 工位2-右-是否忽略
         /// </summary>
-        public StrategyInE StrategyIn
-        {
-            get => DevConfig.InStrategey;
-            set => DevConfig.InStrategey = value;
-        }
+        public bool Ignore_2 = false;
 
         /// <summary>
-        /// 出库策略
+        /// 作业依据
         /// </summary>
-        public StrategyOutE StrategyOut
-        {
-            get => DevConfig.OutStrategey;
-            set => DevConfig.OutStrategey = value;
-        }
-
         public DevWorkTypeE WorkType
         {
             get => DevConfig?.WorkType ?? DevWorkTypeE.品种作业;
             set => DevConfig.WorkType = value;
         }
 
+        /// <summary>
+        /// 是否连接
+        /// </summary>
         public bool IsConnect
         {
             get => DevTcp?.IsConnected ?? false;
         }
+
         #endregion
 
         #region[报警灯]
@@ -172,14 +218,17 @@ namespace task.task
         /// 是否有报警灯信息
         /// </summary>
         public DevLight Config_Light { set; get; }
+
         /// <summary>
         /// 灯亮
         /// </summary>
         public bool LightOn { get => DevStatus.AlertLightStatus == 1; }
+
         /// <summary>
         /// 灯灭
         /// </summary>
         public bool LightOff { get => DevStatus.AlertLightStatus == 0; }
+
         #endregion
 
         #region[构造/启动/停止]
@@ -205,6 +254,7 @@ namespace task.task
             if (!DevTcp.m_Working)
             {
                 DevTcp.Start(memo);
+                DoQuery(); // 开始连接查询一次
             }
         }
 
@@ -233,7 +283,7 @@ namespace task.task
 
         internal void DoShift(TileShiftCmdE ts, byte count = 0, uint goods = 0)
         {
-            DevTcp?.SendCmd(DevLifterCmdTypeE.转产, (byte)ts,  count, goods);
+            DevTcp?.SendCmd(DevLifterCmdTypeE.转产, (byte)ts, count, goods);
         }
 
         internal void DoCutover(TileWorkModeE mode, TileFullE full)
@@ -265,6 +315,15 @@ namespace task.task
         {
             return DevStatus.Goods1 == DevStatus.Goods2;
         }
+
+        /// <summary>
+        /// 接收-回复
+        /// </summary>
+        internal void DoReply()
+        {
+            DevTcp?.SendCmd(DevLifterCmdTypeE.接收回复, 0, 0, 0, DevStatus.MarkCode);
+        }
+
         #endregion
     }
 }

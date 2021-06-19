@@ -25,13 +25,13 @@ namespace socket.tcp
 
         #region[发送信息]
 
-        public void SendCmd(DevLifterCmdTypeE type, byte value1, byte value2, uint value3)
+        public void SendCmd(DevLifterCmdTypeE type, byte value1, byte value2, uint value3, byte mark = 0)
         {
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try
                 {
-                    byte[] data = mProcess.GetCmd(mDev.memo, type, value1, value2, value3);
+                    byte[] data = mProcess.GetCmd(mDev.memo, type, value1, value2, value3, mark);
                     SendMessage(data);
                 }
                 finally

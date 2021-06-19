@@ -28,11 +28,11 @@ namespace module.device
 
         private bool needsystemshift; //砖机需转产信号
         private byte backupshiftdev; //切换砖机设备号
-        public byte alertlightstatus;       //报警灯状态
-        public byte reserve2;       //预留2
-        public byte reserve3;       //预留3
-        public byte reserve4;       //预留4
-        public byte reserve5;       //预留5
+        private byte alertlightstatus;       //报警灯状态
+        private byte reserve2;       //预留2
+        private byte reserve3;       //预留3
+        private byte reserve4;       //预留4
+        private byte markcode;       //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         #endregion
 
         #region[属性]
@@ -45,15 +45,6 @@ namespace module.device
             set => Set(ref deviceid, value);
             get => deviceid;
         }
-
-        /// <summary>
-        /// 货物状态1 左
-        /// </summary>
-        //public bool Load1
-        //{
-        //    set => Set(ref isload1, value);
-        //    get => isload1;
-        //}
 
         /// <summary>
         /// 货物状态1 左
@@ -72,15 +63,6 @@ namespace module.device
             set => Set(ref isload1, (byte)value);
             get => (DevLifterLoadE)isload1;
         }
-
-        /// <summary>
-        /// 货物状态2 右
-        /// </summary>
-        //public bool Load2
-        //{
-        //    set => Set(ref isload2,value);
-        //    get => isload2;
-        //}
 
         /// <summary>
         /// 货物状态2 右
@@ -105,7 +87,7 @@ namespace module.device
         /// </summary>
         public bool Need1
         {
-            set => Set(ref isneed1,value);
+            set => Set(ref isneed1, value);
             get => isneed1;
         }
 
@@ -235,23 +217,69 @@ namespace module.device
             get => setlevel;
         }
 
+        /// <summary>
+        /// 转产信号
+        /// </summary>
         public bool NeedSytemShift
         {
             get => needsystemshift;
             set => Set(ref needsystemshift, value);
         }
 
+        /// <summary>
+        /// 备用选用设备号
+        /// </summary>
         public byte BackupShiftDev
         {
             get => backupshiftdev;
             set => Set(ref backupshiftdev, value);
         }
 
+        /// <summary>
+        /// 报警灯
+        /// </summary>
         public byte AlertLightStatus
         {
             get => alertlightstatus;
             set => Set(ref alertlightstatus, value);
         }
+
+        /// <summary>
+        /// 预留2
+        /// </summary>
+        public byte Reserve2
+        {
+            set => Set(ref reserve2, value);
+            get => reserve2;
+        }
+
+        /// <summary>
+        /// 预留3
+        /// </summary>
+        public byte Reserve3
+        {
+            set => Set(ref reserve3, value);
+            get => reserve3;
+        }
+
+        /// <summary>
+        /// 预留4
+        /// </summary>
+        public byte Reserve4
+        {
+            set => Set(ref reserve4, value);
+            get => reserve4;
+        }
+
+        /// <summary>
+        /// 标识码（PLC发送的码，需要PC进行控制码0x88回复）
+        /// </summary>
+        public byte MarkCode
+        {
+            set => Set(ref markcode, value);
+            get => markcode;
+        }
+
         #endregion
 
         #region[日志]
@@ -259,9 +287,11 @@ namespace module.device
         public override string ToString()
         {
             return string.Format("物1[ {0} ], 物2[ {1} ], 需1[ {2} ], 需2[ {3} ], 满[ {4} ], 工1[ {5} ], 工2[ {6} ], 介1[ {7} ], 介2[ {8} ], 操作[ {9} ], " +
-                "位1[ {10} ], 位2[ {11} ], 转产[ {12} ], 接收[ {13} ], 模式[ {14} ], 设定品种[ {15} ], 设定等级[ {16} ], 转产信号[ {17} ], 备用设备[ {18} ], 灯[ {19} ]",
-                LoadStatus1, LoadStatus2, S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,  
-                Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel, S(NeedSytemShift), BackupShiftDev, AlertLightStatus);
+                "位1[ {10} ], 位2[ {11} ], 转产[ {12} ], 接收[ {13} ], 模式[ {14} ], 设品[ {15} ], 设级[ {16} ], 转产信号[ {17} ], 备用设备[ {18} ], " +
+                "灯[ {19} ], 预2[ {20} ], 预3[ {21} ], 预4[ {22} ], 标识码[ {23} ]",
+                LoadStatus1, LoadStatus2, S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,
+                Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel, S(NeedSytemShift), BackupShiftDev,
+                AlertLightStatus, Reserve2, Reserve3, Reserve4, MarkCode);
         }
 
         private string S(bool v)
