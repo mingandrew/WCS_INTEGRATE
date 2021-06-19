@@ -279,7 +279,7 @@ namespace wcs.ViewModel
                     MessageBoxResult rs2 = HandyControl.Controls.MessageBox.Show(tip2, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if(rs2 == MessageBoxResult.OK || rs2 == MessageBoxResult.Yes)
                     {
-                        ReSetFerry(DevFerryResetPosE.前进复位);
+                        ReSetFerry(DevFerryResetPosE.前进回原点);
                     }
                     break;
                 case "rightreset":
@@ -287,7 +287,7 @@ namespace wcs.ViewModel
                     MessageBoxResult rs3 = HandyControl.Controls.MessageBox.Show(tip3, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (rs3 == MessageBoxResult.OK || rs3 == MessageBoxResult.Yes)
                     {
-                        ReSetFerry(DevFerryResetPosE.后退复位);
+                        ReSetFerry(DevFerryResetPosE.后退回原点);
                     }
                     break;
                 case "showferry":

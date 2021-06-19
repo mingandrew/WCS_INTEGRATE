@@ -53,13 +53,13 @@
 
     public enum DevFerryResetPosE
     {
-        前进复位 = 1,
-        后退复位 = 2
+        前进回原点 = 1,
+        后退回原点 = 2
     }
 
     public enum DevFerryAutoPosE
     {
-        上砖侧对位 = 1,
-        下砖侧对位 = 2
+        前侧对位 = 1,
+        后侧对位 = 2
     }
 }

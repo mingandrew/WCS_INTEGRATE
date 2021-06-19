@@ -94,12 +94,12 @@ namespace wcs.ViewModel
             if (((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.下摆渡)
                 || STARTTRACKCODE > 500 && STARTTRACKCODE < 600))
             {
-                AUTOPOSSIDE = DevFerryAutoPosE.上砖侧对位;
+                AUTOPOSSIDE = DevFerryAutoPosE.前侧对位;
             }
             if ((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.上摆渡)
                 || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200))
             {
-                AUTOPOSSIDE = DevFerryAutoPosE.下砖侧对位;
+                AUTOPOSSIDE = DevFerryAutoPosE.后侧对位;
             }
         }
         private void Comfirm()
