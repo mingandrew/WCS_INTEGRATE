@@ -29,7 +29,7 @@
         internal const ushort FEERY_SITE_HEAD_KEY = 0x9503;
         internal const ushort FERRY_CMD_HEAD_KEY = 0x9401;
 
-        internal const byte FERRY_STATUS_SIZE = 19;
+        internal const byte FERRY_STATUS_SIZE = 20;
         internal const byte FERRY_SPEED_SIZE = 19;
         internal const byte FERRY_SITE_SIZE = 19;
 

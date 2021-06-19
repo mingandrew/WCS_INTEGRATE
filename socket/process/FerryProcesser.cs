@@ -21,7 +21,8 @@ namespace socket.process
         public byte WorkMode;      //作业模式
         public byte DownLight;       //下砖侧光电
         public byte UpLight;     //上砖侧光电
-        public byte Reserve;       //预留
+        public byte Reserve;       //报警码
+        public byte MarkCode;       //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         public ushort Tail; //命令字尾【0xFF,0xFE】
 
     }
@@ -82,7 +83,8 @@ namespace socket.process
         public byte Commond; //控制码
         public byte Value1;  //值1
         public byte Value2;  //值2
-        public int Value3;//值3
+        public int Value3;//值3-6
+        public byte Value7;//值7
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
@@ -97,6 +99,7 @@ namespace socket.process
         public byte Value4;
         public byte Value5;
         public byte Value6;
+        public byte Value7;
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
@@ -135,6 +138,7 @@ namespace socket.process
             mDev.DownLight = st.DownLight == 1;
             mDev.UpLight = st.UpLight == 1;
             mDev.Reserve = st.Reserve;
+            mDev.MarkCode = st.MarkCode;
 
             return mDev;
         }
@@ -147,7 +151,7 @@ namespace socket.process
             mDevSite.DeviceID = st.DeviceID;
             mDevSite.TrackCode = ShiftBytes(st.TrackCode);
             mDevSite.TrackPos = ShiftBytes(st.TrackPos);
-            mDevSite.NowTrackPos= ShiftBytes(st.NowTrackPos);
+            mDevSite.NowTrackPos = ShiftBytes(st.NowTrackPos);
             mDevSite.Reserve = st.Reserve1;
 
             return mDevSite;
@@ -158,30 +162,35 @@ namespace socket.process
             return new IDevice();
         }
 
-        internal byte[] GetCmd(string devid, DevFerryCmdE type, byte b1, byte b2, int int3)
+        internal byte[] GetCmd(string devid, DevFerryCmdE type, byte b1, byte b2, int int3, byte mark)
         {
-            FerryCmdStruct cmd = new FerryCmdStruct();
-            cmd.Head = ShiftBytes(SocketConst.FERRY_CMD_HEAD_KEY);
-            cmd.DeviceID = byte.Parse(devid);
-            cmd.Commond = (byte)type;
-            cmd.Value1 = b1;
-            cmd.Value2 = b2;
-            cmd.Value3 =  ShiftBytes(int3);
-            cmd.Tail = ShiftBytes(SocketConst.TAIL_KEY);
+            FerryCmdStruct cmd = new FerryCmdStruct
+            {
+                Head = ShiftBytes(SocketConst.FERRY_CMD_HEAD_KEY),
+                DeviceID = byte.Parse(devid),
+                Commond = (byte)type,
+                Value1 = b1,
+                Value2 = b2,
+                Value3 = ShiftBytes(int3),
+                Value7 = mark,
+                Tail = ShiftBytes(SocketConst.TAIL_KEY)
+            };
             return StructToBuffer(cmd);
         }
 
         internal byte[] GetAutoPosCmd(string devid, DevFerryCmdE type, byte b1, byte b2, byte b3, byte b4)
         {
-            FerryAutoPosCmdStruct cmd = new FerryAutoPosCmdStruct();
-            cmd.Head = ShiftBytes(SocketConst.FERRY_CMD_HEAD_KEY);
-            cmd.DeviceID = byte.Parse(devid);
-            cmd.Commond = (byte)type;
-            cmd.Value1 = b1;
-            cmd.Value2 = b2;
-            cmd.Value3 = b3;
-            cmd.Value4 = b4;
-            cmd.Tail = ShiftBytes(SocketConst.TAIL_KEY);
+            FerryAutoPosCmdStruct cmd = new FerryAutoPosCmdStruct
+            {
+                Head = ShiftBytes(SocketConst.FERRY_CMD_HEAD_KEY),
+                DeviceID = byte.Parse(devid),
+                Commond = (byte)type,
+                Value1 = b1,
+                Value2 = b2,
+                Value3 = b3,
+                Value4 = b4,
+                Tail = ShiftBytes(SocketConst.TAIL_KEY)
+            };
             return StructToBuffer(cmd);
         }
 

@@ -18,7 +18,8 @@ namespace module.device
         private byte workmode;      //作业模式
         private bool downlight;       //上砖侧光电
         private bool uplight;     //下砖侧光电
-        private byte reserve;       //预留
+        private byte reserve;       //报警码
+        private byte markcode;       //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         #endregion
 
         #region[属性]
@@ -28,28 +29,43 @@ namespace module.device
             set => Set(ref deviceid, value);
             get => deviceid;
         }
-        public DevFerryStatusE DeviceStatus  //设备状态   
+
+        /// <summary>
+        /// 设备状态
+        /// </summary>
+        public DevFerryStatusE DeviceStatus
         {
             set => Set(ref devicestatus, (byte)value);
             get => (DevFerryStatusE)devicestatus;
         }
+
+        /// <summary>
+        /// 目标轨道编号
+        /// </summary>
         public ushort TargetSite  //目标值   
         {
             set => Set(ref targetsite, value);
             get => targetsite;
         }
-        public DevFerryTaskE CurrentTask   //当前任务   
+
+        /// <summary>
+        /// 当前指令
+        /// </summary>
+        public DevFerryTaskE CurrentTask
         {
             set => Set(ref currenttask, (byte)value);
             get => (DevFerryTaskE)currenttask;
         }
 
+        /// <summary>
+        /// 当前轨道编号（前侧）
+        /// </summary>
         public ushort UpSite //当前值   
         {
-            set 
+            set
             {
                 IsUpSiteChange = false;
-                if(Set(ref upsite, value))
+                if (Set(ref upsite, value))
                 {
                     IsUpSiteChange = true;
                 }
@@ -57,7 +73,10 @@ namespace module.device
 
             get => upsite;
         }
-        
+
+        /// <summary>
+        /// 当前轨道编号（后侧）
+        /// </summary>
         public ushort DownSite //当前值   
         {
             set
@@ -71,41 +90,68 @@ namespace module.device
             get => downsite;
         }
 
-        public DevFerryTaskE FinishTask    //完成任务   
+        /// <summary>
+        /// 完成指令
+        /// </summary>
+        public DevFerryTaskE FinishTask
         {
             set => Set(ref finishtask, (byte)value);
             get => (DevFerryTaskE)finishtask;
         }
-        public DevFerryLoadE LoadStatus    //载货状态   
+
+        /// <summary>
+        /// 载货状态   
+        /// </summary>
+        public DevFerryLoadE LoadStatus
         {
             set => Set(ref loadstatus, (byte)value);
             get => (DevFerryLoadE)loadstatus;
         }
 
-        public DevOperateModeE WorkMode      //作业模式   
+        /// <summary>
+        /// 操作模式
+        /// </summary>
+        public DevOperateModeE WorkMode
         {
             set => Set(ref workmode, (byte)value);
             get => (DevOperateModeE)workmode;
         }
 
-        public bool DownLight       //下砖侧光电   
+        /// <summary>
+        /// 后侧到位信号
+        /// </summary>
+        public bool DownLight
         {
             set => Set(ref downlight, value);
             get => downlight;
         }
 
-        public bool UpLight     //上砖测光电   
+        /// <summary>
+        /// 前侧到位信号
+        /// </summary>
+        public bool UpLight
         {
             set => Set(ref uplight, value);
             get => uplight;
         }
 
-        public byte Reserve       //预留   
+        /// <summary>
+        /// 报警码
+        /// </summary>
+        public byte Reserve
         {
             set => Set(ref reserve, value);
             get => reserve;
         }
 
+        /// <summary>
+        /// 标识码（PLC发送的码，需要PC进行控制码0x88回复）
+        /// </summary>
+        public byte MarkCode
+        {
+            set => Set(ref markcode, value);
+            get => markcode;
+        }
 
         #endregion
 
@@ -113,8 +159,8 @@ namespace module.device
 
         public override string ToString()
         {
-            return string.Format("状态[ {0} ], 目标[ {1} ], 任务[ {2} ], 完成[ {3} ], 上标[ {4} ], 下标[ {5} ], 货物[ {6} ], 模式[ {7} ], 上光[ {8} ], 下光[ {9} ], 预留[ {10} ]",
-                DeviceStatus, TargetSite, CurrentTask, FinishTask, UpSite, DownSite, LoadStatus, WorkMode, S(UpLight), S(DownLight), Reserve);
+            return string.Format("状态[ {0} ], 目标[ {1} ], 任务[ {2} ], 完成[ {3} ], 前标[ {4} ], 后标[ {5} ], 货物[ {6} ], 模式[ {7} ], 前到位[ {8} ], 后到位[ {9} ], 报警[ {10} ], 标识码[ {11} ]",
+                DeviceStatus, TargetSite, CurrentTask, FinishTask, UpSite, DownSite, LoadStatus, WorkMode, S(UpLight), S(DownLight), Reserve, MarkCode);
         }
         private string S(bool v)
         {

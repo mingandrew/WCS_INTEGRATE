@@ -23,37 +23,14 @@ namespace socket.tcp
             mMinProtLength = SocketConst.FERRY_SPEED_SIZE;
         }
 
-        public void SendMessage(byte[] data)
-        {
-            if (!IsConnected)
-            {
-                return;
-            }
-
-            if (data != null && data.Any())
-            {
-                try
-                {
-                    m_Stream.Write(data, 0, data.Count());
-                    m_Stream.Flush();
-
-                    _mLog.Cmd(true, "发送：", data);
-                }
-                catch (Exception e)
-                {
-                    _mLog.Error(true, e.StackTrace);
-                }
-            }
-        }
-
         #region[发送信息]
-        public void SendCmd(DevFerryCmdE type, byte b1, byte b2, int int3)
+        public void SendCmd(DevFerryCmdE type, byte b1, byte b2, int int3, byte mark = 0)
         {
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try
                 {
-                    byte[] data = mProcess.GetCmd(mDev.memo, type, b1, b2, int3);
+                    byte[] data = mProcess.GetCmd(mDev.memo, type, b1, b2, int3, mark);
                     SendMessage(data);
                 }
                 finally
@@ -98,6 +75,28 @@ namespace socket.tcp
             }
         }
 
+        public void SendMessage(byte[] data)
+        {
+            if (!IsConnected)
+            {
+                return;
+            }
+
+            if (data != null && data.Any())
+            {
+                try
+                {
+                    m_Stream.Write(data, 0, data.Count());
+                    m_Stream.Flush();
+
+                    _mLog.Cmd(true, "发送：", data);
+                }
+                catch (Exception e)
+                {
+                    _mLog.Error(true, e.StackTrace);
+                }
+            }
+        }
 
         #endregion
 

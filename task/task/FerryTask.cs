@@ -58,7 +58,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 有货状态
+        /// 载货状态
         /// </summary>
         public DevFerryLoadE Load
         {
@@ -66,7 +66,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 下砖侧是否对上轨道
+        /// 下砖侧是否对上轨道（后侧到位信号）
         /// </summary>
         public bool IsDownLight
         {
@@ -74,7 +74,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 上砖侧是否对上轨道
+        /// 上砖侧是否对上轨道（前侧到位信号）
         /// </summary>
         public bool IsUpLight
         {
@@ -82,7 +82,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 上砖侧经过轨道号
+        /// 上砖侧经过轨道号（前侧轨道编号）
         /// </summary>
         public ushort UpSite
         {
@@ -90,7 +90,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 下砖侧经过轨道号
+        /// 下砖侧经过轨道号（后侧轨道编号）
         /// </summary>
         public ushort DownSite
         {
@@ -100,7 +100,7 @@ namespace task.task
         private uint uptraid, downtraid;
 
         /// <summary>
-        /// 上砖侧经过轨道ID
+        /// 上砖侧经过轨道ID（前侧）
         /// </summary>
         public uint UpTrackId
         {
@@ -120,7 +120,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 下砖侧经过轨道ID
+        /// 下砖侧经过轨道ID（后侧）
         /// </summary>
         public uint DownTrackId
         {
@@ -170,7 +170,7 @@ namespace task.task
         /// </summary>
         public bool IsNotDoingTask
         {
-            get => Status == DevFerryStatusE.停止 
+            get => Status == DevFerryStatusE.停止
                 && (DevStatus.CurrentTask == DevStatus.FinishTask // 当前&完成 一致
                     || DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
                     || DevStatus.CurrentTask == DevFerryTaskE.终止// 当前终止就当它没作业
@@ -207,6 +207,7 @@ namespace task.task
             if (!DevTcp.m_Working)
             {
                 DevTcp.Start(memo);
+                DoQuery(); // 开始连接查询一次
             }
         }
 
@@ -217,6 +218,12 @@ namespace task.task
         #endregion
 
         #region[判断状态]
+
+        /// <summary>
+        /// 摆渡车是否到位
+        /// </summary>
+        /// <param name="ferrycode"></param>
+        /// <returns></returns>
         public bool IsOnSite(ushort ferrycode)
         {
             return (UpSite == ferrycode && IsUpLight) || (DownSite == ferrycode && IsDownLight);
@@ -306,6 +313,13 @@ namespace task.task
                 Device.name, posside, starttrack, tracknumber, memo));
         }
 
+        /// <summary>
+        /// 接收-回复
+        /// </summary>
+        internal void DoReply()
+        {
+            DevTcp?.SendCmd(DevFerryCmdE.接收回复, 0, 0, 0, DevStatus.MarkCode);
+        }
 
         #endregion
 
@@ -450,6 +464,10 @@ namespace task.task
 
         #region  获取属性
 
+        /// <summary>
+        /// 获取摆渡车当前轨道ID
+        /// </summary>
+        /// <returns></returns>
         internal uint GetFerryCurrentTrackId()
         {
             uint trackId = 0;
@@ -468,7 +486,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 根据方向获取摆渡车所在轨道
+        /// 根据方向获取摆渡车所在轨道ID
         /// </summary>
         /// <param name="checkuplight"></param>
         /// <returns></returns>
@@ -488,7 +506,7 @@ namespace task.task
         }
 
         /// <summary>
-        /// 获取摆渡车当前所有对位轨道
+        /// 获取摆渡车当前所有对位轨道ID
         /// </summary>
         /// <returns></returns>
         internal List<uint> GetFerryCurrentTrackIds()
@@ -525,6 +543,10 @@ namespace task.task
 
         #region[清除摆渡车未配置的其他轨道对位信息]
 
+        /// <summary>
+        /// 清除摆渡车未配置的轨道对位信息
+        /// </summary>
+        /// <param name="ferryPos"></param>
         internal void StartClearOtherTrackPos(List<FerryPos> ferryPos)
         {
             _cleaning = true;
@@ -750,9 +772,9 @@ namespace task.task
         public string GetInfo()
         {
             return string.Format("摆渡车[ {0} ], 设备状态[ {1} ], 当前指令[{2} ], 完成指令[{3} ], 当前轨道[ {4} ], 目的轨道[ {5} ], 记录轨道[ {6} ]",
-                Device.name, DevStatus.DeviceStatus, DevStatus.CurrentTask, DevStatus.FinishTask, 
-                PubMaster.Track.GetTrackName(GetFerryCurrentTrackId()), 
-                PubMaster.Track.GetTrackName(TargetTrackId), 
+                Device.name, DevStatus.DeviceStatus, DevStatus.CurrentTask, DevStatus.FinishTask,
+                PubMaster.Track.GetTrackName(GetFerryCurrentTrackId()),
+                PubMaster.Track.GetTrackName(TargetTrackId),
                 PubMaster.Track.GetTrackName(RecordTraId));
         }
 

@@ -136,6 +136,8 @@ namespace task.device
                     {
                         try
                         {
+                            #region 查询对位信息
+
                             if (task.IsEnable && _IsSetting && _FerryPosSetList.Find(c => c.FerryId == task.ID) is FerryPosSet set)
                             {
                                 task.DoSiteQuery(set.QueryPos);
@@ -161,6 +163,8 @@ namespace task.device
 
                             }
 
+                            #endregion
+
                             // 手动清记录目标点
                             if (task.DevStatus.WorkMode == DevOperateModeE.手动 && task.DevStatus.TargetSite == 0)
                             {
@@ -170,6 +174,8 @@ namespace task.device
 
                             // 摆渡车反馈的报警
                             task.CheckAlert();
+
+                            #region 到位完成
 
                             if (task.IsConnect && task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                             {
@@ -192,28 +198,6 @@ namespace task.device
                                     Thread.Sleep(1000);
                                 }
                             }
-
-                            #region 上砖待命点 (单摆渡对多上砖机)
-
-                            //if (task.Type == DeviceTypeE.上摆渡 && task.Status == DevFerryStatusE.停止 &&
-                            //    task.DevStatus.CurrentTask == DevFerryTaskE.终止 && task.DevStatus.TargetSite == 0)
-                            //{
-                            //    // 当上砖机都有货，摆渡车 空车无锁定 时，移至待命点（原点 12&13 之间）
-                            //    if (task.IsFerryFree() &&
-                            //        !PubTask.Trans.IsExistsTask(task.AreaId, TransTypeE.出库) &&
-                            //        !PubTask.TileLifter.IsAnyoneNeeds(task.AreaId, DeviceTypeE.上砖机))
-                            //    {
-                            //        short trackOrder = PubMaster.Track.GetTrack(task.DownTrackId)?.order ?? 0;
-                            //        if (trackOrder != 0)
-                            //        {
-                            //            // 513
-                            //            if (trackOrder < 12 || trackOrder > 14)
-                            //            {
-                            //                task.DoLocate(513);
-                            //            }
-                            //        }
-                            //    }
-                            //}
 
                             #endregion
 
@@ -251,7 +235,11 @@ namespace task.device
                         {
                             if (task.IsEnable && task.IsConnect)
                             {
-                                task.DoQuery();
+                                // 超过 10s 没有更新过设备状态就查询一次
+                                if (task.IsRefreshTimeOver(10))
+                                {
+                                    task.DoQuery();
+                                }
                             }
                         }
                     }
@@ -452,6 +440,7 @@ namespace task.device
                                     ferry.LoadStatus = task.DevStatus.LoadStatus;
                                 }
                                 task.DevStatus = ferry;
+                                task.DoReply(); // 接收后回复PLC
                                 task.UpdateInfo();
                                 if (ferry.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, ferry.ID, 5))
                                 {
@@ -583,7 +572,7 @@ namespace task.device
             }
             catch (Exception ex)
             {
-                result = string.Format(@"摆渡车强制终止异常 : {0}:",ex.Message + ex.StackTrace);
+                result = string.Format(@"摆渡车强制终止异常 : {0}:", ex.Message + ex.StackTrace);
                 mlog.Error(true, result);
             }
             return false;
@@ -746,7 +735,7 @@ namespace task.device
                 //_FerrySiteCode = ferry_code;
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 mlog.Error(true, e);
             }
@@ -1545,7 +1534,7 @@ namespace task.device
                         long distance = 999;
                         bool isoneferry = false;
                         string allocateinfo = string.Empty;
-                        if(ferrys.Count == 1)
+                        if (ferrys.Count == 1)
                         {
                             isoneferry = true;
                         }
@@ -1574,7 +1563,7 @@ namespace task.device
                                 continue;
                             }
 
-                            if(ferryTrack.order == 0)
+                            if (ferryTrack.order == 0)
                             {
                                 allocateinfo = AddFerryAllocateLog(trans, ferry.Device.name, string.Format("摆渡所在轨道[ {0} ]未配置顺序", ferryTrack.name));
                                 continue;
@@ -1590,7 +1579,7 @@ namespace task.device
                             result = result + ferry.Device.name + ",";
                         }
 
-                        if(ferryid == 0)
+                        if (ferryid == 0)
                         {
                             if (isoneferry)
                             {
@@ -1636,13 +1625,13 @@ namespace task.device
         /// <returns></returns>
         private bool CheckFerryStatusResult(FerryTask ferry, out string result)
         {
-            if(ferry.ConnStatus != SocketConnectStatusE.通信正常)
+            if (ferry.ConnStatus != SocketConnectStatusE.通信正常)
             {
                 result = "设备通信故障";
                 return false;
             }
 
-            if(ferry.OperateMode != DevOperateModeE.自动)
+            if (ferry.OperateMode != DevOperateModeE.自动)
             {
                 result = "非自动模式";
                 return false;
@@ -1876,7 +1865,7 @@ namespace task.device
                 return false;
             }
 
-            if(totrackid != 0 && task.Type == DeviceTypeE.上摆渡 && !PubMaster.Track.IsUpAreaTrack(totrackid))
+            if (totrackid != 0 && task.Type == DeviceTypeE.上摆渡 && !PubMaster.Track.IsUpAreaTrack(totrackid))
             {
                 result = string.Format("上摆渡，不能定位到轨道[ {0} ]", PubMaster.Track.GetTrackName(totrackid));
                 return false;
@@ -1920,7 +1909,7 @@ namespace task.device
         /// <returns></returns>
         public List<uint> GetWorkingAndEnable(List<uint> ferryids)
         {
-            return DevList.FindAll(c => c.IsWorking && c.IsEnable && ferryids.Contains(c.ID))?.Select(c=>c.ID).ToList();
+            return DevList.FindAll(c => c.IsWorking && c.IsEnable && ferryids.Contains(c.ID))?.Select(c => c.ID).ToList();
         }
 
         #endregion
