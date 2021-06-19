@@ -42,7 +42,7 @@ namespace module.device
         private byte aler9;          //报警9
         private byte aler10;          //报警10
         private byte reserve3;        //预留3
-        private byte reserve4;        //预留4
+        private byte markcode;        //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         private uint currenttrackid;
         private uint targettrackid;
         #endregion
@@ -293,12 +293,12 @@ namespace module.device
         }
 
         /// <summary>
-        /// 预留4
+        /// 标识码（PLC发送的码，需要PC进行控制码0x88回复）
         /// </summary>
-        public byte Reserve4
+        public byte MarkCode
         {
-            set => Set(ref reserve4, value);
-            get => reserve4;
+            set => Set(ref markcode, value);
+            get => markcode;
         }
 
         public uint CurrentTrackId 
@@ -362,9 +362,9 @@ namespace module.device
             #endregion
 
             return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 指令[ {5} ], 完成[ {6} ], " +
-               "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], 维持时间[ {15} ]",
+               "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], 标识码[ {15} ], 维持时间[ {16} ]",
                DeviceStatus, CurrentSite, CurrentPoint, TargetSite, TargetPoint, CurrentOrder, FinishOrder,
-               LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount, GetFreeTimeStr());
+               LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount, MarkCode, GetFreeTimeStr());
         }
 
         /// <summary>
@@ -390,8 +390,8 @@ namespace module.device
         public string AlertToString()
         {
             return string.Format("一[ {0} ], 二[ {1} ], 三[ {2} ], 四[ {3} ], 五[ {4} ], 六[ {5} ], 七[ {6} ], 八[ {7} ], 九[ {8} ], 十[ {9} ]," +
-                "预1[ {10} ],预2[ {11} ],预3[ {12} ],预4[ {13}",
-                Aler1, Aler2, Aler3, Aler4, Aler5, Aler6, Aler7, Aler8, Aler9, Aler10, Reserve1, Reserve2, Reserve3, Reserve4);
+                "预1[ {10} ],预2[ {11} ],预3[ {12}",
+                Aler1, Aler2, Aler3, Aler4, Aler5, Aler6, Aler7, Aler8, Aler9, Aler10, Reserve1, Reserve2, Reserve3);
         }
 
         public string GetFreeTimeStr()

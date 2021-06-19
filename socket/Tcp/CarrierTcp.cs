@@ -24,18 +24,18 @@ namespace socket.tcp
 
 
         #region[发送信息]        
-        public void SendCmd(DevCarrierCmdE type)
+        public void SendCmd(DevCarrierCmdE type, byte mark = 0)
         {
-            if (type == DevCarrierCmdE.查询 && DateTime.Now.Subtract(lastfunctime).TotalMilliseconds <= 1000)
-            {
-                return;
-            }
+            //if (type == DevCarrierCmdE.查询 && DateTime.Now.Subtract(lastfunctime).TotalMilliseconds <= 1000)
+            //{
+            //    return;
+            //}
 
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try
                 {
-                    byte[] data = mProcess.GetCmd(mDev.memo, type);
+                    byte[] data = mProcess.GetCmd(mDev.memo, type, mark);
                     SendMessage(data);
                 }
                 finally
@@ -43,16 +43,6 @@ namespace socket.tcp
                     Monitor.Exit(_senobj);
                 }
             }
-        }
-
-        public void SendCmdNow(DevCarrierCmdE type)
-        {
-            try
-            {
-                byte[] data = mProcess.GetCmd(mDev.memo, type);
-                SendMessage(data);
-            }
-            catch { }
         }
 
         public void SendCmd(DevCarrierCmdE type, DevCarrierOrderE order,

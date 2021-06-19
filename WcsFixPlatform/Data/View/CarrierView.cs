@@ -84,7 +84,7 @@ namespace wcs.Data.View
         private byte aler9;          //报警9
         private byte aler10;          //报警10
         private byte reserve3;        //预留3
-        private byte reserve4;        //预留4
+        private byte markcode;        //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         #endregion
 
         #region[更新属性]
@@ -325,12 +325,12 @@ namespace wcs.Data.View
         }
 
         /// <summary>
-        /// 预留4
+        /// 标识码（PLC发送的码，需要PC进行控制码0x88回复）
         /// </summary>
-        public byte Reserve4
+        public byte MarkCode
         {
-            set => Set(ref reserve4, value);
-            get => reserve4;
+            set => Set(ref markcode, value);
+            get => markcode;
         }
 
         #endregion
@@ -366,7 +366,7 @@ namespace wcs.Data.View
             Reserve1 = st.Reserve1;
             Reserve2 = st.Reserve2;
             Reserve3 = st.Reserve3;
-            Reserve4 = st.Reserve4;
+            MarkCode = st.MarkCode;
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
             Working = working;

@@ -184,7 +184,11 @@ namespace task.device
                         {
                             if (task.IsEnable && task.IsConnect)
                             {
-                                task.DoQuery();
+                                // 超过 10s 没有更新过设备状态就查询一次
+                                if (task.IsRefreshTimeOver(10))
+                                {
+                                    task.DoQuery();
+                                }
                             }
                         }
                     }
@@ -502,6 +506,7 @@ namespace task.device
                             {
                                 task.ReSetRefreshTime();
                                 task.DevStatus = carrier;
+                                task.DoReply(); // 接收后回复PLC
                                 task.UpdateInfo();
                                 CheckDev(task);
 

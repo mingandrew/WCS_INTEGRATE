@@ -53,7 +53,7 @@ namespace simserver.simsocket.process
             st.Aler9 = dev.Aler9;
             st.Aler10 = dev.Aler10;
             st.Reserve3 = dev.Reserve3;
-            st.Reserve4 = dev.Reserve4;
+            st.MarkCode = dev.MarkCode;
             st.Tail = ShiftBytes(SimSocketConst.TAIL_KEY);
 
             return StructToBuffer<CarrierStatusStruct>(st); 

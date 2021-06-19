@@ -302,6 +302,7 @@ namespace task.device
             if (!DevTcp.m_Working)
             {
                 DevTcp.Start(memo);
+                DoQuery(); // 开始连接查询一次
             }
         }
 
@@ -386,6 +387,14 @@ namespace task.device
             OnGoingTrackId = 0;
             SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, tranid,  memo);
             DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
+        }
+
+        /// <summary>
+        /// 接收-回复
+        /// </summary>
+        internal void DoReply()
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.接收回复, DevStatus.MarkCode);
         }
 
         #endregion

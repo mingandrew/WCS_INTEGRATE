@@ -155,7 +155,7 @@ namespace task.task
         {
             if (OfflineTime is DateTime time
                 && DateTime.Now.Subtract(time).TotalSeconds > 10
-                && IsRefreshTimeOver())
+                && IsRefreshTimeOver(5))
             {
                 OfflineTime = DateTime.Now;
                 return true;
@@ -163,9 +163,9 @@ namespace task.task
             return false;
         }
 
-        internal bool IsRefreshTimeOver()
+        internal bool IsRefreshTimeOver(int seconds)
         {
-            return DateTime.Now.Subtract(ConnRefreshTime).TotalSeconds > 5;
+            return DateTime.Now.Subtract(ConnRefreshTime).TotalSeconds > seconds;
         }
         #endregion
     }

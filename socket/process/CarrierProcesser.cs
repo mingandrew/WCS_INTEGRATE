@@ -39,7 +39,7 @@ namespace socket.process
         public byte Aler9;          //报警9
         public byte Aler10;          //报警10
         public byte Reserve3;        //预留3
-        public byte Reserve4;        //预留4
+        public byte MarkCode;        //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         public ushort Tail; //命令字尾【0xFF,0xFE】
 
     }
@@ -68,6 +68,7 @@ namespace socket.process
         public byte Value10;        //值10
         public byte Value11;        //值11
         public byte Value12;        //值12
+        public byte Value13;        //值13
         public ushort Tail; //命令字尾【0xFF,0xFE】
 
     }
@@ -88,6 +89,7 @@ namespace socket.process
         public ushort Value8_9;        //值8-9
         public ushort Value10_11;        //值10-11
         public byte Value12;        //值12
+        public byte Value13;        //值13
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
@@ -145,7 +147,7 @@ namespace socket.process
             mDev.Aler9 = st.Aler9;
             mDev.Aler10 = st.Aler10;
             mDev.Reserve3 = st.Reserve3;
-            mDev.Reserve4 = st.Reserve4;
+            mDev.MarkCode = st.MarkCode;
             return mDev;
         }
 
@@ -155,13 +157,14 @@ namespace socket.process
         /// <param name="devid"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        internal byte[] GetCmd(string devid, DevCarrierCmdE type)
+        internal byte[] GetCmd(string devid, DevCarrierCmdE type, byte mark)
         {
             CarrierBaseCmdStruct cmd = new CarrierBaseCmdStruct
             {
                 Head = ShiftBytes(SocketConst.CARRIER_CMD_HEAD_KEY),
                 DeviceID = byte.Parse(devid),
                 Command = (byte)type,
+                Value13 = mark,
                 Tail = ShiftBytes(SocketConst.TAIL_KEY)
             };
 
