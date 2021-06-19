@@ -317,3 +317,9 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 # 2021.06.17 添加开关-允许出入倒库时可以上砖
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (76, 8, 'UpTaskIgnoreInoutSortTask', '开关-允许出入倒库时可以上砖', NULL, NULL, '开关-允许出入倒库时可以上砖', NULL, NULL, NULL, NULL, NULL);
+
+
+# 2021.06.19 添加报警：后退取砖取空
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (233, 3, 'GetStockButNull', '取砖指令完成后，没有取到砖', NULL, NULL, '运输车取砖空砖，请检查取砖光电是否异常不亮，(如运输车在储砖轨道请核实轨道库存)，最后给运输车发终止指令', NULL, NULL, NULL, NULL, NULL);
+
+UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA2X3', `name` = '小车检测到无砖', `int_value` = NULL, `bool_value` = NULL, `string_value` = '后退取砖失败，请检查有砖光电是否异常不亮，（如运输车在储砖轨道请核实轨道库存），最后给运输车发终止指令', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 111;

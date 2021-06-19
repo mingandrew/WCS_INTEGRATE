@@ -205,6 +205,18 @@ namespace task.trans.transtask
                                     return;
                                 }
 
+                                //取砖失败，报警且不能
+                                if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.取砖指令))
+                                {
+                                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.GetStockButNull, (ushort)trans.carrier_id, trans.id);
+                                    #region 【任务步骤记录】
+                                    _M.LogForCarrierGetStockFalse(trans);
+                                    #endregion
+                                    return;
+                                }
+                                PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
+
+
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                                     && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                 {
@@ -365,6 +377,18 @@ namespace task.trans.transtask
                                     #endregion
                                     return;
                                 }
+
+                                //取砖失败，报警且不能
+                                if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.取砖指令))
+                                {
+                                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.GetStockButNull, (ushort)trans.carrier_id, trans.id);
+                                    #region 【任务步骤记录】
+                                    _M.LogForCarrierGetStockFalse(trans);
+                                    #endregion
+                                    return;
+                                }
+                                PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
+
 
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                                     && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))

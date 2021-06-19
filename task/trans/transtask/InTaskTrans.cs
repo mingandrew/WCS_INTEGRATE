@@ -312,6 +312,18 @@ namespace task.trans.transtask
                     {
                         if (track.id == trans.take_track_id)
                         {
+
+                            //取砖失败，报警且不能
+                            if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.取砖指令))
+                            {
+                                PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.GetStockButNull, (ushort)trans.carrier_id, trans.id);
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierGetStockFalse(trans);
+                                #endregion
+                                return;
+                            }
+                            PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
+
                             //没有任务并且停止
                             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
                             {
