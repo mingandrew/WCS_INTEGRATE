@@ -323,3 +323,30 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (233, 3, 'GetStockButNull', '取砖指令完成后，没有取到砖', NULL, NULL, '运输车取砖空砖，请检查取砖光电是否异常不亮，(如运输车在储砖轨道请核实轨道库存)，最后给运输车发终止指令', NULL, NULL, NULL, NULL, NULL);
 
 UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA2X3', `name` = '小车检测到无砖', `int_value` = NULL, `bool_value` = NULL, `string_value` = '后退取砖失败，请检查有砖光电是否异常不亮，（如运输车在储砖轨道请核实轨道库存），最后给运输车发终止指令', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 111;
+
+
+#2021.06.21 更新小车报警 A3X6：
+UPDATE `2021_wcs_ht_yh`.`diction_dtl` SET `diction_id` = 3, `code` = 'WarningA3X6', `name` = '取砖异常，存砖定位光电异常', `int_value` = NULL, `bool_value` = NULL, `string_value` = '取砖异常，存砖定位光电异常，检查存砖定位光电是否误触发', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL WHERE `id` = 122;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
