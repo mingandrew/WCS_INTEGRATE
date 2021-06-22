@@ -12,22 +12,22 @@ namespace socket.process
         public ushort Head;  //命令字头【0x97,0x01】
         public byte DeviceID;       //设备号
         public byte DeviceStatus;   //设备状态
-        public ushort CurrentSite;  //当前RFID
+        public ushort CurrentSite;  //当前RFID（轨道编号）
         public ushort CurrentPoint;  //当前坐标
-        public ushort TargetSite;  //目的RFID
+        public ushort TargetSite;  //目的RFID（轨道编号）
         public ushort TargetPoint;  //目的坐标
-        public byte CurrentOrder;    //当前指令
-        public byte FinishOrder;     //完成指令
+        public byte CurrentOrder;    //当前执行指令
+        public byte FinishOrder;     //最近完成指令
         public byte LoadStatus;     //载货状态
         public byte Position;       //所在位置
         public byte OperateMode;    //操作模式
-        public ushort TakePoint;  //取货RFID
+        public ushort TakePoint;  //取货RFID（轨道编号）
         public ushort TakeSite;  //取货坐标
-        public ushort GivePoint;  //卸货RFID
+        public ushort GivePoint;  //卸货RFID（轨道编号）
         public ushort GiveSite;  //卸货坐标
         public byte MoveCount;  //倒库数量
-        public byte Reserve1;        //预留1
-        public byte Reserve2;        //预留2
+        public byte ResetID;        //复位点序号
+        public ushort ResetPoint;        //复位点脉冲值
         public byte Aler1;          //报警1
         public byte Aler2;          //报警2
         public byte Aler3;          //报警3
@@ -38,7 +38,7 @@ namespace socket.process
         public byte Aler8;          //报警8
         public byte Aler9;          //报警9
         public byte Aler10;          //报警10
-        public byte Reserve3;        //预留3
+        public byte OrderStep;        //指令步骤
         public byte MarkCode;        //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         public ushort Tail; //命令字尾【0xFF,0xFE】
 
@@ -134,8 +134,8 @@ namespace socket.process
             mDev.GiveSite = ShiftBytes(st.GivePoint);
             mDev.GivePoint = ShiftBytes(st.GiveSite);
             mDev.MoveCount = st.MoveCount;
-            mDev.Reserve1 = st.Reserve1;
-            mDev.Reserve2 = st.Reserve2;
+            mDev.ResetID = st.ResetID;
+            mDev.ResetPoint = st.ResetPoint;
             mDev.Aler1 = st.Aler1;
             mDev.Aler2 = st.Aler2;
             mDev.Aler3 = st.Aler3;
@@ -146,7 +146,7 @@ namespace socket.process
             mDev.Aler8 = st.Aler8;
             mDev.Aler9 = st.Aler9;
             mDev.Aler10 = st.Aler10;
-            mDev.Reserve3 = st.Reserve3;
+            mDev.OrderStep = st.OrderStep;
             mDev.MarkCode = st.MarkCode;
             return mDev;
         }

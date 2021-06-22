@@ -557,31 +557,6 @@ namespace task.trans.transtask
 
                         }
 
-                        #region[小车没有扫到地标] - 停用
-
-                        //小车离开了摆渡车但是没有扫到轨道地标
-                        //if (!ferryload
-                        //    && PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.放砖指令)
-                        //    && PubTask.Carrier.IsStopHaveTask(trans.carrier_id)
-                        //    && mTimer.IsOver(TimerTag.CarrierGiveMissTrack, trans.carrier_id, 10, 5))
-                        //{
-                        //    //1.记录小车报警
-                        //    //2.添加警告
-                        //    //3.释放摆渡车
-                        //    //4.停用轨道
-                        //    PubTask.Carrier._M.SetCarrierAlert(trans.carrier_id, trans.give_track_id, CarrierAlertE.GiveMissTrack, true);
-                        //    PubMaster.Warn.AddDevWarn(WarningTypeE.CarrierGiveMissTrack, (ushort)trans.carrier_id, trans.id, trans.give_track_id);
-                        //    PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id);
-                        //    PubMaster.Track.SetTrackStatus(trans.give_track_id, TrackStatusE.停用, out string result);
-                        //    PubMaster.Track.SetTrackAlert(trans.give_track_id, trans.carrier_id, trans.id, TrackAlertE.小车读点故障);
-                        //    PubTask.Carrier.DoTask(trans.carrier_id, DevCarrierTaskE.终止);
-                        //    _M.SetUnLoadTime(trans);
-                        //    _M.SetStatus(trans, TransStatusE.完成);
-                        //    return;
-                        //}
-
-                        #endregion
-
                     }
                     break;
                 #endregion

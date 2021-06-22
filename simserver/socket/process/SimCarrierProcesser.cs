@@ -40,8 +40,8 @@ namespace simserver.simsocket.process
             st.GivePoint = ShiftBytes(dev.GiveSite);
             st.GiveSite = ShiftBytes(dev.GivePoint);
             st.MoveCount = dev.MoveCount;
-            st.Reserve1 = dev.Reserve1;
-            st.Reserve2 = dev.Reserve2;
+            st.ResetID = dev.ResetID;
+            st.ResetPoint = dev.ResetPoint;
             st.Aler1 = dev.Aler1;
             st.Aler2 = dev.Aler2;
             st.Aler3 = dev.Aler3;
@@ -52,7 +52,7 @@ namespace simserver.simsocket.process
             st.Aler8 = dev.Aler8;
             st.Aler9 = dev.Aler9;
             st.Aler10 = dev.Aler10;
-            st.Reserve3 = dev.Reserve3;
+            st.OrderStep = dev.OrderStep;
             st.MarkCode = dev.MarkCode;
             st.Tail = ShiftBytes(SimSocketConst.TAIL_KEY);
 

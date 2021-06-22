@@ -71,8 +71,8 @@ namespace wcs.Data.View
         private ushort givepoint;  //卸货RFID
         private ushort givesite;  //卸货坐标
         private byte movecount;  //倒库数量
-        private byte reserve1;        //预留1
-        private byte reserve2;        //预留2
+        private byte resetid;        //复位点序号
+        private ushort resetpoint;        //复位点脉冲值
         private byte aler1;          //报警1
         private byte aler2;          //报警2
         private byte aler3;          //报警3
@@ -83,7 +83,7 @@ namespace wcs.Data.View
         private byte aler8;          //报警8
         private byte aler9;          //报警9
         private byte aler10;          //报警10
-        private byte reserve3;        //预留3
+        private byte orderstep;        //指令步骤
         private byte markcode;        //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         #endregion
 
@@ -298,30 +298,30 @@ namespace wcs.Data.View
         #endregion
 
         /// <summary>
-        /// 预留1
+        /// 复位点序号
         /// </summary>
-        public byte Reserve1
+        public byte ResetID
         {
-            set => Set(ref reserve1, value);
-            get => reserve1;
+            set => Set(ref resetid, value);
+            get => resetid;
         }
 
         /// <summary>
-        /// 预留2
+        /// 复位点脉冲值
         /// </summary>
-        public byte Reserve2
+        public ushort ResetPoint
         {
-            set => Set(ref reserve2, value);
-            get => reserve2;
+            set => Set(ref resetpoint, value);
+            get => resetpoint;
         }
 
         /// <summary>
-        /// 预留3
+        /// 指令步骤
         /// </summary>
-        public byte Reserve3
+        public byte OrderStep
         {
-            set => Set(ref reserve3, value);
-            get => reserve3;
+            set => Set(ref orderstep, value);
+            get => orderstep;
         }
 
         /// <summary>
@@ -363,9 +363,9 @@ namespace wcs.Data.View
             Aler8 = st.Aler8;
             Aler9 = st.Aler9;
             Aler10 = st.Aler10;
-            Reserve1 = st.Reserve1;
-            Reserve2 = st.Reserve2;
-            Reserve3 = st.Reserve3;
+            ResetID = st.ResetID;
+            ResetPoint = st.ResetPoint;
+            OrderStep = st.OrderStep;
             MarkCode = st.MarkCode;
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;

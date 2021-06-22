@@ -14,23 +14,23 @@ namespace module.device
         #region[字段]
         private byte deviceid;       //设备号
         private byte devicestatus;   //设备状态
-        private ushort currentsite;  //当前RFID
+        private ushort currentsite;  //当前RFID（轨道编号）
         private ushort currentpoint;  //当前坐标
         private ushort campare_currentpoint = 0;//用于计算的当前坐标 避免频繁刷新
-        private ushort targetsite;  //目的RFID
+        private ushort targetsite;  //目的RFID（轨道编号）
         private ushort targetpoint;  //目的坐标
         private byte currentorder;    //当前指令
         private byte finishorder;     //完成指令
         private byte loadstatus;     //载货状态
         private byte position;       //所在位置
         private byte operatemode;    //操作模式
-        private ushort takesite;  //取货RFID
+        private ushort takesite;  //取货RFID（轨道编号）
         private ushort takepoint;  //取货坐标
-        private ushort givesite;  //卸货RFID
+        private ushort givesite;  //卸货RFID（轨道编号）
         private ushort givepoint;  //卸货坐标
         private byte movecount;  //倒库数量
-        private byte reserve1;        //预留1
-        private byte reserve2;        //预留2
+        private byte resetid;        //复位点序号
+        private ushort resetpoint;        //复位点脉冲值
         private byte aler1;          //报警1
         private byte aler2;          //报警2
         private byte aler3;          //报警3
@@ -41,7 +41,7 @@ namespace module.device
         private byte aler8;          //报警8
         private byte aler9;          //报警9
         private byte aler10;          //报警10
-        private byte reserve3;        //预留3
+        private byte orderstep;        //指令步骤
         private byte markcode;        //标识码（PLC发送的码，需要PC进行控制码0x88回复）
         private uint currenttrackid;
         private uint targettrackid;
@@ -68,7 +68,7 @@ namespace module.device
         }
 
         /// <summary>
-        /// 当前RFID
+        /// 当前RFID（轨道编号）
         /// </summary>
         public ushort CurrentSite
         {
@@ -94,7 +94,7 @@ namespace module.device
         }
 
         /// <summary>
-        /// 目的RFID
+        /// 目的RFID（轨道编号）
         /// </summary>
         public ushort TargetSite
         {
@@ -112,7 +112,7 @@ namespace module.device
         }
 
         /// <summary>
-        /// 当前指令
+        /// 正在执行的指令
         /// </summary>
         public DevCarrierOrderE CurrentOrder
         {
@@ -121,7 +121,7 @@ namespace module.device
         }
 
         /// <summary>
-        /// 目的指令
+        /// 最后完成的指令
         /// </summary>
         public DevCarrierOrderE FinishOrder
         {
@@ -157,7 +157,7 @@ namespace module.device
         }
 
         /// <summary>
-        /// 取货RFID
+        /// 取货RFID（轨道编号）
         /// </summary>
         public ushort TakeSite
         {
@@ -175,7 +175,7 @@ namespace module.device
         }
 
         /// <summary>
-        /// 卸货RFID
+        /// 卸货RFID（轨道编号）
         /// </summary>
         public ushort GiveSite
         {
@@ -266,30 +266,30 @@ namespace module.device
         #endregion
 
         /// <summary>
-        /// 预留1
+        /// 复位点序号
         /// </summary>
-        public byte Reserve1
+        public byte ResetID
         {
-            set => Set(ref reserve1, value);
-            get => reserve1;
+            set => Set(ref resetid, value);
+            get => resetid;
         }
 
         /// <summary>
-        /// 预留2
+        /// 复位点脉冲值
         /// </summary>
-        public byte Reserve2
+        public ushort ResetPoint
         {
-            set => Set(ref reserve2, value);
-            get => reserve2;
+            set => Set(ref resetpoint, value);
+            get => resetpoint;
         }
 
         /// <summary>
-        /// 预留3
+        /// 指令步骤
         /// </summary>
-        public byte Reserve3
+        public byte OrderStep
         {
-            set => Set(ref reserve3, value);
-            get => reserve3;
+            set => Set(ref orderstep, value);
+            get => orderstep;
         }
 
         /// <summary>
@@ -301,12 +301,18 @@ namespace module.device
             get => markcode;
         }
 
+        /// <summary>
+        /// 当前轨道ID
+        /// </summary>
         public uint CurrentTrackId 
         {
             set => Set(ref currenttrackid, value);
             get => currenttrackid;
         }
 
+        /// <summary>
+        /// 目的轨道ID
+        /// </summary>
         public uint TargetTrackId
         {
             set => Set(ref targettrackid, value);
@@ -361,10 +367,12 @@ namespace module.device
             }
             #endregion
 
-            return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 指令[ {5} ], 完成[ {6} ], " +
-               "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], 标识码[ {15} ], 维持时间[ {16} ]",
+            return string.Format("状态[ {0} ], 当前[ {1}^{2} ], 目的[ {3}^{4} ], 正执行[ {5} ], 已完成[ {6} ], " +
+               "载货[ {7} ], 位置[ {8} ], 操作[ {9} ], 取货[ {10}^{11} ], 卸货[ {12}^{13} ], 倒库[ {14} ], " +
+               "复位号[ {15} ], 复位值[ {16} ], 步骤[ {17} ], 标识码[ {18} ], 维持时间[ {19} ]",
                DeviceStatus, CurrentSite, CurrentPoint, TargetSite, TargetPoint, CurrentOrder, FinishOrder,
-               LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount, MarkCode, GetFreeTimeStr());
+               LoadStatus, Position, OperateMode, TakeSite, TakePoint, GiveSite, GivePoint, MoveCount,
+               ResetID, ResetPoint, OrderStep, MarkCode, GetFreeTimeStr());
         }
 
         /// <summary>
@@ -389,9 +397,8 @@ namespace module.device
 
         public string AlertToString()
         {
-            return string.Format("一[ {0} ], 二[ {1} ], 三[ {2} ], 四[ {3} ], 五[ {4} ], 六[ {5} ], 七[ {6} ], 八[ {7} ], 九[ {8} ], 十[ {9} ]," +
-                "预1[ {10} ],预2[ {11} ],预3[ {12}",
-                Aler1, Aler2, Aler3, Aler4, Aler5, Aler6, Aler7, Aler8, Aler9, Aler10, Reserve1, Reserve2, Reserve3);
+            return string.Format("一[ {0} ], 二[ {1} ], 三[ {2} ], 四[ {3} ], 五[ {4} ], 六[ {5} ], 七[ {6} ], 八[ {7} ], 九[ {8} ], 十[ {9} ]",
+                Aler1, Aler2, Aler3, Aler4, Aler5, Aler6, Aler7, Aler8, Aler9, Aler10);
         }
 
         public string GetFreeTimeStr()

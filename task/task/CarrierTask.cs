@@ -95,7 +95,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 当前RFID
+        /// 当前RFID（轨道编号）
         /// </summary>
         public ushort CurrentSite
         {
@@ -111,7 +111,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 目的RFID
+        /// 目的RFID（轨道编号）
         /// </summary>
         public ushort TargetSite
         {
@@ -127,7 +127,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 取货RFID
+        /// 取货RFID（轨道编号）
         /// </summary>
         public ushort TakeSite
         {
@@ -143,7 +143,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 卸货RFID
+        /// 卸货RFID（轨道编号）
         /// </summary>
         public ushort GiveSite
         {
@@ -246,7 +246,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 完成指令
+        /// 最后完成的指令
         /// </summary>
         public DevCarrierOrderE FinishOrder
         {
@@ -254,7 +254,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// 当前指令
+        /// 正在执行的指令
         /// </summary>
         public DevCarrierOrderE CurrentOrder
         {
@@ -262,12 +262,13 @@ namespace task.device
         }
 
         /// <summary>
-        /// 判断运输车是否没有在执行任务
+        /// 判断运输车是否无执行的指令（空闲状态）
         /// </summary>
         public bool IsNotDoingTask
         {
-            get => (OnGoingOrder == DevCarrierOrderE.无 || OnGoingOrder == DevCarrierOrderE.终止指令) 
-                && (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无);
+            get => (OnGoingOrder == DevCarrierOrderE.无 || OnGoingOrder == DevCarrierOrderE.终止指令)
+                //&& (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无);
+                && CurrentOrder == DevCarrierOrderE.无;
         }
 
         public bool IsConnect
@@ -327,8 +328,9 @@ namespace task.device
                 DevStatus.Position = DevCarrierPositionE.异常;
                 CurrentTrackId = 0;
                 TargetTrackId = 0;
-                OnGoingTrackId = 0;
                 LastTrackId = 0;
+                OnGoingTrackId = 0;
+                OnGoingOrder = DevCarrierOrderE.无;
             }
         }
 
@@ -355,13 +357,13 @@ namespace task.device
         /// <param name="overSite">结束坐标</param>
         /// <param name="moveCount">倒库数量</param>
         internal void DoOrder(CarrierActionOrder cao, uint transid, string memo = null)
-       {
+        {
             OnGoingTrackId = cao.ToTrackId;
             SetOnGoingOrderWithMemo(cao.Order, transid, memo);
 
-            if(cao.Order == DevCarrierOrderE.往前倒库 || cao.Order == DevCarrierOrderE.往后倒库)
+            if (cao.Order == DevCarrierOrderE.往前倒库 || cao.Order == DevCarrierOrderE.往后倒库)
             {
-                if(cao.MoveCount == 0)
+                if (cao.MoveCount == 0)
                 {
                     cao.MoveCount = 1;
                 }
@@ -370,13 +372,32 @@ namespace task.device
         }
 
         /// <summary>
-        /// 设置复位点
+        /// 设置复位点 by RFID
         /// </summary>
         /// <param name="RFID">RFID</param>
         /// <param name="Site">坐标</param>
         internal void DoResetSite(ushort RFID, ushort Site)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.设复位点, 0, 0, RFID, Site, 0, 0, 0);
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, 0, 0, RFID, Site, 0, 0, 0);
+        }
+
+        /// <summary>
+        /// 设置复位点 by ResetID
+        /// </summary>
+        /// <param name="ID">复位序号</param>
+        /// <param name="Site">坐标</param>
+        internal void DoResetSiteByID(ushort ID, ushort Site)
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, 0, 0, 0, Site, 2, ID, 0);
+        }
+
+        /// <summary>
+        /// 查询复位点
+        /// </summary>
+        /// <param name="ID">复位序号</param>
+        internal void DoSelectResetSite(ushort ID)
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, 0, 0, 0, 0, 1, ID, 0);
         }
 
         /// <summary>
@@ -385,8 +406,10 @@ namespace task.device
         internal void DoStop(uint tranid, string memo)
         {
             OnGoingTrackId = 0;
-            SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, tranid,  memo);
-            DevTcp?.SendCmd(DevCarrierCmdE.终止指令);
+            SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, tranid, memo);
+
+            //DevTcp?.SendCmd(DevCarrierCmdE.终止指令);     // 暂停用
+            DevTcp?.SendCmd(DevCarrierCmdE.执行指令, DevCarrierOrderE.终止指令, 0, 0, 0, 0, 0, 0);
         }
 
         /// <summary>
@@ -412,21 +435,27 @@ namespace task.device
             DevStatus.TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetSite, TargetPoint);
 
             //重置小车执行任务
+            //if (OnGoingOrder != DevCarrierOrderE.无
+            //    && ((OnGoingOrder == DevStatus.CurrentOrder && DevStatus.CurrentOrder == DevStatus.FinishOrder)
+            //        || (DevStatus.OperateMode == DevOperateModeE.手动 && DevStatus.CurrentOrder == DevCarrierOrderE.终止指令)) // 仅判断手动情况的终止
+            //    )
             if (OnGoingOrder != DevCarrierOrderE.无
-                && ((OnGoingOrder == DevStatus.CurrentOrder && DevStatus.CurrentOrder == DevStatus.FinishOrder) 
-                    || (DevStatus.OperateMode == DevOperateModeE.手动 && DevStatus.CurrentOrder == DevCarrierOrderE.终止指令)) // 仅判断手动情况的终止
+                && ((Status == DevCarrierStatusE.停止 && CurrentOrder == DevCarrierOrderE.无 && FinishOrder == OnGoingOrder) // ∵同类型会终止 ∴不会连续2个同指令
+                    || (OperateMode == DevOperateModeE.手动 
+                        && ((CurrentOrder == DevCarrierOrderE.无 && FinishOrder == DevCarrierOrderE.终止指令) 
+                                || CurrentOrder == DevCarrierOrderE.终止指令))) // 仅判断手动情况的终止
                 )
             {
                 OnGoingTrackId = 0;
                 OnGoingOrder = DevCarrierOrderE.无;
             }
 
-            if(CurrentTrackId == OnGoingTrackId)
+            if (CurrentTrackId == OnGoingTrackId)
             {
                 OnGoingTrackId = 0;
             }
-            else if(OnGoingTrackId != 0 
-                && InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库) 
+            else if (OnGoingTrackId != 0
+                && InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
                 && PubMaster.Track.IsBrotherTrack(CurrentTrackId, OnGoingTrackId))
             {
                 OnGoingTrackId = 0;
@@ -1286,7 +1315,8 @@ namespace task.device
 
         internal bool InTask(params DevCarrierOrderE[] order)
         {
-            if (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无 )
+            //if (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无)
+            if (CurrentOrder == DevCarrierOrderE.无) // 无 就是完成
             {
                 return order.Contains(OnGoingOrder);
             }
@@ -1306,7 +1336,7 @@ namespace task.device
 
         internal bool NotInTrack(uint trackid)
         {
-            return CurrentTrackId != trackid && TargetTrackId != trackid && OnGoingTrackId != trackid;
+            return !InTrack(trackid);
         }
         #endregion
 
@@ -1319,9 +1349,11 @@ namespace task.device
         /// <returns></returns>
         public string GetInfo()
         {
-            return string.Format("运输车[ {0} ], 设备状态[ {1} ], 位置状态[ {2} ], 当前指令[ {3} ], 完成指令[ {4} ], 记录指令[ {5} ], 当前轨道[ {6} ], 目的轨道[ {7} & {8} ]",
-                Device.name, DevStatus.DeviceStatus, DevStatus.Position, DevStatus.CurrentOrder, DevStatus.FinishOrder, OnGoingOrder,
-                PubMaster.Track.GetTrackName(CurrentTrackId), PubMaster.Track.GetTrackName(TargetTrackId), PubMaster.Track.GetTrackName(OnGoingTrackId));
+            return string.Format("运输车[ {0} ], 设备状态[ {1} ], 位置状态[ {2} ], 正执行指令[ {3} ], 已完成指令[ {4} ], 记录指令[ {5} ], 当前轨道[ {6} ], 目的轨道[ {7} ], 记录轨道[ {8} ]",
+                Device.name, Status, Position, CurrentOrder, FinishOrder, OnGoingOrder,
+                PubMaster.Track.GetTrackName(CurrentTrackId), 
+                PubMaster.Track.GetTrackName(TargetTrackId), 
+                PubMaster.Track.GetTrackName(OnGoingTrackId));
         }
 
         #endregion

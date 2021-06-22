@@ -175,7 +175,7 @@ namespace simtask.master
                     }
                     #endregion
                     break;
-                case DevCarrierCmdE.设复位点:
+                case DevCarrierCmdE.复位操作:
 
                     break;
                 case DevCarrierCmdE.终止指令:
