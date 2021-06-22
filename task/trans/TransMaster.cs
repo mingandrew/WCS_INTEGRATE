@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using task.device;
+using task.task;
 using tool.appconfig;
 
 namespace task.trans
@@ -660,6 +661,9 @@ namespace task.trans
             //是否开启【出入倒库轨道可以同时上砖】
             bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
 
+            //是否开启【反抛任务】
+            bool ignoresecondup = PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask);
+
             return TransList.Exists(c => c.id != trans.id
                                     && c.TransStaus != TransStatusE.完成
                                     && c.InTrack(trans.take_track_id, trans.give_track_id)
@@ -668,7 +672,9 @@ namespace task.trans
                                             || c.NotInType(TransTypeE.上砖侧倒库))
                                     && (!inoutignoresort
                                             || !(c.InType(TransTypeE.倒库任务) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
-                                            || c.NotInType(TransTypeE.倒库任务)));
+                                            || c.NotInType(TransTypeE.倒库任务))
+                                    && (!ignoresecondup 
+                                            || c.NotInType(TransTypeE.反抛任务)));
         }
 
         /// <summary>
@@ -736,6 +742,7 @@ namespace task.trans
                 case TransTypeE.手动上砖:
                 case TransTypeE.上砖任务:
                 case TransTypeE.同向上砖:
+                case TransTypeE.反抛任务:
                     return !PubMaster.Area.IsUpTaskLimit(area, line, count);
             }
             return !PubMaster.Area.IsSortTaskLimit(area, line, count);
@@ -922,8 +929,39 @@ namespace task.trans
                                             result = "小车正在上砖！";
                                         }
                                         break;
+                                    case TransStatusE.还车回轨: 
+                                        result = "正在调度小车回轨道";
+                                        break;
+                                }
+                                break;
+                            case TransTypeE.反抛任务:
+                                switch (trans.TransStaus)
+                                {
+                                    case TransStatusE.检查轨道:
+                                    case TransStatusE.调度设备:
+                                        if (trans.carrier_id == 0)
+                                        {
+                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
+                                            return true;
+                                        }
+                                        break;
+                                    case TransStatusE.取砖流程:
+                                        Track nowtrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
+                                        if (PubTask.Carrier.IsLoad(trans.carrier_id) 
+                                            && nowtrack.Type != TrackTypeE.上砖轨道)
+                                        {
+                                            result = "小车正在反抛上砖，不能取消！";
+                                        }
+                                        else
+                                        {
+                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
+                                            return true;
+                                        }
+                                        break;
                                     case TransStatusE.还车回轨:
                                         result = "正在调度小车回轨道";
+                                        break;
+                                    default:
                                         break;
                                 }
                                 break;
@@ -948,7 +986,6 @@ namespace task.trans
                     Monitor.Exit(_to);
                 }
             }
-            result = "";
             return false;
         }
 
@@ -1548,6 +1585,28 @@ namespace task.trans
         {
             return TransList.Exists(c => c.carrier_id == carrier && c.InTrack(trackid) && types.Contains(c.TransType));
         }
+        #endregion
+
+        #region[添加反抛任务]
+
+        public void CheckAndAddBackUpTask(uint tile_id, uint trackid)
+        {
+            TileLifterTask task = PubTask.TileLifter.GetTileLifter(tile_id);
+            AddTransWithoutLock(task.AreaId, task.ID, TransTypeE.反抛任务, task.DevConfig.goods_id, 0, task.DevConfig.right_track_id, task.DevConfig.right_track_id, TransStatusE.检查轨道, 0, task.Line);
+        }
+
+        public uint GetTransId(uint tileid, uint trackid, TransTypeE transType)
+        {
+            switch (transType)
+            {
+                case TransTypeE.上砖任务:
+                    return TransList.Find(c => c.tilelifter_id == tileid && c.give_track_id == trackid)?.id ?? 0;
+                default:
+                    break;
+            }
+            return 0;
+        }
+
         #endregion
     }
 }

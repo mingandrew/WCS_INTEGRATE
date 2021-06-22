@@ -330,8 +330,14 @@ UPDATE `2021_wcs_ht_yh`.`diction_dtl` SET `diction_id` = 3, `code` = 'WarningA3X
 
 
 
+#2021.06.22 添加开关-反抛任务的启用
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (77, 8, 'EnableSecondUpTask', '开关-启用反抛任务', NULL, b'0', '开关-启用反抛任务', NULL, NULL, NULL, NULL, NULL);
 
 
+#2021.06.22 添加报警-不执行反抛任务
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (234, 3, 'Warning34', '【反抛未执行】，等待上砖机工位空砖', NULL, NULL, '【反抛未执行】，等待上砖机工位空砖', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (235, 3, 'Warning35', '【反抛未执行】，等待上砖侧库存里无反抛任务的品种可上，或者上砖机转产', NULL, NULL, '【反抛未执行】，等待上砖侧库存里无反抛任务的品种可上，或者上砖机转产', NULL, NULL, NULL, NULL, NULL);
 
 
 

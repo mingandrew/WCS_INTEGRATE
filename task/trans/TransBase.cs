@@ -43,6 +43,7 @@ namespace task.trans
         MoveTaskTrans _moveTrans;
         SameSideOutTrans _sameSideOutTrans;
 
+        SecondUpTaskTrans _backUpTrans;
 
         #endregion
 
@@ -70,6 +71,8 @@ namespace task.trans
             _out2outSortTrans = new Out2OutSortTrans(trans);
             _moveTrans = new MoveTaskTrans(trans);
             _sameSideOutTrans = new SameSideOutTrans(trans);
+
+            _backUpTrans = new SecondUpTaskTrans(trans);
         }
 
         private void InitTrans()
@@ -152,6 +155,9 @@ namespace task.trans
                                     case TransTypeE.上砖侧倒库:
                                         _out2outSortTrans.DoTrans(trans);
                                         break;
+                                    case TransTypeE.反抛任务:
+                                        _backUpTrans.DoTrans(trans);
+                                        break;
                                 }
                             }
                             catch (Exception e)
@@ -204,6 +210,7 @@ namespace task.trans
                         case TransTypeE.下砖任务:
                         case TransTypeE.手动下砖:
                         case TransTypeE.同向下砖:
+                        case TransTypeE.反抛任务:
                             initstatus = TransStatusE.检查轨道;
                             break;
                         case TransTypeE.上砖任务:
@@ -278,6 +285,7 @@ namespace task.trans
                     case TransTypeE.手动上砖:
                     case TransTypeE.同向上砖:
                     case TransTypeE.同向下砖:
+                    case TransTypeE.反抛任务:
                     case TransTypeE.其他:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], 砖机[ {3} ], " +
                             "货物[ {4} ], 库存[ {5} ], 取轨[ {6} ], 卸轨[ {7} ]",
@@ -704,11 +712,26 @@ namespace task.trans
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool HaveInTileTrack(uint trackid)
+        public bool HaveInTileTrack(uint trackid)
         {
             try
             {
                 return TransList.Exists(c => !c.finish && c.InTrack(trackid));
+            }
+            catch { }
+            return true;
+        }
+
+        /// <summary>
+        /// 判断是否有任务使用了该轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool HaveInTileTrack(uint trackid, TransTypeE tasktype)
+        {
+            try
+            {
+                return TransList.Exists(c => !c.finish && c.InTrack(trackid) && c.InType(tasktype));
             }
             catch { }
             return true;
@@ -749,6 +772,61 @@ namespace task.trans
             return TransList.Exists(c => !c.finish && c.tilelifter_id == devid && c.InTrack(trackid));
         }
 
+
+        /// <summary>
+        /// 判断是否任务使用了该轨道,除了反抛任务
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool HaveInTrackButNotSecondUpTask(uint tile_id)
+        {
+            try
+            {
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask))
+                {
+                    return TransList.Exists(c => !c.finish && c.tilelifter_id == tile_id && c.NotInType(TransTypeE.反抛任务));
+                }
+            }
+            catch { }
+            return true;
+        }
+
+
+        /// <summary>
+        /// 判断是否有反抛任务使用了该轨道，且品种不一样
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool HaveInTrackButSecondUpTask(uint tile_id, uint goodid)
+        {
+            try
+            {
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask))
+                {
+                    return TransList.Exists(c => !c.finish && c.tilelifter_id == tile_id && c.InType(TransTypeE.反抛任务) && c.goods_id != goodid);
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        /// <summary>
+        /// 判断任务是否使用了该品种
+        /// </summary>
+        /// <param name="areaId"></param>
+        /// <param name="goodsId"></param>
+        /// <param name="tasktype"></param>
+        /// <returns></returns>
+        internal bool HaveInGoods(uint areaId, uint goodsId, TransTypeE tasktype)
+        {
+            try
+            {
+                return TransList.Exists(c => !c.finish && c.area_id == areaId 
+                    && c.TransType == tasktype && c.goods_id == goodsId);
+            }
+            catch { }
+            return true;
+        }
         #endregion
 
         #region [记录步骤信息]

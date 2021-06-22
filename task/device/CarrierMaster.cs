@@ -1440,6 +1440,7 @@ namespace task.device
                             break;
                         case TransTypeE.上砖任务:
                         case TransTypeE.手动上砖:
+                        case TransTypeE.反抛任务:
                             IsGetCarrier = GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result);
                             break;
                         case TransTypeE.上砖侧倒库:
@@ -2046,6 +2047,18 @@ namespace task.device
                                         return true;
                                     }
                                     break;
+                                case TransTypeE.反抛任务:
+                                    //空闲
+                                    if (CheckCarrierFreeNoTask(car))
+                                    {
+                                        if (car.IsLoad())
+                                        {
+                                            break;
+                                        }
+                                        carrierid = car.ID;
+                                        return true;
+                                    }
+                                    break;
                                 case TransTypeE.倒库任务:
                                     break;
                                 case TransTypeE.其他:
@@ -2077,6 +2090,7 @@ namespace task.device
                     case TransTypeE.上砖任务:
                     case TransTypeE.手动上砖:
                     case TransTypeE.同向上砖:
+                    case TransTypeE.反抛任务:
                         if (!carrier.IsWorking)
                         {
                             result = "运输车已停用！";
@@ -2205,6 +2219,7 @@ namespace task.device
                                     case TransTypeE.上砖任务:
                                     case TransTypeE.手动上砖:
                                     case TransTypeE.同向下砖:
+                                    case TransTypeE.反抛任务:
                                         isUp = true;
                                         // 需要小车前进作业的，以最大脉冲为准
                                         if (dis == 0 || dis < item.CurrentPoint)

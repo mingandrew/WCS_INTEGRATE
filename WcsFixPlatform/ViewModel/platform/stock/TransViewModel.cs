@@ -50,10 +50,12 @@ namespace wcs.ViewModel
 
         private string tcmsg;//交管信息
         private string stepinfo;//步骤信息
+        
 
         #endregion
 
         #region[属性]
+
         public bool ShowAreaFileter
         {
             get => showareafilter;
@@ -118,7 +120,8 @@ namespace wcs.ViewModel
         public RelayCommand<RoutedEventArgs> TaskItemSelectedCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(TaskItemSelected)).Value;
         public RelayCommand<RoutedEventArgs> TabSelectedCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(TabSelected)).Value;
         public RelayCommand<string> TaskActionCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(TaskAction)).Value;
-
+        
+        public RelayCommand<string> ActionTaskCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(ActionTask)).Value;
 
         #endregion
 
@@ -130,6 +133,10 @@ namespace wcs.ViewModel
                 ShowAreaFileter = false;
                 filterareaid = areaid;
                 filterlineid = lineid;
+            }
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask))
+            {
+                ShowAreaFileter = true;
             }
         }
         bool OnFilterMovie(object item)
@@ -217,6 +224,42 @@ namespace wcs.ViewModel
                 Update(m_finish_tab_show ? finishTask : recentTask);
 
             }
+        }
+
+
+        /// <summary>
+        /// 任务按钮功能
+        /// </summary>
+        private void ActionTask(string tag)
+        {
+            if (int.TryParse(tag, out int type))
+            {
+                switch (type)
+                {
+
+                    case 0://反抛
+                        uint tile_id = 4, track_id = 5;
+
+                        //如果当前上砖机轨道已有任务
+                        if (PubTask.Trans.HaveInTileTrack(track_id, TransTypeE.反抛任务))
+                        {
+                            Growl.Warning("当前轨道已有反抛任务，不能继续生成!");
+                            return;
+                        }
+
+                        string rr = string.Format("确认是否生成反抛任务？");
+
+                        MessageBoxResult box = HandyControl.Controls.MessageBox.Show(rr, "警告",
+                            MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                        if (box == MessageBoxResult.Yes)
+                        {
+                            PubTask.Trans.CheckAndAddBackUpTask(tile_id, track_id);
+                        }
+                        break;
+                }
+            }
+
         }
 
         /// <summary>

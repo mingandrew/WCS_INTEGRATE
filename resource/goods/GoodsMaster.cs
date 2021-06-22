@@ -615,6 +615,27 @@ namespace resource.goods
         }
 
         /// <summary>
+        /// 指定品种在启用的出库轨道的头部是否存在
+        /// </summary>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public bool ExistStockInTrackTopCanUp(uint goodid)
+        {
+            List<uint> trackList = StockList.FindAll(c => c.goods_id == goodid
+                                      && c.PosType == StockPosE.头部
+                                      && (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入))?.Select(c => c.track_id).ToList();
+            if (trackList == null || trackList.Count == 0)
+            {
+                return false;
+            }
+            if (PubMaster.Track.ExistTracksStatus(trackList, TrackStatusE.仅上砖, TrackStatusE.启用))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// 拿出对应库存的下一个库存
         /// </summary>
         /// <param name="trackid"></param>

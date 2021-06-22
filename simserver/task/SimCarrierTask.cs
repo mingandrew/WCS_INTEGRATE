@@ -332,6 +332,14 @@ namespace simtask
                             SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                             OnLoading = true;
                         }
+
+                        if (TO_SITE == TargetTrack.rfid_3 && TargetTrack.Type == TrackTypeE.上砖轨道)
+                        {
+                            int dif = NowTrack.Type == TrackTypeE.摆渡车_出 ? -270 : 270;
+                            DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
+                            SetNowTrack(TargetTrack, TargetTrack.rfid_3);
+                            OnLoading = true;
+                        }
                     }
                     #endregion
 

@@ -76,6 +76,8 @@
         public static string UpSortUseMaxNumber = nameof(UpSortUseMaxNumber);     //开关-接力倒库使用倒库最大数量【在线路上配置】
 
         public static string UpTaskIgnoreInoutSortTask = nameof(UpTaskIgnoreInoutSortTask);          //开关-允许出入倒库时可以上砖
+
+        public static string EnableSecondUpTask = nameof(EnableSecondUpTask);          //开关-启用反抛任务
         #endregion
 
         #region[分析服务开关]

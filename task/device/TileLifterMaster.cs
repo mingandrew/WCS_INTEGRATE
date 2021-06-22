@@ -1138,7 +1138,16 @@ namespace task.device
                     #endregion
 
                     //判断当前砖机轨道是否已有任务
-                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id))
+                    {
+                        //如果已有任务，任务不是反抛任务的话，退出
+                        if (PubTask.Trans.HaveInTrackButNotSecondUpTask(task.ID))
+                        {
+                            return;
+                        }
+                    }
+
+                    if (PubTask.Trans.HaveInTrackButSecondUpTask(task.ID, task.DevConfig.goods_id)) return;
 
                     if (!CheckUpBrotherIsReady(task, true, true)) return;
 
@@ -1316,7 +1325,16 @@ namespace task.device
                     #endregion
 
                     //判断当前砖机轨道是否已有任务
-                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id))
+                    {
+                        //如果已有任务，任务不是反抛任务的话，退出
+                        if (PubTask.Trans.HaveInTrackButNotSecondUpTask(task.ID))
+                        {
+                            return;
+                        }
+                    }
+
+                    if (PubTask.Trans.HaveInTrackButSecondUpTask(task.ID, task.DevConfig.goods_id)) return;
 
                     if (!CheckUpBrotherIsReady(task, true, false)) return;
 
@@ -2345,6 +2363,48 @@ namespace task.device
             return false;
         }
 
+
+        /// <summary>
+        /// 判断上砖机是否可以放砖
+        /// </summary>
+        /// <param name="tilelifter_id"></param>
+        /// <param name="givetrackid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        internal bool IsGiveReadyWithBackUp(uint tilelifter_id, uint givetrackid, out string result, bool isignoreneed)
+        {
+            result = "";
+            TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
+            if (!CheckTileLifterStatus(task, out result))
+            {
+                return false;
+            }
+
+            if (!CheckUpBrotherIsReady(task, false, task.DevConfig.left_track_id == givetrackid))
+            {
+                return false;
+            }
+
+            if (task.DevConfig.left_track_id == givetrackid)
+            {
+                if (!task.IsInvo_1 && (task.IsNeed_1 || isignoreneed) && task.IsEmpty_1)
+                {
+                    task.Do1Invo(DevLifterInvolE.介入);
+                }
+                return (task.IsNeed_1 || isignoreneed) && task.IsEmpty_1 && task.IsInvo_1;
+            }
+
+            if (task.DevConfig.right_track_id == givetrackid)
+            {
+                if (!task.IsInvo_2 && (task.IsNeed_2 || isignoreneed) && task.IsEmpty_2)
+                {
+                    task.Do2Invo(DevLifterInvolE.介入);
+                }
+                return (task.IsNeed_2 || isignoreneed) && task.IsEmpty_2 && task.IsInvo_2;
+            }
+            return false;
+        }
+
         internal bool IsAnyoneNeeds(uint area, DeviceTypeE dt)
         {
             return DevList.Exists(c => c.AreaId == area && c.Type == dt && (c.IsNeed_1 || c.IsNeed_2));
@@ -2383,6 +2443,17 @@ namespace task.device
         public bool IsBackupTileLifter(uint tilelifter_id)
         {
             return DevList.Exists(c => c.ID == tilelifter_id && c.DevConfig.can_alter);
+        }
+
+        /// <summary>
+        /// 判断品种跟指定的砖机的品种是否一致
+        /// </summary>
+        /// <param name="tile_id"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public bool EqualTileGood(uint tile_id, uint goodid)
+        {
+            return DevList.Exists(c => c.ID == tile_id && c.DevConfig.goods_id == goodid);
         }
         #endregion
 

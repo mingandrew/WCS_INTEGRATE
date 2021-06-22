@@ -431,6 +431,16 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 获取轨道RFID3（定位-反抛取砖地标）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackRFID3(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.rfid_3 ?? 0;
+        }
+
+        /// <summary>
         /// 获取轨道分割点脉冲
         /// </summary>
         /// <param name="trackid"></param>
@@ -679,6 +689,17 @@ namespace resource.track
         public bool ExistTrackInType(uint areaid, ushort lineid, params TrackTypeE[] types)
         {
             return TrackList.Exists(c => c.area == areaid && c.line == lineid && types.Contains(c.Type));
+        }
+
+        /// <summary>
+        /// 判断指定的轨道列表是否存在指定的状态的轨道
+        /// </summary>
+        /// <param name="tracks"></param>
+        /// <param name="statusEs"></param>
+        /// <returns></returns>
+        public bool ExistTracksStatus(List<uint> tracks, params TrackStatusE[] statusEs)
+        {
+            return TrackList.Exists(c => tracks.Contains(c.id) && c.InStatus(statusEs));
         }
         #endregion
 
