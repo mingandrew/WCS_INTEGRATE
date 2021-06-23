@@ -314,17 +314,6 @@ namespace task.device
 
         #region[获取信息]
 
-        /// <summary>
-        /// 判断摆渡车是否在线
-        /// </summary>
-        /// <param name="devid"></param>
-        /// <returns></returns>
-        public bool IsOnline(uint devid)
-        {
-            return DevList.Exists(c => c.ID == devid && c.IsConnect);
-        }
-
-
         public void GetAllFerry()
         {
             foreach (FerryTask task in DevList)
@@ -389,23 +378,6 @@ namespace task.device
         }
 
         /// <summary>
-        /// 更新摆渡车载车状态
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <param name="carriername"></param>
-        /// <param name="devFerryLoadE"></param>
-        public void UpdateFerryWithTrackId(uint trackid, string carriername, DevFerryLoadE devFerryLoadE)
-        {
-            FerryTask ferry = GetFerryByTrackid(trackid);
-            if (ferry != null && ferry.DevStatus.LoadStatus != devFerryLoadE)
-            {
-                ferry.DevStatus.LoadStatus = devFerryLoadE;
-                ferry.AddStatusLog(string.Format("载车[ {0} ], 运输车[ {1} ]", devFerryLoadE, carriername));
-                MsgSend(ferry, ferry.DevStatus);
-            }
-        }
-
-        /// <summary>
         /// 获取摆渡车锁定的任务ID
         /// </summary>
         /// <param name="devid"></param>
@@ -413,6 +385,16 @@ namespace task.device
         public uint GetFerryTransId(uint devid)
         {
             return DevList.Find(c => c.ID == devid && c.IsLock)?.TransId ?? 0;
+        }
+
+        /// <summary>
+        /// 获取通讯且启用的摆渡ID集
+        /// </summary>
+        /// <param name="ferryids"></param>
+        /// <returns></returns>
+        public List<uint> GetWorkingAndEnable(List<uint> ferryids)
+        {
+            return DevList.FindAll(c => c.IsWorking && c.IsEnable && ferryids.Contains(c.ID))?.Select(c => c.ID).ToList();
         }
 
         #endregion
@@ -507,6 +489,23 @@ namespace task.device
             if (task.MConChange)
             {
                 MsgSend(task, task.DevStatus);
+            }
+        }
+
+        /// <summary>
+        /// 更新摆渡车载车状态
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="carriername"></param>
+        /// <param name="devFerryLoadE"></param>
+        public void UpdateFerryWithTrackId(uint trackid, string carriername, DevFerryLoadE devFerryLoadE)
+        {
+            FerryTask ferry = GetFerryByTrackid(trackid);
+            if (ferry != null && ferry.DevStatus.LoadStatus != devFerryLoadE)
+            {
+                ferry.DevStatus.LoadStatus = devFerryLoadE;
+                ferry.AddStatusLog(string.Format("载车[ {0} ], 运输车[ {1} ]", devFerryLoadE, carriername));
+                MsgSend(ferry, ferry.DevStatus);
             }
         }
 
@@ -1658,6 +1657,16 @@ namespace task.device
 
         #region[条件判断]
 
+        /// <summary>
+        /// 判断摆渡车是否在线
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public bool IsOnline(uint devid)
+        {
+            return DevList.Exists(c => c.ID == devid && c.IsConnect);
+        }
+
         private bool CheckFerryStatus(FerryTask task, out string result)
         {
             if (task == null)
@@ -1729,7 +1738,7 @@ namespace task.device
                 return false;
             }
 
-            if (task.Status != DevFerryStatusE.停止)
+            if (!task.IsNotDoingTask)
             {
                 result = "摆渡车非停止状态！";
                 return false;
@@ -1753,14 +1762,13 @@ namespace task.device
         }
 
         /// <summary>
-        /// 是否有到位摆渡车可用
+        /// 是否有到位的空载摆渡车可用
         /// </summary>
-        /// <param name="carriertask">小车执行指令</param>
-        /// <param name="dt">摆渡类型</param>
+        /// <param name="checkuplight">检查前侧到位信号</param>
         /// <param name="trackid">判断摆渡车是否对上轨道</param>
         /// <param name="result">结果</param>
         /// <returns></returns>
-        public bool HaveFerryInPlace(DevCarrierTaskE carriertask, DeviceTypeE dt, uint trackid, out uint ferryTrackid, out string result)
+        public bool HaveFerryInPlace(bool checkuplight, uint trackid, out uint ferryTrackid, out string result)
         {
             ferryTrackid = 0;
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -1770,16 +1778,14 @@ namespace task.device
             }
             try
             {
-                //后退至摆渡车 则 判断判断摆渡车的上砖测光电
-                bool checkuplight = carriertask == DevCarrierTaskE.后退至摆渡车;
-                FerryTask task = DevList.Find(c => c.Type == dt && c.GetFerryCurrentTrackId(checkuplight) == trackid);
+                FerryTask task = DevList.Find(c => c.GetFerryCurrentTrackId(checkuplight) == trackid);
 
                 if (!CheckFerryStatus(task, out result))
                 {
                     return false;
                 }
 
-                if (task.Status == DevFerryStatusE.停止)
+                if (task.Load == DevFerryLoadE.空 && task.IsNotDoingTask)
                 {
                     ferryTrackid = task.FerryTrackId;
                     return true;
@@ -1903,13 +1909,44 @@ namespace task.device
         }
 
         /// <summary>
-        /// 获取通讯且启用的摆渡ID集
+        /// 确认摆渡车是否有到位轨道可用(By 摆轨ID)
         /// </summary>
-        /// <param name="ferryids"></param>
+        /// <param name="checkuplight">检查前侧到位信号</param>
+        /// <param name="ferryTraid">摆渡轨道ID</param>
+        /// <param name="trackid">到位的轨道ID</param>
+        /// <param name="result">结果</param>
         /// <returns></returns>
-        public List<uint> GetWorkingAndEnable(List<uint> ferryids)
+        public bool IsInPlaceByFerryTraid(bool checkuplight, uint ferryTraid, out uint trackid, out string result)
         {
-            return DevList.FindAll(c => c.IsWorking && c.IsEnable && ferryids.Contains(c.ID))?.Select(c => c.ID).ToList();
+            trackid = 0;
+            if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
+            {
+                result = "稍后再试！";
+                return false;
+            }
+            try
+            {
+                FerryTask task = DevList.Find(c => c.DevConfig.track_id == ferryTraid);
+
+                if (!CheckFerryStatus(task, out result))
+                {
+                    return false;
+                }
+
+                if (task.IsNotDoingTask)
+                {
+                    trackid = task.GetFerryCurrentTrackId(checkuplight);
+
+                    if (trackid > 0) return true;
+                }
+
+            }
+            finally
+            {
+                Monitor.Exit(_obj);
+            }
+            result = "摆渡车没有符合条件";
+            return false;
         }
 
         #endregion

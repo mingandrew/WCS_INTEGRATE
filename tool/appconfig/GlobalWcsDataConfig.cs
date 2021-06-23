@@ -152,7 +152,7 @@ namespace tool.appconfig
 
         public static void SaveSimulateConfig()
         {
-            SaveJsonObj(SimulateConfig, SimulateConfig.Path, SimulateConfig.SavePath);
+            SaveJsonObj(SimulateConfig, SimulateConfig.Path, string.Format(SimulateConfig.SavePath, MysqlConfig.Database));
         }
         public static void SaveDefaultConfig()
         {

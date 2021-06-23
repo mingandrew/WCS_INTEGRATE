@@ -123,6 +123,7 @@ namespace task.trans.transtask
                                         Order = DevCarrierOrderE.定位指令,
                                         CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                        ToPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
                                         ToTrackId = ferryTraid
                                     });
 
@@ -158,6 +159,7 @@ namespace task.trans.transtask
                                         Order = DevCarrierOrderE.定位指令,
                                         CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                        ToPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
                                         ToTrackId = ferryTraid
                                     });
 
@@ -194,6 +196,8 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.放砖指令,
                                     CheckTra = track.ferry_up_code,
                                     ToRFID = track.rfid_1,
+                                    ToPoint = track.limit_point,
+                                    OverPoint = track.limit_point,
                                     ToTrackId = track.id
                                 });
                             }
@@ -210,6 +214,7 @@ namespace task.trans.transtask
                                         Order = DevCarrierOrderE.定位指令,
                                         CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
                                         ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                        ToPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
                                         ToTrackId = ferryTraid
                                     });
 
@@ -253,6 +258,8 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.取砖指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                    ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
+                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id),
                                     ToTrackId = trans.take_track_id
                                 });
 
@@ -323,6 +330,8 @@ namespace task.trans.transtask
                                                 Order = DevCarrierOrderE.放砖指令,
                                                 CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                                 ToRFID = torfid,
+                                                ToPoint = torfid,
+                                                OverPoint = torfid,
                                                 ToTrackId = trans.give_track_id
                                             });
 
@@ -371,8 +380,9 @@ namespace task.trans.transtask
                                         PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                            ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id),
                                             ToTrackId = trans.take_track_id
                                         });
 
@@ -385,6 +395,8 @@ namespace task.trans.transtask
                                             Order = DevCarrierOrderE.取砖指令,
                                             CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                            ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
+                                            OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id),
                                             ToTrackId = trans.take_track_id
                                         });
                                     }
@@ -430,6 +442,8 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.放砖指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                     ToRFID = torfid,
+                                    ToPoint = torfid,
+                                    OverPoint = torfid,
                                     ToTrackId = trans.give_track_id
                                 });
 
@@ -504,6 +518,7 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                     ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                    ToPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                     ToTrackId = ferryTraid
                                 });
 
@@ -637,6 +652,8 @@ namespace task.trans.transtask
                                             Order = DevCarrierOrderE.取砖指令,
                                             CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
+                                            ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.finish_track_id),
+                                            OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.finish_track_id),
                                             ToTrackId = trans.finish_track_id
                                         });
 
@@ -649,6 +666,7 @@ namespace task.trans.transtask
                                             Order = DevCarrierOrderE.定位指令,
                                             CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
                                             ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id),
+                                            ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.finish_track_id),
                                             ToTrackId = trans.finish_track_id
                                         });
 
@@ -755,6 +773,8 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.放砖指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                    ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
+                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id),
                                     ToTrackId = trans.take_track_id
                                 });
 
@@ -769,6 +789,7 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                     ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id),
+                                    ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id),
                                     ToTrackId = trans.take_track_id
                                 });
 
@@ -804,6 +825,7 @@ namespace task.trans.transtask
                                 Order = DevCarrierOrderE.定位指令,
                                 CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                 ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                ToPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                 ToTrackId = ferryTraid
                             });
 

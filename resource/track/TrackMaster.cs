@@ -441,13 +441,23 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取轨道下砖极限点脉冲
+        /// 获取轨道下砖极限点脉冲（后侧）
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        public ushort GetTrackLimitPoint(uint trackid)
+        public ushort GetTrackLimitPointIn(uint trackid)
         {
             return TrackList.Find(c => c.id == trackid)?.limit_point ?? 0;
+        }
+
+        /// <summary>
+        /// 获取轨道上砖极限点脉冲（前侧）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackLimitPointOut(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.limit_point_up ?? 0;
         }
 
         /// <summary>

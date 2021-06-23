@@ -2849,7 +2849,7 @@ namespace resource.goods
                             bottom = stocks[0];
                         }
                         ushort safe = GetStackSafe(bottom.goods_id, carrierid);
-                        ushort limit = PubMaster.Track.GetTrackLimitPoint(trackid);
+                        ushort limit = PubMaster.Track.GetTrackLimitPointIn(trackid);
                         location = (ushort)(bottom.location - safe);
                         if (location < limit)
                         {
