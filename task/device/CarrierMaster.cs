@@ -896,9 +896,14 @@ namespace task.device
                     case DevCarrierTaskE.后退至摆渡车:
                         #region 后退至摆渡车
                         //&& site != track.rfid_1//最小定位RFID
-                        if (track.NotInType(TrackTypeE.上砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入)) 
+                        //if (track.NotInType(TrackTypeE.上砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入)) 
+                        //{
+                        //    result = "小车需要在入库轨道头或者上砖轨道";
+                        //    return false;
+                        //}
+                        if (track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                         {
-                            result = "小车需要在入库轨道头或者上砖轨道";
+                            result = "小车在摆渡车时不能发上摆渡的指令";
                             return false;
                         }
                         if (!PubTask.Ferry.HaveFerryInPlace(carriertask, track.Type == TrackTypeE.上砖轨道 ? DeviceTypeE.上摆渡 : DeviceTypeE.下摆渡,
@@ -915,9 +920,14 @@ namespace task.device
 
                     case DevCarrierTaskE.前进至摆渡车:
                         #region 前进至摆渡车
-                        if (track.NotInType(TrackTypeE.下砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                        //if (track.NotInType(TrackTypeE.下砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                        //{
+                        //    result = "小车需要在出库轨道头或者下砖轨道";
+                        //    return false;
+                        //}
+                        if (track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                         {
-                            result = "小车需要在出库轨道头或者下砖轨道";
+                            result = "小车在摆渡车时不能发上摆渡的指令";
                             return false;
                         }
                         if (!PubTask.Ferry.HaveFerryInPlace(carriertask, track.Type == TrackTypeE.下砖轨道 ? DeviceTypeE.下摆渡 : DeviceTypeE.上摆渡,
@@ -2146,6 +2156,8 @@ namespace task.device
             #region [5.找其他轨道]
             if (carrier == null)
             {
+                // 最优先车：砖机上的无砖运输车
+                List<CarrierTask> zeroth_allocate_cars = new List<CarrierTask>();
                 // 优先车：同侧无砖
                 List<CarrierTask> first_allocate_cars = new List<CarrierTask>();
                 // 次级车：同侧载砖
@@ -2159,7 +2171,7 @@ namespace task.device
                 List<uint> trackids; //= PubMaster.Area.GetTileTrackIds(trans);
                 if (ferrytype == DeviceTypeE.上摆渡)
                 {
-                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道);
                 }
                 else
                 {
@@ -2177,7 +2189,15 @@ namespace task.device
 
                 foreach (uint traid in tids)
                 {
-                    if (!PubMaster.Track.IsStoreType(traid)) continue;
+                    if (!PubMaster.Track.IsStoreType(traid))
+                    {
+                        //如果不是上砖机轨道或者不是上砖任务，就下一条轨道
+                        if (!(PubMaster.Track.IsTrackType(traid, TrackTypeE.上砖轨道) && trans.TransType == TransTypeE.上砖任务))
+                        {
+                            continue;
+                        }                        
+                    }
+
                     List<CarrierTask> tasks = DevList.FindAll(c => c.CurrentTrackId == traid);
                     if (tasks.Count > 0)
                     {
@@ -2239,8 +2259,12 @@ namespace task.device
                         carNames += string.Format("[{0}]", tracar.Device.name);
                         if (isUp)
                         {
+                            if (PubMaster.Track.TrackTypeEqual(tracar.CurrentTrackId, TrackTypeE.上砖轨道))
+                            {
+                                zeroth_allocate_cars.Add(tracar);
+                            }
                             // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
-                            if (tracar.CurrentSite % 100 > 90)
+                            else if (tracar.CurrentSite % 100 > 90)
                             {
                                 if (tracar.IsNotLoad())
                                 {
@@ -2291,6 +2315,20 @@ namespace task.device
                         }
                     }
 
+                }
+
+                if (zeroth_allocate_cars != null && zeroth_allocate_cars.Count > 0)
+                {
+                    foreach (CarrierTask car in zeroth_allocate_cars)
+                    {
+                        if (CheckCarrierIsFree(car)
+                            && car.DevConfig.IsUseGoodsSize(goodssizeID)
+                            && !PubTask.Trans.HaveInCarrier(car.ID))
+                        {
+                            carrierid = car.ID;
+                            return true;
+                        }
+                    }
                 }
 
                 if (first_allocate_cars != null && first_allocate_cars.Count > 0)

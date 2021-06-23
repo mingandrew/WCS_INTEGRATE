@@ -752,6 +752,36 @@ namespace task.trans.transtask
                             _M.SetUnLoadTime(trans);
 
                             _M.SetStatus(trans, TransStatusE.还车回轨);
+                            return;
+                        }
+
+                        //摆渡车去接运输车
+                        if (track.id != trans.give_track_id && trans.take_ferry_id != 0)
+                        {
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true))
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForFerryMove(trans, trans.take_ferry_id, track.id, res);
+                                #endregion
+                                return;
+                            }
+
+                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
+                                #endregion
+
+                                // 后退至摆渡车
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                {
+                                    Order = DevCarrierOrderE.定位指令,
+                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                    ToTrackId = ferryTraid
+                                });
+                                return;
+                            }
                         }
                     }
 

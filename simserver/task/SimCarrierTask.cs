@@ -234,7 +234,8 @@ namespace simtask
                         switch (TargetTrack.Type)
                         {
                             case TrackTypeE.上砖轨道:
-
+                                SetNowTrack(TargetTrack, TO_SITE);
+                                DevStatus.CurrentPoint = TO_SITE;
                                 break;
                             case TrackTypeE.下砖轨道:
 

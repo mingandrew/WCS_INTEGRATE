@@ -935,36 +935,8 @@ namespace task.trans
                                 }
                                 break;
                             case TransTypeE.反抛任务:
-                                switch (trans.TransStaus)
-                                {
-                                    case TransStatusE.检查轨道:
-                                    case TransStatusE.调度设备:
-                                        if (trans.carrier_id == 0)
-                                        {
-                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
-                                            return true;
-                                        }
-                                        break;
-                                    case TransStatusE.取砖流程:
-                                        Track nowtrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
-                                        if (PubTask.Carrier.IsLoad(trans.carrier_id) 
-                                            && nowtrack.Type != TrackTypeE.上砖轨道)
-                                        {
-                                            result = "小车正在反抛上砖，不能取消！";
-                                        }
-                                        else
-                                        {
-                                            SetStatus(trans, TransStatusE.取消, "手动取消任务");
-                                            return true;
-                                        }
-                                        break;
-                                    case TransStatusE.还车回轨:
-                                        result = "正在调度小车回轨道";
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                break;
+                                SetStatus(trans, TransStatusE.取消, "手动取消任务");
+                                return true;
                             case TransTypeE.倒库任务:
                             case TransTypeE.上砖侧倒库:
                                 SetStatus(trans, TransStatusE.取消, "手动取消任务");
