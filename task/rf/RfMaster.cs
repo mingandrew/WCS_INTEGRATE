@@ -504,6 +504,9 @@ namespace task.rf
                     case FunTag.CancelTrans:
                         DoCancelTrans(msg);
                         break;
+                    case FunTag.SecondeUpTransCreate:
+                        DoCreateSecondUpTrans(msg);
+                        break;
                     #endregion
 
                     #region[按轨出库]
@@ -1857,6 +1860,23 @@ namespace task.rf
                         SendSucc2Rf(msg.MEID, FunTag.ForseTransFinish, "ok");
                     }
                 }
+            }
+        }
+
+        private void DoCreateSecondUpTrans(RfMsgMod msg)
+        {
+            uint tile_id = 4, track_id = 5;
+
+            //如果当前上砖机轨道已有任务
+            if (PubTask.Trans.HaveInTileTrack(track_id, TransTypeE.反抛任务))
+            {
+                SendFail2Rf(msg.MEID, FunTag.SecondeUpTransCreate, "已有反抛任务，不能继续生成!");
+                return;
+            }
+            else
+            {
+                PubTask.Trans.CheckAndAddBackUpTask(tile_id, track_id);
+                SendSucc2Rf(msg.MEID, FunTag.SecondeUpTransCreate, "ok");
             }
         }
         #endregion

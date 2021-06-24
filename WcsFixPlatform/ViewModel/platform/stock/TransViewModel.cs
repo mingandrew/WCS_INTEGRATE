@@ -243,7 +243,7 @@ namespace wcs.ViewModel
                         //如果当前上砖机轨道已有任务
                         if (PubTask.Trans.HaveInTileTrack(track_id, TransTypeE.反抛任务))
                         {
-                            Growl.Warning("当前轨道已有反抛任务，不能继续生成!");
+                            Growl.Warning("已有反抛任务，不能继续生成!");
                             return;
                         }
 

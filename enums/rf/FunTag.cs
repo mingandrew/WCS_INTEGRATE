@@ -110,6 +110,7 @@
         public const string QueryTrans = nameof(QueryTrans);
         public const string ForseTransFinish = nameof(ForseTransFinish);
         public const string CancelTrans = nameof(CancelTrans);
+        public const string SecondeUpTransCreate = nameof(SecondeUpTransCreate);
 
         #endregion
 
