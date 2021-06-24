@@ -887,8 +887,7 @@ namespace task.device
                             return false;
                         }
                         checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        //toRFID = PubMaster.Track.GetTrackRFID2(track.brother_track_id);// 没地标咯
-                        toPoint = 1; // 靠光电取砖-后退 1，前进 65535
+                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointIn(toTrackid));
                         overPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
                         order = DevCarrierOrderE.取砖指令;
                         #endregion
@@ -913,8 +912,7 @@ namespace task.device
                             return false;
                         }
                         checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        //toRFID = PubMaster.Track.GetTrackRFID2(track.brother_track_id);// 没地标咯
-                        toPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
+                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointIn(toTrackid));
                         overPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
                         order = DevCarrierOrderE.放砖指令;
                         #endregion
@@ -939,8 +937,7 @@ namespace task.device
                             return false;
                         }
                         checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        //toRFID = PubMaster.Track.GetTrackRFID1(toTrackid);// 没地标咯
-                        toPoint = 65535; // 靠光电取砖-后退 1，前进 65535
+                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointOut(toTrackid));
                         overPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
                         order = DevCarrierOrderE.取砖指令;
                         #endregion
@@ -965,8 +962,7 @@ namespace task.device
                             return false;
                         }
                         checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        //toRFID = PubMaster.Track.GetTrackRFID1(toTrackid);// 没地标咯
-                        toPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
+                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointOut(toTrackid));
                         overPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
                         order = DevCarrierOrderE.放砖指令;
                         #endregion
@@ -985,7 +981,6 @@ namespace task.device
                             return false;
                         }
                         checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        //toRFID = PubMaster.Track.GetTrackRFID1(ferryTraid); // 没地标咯
                         toPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
                         order = DevCarrierOrderE.定位指令;
                         #endregion
@@ -1004,7 +999,6 @@ namespace task.device
                             return false;
                         }
                         checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        //toRFID = PubMaster.Track.GetTrackRFID2(ferryTraid);// 没地标咯
                         toPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
                         order = DevCarrierOrderE.定位指令;
                         #endregion
@@ -1024,14 +1018,12 @@ namespace task.device
                                     return false;
                                 }
                                 checkTra = track.ferry_down_code;
-                                //toRFID = track.rfid_2;// 没地标咯
                                 toPoint = track.limit_point_up;
                                 break;
 
                             case TrackTypeE.储砖_入:
                                 toTrackid = track.brother_track_id;
                                 checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                                //toRFID = PubMaster.Track.GetTrackRFID2(toTrackid);// 没地标咯
                                 toPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
                                 break;
 
@@ -1043,7 +1035,6 @@ namespace task.device
                                     return false;
                                 }
                                 checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                                //toRFID = PubMaster.Track.GetTrackRFID1(toTrackid);// 没地标咯
                                 toPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
                                 break;
                             default:
@@ -1067,14 +1058,12 @@ namespace task.device
                                     return false;
                                 }
                                 checkTra = track.ferry_up_code;
-                                //toRFID = track.rfid_1;// 没地标咯
                                 toPoint = track.limit_point;
                                 break;
 
                             case TrackTypeE.储砖_出:
                                 toTrackid = track.brother_track_id;
                                 checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                                //toRFID = PubMaster.Track.GetTrackRFID1(toTrackid);// 没地标咯
                                 toPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
                                 break;
 
@@ -1086,7 +1075,6 @@ namespace task.device
                                     return false;
                                 }
                                 checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                                //toRFID = PubMaster.Track.GetTrackRFID2(toTrackid);// 没地标咯
                                 toPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
                                 break;
                             default:
@@ -1179,7 +1167,6 @@ namespace task.device
 
                         order = DevCarrierOrderE.定位指令;
                         checkTra = track.ferry_down_code;
-                        //toRFID = track.rfid_2; // 中间地标 最大定位RFID
                         toPoint = track.split_point;
                         #endregion
                         break;

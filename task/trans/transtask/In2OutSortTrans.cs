@@ -392,7 +392,7 @@ namespace task.trans.transtask
                         CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                         ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                         ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
-                        OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
+                        OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
                         ToTrackId = trans.give_track_id
                     });
 

@@ -224,7 +224,7 @@ namespace task.trans.transtask
 
 
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                    && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                                    && !PubTask.Carrier.ExistCarBehind(trans.carrier_id, track.id))
                                 {
                                     #region 【任务步骤记录】
                                     _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -276,7 +276,7 @@ namespace task.trans.transtask
                             }
 
                             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                                && !PubTask.Carrier.ExistCarBehind(trans.carrier_id, track.id))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -415,7 +415,8 @@ namespace task.trans.transtask
                                         if (torfid == 0)
                                         {
                                             //如果配置为零则获取取货轨道的rfid1
-                                            torfid = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
+                                            //torfid = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
+                                            torfid = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id);
                                         }
 
                                         //放砖
@@ -535,21 +536,35 @@ namespace task.trans.transtask
                                         TrackTypeE tt = PubMaster.Track.GetTrackType(trans.take_track_id);
                                         if (tt == TrackTypeE.储砖_出入)
                                         {
-                                            // 去入库地标取，回轨道出库地标
-                                            cao.ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
-                                            cao.OverRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id);
-
-                                            cao.ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id);
-                                            cao.OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id);
+                                            cao.ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id);
+                                            cao.OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id);
                                         }
                                         else
                                         {
                                             // 去分段点取，回轨道出库地标
                                             cao.ToPoint = PubMaster.Track.GetTrackSplitPoint(trans.take_track_id);
-                                            cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
-                                            cao.OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id);
+                                            cao.OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id);
                                         }
                                         cao.ToTrackId = trans.take_track_id;
+
+                                        #region 库存判断
+                                        // 获取头部库存
+                                        Stock takeStock = PubMaster.Goods.GetTrackTopStock(trans.take_track_id);
+                                        if (takeStock == null || takeStock.goods_id != trans.goods_id)
+                                        {
+                                            _M.SetStatus(trans, TransStatusE.取消, string.Format("[{0}]内的头部库存与任务所需不符", PubMaster.Track.GetTrackName(trans.take_track_id)));
+                                            return;
+                                        }
+                                        _M.SetStock(trans, takeStock.id);
+
+                                        // 以库存实际脉冲为准，否则以光电（点位脉冲）
+                                        if (takeStock.location > 0)
+                                        {
+                                            cao.ToPoint = takeStock.location;
+                                        }
+
+                                        #endregion
+
                                         PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
                                         return;
                                     }
@@ -610,7 +625,8 @@ namespace task.trans.transtask
                                 if (torfid == 0)
                                 {
                                     //如果配置为零则获取取货轨道的rfid1
-                                    torfid = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
+                                    //torfid = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
+                                    torfid = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id);
                                 }
 
                                 //放砖
@@ -904,8 +920,8 @@ namespace task.trans.transtask
 
                                             //至点
                                             cao.Order = DevCarrierOrderE.定位指令;
-                                            cao.CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id);
-                                            cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id);
+                                            cao.CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id);
+                                            cao.ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.finish_track_id);
                                         }
                                         else
                                         {
@@ -915,24 +931,38 @@ namespace task.trans.transtask
 
                                             //取砖
                                             cao.Order = DevCarrierOrderE.取砖指令;
-                                            cao.CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id);
+                                            cao.CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id);
                                             TrackTypeE tt = PubMaster.Track.GetTrackType(trans.finish_track_id);
                                             if (tt == TrackTypeE.储砖_出入)
                                             {
-                                                // 去入库地标取，回轨道出库地标
-                                                cao.ToRFID = PubMaster.Track.GetTrackRFID1(trans.finish_track_id);
-                                                cao.OverRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id);
-
-                                                cao.ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.finish_track_id);
-                                                cao.OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.finish_track_id);
+                                                cao.ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.finish_track_id);
+                                                cao.OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.finish_track_id);
                                             }
                                             else
                                             {
                                                 // 去分段点取，回轨道出库地标
                                                 cao.ToPoint = PubMaster.Track.GetTrackSplitPoint(trans.finish_track_id);
-                                                cao.OverRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id);
-                                                cao.OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.finish_track_id);
+                                                cao.OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.finish_track_id);
                                             }
+
+                                            #region 库存判断
+                                            // 获取头部库存
+                                            Stock takeStock = PubMaster.Goods.GetTrackTopStock(trans.finish_track_id);
+                                            if (takeStock == null || takeStock.goods_id != trans.goods_id)
+                                            {
+                                                _M.SetStatus(trans, TransStatusE.取消, string.Format("[{0}]内的头部库存与任务所需不符", PubMaster.Track.GetTrackName(trans.finish_track_id)));
+                                                return;
+                                            }
+                                            _M.SetStock(trans, takeStock.id);
+
+                                            // 以库存实际脉冲为准，否则以光电（点位脉冲）
+                                            if (takeStock.location > 0)
+                                            {
+                                                cao.ToPoint = takeStock.location;
+                                            }
+
+                                            #endregion
+
                                         }
                                         cao.ToTrackId = trans.finish_track_id;
                                         PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
@@ -947,9 +977,8 @@ namespace task.trans.transtask
                                         PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.finish_track_id),
-                                            ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.finish_track_id),
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.finish_track_id),
+                                            ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.finish_track_id),
                                             ToTrackId = trans.finish_track_id
                                         });
                                     }

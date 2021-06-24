@@ -581,6 +581,7 @@ namespace task.trans
         {
             if (trans.stock_id != stockid)
             {
+                mLog.Status(true, string.Format("任务[ {0} ], 更改库存[ {1} -> {2} ]]", trans.id, trans.stock_id, stockid));
                 trans.stock_id = stockid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Stock);
             }

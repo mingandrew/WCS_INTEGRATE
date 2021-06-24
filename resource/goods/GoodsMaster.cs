@@ -2825,9 +2825,10 @@ namespace resource.goods
             stockcount = 0;
             location = 0;
             List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+            Track track = PubMaster.Track.GetTrack(trackid);
             if (stocks == null || stocks.Count == 0)
             {
-                location = PubMaster.Track.GetTrackSplitPoint(trackid);
+                location = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
                 isOK = true;
             }
             else
@@ -2837,21 +2838,9 @@ namespace resource.goods
                 {
                     case TransTypeE.下砖任务:
                     case TransTypeE.手动下砖:
-                        List<Stock> bottoms = stocks.FindAll(c => c.PosType == StockPosE.尾部);
-                        Stock bottom = null;
-                        if(bottoms != null && bottoms.Count >= 1)
-                        {
-                            bottoms.Sort((x, y) => x.location.CompareTo(y.location));
-                            bottom = bottoms[0];
-                        }
-
-                        if (bottoms == null || bottoms.Count <= 0)//如果找不到尾部则找最后的一个库存
-                        {
-                            stocks.Sort((x, y) => x.location.CompareTo(y.location));
-                            bottom = stocks[0];
-                        }
+                        Stock bottom = GetTrackButtomStock(trackid);
                         ushort safe = GetStackSafe(bottom.goods_id, carrierid);
-                        ushort limit = PubMaster.Track.GetTrackLimitPointIn(trackid);
+                        ushort limit = track.limit_point;
                         location = (ushort)(bottom.location - safe);
                         if (location < limit)
                         {
@@ -2861,19 +2850,6 @@ namespace resource.goods
                         isOK = true;
                         break;
 
-                    case TransTypeE.上砖任务:
-                    case TransTypeE.手动上砖:
-                        break;
-                    case TransTypeE.倒库任务:
-                        break;
-                    case TransTypeE.移车任务:
-                        break;
-                    case TransTypeE.同向上砖:
-                        break;
-                    case TransTypeE.同向下砖:
-                        break;
-                    case TransTypeE.其他:
-                        break;
                     default:
                         break;
                 }
