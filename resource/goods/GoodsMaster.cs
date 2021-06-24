@@ -241,7 +241,7 @@ namespace resource.goods
                 }
             }
 
-            ableqty = -1;
+            ableqty = -1; //找不到轨道
             return false;
         }
 
@@ -560,28 +560,30 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 获取尾部、或者是最后一个库存
+        /// 获取入库端最后的库存
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
         public Stock GetTrackButtomStock(uint trackid)
         {
             Stock stock = null;
-            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.PosType == StockPosE.尾部);
+            // 是否是同侧上下轨道
+            bool isSameSide = PubMaster.Track.IsSameSideTrack(trackid);
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.PosType == (isSameSide ? StockPosE.头部 : StockPosE.尾部));
             if (stocks == null || stocks.Count ==0)
             {
                 List<Stock> list = StockList.FindAll(c => c.track_id == trackid);
                 if (list.Count > 0)
                 {
                     list.Sort((x, y) => x.pos.CompareTo(y.pos));
-                    stock = list[list.Count - 1];
+                    stock = (isSameSide ? list[0] : list[list.Count - 1]);
                 }
             }
             else
             {
                 if(stocks.Count >1)
                     stocks.Sort((x, y) => x.location.CompareTo(y.location));
-                stock = stocks[0];
+                stock = (isSameSide ? stocks[0] : stocks[stocks.Count - 1]);
             }
             return stock;
         }

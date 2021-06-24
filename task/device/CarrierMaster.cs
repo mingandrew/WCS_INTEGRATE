@@ -888,7 +888,7 @@ namespace task.device
                         }
                         checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
                         //toRFID = PubMaster.Track.GetTrackRFID2(track.brother_track_id);// 没地标咯
-                        toPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
+                        toPoint = 1; // 靠光电取砖-后退 1，前进 65535
                         overPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
                         order = DevCarrierOrderE.取砖指令;
                         #endregion
@@ -940,7 +940,7 @@ namespace task.device
                         }
                         checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
                         //toRFID = PubMaster.Track.GetTrackRFID1(toTrackid);// 没地标咯
-                        toPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
+                        toPoint = 65535; // 靠光电取砖-后退 1，前进 65535
                         overPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
                         order = DevCarrierOrderE.取砖指令;
                         #endregion

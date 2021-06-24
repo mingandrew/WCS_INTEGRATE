@@ -492,6 +492,16 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 判断轨道是否同侧上下
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        internal bool IsSameSideTrack(uint track_id)
+        {
+            return TrackList.Exists(c => c.id == track_id && c.same_side_inout);
+        }
+
+        /// <summary>
         /// 获取摆渡车分配的轨道
         /// </summary>
         /// <param name="ferryid"></param>

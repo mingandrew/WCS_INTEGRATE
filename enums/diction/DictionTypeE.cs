@@ -22,67 +22,183 @@
     public static class DicTag
     {
         #region[创建标识]
-
+        /// <summary>
+        /// 库存ID
+        /// </summary>
         public const string NewStockId = nameof(NewStockId);
+
+        /// <summary>
+        /// 任务ID
+        /// </summary>
         public const string NewTranId = nameof(NewTranId);
+
+        /// <summary>
+        /// 警告ID
+        /// </summary>
         public const string NewWarnId = nameof(NewWarnId);
+
+        /// <summary>
+        /// 品种ID
+        /// </summary>
         public const string NewGoodId = nameof(NewGoodId);
+
+        /// <summary>
+        /// 砖机轨道ID
+        /// </summary>
         public const string NewTileTrackId = nameof(NewTileTrackId);
+
+        /// <summary>
+        /// 交管ID
+        /// </summary>
         public const string NewTrafficCtlId = nameof(NewTrafficCtlId);
 
         #endregion
 
         #region[平板]
+        /// <summary>
+        /// 是否开启登陆功能
+        /// </summary>
+        public const string UserLoginFunction = nameof(UserLoginFunction);
 
-        public const string UserLoginFunction = nameof(UserLoginFunction);//是否开启登陆功能
-        public const string PDA_INIT_VERSION = nameof(PDA_INIT_VERSION);//PDA基础字典版本数据
-        public const string PDA_GOOD_VERSION = nameof(PDA_GOOD_VERSION);//PDA品种字典版本信息
+        /// <summary>
+        /// PDA基础字典版本数据
+        /// </summary>
+        public const string PDA_INIT_VERSION = nameof(PDA_INIT_VERSION);
+
+        /// <summary>
+        /// PDA品种字典版本信息
+        /// </summary>
+        public const string PDA_GOOD_VERSION = nameof(PDA_GOOD_VERSION);
 
         #endregion
 
         #region[其他]
+        /// <summary>
+        /// 品种等级
+        /// </summary>
+        public static string GoodLevel = nameof(GoodLevel);
 
-        public static string GoodLevel = nameof(GoodLevel);                             //品种等级
-        public static string MinStockTime = nameof(MinStockTime);               //最小库存存放时间 小时数
-        public static string FerryAvoidNumber = nameof(FerryAvoidNumber);//摆渡车安全距离 轨道数
-        public static string TileLifterShiftCount = nameof(TileLifterShiftCount);//下砖机转产差值 层数
-        public static string StackPluse = nameof(StackPluse);                              //计算库位置使用的一垛间距
-        public static string Pulse2CM = nameof(Pulse2CM);                              //1脉冲=厘米
+        /// <summary>
+        /// 最小库存存放时间 小时数
+        /// </summary>
+        public static string MinStockTime = nameof(MinStockTime);
+
+        /// <summary>
+        /// 摆渡车安全距离 轨道数
+        /// </summary>
+        public static string FerryAvoidNumber = nameof(FerryAvoidNumber);
+
+        /// <summary>
+        /// 下砖机转产差值 层数
+        /// </summary>
+        public static string TileLifterShiftCount = nameof(TileLifterShiftCount);
+
+        /// <summary>
+        /// 计算库位置使用的一垛间距
+        /// </summary>
+        public static string StackPluse = nameof(StackPluse);
+
+        /// <summary>
+        /// 1脉冲=厘米
+        /// </summary>
+        public static string Pulse2CM = nameof(Pulse2CM);
 
         #endregion
 
         #region[任务逻辑开关]
+        /// <summary>
+        /// 开关-砖机需转产信号
+        /// </summary>
+        public static string TileNeedSysShiftFunc = nameof(TileNeedSysShiftFunc);
 
-        public static string TileNeedSysShiftFunc = nameof(TileNeedSysShiftFunc);       //开关-砖机需转产信号
-        public static string AutoBackupTileFunc = nameof(AutoBackupTileFunc);           //开关-备用砖机切换备用
-        public static string SeamlessMoveToFerry = nameof(SeamlessMoveToFerry);     //开关-无缝上摆渡
-        public static string UseTileFullSign = nameof(UseTileFullSign);                             //开关-启用砖机的-满砖信号
-        public static string EnableCarrierTraffic = nameof(EnableCarrierTraffic);               //开关-启用运输车交管摆渡车
-        public static string EnableLimitAllocate = nameof(EnableLimitAllocate);               //开关-启用下砖入库极限混砖
+        /// <summary>
+        /// 开关-备用砖机切换备用
+        /// </summary>
+        public static string AutoBackupTileFunc = nameof(AutoBackupTileFunc);
 
-        public static string EnableStockTimeForUp = nameof(EnableStockTimeForUp);               //开关-启用上砖库存时间限制（品种库存最早时间在入库侧-停止上砖且报警）
-        public static string EnableStockTimeForDown = nameof(EnableStockTimeForDown);     //开关-启用下砖库存时间限制（不得连续下满同一条轨道-仅剩最后一条轨道时停止下砖且报警）
+        /// <summary>
+        /// 开关-无缝上摆渡
+        /// </summary>
+        public static string SeamlessMoveToFerry = nameof(SeamlessMoveToFerry);
 
-        public static string EnableDownTrackOrder = nameof(EnableDownTrackOrder);     //开关-启用下砖顺序存放（下砖时按轨道顺序存放）
+        /// <summary>
+        /// 开关-启用砖机的-满砖信号
+        /// </summary>
+        public static string UseTileFullSign = nameof(UseTileFullSign);
 
-        public static string AllowClearTask = nameof(AllowClearTask);     //开关-允许清除任务
+        /// <summary>
+        /// 开关-启用运输车交管摆渡车
+        /// </summary>
+        public static string EnableCarrierTraffic = nameof(EnableCarrierTraffic);
+
+        /// <summary>
+        /// 开关-启用下砖入库极限混砖
+        /// </summary>
+        public static string EnableLimitAllocate = nameof(EnableLimitAllocate);
+
+        /// <summary>
+        /// 开关-启用上砖库存时间限制（品种库存最早时间在入库侧-停止上砖且报警）
+        /// </summary>
+        public static string EnableStockTimeForUp = nameof(EnableStockTimeForUp);
+
+        /// <summary>
+        /// 开关-启用下砖库存时间限制（不得连续下满同一条轨道-仅剩最后一条轨道时停止下砖且报警）
+        /// </summary>
+        public static string EnableStockTimeForDown = nameof(EnableStockTimeForDown);
+
+        /// <summary>
+        /// 开关-启用下砖顺序存放（下砖时按轨道顺序存放）
+        /// </summary>
+        public static string EnableDownTrackOrder = nameof(EnableDownTrackOrder);
+
+        /// <summary>
+        /// 开关-允许清除任务
+        /// </summary>
+        public static string AllowClearTask = nameof(AllowClearTask);
         #endregion
 
         #region[接力倒库、倒库同时上砖开关]
+        /// <summary>
+        /// 开关-允许接力倒库时可以上砖
+        /// </summary>
+        public static string UpTaskIgnoreSortTask = nameof(UpTaskIgnoreSortTask);
 
-        public static string UpTaskIgnoreSortTask = nameof(UpTaskIgnoreSortTask);          //开关-允许接力倒库时可以上砖
-        public static string UseUpSplitPoint = nameof(UseUpSplitPoint);                             //开关-启用上砖侧分割点坐标逻辑
-        public static string CannotUseUpSplitStock = nameof(CannotUseUpSplitStock);    //开关-限制直接使用上砖侧分割点后的库存
-        public static string UpSortUseMaxNumber = nameof(UpSortUseMaxNumber);     //开关-接力倒库使用倒库最大数量【在线路上配置】
+        /// <summary>
+        /// 开关-启用上砖侧分割点坐标逻辑
+        /// </summary>
+        public static string UseUpSplitPoint = nameof(UseUpSplitPoint);
 
-        public static string UpTaskIgnoreInoutSortTask = nameof(UpTaskIgnoreInoutSortTask);          //开关-允许出入倒库时可以上砖
+        /// <summary>
+        /// 开关-限制直接使用上砖侧分割点后的库存
+        /// </summary>
+        public static string CannotUseUpSplitStock = nameof(CannotUseUpSplitStock);
+
+        /// <summary>
+        /// 开关-接力倒库使用倒库最大数量【在线路上配置】
+        /// </summary>
+        public static string UpSortUseMaxNumber = nameof(UpSortUseMaxNumber);
+
+        /// <summary>
+        /// 开关-允许出入倒库时可以上砖
+        /// </summary>
+        public static string UpTaskIgnoreInoutSortTask = nameof(UpTaskIgnoreInoutSortTask);
         #endregion
 
         #region[分析服务开关]
+        /// <summary>
+        /// 开关-启用分析服务
+        /// </summary>
+        public static string EnableDiagnose = nameof(EnableDiagnose);
 
-        public static string EnableDiagnose = nameof(EnableDiagnose);                   //开关-启用分析服务
-        public static string EnableSortDiagnose = nameof(EnableSortDiagnose);   //开关-启用倒库分析服务
-        public static string EnableMoveCarDiagnose = nameof(EnableMoveCarDiagnose);   //开关-启用移车分析服务
+        /// <summary>
+        /// 开关-启用倒库分析服务
+        /// </summary>
+        public static string EnableSortDiagnose = nameof(EnableSortDiagnose);
+
+        /// <summary>
+        /// 开关-启用移车分析服务
+        /// </summary>
+        public static string EnableMoveCarDiagnose = nameof(EnableMoveCarDiagnose);
 
         #endregion
     }
