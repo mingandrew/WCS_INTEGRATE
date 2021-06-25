@@ -2004,7 +2004,9 @@ namespace resource.goods
             else if(stocks.Count > 1)
             {
                 stocks.Sort((x, y) => y.location.CompareTo(x.location));
-                return stocks[0].id;
+                //return stocks[0].id;
+                // 常规轨道找最小脉冲；同侧上下轨道找最大脉冲
+                return (track.same_side_inout ? stocks[stocks.Count - 1] : stocks[0]).id;
             }
 
             //如果在储砖出、或者入的轨道找不到库存则在兄弟轨道查找该脉冲范围内有没有库存的信息

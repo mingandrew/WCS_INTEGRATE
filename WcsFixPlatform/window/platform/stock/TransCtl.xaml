@@ -69,8 +69,8 @@
                             <DataGrid.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="取消任务" Tag="1" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                                    <MenuItem Header="完成任务" Tag="2" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <MenuItem Header="修改卸货点" Tag="3" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    <MenuItem Header="强制完成" Tag="2" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <!--<MenuItem Header="修改卸货点" Tag="3" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
                                     <MenuItem Header="刷新数据" Tag="4" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>

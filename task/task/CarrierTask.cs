@@ -413,6 +413,17 @@ namespace task.device
         }
 
         /// <summary>
+        /// 置位指令
+        /// </summary>
+        internal void DoRenew()
+        {
+            OnGoingTrackId = 0;
+            SetOnGoingOrderWithMemo(DevCarrierOrderE.无, 0);
+
+            DevTcp?.SendCmd(DevCarrierCmdE.置位指令); 
+        }
+
+        /// <summary>
         /// 接收-回复
         /// </summary>
         internal void DoReply()

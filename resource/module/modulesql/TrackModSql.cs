@@ -30,6 +30,24 @@ namespace resource.module.modulesql
         }
 
         /// <summary>
+        /// 查询区域运输车复位地标信息（选定位置）
+        /// </summary>
+        /// <param name="areaid">0 不过滤区域， 大于0 过滤指定的区域</param>
+        /// <returns></returns>
+        public ushort QueryCarrierPos(uint areaid, CarrierPosE cp)
+        {
+            ushort pos = 0;
+            string sql = string.Format("SELECT track_pos FROM carrier_pos WHERE area_id = {0} AND track_point = {1}", 
+                areaid, (int)cp);
+            DataTable dt = mSql.ExecuteQuery(sql);
+            if (!mSql.IsNoData(dt))
+            {
+                pos = Convert.ToUInt16(dt.Rows[0]["track_pos"].ToString());
+            }
+            return pos;
+        }
+
+        /// <summary>
         /// 查询区域运输车复位地标信息
         /// </summary>
         /// <param name="areaid">0 不过滤区域， 大于0 过滤指定的区域</param>

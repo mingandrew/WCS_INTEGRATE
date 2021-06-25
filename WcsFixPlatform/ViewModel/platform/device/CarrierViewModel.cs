@@ -123,27 +123,27 @@ namespace wcs.ViewModel
             {
                 switch (stype)
                 {
-                    case 20://连接通讯
+                    case 100://连接通讯
                         PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, true);
                         break;
-                    case 21://中断通讯
+                    case 101://中断通讯
                         PubTask.Carrier.StartStopCarrier(DeviceSelected.ID, false);
                         break;
 
-                    case 22://启用
+                    case 102://启用
                         if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, true, out DeviceTypeE _, "PC手动"))
                         {
                             PubTask.Carrier.UpdateWorking(DeviceSelected.ID, true);
                         }
                         break;
-                    case 23://停用
+                    case 103://停用
                         if (PubMaster.Device.SetDevWorking(DeviceSelected.ID, false, out DeviceTypeE _, "PC手动"))
                         {
                             PubTask.Carrier.UpdateWorking(DeviceSelected.ID, false);
                         }
                         break;
 
-                    case 24://清空设备信息
+                    case 104://清空设备信息
                         Growl.Ask("清除前请确认小车位于安全且不干扰作业的位置，如：所在轨道已停用，是维修轨道等", isConfirmed =>
                         {
                             if (isConfirmed)
@@ -159,20 +159,30 @@ namespace wcs.ViewModel
                         DevCarrierTaskE type = (DevCarrierTaskE)stype;
                         ushort srfid = 0;
                         
-                        //判断前进放砖是否有串联砖机
-                        if ((DevCarrierTaskE)stype == DevCarrierTaskE.前进放砖)
+                        //判断是否有串联砖机
+                        if (type == DevCarrierTaskE.前进取砖
+                            || type == DevCarrierTaskE.前进放砖
+                            || type == DevCarrierTaskE.后退取砖
+                            || type == DevCarrierTaskE.后退放砖
+                            )
                         {
-
                             Track track = PubMaster.Track.GetTrack(DeviceSelected.CurrentTrackId);
-                            if (track.Type == TrackTypeE.摆渡车_出)
+                            if (track == null)
                             {
-                                if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, true, out uint intrackid, out string warning))
+                                Growl.Warning("未能获取到小车位置相关信息！");
+                                return;
+                            }
+
+                            if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
+                            {
+                                if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, (type == DevCarrierTaskE.前进取砖 || type == DevCarrierTaskE.前进放砖), 
+                                        out uint intrackid, out string warning))
                                 {
                                     Growl.Warning(warning);
                                     return;
                                 }
                                 Track tt = PubMaster.Track.GetTrack(intrackid);
-                                if (tt.Type == TrackTypeE.上砖轨道 && tt.rfid_1 != tt.rfid_2 && tt.rfid_2 != 0)
+                                if (tt.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道) && tt.rfid_1 != tt.rfid_2 && tt.rfid_2 != 0)
                                 {
                                     DialogResult result1 = await HandyControl.Controls.Dialog.Show<Carrier2TileLifterDialog>()
                                         .Initialize<Carrier2TileLifterViewModel>((vm) =>
@@ -187,7 +197,6 @@ namespace wcs.ViewModel
                                 }
                             }
                         }
-
 
                         if (!PubTask.Carrier.DoManualNewTask(DeviceSelected.ID, type, out string result, "PC手动", srfid))
                         {

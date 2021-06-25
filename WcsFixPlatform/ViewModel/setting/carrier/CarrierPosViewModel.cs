@@ -152,7 +152,7 @@ namespace wcs.ViewModel
                                     Growl.Warning("找不到配置该地标的轨道信息，请检查地标是否准确！");
                                     return;
                                 }
-                                PubMaster.Mod.TraSql.AddCarrierPos(pos);
+                                PubMaster.Track.AddCarrierPos(pos);
                             }
                             else
                             {
@@ -168,7 +168,7 @@ namespace wcs.ViewModel
                             return;
                         }
                         pos.id = SelectPos.id;
-                        PubMaster.Mod.TraSql.EditCarrierPos(pos);
+                        PubMaster.Track.EditCarrierPos(pos);
                     }
                     QueryPointPosData();
 
@@ -204,7 +204,7 @@ namespace wcs.ViewModel
 
         private void QueryPointPosData()
         {
-            List<CarrierPos> list = PubMaster.Mod.TraSql.QueryCarrierPosList(areaid);
+            List<CarrierPos> list = PubMaster.Track.QueryCarrierPosList(areaid);
             List.Clear();
             foreach (var item in list)
             {

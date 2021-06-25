@@ -226,7 +226,7 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
                                     ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    ToPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
+                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                     ToTrackId = ferryTraid
                                 });
                                 return;
@@ -352,7 +352,7 @@ namespace task.trans.transtask
                     {
                         Order = DevCarrierOrderE.定位指令,
                         CheckTra = tra.ferry_down_code,
-                        ToPoint = (ushort)(tra.split_point + 100),
+                        OverPoint = (ushort)(tra.split_point + 100),
                     }, "接力不允许取入库轨道砖, 定位回去一点位置");
                 }
 
@@ -495,7 +495,7 @@ namespace task.trans.transtask
                         {
                             Order = DevCarrierOrderE.定位指令,
                             CheckTra = track.ferry_down_code,
-                            ToPoint = topoint,
+                            OverPoint = topoint,
                         }, string.Format("接力等待后退[ {0} ]车身的位置，轨道有库存[ {1} ], 需接力库存[ {2} ]", carspace, trackstockcount, behindstockcount));
                     }
                     else
@@ -649,7 +649,7 @@ namespace task.trans.transtask
                 {
                     Order = DevCarrierOrderE.定位指令,
                     CheckTra = track.ferry_down_code,
-                    ToPoint = _topoint,
+                    OverPoint = _topoint,
                 }, "接力后退两个位置避让取砖");
                 return;
             }
@@ -670,7 +670,7 @@ namespace task.trans.transtask
                     Order = DevCarrierOrderE.定位指令,
                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                     ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                    ToPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
+                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
                     ToTrackId = trans.give_track_id
                 }, "接力完成返回出轨道");
                 return;
@@ -727,7 +727,7 @@ namespace task.trans.transtask
                         Order = DevCarrierOrderE.定位指令,
                         CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
                         ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
-                        ToPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
+                        OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
                         ToTrackId = trans.give_track_id
                     });
                 }

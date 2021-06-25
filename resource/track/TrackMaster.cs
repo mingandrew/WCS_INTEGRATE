@@ -32,6 +32,7 @@ namespace resource.track
         {
             mLog = (Log)new LogFactory().GetLog("工位日志", false);
             TrackList = new List<Track>();
+            CarrierPosList = new List<CarrierPos>();
             _obj = new object();
         }
 
@@ -54,6 +55,7 @@ namespace resource.track
                     }
                 }
             }
+
             if (refr_2)
             {
                 List<Track> list = TrackList.FindAll(c => c.InType(TrackTypeE.储砖_出) && c.up_split_point > 0);
@@ -61,6 +63,12 @@ namespace resource.track
                 {
                     GetAndRefreshUpCount(track.id);
                 }
+            }
+
+            if (refr_3)
+            {
+                CarrierPosList.Clear();
+                CarrierPosList.AddRange(PubMaster.Mod.TraSql.QueryCarrierPosList());
             }
         }
 
@@ -79,6 +87,7 @@ namespace resource.track
 
         private List<Track> TrackList { set; get; }
 
+        private List<CarrierPos> CarrierPosList { set; get; }
         #endregion
 
         #region[获取对象]
@@ -1963,6 +1972,62 @@ namespace resource.track
         {
             return TrackList.FindAll(c => c.area == area_id && c.Type == TrackTypeE.上砖轨道)?.Select(c => c.id).ToList();
         }
+
+        #endregion
+
+        #region [运输车复位脉冲]
+
+        /// <summary>
+        /// 获取区域运输车复位点脉冲（单个）
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public ushort GetCarrierPos(uint area_id, CarrierPosE cp)
+        {
+            return CarrierPosList.Find(c => c.area_id == area_id && c.track_point == (ushort)cp)?.track_pos ?? 0;
+        }
+
+        /// <summary>
+        /// 获取区域运输车复位点脉冲（全部）
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <returns></returns>
+        public List<CarrierPos> QueryCarrierPosList(uint area_id)
+        {
+            return CarrierPosList;
+        }
+
+        /// <summary>
+        /// 新增区域运输车复位点
+        /// </summary>
+        /// <param name="pos"></param>
+        public void AddCarrierPos(CarrierPos pos)
+        {
+            if (CarrierPosList.Exists(c=> c.area_id == pos.area_id 
+                    && c.track_point == pos.track_point 
+                    && c.track_pos == pos.track_pos))
+            {
+                return;
+            }
+            pos.id = (CarrierPosList.Max(c => c.id) + 1);
+            CarrierPosList.Add(pos);
+            PubMaster.Mod.TraSql.AddCarrierPos(pos);
+        }
+
+        /// <summary>
+        /// 修改区域运输车复位点
+        /// </summary>
+        /// <param name="pos"></param>
+        public void EditCarrierPos(CarrierPos pos)
+        {
+            CarrierPos cp = CarrierPosList.Find(c => c.id == pos.id);
+            if (cp == null) return;
+            cp.track_point = pos.track_point;
+            cp.track_pos = pos.track_pos;
+            PubMaster.Mod.TraSql.EditCarrierPos(pos);
+        }
+
         #endregion
     }
 }

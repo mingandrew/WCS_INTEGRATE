@@ -178,7 +178,7 @@ namespace simtask.master
                 case DevCarrierCmdE.复位操作:
 
                     break;
-                case DevCarrierCmdE.终止指令:
+                case DevCarrierCmdE.置位指令:
                     task.DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;
                     task.DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
 

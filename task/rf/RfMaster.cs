@@ -1730,32 +1730,46 @@ namespace task.rf
             DevCarrierTaskPack pack = JsonTool.Deserialize<DevCarrierTaskPack>(msg.Pack.Data);
             if (pack != null)
             {
-                if (pack.CarrierTask == 128) return;
-
-                //判断前进放砖是否有串联砖机
-                if (pack.CarrierTask == 2)
-                {
-                    CarrierTask carrier = PubTask.Carrier.GetDevCarrier(pack.DevId);
-                    Track track = PubMaster.Track.GetTrack(carrier.CurrentTrackId);
-                    if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, true, out uint intrackid, out string warning))
-                    {
-                        SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, warning);
-                        return;
-                    }
-                    Track tt = PubMaster.Track.GetTrack(intrackid);
-                    if (tt.Type == TrackTypeE.上砖轨道 && tt.rfid_1 != tt.rfid_2 && tt.rfid_2 != 0)
-                    {
-                        List<Device> devlist = PubMaster.DevConfig.GetDevices(intrackid);
-                        RfDevicePack pack1 = new RfDevicePack();
-                        foreach (Device item in devlist)
-                        {
-                            pack1.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
-                        }
-                        SendSucc2Rf(msg.MEID, FunTag.QueryDevice, JsonTool.Serialize(pack1));
-                        return;
-                    }
-                }
                 DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
+
+                //判断是否有串联砖机
+                if (type == DevCarrierTaskE.前进取砖
+                    || type == DevCarrierTaskE.前进放砖
+                    || type == DevCarrierTaskE.后退取砖
+                    || type == DevCarrierTaskE.后退放砖
+                    )
+                {
+                    Track track = PubMaster.Track.GetTrack(PubTask.Carrier.GetCarrierTrackID(pack.DevId));
+                    if (track == null)
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, "未能获取到小车位置相关信息！");
+                        return;
+                    }
+
+                    if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
+                    {
+                        if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, (type == DevCarrierTaskE.前进取砖 || type == DevCarrierTaskE.前进放砖),
+                                out uint intrackid, out string warning))
+                        {
+                            SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, warning);
+                            return;
+                        }
+                        Track tt = PubMaster.Track.GetTrack(intrackid);
+                        if (tt.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道) && tt.rfid_1 != tt.rfid_2 && tt.rfid_2 != 0)
+                        {
+                            List<Device> devlist = PubMaster.DevConfig.GetDevices(intrackid);
+                            RfDevicePack pack1 = new RfDevicePack();
+                            foreach (Device item in devlist)
+                            {
+                                pack1.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
+                            }
+                            SendSucc2Rf(msg.MEID, FunTag.QueryDevice, JsonTool.Serialize(pack1));
+                            return;
+                        }
+                    }
+
+                }
+
                 if (!PubTask.Carrier.DoManualNewTask(pack.DevId, type, out string result, "平板手动"))
                 {
                     SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, result);
@@ -1766,7 +1780,7 @@ namespace task.rf
         }
 
         /// <summary>
-        /// 串联上砖机小车前进放砖任务
+        /// 串联砖机小车任务
         /// </summary>
         /// <param name="msg"></param>
         private void DoCarrier2TileLifterTask(RfMsgMod msg)
@@ -1774,17 +1788,35 @@ namespace task.rf
             Carrier2TileLifterPack pack = JsonTool.Deserialize<Carrier2TileLifterPack>(msg.Pack.Data);
             if (pack!= null)
             {
-                if (pack.CarrierTask == 2)
+                DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
+                //判断是否有串联砖机
+                if (type == DevCarrierTaskE.前进取砖
+                    || type == DevCarrierTaskE.前进放砖
+                    || type == DevCarrierTaskE.后退取砖
+                    || type == DevCarrierTaskE.后退放砖
+                    )
                 {
-                    CarrierTask carrier = PubTask.Carrier.GetDevCarrier(pack.CarrierId);
-                    Track track = PubMaster.Track.GetTrack(carrier.CurrentTrackId);
-                    if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, true, out uint intrackid, out string warning))
+                    Track track = PubMaster.Track.GetTrack(PubTask.Carrier.GetCarrierTrackID(pack.CarrierId));
+                    if (track == null)
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, "未能获取到小车位置相关信息！");
+                        return;
+                    }
+
+                    if (track.NotInType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, "小车没在摆渡车上！");
+                        return;
+                    }
+
+                    if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, (type == DevCarrierTaskE.前进取砖 || type == DevCarrierTaskE.前进放砖),
+                            out uint intrackid, out string warning))
                     {
                         SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, warning);
                         return;
                     }
+
                     ushort srfid = PubMaster.DevConfig.GetTileSite(pack.TileLifterId, intrackid);
-                    DevCarrierTaskE type = (DevCarrierTaskE)pack.CarrierTask;
                     if (!PubTask.Carrier.DoManualNewTask(pack.CarrierId, type, out string result, "平板手动", srfid))
                     {
                         SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, result);
@@ -1792,6 +1824,9 @@ namespace task.rf
                     }
                     SendSucc2Rf(msg.MEID, FunTag.DoDevCarrierTask, "ok");
                 }
+
+                SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, "发送异常指令！");
+                return;
             }
         }
 
