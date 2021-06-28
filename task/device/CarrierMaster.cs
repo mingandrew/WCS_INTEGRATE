@@ -866,6 +866,8 @@ namespace task.device
                 byte moveCount = 0;//倒库数量
                 uint toTrackid = 0;//目标轨道ID
 
+                Track toTrack; // 作业轨道
+
                 switch (carriertask)
                 {
                     case DevCarrierTaskE.后退取砖:
@@ -886,9 +888,17 @@ namespace task.device
                         {
                             return false;
                         }
-                        checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointIn(toTrackid));
-                        overPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
+
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+
+                        checkTra = toTrack.ferry_up_code;
+                        toPoint = (srfid != 0 ? srfid : toTrack.limit_point);
+                        overPoint = toTrack.limit_point_up;
                         order = DevCarrierOrderE.取砖指令;
                         #endregion
                         break;
@@ -911,9 +921,17 @@ namespace task.device
                         {
                             return false;
                         }
-                        checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointIn(toTrackid));
-                        overPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
+
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+
+                        checkTra = toTrack.ferry_up_code;
+                        toPoint = (srfid != 0 ? srfid : toTrack.limit_point);
+                        overPoint = toTrack.limit_point_up;
                         order = DevCarrierOrderE.放砖指令;
                         #endregion
                         break;
@@ -936,9 +954,17 @@ namespace task.device
                         {
                             return false;
                         }
-                        checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointOut(toTrackid));
-                        overPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
+
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+
+                        checkTra = toTrack.ferry_down_code;
+                        toPoint = (srfid != 0 ? srfid : toTrack.limit_point_up);
+                        overPoint = toTrack.limit_point;
                         order = DevCarrierOrderE.取砖指令;
                         #endregion
                         break;
@@ -961,9 +987,17 @@ namespace task.device
                         {
                             return false;
                         }
-                        checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        toPoint = (srfid != 0 ? srfid : PubMaster.Track.GetTrackLimitPointOut(toTrackid));
-                        overPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
+
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+
+                        checkTra = toTrack.ferry_down_code;
+                        toPoint = (srfid != 0 ? srfid : toTrack.limit_point_up);
+                        overPoint = toTrack.limit_point;
                         order = DevCarrierOrderE.放砖指令;
                         #endregion
                         break;
@@ -980,8 +1014,16 @@ namespace task.device
                         {
                             return false;
                         }
-                        checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        overPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
+
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+
+                        checkTra = toTrack.ferry_down_code;
+                        overPoint = toTrack.limit_point;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
                         break;
@@ -998,8 +1040,16 @@ namespace task.device
                         {
                             return false;
                         }
-                        checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        overPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
+
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+
+                        checkTra = toTrack.ferry_up_code;
+                        overPoint = toTrack.limit_point_up;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
                         break;
@@ -1045,7 +1095,7 @@ namespace task.device
 
                         // 前进 直到扫到复位接近开关 停
                         order = DevCarrierOrderE.定位指令;
-                        checkTra = GetCurrentSite(devid);
+                        checkTra = track.ferry_up_code;
                         overPoint = 65535; // 无确定值，直接给最大脉冲表示 前进
                         break;
 
@@ -1090,8 +1140,62 @@ namespace task.device
 
                         // 后退 直到扫到复位接近开关 停
                         order = DevCarrierOrderE.定位指令;
-                        checkTra = GetCurrentSite(devid);
+                        checkTra = track.ferry_down_code;
                         overPoint = 1; // 无确定值，直接给最小脉冲表示 前进
+                        break;
+
+                    case DevCarrierTaskE.前进至轨道头:
+                        #region 前进至轨道头
+                        if (track.NotInType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                        {
+                            result = "只能在储砖轨道内执行该指令";
+                            return false;
+                        }
+                        if (track.Type == TrackTypeE.储砖_入)
+                        {
+                            toTrack = PubMaster.Track.GetTrack(track.brother_track_id);
+                            if (toTrack == null)
+                            {
+                                result = "无目的轨道数据！";
+                                return false;
+                            }
+                            checkTra = toTrack.ferry_down_code;
+                            overPoint = toTrack.limit_point_up;
+                        }
+                        else
+                        {
+                            checkTra = track.ferry_down_code;
+                            overPoint = track.limit_point_up;
+                        }
+                        order = DevCarrierOrderE.定位指令;
+                        #endregion
+                        break;
+
+                    case DevCarrierTaskE.后退至轨道头:
+                        #region 后退至轨道头
+                        if (track.NotInType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                        {
+                            result = "只能在储砖轨道内执行该指令";
+                            return false;
+                        }
+                        if (track.Type == TrackTypeE.储砖_出)
+                        {
+                            toTrack = PubMaster.Track.GetTrack(track.brother_track_id);
+                            if (toTrack == null)
+                            {
+                                result = "无目的轨道数据！";
+                                return false;
+                            }
+                            checkTra = toTrack.ferry_up_code;
+                            overPoint = toTrack.limit_point;
+                        }
+                        else
+                        {
+                            checkTra = track.ferry_up_code;
+                            overPoint = track.limit_point;
+                        }
+                        order = DevCarrierOrderE.定位指令;
+                        #endregion
                         break;
 
                     case DevCarrierTaskE.倒库:

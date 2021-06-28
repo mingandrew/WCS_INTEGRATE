@@ -52,17 +52,17 @@ namespace module.track
         public int upcount { get; set; }//上砖车数
 
         /// <summary>
-        /// 轨道分段点坐标
+        /// 轨道分段点坐标（中间点）
         /// </summary>
         public ushort split_point { set; get; }
 
         /// <summary>
-        /// 轨道下砖极限点坐标
+        /// 轨道下砖极限点坐标【定位点脉冲】（后侧点）
         /// </summary>
         public ushort limit_point { set; get; }
 
         /// <summary>
-        /// 轨道上砖极限点坐标【定位点脉冲】
+        /// 轨道上砖极限点坐标【定位点脉冲】（前侧点）
         /// </summary>
         public ushort limit_point_up { set; get; }
 

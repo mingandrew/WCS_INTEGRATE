@@ -20,7 +20,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
         </Grid>
-        <DataGrid Grid.Row="2" Grid.Column="1" Margin="5,0,0,0" FontSize="30" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="False"
+        <DataGrid Grid.Row="2" Grid.Column="1" Margin="5,0,0,0" FontSize="30" RowHeaderWidth="0"  hc:DataGridAttach.ShowRowNumber="False"
                       ItemsSource="{Binding List}"
                       CanUserAddRows="False" CanUserResizeColumns="False"
                       CanUserDeleteRows="False" CanUserSortColumns="False"
@@ -50,7 +50,7 @@
                             <Grid>
                                 <ToggleButton  Style="{StaticResource ToggleButtonSwitch}"
                                            IsChecked="{Binding Path=Onoff_Up, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                           Padding="0" Margin="20" Height="50" Width="160" />
+                                           Padding="0" Margin="20" Height="50" Width="auto" />
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
@@ -60,17 +60,17 @@
                         <DataTemplate>
                             <ToggleButton  Style="{StaticResource ToggleButtonSwitch}"
                                               IsChecked="{Binding Path=Onoff_Down, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                           Padding="0" Margin="20" Height="50" MinWidth="160"  VerticalAlignment="Center"/>
+                                           Padding="0" Margin="20" Height="50"  Width="auto"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="倒库开关" Width="*">
+                <DataGridTemplateColumn Header="倒库开关" Width="*" Visibility="Collapsed">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ToggleButton  Style="{StaticResource ToggleButtonSwitch}"
                                               IsChecked="{Binding Path=Onoff_Sort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               IsEnabled="{Binding HaveSort}"
-                                           Padding="0" Margin="20" Height="50" Width="160"/>
+                                           Padding="0" Margin="20" Height="50" Width="auto"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

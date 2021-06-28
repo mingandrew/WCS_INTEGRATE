@@ -52,12 +52,12 @@
             </hc:Interaction.Triggers>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="添加" Tag="addpos" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                    <!--<MenuItem Header="添加" Tag="addpos" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
                 </ContextMenu>
             </DataGrid.ContextMenu>
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding track_point,Converter={StaticResource TrackCode2NameConverter}}" Header="轨道名称" Width="*"/>
-                <DataGridTextColumn Binding="{Binding track_point}" Header="复位地标" Width="*"/>
+                <DataGridTextColumn Binding="{Binding CarrierPosType}" Header="复位名称" Width="*"/>
+                <DataGridTextColumn Binding="{Binding track_point}" Header="复位号码" Width="*"/>
                 <DataGridTextColumn Binding="{Binding track_pos}" Header="复位脉冲" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
