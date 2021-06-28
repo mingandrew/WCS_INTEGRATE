@@ -848,7 +848,11 @@ namespace task.device
             try
             {
                 Track track = GetCarrierTrack(devid);
-                if (track == null)
+                if (carriertask != DevCarrierTaskE.终止 
+                    && carriertask != DevCarrierTaskE.置位
+                    && carriertask != DevCarrierTaskE.前进至点
+                    && carriertask != DevCarrierTaskE.后退至点  // 这些指令不用管当前位置
+                    && track == null)
                 {
                     result = "未能获取到小车位置相关信息！";
                     return false;
@@ -1095,7 +1099,6 @@ namespace task.device
 
                         // 前进 直到扫到复位接近开关 停
                         order = DevCarrierOrderE.定位指令;
-                        checkTra = track.ferry_up_code;
                         overPoint = 65535; // 无确定值，直接给最大脉冲表示 前进
                         break;
 
@@ -1140,7 +1143,6 @@ namespace task.device
 
                         // 后退 直到扫到复位接近开关 停
                         order = DevCarrierOrderE.定位指令;
-                        checkTra = track.ferry_down_code;
                         overPoint = 1; // 无确定值，直接给最小脉冲表示 前进
                         break;
 
