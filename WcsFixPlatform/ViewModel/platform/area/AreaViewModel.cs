@@ -483,18 +483,7 @@ namespace wcs.ViewModel
             FerryTraList.Clear();
             foreach (var item in PubMaster.Area.GetAreaDevTraList(SelectAreaId, _selectferry.id))
             {
-                if (SelectLineId > 0)
-                {
-                    ushort lineid = PubMaster.Device.GetDeviceLIne(item.device_id);
-                    if (lineid == 0 || (lineid != 0 && SelectLineId == lineid))
-                    {
-                        FerryTraList.Add(item);
-                    }
-                }
-                else
-                {
-                    FerryTraList.Add(item);
-                }
+                FerryTraList.Add(item);
             }
 
             if (FerryTraList.Count == 0)
@@ -625,18 +614,7 @@ namespace wcs.ViewModel
             TileTraList.Clear();
             foreach (var item in PubMaster.Area.GetAreaDevTraList(SelectAreaId, _selecttile.id))
             {
-                if (SelectLineId > 0)
-                {
-                    ushort lineid = PubMaster.Track.GetTrackLine(item.track_id);
-                    if (lineid == 0 || (lineid != 0 && SelectLineId == lineid))
-                    {
-                        TileTraList.Add(item);
-                    }
-                }
-                else
-                {
-                    TileTraList.Add(item);
-                }
+                TileTraList.Add(item);
             }
 
             if (TileTraList.Count == 0)
