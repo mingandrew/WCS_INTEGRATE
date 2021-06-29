@@ -15,6 +15,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Height="60"  Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
+        <!--<Grid Grid.Row="0" Height="60"  Visibility="Visible" >-->
             <hc:ButtonGroup Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
                                 ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}">
@@ -35,6 +36,11 @@
                     </DataTemplate>
                 </hc:ButtonGroup.ItemTemplate>
             </hc:ButtonGroup>
+
+            <Button Content="生成反抛任务" HorizontalAlignment="Left"  Visibility="{Binding ShowSecondUpButton,Converter={StaticResource Boolean2VisibilityConverter}}"
+                            Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionTaskCmd}" Margin="1035,7,0,6"
+                            FontSize="20" Height="47" Tag="0" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Width="229"/>
 
         </Grid>
         <Grid Grid.Row="1">
@@ -69,8 +75,8 @@
                             <DataGrid.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="取消任务" Tag="1" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                                    <MenuItem Header="强制完成" Tag="2" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                                    <!--<MenuItem Header="修改卸货点" Tag="3" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>-->
+                                    <MenuItem Header="完成任务" Tag="2" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                    <MenuItem Header="修改卸货点" Tag="3" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                     <MenuItem Header="刷新数据" Tag="4" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </ContextMenu>
                             </DataGrid.ContextMenu>
@@ -130,13 +136,13 @@
                     </TabItem>
                 </TabControl>
             </Grid>
-            
+
             <StackPanel Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal"
                         Background="AntiqueWhite">
                 <TextBlock Text="摆渡车交管情况 → " Style="{StaticResource TextBlockTitleBold}" />
                 <TextBlock Text="{Binding TCmsg}" Style="{StaticResource TextBlockTitleBold}" TextWrapping="Wrap"/>
             </StackPanel>
-            
+
             <RichTextBox Grid.Row="2" Margin="0,1,0,0" BorderThickness="3" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True">
                 <FlowDocument FontSize="18">
                     <Paragraph>
