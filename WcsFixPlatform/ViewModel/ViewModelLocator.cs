@@ -7,6 +7,7 @@ using task;
 using tool.appconfig;
 using wcs.Service;
 using wcs.ViewModel.platform.device;
+using wcs.ViewModel.platform.track;
 
 namespace wcs.ViewModel
 {
@@ -77,6 +78,9 @@ namespace wcs.ViewModel
 
             SimpleIoc.Default.Register<SimulationViewModel>();
 
+            SimpleIoc.Default.Register<LocationDialogViewModel>();
+            SimpleIoc.Default.Register<CarrierPosSelectViewModel>();
+
             GlobalWcsDataConfig.Init();
             PubMaster.Init();
             PubTask.Init();
@@ -122,6 +126,8 @@ namespace wcs.ViewModel
         public GoodShiftDialogViewModel GoodShift => ServiceLocator.Current.GetInstance<GoodShiftDialogViewModel>();
         public CarrierPosViewModel CarrierPos => ServiceLocator.Current.GetInstance<CarrierPosViewModel>();
         public Carrier2TileLifterViewModel Carrier2TileLifter => ServiceLocator.Current.GetInstance<Carrier2TileLifterViewModel>();
+        public LocationDialogViewModel Location => ServiceLocator.Current.GetInstance<LocationDialogViewModel>();
+        public CarrierPosSelectViewModel CarrierPosSelect => ServiceLocator.Current.GetInstance<CarrierPosSelectViewModel>();
         #endregion
 
         #region[品种/库存/交易]

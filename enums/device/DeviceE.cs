@@ -92,4 +92,14 @@
         to
     }
 
+    /// <summary>
+    /// 设备移动方向
+    /// </summary>
+    public enum DevMoveDirectionE
+    {
+        无,
+        前进,
+        后退
+    }
+
 }

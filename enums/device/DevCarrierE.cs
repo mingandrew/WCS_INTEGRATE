@@ -50,15 +50,6 @@
     }
 
     /// <summary>
-    /// 手动操作（灵活指令）
-    /// </summary>
-    public enum DevCarrierTask2E
-    {
-        脉冲定位,
-        初始化
-    }
-
-    /// <summary>
     /// 超限模式
     /// </summary>
     public enum DevCarrierSizeE

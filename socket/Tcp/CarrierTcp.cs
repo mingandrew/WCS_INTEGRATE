@@ -262,6 +262,7 @@ namespace socket.tcp
                     || device.IsCurrentSiteUpdate
                     || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, DevID, 2))
                 {
+                    _mLog.Cmd(true, "接收：", pdata);
                     SendMsg(SocketMsgTypeE.DataReiceive, SocketConnectStatusE.通信正常, device);
                     if (device.IsUpdate) _mLog.Status(true, device.ToString());
                 }

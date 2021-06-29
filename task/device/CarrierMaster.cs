@@ -185,9 +185,10 @@ namespace task.device
                             if (task.IsEnable && task.IsConnect)
                             {
                                 // 超过 10s 没有更新过设备状态就查询一次
-                                if (task.IsRefreshTimeOver(10))
+                                if (task.IsRefreshTimeOver(60))
                                 {
                                     task.DoQuery();
+                                    task.ReSetRefreshTime();
                                 }
                             }
                         }
@@ -1059,91 +1060,97 @@ namespace task.device
                         break;
 
                     case DevCarrierTaskE.前进至点:
-                        #region 前进至点 （停用）
-                        //switch (track.Type)
-                        //{
-                        //    case TrackTypeE.上砖轨道:
-                        //    case TrackTypeE.下砖轨道:
-                        //    case TrackTypeE.储砖_出:
-                        //    case TrackTypeE.储砖_出入:
-                        //        if (Math.Abs(site - track.limit_point_up) >= 20) // 暂定（+-20）脉冲
-                        //        {
-                        //            result = "小车已经不能再前进了";
-                        //            return false;
-                        //        }
-                        //        checkTra = track.ferry_down_code;
-                        //        toPoint = track.limit_point_up;
-                        //        break;
+                        #region 前进至点
+                        switch (track.Type)
+                        {
+                            case TrackTypeE.上砖轨道:
+                            case TrackTypeE.下砖轨道:
+                            case TrackTypeE.储砖_出:
+                            case TrackTypeE.储砖_出入:
+                                if (Math.Abs(site - track.limit_point_up) >= 20) // 暂定（+-20）脉冲
+                                {
+                                    result = "小车已经不能再前进了";
+                                    return false;
+                                }
+                                toTrackid = track.id;
+                                break;
 
-                        //    case TrackTypeE.储砖_入:
-                        //        toTrackid = track.brother_track_id;
-                        //        checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        //        toPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
-                        //        break;
+                            case TrackTypeE.储砖_入:
+                                toTrackid = track.brother_track_id;
+                                break;
 
-                        //    case TrackTypeE.摆渡车_入:
-                        //    case TrackTypeE.摆渡车_出:
-                        //        // 获取摆渡车前侧对应的轨道
-                        //        if (!PubTask.Ferry.IsInPlaceByFerryTraid(true, track.id, out toTrackid, out result))
-                        //        {
-                        //            return false;
-                        //        }
-                        //        checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        //        toPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
-                        //        break;
-                        //    default:
-                        //        break;
-                        //}
-                        //order = DevCarrierOrderE.定位指令;
+                            case TrackTypeE.摆渡车_入:
+                            case TrackTypeE.摆渡车_出:
+                                // 获取摆渡车前侧对应的轨道
+                                if (!PubTask.Ferry.IsInPlaceByFerryTraid(true, track.id, out toTrackid, out result))
+                                {
+                                    return false;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+                        checkTra = toTrack.ferry_down_code;
+                        toPoint = toTrack.limit_point_up;
+                        order = DevCarrierOrderE.定位指令;
                         #endregion
 
                         // 前进 直到扫到复位接近开关 停
-                        order = DevCarrierOrderE.定位指令;
-                        overPoint = 65535; // 无确定值，直接给最大脉冲表示 前进
+                        //order = DevCarrierOrderE.定位指令;
+                        //overPoint = 65535; // 无确定值，直接给最大脉冲表示 前进
                         break;
 
                     case DevCarrierTaskE.后退至点:
-                        #region 后退至点 （停用）
-                        //switch (track.Type)
-                        //{
-                        //    case TrackTypeE.上砖轨道:
-                        //    case TrackTypeE.下砖轨道:
-                        //    case TrackTypeE.储砖_入:
-                        //    case TrackTypeE.储砖_出入:
-                        //        if (Math.Abs(site - track.limit_point) >= 20) // 暂定（+-20）脉冲
-                        //        {
-                        //            result = "小车已经不能再后退了";
-                        //            return false;
-                        //        }
-                        //        checkTra = track.ferry_up_code;
-                        //        toPoint = track.limit_point;
-                        //        break;
+                        #region 后退至点
+                        switch (track.Type)
+                        {
+                            case TrackTypeE.上砖轨道:
+                            case TrackTypeE.下砖轨道:
+                            case TrackTypeE.储砖_入:
+                            case TrackTypeE.储砖_出入:
+                                if (Math.Abs(site - track.limit_point) >= 20) // 暂定（+-20）脉冲
+                                {
+                                    result = "小车已经不能再后退了";
+                                    return false;
+                                }
+                                toTrackid = track.id;
+                                break;
 
-                        //    case TrackTypeE.储砖_出:
-                        //        toTrackid = track.brother_track_id;
-                        //        checkTra = PubMaster.Track.GetTrackUpCode(toTrackid);
-                        //        toPoint = PubMaster.Track.GetTrackLimitPointIn(toTrackid);
-                        //        break;
+                            case TrackTypeE.储砖_出:
+                                toTrackid = track.brother_track_id;
+                                break;
 
-                        //    case TrackTypeE.摆渡车_入:
-                        //    case TrackTypeE.摆渡车_出:
-                        //        // 获取摆渡车后侧对应的轨道
-                        //        if (!PubTask.Ferry.IsInPlaceByFerryTraid(false, track.id, out toTrackid, out result))
-                        //        {
-                        //            return false;
-                        //        }
-                        //        checkTra = PubMaster.Track.GetTrackDownCode(toTrackid);
-                        //        toPoint = PubMaster.Track.GetTrackLimitPointOut(toTrackid);
-                        //        break;
-                        //    default:
-                        //        break;
-                        //}
-                        //order = DevCarrierOrderE.定位指令;
+                            case TrackTypeE.摆渡车_入:
+                            case TrackTypeE.摆渡车_出:
+                                // 获取摆渡车后侧对应的轨道
+                                if (!PubTask.Ferry.IsInPlaceByFerryTraid(false, track.id, out toTrackid, out result))
+                                {
+                                    return false;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                        toTrack = PubMaster.Track.GetTrack(toTrackid);
+                        if (toTrack == null)
+                        {
+                            result = "无目的轨道数据！";
+                            return false;
+                        }
+                        checkTra = toTrack.ferry_up_code;
+                        toPoint = toTrack.limit_point;
+                        order = DevCarrierOrderE.定位指令;
                         #endregion
 
                         // 后退 直到扫到复位接近开关 停
-                        order = DevCarrierOrderE.定位指令;
-                        overPoint = 1; // 无确定值，直接给最小脉冲表示 前进
+                        //order = DevCarrierOrderE.定位指令;
+                        //overPoint = 1; // 无确定值，直接给最小脉冲表示 前进
                         break;
 
                     case DevCarrierTaskE.前进至轨道头:
@@ -1504,7 +1511,7 @@ namespace task.device
                     foreach (CarrierTask task in DevList.FindAll(c => c.AreaId == areaid))
                     {
                         if (!task.IsConnect) continue;
-                        task.DoResetSite(rfid, site);
+                        task.DoResetSiteByID(rfid, site);
                     }
                 }
                 catch { }

@@ -239,6 +239,7 @@ namespace task.device
                                 if (task.IsRefreshTimeOver(10))
                                 {
                                     task.DoQuery();
+                                    task.ReSetRefreshTime();
                                 }
                             }
                         }

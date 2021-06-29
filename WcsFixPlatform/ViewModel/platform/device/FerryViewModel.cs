@@ -19,6 +19,8 @@ using System.Windows;
 using System.Windows.Controls;
 using task;
 using wcs.Dialog;
+using wcs.Dialog.platform.track;
+using wcs.ViewModel.platform.track;
 
 namespace wcs.ViewModel
 {
@@ -212,6 +214,16 @@ namespace wcs.ViewModel
                             Growl.Success("发送成功！");
                         }
                         break;
+
+                    case 7://位置初始化
+                        isdownferry = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.下摆渡);
+                        await HandyControl.Controls.Dialog.Show<LocationSelectDialog>()
+                            .Initialize<LocationDialogViewModel>((vm) =>
+                            {
+                                vm.SetArea(DeviceSelected.AreaId, DeviceSelected.ID, isdownferry ? DeviceTypeE.下摆渡 : DeviceTypeE.下摆渡, DeviceSelected.Name);
+                            }).GetResultAsync<MsgAction>();
+                        break;
+
                 }
             }
         }

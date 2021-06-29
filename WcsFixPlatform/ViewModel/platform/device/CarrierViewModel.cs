@@ -19,7 +19,9 @@ using System.Windows.Controls;
 using task;
 using wcs.Data.View;
 using wcs.Dialog;
+using wcs.Dialog.platform.track;
 using wcs.ViewModel.platform.device;
+using wcs.ViewModel.platform.track;
 
 namespace wcs.ViewModel
 {
@@ -153,6 +155,14 @@ namespace wcs.ViewModel
                             }
                             return true;
                         });
+                        break;
+
+                    case 105://位置初始化
+                        await HandyControl.Controls.Dialog.Show<LocationSelectDialog>()
+                            .Initialize<LocationDialogViewModel>((vm) =>
+                            {
+                                vm.SetArea(DeviceSelected.AreaId, DeviceSelected.ID, DeviceTypeE.运输车, DeviceSelected.Name);
+                            }).GetResultAsync<MsgAction>();
                         break;
 
                     default:

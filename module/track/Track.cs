@@ -18,11 +18,11 @@ namespace module.track
         public ushort right_distance { set; get; }
 
         /// <summary>
-        /// 摆渡对位点位，也作为轨道尽头 前进起始点位
+        /// 轨道编号（摆渡车前侧，轨道后端）
         /// </summary>
         public ushort ferry_up_code{set;get; }
         /// <summary>
-        /// 摆渡对位点位，也作为轨道尽头 后退起始点位
+        /// 轨道编号（摆渡车后侧，轨道前端）
         /// </summary>
         public ushort ferry_down_code{set;get; } 
 

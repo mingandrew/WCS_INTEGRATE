@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -184,6 +185,23 @@ namespace wcs.ViewModel
                 TraList.Clear();
                 foreach (Track track in tracks)
                 {
+                    TraList.Add(track);
+                }
+            });
+        }
+
+        public void QueryAreaTrack(uint areaid, params TrackTypeE[] notContainType)
+        {
+            List<Track> tracks = PubMaster.Track.GetAreaTracks(areaid);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                TraList.Clear();
+                foreach (Track track in tracks)
+                {
+                    if (notContainType.Contains(track.Type))
+                    {
+                        continue;
+                    }
                     TraList.Add(track);
                 }
             });
