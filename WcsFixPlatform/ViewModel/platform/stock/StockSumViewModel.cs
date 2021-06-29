@@ -39,6 +39,7 @@ namespace wcs.ViewModel
         private IList<MyRadioBtn> _arearadio;
 
         private uint filterareaid = 0, filtertracktype = 0;
+        private ushort filterlineid = 0;
         #endregion
 
         #region[属性]
@@ -79,9 +80,11 @@ namespace wcs.ViewModel
         #region[方法]
         private void CheckIsSingle()
         {
-            if (PubMaster.Area.IsSingleArea(out uint areaid))
+            if (PubMaster.Area.IsSingleAreaLine(out uint areaid, out ushort lineid))
             {
                 ShowAreaFileter = false;
+                filterareaid = areaid;
+
             }
         }
         private void CheckTypeRadioBtn(RoutedEventArgs args)
@@ -95,15 +98,14 @@ namespace wcs.ViewModel
                 }
             }
         }
+
         private void CheckRadioBtn(RoutedEventArgs args)
         {
-            if (args.OriginalSource is RadioButton btn)
+            if (args.OriginalSource is RadioButton btn && btn.DataContext is MyRadioBtn radio)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint areaid))
-                {
-                    filterareaid = areaid;
-                    ListView.Refresh();
-                }
+                filterareaid = radio.AreaID;
+                filterlineid = radio.Line;
+                ListView.Refresh();
             }
         }
         bool OnFilterMovie(object item)
@@ -121,7 +123,13 @@ namespace wcs.ViewModel
                     return sum.area == filterareaid;
                 }
 
-                return sum.area == filterareaid && sum.track_type == filtertracktype;
+                if (filtertracktype == 0)
+                {
+                    return sum.area == filterareaid && sum.line == filterlineid;
+                }
+
+
+                return sum.area == filterareaid && filterlineid == sum.line && sum.track_type == filtertracktype;
             }
             return true;
         }
@@ -178,7 +186,7 @@ namespace wcs.ViewModel
 
         private void InitAreaRadio()
         {
-            AreaRadio = PubMaster.Area.GetAreaRadioList(true);
+            AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
         #endregion
 

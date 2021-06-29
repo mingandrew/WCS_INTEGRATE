@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using module.goods;
+using resource;
 using System;
 
 namespace wcs.Data.View
@@ -13,6 +14,7 @@ namespace wcs.Data.View
         private uint stack;
         private uint pieces;
         public uint area { set; get; }
+        public ushort line { set; get; }
         public byte track_type { set; get; }
 
         public uint GoodId
@@ -47,6 +49,7 @@ namespace wcs.Data.View
         {
             track_id = sum.track_id;
             area = sum.area;
+            line = PubMaster.Track.GetTrackLine(track_id);
             track_type = sum.track_type;
             Update(sum);
         }
