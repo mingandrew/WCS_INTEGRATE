@@ -901,15 +901,10 @@ namespace resource.goods
         /// <param name="area_id"></param>
         /// <param name="track_id"></param>
         /// <returns></returns>
-        public bool IsMoreThanFullQty(uint area_id, uint track_id)
+        public bool IsMoreThanFullQty(uint area_id, ushort line, uint track_id)
         {
-            uint fullqyt = PubMaster.Area.GetAreaFullQty(area_id);
             uint currentqty = GetTrackStockCount(track_id);
-            if (fullqyt != 0)
-            {
-                return currentqty >= fullqyt;
-            }
-            return false;
+            return PubMaster.Area.IsDownStockFullLimit(area_id, line, currentqty);
         }
         #endregion
 

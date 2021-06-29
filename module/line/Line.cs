@@ -24,6 +24,9 @@ namespace module.line
         public bool onoff_sort { set; get; }
         public byte line_type { set; get; }
 
+        //入库轨道满砖数上限
+        public byte full_qty { set; get; }
+
         /// <summary>
         /// 线路类型
         /// </summary>
