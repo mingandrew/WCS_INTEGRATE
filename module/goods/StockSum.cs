@@ -12,6 +12,7 @@ namespace module.goods
         public uint stack { set; get; }
         public uint pieces { set; get; }
         public uint area { set; get; }
+        public ushort line { set; get; }
         public byte track_type { set; get; }
 
         public int CompareProduceTime(DateTime? time)
