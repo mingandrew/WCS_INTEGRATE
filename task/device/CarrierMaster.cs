@@ -512,6 +512,29 @@ namespace task.device
             return DevList.Find(c => c.ID == carrier_id)?.IsResetWork() ?? false;
         }
 
+        /// <summary>
+        /// 获取当前在下砖侧工作的运输车数量
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <param name="isUp"></param>
+        /// <param name="trackTypes"></param>
+        /// <returns></returns>
+        public uint GetCurrentCarCount(uint area_id, bool isUp, params TrackTypeE[] trackTypes)
+        {
+            List<uint> trackids = PubMaster.Track.GetAreaTrackIdList(area_id, trackTypes);
+            uint count = 0;
+            if (isUp)
+            {
+                // 倒库的运输车算上砖的
+                count = (uint)DevList.Count(c => trackids.Contains(c.CurrentTrackId) || PubTask.Trans.IsCarrierInTrans(c.ID, TransTypeE.倒库任务));
+            }
+            else
+            {
+                // 在下砖侧倒库的算上砖侧的
+                count = (uint)DevList.Count(c => trackids.Contains(c.CurrentTrackId) && !PubTask.Trans.IsCarrierInTrans(c.ID, TransTypeE.倒库任务));
+            }
+            return count;
+        }
         #endregion
 
         #region[数据更新]
@@ -2492,6 +2515,11 @@ namespace task.device
                         carNames += string.Format("[{0}]", tracar.Device.name);
                         if (isUp)
                         {
+                            if (PubMaster.Track.IsTrackType(tracar.CurrentTrackId, TrackTypeE.上砖轨道))
+                            {
+                                zeroth_allocate_cars.Add(tracar);
+                            }
+
                             // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
                             if (tracar.CurrentSite % 100 > 90)
                             {
@@ -2912,7 +2940,38 @@ namespace task.device
             give = carrier.GivePoint;
         }
 
-
+        /// <summary>
+        /// 获取指定类型的轨道上的空闲运输车
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public CarrierTask GetCarrierFree(uint area_id, out uint brotrackid, params TrackTypeE[] types)
+        {
+            List<uint> trackids = PubMaster.Track.GetAreaTrackIdList(area_id, types);
+            foreach (uint traid in trackids)
+            {
+                List<CarrierTask> tasks = DevList.FindAll(c => c.CurrentTrackId == traid);
+                if (tasks.Count == 1)
+                {
+                    if (tasks[0] == null) continue;
+                    if (!tasks[0].IsWorking) continue;
+                    if (CheckCarrierIsFree(tasks[0]) && tasks[0].OperateMode == DevOperateModeE.自动)
+                    {
+                        if (!PubTask.Trans.HaveCarrierInTrans(tasks[0].ID))
+                        {
+                            brotrackid = PubMaster.Track.GetBrotherTrackId(tasks[0].CurrentTrackId);
+                            if (!PubTask.Carrier.HaveInTrack(brotrackid))
+                            {
+                                return tasks[0];
+                            }
+                        }
+                    }
+                }
+            }
+            brotrackid = 0;
+            return null;
+        }
 
         #endregion
 

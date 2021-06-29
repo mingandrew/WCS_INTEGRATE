@@ -379,7 +379,15 @@ UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘
 
 
 
+#2021.06.29 添加报警-流程超时报警
 
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (236, 3, 'Warning36', '【流程超时】', NULL, NULL, '【流程超时】', NULL, NULL, NULL, NULL, NULL);
+
+
+# 新增字段，用于设定上下砖侧的运输车的数量，如果某一个数量为0，则不会自动将运输车在出库轨道入库轨道来回调用
+
+ALTER TABLE `area` ADD COLUMN `up_car_count` tinyint(3) UNSIGNED NULL COMMENT '上砖运输车的最少数量限定' AFTER `full_qty`;
+ALTER TABLE `area` ADD COLUMN `down_car_count` tinyint(3) UNSIGNED NULL COMMENT '下砖运输车的最少数量限定' AFTER `up_car_count`;
 
 
 

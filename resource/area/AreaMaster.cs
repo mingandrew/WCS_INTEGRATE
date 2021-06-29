@@ -753,6 +753,26 @@ namespace resource.area
             return AreaDevTraList.Find(c => c.device_id == devid && c.track_id == trackid)?.prior ?? 0;
         }
 
+        /// <summary>
+        /// 获取区域的上砖侧设定的运输车数量
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public uint GetAreaUpCarCount(uint area)
+        {
+            return AreaList.Find(c => c.id == area)?.up_car_count ?? 0;
+        }
+
+        /// <summary>
+        /// 获取区域的下砖侧设定的运输车数量
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public uint GetAreaDownCarCount(uint area)
+        {
+            return AreaList.Find(c => c.id == area)?.down_car_count ?? 0;
+        }
+
         #endregion
 
         #region[更改]
