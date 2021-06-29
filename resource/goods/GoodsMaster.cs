@@ -862,6 +862,22 @@ namespace resource.goods
             return true;
         }
 
+        /// <summary>
+        /// 判断轨道库存数是否已达到设定的库存上限,（如果设定值为0，就是没有上限）
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        public bool IsMoreThanFullQty(uint area_id, uint track_id)
+        {
+            uint fullqyt = PubMaster.Area.GetAreaFullQty(area_id);
+            uint currentqty = GetTrackStockCount(track_id);
+            if (fullqyt != 0)
+            {
+                return currentqty >= fullqyt;
+            }
+            return false;
+        }
         #endregion
 
         #endregion

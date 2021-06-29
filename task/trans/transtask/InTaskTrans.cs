@@ -461,7 +461,7 @@ namespace task.trans.transtask
                                 {
                                     // 设满砖
                                     PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
-                                    PubMaster.Track.AddTrackLog(count, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
+                                    PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
 
                                     #region 【任务步骤记录】
                                     _M.LogForTrackFull(trans, trans.give_track_id);
@@ -501,6 +501,24 @@ namespace task.trans.transtask
 
                                 return;
                             }
+                            
+                            #region[如果轨道不是满砖状态，判断是否库存数已到设定的上限]
+                            if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
+                            {
+                                if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.give_track_id))
+                                {
+                                    // 设满砖
+                                    PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
+                                    PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "当前库存数已达上限，无法存入下一车");
+
+                                    #region 【任务步骤记录】
+                                    _M.LogForTrackFull(trans, trans.give_track_id);
+                                    #endregion
+
+                                    return;
+                                }
+                            }
+                            #endregion
 
                             //摆渡车 定位去 放货点
                             //小车到达摆渡车后短暂等待再开始定位
@@ -616,13 +634,30 @@ namespace task.trans.transtask
                             {
                                 // 设满砖
                                 PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
-                                PubMaster.Track.AddTrackLog(count, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
+                                PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
 
                                 #region 【任务步骤记录】
                                 _M.LogForTrackFull(trans, trans.give_track_id);
                                 #endregion
                             }
                         }
+
+                        #region[如果轨道不是满砖状态，判断是否库存数已到设定的上限]
+                        if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
+                        {
+                            if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.give_track_id))
+                            {
+                                // 设满砖
+                                PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
+                                PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "当前库存数已达上限，无法存入下一车");
+
+                                #region 【任务步骤记录】
+                                _M.LogForTrackFull(trans, trans.give_track_id);
+                                #endregion
+                            }
+                        }
+                        #endregion
+
                         _M.SetUnLoadTime(trans);
                         _M.SetStatus(trans, TransStatusE.完成);
                     }
@@ -655,13 +690,29 @@ namespace task.trans.transtask
                             {
                                 // 设满砖
                                 PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
-                                PubMaster.Track.AddTrackLog(count, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
+                                PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "计算坐标值无法存入下一车");
 
                                 #region 【任务步骤记录】
                                 _M.LogForTrackFull(trans, trans.give_track_id);
                                 #endregion
                             }
                         }
+
+                        #region[如果轨道不是满砖状态，判断是否库存数已到设定的上限]
+                        if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
+                        {
+                            if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.give_track_id))
+                            {
+                                // 设满砖
+                                PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
+                                PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trans.give_track_id, TrackLogE.满轨道, "当前库存数已达上限，无法存入下一车");
+
+                                #region 【任务步骤记录】
+                                _M.LogForTrackFull(trans, trans.give_track_id);
+                                #endregion
+                            }
+                        }
+                        #endregion
 
                         _M.SetUnLoadTime(trans);
 

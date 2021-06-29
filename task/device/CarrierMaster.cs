@@ -981,9 +981,20 @@ namespace task.device
                             return false;
                         }
 
+                        if (ExistCarInFront(devid, track.id))
+                        {
+                            result = "当前轨道前面还有其他运输车，不能执行前进至点的指令！";
+                            return false;
+                        }
+
                         order = DevCarrierOrderE.定位指令;
                         if (track.InType(TrackTypeE.储砖_入))
                         {
+                            if (track.brother_track_id != 0 && HaveInTrack(track.brother_track_id))
+                            {
+                                result = "对应的出库轨道还有其他运输车，不能执行前进至点的指令！";
+                                return false;
+                            }
                             checkTra = PubMaster.Track.GetTrackDownCode(track.brother_track_id);
                             toRFID = PubMaster.Track.GetTrackRFID2(track.brother_track_id);
                         }
@@ -1012,9 +1023,20 @@ namespace task.device
                             return false;
                         }
 
+                        if (ExistCarBehind(devid, track.id))
+                        {
+                            result = "当前轨道后面还有其他运输车，不能执行后退至点的指令！";
+                            return false;
+                        }
+
                         order = DevCarrierOrderE.定位指令;
                         if (track.InType(TrackTypeE.储砖_出))
                         {
+                            if (track.brother_track_id != 0 && HaveInTrack(track.brother_track_id))
+                            {
+                                result = "对应的入库轨道还有其他运输车，不能执行后退至点的指令！";
+                                return false;
+                            }
                             checkTra = PubMaster.Track.GetTrackDownCode(track.brother_track_id);
                             toRFID = PubMaster.Track.GetTrackRFID1(track.brother_track_id);
                         }
