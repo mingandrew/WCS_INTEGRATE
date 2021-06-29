@@ -50,7 +50,8 @@ namespace wcs.ViewModel
 
         private string tcmsg;//交管信息
         private string stepinfo;//步骤信息
-        
+
+        private bool showsecondupbutton = false;//展示反抛按钮
 
         #endregion
 
@@ -113,6 +114,12 @@ namespace wcs.ViewModel
         /// 完成任务列表
         /// </summary>
         public ObservableCollection<TransView> MFList { get; set; }
+
+        public bool ShowSecondUpButton
+        {
+            get => showsecondupbutton;
+            set => Set(ref showsecondupbutton, value);
+        }
         #endregion
 
         #region[命令]            
@@ -137,6 +144,7 @@ namespace wcs.ViewModel
             if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask))
             {
                 ShowAreaFileter = true;
+                ShowSecondUpButton = true;
             }
         }
         bool OnFilterMovie(object item)

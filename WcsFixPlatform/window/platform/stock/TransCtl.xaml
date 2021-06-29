@@ -37,7 +37,7 @@
                 </hc:ButtonGroup.ItemTemplate>
             </hc:ButtonGroup>
 
-            <Button Content="生成反抛任务" HorizontalAlignment="Left" Visibility="Collapsed" 
+            <Button Content="生成反抛任务" HorizontalAlignment="Left"  Visibility="{Binding ShowSecondUpButton,Converter={StaticResource Boolean2VisibilityConverter}}"
                             Style="{StaticResource ButtonPrimary}" 
                             Command="{Binding ActionTaskCmd}" Margin="1035,7,0,6"
                             FontSize="20" Height="47" Tag="0" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Width="229"/>
