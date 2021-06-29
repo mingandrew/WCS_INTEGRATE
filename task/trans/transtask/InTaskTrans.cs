@@ -505,7 +505,7 @@ namespace task.trans.transtask
                             #region[如果轨道不是满砖状态，判断是否库存数已到设定的上限]
                             if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
                             {
-                                if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.give_track_id))
+                                if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.line, trans.give_track_id))
                                 {
                                     // 设满砖
                                     PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
@@ -645,7 +645,7 @@ namespace task.trans.transtask
                         #region[如果轨道不是满砖状态，判断是否库存数已到设定的上限]
                         if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
                         {
-                            if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.give_track_id))
+                            if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.line, trans.give_track_id))
                             {
                                 // 设满砖
                                 PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
@@ -701,7 +701,7 @@ namespace task.trans.transtask
                         #region[如果轨道不是满砖状态，判断是否库存数已到设定的上限]
                         if (!PubMaster.Track.IsTrackFull(trans.give_track_id))
                         {
-                            if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.give_track_id))
+                            if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.line, trans.give_track_id))
                             {
                                 // 设满砖
                                 PubMaster.Track.UpdateStockStatus(trans.give_track_id, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");

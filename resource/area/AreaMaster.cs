@@ -726,6 +726,23 @@ namespace resource.area
             return LineList.Exists(c => c.area_id == area && c.line == line && c.down_task_qty > 0 && count >= c.down_task_qty);
         }
 
+        /// <summary>
+        /// 判断入库轨道库存是否已到上限
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public bool IsDownStockFullLimit(uint area, ushort line, uint count)
+        {
+            if (line == 0)
+            {
+                return AreaList.Exists(c => c.id == area && count >= c.full_qty);
+            }
+
+            return LineList.Exists(c => c.area_id == area && c.line == line && c.full_qty > 0 && count >= c.full_qty);
+        }
+
         public ushort GetAreaFullQty(uint id)
         {
             return AreaList.Find(c => c.id == id)?.full_qty ?? 0;

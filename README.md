@@ -355,7 +355,8 @@ ALTER TABLE `area` ADD COLUMN `down_car_count` tinyint(3) UNSIGNED NULL COMMENT 
 # 有多个区域请自行更新各个区域的上限！！！！！
 UPDATE `area` SET `full_qty` = 0 WHERE `id` = 1;
 
-
+# 新增线的入库轨道满砖数量上限
+ALTER TABLE `line` ADD COLUMN `full_qty` tinyint(3) UNSIGNED NULL COMMENT '入库轨道满砖上限' AFTER `line_type`;
 
 
 
