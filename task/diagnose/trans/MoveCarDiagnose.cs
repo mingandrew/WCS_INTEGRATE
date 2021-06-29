@@ -1,4 +1,5 @@
 ﻿using enums;
+using enums.track;
 using module.goods;
 using module.line;
 using resource;
@@ -32,6 +33,7 @@ namespace task.diagnose.trans
         /// </summary>
         public override void Diagnose()
         {
+            #region[同侧移车任务]
             //1 _ 上砖任务(手动/同侧)/下砖任务(手动/同侧)/倒库任务
             //2 _ 分配设备超时
             List<StockTrans> list = _M.GetTransList()?.FindAll(c => c.NotInType(TransTypeE.移车任务, TransTypeE.其他)
@@ -43,6 +45,7 @@ namespace task.diagnose.trans
                     CheckTransAndAddMoveTask(trans);
                 }
             }
+            #endregion
         }
 
         /// <summary>
@@ -84,6 +87,8 @@ namespace task.diagnose.trans
 
             #endregion
 
+            #region[同侧移车任务]
+
             //3 _ 有空闲车不能直接到达作业轨道
             List<CarrierTask> carriers = PubTask.Carrier.GetFreeCarrierWithNoDirectFerry(trans, ferrytype, checktakegivetrack,
                                                                                                      out List<uint> trackid, out List<uint> ferryid);
@@ -106,10 +111,10 @@ namespace task.diagnose.trans
                         uint sortaskid =_M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.移车任务, 0, 0, cartrackid, traid, TransStatusE.移车中, car.ID, trans.line);
                         if(sortaskid != 0)
                         {
-                            _mLog.Status(true, string.Format("标识[ {0} ], [ {1} ]超时, 取[ {2} ] -> 卸[ {3} ], 找不到空闲的运输车", trans.id, trans.TransType,
+                            _mLog.Status(true, string.Format("标识[ {0} ], [ {1} ]超时, 取[ {2} ] -> 卸[ {3} ], 找不到空闲的运输车,[同侧移车]", trans.id, trans.TransType,
                                                             PubMaster.Track.GetTrackName(trans.take_track_id),
                                                             PubMaster.Track.GetTrackName(trans.give_track_id)));
-                            _mLog.Status(true, string.Format("标识[ {0} ], 移车任务[ {1}], 运输车[ {2} ], 从[ {3} ] -> 到[ {4} ]", trans.id, sortaskid,
+                            _mLog.Status(true, string.Format("标识[ {0} ], 移车任务[ {1}], 运输车[ {2} ], 从[ {3} ] -> 到[ {4} ],[同侧移车]", trans.id, sortaskid,
                                                             PubMaster.Device.GetDeviceName(car.ID),
                                                             PubMaster.Track.GetTrackName(cartrackid),
                                                             PubMaster.Track.GetTrackName(traid)));
@@ -118,6 +123,69 @@ namespace task.diagnose.trans
                     }
                 }
             }
+
+            #endregion
+
+            #region 同一条轨道移车任务 - [ 出库轨道 <-> 入库轨道 ]
+
+            //超过1分钟没有分配到运输车
+            if (trans.IsInStatusOverTime(TransStatusE.调度设备, 60))
+            {
+                // 当前-上下砖侧运输车的数量
+                uint currentUpCarCount = PubTask.Carrier.GetCurrentCarCount(trans.area_id, true, TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.摆渡车_出);
+                uint currentDownCarCount = PubTask.Carrier.GetCurrentCarCount(trans.area_id, false, TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.摆渡车_入);
+                // 设定-上下砖侧运输车的数量
+                uint settingUpCarCount = PubMaster.Area.GetAreaUpCarCount(trans.area_id);
+                uint settingDownCarCount = PubMaster.Area.GetAreaDownCarCount(trans.area_id);
+
+                // 没有设定两侧运输车的数量的话则不执行这个流程
+                if (settingDownCarCount == 0 || settingUpCarCount == 0)
+                {
+                    return;
+                }
+
+                CarrierTask freeCarrier = null;
+                uint brotrackid = 0;
+                if (ferrytype == DeviceTypeE.上摆渡)
+                {
+                    //如果当前下砖多于设定下砖，且当前上砖少于设定上砖
+                    if (currentDownCarCount > settingDownCarCount && currentUpCarCount < settingUpCarCount)
+                    {
+                        // 找一台空闲的在下砖侧的运输车
+                        freeCarrier = PubTask.Carrier.GetCarrierFree(trans.area_id, out brotrackid, TrackTypeE.储砖_入);
+                    }
+                }
+                else
+                {
+                    //如果当前上砖多于设定上砖，且当前下砖少于设定下砖
+                    if (currentUpCarCount > settingUpCarCount && currentDownCarCount < settingDownCarCount)
+                    {
+                        // 找一台空闲的在上砖侧的运输车
+                        freeCarrier = PubTask.Carrier.GetCarrierFree(trans.area_id, out brotrackid, TrackTypeE.储砖_出);
+                    }
+                }
+
+                if (freeCarrier == null || brotrackid == 0)
+                {
+                    return;
+                }
+
+                uint sortaskid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.移车任务, 0, 0, freeCarrier.CurrentTrackId, brotrackid, TransStatusE.移车中, freeCarrier.ID, trans.line);
+                if (sortaskid != 0)
+                {
+                    _mLog.Status(true, string.Format("标识[ {0} ], [ {1} ]超时, 取[ {2} ] -> 卸[ {3} ], 找不到空闲的运输车,[出<->入]", trans.id, trans.TransType,
+                                                    PubMaster.Track.GetTrackName(trans.take_track_id),
+                                                    PubMaster.Track.GetTrackName(trans.give_track_id)));
+                    _mLog.Status(true, string.Format("标识[ {0} ], 移车任务[ {1}], 运输车[ {2} ], 从[ {3} ] -> 到[ {4} ],[出<->入]", trans.id, sortaskid,
+                                                    PubMaster.Device.GetDeviceName(freeCarrier.ID),
+                                                    PubMaster.Track.GetTrackName(freeCarrier.CurrentTrackId),
+                                                    PubMaster.Track.GetTrackName(brotrackid)));
+                }
+                return;
+
+            }
+
+            #endregion
         }
 
     }

@@ -316,7 +316,14 @@ namespace task
                 };
                 string devname = PubMaster.Device.GetDeviceName(devid);
                 string warnmsg = PubMaster.Dic.GetDtlStrCode(warntype.ToString(), out byte level);
-                warn.content = devname + ": " + warnmsg + " > " + result;
+                if (devid != 0)
+                {
+                    warn.content = devname + ": " + warnmsg + " > " + result;
+                }
+                else
+                {
+                    warn.content = "任务[" + transid + "] : " + warnmsg + " > " + result;
+                }
                 warn.level = level;
                 AddWaring(warn);
             }

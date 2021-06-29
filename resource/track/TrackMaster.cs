@@ -1821,11 +1821,6 @@ namespace resource.track
             }
             return true;
         }
-
-        public bool TrackTypeEqual(uint trackid, TrackTypeE trackType)
-        {
-            return TrackList.Exists(c => c.id == trackid && c.Type == trackType);
-        }
         #endregion
 
         #region[获取轨道状态用于记录]

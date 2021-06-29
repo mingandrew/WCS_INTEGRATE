@@ -44,6 +44,13 @@ namespace task.trans.transtask
             try
             {
                 Clearn();
+
+                #region[流程超时报警 - 默认超时10分钟则报警，倒库中流程则要2小时才报警]
+
+                PubTask.Trans.CheckAndAddTransStatusOverTimeWarn(trans);
+
+                #endregion
+
                 switch (trans.TransStaus)
                 {
                     case TransStatusE.调度设备:
