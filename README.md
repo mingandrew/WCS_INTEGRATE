@@ -389,7 +389,9 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 ALTER TABLE `area` ADD COLUMN `up_car_count` tinyint(3) UNSIGNED NULL COMMENT '上砖运输车的最少数量限定' AFTER `full_qty`;
 ALTER TABLE `area` ADD COLUMN `down_car_count` tinyint(3) UNSIGNED NULL COMMENT '下砖运输车的最少数量限定' AFTER `up_car_count`;
 
-
+# 更新轨道库存上限，慎重更改！！！！！！！上限为0，即不设上限,只根据最后一车库存的脉冲来计算是否满砖
+# 有多个区域请自行更新各个区域的上限！！！！！
+UPDATE `area` SET `full_qty` = 0 WHERE `id` = 1;
 
 
 

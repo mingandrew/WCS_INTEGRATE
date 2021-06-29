@@ -1305,6 +1305,11 @@ namespace resource.track
             return TrackList.FindAll(c => c.area == areaid && c.Type == type).Select(c => c.id).ToList();
         }
 
+        /// <summary>
+        /// 判断轨道是否满砖状态
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
         public bool IsTrackFull(uint track_id)
         {
             return TrackList.Exists(c => c.id == track_id && c.StockStatus == TrackStockStatusE.满砖);

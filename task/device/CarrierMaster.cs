@@ -1190,7 +1190,7 @@ namespace task.device
                             return false;
                         }
 
-                        // 超过复位点脉冲才能上摆渡
+                        // 超过复位点脉冲才能上摆渡 - 暂不需要
                         //if (PubMaster.Track.CanMoveToFerryAboutPos(track.id, DevMoveDirectionE.后退, site, out result))
                         //{
                         //    return false;
@@ -1228,7 +1228,7 @@ namespace task.device
                             return false;
                         }
 
-                        // 超过复位点脉冲才能上摆渡
+                        // 超过复位点脉冲才能上摆渡 - 暂不需要
                         //if (PubMaster.Track.CanMoveToFerryAboutPos(track.id, DevMoveDirectionE.前进, site, out result))
                         //{
                         //    return false;
@@ -1285,12 +1285,14 @@ namespace task.device
                             default:
                                 break;
                         }
+
                         toTrack = PubMaster.Track.GetTrack(toTrackid);
                         if (toTrack == null)
                         {
                             result = "无目的轨道数据！";
                             return false;
                         }
+
                         checkTra = isInFerry ? toTrack.ferry_up_code : toTrack.ferry_down_code;
                         overPoint = isInFerry ? toTrack.limit_point : toTrack.limit_point_up;
                         order = DevCarrierOrderE.定位指令;
@@ -1333,12 +1335,14 @@ namespace task.device
                             default:
                                 break;
                         }
+
                         toTrack = PubMaster.Track.GetTrack(toTrackid);
                         if (toTrack == null)
                         {
                             result = "无目的轨道数据！";
                             return false;
                         }
+
                         checkTra = isInFerry ? toTrack.ferry_down_code : toTrack.ferry_up_code;
                         overPoint = isInFerry ? toTrack.limit_point_up : toTrack.limit_point;
                         order = DevCarrierOrderE.定位指令;
@@ -1436,6 +1440,12 @@ namespace task.device
                         overPoint = 1;          //最小脉冲-表示 后退
                         break;
 
+                }
+
+                if (toTrackid > 0 && HaveInTrack(toTrackid, devid))
+                {
+                    result = "目的轨道有其他运输车！";
+                    return false;
                 }
 
                 // 发送指令
