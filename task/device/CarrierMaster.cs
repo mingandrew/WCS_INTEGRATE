@@ -937,6 +937,7 @@ namespace task.device
                         checkTra = PubMaster.Track.GetTrackDownCode(ferryTraid);
                         toRFID = PubMaster.Track.GetTrackRFID1(ferryTraid);
                         order = DevCarrierOrderE.定位指令;
+                        toTrackid = ferryTraid;
 
                         #endregion
                         break;
@@ -961,6 +962,7 @@ namespace task.device
                         checkTra = PubMaster.Track.GetTrackUpCode(ferryTraid);
                         toRFID = PubMaster.Track.GetTrackRFID2(ferryTraid);
                         order = DevCarrierOrderE.定位指令;
+                        toTrackid = ferryTraid;
 
                         #endregion
                         break;
@@ -990,13 +992,14 @@ namespace task.device
                         order = DevCarrierOrderE.定位指令;
                         if (track.InType(TrackTypeE.储砖_入))
                         {
-                            if (track.brother_track_id != 0 && HaveInTrack(track.brother_track_id))
+                            if (track.brother_track_id != 0 && HaveInTrack(track.brother_track_id)) 
                             {
                                 result = "对应的出库轨道还有其他运输车，不能执行前进至点的指令！";
                                 return false;
                             }
                             checkTra = PubMaster.Track.GetTrackDownCode(track.brother_track_id);
                             toRFID = PubMaster.Track.GetTrackRFID2(track.brother_track_id);
+                            toTrackid = track.brother_track_id;
                         }
                         if (track.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
                         {
@@ -1039,6 +1042,7 @@ namespace task.device
                             }
                             checkTra = PubMaster.Track.GetTrackDownCode(track.brother_track_id);
                             toRFID = PubMaster.Track.GetTrackRFID1(track.brother_track_id);
+                            toTrackid = track.brother_track_id;
                         }
                         if (track.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入))
                         {

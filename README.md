@@ -368,6 +368,9 @@ UPDATE `diction_dtl` SET `name` = '对轨码盘偏差超出允许范围，判断
 UPDATE `diction_dtl` SET `name` = '对轨码盘偏差超出允许范围，判断是后侧接近开关误触', 
 `string_value` = '对轨码盘偏差超出允许范围，判断是后侧接近开关误触，请检查接近开关是否误触，若无误触情况，请操作回原点进行复位' WHERE `id` = 187;
 
+#2021.06.30 新增流程超时设置
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (250, 4, 'StepOverTime', '除【倒库中】，其他流程的超时时间（秒）', 600, NULL, NULL, NULL, NULL, NULL, '2021-06-30 08:44:37', NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (251, 4, 'SortingStockStepOverTime', '倒库中流程的超时时间（秒）', 7200, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 
 #2021.06.30 更新运输车报警信息：码盘故障
