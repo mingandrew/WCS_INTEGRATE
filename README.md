@@ -370,7 +370,8 @@ UPDATE `diction_dtl` SET `name` = '对轨码盘偏差超出允许范围，判断
 
 
 
-
+#2021.06.30 更新运输车报警信息：码盘故障
+UPDATE `diction_dtl` SET `string_value` = '码盘故障，请尝试手动发送终止指令，消除报警' WHERE `id` = 102;
 
 
 
