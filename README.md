@@ -361,6 +361,14 @@ ALTER TABLE `line` ADD COLUMN `full_qty` tinyint(3) UNSIGNED NULL COMMENT '入�
 
 
 
+#2021.06.30 添加报警-摆渡车对位码盘报警
+UPDATE `diction_dtl` SET `name` = '对轨码盘偏差超出允许范围，判断是前侧接近开关误触', 
+`string_value` = '对轨码盘偏差超出允许范围，判断是前侧接近开关误触，请检查接近开关是否误触，若无误触情况，请操作回原点进行复位' WHERE `id` = 186;
+
+UPDATE `diction_dtl` SET `name` = '对轨码盘偏差超出允许范围，判断是后侧接近开关误触', 
+`string_value` = '对轨码盘偏差超出允许范围，判断是后侧接近开关误触，请检查接近开关是否误触，若无误触情况，请操作回原点进行复位' WHERE `id` = 187;
+
+
 
 
 
