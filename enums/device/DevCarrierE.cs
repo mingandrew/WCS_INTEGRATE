@@ -117,4 +117,13 @@
         GiveMissTrack,
     }
 
+    public enum CarrierInitPoint
+    {
+        上砖摆渡复位点,
+        下砖侧复位点,
+        中间复位点,
+        上砖侧复位点,
+        下砖摆渡复位点
+    }
+
 }

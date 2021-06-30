@@ -143,5 +143,10 @@
         public const string QueryFilterData = nameof(QueryFilterData); //查询过滤信息
         public const string SaveFilterSetting = nameof(SaveFilterSetting);//保存过滤设置
         #endregion
+
+        #region[位置初始化]
+        public const string InitFerry = nameof(InitFerry);
+        public const string InitCarrier = nameof(InitCarrier);
+        #endregion
     }
 }

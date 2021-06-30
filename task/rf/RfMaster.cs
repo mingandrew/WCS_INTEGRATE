@@ -567,7 +567,18 @@ namespace task.rf
                     case FunTag.SaveFilterSetting:
                         SaveFilterSetting(msg);
                         break;
-                        #endregion
+                    #endregion
+
+                    #region[位置初始化]
+
+                    case FunTag.InitFerry:
+                        InitFerry(msg);
+                        break;
+                    case FunTag.InitCarrier:
+                        InitCarrier(msg);
+                        break;
+
+                    #endregion
                 }
 
                 _mLog?.Cmd(true, msg?.MEID + " : " + msg?.Pack?.Function);
@@ -974,6 +985,10 @@ namespace task.rf
 
                 mDicPack.AddEnum(typeof(RfTileWorkModeE), "平板可选模式", nameof(RfTileWorkModeE));//平板可选模式
                 mDicPack.AddEnum(typeof(TileWorkModeE), "砖机模式", nameof(TileWorkModeE));//砖机模式
+
+                mDicPack.AddEnum(typeof(DevMoveDirectionE), "设备移动方向", nameof(DevMoveDirectionE));
+                mDicPack.AddEnum(typeof(CarrierInitPoint), "运输车初始化点", nameof(CarrierInitPoint));
+
                 #endregion
 
                 #region[List]
@@ -2237,6 +2252,39 @@ namespace task.rf
                     SendSucc2Rf(msg.MEID, FunTag.SaveFilterSetting, "更新成功");
                     GetDicData(msg);
                 }
+            }
+        }
+
+        #endregion
+
+        #region[位置初始化]
+
+        public void InitFerry(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                InitFerryPack pack = JsonTool.Deserialize<InitFerryPack>(msg.Pack.Data);
+                if (true)
+                {
+                    SendSucc2Rf(msg.MEID, FunTag.InitFerry, "ok");
+                }
+                else
+                {
+                    SendFail2Rf(msg.MEID, FunTag.InitFerry, "fail");
+                }
+            }
+        }
+
+        public void InitCarrier(RfMsgMod msg)
+        {
+            InitCarrierPack pack = JsonTool.Deserialize<InitCarrierPack>(msg.Pack.Data);
+            if (true)
+            {
+                SendSucc2Rf(msg.MEID, FunTag.InitCarrier, "ok");
+            }
+            else
+            {
+                SendFail2Rf(msg.MEID, FunTag.InitCarrier, "fail");
             }
         }
 
