@@ -803,10 +803,10 @@ namespace task.trans
         /// <param name="trans"></param>
         public void CheckAndAddTransStatusOverTimeWarn(StockTrans trans)
         {
-            // 倒库中的流程超时2小时，就报警
+            // 倒库中的流程超时2小时，才报警
             if (trans.TransStaus == TransStatusE.倒库中)
             {
-                if (trans.IsInStatusOverTime(trans.TransStaus, 3600))
+                if (trans.IsInStatusOverTime(trans.TransStaus, 7200))
                 {
                     PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.Warning36, 0, trans.id,
                         string.Format("{0}[ {1} ]-[ {2} ]流程已超过2小时，请检查任务相关的设备是否正常", trans.TransType, trans.id, trans.TransStaus));
@@ -814,7 +814,7 @@ namespace task.trans
                 }
             }
             //流程超过10分钟，就报警
-            else if (trans.IsInStatusOverTime(trans.TransStaus, 10800))
+            else if (trans.IsInStatusOverTime(trans.TransStaus, 600))
             {
                 PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.Warning36, 0, trans.id,
                     string.Format("{0}[ {1} ]-[ {2} ]流程已超过10分钟，请检查任务相关的设备是否正常", trans.TransType, trans.id, trans.TransStaus));
