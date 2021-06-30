@@ -346,7 +346,7 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (236, 3, 'Warning36', '【流程超时】', NULL, NULL, '【流程超时】', NULL, NULL, NULL, NULL, NULL);
 
 
-# 新增字段，用于设定上下砖侧的运输车的数量，如果某一个数量为0，则不会自动将运输车在出库轨道入库轨道来回调用
+# 新增字段，用于设定上下砖侧的运输车的数量 - 如果某一个数量为0，则不会自动将运输车在出库轨道入库轨道来回调用
 
 ALTER TABLE `area` ADD COLUMN `up_car_count` tinyint(3) UNSIGNED NULL COMMENT '上砖运输车的最少数量限定' AFTER `full_qty`;
 ALTER TABLE `area` ADD COLUMN `down_car_count` tinyint(3) UNSIGNED NULL COMMENT '下砖运输车的最少数量限定' AFTER `up_car_count`;
@@ -355,7 +355,7 @@ ALTER TABLE `area` ADD COLUMN `down_car_count` tinyint(3) UNSIGNED NULL COMMENT 
 # 有多个区域请自行更新各个区域的上限！！！！！
 UPDATE `area` SET `full_qty` = 0 WHERE `id` = 1;
 
-# 新增线的入库轨道满砖数量上限
+# 新增线的入库轨道满砖数量上限 - 设置为0，则不需要限制它的数量
 ALTER TABLE `line` ADD COLUMN `full_qty` tinyint(3) UNSIGNED NULL COMMENT '入库轨道满砖上限' AFTER `line_type`;
 
 
