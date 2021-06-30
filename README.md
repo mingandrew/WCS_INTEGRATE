@@ -328,6 +328,11 @@ UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA2X3', `name` = '小
 #2021.06.21 更新小车报警 A3X6：
 UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA3X6', `name` = '取砖异常，存砖定位光电异常', `int_value` = NULL, `bool_value` = NULL, `string_value` = '取砖异常，存砖定位光电异常，检查存砖定位光电是否误触发', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL WHERE `id` = 122;
 
+#2021.06.30 更新位置初始化平板界面：
+INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (35, '位置初始化', 1, 'DeviceReset', 'com.keda.wcsfixplatformapp.screen.rfinitdevice.RfInitDeviceMainScreen', NULL, 'shiftcar.png', NULL, '平板-设备初始化');
+
+INSERT INTO `wcs_menu_dtl`(`id`, `menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (108, 1, '位置初始化', b'0', 0, 35, 16, b'1');
+
 
 
 
