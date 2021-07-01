@@ -17,22 +17,24 @@ namespace simserver.simsocket.process
 
         internal byte[] GetStatus(DevFerry dev)
         {
-            FerryStatusStruct st = new FerryStatusStruct();
-
-            st.Head = ShiftBytes(SimSocketConst.FEERY_STATUS_HEAD_KEY);
-            st.DeviceID = dev.DeviceID;
-            st.DeviceStatus = (byte)dev.DeviceStatus;
-            st.TargetSite = ShiftBytes(dev.TargetSite);
-            st.CurrentTask = (byte)dev.CurrentTask;
-            st.DownSite = ShiftBytes(dev.DownSite);
-            st.UpSite = ShiftBytes(dev.UpSite);
-            st.FinishTask = (byte)dev.FinishTask;
-            st.LoadStatus = (byte)dev.LoadStatus;
-            st.WorkMode = (byte)dev.WorkMode;
-            st.DownLight = (byte)(dev.DownLight ? 1: 0);
-            st.UpLight = (byte)(dev.UpLight ? 1 : 0); ;
-            st.Reserve = dev.Reserve;
-            st.Tail = ShiftBytes(SimSocketConst.TAIL_KEY);
+            FerryStatusStruct st = new FerryStatusStruct
+            {
+                Head = ShiftBytes(SimSocketConst.FEERY_STATUS_HEAD_KEY),
+                DeviceID = dev.DeviceID,
+                DeviceStatus = (byte)dev.DeviceStatus,
+                TargetSite = ShiftBytes(dev.TargetSite),
+                CurrentTask = (byte)dev.CurrentTask,
+                DownSite = ShiftBytes(dev.DownSite),
+                UpSite = ShiftBytes(dev.UpSite),
+                FinishTask = (byte)dev.FinishTask,
+                LoadStatus = (byte)dev.LoadStatus,
+                WorkMode = (byte)dev.WorkMode,
+                DownLight = (byte)(dev.DownLight ? 1 : 0),
+                UpLight = (byte)(dev.UpLight ? 1 : 0),
+                Reserve = dev.Reserve,
+                MarkCode = dev.MarkCode,
+                Tail = ShiftBytes(SimSocketConst.TAIL_KEY)
+            };
 
             return StructToBuffer<FerryStatusStruct>(st);
         }
@@ -59,13 +61,15 @@ namespace simserver.simsocket.process
         internal FerryCmd GetCmd(byte[] data)
         {
             FerryCmdStruct st = BufferToStruct<FerryCmdStruct>(data);
-            FerryCmd cmd = new FerryCmd();
-
-            cmd.DeviceID = st.DeviceID;
-            cmd.Commond = (DevFerryCmdE)st.Commond;
-            cmd.Value1 = st.Value1;
-            cmd.Value2 = st.Value2;
-            cmd.Value3 =  ShiftBytes(st.Value3);
+            FerryCmd cmd = new FerryCmd
+            {
+                DeviceID = st.DeviceID,
+                Commond = (DevFerryCmdE)st.Commond,
+                Value1 = st.Value1,
+                Value2 = st.Value2,
+                Value3_6 = ShiftBytes(st.Value3),
+                Value7 = st.Value7
+            };
             return cmd;
         }
     }

@@ -588,6 +588,44 @@ namespace resource.goods
             return stock;
         }
 
+        /// <summary>
+        /// 获取轨道最小脉冲库存
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public Stock GetStockInLocMin(uint trackid)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+            if (stocks == null || stocks.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                if (stocks.Count > 1) stocks.Sort((x, y) => x.location.CompareTo(y.location));
+                return stocks[0];
+            }
+        }
+
+        /// <summary>
+        /// 获取轨道最大脉冲库存
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public Stock GetStockInLocMax(uint trackid)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+            if (stocks == null || stocks.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                if (stocks.Count > 1) stocks.Sort((x, y) => y.location.CompareTo(x.location));
+                return stocks[0];
+            }
+        }
+
         public bool HaveStockInTrack(uint trackid, uint goodsid, out uint stockid)
         {
             stockid = StockList.Find(c => c.track_id == trackid && c.goods_id == goodsid)?.id ?? 0;
@@ -2810,7 +2848,7 @@ namespace resource.goods
         }
         #endregion
 
-        #region [计算轨道存放坐标]
+        #region [计算轨道存取坐标]
 
         /// <summary>
         /// 计算下一车轨道坐标
@@ -2860,11 +2898,62 @@ namespace resource.goods
             return isOK;
         }
 
-        //public bool CalculateCanStoreQty(uint trackid, int storeqty, out int canstoreqty)
-        //{
-        //    Track track = PubMaster.Track.GetTrack(trackid);
-        //    ushort carlength = PubMaster.DevConfig.GetCarrierLenghtByArea(track.area);
-        //}
+        /// <summary>
+        /// 获取前进/后退 存砖下一车坐标
+        /// </summary>
+        /// <param name="md"></param>
+        /// <param name="carrierid"></param>
+        /// <param name="trackid"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public bool CalculateNextLocByDir(DevMoveDirectionE md, uint carrierid, uint trackid, out ushort location)
+        {
+            Track track = PubMaster.Track.GetTrack(trackid);
+            Stock stk; // 计算库存
+            ushort safe = 0; // 安全间隔
+            ushort limit = 0; // 轨道尽头
+            switch (md)
+            {
+                case DevMoveDirectionE.前进:
+                    stk = GetStockInLocMin(trackid);
+                    if (stk == null)
+                    {
+                        location = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
+                        return true;
+                    }
+                    safe = GetStackSafe(stk.goods_id, carrierid);
+                    limit = (track.Type == TrackTypeE.储砖_出 ? track.split_point : track.limit_point);
+                    location = (ushort)(stk.location - safe);
+                    if (location < limit)
+                    {
+                        location = 0;
+                        return false;
+                    }
+                    return true;
+
+                case DevMoveDirectionE.后退:
+                    stk = GetStockInLocMax(trackid);
+                    if (stk == null)
+                    {
+                        location = (track.Type == TrackTypeE.储砖_出 ? track.split_point : track.limit_point);
+                        return true;
+                    }
+                    safe = GetStackSafe(stk.goods_id, carrierid);
+                    location = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
+                    location = (ushort)(stk.location - safe);
+                    if (location > limit)
+                    {
+                        location = 0;
+                        return false;
+                    }
+                    return true;
+
+                default:
+                    location = 0;
+                    return false;
+            }
+
+        }
 
         /// <summary>
         /// 获取库存间距脉冲，用于计算
@@ -2885,6 +2974,44 @@ namespace resource.goods
 
             return safe;
         }
+
+        /// <summary>
+        /// 获取前进/后退 取砖库存坐标
+        /// </summary>
+        /// <param name="md"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetStockLocByDir(DevMoveDirectionE md, uint trackid)
+        {
+            ushort location = 0;
+            Track track = PubMaster.Track.GetTrack(trackid);
+            Stock stk; // 计算库存
+            switch (md)
+            {
+                case DevMoveDirectionE.前进:
+                    stk = GetStockInLocMin(trackid);
+                    if (stk == null)
+                    {
+                        location = 0;
+                        break;
+                    }
+                    location = stk.location;
+                    break;
+
+                case DevMoveDirectionE.后退:
+                    stk = GetStockInLocMax(trackid);
+                    if (stk == null)
+                    {
+                        location = 0;
+                        break;
+                    }
+                    location = stk.location;
+                    break;
+
+            }
+            return location;
+        }
+
         #endregion
 
         #endregion

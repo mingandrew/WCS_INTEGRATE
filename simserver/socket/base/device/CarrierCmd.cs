@@ -17,6 +17,7 @@ namespace simserver.simsocket
         public ushort Value8_9;        //值8-9
         public ushort Value10_11;        //值10-11
         public byte Value12;        //值12
+        public byte Value13;        //值13
 
         #region[执行任务]
         /// <summary>
@@ -64,6 +65,14 @@ namespace simserver.simsocket
         public byte SortQty
         {
             get => Value12;
+        }
+
+        /// <summary>
+        /// 值13：标识码
+        /// </summary>
+        public byte MarkCode
+        {
+            get => Value13;
         }
 
         #endregion

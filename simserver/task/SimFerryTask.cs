@@ -147,6 +147,10 @@ namespace simtask.task
                 DevStatus.UpLight = false;
             }
 
+            DevStatus.CurrentTask = DevFerryTaskE.定位;
+            DevStatus.FinishTask = DevFerryTaskE.定位;
+            DevStatus.DeviceStatus = DevFerryStatusE.停止;
+            DevStatus.TargetSite = 0;
         }
         #endregion
 

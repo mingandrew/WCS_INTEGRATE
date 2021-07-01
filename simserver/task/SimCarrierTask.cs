@@ -123,6 +123,8 @@ namespace simtask
         {
             DevStatus.CurrentSite = initsite;
             DevStatus.CurrentPoint = initpoint;
+            DevStatus.DeviceStatus = DevCarrierStatusE.停止;
+            DevStatus.CurrentOrder = DevCarrierOrderE.无;
             Track track = PubMaster.Track.GetTrackBySite(Device.area, initsite);
             if (track != null)
             {
@@ -298,7 +300,7 @@ namespace simtask
 
                 #region[取砖指令]
                 case DevCarrierOrderE.取砖指令:
-
+                    
                     #region[顶升取货]
                     if (TO_SITE == ZERO_SITE
                         && TO_POINT == ZERO_POINT)

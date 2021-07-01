@@ -268,7 +268,7 @@ namespace task.device
         {
             get => (OnGoingOrder == DevCarrierOrderE.无 || OnGoingOrder == DevCarrierOrderE.终止指令)
                 //&& (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无);
-                && CurrentOrder == DevCarrierOrderE.无;
+                && (CurrentOrder == DevCarrierOrderE.无 || CurrentOrder == DevCarrierOrderE.终止指令);
         }
 
         public bool IsConnect
@@ -388,6 +388,15 @@ namespace task.device
         internal void DoSelectResetSite(ushort ID)
         {
             DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)CarrierResetE.查询, 0, 0, 0, 0, 0, (byte)ID);
+        }
+
+        /// <summary>
+        /// 回复清除复位点
+        /// </summary>
+        /// <param name="ID">复位序号</param>
+        internal void DoClearReset()
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作);
         }
 
         /// <summary>

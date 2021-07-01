@@ -18,36 +18,36 @@ namespace simserver.simsocket.process
 
         internal byte[] GetStatus(DevTileLifter dev)
         {
-            TileStatusStruct st = new TileStatusStruct();
-
-            st.Head = ShiftBytes(SimSocketConst.TILELIFTER_STATUS_HEAD_KEY);
-            st.DeviceID = dev.DeviceID;
-            st.LoadStatus1 = (byte)dev.LoadStatus1;
-            st.LoadStatus2 = (byte)dev.LoadStatus2;
-            st.NeedStatus1 = (byte)(dev.Need1 ? 0x01 : 0x00);
-            st.NeedStatus2 = (byte)(dev.Need2 ? 0x01 : 0x00);
-            st.FullQty = dev.FullQty;
-            st.Site1Qty = dev.Site1Qty;
-            st.Site2Qty = dev.Site2Qty;
-            st.Involve1 = (byte)(dev.Involve1 ? 0x01 : 0x00);
-            st.Involve2 = (byte)(dev.Involve2 ? 0x01 : 0x00);
-            st.OperateMode = (byte)dev.OperateMode;
-            st.Goods1 = ShiftBytes(dev.Goods1);
-            st.Goods2 = ShiftBytes(dev.Goods2);
-            st.ShiftStatus = (byte)dev.ShiftStatus;
-            st.ShiftAccept = (byte)(dev.ShiftAccept ? 0x01 : 0x00);
-            st.WorkMode = (byte)dev.WorkMode;
-            st.SetGoods = ShiftBytes(dev.SetGoods);
-            st.SetLevel = dev.SetLevel;
-            st.NeedSytemShift = (byte)(dev.NeedSytemShift ? 0x01 : 0x00);
-            st.BackupShiftDev = dev.BackupShiftDev;
-            st.AlertLightStatus = dev.AlertLightStatus;
-            st.Reserve2 = dev.Reserve2;
-            st.Reserve3 = dev.Reserve3;
-            st.Reserve4 = dev.Reserve4;
-            st.MarkCode = dev.MarkCode;
-
-            st.Tail = ShiftBytes(SimSocketConst.TAIL_KEY);
+            TileStatusStruct st = new TileStatusStruct
+            {
+                Head = ShiftBytes(SimSocketConst.TILELIFTER_STATUS_HEAD_KEY),
+                DeviceID = dev.DeviceID,
+                LoadStatus1 = (byte)dev.LoadStatus1,
+                LoadStatus2 = (byte)dev.LoadStatus2,
+                NeedStatus1 = (byte)(dev.Need1 ? 0x01 : 0x00),
+                NeedStatus2 = (byte)(dev.Need2 ? 0x01 : 0x00),
+                FullQty = dev.FullQty,
+                Site1Qty = dev.Site1Qty,
+                Site2Qty = dev.Site2Qty,
+                Involve1 = (byte)(dev.Involve1 ? 0x01 : 0x00),
+                Involve2 = (byte)(dev.Involve2 ? 0x01 : 0x00),
+                OperateMode = (byte)dev.OperateMode,
+                Goods1 = ShiftBytes(dev.Goods1),
+                Goods2 = ShiftBytes(dev.Goods2),
+                ShiftStatus = (byte)dev.ShiftStatus,
+                ShiftAccept = (byte)(dev.ShiftAccept ? 0x01 : 0x00),
+                WorkMode = (byte)dev.WorkMode,
+                SetGoods = ShiftBytes(dev.SetGoods),
+                SetLevel = dev.SetLevel,
+                NeedSytemShift = (byte)(dev.NeedSytemShift ? 0x01 : 0x00),
+                BackupShiftDev = dev.BackupShiftDev,
+                AlertLightStatus = dev.AlertLightStatus,
+                Reserve2 = dev.Reserve2,
+                Reserve3 = dev.Reserve3,
+                Reserve4 = dev.Reserve4,
+                MarkCode = dev.MarkCode,
+                Tail = ShiftBytes(SimSocketConst.TAIL_KEY)
+            };
 
             return StructToBuffer(st) ;
         }
@@ -55,12 +55,15 @@ namespace simserver.simsocket.process
         internal DevTileCmd GetCmd(byte[] data)
         {
             TileCmdStruct st = BufferToStruct<TileCmdStruct>(data);
-            DevTileCmd cmd = new DevTileCmd();
-            cmd.DeviceID = st.DeviceID;
-            cmd.Command = (DevLifterCmdTypeE)st.Command;
-            cmd.Value1 = st.Value1;
-            cmd.Value2 = st.Value2;
-            cmd.Value3 = ShiftBytes(st.Value3);
+            DevTileCmd cmd = new DevTileCmd
+            {
+                DeviceID = st.DeviceID,
+                Command = (DevLifterCmdTypeE)st.Command,
+                Value1 = st.Value1,
+                Value2 = st.Value2,
+                Value3_6 = ShiftBytes(st.Value3),
+                Value7 = st.Value7
+            };
 
             return cmd;
         }
