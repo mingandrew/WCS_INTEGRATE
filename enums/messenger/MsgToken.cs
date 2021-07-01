@@ -39,6 +39,8 @@ namespace enums
         public const string TaskSwitchUpdate = nameof(TaskSwitchUpdate);
         public const string LineSwitchUpdate = nameof(LineSwitchUpdate);
 
+        public const string RefreshRfTrackPos = nameof(RefreshRfTrackPos);
+
         #region[模拟系统]
 
         public const string SimCarrierMsgUpdate = nameof(SimCarrierMsgUpdate);//通讯

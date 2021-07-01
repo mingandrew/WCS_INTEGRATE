@@ -35,6 +35,7 @@ namespace task.rf
         private object _obj;
         private bool isrunning = true;
         private Thread mTread;
+        private uint refreshposdevid = 0;
         #endregion
 
         #region[属性]
@@ -50,6 +51,7 @@ namespace task.rf
             mMsg = new MsgAction();
             mClient = new List<RfClient>();
             Messenger.Default.Register<RfMsgMod>(this, MsgToken.RfMsgUpdate, RfMsgUpdate);
+            Messenger.Default.Register<string>(this, MsgToken.RefreshRfTrackPos, RefreshRfTrackPos);
         }
 
         public void Start()
@@ -442,6 +444,9 @@ namespace task.rf
                         break;
                     case FunTag.TaskFerryAutoPos:
                         TaskFerryAutoPos(msg);
+                        break;
+                    case FunTag.QueryFerryTrackPos:
+                        QueryFerryTrackPos(msg);
                         break;
 
                     #endregion
@@ -1256,6 +1261,37 @@ namespace task.rf
                     }
                 }
             }
+        }
+
+        private void QueryFerryTrackPos(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                if (uint.TryParse(msg.Pack.Data,out uint devid))
+                {
+                    if (PubTask.Ferry.RfRefreshPosList(devid,out string result))
+                    {
+                        refreshposdevid = devid;
+                        SendSucc2Rf(msg.MEID, FunTag.QueryFerryTrackPos, "ok");
+                    }
+                    else
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.QueryFerryTrackPos, result);
+                    }
+                }
+            }
+        }
+
+        private void RefreshRfTrackPos(string str)
+        {
+            FerryPosPack gmsg = new FerryPosPack();
+            if (refreshposdevid != 0)
+            {
+                gmsg.Device = refreshposdevid;
+                gmsg.AddPosList(PubMaster.Track.GetFerryPos(refreshposdevid));
+                SendSuc2AllRf(FunTag.QueryFerryPos, JsonTool.Serialize(gmsg));
+            }
+
         }
 
 
