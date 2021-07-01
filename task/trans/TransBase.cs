@@ -1,6 +1,8 @@
 ﻿using enums;
+using GalaSoft.MvvmLight.Messaging;
 using module.goods;
 using module.msg;
+using module.track;
 using resource;
 using System;
 using System.Collections.Generic;
@@ -24,7 +26,10 @@ namespace task.trans
         private bool initwaitefinish;
         internal MTimer mTimer;
         internal Log mLog;
+        internal Log mDtlLog;
         protected List<StockTrans> TransList { set; get; }
+        protected List<StockTransDtl> TransDtlList { set; get; }
+        private List<StockTrans> organizelist { set; get; }
         #endregion
 
         #region[分析]
@@ -35,16 +40,18 @@ namespace task.trans
 
         #region[任务】
 
-        InTaskTrans _InTrans;
-        OutTaskTrans _outTrans;
-        OutTaskTransV2 _outTransV2;
+        private InTaskTrans _InTrans;
+        private OutTaskTrans _outTrans;
+        private OutTaskTransV2 _outTransV2;
 
-        In2OutSortTrans _in2outSortTrans;
-        Out2OutSortTrans _out2outSortTrans;
-        MoveTaskTrans _moveTrans;
-        SameSideOutTrans _sameSideOutTrans;
-        SameSideInTrans _sameSideInTrans;
+        private In2OutSortTrans _in2outSortTrans;
+        private Out2OutSortTrans _out2outSortTrans;
+        private MoveTaskTrans _moveTrans;
+        private SameSideOutTrans _sameSideOutTrans;
+        private SameSideInTrans _sameSideInTrans;
 
+        private SeperateStockTrans _seperatestocktrans;
+        private MoveStockTrans _movestocktrans;
 
         #endregion
 
@@ -52,11 +59,14 @@ namespace task.trans
         public TransBase()
         {
             mLog = (Log)new LogFactory().GetLog("任务日志", false);
+            mDtlLog = (Log)new LogFactory().GetLog("任务细单", false);
             mTimer = new MTimer();
             mMsg = new MsgAction();
             _to = new object();
             _for = new object();
             TransList = new List<StockTrans>();
+            TransDtlList = new List<StockTransDtl>();
+            organizelist = new List<StockTrans>();
             InitTrans();
         }
 
@@ -73,12 +83,19 @@ namespace task.trans
             _moveTrans = new MoveTaskTrans(trans);
             _sameSideOutTrans = new SameSideOutTrans(trans);
             _sameSideInTrans = new SameSideInTrans(trans);
+
+            _backUpTrans = new SecondUpTaskTrans(trans);
+            _seperatestocktrans = new SeperateStockTrans(trans);
+            _movestocktrans = new MoveStockTrans(trans);
         }
 
         private void InitTrans()
         {
             TransList.Clear();
             TransList.AddRange(PubMaster.Mod.GoodSql.QueryStockTransList());
+
+            TransDtlList.Clear();
+            TransDtlList.AddRange(PubMaster.Mod.GoodSql.QueryTransDtlList());
         }
 
         public void Start()
@@ -158,6 +175,15 @@ namespace task.trans
                                     case TransTypeE.上砖侧倒库:
                                         _out2outSortTrans.DoTrans(trans);
                                         break;
+                                    case TransTypeE.反抛任务:
+                                        _backUpTrans.DoTrans(trans);
+                                        break;
+                                    case TransTypeE.库存整理:
+                                        organizelist.Add(trans);
+                                        break;
+                                    case TransTypeE.库存转移:
+                                        _movestocktrans.DoTrans(trans);
+                                        break;
                                 }
                             }
                             catch (Exception e)
@@ -168,6 +194,13 @@ namespace task.trans
 
                         CheckTrackSort();  //包装前无需倒库
                         //CheckUpTrackSort(); //上砖侧倒库
+
+                        #region[库存整理] 因为在检测的过程中会生成库存转移任务所以不能放在大循环里面
+                        foreach (var item in organizelist)
+                        {
+                            _seperatestocktrans.DoTrans(item);
+                        }
+                        #endregion
                     }
                     catch (Exception e)
                     {
@@ -373,6 +406,15 @@ namespace task.trans
         }
 
         #region 设定任务属性（code-200~299）
+
+        internal void SetStatus(uint transid, TransStatusE status, string memo = "")
+        {
+            StockTrans trans = GetTrans(transid);
+            if (trans != null)
+            {
+                SetStatus(trans, status, memo);
+            }
+        }
 
         internal void SetStatus(StockTrans trans, TransStatusE status, string memo = "")
         {
@@ -739,7 +781,8 @@ namespace task.trans
                 return TransList.Exists(c => !c.finish
                             && c.InTrack(trackid)
                             && (!ignoresort || c.NotInType(TransTypeE.上砖侧倒库))
-                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务)));
+                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务))
+                            && c.NotInType(TransTypeE.库存整理));
             }
             catch { }
             return true;
@@ -953,6 +996,430 @@ namespace task.trans
 
         #endregion
 
+        #endregion
+
+        #region[任务判断]
+
+        /// <summary>
+        /// 是否存在未完成的任务
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="库存整理"></param>
+        /// <returns></returns>
+        public bool ExistTransWithType(ushort area, params TransTypeE[] types)
+        {
+            return TransList.Exists(c => !c.finish && c.area_id == area && c.InType(types));
+        }
+
+        public bool ExistTransWithTracks(params uint[] trackids)
+        {
+            return TransList.Exists(c => !c.finish && c.InTrack(trackids) || ExistTrackInDtlUnFinish(trackids));
+        }
+
+
+        #endregion
+
+        #region[细单操作]
+
+        #region[获取细单]
+
+        /// <summary>
+        /// 获取总单下面包含的所有交易细单列表
+        /// </summary>
+        /// <param name="transid"></param>
+        /// <returns></returns>
+        public List<StockTransDtl> GetTransDtls(uint transid)
+        {
+            return TransDtlList.FindAll(c => c.dtl_p_id == transid);
+        }
+
+        /// <summary>
+        /// 获取绑定了总单ID的交易细单
+        /// </summary>
+        /// <param name="transid"></param>
+        /// <returns></returns>
+        public StockTransDtl GetTransDtl(uint transid)
+        {
+            return TransDtlList.Find(c => c.dtl_trans_id == transid);
+        }
+
+        /// <summary>
+        /// 获取任务对应的品种细单
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <returns></returns>
+        public StockTransDtl GetTransDtlInTransGood(StockTrans trans, uint gid)
+        {
+            return TransDtlList.Find(c => c.dtl_p_id == trans.id && c.dtl_good_id == gid);
+        }
+
+        #endregion
+
+        #region[更新细单状态信息]
+        /// <summary>
+        /// 更新细单状态
+        /// </summary>
+        /// <param name="dtl"></param>
+        /// <param name="status"></param>
+        public void SetDtlStatus(StockTransDtl dtl, StockTransDtlStatusE status)
+        {
+            if (dtl.DtlStatus != status)
+            {
+                mDtlLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ]", dtl.dtl_id, dtl.DtlStatus, status));
+
+                dtl.DtlStatus = status;
+                PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.Status);
+
+
+                SendDtlUpdateMsg(dtl, ActionTypeE.Update);
+            }
+        }
+
+        /// <summary>
+        /// 更新细单取货轨道ID
+        /// </summary>
+        /// <param name="dtl"></param>
+        /// <param name="trackid"></param>
+        public void SetDtlTakeTrack(StockTransDtl dtl, uint trackid)
+        {
+            if (dtl.dtl_take_track_id != trackid)
+            {
+                mDtlLog.Status(true, string.Format("任务[ {0} ], 取货轨道[ {1} -> {2} ]",
+                    dtl.dtl_id, PubMaster.Track.GetTrackName(dtl.dtl_take_track_id),
+                    PubMaster.Track.GetTrackName(trackid)));
+                dtl.dtl_take_track_id = trackid;
+                PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.TakeTrack);
+
+                SendDtlUpdateMsg(dtl, ActionTypeE.Update);
+            }
+        }
+
+        /// <summary>
+        /// 更新细单放货轨道ID
+        /// </summary>
+        /// <param name="dtl"></param>
+        /// <param name="trackid"></param>
+        public void SetDtlGiveTrack(StockTransDtl dtl, uint trackid)
+        {
+            if (dtl.dtl_give_track_id != trackid)
+            {
+                mDtlLog.Status(true, string.Format("任务[ {0} ], 放货轨道[ {1} -> {2} ]",
+                    dtl.dtl_id, PubMaster.Track.GetTrackName(dtl.dtl_give_track_id),
+                    PubMaster.Track.GetTrackName(trackid)));
+
+                dtl.dtl_give_track_id = trackid;
+                PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.GiveTrack);
+
+                SendDtlUpdateMsg(dtl, ActionTypeE.Update);
+            }
+        }
+
+        /// <summary>
+        /// 更新细单对应的任务ID
+        /// </summary>
+        /// <param name="dtl"></param>
+        public void SetDtlTransId(StockTransDtl dtl, uint transid)
+        {
+            if (dtl.dtl_trans_id != transid)
+            {
+                mDtlLog.Status(true, string.Format("任务[ {0} ], 对应任务[ {1} -> {2} ]", dtl.dtl_id, dtl.dtl_trans_id, transid));
+
+                dtl.dtl_trans_id = transid;
+                PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.TransId);
+
+                SendDtlUpdateMsg(dtl, ActionTypeE.Update);
+            }
+        }
+
+        /// <summary>
+        /// 更新细单为完成状态
+        /// </summary>
+        /// <param name="dtl"></param>
+        public void SetDtlFinish(StockTransDtl dtl)
+        {
+            if (!dtl.dtl_finish)
+            {
+                mDtlLog.Status(true, string.Format("任务[ {0} ], 细单完成, 所属主单[ {1} ]", dtl.dtl_id, dtl.dtl_p_id));
+
+                dtl.dtl_finish = true;
+                PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.Finish);
+
+                SendDtlUpdateMsg(dtl, ActionTypeE.Finish);
+            }
+        }
+
+
+        /// <summary>
+        /// 更新细单绑定的当前任务为空（任务完成）
+        /// </summary>
+        /// <param name="id"></param>
+        public void SetTransDtlTransFinish(uint id)
+        {
+            StockTransDtl dtl = GetTransDtl(id);
+            if (dtl != null && dtl.dtl_trans_id != 0)
+            {
+                mDtlLog.Status(true, string.Format("任务[ {0} ], 细单完成, 当前绑定指定任务完成[ {1} ]", dtl.dtl_id, dtl.dtl_trans_id));
+
+                SetDtlTransId(dtl, 0);
+
+                UpdateTransDtlLeftQty(dtl);
+                PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.TransId);
+
+                SendDtlUpdateMsg(dtl, ActionTypeE.Update);
+            }
+        }
+
+        /// <summary>
+        /// 更新细单剩余数量
+        /// </summary>
+        /// <param name="id"></param>
+        public void UpdateTransDtlLeftQty(StockTransDtl dtl)
+        {
+            if (dtl != null)
+            {
+                dtl.dtl_left_qty = PubMaster.Goods.GetTrackGoodCount(dtl.dtl_take_track_id, dtl.dtl_good_id);
+                mDtlLog.Status(true, string.Format("任务[ {0} ], 全部数量[ {1} ], 更新剩余数量[ {2} ]", dtl.dtl_id, dtl.dtl_all_qty, dtl.dtl_left_qty));
+
+                PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.Qty);
+
+                SendDtlUpdateMsg(dtl, ActionTypeE.Update);
+            }
+        }
+
+
+        /// <summary>
+        /// 判断是否存在任务使用了该轨道同时不属于给定的类型内
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool ExistTransWithTrackButType(uint trackid, params TransTypeE[] types)
+        {
+            return TransList.Exists(c => !c.finish
+                                                    && c.InTrack(trackid)
+                                                    && c.NotInType(types)) || ExistTrackInDtlUnFinish(trackid);
+        }
+
+
+        /// <summary>
+        /// 判断轨道是否被库存整理任务【卸货轨道】占用
+        /// </summary>
+        /// <param name="trackids"></param>
+        /// <returns></returns>
+        public bool ExistTrackInDtlUnFinish(params uint[] trackids)
+        {
+            return TransDtlList.Exists(c => //!c.dtl_finish
+                                                        c.DtlStatus == StockTransDtlStatusE.整理中
+                                                        && c.DtlType == StockTransDtlTypeE.转移品种
+                                                        && trackids.Contains(c.dtl_give_track_id));
+        }
+        #endregion
+
+        #region[判断细单状态]
+
+        /// <summary>
+        /// 判断是否存在同区域未完成的指定类型任务
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal bool ExistUnFinishTrans(uint area_id, uint trackid, TransTypeE type)
+        {
+            return TransList.Exists(c => !c.finish && c.area_id == area_id && c.InTrack(trackid) && c.InType(type));
+        }
+
+        /// <summary>
+        /// 完成所有细单信息
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal bool SetAllTransDtlFinish(uint id)
+        {
+            List<StockTransDtl> dtl = TransDtlList.FindAll(c => c.dtl_p_id == id && !c.dtl_finish);
+            if (dtl == null || dtl.Count == 0)
+            {
+                return true;
+            }
+
+            foreach (StockTransDtl item in dtl)
+            {
+                SetDtlFinish(item);
+
+                SendDtlUpdateMsg(item, ActionTypeE.Finish);
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #endregion
+
+        #region[添加库存整理任务]
+
+        public bool CheckStockDtlGiveTrack(List<StockTransDtl> dtls)
+        {
+            foreach (var item in dtls)
+            {
+                if (item.dtl_give_track_id != 0 && ExistTransWithTracks(item.dtl_give_track_id))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 添加库存整理任务
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dtl"></param>
+        public bool AddOrganizeTrans(uint id, List<StockTransDtl> dtl, out string result)
+        {
+            if (CheckStockDtlGiveTrack(dtl))
+            {
+                result = "轨道被占用, 请重新设定！";
+                return false;
+            }
+
+            Track track = PubMaster.Track.GetTrack(id);
+            uint transid = AddTransWithoutLock(track.area, 0, TransTypeE.库存整理, 0, 0, track.id, track.id, TransStatusE.调度设备);
+
+            foreach (var item in dtl)
+            {
+                if (!AddStockTransDtl(transid, item))
+                {
+
+                }
+            }
+
+            SetStatus(transid, TransStatusE.整理中, "");
+
+            result = "";
+            return true;
+        }
+
+        /// <summary>
+        /// 平板添加预设整理任务
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="dtls"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool RfPreSetOrganizeTrans(uint trackid, List<StockTransDtl> dtls, out string result)
+        {
+            Track track = PubMaster.Track.GetTrack(trackid);
+            if (track == null)
+            {
+                result = "请先选择轨道！";
+                return false;
+            }
+
+            if (PubTask.Trans.ExistTransWithType(track.area, TransTypeE.库存整理))
+            {
+                result = "当前已经有一个库存整理任务了！";
+                return false;
+            }
+
+            if (dtls.Count == 0 || null == dtls.FirstOrDefault(c => c.DtlType == StockTransDtlTypeE.转移品种))
+            {
+                result = "当前轨道没有需要整理的库存信息";
+                return false;
+            }
+
+            if (dtls.Count == 1)
+            {
+                result = "当前轨道只有一个品种，不需要整理";
+                return false;
+            }
+            result = "ok";
+            return true;
+        }
+
+        public bool UpdateTrackGoodOrganizeTrack(uint trackid, List<StockTransDtl> list, out string result)
+        {
+            List<uint> tracks = PubMaster.Track.GetTrackFreeEmptyTrackIds(trackid);
+            List<uint> freeids = new List<uint>();
+            foreach (var item in tracks)
+            {
+                if (!PubTask.Trans.ExistTransWithTracks(item))
+                {
+                    freeids.Add(item);
+                }
+            }
+
+            if (freeids.Count < list.Count(c => c.DtlType == StockTransDtlTypeE.转移品种))
+            {
+                result = "当前空轨道数量不满足！";
+                return false;
+            }
+            ushort idx = 0;
+            foreach (var item in list)
+            {
+                if (item.DtlType == StockTransDtlTypeE.转移品种)
+                {
+                    item.dtl_give_track_id = freeids[idx];
+                    idx++;
+                }
+            }
+            result = "ok";
+            return true;
+        }
+
+        private bool AddStockTransDtl(uint transid, StockTransDtl dtl)
+        {
+            uint dtlid = PubMaster.Dic.GenerateID(DicTag.NewTranDtlId);
+            dtl.dtl_id = dtlid;
+            dtl.dtl_p_id = transid;
+            dtl.dtl_all_qty = PubMaster.Goods.GetTrackGoodCount(dtl.dtl_take_track_id, dtl.dtl_good_id);
+            dtl.dtl_left_qty = dtl.dtl_all_qty;
+            if (PubMaster.Mod.GoodSql.AddStockTransDtl(dtl))
+            {
+                TransDtlList.Add(dtl);
+                SendDtlUpdateMsg(dtl, ActionTypeE.Add);
+                mDtlLog.Status(true, string.Format("细任务[ {0} ], 主任务[ {1} ], 状态[ {2} ], 类型[ {3} ], 货物[ {4} & {8} ], 取货轨道[ {5} ], " +
+                    "卸货轨道[ {6} ], 全部数量[ {7} ] ", dtl.dtl_id, dtl.dtl_p_id, dtl.DtlStatus, dtl.DtlType, dtl.dtl_good_id,
+                    PubMaster.Track.GetTrackName(dtl.dtl_take_track_id),
+                    PubMaster.Track.GetTrackName(dtl.dtl_give_track_id),
+                    dtl.dtl_all_qty,
+                    PubMaster.Goods.GetGoodsName(dtl.dtl_good_id)));
+                return true;
+            }
+            return false;
+        }
+
+        public List<StockTransDtl> GetStockTransDtlsList()
+        {
+            return TransDtlList.FindAll(c => !c.dtl_finish);
+        }
+
+        public void GetAllStockTransDtl()
+        {
+            foreach (var item in TransDtlList)
+            {
+                SendDtlUpdateMsg(item, ActionTypeE.Add);
+            }
+        }
+
+        public void SendDtlUpdateMsg(StockTransDtl dtl, ActionTypeE type)
+        {
+            MsgAction msg = new MsgAction()
+            {
+                o1 = dtl,
+                o2 = type
+            };
+            Messenger.Default.Send(msg, MsgToken.StockTransDtlUpdate);
+        }
+
+        /// <summary>
+        /// 判断任务是否完成
+        /// </summary>
+        /// <param name="trans_id"></param>
+        /// <returns></returns>
+        public bool IsTransFinish(uint trans_id)
+        {
+            return TransList.Exists(c => c.id == trans_id && c.finish);
+        }
         #endregion
     }
 }

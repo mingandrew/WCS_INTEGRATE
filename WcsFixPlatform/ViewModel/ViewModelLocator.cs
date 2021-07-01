@@ -77,6 +77,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<CarrierPosViewModel>();
 
             SimpleIoc.Default.Register<SimulationViewModel>();
+            SimpleIoc.Default.Register<OrganizeTrackViewModel>();
 
             SimpleIoc.Default.Register<LocationDialogViewModel>();
             SimpleIoc.Default.Register<CarrierPosSelectViewModel>();
@@ -165,9 +166,15 @@ namespace wcs.ViewModel
         public SimulationViewModel Simulation => ServiceLocator.Current.GetInstance<SimulationViewModel>();
         #endregion
 
-            public static void Cleanup()
-            {
+        #region[¿â´æÕûÀí]
+
+        public OrganizeTrackViewModel OrganizeTrack => ServiceLocator.Current.GetInstance<OrganizeTrackViewModel>();
+
+        #endregion
+
+        public static void Cleanup()
+        {
                 // TODO Clear the ViewModels
-            }
+        }
     }
 }

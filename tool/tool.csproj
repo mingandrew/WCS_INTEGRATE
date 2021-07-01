@@ -95,6 +95,7 @@
     <Compile Include="appconfig\DefaultConfig.cs" />
     <Compile Include="appconfig\MysqlConfig.cs" />
     <Compile Include="appconfig\GlobalWcsDataConfig.cs" />
+    <Compile Include="appconfig\OrganizeConfig.cs" />
     <Compile Include="appconfig\SimulateConfig.cs" />
     <Compile Include="json\JsonTool.cs" />
     <Compile Include="list\IClone.cs" />

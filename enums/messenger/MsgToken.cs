@@ -40,6 +40,7 @@ namespace enums
         public const string LineSwitchUpdate = nameof(LineSwitchUpdate);
 
         public const string RefreshRfTrackPos = nameof(RefreshRfTrackPos);
+        public const string StockTransDtlUpdate = nameof(StockTransDtlUpdate);//库存细单状态更新
 
         #region[模拟系统]
 

@@ -984,6 +984,7 @@ namespace task.trans.transtask
                         && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                     {
                         trans.IsReleaseGiveFerry = true;
+                        _M.FreeGiveFerry(trans);
                     }
 
                     //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
@@ -1196,6 +1197,9 @@ namespace task.trans.transtask
         public override void ToGiveTrackGiveStock(StockTrans trans)
         {
 
+        }
+        public override void Organizing(StockTrans trans)
+        {
         }
         #endregion
     }

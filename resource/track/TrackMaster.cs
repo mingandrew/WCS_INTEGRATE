@@ -1426,6 +1426,7 @@ namespace resource.track
             return tracks;
         }
 
+
         /// <summary>
         /// 判断是否是空轨道
         /// </summary>
@@ -2114,5 +2115,37 @@ namespace resource.track
         }
 
         #endregion
+
+
+        /// <summary>
+        /// 获取无任务，空闲轨道IDs
+        /// </summary>
+        /// <param name="id">指定轨道ID</param>
+        /// <returns></returns>
+        public List<uint> GetTrackFreeEmptyTrackIds(uint id)
+        {
+            Track track = GetTrack(id);
+            List<Track> tracks = TrackList.FindAll(c => c.Type == track.Type && c.StockStatus == TrackStockStatusE.空砖 && c.TrackStatus == TrackStatusE.启用);
+
+            List<TrackDis> tras = new List<TrackDis>();
+            foreach (var item in tracks)
+            {
+                tras.Add(new TrackDis()
+                {
+                    trackid = item.id,
+                    dis = Math.Abs((short)(item.id - id))
+                });
+            }
+
+            tras.Sort((x, y) => x.dis.CompareTo(y.dis));
+
+            return tras.Select(c => c.trackid)?.ToList() ?? new List<uint>();
+        }
+    }
+
+    class TrackDis
+    {
+        public uint trackid { set; get; }
+        public long dis { set; get; }
     }
 }

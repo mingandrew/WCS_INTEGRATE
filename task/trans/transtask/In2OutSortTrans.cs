@@ -162,6 +162,7 @@ namespace task.trans.transtask
                                  && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
                             {
                                 trans.IsReleaseTakeFerry = true;
+                                _M.FreeTakeFerry(trans);
                             }
 
                             _M.SetStatus(trans, TransStatusE.倒库中);
@@ -775,6 +776,10 @@ namespace task.trans.transtask
         public override void ReturnDevBackToTrack(StockTrans trans)
         {
 
+        }
+
+        public override void Organizing(StockTrans trans)
+        {
         }
 
         #endregion

@@ -66,7 +66,7 @@
     <Compile Include="goods\GoodSize.cs" />
     <Compile Include="goods\Stock.cs" />
     <Compile Include="goods\StockSum.cs" />
-    <Compile Include="goods\StockTrans.cs" />
+    <Compile Include="trans\StockTrans.cs" />
     <Compile Include="line\Line.cs" />
     <Compile Include="msg\MsgAction.cs" />
     <Compile Include="msg\MsgMod.cs" />
@@ -135,6 +135,7 @@
     <Compile Include="track\Track.cs" />
     <Compile Include="track\TrackLog.cs" />
     <Compile Include="track\TrackStoreCount.cs" />
+    <Compile Include="trans\StockTransDtl.cs" />
     <Compile Include="warning\RfWarning.cs" />
     <Compile Include="warning\Warning.cs" />
     <Compile Include="window\DialogResult.cs" />

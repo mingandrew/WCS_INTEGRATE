@@ -114,7 +114,6 @@ namespace resource.goods
             return StockList.Find(c => c.id == id);
         }
 
-
         /// <summary>
         /// 获取轨道上的所有库存信息
         /// </summary>
@@ -177,6 +176,7 @@ namespace resource.goods
             afterlist.AddRange(stocks);
             return afterlist;
         }
+
 
         /// <summary>
         /// 检查轨道是否能够添加对应数量的库存
@@ -275,6 +275,17 @@ namespace resource.goods
             return StockList.Count(c => c.track_id == trackid && c.location >= uppoint);
         }
 
+
+        /// <summary>
+        /// 获取轨道中指定品种的数量
+        /// </summary>
+        /// <param name="dtl_take_track_id"></param>
+        /// <param name="dtl_good_id"></param>
+        /// <returns></returns>
+        public ushort GetTrackGoodCount(uint trackid, uint goodid)
+        {
+            return (ushort)StockList.Count(c => c.track_id == trackid && c.goods_id == goodid);
+        }
 
         #endregion
 
@@ -1319,6 +1330,7 @@ namespace resource.goods
             }
 
         }
+
 
         /// <summary>
         /// 根据运输车报警删除多余的库存信息
@@ -2628,7 +2640,7 @@ namespace resource.goods
         /// <param name="id"></param>
         /// <param name="goodsid"></param>
         /// <returns></returns>
-        private bool HaveGoodInTrack(uint id, uint goodsid)
+        public bool HaveGoodInTrack(uint id, uint goodsid)
         {
             return StockList.Exists(c => c.track_id == id && c.goods_id == goodsid);
         }
@@ -3585,6 +3597,66 @@ namespace resource.goods
                 return StockList.Count(c => c.track_id == stock.track_id && c.location <= stock.location) == 1;
             }
             return false;
+        }
+        #endregion
+
+
+        #region[库存整理]
+
+
+        /// <summary>
+        /// 根据轨道当前的库存品种获取列表
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public List<StockTransDtl> GetTrackGood2Organize(uint id)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == id);
+            stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
+            List<StockTransDtl> dtls = new List<StockTransDtl>();
+
+            uint gid = 0;
+            foreach (var item in stocks)
+            {
+                //if(gid == 0 || item.goods_id != gid)
+                //{
+                //    gid = item.goods_id;
+                //}
+
+                StockTransDtl dtl = dtls.Find(c => c.dtl_good_id == item.goods_id);
+                if (dtl == null)
+                {
+                    dtl = new StockTransDtl()
+                    {
+                        dtl_good_id = item.goods_id,
+                        dtl_all_qty = 1,
+                        dtl_area_id = item.area,
+                        dtl_take_track_id = item.track_id,
+                        DtlType = StockTransDtlTypeE.转移品种
+                    };
+
+                    dtls.Add(dtl);
+                }
+                else
+                {
+                    dtl.dtl_all_qty++;
+                }
+            }
+
+            return dtls;
+        }
+
+        /// <summary>
+        /// 判断轨道库存是否集中处于轨道尾部
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public bool IsGoodAllInButton(uint trackid, uint goodid)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+            int mingoodpos = stocks.FindAll(c => c.goods_id == goodid)?.Min(c => c.pos) ?? 0;
+            return !stocks.Exists(c => c.goods_id != goodid && c.pos > mingoodpos);
         }
         #endregion
     }

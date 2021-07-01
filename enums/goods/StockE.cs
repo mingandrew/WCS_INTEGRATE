@@ -29,6 +29,9 @@
         同向上砖,
         同向下砖,
         上砖侧倒库,
+        反抛任务,
+        库存整理,
+        库存转移,
         其他
     }
 
@@ -45,7 +48,8 @@
         取消,
         检查轨道,
         倒库暂停,
-        接力等待,
+        接力等待, 
+        整理中,
         其他
     }
 
@@ -75,5 +79,30 @@
         PosType,
         ProduceTime,
         Location
+    }
+
+
+    public enum StockTransDtlTypeE
+    {
+        上砖品种,
+        转移品种,
+        保留品种
+    }
+
+    public enum StockTransDtlStatusE
+    {
+        整理中,
+        完成
+    }
+
+
+    public enum TransDtlUpdateE
+    {
+        Status,
+        TakeTrack,
+        GiveTrack,
+        TransId,
+        Qty,
+        Finish
     }
 }

@@ -611,7 +611,7 @@ namespace task.trans
         /// <param name="stockid"></param>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool IsStockInTransButSortTask(uint stockid, uint trackid)
+        internal bool IsStockInTransButSortTask(uint stockid, uint trackid, params TransTypeE[] types)
         {
             try
             {
@@ -622,7 +622,7 @@ namespace task.trans
                 bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
 
                 return TransList.Exists(c => !c.finish
-                            && (c.stock_id == stockid || c.InTrack(trackid))
+                            && (c.stock_id == stockid || (c.InTrack(trackid) && c.NotInType(types)))
                             && (!ignoresort || c.NotInType(TransTypeE.上砖侧倒库))
                             && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务)));
             }

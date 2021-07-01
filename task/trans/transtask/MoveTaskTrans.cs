@@ -525,6 +525,9 @@ namespace task.trans.transtask
 
         }
 
+        public override void Organizing(StockTrans trans)
+        {
+        }
         #endregion
     }
 }
