@@ -30,6 +30,8 @@
         public const string NewTileTrackId = nameof(NewTileTrackId);
         public const string NewTrafficCtlId = nameof(NewTrafficCtlId);
 
+        public const string NewTranDtlId = nameof(NewTranDtlId);
+
         #endregion
 
         #region[平板]

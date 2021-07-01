@@ -615,7 +615,6 @@ namespace task.trans.transtask
                                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                         {
                             trans.IsReleaseGiveFerry = true;
-
                             _M.FreeGiveFerry(trans);
                         }
                     }
@@ -673,6 +672,7 @@ namespace task.trans.transtask
                                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                         {
                             trans.IsReleaseGiveFerry = true;
+                            _M.FreeGiveFerry(trans);
                         }
                     }
 
@@ -1031,6 +1031,7 @@ namespace task.trans.transtask
                                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                         {
                             trans.IsReleaseGiveFerry = true;
+                            _M.FreeGiveFerry(trans);
                         }
 
                         if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
@@ -1117,6 +1118,9 @@ namespace task.trans.transtask
 
         }
 
+        public override void Organizing(StockTrans trans)
+        {
+        }
         #endregion
     }
 }

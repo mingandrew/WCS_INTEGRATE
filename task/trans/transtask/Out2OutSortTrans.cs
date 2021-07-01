@@ -133,6 +133,7 @@ namespace task.trans.transtask
                                  && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
                             {
                                 trans.IsReleaseTakeFerry = true;
+                                _M.FreeTakeFerry(trans);
                             }
 
                             _M.SetStatus(trans, TransStatusE.倒库中);
@@ -333,7 +334,14 @@ namespace task.trans.transtask
             if(track.brother_track_id == trans.take_track_id)
             {
                 if(PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
-                { 
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 1308, string.Format("运输车[ {0} ], 接力不允许取入库轨道砖,系统自动终止；",
+                        PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                    #endregion
+
+                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.CarrierLoadNotSortTask, (ushort)trans.carrier_id, trans.id);
+
                     //终止
                     PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                     {
@@ -401,12 +409,13 @@ namespace task.trans.transtask
                     #endregion
 
                     //前进放砖
-                    CarrierActionOrder cao = new CarrierActionOrder
+                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                     {
                         Order = DevCarrierOrderE.放砖指令,
                         CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id)
-                    };
+                        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                        ToTrackId = trans.give_track_id
+                    });
 
                     return;
                 }
@@ -908,6 +917,9 @@ namespace task.trans.transtask
 
         }
 
+        public override void Organizing(StockTrans trans)
+        {
+        }
         #endregion
     }
 }

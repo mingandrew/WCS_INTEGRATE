@@ -80,12 +80,14 @@
     <Compile Include="trans\transtask\BaseTaskTrans.cs" />
     <Compile Include="trans\transtask\In2OutSortTrans.cs" />
     <Compile Include="trans\transtask\InTaskTrans.cs" />
+    <Compile Include="trans\transtask\MoveStockTrans.cs" />
     <Compile Include="trans\transtask\MoveTaskTrans.cs" />
     <Compile Include="trans\transtask\Out2OutSortTrans.cs" />
     <Compile Include="trans\transtask\SecondUpTaskTrans.cs" />
     <Compile Include="trans\transtask\OutTaskTrans.cs" />
     <Compile Include="trans\transtask\OutTaskTransV2.cs" />
     <Compile Include="trans\transtask\SameSideOutTrans.cs" />
+    <Compile Include="trans\transtask\SeperateStockTrans.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\enums\enums.csproj">

@@ -15,7 +15,7 @@ namespace task.trans.transtask
         internal TransMaster _M {private set; get; }
         internal MTimer mTimer;
         internal Track track;
-        internal bool isload, isnotload, tileemptyneed;
+        internal bool isload, isnotload, tileemptyneed, ftask;
         internal uint ferryTraid;
         internal string res = "", result = "";
         internal uint carrierid;
@@ -89,6 +89,9 @@ namespace task.trans.transtask
                         break;
                     case TransStatusE.接力等待:
                         Out2OutRelayWait(trans);
+                        break;
+                    case TransStatusE.整理中:
+                        Organizing(trans);
                         break;
                     case TransStatusE.其他:
                         OtherAction(trans);
@@ -175,6 +178,8 @@ namespace task.trans.transtask
         public abstract void Out2OutRelayWait(StockTrans trans);
 
         public abstract void OtherAction(StockTrans trans);
+
+        public abstract void Organizing(StockTrans trans);
 
         #endregion
 

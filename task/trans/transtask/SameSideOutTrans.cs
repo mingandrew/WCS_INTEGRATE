@@ -673,6 +673,7 @@ namespace task.trans.transtask
                         && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                     {
                         trans.IsReleaseGiveFerry = true;
+                        _M.FreeGiveFerry(trans);
                     }
 
                     _M.SetStatus(trans, TransStatusE.完成);
@@ -856,6 +857,9 @@ namespace task.trans.transtask
         public override void ToGiveTrackGiveStock(StockTrans trans)
         {
 
+        }
+        public override void Organizing(StockTrans trans)
+        {
         }
         #endregion
     }

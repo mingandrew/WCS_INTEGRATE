@@ -124,6 +124,7 @@
     <Compile Include="Data\View\FerryPosView.cs" />
     <Compile Include="Data\View\FerryView.cs" />
     <Compile Include="Data\View\GoodsView.cs" />
+    <Compile Include="Data\View\OrgGoodTrackView.cs" />
     <Compile Include="Data\View\RfClientView.cs" />
     <Compile Include="Data\View\sim\SimDeviceView.cs" />
     <Compile Include="Data\View\StockGoodSumView.cs" />
@@ -279,6 +280,7 @@
     <Compile Include="ViewModel\platform\stock\TileTrackViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\TrackAllocateViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\TransViewModel.cs" />
+    <Compile Include="ViewModel\platform\track\OrganizeTrackViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackLogViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackViewModel.cs" />
@@ -351,6 +353,9 @@
     </Compile>
     <Compile Include="window\platform\stock\StockCtl.xaml.cs">
       <DependentUpon>StockCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\track\OrganizeTrackCtl.xaml.cs">
+      <DependentUpon>OrganizeTrackCtl.xaml</DependentUpon>
     </Compile>
     <Compile Include="window\platform\track\TrackCtl.xaml.cs">
       <DependentUpon>TrackCtl.xaml</DependentUpon>
@@ -614,6 +619,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="window\platform\stock\StockCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\track\OrganizeTrackCtl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

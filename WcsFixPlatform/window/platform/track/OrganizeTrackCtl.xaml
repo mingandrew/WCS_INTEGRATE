@@ -1,0 +1,97 @@
+﻿<UserControl x:Class="wcs.window.OrganizeTrackCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" Background="{StaticResource RegionBrush}"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             DataContext="{Binding OrganizeTrack,Source={StaticResource Locator}}"
+             MinWidth="800" MinHeight="600">
+    <Grid  Margin="10">
+        <TabControl >
+            <TabItem Header="任务列表" FontSize="22" Height="50" >
+                <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding DtlList}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Dtl_ID}" Header="序号"/>
+                        <DataGridTextColumn Binding="{Binding Dtl_P_ID}" Header="主任务"/>
+                        <DataGridTextColumn Binding="{Binding DtlType}" Header="类型"/>
+                        <DataGridTextColumn Binding="{Binding DtlStatus}" Header="状态"/>
+                        <DataGridTextColumn Binding="{Binding All_Qty}" Header="全部数量"/>
+                        <DataGridTextColumn Binding="{Binding Left_Qty}" Header="剩余数量"/>
+                        <DataGridTextColumn Binding="{Binding Trans_Id}" Header="当前任务"/>
+                        <DataGridTextColumn Binding="{Binding Take_Track_Id,Converter={StaticResource TrackId2NameConverter}}" Header="取货轨道"/>
+                        <DataGridTextColumn Binding="{Binding Give_Track_Id,Converter={StaticResource TrackId2NameConverter}}" Header="转移轨道"/>
+                        <DataGridTextColumn Binding="{Binding Good_Id,Converter={StaticResource GoodId2NameConverter}}" Header="品种"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <TabItem Header="添加任务" FontSize="22" Height="50" >
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="10">
+                        <StackPanel  Orientation="Horizontal">
+                            <TextBlock Text="选择轨道：" Width="100" Style="{StaticResource TextBlockTitle}"/>
+                            <TextBlock Text="{Binding SelectTrackName}" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+                            <Button Content="选择" Tag="selecttrack" Style="{StaticResource ButtonPrimary}"
+                                    Command="{Binding BtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" FontSize="16" Height="35"/>
+                            <Button Content="清空信息" Tag="clearinfo" Style="{StaticResource ButtonDanger}"
+                                    Command="{Binding BtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
+                                    FontSize="16" Height="35" HorizontalAlignment="Right" Margin="30,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel  Orientation="Horizontal" HorizontalAlignment="Right">
+
+                            <Button Content="添加任务" Tag="addtrans" Style="{StaticResource ButtonPrimary}" 
+                                    Command="{Binding BtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
+                                    FontSize="16" Height="35" HorizontalAlignment="Right"/>
+
+                        </StackPanel>
+                    </Grid>
+                    <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding List}" SelectedItem="{Binding SelectItem}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Good_Id,Converter={StaticResource GoodId2NameConverter}}" Header="品种" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding All_Qty}" Header="数量" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Give_Track_Id,Converter={StaticResource TrackId2NameConverter}}" Header="转移轨道" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding DtlType}" Header="整理类型" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Header="操作">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+
+                                            <Button Content="上砖" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
+                                                              Command="{Binding DataContext.GoodTrackUpCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
+                                            <Button Content="转移" HorizontalAlignment="Center" Style="{StaticResource ButtonWarning}" Margin="20,0,0,0" FontSize="16"
+                                                        Command="{Binding DataContext.GoodTrackMoveCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
+                                            <Button Content="保留" HorizontalAlignment="Center" Style="{StaticResource ButtonDanger}" Margin="20,0,0,0" FontSize="16"
+                                                        Command="{Binding DataContext.GoodTrackStayCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                            
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

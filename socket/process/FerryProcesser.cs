@@ -86,6 +86,7 @@ namespace socket.process
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct FerryAutoPosCmdStruct
     {
         public ushort Head; //命令字头【0x94,0x01】
