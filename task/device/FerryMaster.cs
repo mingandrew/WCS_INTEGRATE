@@ -38,7 +38,7 @@ namespace task.device
 
         #region[摆渡对位]
         private bool _IsSetting;
-        private bool _IsRefreshPos;
+        private bool _isrefreshpos;
         private List<FerryPosSet> _FerryPosSetList;
         private Log mlog, mPosLog, mAllocateLog;
         private bool isWcsStoping = false;
@@ -48,7 +48,21 @@ namespace task.device
         #endregion
 
         #region[属性]
-
+        private bool _IsRefreshPos
+        {
+            get => _isrefreshpos;
+            set
+            {
+                if (value is bool rs)
+                {
+                    if (rs != _isrefreshpos && rs == false)
+                    {
+                        Messenger.Default.Send("", MsgToken.RefreshRfTrackPos);
+                    }
+                    _isrefreshpos = rs;
+                }
+            }
+        }
         #endregion
 
         #region[构造/启动/停止/重连]
@@ -1430,6 +1444,36 @@ namespace task.device
                     Monitor.Exit(_posobj);
                 }
             }
+        }
+
+        public bool RfRefreshPosList(uint ferryid,out string result)
+        {
+            if (!PubTask.Ferry.IsOnline(ferryid))
+            {
+                result = "设备离线";
+                return false;
+            }
+            if (_IsRefreshPos)
+            {
+                result = "正在刷新！";
+                return false;
+            }
+            if (Monitor.TryEnter(_posobj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    EndRefreshPosList();
+                    PosList.AddRange(PubMaster.Mod.TraSql.QueryFerryPosList(ferryid));
+                    _IsRefreshPos = true;
+                    mPosLog.Status(true, string.Format("摆渡车[ {0} ], 刷新轨道坐标, 备注：[ 平板 ]", PubMaster.Device.GetDeviceName(ferryid)));
+                }
+                finally
+                {
+                    Monitor.Exit(_posobj);
+                }
+            }
+            result = "";
+            return true;
         }
 
         public void EndRefreshPosList()
