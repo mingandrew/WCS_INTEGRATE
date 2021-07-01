@@ -519,14 +519,12 @@ INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`
 ## 2021.06.30：库存整理-平板 
 
 ```mysql
-INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (35, '库存整理', 1, 'RFSORTSOTCK', 'com.keda.wcsfixplatformapp.screen.rforganize.RfOrganizeTransMainScreen', NULL, 'othersetting.png', NULL, '平板-库存整理');
+INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (36, '库存整理', 1, 'RFSORTSOTCK', 'com.keda.wcsfixplatformapp.screen.rforganize.RfOrganizeTransMainScreen', NULL, 'othersetting.png', NULL, '平板-库存整理');
 
-INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES ( 1, '库存整理', b'0', NULL, 35, 17, b'1');
-INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '库存整理', b'0', NULL, 35, 17, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES ( 1, '库存整理', b'0', NULL, 36, 17, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '库存整理', b'0', NULL, 36, 17, b'1');
 
 ```
-
-
 
 
 
