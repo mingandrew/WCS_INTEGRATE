@@ -2264,13 +2264,15 @@ namespace task.rf
             if (msg.IsPackHaveData())
             {
                 InitFerryPack pack = JsonTool.Deserialize<InitFerryPack>(msg.Pack.Data);
-                if (true)
+
+                ushort code = PubMaster.Track.GetTrackUpCode(pack.trackid);
+                if (PubTask.Ferry.DoReNew(pack.deviceid, code, (DevMoveDirectionE)pack.movedirection, out string res))
                 {
                     SendSucc2Rf(msg.MEID, FunTag.InitFerry, "ok");
                 }
                 else
                 {
-                    SendFail2Rf(msg.MEID, FunTag.InitFerry, "fail");
+                    SendFail2Rf(msg.MEID, FunTag.InitFerry, res);
                 }
             }
         }
@@ -2278,13 +2280,15 @@ namespace task.rf
         public void InitCarrier(RfMsgMod msg)
         {
             InitCarrierPack pack = JsonTool.Deserialize<InitCarrierPack>(msg.Pack.Data);
-            if (true)
+
+            ushort code = PubMaster.Track.GetTrackUpCode(pack.trackid);
+            if (PubTask.Carrier.DoReNew(pack.deviceid, pack.initpoint, code, (DevMoveDirectionE)pack.movedirection, out string res))
             {
                 SendSucc2Rf(msg.MEID, FunTag.InitCarrier, "ok");
             }
             else
             {
-                SendFail2Rf(msg.MEID, FunTag.InitCarrier, "fail");
+                SendFail2Rf(msg.MEID, FunTag.InitCarrier, res);
             }
         }
 

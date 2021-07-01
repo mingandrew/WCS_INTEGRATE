@@ -11,6 +11,6 @@ namespace module.rf.device
         public uint deviceid { get; set; }
         public uint trackid { get; set; }
         public uint movedirection { get; set; }
-        public uint initpoint { get; set; }
+        public ushort initpoint { get; set; }
     }
 }

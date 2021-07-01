@@ -1546,12 +1546,26 @@ namespace task.device
                 res = "无小车数据";
                 return false;
             }
+
             if (!CheckCarrierIsFree(task))
             {
                 res = "小车非空闲状态，请先终止";
                 return false;
             }
-            if (md == DevMoveDirectionE.无)
+
+            if (code == 0)
+            {
+                res = "请选择初始化轨道";
+                return false;
+            }
+
+            if (point == 0)
+            {
+                res = "请选择初始化复位点位";
+                return false;
+            }
+
+            if (md != DevMoveDirectionE.前进 && md != DevMoveDirectionE.后退)
             {
                 res = "请选择指令方向";
                 return false;

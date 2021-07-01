@@ -85,7 +85,7 @@ namespace wcs.ViewModel.platform.track
                         case TrackTypeE.储砖_入:
                         case TrackTypeE.储砖_出:
                         case TrackTypeE.储砖_出入:
-                            if (cp.InType(CarrierPosE.下砖摆渡复位点, CarrierPosE.上砖摆渡复位点))
+                            if (!cp.InType(CarrierPosE.轨道前侧复位点, CarrierPosE.轨道后侧复位点))
                             {
                                 continue;
                             }
