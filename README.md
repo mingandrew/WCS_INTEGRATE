@@ -438,7 +438,7 @@ INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geomet
 INSERT INTO `wcs_menu_dtl`(`id`, `menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (108, 1, '位置初始化', b'0', 0, 35, 16, b'1');
 
 ## 2021-06-30：新增字段，用于设定上下砖侧的运输车的数量
-### **如果某一个数量为0，则不会自动将运输车在出库轨道入库轨道来回调用**
+ ### **如果某一个数量为0，则不会自动将运输车在出库轨道入库轨道来回调用**
 ```mysql
 ALTER TABLE `area` ADD COLUMN `up_car_count` tinyint(3) UNSIGNED NULL COMMENT '上砖运输车的最少数量限定' AFTER `full_qty`;
 ALTER TABLE `area` ADD COLUMN `down_car_count` tinyint(3) UNSIGNED NULL COMMENT '下砖运输车的最少数量限定' AFTER `up_car_count`;
@@ -514,14 +514,12 @@ INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`
 ## 2021.06.30：库存整理-平板 
 
 ```mysql
-INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (35, '库存整理', 1, 'RFSORTSOTCK', 'com.keda.wcsfixplatformapp.screen.rforganize.RfOrganizeTransMainScreen', NULL, 'othersetting.png', NULL, '平板-库存整理');
+INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (36, '库存整理', 1, 'RFSORTSOTCK', 'com.keda.wcsfixplatformapp.screen.rforganize.RfOrganizeTransMainScreen', NULL, 'othersetting.png', NULL, '平板-库存整理');
 
-INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES ( 1, '库存整理', b'0', NULL, 35, 17, b'1');
-INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '库存整理', b'0', NULL, 35, 17, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES ( 1, '库存整理', b'0', NULL, 36, 17, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '库存整理', b'0', NULL, 36, 17, b'1');
 
 ```
-
-
 
 
 
@@ -619,7 +617,4 @@ UPDATE `diction_dtl` SET `name` = '4xx轨道码盘数值_定位点=0', `string_v
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_定位点=0', `string_value` = '5xx轨道码盘数值_定位点=0' WHERE `id` = 125;
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_复位点=0', `string_value` = '5xx轨道码盘数值_复位点=0' WHERE `id` = 126;
 UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘丢转故障，小车移动过程中码盘接近开关超过5秒无信号：1.检查是否撞车；2.检查刹车是否能正常打开；3.检查模拟量输出模块电压输出是否大于1.5V；4.检查码盘接近开关；检查无误时终止可复位' WHERE `id` = 127;
-
-
-
 
