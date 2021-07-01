@@ -314,6 +314,7 @@ namespace task.trans
                     case TransTypeE.同向上砖:
                     case TransTypeE.同向下砖:
                     case TransTypeE.反抛任务:
+                    case TransTypeE.库存转移:
                     case TransTypeE.其他:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], 砖机[ {3} ], " +
                             "货物[ {4} ], 库存[ {5} ], 取轨[ {6} ], 卸轨[ {7} ]",
@@ -325,6 +326,7 @@ namespace task.trans
                         break;
                     case TransTypeE.倒库任务:
                     case TransTypeE.上砖侧倒库:
+                    case TransTypeE.库存整理:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], " +
                             "货物[ {3} ], 取轨[ {4} ], 卸轨[ {5} ]",
                             trans.id, type, initstatus,
@@ -339,6 +341,15 @@ namespace task.trans
                             PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
                             PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
                         break;
+                    default:
+                        log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], 砖机[ {3} ], " +
+                            "货物[ {4} ], 库存[ {5} ], 取轨[ {6} ], 卸轨[ {7} ]",
+                            trans.id, type, initstatus,
+                            PubMaster.Device.GetDeviceName(lifterid, lifterid + ""),
+                            goodsid, stocksid,
+                            PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
+                            PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
+                        break;
                 }
 
                 if (carrierid > 0)
@@ -346,6 +357,11 @@ namespace task.trans
                     log += string.Format(", 运输车[ {0} ]", PubMaster.Device.GetDeviceName(carrierid, carrierid + ""));
                 }
                 mLog.Status(true, log);
+
+                if (type == TransTypeE.库存整理 || type == TransTypeE.库存转移)
+                {
+                    mDtlLog.Status(true, log);
+                }
             }
             catch { }
 
@@ -1349,7 +1365,7 @@ namespace task.trans
             }
 
             Track track = PubMaster.Track.GetTrack(id);
-            uint transid = AddTransWithoutLock(track.area, 0, TransTypeE.库存整理, 0, 0, track.id, track.id, TransStatusE.调度设备);
+            uint transid = AddTransWithoutLock(track.area, 0, TransTypeE.库存整理, 0, 0, track.id, track.id, TransStatusE.调度设备, 0, track.line);
 
             foreach (var item in dtl)
             {
