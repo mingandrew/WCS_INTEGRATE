@@ -1468,6 +1468,9 @@ namespace task.device
                             cao.Order = DevCarrierOrderE.无;
                         }
 
+                        // 无轨道编号就以当前为准
+                        if (cao.CheckTra == 0) cao.CheckTra = task.CurrentSite;
+
                         #region 交管摆渡车
                         if (!IsAllowToSend(task, cao.CheckTra, out string result))
                         {

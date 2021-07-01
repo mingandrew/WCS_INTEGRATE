@@ -142,19 +142,18 @@ namespace task.trans.transtask
 
                                 // 摆渡车不到位则到出库轨道头等待
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                    && PubTask.Carrier.GetCurrentSite(trans.carrier_id) < track.rfid_2)
+                                    && PubTask.Carrier.GetCurrentPoint(trans.carrier_id) > track.limit_point)
                                 {
                                     #region 【任务步骤记录】
                                     _M.LogForCarrierToTrack(trans, track.id);
                                     #endregion
 
-                                    //前进至点
+                                    //至点
                                     PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                     {
                                         Order = DevCarrierOrderE.定位指令,
-                                        CheckTra = track.ferry_down_code,
-                                        ToRFID = track.rfid_2,
-                                        OverPoint = track.limit_point_up,
+                                        CheckTra = track.ferry_up_code,
+                                        OverPoint = track.limit_point,
                                         ToTrackId = track.id
                                     });
                                 }
@@ -163,8 +162,8 @@ namespace task.trans.transtask
                             }
 
                             if ((PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
-                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, 0, track.limit_point))
+                            && !PubTask.Carrier.ExistCarBehind(trans.carrier_id, track.id))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -175,7 +174,6 @@ namespace task.trans.transtask
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                     ToTrackId = ferryTraid
                                 });
@@ -235,7 +233,6 @@ namespace task.trans.transtask
                                     {
                                         Order = DevCarrierOrderE.定位指令,
                                         CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                        ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                         OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                         ToTrackId = ferryTraid
                                     });
@@ -287,7 +284,6 @@ namespace task.trans.transtask
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                     ToTrackId = ferryTraid
                                 });
@@ -496,9 +492,8 @@ namespace task.trans.transtask
                                         PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
-                                            OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
+                                            OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id),
                                             ToTrackId = trans.take_track_id
                                         });
                                         return;
@@ -549,7 +544,7 @@ namespace task.trans.transtask
 
                                         #region 库存判断
                                         // 获取头部库存
-                                        Stock takeStock = PubMaster.Goods.GetTrackTopStock(trans.take_track_id);
+                                        Stock takeStock = PubMaster.Goods.GetStockInLocMin(trans.take_track_id);
                                         if (takeStock == null || takeStock.goods_id != trans.goods_id)
                                         {
                                             _M.SetStatus(trans, TransStatusE.取消, string.Format("[{0}]内的头部库存与任务所需不符", PubMaster.Track.GetTrackName(trans.take_track_id)));
@@ -557,7 +552,7 @@ namespace task.trans.transtask
                                         }
                                         _M.SetStock(trans, takeStock.id);
 
-                                        // 以库存实际脉冲为准，否则以光电（点位脉冲）
+                                        // 以库存实际脉冲为准
                                         if (takeStock.location > 0)
                                         {
                                             cao.ToPoint = takeStock.location;
@@ -592,13 +587,6 @@ namespace task.trans.transtask
 
                     if (isnotload)
                     {
-                        //发送离开给砖机
-                        //if (!trans.IsLeaveTileLifter
-                        //    && PubTask.TileLifter.DoInvLeave(trans.tilelifter_id, trans.give_track_id))
-                        //{
-                        //    trans.IsLeaveTileLifter = true;
-                        //}
-
                         if (track.id == trans.give_track_id
                             && PubTask.Carrier.IsCarrierFinishUnLoad(trans.carrier_id))
                         {
@@ -715,7 +703,6 @@ namespace task.trans.transtask
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
                                     ToTrackId = ferryTraid
                                 });
@@ -947,7 +934,7 @@ namespace task.trans.transtask
 
                                             #region 库存判断
                                             // 获取头部库存
-                                            Stock takeStock = PubMaster.Goods.GetTrackTopStock(trans.finish_track_id);
+                                            Stock takeStock = PubMaster.Goods.GetStockInLocMin(trans.finish_track_id);
                                             if (takeStock == null || takeStock.goods_id != trans.goods_id)
                                             {
                                                 _M.SetStatus(trans, TransStatusE.取消, string.Format("[{0}]内的头部库存与任务所需不符", PubMaster.Track.GetTrackName(trans.finish_track_id)));
@@ -955,7 +942,7 @@ namespace task.trans.transtask
                                             }
                                             _M.SetStock(trans, takeStock.id);
 
-                                            // 以库存实际脉冲为准，否则以光电（点位脉冲）
+                                            // 以库存实际脉冲为准
                                             if (takeStock.location > 0)
                                             {
                                                 cao.ToPoint = takeStock.location;
@@ -973,7 +960,7 @@ namespace task.trans.transtask
                                         _M.LogForCarrierToTrack(trans, trans.finish_track_id);
                                         #endregion
 
-                                        // 后退至点
+                                        // 至点
                                         PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.定位指令,
@@ -1112,9 +1099,8 @@ namespace task.trans.transtask
                             PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                             {
                                 Order = DevCarrierOrderE.定位指令,
-                                CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                ToRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id),
-                                OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
+                                CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
+                                OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id),
                                 ToTrackId = trans.take_track_id
                             });
                             return;
