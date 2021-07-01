@@ -12,5 +12,10 @@ namespace tool.appconfig
         /// </summary>
         public bool IsDebug { set; get; } = false;
         public bool DefaultSupervisor { set; get; } = false;
+
+        /// <summary>
+        /// 是否开启记录设备每笔接收数据
+        /// </summary>
+        public bool LogDeviceReceiver { set; get; } = false;
     }
 }

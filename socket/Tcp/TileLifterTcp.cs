@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using tool.appconfig;
 
 namespace socket.tcp
 {
@@ -227,6 +228,8 @@ namespace socket.tcp
         /// <returns></returns>
         private bool MatchWithProtocol(ref byte[] data)
         {
+            if (GlobalWcsDataConfig.DebugConfig.LogDeviceReceiver) _mLog.Cmd(true, "接收：", data);
+
             ushort head = BitConverter.ToUInt16(ShiftBytes(data, 0, 2), 0);
             ushort tail = BitConverter.ToUInt16(ShiftBytes(data, mMinProtLength - 2, 2), 0);
 

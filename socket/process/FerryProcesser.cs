@@ -50,6 +50,7 @@ namespace socket.process
         public byte Reserve6;       //预留6
         public byte Reserve7;       //预留7
         public byte Reserve8;       //预留8
+        public byte Reserve9;       //预留9
         public ushort Tail; //命令字尾【0xFF,0xFE】
 
     }
@@ -69,6 +70,7 @@ namespace socket.process
         public byte Reserve2;       //预留2
         public byte Reserve3;       //预留3
         public byte Reserve4;       //预留4
+        public byte Reserve5;       //预留5
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
     #endregion
@@ -88,13 +90,13 @@ namespace socket.process
         public ushort Tail; //命令字尾【0xFF,0xFE】
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct FerryAutoPosCmdStruct
     {
         public ushort Head; //命令字头【0x94,0x01】
         public byte DeviceID;      //设备号
         public byte Commond; //控制码
-        public byte Value1;  //值1
-        public byte Value2;  //值2
+        public ushort Value1_2;  //值1-2
         public byte Value3;//值3
         public byte Value4;
         public byte Value5;
@@ -178,15 +180,14 @@ namespace socket.process
             return StructToBuffer(cmd);
         }
 
-        internal byte[] GetAutoPosCmd(string devid, DevFerryCmdE type, byte b1, byte b2, byte b3, byte b4)
+        internal byte[] GetAutoPosCmd(string devid, DevFerryCmdE type, ushort b1, byte b3, byte b4)
         {
             FerryAutoPosCmdStruct cmd = new FerryAutoPosCmdStruct
             {
                 Head = ShiftBytes(SocketConst.FERRY_CMD_HEAD_KEY),
                 DeviceID = byte.Parse(devid),
                 Commond = (byte)type,
-                Value1 = b1,
-                Value2 = b2,
+                Value1_2 = ShiftBytes(b1),
                 Value3 = b3,
                 Value4 = b4,
                 Tail = ShiftBytes(SocketConst.TAIL_KEY)

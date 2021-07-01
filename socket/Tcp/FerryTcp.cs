@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using tool.appconfig;
 using tool.timer;
 
 namespace socket.tcp
@@ -58,14 +59,14 @@ namespace socket.tcp
             }
         }
 
-        public void SendAutoPosCmd(DevFerryCmdE type, byte b1, byte b2, byte b3, byte b4)
+        public void SendAutoPosCmd(DevFerryCmdE type, ushort b1, byte b3, byte b4)
         {
             if (Monitor.TryEnter(mMsgMod, TimeSpan.FromMilliseconds(500)))
             {
 
                 try
                 {
-                    byte[] data = mProcess.GetAutoPosCmd(mDev.memo, type, b1, b2, b3, b4);
+                    byte[] data = mProcess.GetAutoPosCmd(mDev.memo, type, b1, b3, b4);
                     SendMessage(data);
                 }
                 finally
@@ -246,6 +247,8 @@ namespace socket.tcp
         /// <param name="data"></param>
         private void MatchWithProtocol(ref byte[] data)
         {
+            if (GlobalWcsDataConfig.DebugConfig.LogDeviceReceiver) _mLog.Cmd(true, "接收：", data);
+
             ushort head = BitConverter.ToUInt16(ShiftBytes(data, 0, 2), 0);
             switch (head)
             {

@@ -368,17 +368,7 @@ namespace task.device
                     cao.MoveCount = 1;
                 }
             }
-            DevTcp?.SendCmd(DevCarrierCmdE.执行指令, cao.Order, cao.CheckTra, cao.ToRFID, cao.ToPoint, cao.OverRFID, cao.OverPoint, cao.MoveCount);
-        }
-
-        /// <summary>
-        /// 设置复位点 by RFID
-        /// </summary>
-        /// <param name="RFID">RFID</param>
-        /// <param name="Site">坐标</param>
-        internal void DoResetSite(ushort RFID, ushort Site)
-        {
-            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, 0, 0, RFID, Site, 0, 0, 0);
+            DevTcp?.SendCmd(DevCarrierCmdE.执行指令, (byte)cao.Order, cao.CheckTra, cao.ToRFID, cao.ToPoint, cao.OverRFID, cao.OverPoint, cao.MoveCount);
         }
 
         /// <summary>
@@ -388,7 +378,7 @@ namespace task.device
         /// <param name="Site">坐标</param>
         internal void DoResetSiteByID(ushort ID, ushort Site)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, 0, 0, 0, Site, 2, ID, 0);
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)CarrierResetE.写入, 0, 0, Site, 0, 0, (byte)ID);
         }
 
         /// <summary>
@@ -397,7 +387,18 @@ namespace task.device
         /// <param name="ID">复位序号</param>
         internal void DoSelectResetSite(ushort ID)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, 0, 0, 0, 0, 1, ID, 0);
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)CarrierResetE.查询, 0, 0, 0, 0, 0, (byte)ID);
+        }
+
+        /// <summary>
+        /// 初始化
+        /// </summary>
+        /// <param name="ID">复位号码</param>
+        /// <param name="Code">轨道编号</param>
+        /// <param name="cr">复位操作</param>
+        internal void DoRenew(ushort ID, ushort Code, CarrierResetE cr)
+        {
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)cr, 0, Code, 0, 0, 0, (byte)ID);
         }
 
         /// <summary>
@@ -408,19 +409,7 @@ namespace task.device
             OnGoingTrackId = 0;
             SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, tranid, memo);
 
-            //DevTcp?.SendCmd(DevCarrierCmdE.终止指令);     // 暂停用
-            DevTcp?.SendCmd(DevCarrierCmdE.执行指令, DevCarrierOrderE.终止指令, 0, 0, 0, 0, 0, 0);
-        }
-
-        /// <summary>
-        /// 置位指令
-        /// </summary>
-        internal void DoRenew()
-        {
-            OnGoingTrackId = 0;
-            SetOnGoingOrderWithMemo(DevCarrierOrderE.无, 0);
-
-            DevTcp?.SendCmd(DevCarrierCmdE.置位指令); 
+            DevTcp?.SendCmd(DevCarrierCmdE.执行指令, (byte)DevCarrierOrderE.终止指令, 0, 0, 0, 0, 0, 0);
         }
 
         /// <summary>

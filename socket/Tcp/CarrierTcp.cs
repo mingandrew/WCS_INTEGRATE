@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using tool.appconfig;
 
 namespace socket.tcp
 {
@@ -45,8 +46,8 @@ namespace socket.tcp
             }
         }
 
-        public void SendCmd(DevCarrierCmdE type, DevCarrierOrderE order,
-            ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, byte v6)
+        public void SendCmd(DevCarrierCmdE type, byte order7,
+            ushort v1_2, ushort v3_4, ushort v5_6, ushort v8_9, ushort v10_11, byte v12)
         {
             lastfunctime = DateTime.Now;
 
@@ -54,7 +55,7 @@ namespace socket.tcp
             {
                 try
                 {
-                    byte[] data = mProcess.GetCmd(mDev.memo, type, order, v1, v2, v3, v4, v5, v6);
+                    byte[] data = mProcess.GetCmd(mDev.memo, type, order7, v1_2, v3_4, v5_6, v8_9, v10_11, v12);
                     SendMessage(data);
                 }
                 finally
@@ -250,6 +251,8 @@ namespace socket.tcp
         /// <returns></returns>
         private bool MatchWithProtocol(ref byte[] data)
         {
+            if (GlobalWcsDataConfig.DebugConfig.LogDeviceReceiver) _mLog.Cmd(true, "接收：", data);
+
             ushort head = BitConverter.ToUInt16(ShiftBytes(data, 0, 2), 0);
             ushort tail = BitConverter.ToUInt16(ShiftBytes(data, mMinProtLength - 2, 2), 0);
 
@@ -262,7 +265,6 @@ namespace socket.tcp
                     || device.IsCurrentSiteUpdate
                     || mTimer.IsTimeOutAndReset(TimerTag.DevTcpDateRefresh, DevID, 2))
                 {
-                    _mLog.Cmd(true, "接收：", pdata);
                     SendMsg(SocketMsgTypeE.DataReiceive, SocketConnectStatusE.通信正常, device);
                     if (device.IsUpdate) _mLog.Status(true, device.ToString());
                 }

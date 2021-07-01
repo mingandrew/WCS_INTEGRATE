@@ -307,8 +307,7 @@ namespace task.task
 
         internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber, string memo)
         {
-            byte[] b = BitConverter.GetBytes(starttrack);
-            DevTcp?.SendAutoPosCmd(DevFerryCmdE.自动对位, b[1], b[0], (byte)posside, tracknumber);
+            DevTcp?.SendAutoPosCmd(DevFerryCmdE.自动对位, starttrack, (byte)posside, tracknumber);
             DevTcp.AddStatusLog(string.Format("摆渡车[ {0} ], 开始自动对位, 对位测[ {1} ], 开始轨道[ {2} ], 对位数量[ {3} ], 备注[ {4} ]",
                 Device.name, posside, starttrack, tracknumber, memo));
         }
@@ -319,6 +318,15 @@ namespace task.task
         internal void DoReply()
         {
             DevTcp?.SendCmd(DevFerryCmdE.接收回复, 0, 0, 0, DevStatus.MarkCode);
+        }
+
+        /// <summary>
+        /// 位置初始化
+        /// </summary>
+        internal void DoRenew(ushort trackcode,  DevMoveDirectionE md)
+        {
+            byte[] b = BitConverter.GetBytes(trackcode);
+            DevTcp?.SendCmd(DevFerryCmdE.初始化, b[1], b[0], (int)md);
         }
 
         #endregion

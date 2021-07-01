@@ -184,13 +184,22 @@ namespace task.device
                         {
                             if (task.IsEnable && task.IsConnect)
                             {
-                                // 超过 10s 没有更新过设备状态就查询一次
+                                // 超过 60s 没有更新过设备状态就查询一次
                                 if (task.IsRefreshTimeOver(60))
                                 {
                                     task.DoQuery();
                                     task.ReSetRefreshTime();
                                 }
+                                else
+                                {
+                                    if (task.ConnStatus != SocketConnectStatusE.通信正常)
+                                    {
+                                        task.DoQuery();
+                                        task.ReSetRefreshTime();
+                                    }
+                                }
                             }
+
                         }
                     }
                 }
@@ -1067,7 +1076,7 @@ namespace task.device
                             case TrackTypeE.下砖轨道:
                             case TrackTypeE.储砖_出:
                             case TrackTypeE.储砖_出入:
-                                if (Math.Abs(site - track.limit_point_up) >= 20) // 暂定（+-20）脉冲
+                                if (Math.Abs(site - track.limit_point_up) <= 20) // 暂定（+-20）脉冲
                                 {
                                     result = "小车已经不能再前进了";
                                     return false;
@@ -1097,7 +1106,7 @@ namespace task.device
                             return false;
                         }
                         checkTra = toTrack.ferry_down_code;
-                        toPoint = toTrack.limit_point_up;
+                        overPoint = toTrack.limit_point_up;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
 
@@ -1114,7 +1123,7 @@ namespace task.device
                             case TrackTypeE.下砖轨道:
                             case TrackTypeE.储砖_入:
                             case TrackTypeE.储砖_出入:
-                                if (Math.Abs(site - track.limit_point) >= 20) // 暂定（+-20）脉冲
+                                if (Math.Abs(site - track.limit_point) <= 20) // 暂定（+-20）脉冲
                                 {
                                     result = "小车已经不能再后退了";
                                     return false;
@@ -1144,7 +1153,7 @@ namespace task.device
                             return false;
                         }
                         checkTra = toTrack.ferry_up_code;
-                        toPoint = toTrack.limit_point;
+                        overPoint = toTrack.limit_point;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
 
@@ -1248,6 +1257,11 @@ namespace task.device
 
                     case DevCarrierTaskE.上升取砖:
                         #region 顶升取货
+                        if (IsLoad(devid))
+                        {
+                            result = "运输车有货不能取砖！";
+                            return false;
+                        }
                         if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
                         {
                             result = "不能在摆渡车上执行！";
@@ -1259,6 +1273,11 @@ namespace task.device
 
                     case DevCarrierTaskE.下降放砖:
                         #region 下降放货
+                        if (IsNotLoad(devid))
+                        {
+                            result = "运输车无货不能放砖！";
+                            return false;
+                        }
                         if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
                         {
                             result = "不能在摆渡车上执行！";
@@ -1324,13 +1343,6 @@ namespace task.device
                     CarrierTask task = DevList.Find(c => c.ID == devid);
                     if (task != null)
                     {
-                        // 置位
-                        if (cao.Order == DevCarrierOrderE.置位)
-                        {
-                            task.DoRenew();
-                            return;
-                        }
-
                         // 手动中的直接终止
                         if (task.OperateMode == DevOperateModeE.手动 || cao.Order == DevCarrierOrderE.终止指令)
                         {
@@ -1520,6 +1532,33 @@ namespace task.device
                 IsBackground = true
             }.Start();
 
+        }
+
+        /// <summary>
+        /// 初始化运输车位置
+        /// </summary>
+        public bool DoReNew(uint devid, ushort point, ushort code, DevMoveDirectionE md, out string res)
+        {
+            res = "";
+            CarrierTask task = DevList.Find(c => c.ID == devid);
+            if (task == null)
+            {
+                res = "无小车数据";
+                return false;
+            }
+            if (!CheckCarrierIsFree(task))
+            {
+                res = "小车非空闲状态，请先终止";
+                return false;
+            }
+            if (md == DevMoveDirectionE.无)
+            {
+                res = "请选择指令方向";
+                return false;
+            }
+
+            task.DoRenew(point, code, md == DevMoveDirectionE.前进 ? CarrierResetE.前进初始化 : CarrierResetE.后退初始化);
+            return true;
         }
 
         #endregion

@@ -58,7 +58,7 @@
                         <MenuItem Header="停用" Tag="4" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         <MenuItem Header="终止" Tag="5" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         <MenuItem Header="定位" Tag="6" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="位置初始化" Tag="7" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding SuperVisor,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <MenuItem Header="位置初始化" Tag="7" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
 
                     </ContextMenu>
                 </DataGrid.ContextMenu>

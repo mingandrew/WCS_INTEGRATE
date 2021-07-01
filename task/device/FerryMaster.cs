@@ -233,15 +233,26 @@ namespace task.device
                         }
                         finally
                         {
-                            if (task.IsEnable && task.IsConnect)
-                            {
-                                // 超过 10s 没有更新过设备状态就查询一次
-                                if (task.IsRefreshTimeOver(10))
-                                {
-                                    task.DoQuery();
-                                    task.ReSetRefreshTime();
-                                }
-                            }
+                            task.DoQuery();
+
+                            //if (task.IsEnable && task.IsConnect)
+                            //{
+                            //    // 超过 60s 没有更新过设备状态就查询一次
+                            //    if (task.IsRefreshTimeOver(60))
+                            //    {
+                            //        task.DoQuery();
+                            //        task.ReSetRefreshTime();
+                            //    }
+                            //    else
+                            //    {
+                            //        if (task.ConnStatus != SocketConnectStatusE.通信正常)
+                            //        {
+                            //            task.DoQuery();
+                            //            task.ReSetRefreshTime();
+                            //        }
+                            //    }
+                            //}
+
                         }
                     }
                 }
@@ -423,7 +434,7 @@ namespace task.device
                                     ferry.LoadStatus = task.DevStatus.LoadStatus;
                                 }
                                 task.DevStatus = ferry;
-                                task.DoReply(); // 接收后回复PLC
+                                //task.DoReply(); // 接收后回复PLC
                                 task.UpdateInfo();
                                 if (ferry.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, ferry.ID, 5))
                                 {
@@ -1222,6 +1233,27 @@ namespace task.device
             }
             msg = "未检测到需要避让, 可以移动";
             return false;
+        }
+
+        /// <summary>
+        /// 初始化摆渡车位置
+        /// </summary>
+        public bool DoReNew(uint devid, ushort code, DevMoveDirectionE md, out string res)
+        {
+            res = "";
+            FerryTask task = DevList.Find(c => c.ID == devid);
+            if (!CheckFerryStatus(task, out res))
+            {
+                return false;
+            }
+            if (md == DevMoveDirectionE.无)
+            {
+                res = "请选择指令方向";
+                return false;
+            }
+
+            task.DoRenew(code, md);
+            return true;
         }
 
         #endregion

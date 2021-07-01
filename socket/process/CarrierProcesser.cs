@@ -184,7 +184,7 @@ namespace socket.process
         /// <param name="v5"></param>
         /// <param name="v6"></param>
         /// <returns></returns>
-        internal byte[] GetCmd(string devid, DevCarrierCmdE type, DevCarrierOrderE order, 
+        internal byte[] GetCmd(string devid, DevCarrierCmdE type, byte order, 
             ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, byte v6)
         {
             CarrierActionCmdStruct cmd = new CarrierActionCmdStruct
@@ -195,7 +195,7 @@ namespace socket.process
                 Value1_2 = ShiftBytes(v1),
                 Value3_4 = ShiftBytes(v2),
                 Value5_6 = ShiftBytes(v3),
-                Value7 = (byte)order,
+                Value7 = order,
                 Value8_9 = ShiftBytes(v4),
                 Value10_11 = ShiftBytes(v5),
                 Value12 = v6,

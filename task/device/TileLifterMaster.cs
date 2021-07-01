@@ -372,15 +372,26 @@ namespace task.device
                         }
                         finally
                         {
-                            if (task.IsEnable && task.IsConnect)
-                            {
-                                // 超过 10s 没有更新过设备状态就查询一次
-                                if (task.IsRefreshTimeOver(10))
-                                {
-                                    task.DoQuery();
-                                    task.ReSetRefreshTime();
-                                }
-                            }
+                            task.DoQuery();
+
+                            //if (task.IsEnable && task.IsConnect)
+                            //{
+                            //    // 超过 60s 没有更新过设备状态就查询一次
+                            //    if (task.IsRefreshTimeOver(60))
+                            //    {
+                            //        task.DoQuery();
+                            //        task.ReSetRefreshTime();
+                            //    }
+                            //    else
+                            //    {
+                            //        if (task.ConnStatus != SocketConnectStatusE.通信正常)
+                            //        {
+                            //            task.DoQuery();
+                            //            task.ReSetRefreshTime();
+                            //        }
+                            //    }
+                            //}
+
                         }
                     }
                 }
@@ -754,7 +765,7 @@ namespace task.device
                             {
                                 task.ReSetRefreshTime();
                                 task.DevStatus = tilelifter;
-                                task.DoReply(); // 接收后回复PLC
+                                //task.DoReply(); // 接收后回复PLC
                                 CheckDev(task);
 
                                 if (tilelifter.IsUpdate

@@ -26,7 +26,8 @@ namespace wcs.ViewModel.platform.track
         #region[字段]
         private MsgAction _result;
 
-        private uint _area, _devid, _trackcode, _point;
+        private uint _area, _devid;
+        private ushort _trackcode, _point;
         private string _devname, _trackname;
         private DeviceTypeE _devtype;
         private TrackTypeE _tracktype;
@@ -56,13 +57,13 @@ namespace wcs.ViewModel.platform.track
             set => Set(ref _devid, value);
         }
 
-        public uint TRACKCODE
+        public ushort TRACKCODE
         {
             get => _trackcode;
             set => Set(ref _trackcode, value);
         }
 
-        public uint POINT
+        public ushort POINT
         {
             get => _point;
             set => Set(ref _point, value);
@@ -174,7 +175,7 @@ namespace wcs.ViewModel.platform.track
 
         private void Comfirm()
         {
-            if (string.IsNullOrEmpty(TRACKNAME))
+            if (TRACKCODE == 0)
             {
                 Growl.Info("请选择轨道号！");
                 return;
@@ -191,8 +192,12 @@ namespace wcs.ViewModel.platform.track
             {
                 case DeviceTypeE.上摆渡:
                 case DeviceTypeE.下摆渡:
-
                     // 复位指令
+                    if (!PubTask.Ferry.DoReNew(DEVID, TRACKCODE, MOVEDIR, out string res))
+                    {
+                        Growl.Warning(res);
+                        return;
+                    }
                     break;
 
                 case DeviceTypeE.运输车:
@@ -203,6 +208,11 @@ namespace wcs.ViewModel.platform.track
                     }
 
                     // 复位指令
+                    if (!PubTask.Carrier.DoReNew(DEVID, POINT, TRACKCODE, MOVEDIR, out res))
+                    {
+                        Growl.Warning(res);
+                        return;
+                    }
                     break;
 
                 default:
@@ -215,6 +225,12 @@ namespace wcs.ViewModel.platform.track
 
         private void CancelChange()
         {
+            TRACKCODE = 0;
+            POINT = 0;
+            DEVNAME = "";
+            TRACKNAME = "";
+            MOVEDIR = DevMoveDirectionE.无;
+
             CloseAction?.Invoke();
         }
 
