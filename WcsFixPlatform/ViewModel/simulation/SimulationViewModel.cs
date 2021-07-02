@@ -66,6 +66,7 @@ namespace wcs.ViewModel
         private string trackname;
         private ushort stockpoint;
         private uint trackid;
+        private Track track;
         #endregion
 
         #endregion
@@ -481,12 +482,13 @@ namespace wcs.ViewModel
                     if (result.p1 is Track tra)
                     {
                         trackid = tra.id;
+                        track = tra;
                         TrackName = tra.name;
                     }
                     break;
                 case "getstocklist":
 
-                    List<Stock> list = PubMaster.Goods.GetStockListInPoint(trackid, StockPoint);
+                    List<Stock> list = PubMaster.Goods.GetStockListInPoint(track, StockPoint);
                     StockList.Clear();
                     if (list.Count > 0)
                     {

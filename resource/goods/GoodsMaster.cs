@@ -2037,7 +2037,27 @@ namespace resource.goods
         public uint GetStockInStoreTrack(Track track, ushort point)
         {
             //查找脉冲范围内的库存信息
-            List<Stock> stocks = StockList.FindAll(c => c.track_id == track.id && c.IsInLocation(point, 250));//250脉冲 ≈ 250*(1.736) = 434.8cm
+            List<Stock> stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 50));
+            if(stocks.Count ==0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 100)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
+            if (stocks.Count == 0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 150)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
+            if (stocks.Count == 0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 200)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
+            if (stocks.Count == 0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 250)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
             if (stocks.Count == 1)
             {
                 //找到范围内唯一的库存
@@ -2045,8 +2065,7 @@ namespace resource.goods
             }
             else if(stocks.Count > 1)
             {
-                stocks.Sort((x, y) => y.location.CompareTo(x.location));
-                return stocks[0].id;
+                return GetNearStockId(stocks, point);
             }
 
             //如果在储砖出、或者入的轨道找不到库存则在兄弟轨道查找该脉冲范围内有没有库存的信息
@@ -2073,25 +2092,38 @@ namespace resource.goods
 
             if (stocks.Count > 0)
             {
-                List<CalData> callist = new List<CalData>();
-                foreach (var item in stocks)
-                {
-                    callist.Add(new CalData() { id = item.id, s_location = item.location,  s_data = (ushort)Math.Abs(item.location - point) });
-                }
-                callist.Sort((x, y) =>
-                {
-                    if(x.s_location > y.s_location && x.s_data > y.s_data && Math.Abs(x.s_data-y.s_data) < 250)
-                    {
-                        return -1;
-                    }
-
-                    return x.s_data.CompareTo(y.s_data);
-                });
-                ///callist.Sort((x, y) => x.s_data.CompareTo(y.s_data));
-
-                return callist[0].id;
+                return GetNearStockId(stocks, point);
             }
             return 0;
+        }
+
+        /// <summary>
+        /// 获取根据脉冲对比最近的库存
+        /// </summary>
+        /// <param name="stocks"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public uint GetNearStockId(List<Stock> stocks, ushort point)
+        {
+            if (stocks.Count == 0) return 0;
+            if (stocks.Count == 1) return stocks[0].id;
+
+            List<CalData> callist = new List<CalData>();
+            foreach (var item in stocks)
+            {
+                callist.Add(new CalData() { id = item.id, s_location = item.location, s_data = (ushort)Math.Abs(item.location - point) });
+            }
+            callist.Sort((x, y) =>
+            {
+                if (x.s_location > y.s_location && x.s_data > y.s_data && Math.Abs(x.s_data - y.s_data) < 250)
+                {
+                    return -1;
+                }
+
+                return x.s_data.CompareTo(y.s_data);
+            });
+
+            return callist[0].id;
         }
 
         /// <summary>
@@ -2138,22 +2170,52 @@ namespace resource.goods
         /// <param name="traid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public List<Stock> GetStockListInPoint(uint traid, ushort point)
+        public List<Stock> GetStockListInPoint(Track track, ushort point)
         {
             List<Stock> list = new List<Stock>();
             //查找脉冲范围内的库存信息
-            List<Stock> stocks = StockList.FindAll(c => c.track_id == traid && c.IsInLocation(point, 250));//50脉冲 ≈ 50*(1.736)=86.8cm
-            if (stocks.Count > 0)
+            List<Stock> stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 50));
+            if (stocks.Count == 0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 100)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
+            if (stocks.Count == 0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 150)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
+            if (stocks.Count == 0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 200)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
+            if (stocks.Count == 0)
+            {
+                stocks = StockList.FindAll(c => c.InTrack(track.id, track.brother_track_id) && c.IsInLocation(point, 250)); //250脉冲 ≈ 250*(1.736) = 434.8cm
+            }
+
+            if (stocks.Count == 1)
+            {
+                //找到范围内唯一的库存
+                list.Add(stocks[0]);
+            }
+            else if (stocks.Count > 1)
             {
                 stocks.Sort((x, y) => y.location.CompareTo(x.location));
                 list.AddRange(stocks);
             }
-            Track track = PubMaster.Track.GetTrack(traid);
+
             //如果在储砖出、或者入的轨道找不到库存则在兄弟轨道查找该脉冲范围内有没有库存的信息
-            if (track.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出))
+            if (track.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出) && list.Count ==0)
             {
-                stocks = StockList.FindAll(c => c.track_id == track.brother_track_id && c.IsInLocation(point, 250));//50脉冲 ≈ 50*(1.736)=86.8cm
-                if (stocks.Count > 0)
+                stocks = StockList.FindAll(c => c.track_id == track.brother_track_id && c.IsInLocation(point, 250));//150脉冲 ≈ 150*(1.736)=86.8cm
+                if (stocks.Count == 1)
+                {
+                    //找到范围内唯一的库存
+                    list.Add(stocks[0]);
+                }
+                else if (stocks.Count > 1)
                 {
                     stocks.Sort((x, y) => y.location.CompareTo(x.location));
                     list.AddRange(stocks);
@@ -2171,11 +2233,11 @@ namespace resource.goods
                 List<CalData> callist = new List<CalData>();
                 foreach (var item in stocks)
                 {
-                    callist.Add(new CalData() { id = item.id, s_location = item.location, s_data = (ushort)Math.Abs(item.location - point) });
+                    callist.Add(new CalData() { id = item.id, s_location = item.location, s_data = (ushort)Math.Abs(item.location - point) , s_stock = item});
                 }
                 callist.Sort((x, y) =>
                 {
-                    if (x.s_location > y.s_location && x.s_data > y.s_data && Math.Abs(x.s_data - y.s_data) < 120)
+                    if (x.s_location > y.s_location && x.s_data > y.s_data && Math.Abs(x.s_data - y.s_data) < 250)
                     {
                         return -1;
                     }
@@ -2183,10 +2245,9 @@ namespace resource.goods
                     return x.s_data.CompareTo(y.s_data);
                 });
                 ///callist.Sort((x, y) => x.s_data.CompareTo(y.s_data));
-
                 foreach (var item in callist)
                 {
-                    list.Add(stocks.Find(c => c.id == item.id));
+                    list.Add(item.s_stock) ;
                 }
             }
             return list;

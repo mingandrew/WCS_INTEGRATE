@@ -1,6 +1,7 @@
 ﻿using enums;
 using enums.track;
 using System;
+using System.Linq;
 
 namespace module.goods
 {
@@ -49,6 +50,11 @@ namespace module.goods
         {
             if (location == 0 || stocksite ==0) return false;
             return Math.Abs(location - stocksite) <= difrange;
+        }
+
+        public bool InTrack(params uint[] tracks)
+        {
+            return tracks.Contains(track_id);
         }
 
         public override string ToString()

@@ -296,16 +296,6 @@ namespace task.device
         }
 
         /// <summary>
-        /// 查找是否存在运输车 当前/目的 在指定的轨道
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        internal bool HaveInTrack(uint trackid)
-        {
-            return DevList.Exists(c => c.InTrack(trackid));
-        }
-
-        /// <summary>
         /// 查找是否存在运输车 当前/目的 在指定的轨道且载货
         /// </summary>
         /// <param name="trackid"></param>
@@ -335,20 +325,6 @@ namespace task.device
             return false;
         }
 
-        /// <summary>
-        /// 查找是否存在运输车在指定的轨道
-        /// 1.ID对应的轨道
-        /// 2.轨道的兄弟轨道
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        internal bool HaveInTrack(uint trackid, out uint carrierid)
-        {
-            //Track track = PubMaster.Track.GetTrack(trackid);
-            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
-            carrierid = carrier?.ID ?? 0;
-            return carrier != null;
-        }
 
         internal bool HaveDifTypeInTrack(uint trackid, CarrierTypeE carriertype, out uint carrierid)
         {
@@ -379,6 +355,31 @@ namespace task.device
             }
             carrierid = 0;
             return false;
+        }
+
+
+        /// <summary>
+        /// 查找是否存在运输车 当前/目的 在指定的轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool HaveInTrack(uint trackid)
+        {
+            return DevList.Exists(c => c.InTrack(trackid));
+        }
+
+        /// <summary>
+        /// 查找是否存在运输车在指定的轨道
+        /// 1.ID对应的轨道
+        /// 2.轨道的兄弟轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool HaveInTrack(uint trackid, out uint carrierid)
+        {
+            CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
+            carrierid = carrier?.ID ?? 0;
+            return carrier != null;
         }
 
         /// <summary>
