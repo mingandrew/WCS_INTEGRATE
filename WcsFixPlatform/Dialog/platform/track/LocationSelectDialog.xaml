@@ -31,7 +31,7 @@
                 <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LTB}"/>
                 <Border Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTRB}"/>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="轨道号："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="目的轨道："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
                 <TextBlock Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" FontSize="22" Text="{Binding TRACKNAME}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <Button Grid.Row="0" Grid.Column="2" Margin="0,10,10,10" Command="{Binding ChooseTrackCmd}" Style="{StaticResource ButtonPrimary}" Content="选择" FontSize="15"/>
 

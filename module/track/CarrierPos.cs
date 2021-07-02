@@ -5,11 +5,29 @@ namespace module.track
 {
     public class CarrierPos
     {
-        public uint id { set; get; }//标识
-        public uint area_id { set; get; }//区域ID
-        public ushort track_point { set; get; }//轨道号（复位号码）
-        public ushort track_pos { set; get; }//轨道脉冲值
+        /// <summary>
+        /// 标识
+        /// </summary>
+        public uint id { set; get; }
 
+        /// <summary>
+        /// 区域ID
+        /// </summary>
+        public uint area_id { set; get; }
+
+        /// <summary>
+        /// 复位号码
+        /// </summary>
+        public ushort track_point { set; get; }
+
+        /// <summary>
+        /// 轨道脉冲值
+        /// </summary>
+        public ushort track_pos { set; get; }
+
+        /// <summary>
+        /// 复位点类型
+        /// </summary>
         public CarrierPosE CarrierPosType => (CarrierPosE)track_point;
 
         /// <summary>

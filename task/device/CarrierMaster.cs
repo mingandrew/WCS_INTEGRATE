@@ -148,13 +148,6 @@ namespace task.device
 
                                 #endregion
 
-                                #region [复位回复清除]
-                                if (task.DevStatus.ResetID > 0)
-                                {
-                                    task.DoClearReset();
-                                    Thread.Sleep(500);
-                                }
-                                #endregion
                             }
 
                             #region 断线重连
@@ -507,6 +500,16 @@ namespace task.device
         internal DevCarrierPositionE GetPosition(uint carrier_id)
         {
             return DevList.Find(c => c.ID == carrier_id)?.Position ?? DevCarrierPositionE.异常;
+        }
+
+        /// <summary>
+        /// 小车是否初始化-写入复位脉冲中
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <returns></returns>
+        internal bool IsResetWriting(uint carrier_id)
+        {
+            return DevList.Find(c => c.ID == carrier_id)?.IsResetWork() ?? false;
         }
 
         #endregion
@@ -865,15 +868,22 @@ namespace task.device
             try
             {
                 Track track = GetCarrierTrack(devid);
-                if (carriertask != DevCarrierTaskE.终止 
-                    && carriertask != DevCarrierTaskE.置位
-                    && carriertask != DevCarrierTaskE.前进至点
-                    && carriertask != DevCarrierTaskE.后退至点  // 这些指令不用管当前位置
+                if (carriertask != DevCarrierTaskE.终止
+                    && carriertask != DevCarrierTaskE.前进寻复位标志点
+                    && carriertask != DevCarrierTaskE.后退寻复位标志点  // 不用管当前位置的指令
                     && track == null)
                 {
                     result = "未能获取到小车位置相关信息！";
                     return false;
                 }
+
+                // 初始化中不执行动作指令
+                if (IsResetWriting(devid))
+                {
+                    result = "小车初始化/复位寻点中，请先终止";
+                    return false;
+                }
+
                 //小车当前所在RF点
                 //ushort site = GetCurrentSite(devid);
                 ushort site = GetCurrentPoint(devid); // 改用脉冲
@@ -1094,7 +1104,7 @@ namespace task.device
                         }
                         if (resetSite > 0 && site > resetSite)
                         {
-                            result = "小车需超复位点，位于轨道头才可上摆渡";
+                            result = "小车需超复位点，位于轨道头才可上摆渡，请先后退至点";
                             return false;
                         }
 
@@ -1138,7 +1148,7 @@ namespace task.device
                         }
                         if (resetSite > 0 && site < resetSite)
                         {
-                            result = "小车需超复位点，位于轨道头才可上摆渡";
+                            result = "小车需超复位点，位于轨道头才可上摆渡，请先前进至点";
                             return false;
                         }
 
@@ -1161,7 +1171,7 @@ namespace task.device
                         #endregion
                         break;
 
-                    case DevCarrierTaskE.前进至点:
+                    case DevCarrierTaskE.前进至定位点:
                         #region 前进至点
                         switch (track.Type)
                         {
@@ -1209,7 +1219,7 @@ namespace task.device
                         //overPoint = 65535; // 无确定值，直接给最大脉冲表示 前进
                         break;
 
-                    case DevCarrierTaskE.后退至点:
+                    case DevCarrierTaskE.后退至定位点:
                         #region 后退至点
                         switch (track.Type)
                         {
@@ -1257,60 +1267,6 @@ namespace task.device
                         //overPoint = 1; // 无确定值，直接给最小脉冲表示 前进
                         break;
 
-                    case DevCarrierTaskE.前进至轨道头:
-                        #region 前进至轨道头
-                        if (track.NotInType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
-                        {
-                            result = "只能在储砖轨道内执行该指令";
-                            return false;
-                        }
-                        if (track.Type == TrackTypeE.储砖_入)
-                        {
-                            toTrack = PubMaster.Track.GetTrack(track.brother_track_id);
-                            if (toTrack == null)
-                            {
-                                result = "无目的轨道数据！";
-                                return false;
-                            }
-                            checkTra = toTrack.ferry_down_code;
-                            overPoint = toTrack.limit_point_up;
-                        }
-                        else
-                        {
-                            checkTra = track.ferry_down_code;
-                            overPoint = track.limit_point_up;
-                        }
-                        order = DevCarrierOrderE.定位指令;
-                        #endregion
-                        break;
-
-                    case DevCarrierTaskE.后退至轨道头:
-                        #region 后退至轨道头
-                        if (track.NotInType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
-                        {
-                            result = "只能在储砖轨道内执行该指令";
-                            return false;
-                        }
-                        if (track.Type == TrackTypeE.储砖_出)
-                        {
-                            toTrack = PubMaster.Track.GetTrack(track.brother_track_id);
-                            if (toTrack == null)
-                            {
-                                result = "无目的轨道数据！";
-                                return false;
-                            }
-                            checkTra = toTrack.ferry_up_code;
-                            overPoint = toTrack.limit_point;
-                        }
-                        else
-                        {
-                            checkTra = track.ferry_up_code;
-                            overPoint = track.limit_point;
-                        }
-                        order = DevCarrierOrderE.定位指令;
-                        #endregion
-                        break;
-
                     case DevCarrierTaskE.倒库:
                         #region 倒库
                         if (track.NotInType(TrackTypeE.储砖_出)) //最大定位RFID
@@ -1350,7 +1306,7 @@ namespace task.device
                         #endregion
                         break;
 
-                    case DevCarrierTaskE.上升取砖:
+                    case DevCarrierTaskE.原地上升取砖:
                         #region 顶升取货
                         if (IsLoad(devid))
                         {
@@ -1367,7 +1323,7 @@ namespace task.device
                         #endregion
                         break;
 
-                    case DevCarrierTaskE.下降放砖:
+                    case DevCarrierTaskE.原地下降放砖:
                         #region 下降放货
                         if (IsNotLoad(devid))
                         {
@@ -1388,10 +1344,16 @@ namespace task.device
                         order = DevCarrierOrderE.终止指令;
                         break;
 
-                    case DevCarrierTaskE.置位: // 使用原终止的控制码
-                        // 单纯把小车当前异常状态及当前指令清除，不改变状态信息
-                        order = DevCarrierOrderE.置位;
+                    case DevCarrierTaskE.前进寻复位标志点:
+                        order = DevCarrierOrderE.寻点;
+                        overPoint = 65535;  //最大脉冲-表示 前进
                         break;
+
+                    case DevCarrierTaskE.后退寻复位标志点:
+                        order = DevCarrierOrderE.寻点;
+                        overPoint = 1;          //最小脉冲-表示 后退
+                        break;
+
                 }
 
                 // 发送指令
@@ -1440,6 +1402,20 @@ namespace task.device
                     CarrierTask task = DevList.Find(c => c.ID == devid);
                     if (task != null)
                     {
+                        // 初始化中不执行动作指令
+                        if (task.IsResetWriting)
+                        {
+                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "初始化-写入PLC复位脉冲中", cao.Order, memo));
+                            return;
+                        }
+
+                        // 寻点 - 一直慢速，直到扫到复位接近开关
+                        if (cao.Order == DevCarrierOrderE.寻点)
+                        {
+                            task.DoMoveToResetPoint(cao.OverPoint == 1 ? CarrierResetE.后退寻点 : CarrierResetE.前进寻点);
+                            return;
+                        }
+
                         // 手动中的直接终止
                         if (task.OperateMode == DevOperateModeE.手动 || cao.Order == DevCarrierOrderE.终止指令)
                         {
@@ -1452,14 +1428,6 @@ namespace task.device
                         {
                             task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "连续发送不同类型的指令要先终止", cao.Order, memo));
                             return;
-                        }
-
-                        // 原地取/卸，要给当前脉冲
-                        if ((cao.Order == DevCarrierOrderE.取砖指令 || cao.Order == DevCarrierOrderE.放砖指令)
-                            && cao.ToPoint == 0 && cao.OverPoint == 0)
-                        {
-                            cao.ToPoint = task.CurrentPoint;
-                            cao.OverPoint = task.CurrentPoint;
                         }
 
                         // 连续同类型指令  无需发送指令类型  只改变其中位置信息即可
@@ -1608,7 +1576,7 @@ namespace task.device
                     foreach (CarrierTask task in DevList.FindAll(c => c.AreaId == areaid))
                     {
                         if (!task.IsConnect) continue;
-                        task.DoResetSiteByID(rfid, site);
+                        task.DoResetSiteByPoint(rfid, site);
                     }
                 }
                 catch { }
@@ -1656,7 +1624,41 @@ namespace task.device
                 return false;
             }
 
-            task.DoRenew(point, code, md == DevMoveDirectionE.前进 ? CarrierResetE.前进初始化 : CarrierResetE.后退初始化);
+            if (task.IsResetWriting)
+            {
+                res = "初始化中，请稍后再试";
+                return false;
+            }
+
+            task.IsResetWriting = true;
+            List<CarrierPos> posList = PubMaster.Track.GetCarrierPosList(task.AreaId);
+            try
+            {
+                foreach (CarrierPos item in posList)
+                {
+                    try
+                    {
+                        if (item.track_pos != 0)
+                        {
+                            task.DoResetSiteByPoint(item.track_point, item.track_pos);
+                            Thread.Sleep(500);
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        res = "初始化异常：" + ex.ToString();
+                        return false;
+                    }
+                }
+
+                Thread.Sleep(500);
+                task.DoRenew(point, code, md == DevMoveDirectionE.前进 ? CarrierResetE.前进初始化 : CarrierResetE.后退初始化);
+            }
+            finally
+            {
+                task.IsResetWriting = false;
+            }
+
             return true;
         }
 

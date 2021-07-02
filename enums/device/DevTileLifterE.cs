@@ -60,6 +60,7 @@
     /// </summary>
     public enum RfTileWorkModeE
     {
+        过砖,
         上砖 = 1,
         下砖 = 2
     }

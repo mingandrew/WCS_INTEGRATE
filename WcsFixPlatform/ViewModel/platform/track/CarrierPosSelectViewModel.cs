@@ -74,7 +74,7 @@ namespace wcs.ViewModel.platform.track
 
         public void QueryCarrierPos(uint area, TrackTypeE tt)
         {
-            List<CarrierPos> cps = PubMaster.Track.QueryCarrierPosList(area);
+            List<CarrierPos> cps = PubMaster.Track.GetCarrierPosList(area);
             Application.Current.Dispatcher.Invoke(() =>
             {
                 CarPosList.Clear();

@@ -1993,7 +1993,7 @@ namespace resource.track
         /// </summary>
         /// <param name="area_id"></param>
         /// <returns></returns>
-        public List<CarrierPos> QueryCarrierPosList(uint area_id)
+        public List<CarrierPos> GetCarrierPosList(uint area_id)
         {
             return CarrierPosList;
         }

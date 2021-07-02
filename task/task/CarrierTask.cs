@@ -3,10 +3,13 @@ using enums.track;
 using enums.warning;
 using module.device;
 using module.deviceconfig;
+using module.track;
 using resource;
 using socket.tcp;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using task.task;
 
 namespace task.device
@@ -83,6 +86,11 @@ namespace task.device
         {
             get => Device.CarrierType;
         }
+
+        /// <summary>
+        /// 是否复位脉冲写入中（初始化）
+        /// </summary>
+        public bool IsResetWriting { set; get; }
 
         #region 位置信息
 
@@ -267,7 +275,6 @@ namespace task.device
         public bool IsNotDoingTask
         {
             get => (OnGoingOrder == DevCarrierOrderE.无 || OnGoingOrder == DevCarrierOrderE.终止指令)
-                //&& (CurrentOrder == FinishOrder || CurrentOrder == DevCarrierOrderE.无);
                 && (CurrentOrder == DevCarrierOrderE.无 || CurrentOrder == DevCarrierOrderE.终止指令);
         }
 
@@ -343,6 +350,8 @@ namespace task.device
         /// </summary>
         internal void DoQuery()
         {
+            if (IsResetWriting) return;
+
             DevTcp?.SendCmd(DevCarrierCmdE.查询);
         }
 
@@ -358,6 +367,8 @@ namespace task.device
         /// <param name="moveCount">倒库数量</param>
         internal void DoOrder(CarrierActionOrder cao, uint transid, string memo = null)
         {
+            if (IsResetWriting) return;
+
             OnGoingTrackId = cao.ToTrackId;
             SetOnGoingOrderWithMemo(cao.Order, transid, memo);
 
@@ -374,20 +385,20 @@ namespace task.device
         /// <summary>
         /// 设置复位点 by ResetID
         /// </summary>
-        /// <param name="ID">复位序号</param>
-        /// <param name="Site">坐标</param>
-        internal void DoResetSiteByID(ushort ID, ushort Site)
+        /// <param name="point">复位序号</param>
+        /// <param name="pos">坐标</param>
+        internal void DoResetSiteByPoint(ushort point, ushort pos)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)CarrierResetE.写入, 0, 0, Site, 0, 0, (byte)ID);
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)CarrierResetE.写入, 0, 0, pos, 0, 0, (byte)point);
         }
 
         /// <summary>
         /// 查询复位点
         /// </summary>
-        /// <param name="ID">复位序号</param>
-        internal void DoSelectResetSite(ushort ID)
+        /// <param name="point">复位序号</param>
+        internal void DoSelectResetSite(ushort point)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)CarrierResetE.查询, 0, 0, 0, 0, 0, (byte)ID);
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)CarrierResetE.查询, 0, 0, 0, 0, 0, (byte)point);
         }
 
         /// <summary>
@@ -396,18 +407,31 @@ namespace task.device
         /// <param name="ID">复位序号</param>
         internal void DoClearReset()
         {
+            if (IsResetWriting) return;
+
             DevTcp?.SendCmd(DevCarrierCmdE.复位操作);
+        }
+
+        /// <summary>
+        /// 移至复位标志点
+        /// </summary>
+        /// <param name="ID">复位序号</param>
+        internal void DoMoveToResetPoint(CarrierResetE cr)
+        {
+            if (IsResetWriting) return;
+
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)cr, 0, 0, 0, 0, 0, 0);
         }
 
         /// <summary>
         /// 初始化
         /// </summary>
-        /// <param name="ID">复位号码</param>
+        /// <param name="point">复位号码</param>
         /// <param name="Code">轨道编号</param>
         /// <param name="cr">复位操作</param>
-        internal void DoRenew(ushort ID, ushort Code, CarrierResetE cr)
+        internal void DoRenew(ushort point, ushort Code, CarrierResetE cr)
         {
-            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)cr, 0, Code, 0, 0, 0, (byte)ID);
+            DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)cr, 0, Code, 0, 0, 0, (byte)point);
         }
 
         /// <summary>
@@ -444,15 +468,9 @@ namespace task.device
             DevStatus.TargetTrackId = PubMaster.Track.GetTrackIdForCarrier((ushort)AreaId, TargetSite, TargetPoint);
 
             //重置小车执行任务
-            //if (OnGoingOrder != DevCarrierOrderE.无
-            //    && ((OnGoingOrder == DevStatus.CurrentOrder && DevStatus.CurrentOrder == DevStatus.FinishOrder)
-            //        || (DevStatus.OperateMode == DevOperateModeE.手动 && DevStatus.CurrentOrder == DevCarrierOrderE.终止指令)) // 仅判断手动情况的终止
-            //    )
             if (OnGoingOrder != DevCarrierOrderE.无
-                && ((Status == DevCarrierStatusE.停止 && CurrentOrder == DevCarrierOrderE.无 && FinishOrder == OnGoingOrder) // ∵同类型会终止 ∴不会连续2个同指令
-                    || (OperateMode == DevOperateModeE.手动 
-                        && ((CurrentOrder == DevCarrierOrderE.无 && FinishOrder == DevCarrierOrderE.终止指令) 
-                                || CurrentOrder == DevCarrierOrderE.终止指令))) // 仅判断手动情况的终止
+                && ((Status == DevCarrierStatusE.停止 && CurrentOrder == DevCarrierOrderE.无) // ∵同类型会终止 ∴不会连续2个同指令
+                    || (OperateMode == DevOperateModeE.手动 && (CurrentOrder == DevCarrierOrderE.无 || CurrentOrder == DevCarrierOrderE.终止指令))) // 仅判断手动情况的终止
                 )
             {
                 OnGoingTrackId = 0;
@@ -475,6 +493,9 @@ namespace task.device
 
         #region[检查报警]
 
+        /// <summary>
+        /// 检查报警
+        /// </summary>
         public void CheckAlert()
         {
             Alert1();
@@ -487,6 +508,8 @@ namespace task.device
             Alert8();
             Alert9();
             Alert10();
+
+            SetAlertForReset();
         }
 
         private void Alert1()
@@ -1347,6 +1370,30 @@ namespace task.device
         {
             return !InTrack(trackid);
         }
+
+        /// <summary>
+        /// 是否处于 初始化/寻点 指令中
+        /// </summary>
+        /// <returns></returns>
+        internal bool IsResetWork()
+        {
+            return IsResetWriting || InTask(DevCarrierOrderE.初始化, DevCarrierOrderE.寻点);
+        }
+
+        /// <summary>
+        /// 初始化/复位寻点 报警提示
+        /// </summary>
+        internal void SetAlertForReset()
+        {
+            if (IsResetWork())
+            {
+                PubMaster.Warn.AddDevWarn(AreaId, Line, WarningTypeE.CarrierIsInResetWork, (ushort)ID);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierIsInResetWork, (ushort)ID);
+            }
+        }
         #endregion
 
         #region [数据信息]
@@ -1366,6 +1413,7 @@ namespace task.device
         }
 
         #endregion
+
     }
 
 }

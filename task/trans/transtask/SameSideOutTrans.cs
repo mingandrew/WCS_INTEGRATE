@@ -412,7 +412,7 @@ namespace task.trans.transtask
                                         {
                                             //如果配置为零则获取取货轨道的rfid1
                                             //torfid = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
-                                            torfid = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id);
+                                            torfid = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id);
                                         }
 
                                         //放砖
@@ -420,9 +420,8 @@ namespace task.trans.transtask
                                         {
                                             Order = DevCarrierOrderE.放砖指令,
                                             CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
-                                            ToRFID = torfid,
                                             ToPoint = torfid,
-                                            OverPoint = torfid,
+                                            OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
                                             ToTrackId = trans.give_track_id
                                         });
                                         return;
@@ -525,7 +524,7 @@ namespace task.trans.transtask
                                         CarrierActionOrder cao = new CarrierActionOrder()
                                         {
                                             Order = DevCarrierOrderE.取砖指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
+                                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.take_track_id),
                                         };
 
                                         TrackTypeE tt = PubMaster.Track.GetTrackType(trans.take_track_id);
@@ -614,7 +613,7 @@ namespace task.trans.transtask
                                 {
                                     //如果配置为零则获取取货轨道的rfid1
                                     //torfid = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
-                                    torfid = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id);
+                                    torfid = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id);
                                 }
 
                                 //放砖
@@ -624,7 +623,7 @@ namespace task.trans.transtask
                                     CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
                                     ToRFID = torfid,
                                     ToPoint = torfid,
-                                    OverPoint = torfid,
+                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
                                     ToTrackId = trans.give_track_id
                                 });
                             }

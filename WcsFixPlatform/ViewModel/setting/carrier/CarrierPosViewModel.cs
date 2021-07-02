@@ -204,7 +204,7 @@ namespace wcs.ViewModel
 
         private void QueryPointPosData()
         {
-            List<CarrierPos> list = PubMaster.Track.QueryCarrierPosList(areaid);
+            List<CarrierPos> list = PubMaster.Track.GetCarrierPosList(areaid);
             List.Clear();
             foreach (var item in list)
             {

@@ -335,6 +335,8 @@ INSERT INTO `wcs_menu_dtl`(`id`, `menu_id`, `name`, `folder`, `folder_id`, `modu
 
 
 
+#2021.07.02：新增运输车报警
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (234, 3, 'CarrierIsInResetWork', '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, NULL, NULL, NULL);
 
 
 

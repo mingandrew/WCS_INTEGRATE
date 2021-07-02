@@ -58,22 +58,21 @@
                         
                         <MenuItem Header="前进-取砖" Tag="10" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"  Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
                         <MenuItem Header="前进-放砖" Tag="11" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"  Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <MenuItem Header="前进-至点" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <!--<MenuItem Header="前进-至轨道头" Tag="13" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />-->
-                        <MenuItem Header="前进-至摆渡车" Tag="14" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-
-                        <MenuItem Header="原地-上升-取砖" Tag="4" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <MenuItem Header="原地-下降-放砖" Tag="5" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="前进-至定位点" Tag="12" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="前进-至摆渡车" Tag="13" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="前进-寻复位标志点" Tag="14" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        
+                        <MenuItem Header="原地-上升-取砖" Tag="3" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="原地-下降-放砖" Tag="4" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
 
                         <MenuItem Header="后退-取砖" Tag="20" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
                         <MenuItem Header="后退-放砖" Tag="21" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <MenuItem Header="后退-至点" Tag="22" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <!--<MenuItem Header="后退-至轨道头" Tag="23" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />-->
-                        <MenuItem Header="后退-至摆渡车" Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="后退-至定位点" Tag="22" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="后退-至摆渡车" Tag="23" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="后退-寻复位标志点" Tag="24" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
                         
-                        <MenuItem Header="倒库" Tag="3" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <MenuItem Header="终止" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <!--<MenuItem Header="置位" Tag="1" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />-->
+                        <MenuItem Header="倒库" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
+                        <MenuItem Header="终止" Tag="1" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
                         <MenuItem Header="位置初始化" Tag="105" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
 
                     </ContextMenu>
@@ -121,8 +120,8 @@
                     <DataGridTextColumn Binding="{Binding CurrentTrackId, Converter={StaticResource TrackId2NameConverter}}" Header="当前位置"/>
                     <DataGridTextColumn Binding="{Binding CurrentPoint}" Header="当前点位"/>
                     <DataGridTextColumn Binding="{Binding CurrentSite}" Header="当前坐标"/>
-                    <DataGridTextColumn Binding="{Binding CurrentOrder}" Header="指令"/>
-                    <DataGridTextColumn Binding="{Binding FinishOrder}" Header="完成"/>
+                    <DataGridTextColumn Binding="{Binding CurrentOrder}" Header="执行中指令"/>
+                    <DataGridTextColumn Binding="{Binding FinishOrder}" Header="已完成指令"/>
                     <DataGridTextColumn Binding="{Binding TargetTrackId, Converter={StaticResource TrackId2NameConverter}}" Header="目的位置"/>
                     <DataGridTextColumn Binding="{Binding TargetPoint}" Header="目的点位"/>
                     <DataGridTextColumn Binding="{Binding TargetSite}" Header="目的坐标"/>

@@ -59,6 +59,8 @@
 
         SortFinishButDownExistStock,//倒库指令完成，但入库轨道还有库存
         GetStockButNull,//取砖指令完成后，没有取到砖
+
+        CarrierIsInResetWork,//运输车初始化/寻点指令中，已暂停相关作业，请确认完成发送终止指令
     }
 
     /// <summary>
