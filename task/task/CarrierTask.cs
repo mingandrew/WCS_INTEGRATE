@@ -509,7 +509,7 @@ namespace task.device
             Alert9();
             Alert10();
 
-            SetAlertForReset();
+            SetAlertForSystem();
         }
 
         private void Alert1()
@@ -1381,10 +1381,22 @@ namespace task.device
         }
 
         /// <summary>
-        /// 初始化/复位寻点 报警提示
+        /// 系统判断 报警提示
         /// </summary>
-        internal void SetAlertForReset()
+        internal void SetAlertForSystem()
         {
+            // 失去位置
+            Track currentTrack = PubMaster.Track.GetTrack(CurrentTrackId);
+            if (currentTrack == null || CurrentTrackId == 0 || CurrentTrackId.Equals(0) || CurrentTrackId.CompareTo(0) == 0)
+            {
+                PubMaster.Warn.AddDevWarn(AreaId, Line, WarningTypeE.CarrierNoLocation, (ushort)ID);
+            }
+            else
+            {
+                PubMaster.Warn.RemoveDevWarn(WarningTypeE.CarrierNoLocation, (ushort)ID);
+            }
+
+            // 初始化/寻点指令
             if (IsResetWork())
             {
                 PubMaster.Warn.AddDevWarn(AreaId, Line, WarningTypeE.CarrierIsInResetWork, (ushort)ID);

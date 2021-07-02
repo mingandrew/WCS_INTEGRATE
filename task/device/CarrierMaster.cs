@@ -97,6 +97,9 @@ namespace task.device
             {
                 try
                 {
+
+
+                    uint xxxx = PubMaster.Goods.GetStockInStoreTrack(PubMaster.Track.GetTrack(5), 1550);
                     foreach (CarrierTask task in DevList)
                     {
                         try
@@ -878,7 +881,7 @@ namespace task.device
                 }
 
                 // 初始化中不执行动作指令
-                if (IsResetWriting(devid))
+                if (carriertask != DevCarrierTaskE.终止 && IsResetWriting(devid))
                 {
                     result = "小车初始化/复位寻点中，请先终止";
                     return false;
@@ -1090,7 +1093,7 @@ namespace task.device
                             result = "小车已经在摆渡车上了";
                             return false;
                         }
-                        if (track.Type == TrackTypeE.下砖轨道)
+                        if (track.ferry_up_code < 200)
                         {
                             result = "不能再后退了";
                             return false;
@@ -1134,7 +1137,7 @@ namespace task.device
                             result = "小车已经在摆渡车上了";
                             return false;
                         }
-                        if (track.Type == TrackTypeE.上砖轨道)
+                        if (track.ferry_down_code > 500)
                         {
                             result = "不能再前进了";
                             return false;

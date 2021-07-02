@@ -61,6 +61,7 @@
         GetStockButNull,//取砖指令完成后，没有取到砖
 
         CarrierIsInResetWork,//运输车初始化/寻点指令中，已暂停相关作业，请确认完成发送终止指令
+        CarrierNoLocation,  //运输车没有位置信息
     }
 
     /// <summary>

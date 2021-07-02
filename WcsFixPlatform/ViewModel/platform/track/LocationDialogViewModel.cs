@@ -220,7 +220,8 @@ namespace wcs.ViewModel.platform.track
             }
 
             Growl.Success("初始化指令发送成功");
-            CloseAction?.Invoke();
+
+            CancelChange();
         }
 
         private void CancelChange()
