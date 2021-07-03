@@ -1,6 +1,7 @@
 ﻿using enums;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace module.deviceconfig
 {
@@ -187,6 +188,19 @@ namespace module.deviceconfig
                 }
             }
             return false;
+        }
+
+        public List<uint> GetAlertDevList()
+        {
+            List<uint> list = new List<uint>();
+            foreach (var item in alter_ids.Split(','))
+            {
+                if (uint.TryParse(item, out uint did))
+                {
+                    list.Add(did);
+                }
+            }
+            return list;
         }
 
         public bool InTrack(uint trackid)
