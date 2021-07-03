@@ -906,7 +906,7 @@ namespace task.device
                             }
                             else
                             {
-                                if (!PubMaster.DevConfig.UpdateTilePreGood(task.ID, task.DevConfig.goods_id, pgoodid, out string up_rs))
+                                if (!PubMaster.DevConfig.UpdateTilePreGood(task.ID, task.DevConfig.goods_id, pgoodid, 0, out string up_rs))
                                 {
 
                                 }
@@ -1739,6 +1739,17 @@ namespace task.device
         /// <param name="currentid">设置优先轨道</param>
         private void TileAddOutTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint currentid, ushort line)
         {
+            //判断砖机当前数量（全部、或者上砖数量是否大于0）
+            if (!PubMaster.DevConfig.IsTileNowGoodQtyOk(tileid, goodid))
+            {
+                PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.Warning37, (ushort)tileid);
+                return;
+            }
+            else
+            {
+                PubMaster.Warn.RemoveDevWarn(WarningTypeE.Warning37, (ushort)tileid);
+            }
+
             bool isallocate = false;
 
             // 1.查看当前设定优先作业轨道是否能作业
@@ -2327,6 +2338,14 @@ namespace task.device
                     mMsg.o6 = task.IsWorking;
                     mMsg.o7 = PubMaster.Track.GetTrackName(task.DevConfig.last_track_id);
                     mMsg.o8 = task.WorkType;
+                    if (task.Type == DeviceTypeE.上砖机)
+                    {
+                        mMsg.o9 = task.DevConfig.now_good_all ? "不限" : (task.DevConfig.now_good_qty + "");
+                    }
+                    if (task.Type == DeviceTypeE.下砖机)
+                    {
+                        mMsg.o9 = "不限";
+                    }
                     Messenger.Default.Send(mMsg, MsgToken.TileLifterStatusUpdate);
                 }
                 finally

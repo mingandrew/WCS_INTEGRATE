@@ -108,6 +108,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTextColumn Binding="{Binding GoodsId, Converter={StaticResource GoodId2NameConverter}}" Header="品种"/>
+                    <DataGridTextColumn Binding="{Binding GoodsCount}" Header="剩余数量"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="货物1"/>

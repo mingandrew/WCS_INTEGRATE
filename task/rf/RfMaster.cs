@@ -1375,7 +1375,7 @@ namespace task.rf
             TileGoodUpdatePack pack = JsonTool.Deserialize<TileGoodUpdatePack>(msg.Pack.Data);
             if (pack != null)
             {
-                if (PubMaster.DevConfig.SetTileLifterGoods(pack.TileId, pack.GoodId))
+                if (PubMaster.DevConfig.SetTileLifterGoodsAllCount(pack.TileId, pack.GoodId))
                 {
                     PubTask.TileLifter.UpdateTileLifterGoods(pack.TileId, pack.GoodId);
                     SendSucc2Rf(msg.MEID, FunTag.UpdateTileGood, pack.GoodId + "");
@@ -2058,7 +2058,7 @@ namespace task.rf
                 RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
                 if (pack != null)
                 {
-                    if (PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, out string result))
+                    if (PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, pack.pre_good_qty, out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdatePreGood, "ok");
                     }
@@ -2088,11 +2088,11 @@ namespace task.rf
                     return;
                 }
 
-                if (!PubMaster.DevConfig.IsShiftInAllowTime(pack.tile_id))
-                {
-                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机在短时间(5分钟)内已执行转产,无需重复操作");
-                    return;
-                }
+                //if (!PubMaster.DevConfig.IsShiftInAllowTime(pack.tile_id))
+                //{
+                //    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机在短时间(5分钟)内已执行转产,无需重复操作");
+                //    return;
+                //}
 
                 if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
                 {
@@ -2138,7 +2138,7 @@ namespace task.rf
                     else
                     {
                         GetGoodDic(msg);
-                        if (!PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pgoodid, out string up_rs))
+                        if (!PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pgoodid, pack.pre_good_qty, out string up_rs))
                         {
                             SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, up_rs);
                             return;

@@ -57,9 +57,9 @@ namespace wcs.ViewModel
             get => selectstock;
             set
             {
-                //selectstock?.SetSelected(false);
+                selectstock?.SetSelected(false);
                 Set(ref selectstock, value);
-                //selectstock?.SetSelected(true);
+                selectstock?.SetSelected(true);
             }
         }
 
@@ -185,6 +185,7 @@ namespace wcs.ViewModel
                 StockList.Clear();
                 foreach (StockGoodSumView mod in goodsums)
                 {
+                    mod.Count++;
                     StockList.Add(mod);
                 }
             });
@@ -195,6 +196,11 @@ namespace wcs.ViewModel
             if (SelectStock == null)
             {
                 Growl.Warning("请选择！");
+                return;
+            }
+            if (SelectStock.Count == 0)
+            {
+                Growl.Warning(string.Format("所选品种【 {0} 】数量不能为0！", SelectStock.GoodName, SelectStock.OrgCount));
                 return;
             }
             Result.p1 = true;

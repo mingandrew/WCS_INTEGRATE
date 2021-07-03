@@ -411,10 +411,15 @@ UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA3X6', `name` = '取
 ```
 
 
+
+
 ## 2021.06.22：反抛任务的启用
+
 ```mysql
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (77, 8, 'EnableSecondUpTask', '开关-启用反抛任务', NULL, b'0', '开关-启用反抛任务', NULL, NULL, NULL, NULL, NULL);
 ```
+
+
 
 ## 2021.06.22：添加报警-不执行反抛任务
 
@@ -422,6 +427,7 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (234, 3, 'Warning34', '【反抛未执行】，等待上砖机工位空砖', NULL, NULL, '【反抛未执行】，等待上砖机工位空砖', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (235, 3, 'Warning35', '【反抛未执行】，等待上砖侧库存里无反抛任务的品种可上，或者上砖机转产', NULL, NULL, '【反抛未执行】，等待上砖侧库存里无反抛任务的品种可上，或者上砖机转产', NULL, NULL, NULL, NULL, NULL);
 ```
+
 
 
 ## 2021.06.29：添加报警-流程超时报警
@@ -432,13 +438,10 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 
 
-#2021.06.30 更新位置初始化平板界面：
-INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (35, '位置初始化', 1, 'DeviceReset', 'com.keda.wcsfixplatformapp.screen.rfinitdevice.RfInitDeviceMainScreen', NULL, 'shiftcar.png', NULL, '平板-设备初始化');
-
-INSERT INTO `wcs_menu_dtl`(`id`, `menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (108, 1, '位置初始化', b'0', 0, 35, 16, b'1');
-
 ## 2021-06-30：新增字段，用于设定上下砖侧的运输车的数量
- ### **如果某一个数量为0，则不会自动将运输车在出库轨道入库轨道来回调用**
+
+> ### **如果某一个数量为0，则不会自动将运输车在出库轨道入库轨道来回调用**
+
 ```mysql
 ALTER TABLE `area` ADD COLUMN `up_car_count` tinyint(3) UNSIGNED NULL COMMENT '上砖运输车的最少数量限定' AFTER `full_qty`;
 ALTER TABLE `area` ADD COLUMN `down_car_count` tinyint(3) UNSIGNED NULL COMMENT '下砖运输车的最少数量限定' AFTER `up_car_count`;
@@ -473,6 +476,8 @@ UPDATE `diction_dtl` SET `name` = '对轨码盘偏差超出允许范围，判断
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (250, 4, 'StepOverTime', '除【倒库中】，其他流程的超时时间（秒）', 600, NULL, NULL, NULL, NULL, NULL, '2021-06-30 08:44:37', NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (251, 4, 'SortingStockStepOverTime', '倒库中流程的超时时间（秒）', 7200, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 ```
+
+
 
 ## 2021.06.30 更新运输车报警信息：码盘故障
 
@@ -523,98 +528,23 @@ INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`
 
 
 
+## 2021.07.03 上砖设定品种数量
 
+> ## 新增上砖数量为0的报警
+>
+> ```mysql
+> INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (237, 3, 'Warning37', '当前品种设定的上砖数量为零', NULL, NULL, '当前品种设定的上砖数量为零', NULL, NULL, NULL, NULL, NULL);
+> ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#2021.07.02：新增运输车报警
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (234, 3, 'CarrierIsInResetWork', '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, NULL, NULL, NULL);
-
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (235, 3, 'CarrierNoLocation', '运输车失去位置信息', NULL, NULL, '运输车失去位置信息，为安全起见已停止所有任务及指令的执行，待恢复位置信息后再继续作业，请检查设备进行位置初始化操作！', NULL, NULL, NULL, NULL, NULL);
-
-
-#2021.07.03：新增轨道属性字段，确认轨道存取方向
-ALTER TABLE `track` ADD COLUMN `is_give_back` bit(1) NULL COMMENT '是否入库 后退存砖' AFTER `up_split_point`;
-ALTER TABLE `track` ADD COLUMN `is_take_forward` bit(1) NULL COMMENT '是否出库 前进取砖' AFTER `is_give_back`;
-
-
-#2021.07.04：运输车新版报警更新
-#2021.07.06：运输车新版报警更新
-UPDATE `diction_dtl` SET `name` = '急停触发', `string_value` = '急停触发，急停开关是否误触发？是否有异常认为打开急停开关？' WHERE `id` = 100;
-UPDATE `diction_dtl` SET `name` = '开始定位点范围内未取到砖', `string_value` = '开始定位点范围内未取到砖：1.取砖定位光电无触发；2.库存脉冲数据与实际不符' WHERE `id` = 101;
-UPDATE `diction_dtl` SET `name` = '未到取砖开始定位点范围，取砖定位光电触发', `string_value` = '未到取砖开始定位点范围，取砖定位光电触发：1.取砖定位误触发；2.库存脉冲实际与实际不符' WHERE `id` = 102;
-UPDATE `diction_dtl` SET `name` = '小车有砖光电未触发', `string_value` = '小车取砖过程中有砖光电无触发' WHERE `id` = 103;
-UPDATE `diction_dtl` SET `name` = '前防撞触发', `string_value` = '前防撞触发，防撞光电亮黄绿灯时，请检查设备前方半米内是否有障碍物' WHERE `id` = 104;
-UPDATE `diction_dtl` SET `name` = '后防撞触发', `string_value` = '后防撞触发，防撞光电亮黄绿灯时，请检查设备后方半米内是否有障碍物' WHERE `id` = 105;
-UPDATE `diction_dtl` SET `name` = '下降超时', `string_value` = '下降超时，下降到位接近开关异常，检查下位接近开关' WHERE `id` = 106;
-UPDATE `diction_dtl` SET `name` = '上升超时', `string_value` = '上升超时，上升到位接近开关异常，检查上位接近开关' WHERE `id` = 107;
-UPDATE `diction_dtl` SET `name` = '未在上位状态', `string_value` = '未在上位状态，顶板位置异常' WHERE `id` = 108;
-UPDATE `diction_dtl` SET `name` = '未在下位状态', `string_value` = '未在下位状态，顶板位置异常' WHERE `id` = 109;
-UPDATE `diction_dtl` SET `name` = '未在下位前进时，载砖前进存砖定位光电保护触发', `string_value` = '未在下位前进时，载砖前进存砖定位光电保护触发：1.存砖定位光电误触发；2.库存脉冲实际与实际不符' WHERE `id` = 110;
-UPDATE `diction_dtl` SET `name` = '未在下位后退时，载砖后退存砖定位光电保护触发', `string_value` = '未在下位后退时，载砖后退存砖定位光电保护触发：1.存砖定位光电误触发；2.库存脉冲实际与实际不符' WHERE `id` = 111;
-UPDATE `diction_dtl` SET `name` = '上下摆渡时，超出保护范围位置', `string_value` = '上下摆渡时，超出保护范围位置：小车轨道站点接近开关未触发' WHERE `id` = 112;
-UPDATE `diction_dtl` SET `name` = '开始定位点=0', `string_value` = '开始定位点=0' WHERE `id` = 113;
-UPDATE `diction_dtl` SET `name` = '结束定位点=0', `string_value` = '结束定位点=0' WHERE `id` = 114;
-UPDATE `diction_dtl` SET `name` = '当前码盘坐标值=0', `string_value` = '当前码盘坐标值=0：码盘脉冲数值异常' WHERE `id` = 115;
-UPDATE `diction_dtl` SET `name` = '1xx轨道码盘数值_复位点=0', `string_value` = '1xx轨道码盘数值_复位点=0' WHERE `id` = 116;
-UPDATE `diction_dtl` SET `name` = '1xx轨道码盘数值_定位点=0', `string_value` = '1xx轨道码盘数值_定位点=0' WHERE `id` = 117;
-UPDATE `diction_dtl` SET `name` = '2xx轨道码盘数值_定位点=0', `string_value` = '2xx轨道码盘数值_定位点=0' WHERE `id` = 118;
-UPDATE `diction_dtl` SET `name` = '3xx轨道下砖侧码盘数值_定位点=0', `string_value` = '3xx轨道下砖侧码盘数值_定位点=0' WHERE `id` = 119;
-UPDATE `diction_dtl` SET `name` = '3xx轨道下砖侧码盘数值_复位点=0', `string_value` = '3xx轨道下砖侧码盘数值_复位点=0' WHERE `id` = 120;
-UPDATE `diction_dtl` SET `name` = '3xx轨道中间码盘数值_复位点=0', `string_value` = '3xx轨道中间码盘数值_复位点=0' WHERE `id` = 121;
-UPDATE `diction_dtl` SET `name` = '3xx轨道上砖侧码盘数值_复位点=0', `string_value` = '3xx轨道上砖侧码盘数值_复位点=0' WHERE `id` = 122;
-UPDATE `diction_dtl` SET `name` = '3xx轨道上砖侧码盘数值_定位点=0', `string_value` = '3xx轨道上砖侧码盘数值_定位点=0' WHERE `id` = 123;
-UPDATE `diction_dtl` SET `name` = '4xx轨道码盘数值_定位点=0', `string_value` = '4xx轨道码盘数值_定位点=0' WHERE `id` = 124;
-UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_定位点=0', `string_value` = '5xx轨道码盘数值_定位点=0' WHERE `id` = 125;
-UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_复位点=0', `string_value` = '5xx轨道码盘数值_复位点=0' WHERE `id` = 126;
-UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘丢转故障，小车移动过程中码盘接近开关超过5秒无信号：1.检查是否撞车；2.检查刹车是否能正常打开；3.检查模拟量输出模块电压输出是否大于1.5V；4.检查码盘接近开关；检查无误时终止可复位' WHERE `id` = 127;
-
+> 
+>
+> ## 新增砖机当前品种数量和预设品种数量字段
+>
+> ```mysq
+> ALTER TABLE `config_tilelifter` ADD COLUMN `now_good_qty` int(11) UNSIGNED NULL COMMENT '当前品种数量' AFTER `level`;
+> ALTER TABLE `config_tilelifter` ADD COLUMN `pre_good_qty` int(11) UNSIGNED NULL COMMENT '预约品种数量' AFTER `now_good_qty`;
+> ALTER TABLE `config_tilelifter` ADD COLUMN `now_good_all` bit(1) NULL COMMENT '当前使用全部库存-不限制库存数量' AFTER `pre_good_qty`;
+> ALTER TABLE `config_tilelifter` ADD COLUMN `pre_good_all` bit(1) NULL COMMENT '预约使用全部库存-不限制库存数量' AFTER `now_good_all`;
+> 
+> UPDATE `config_tilelifter` SET `now_good_all` = b'1';
+> ```

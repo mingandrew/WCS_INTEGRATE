@@ -310,7 +310,7 @@ namespace resource.device
         }
 
         /// <summary>
-        /// 设置砖机作业品种
+        /// 转产完成后，下砖机设置砖机作业品种
         /// </summary>
         /// <param name="devid"></param>
         /// <param name="goodid"></param>
@@ -322,13 +322,43 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("【品种修改】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ]",
+                    mLog.Status(true, string.Format("【品种修改】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ]",
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        PubMaster.Goods.GetGoodsName(dev.goods_id),
+                        PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid,
+                        dev.now_good_all ? "不限" : (dev.now_good_qty + "")));
+                }
+                catch { }
+                dev.goods_id = goodid;
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
+                return true;
+            }
+            return false;
+        }
+        
+
+        /// <summary>
+        /// 转产完成后，下砖机设置砖机作业品种
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public bool SetTileLifterGoodsAllCount(uint devid, uint goodid)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null)
+            {
+                try
+                {
+                    mLog.Status(true, string.Format("【品种修改2】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ 不限 ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.goods_id),
                         PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid));
                 }
                 catch { }
                 dev.goods_id = goodid;
+                dev.now_good_all = true;
+                dev.now_good_qty = 0;
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
                 return true;
             }
@@ -651,7 +681,7 @@ namespace resource.device
         /// <param name="pregoodid"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool UpdateTilePreGood(uint devid, uint nowgoodid, uint pregoodid, out string result)
+        public bool UpdateTilePreGood(uint devid, uint nowgoodid, uint pregoodid, int count, out string result)
         {
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
@@ -681,7 +711,15 @@ namespace resource.device
                         PubMaster.Goods.GetGoodsName(pregoodid), pregoodid));
                 }
                 catch { }
+
                 dev.pre_goodid = pregoodid;
+                dev.pre_good_qty = count;
+                dev.pre_good_all = false;
+                if (count == 0 && pregoodid != 0)
+                {
+                    dev.pre_good_all = true;
+                }
+
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
                 result = "";
                 return true;
@@ -718,18 +756,26 @@ namespace resource.device
                     result = "正在转产中！";
                     return false;
                 }
+
                 dev.old_goodid = dev.goods_id;
                 dev.goods_id = dev.pre_goodid;
                 dev.pre_goodid = 0;
+
+                dev.now_good_all = dev.pre_good_all;
+                dev.now_good_qty = dev.pre_good_qty;
+
+                dev.pre_good_qty = 0;
+                dev.pre_good_all = false;
+
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
                 try
                 {
-                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ]",
+                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.old_goodid),
-                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id));
+                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
                 }
                 catch { }
                 result = "";
@@ -1115,6 +1161,40 @@ namespace resource.device
 
         #endregion
 
+        /// <summary>
+        /// 判断当前品种设定的上砖数量是否大于0
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public bool IsTileNowGoodQtyOk(uint tileid, uint goodid)
+        {
+            return ConfigTileLifterList.Exists(c => c.id == tileid && c.goods_id == goodid && (c.now_good_all || c.now_good_qty > 0));
+        }
+
+        /// <summary>
+        /// 减少一车当前品种设定的上砖数量
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="goods_id"></param>
+        public void SubTileNowGoodQty(uint tileid, uint goods_id)
+        {
+            ConfigTileLifter tile = GetTileLifter(tileid);
+            if (tile != null)
+            {
+                if (!tile.now_good_all)
+                {
+                    tile.now_good_qty--;
+                    if (tile.now_good_qty < 0)
+                    {
+                        tile.now_good_qty = 0;
+                    }
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(tile, TileConfigUpdateE.Goods);
+                    AddLog(string.Format("【上砖剩余数量】砖机 [ {0} ],品种[ {1} ]，剩余上砖数量[ {2} ]", PubMaster.Device.GetDeviceName(tileid), PubMaster.Goods.GetGoodsName(goods_id), tile.now_good_qty));
+                }
+            }
+        }
+        
         #endregion
 
         #endregion
