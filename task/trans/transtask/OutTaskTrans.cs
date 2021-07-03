@@ -346,7 +346,6 @@ namespace task.trans.transtask
                                 {
                                     Order = DevCarrierOrderE.定位指令,
                                     CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                     ToTrackId = ferryTraid
                                 });
@@ -773,7 +772,8 @@ namespace task.trans.transtask
                         //}
 
                         if (track.id == trans.give_track_id
-                            && PubTask.Carrier.IsCarrierFinishUnLoad(trans.carrier_id))
+                            //&& PubTask.Carrier.IsCarrierFinishUnLoad(trans.carrier_id)
+                            )
                         {
                             PubMaster.Goods.MoveStock(trans.stock_id, trans.give_track_id);
                             _M.SetUnLoadTime(trans);
@@ -868,31 +868,52 @@ namespace task.trans.transtask
 
                         if (trans.give_ferry_id != 0)
                         {
+                            //摆渡车接车，取到砖后不等完成指令-无缝上摆渡
                             if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, track.id, track.id, out ferryTraid, out res, true))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.give_ferry_id, track.id, res);
                                 #endregion
+
+                                // 摆渡车不到位则到轨道头等待
+                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                                    && PubTask.Carrier.GetCurrentPoint(trans.carrier_id) < track.limit_point_up)
+                                {
+                                    #region 【任务步骤记录】
+                                    _M.LogForCarrierToTrack(trans, track.id);
+                                    #endregion
+
+                                    //至点
+                                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                    {
+                                        Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = track.ferry_down_code,
+                                        OverPoint = track.limit_point_up,
+                                        ToTrackId = track.id
+                                    });
+                                }
+
                                 return;
                             }
 
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            if ((PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, 0, track.limit_point_up)))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierToFerry(trans, track.id, trans.give_ferry_id);
                                 #endregion
 
-                                // 后退至摆渡车
+                                //至摆渡车
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
+                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                     ToTrackId = ferryTraid
                                 });
                                 return;
                             }
+
                         }
                     }
                     break;

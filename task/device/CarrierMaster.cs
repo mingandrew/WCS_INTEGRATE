@@ -1410,8 +1410,8 @@ namespace task.device
                             return;
                         }
 
-                        // 连续不同类型指令 需要先终止
-                        if (!task.IsNotDoingTask && task.NotInTask(cao.Order))
+                        // 手动中连续不同类型指令 需要先终止
+                        if (transid == 0 && !task.IsNotDoingTask && task.NotInTask(cao.Order))
                         {
                             task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "连续发送不同类型的指令要先终止", cao.Order, memo));
                             return;

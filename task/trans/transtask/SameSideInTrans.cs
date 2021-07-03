@@ -303,7 +303,8 @@ namespace task.trans.transtask
                     if (isload)
                     {
                         if (track.id == trans.take_track_id
-                            && PubTask.Carrier.IsCarrierFinishLoad(trans.carrier_id))
+                            //&& PubTask.Carrier.IsCarrierFinishLoad(trans.carrier_id)
+                            )
                         {
                             _M.SetLoadTime(trans);
                             _M.SetStatus(trans, TransStatusE.放砖流程);

@@ -829,6 +829,7 @@ namespace resource.device
                     dev.pre_goodid = 0;
                 }
                 dev.do_cutover = false;
+                dev.last_track_id = 0; // 清掉作业轨道
                 PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
                 return true;
             }
