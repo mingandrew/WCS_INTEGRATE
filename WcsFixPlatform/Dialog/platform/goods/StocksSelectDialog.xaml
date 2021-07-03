@@ -69,11 +69,12 @@
                       SelectionUnit="FullRow" SelectionMode="Single"
                       CanUserAddRows="False" CanUserResizeColumns="False"
                       CanUserDeleteRows="False" CanUserSortColumns="False"
-                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" >
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding GoodName}" Header="名称" />
-                <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级"/>
-                <DataGridTextColumn Binding="{Binding Color}" Header="色号"/>
+                <DataGridTextColumn Binding="{Binding GoodName}" Header="名称" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Color}" Header="色号" IsReadOnly="True"/>
+
                 <DataGridTemplateColumn Header="车数" >
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -85,17 +86,23 @@
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0" hc:IconElement.Geometry="{StaticResource SubGeometry}" hc:IconElement.Width="15" Visibility="{Binding Selected,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"
                                         Command="{Binding DataContext.QtySubCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
-                                 <TextBlock Grid.Column="1" Text="{Binding Count}"  MinWidth="100" TextAlignment="Center"/>
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}" Margin="5,0,5,0" />
+                                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBox x:Name="tb" Text="{Binding Count,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" MaxLength="3"  MinWidth="50" HorizontalAlignment="Center"   
+                                             Visibility="{Binding ShowCount,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                         TextAlignment="Center" ForceCursor="True" PreviewTextInput="tb_PreviewTextInput" InputMethod.IsInputMethodEnabled="False"/>
+                                    <Button Content="不限" MinWidth="50" MinHeight="39" HorizontalAlignment="Center"  Visibility="{Binding ShowLabel,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                               Panel.ZIndex="100"/>
+                                </WrapPanel>
                                 <Button Grid.Column="2" hc:IconElement.Geometry="{StaticResource AddGeometry}" hc:IconElement.Width="15" Visibility="{Binding Selected,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"
                                         Command="{Binding DataContext.QtyAddCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}" Margin="5,0,5,0" />
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
-                <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间"/>
+                <DataGridTextColumn Binding="{Binding Pieces}" Header="片数" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间" IsReadOnly="True"/>
             </DataGrid.Columns>
         </DataGrid>
         <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">

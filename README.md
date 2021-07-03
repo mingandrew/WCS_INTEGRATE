@@ -528,3 +528,23 @@ INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`
 
 
 
+## 2021.07.03 上砖设定品种数量
+
+> ## 新增上砖数量为0的报警
+>
+> ```mysql
+> INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (237, 3, 'Warning37', '当前品种设定的上砖数量为零', NULL, NULL, '当前品种设定的上砖数量为零', NULL, NULL, NULL, NULL, NULL);
+> ```
+
+> 
+>
+> ## 新增砖机当前品种数量和预设品种数量字段
+>
+> ```mysq
+> ALTER TABLE `config_tilelifter` ADD COLUMN `now_good_qty` int(11) UNSIGNED NULL COMMENT '当前品种数量' AFTER `level`;
+> ALTER TABLE `config_tilelifter` ADD COLUMN `pre_good_qty` int(11) UNSIGNED NULL COMMENT '预约品种数量' AFTER `now_good_qty`;
+> ALTER TABLE `config_tilelifter` ADD COLUMN `now_good_all` bit(1) NULL COMMENT '当前使用全部库存-不限制库存数量' AFTER `pre_good_qty`;
+> ALTER TABLE `config_tilelifter` ADD COLUMN `pre_good_all` bit(1) NULL COMMENT '预约使用全部库存-不限制库存数量' AFTER `now_good_all`;
+> 
+> UPDATE `config_tilelifter` SET `now_good_all` = b'1';
+> ```

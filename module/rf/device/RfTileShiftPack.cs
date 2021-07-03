@@ -24,7 +24,14 @@ namespace module.rf.device
                 good_id = cfg.goods_id,
                 oldgood_id = cfg.old_goodid,
                 pregood_id = cfg.pre_goodid,
-                shiftstatus = status
+                shiftstatus = status,
+
+                pre_good_all = cfg.pre_good_all,
+                pre_good_qty = cfg.pre_good_qty,
+                now_good_all = cfg.now_good_all,
+                now_good_qty = cfg.now_good_qty,
+
+                last_shift_time = cfg.last_shift_time,
             });
         }
     }

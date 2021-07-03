@@ -752,6 +752,7 @@ namespace task.trans.transtask
                             _M.SetUnLoadTime(trans);
 
                             _M.SetStatus(trans, TransStatusE.还车回轨);
+                            PubMaster.DevConfig.SubTileNowGoodQty(trans.tilelifter_id, trans.goods_id);
                             return;
                         }
 

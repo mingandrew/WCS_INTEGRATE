@@ -15,6 +15,7 @@ namespace wcs.Data.View
         private bool working;
         private string trackid;
         private DevWorkTypeE worktype;
+        private string goodscount;
 
         #region[逻辑字段]
 
@@ -37,6 +38,12 @@ namespace wcs.Data.View
         {
             get => goodsid;
             set => Set(ref goodsid, value);
+        }
+
+        public string GoodsCount
+        {
+            get => goodscount;
+            set => Set(ref goodscount, value);
         }
 
         public bool Working
@@ -201,7 +208,7 @@ namespace wcs.Data.View
         #region[更新]
 
         internal void Update(DevTileLifter st, SocketConnectStatusE conn, uint gid,
-            StrategyInE instrategy, StrategyOutE outstrategy, bool working, string tid, DevWorkTypeE wtype)
+            StrategyInE instrategy, StrategyOutE outstrategy, bool working, string tid, DevWorkTypeE wtype, string goodscount)
         {
             DeviceID = st.DeviceID;
             if(LoadStatus1 != st.LoadStatus1)
@@ -250,6 +257,7 @@ namespace wcs.Data.View
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
             GoodsId = gid;
+            GoodsCount = goodscount;
             InStrategy = instrategy;
             OutStrategy = outstrategy;
 

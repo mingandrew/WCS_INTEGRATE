@@ -1,5 +1,6 @@
 ﻿using enums;
 using enums.track;
+using enums.warning;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
@@ -211,9 +212,11 @@ namespace wcs.ViewModel
 
                         if (result.p1 is bool rs && result.p2 is GoodsView good)
                         {
-                            if (PubMaster.DevConfig.SetTileLifterGoods(DeviceSelected.ID, good.ID))
+                            if (PubMaster.DevConfig.SetTileLifterGoodsAllCount(DeviceSelected.ID, good.ID))
                             {
                                 PubTask.TileLifter.UpdateTileLifterGoods(DeviceSelected.ID, good.ID);
+                                //清除上砖数量为0的报警
+                                PubMaster.Warn.RemoveDevWarn(WarningTypeE.Warning37, (ushort)DeviceSelected.ID);
                             }
                         }
                         break;
@@ -369,7 +372,8 @@ namespace wcs.ViewModel
                 && msg.o5 is StrategyOutE outstrategy
                 && msg.o6 is bool working
                 && msg.o7 is string tid
-                && msg.o8 is DevWorkTypeE worktype)
+                && msg.o8 is DevWorkTypeE worktype
+                && msg.o9 is string goodscount)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -386,7 +390,7 @@ namespace wcs.ViewModel
                         view.LineId = lineid;
                         DeviceList.Add(view);
                     }
-                    view.Update(dev, conn, gid, instrategy, outstrategy, working, tid, worktype);
+                    view.Update(dev, conn, gid, instrategy, outstrategy, working, tid, worktype, goodscount);
                 });
             }
         }

@@ -30,38 +30,39 @@
                 <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}"/>
-                <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed"/>
+                <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource MBorder_LTR}"/>
                 <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LTR}"/>
-                <Border Grid.Row="1" Grid.Column="4" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed"/>
+                <Border Grid.Row="1" Grid.Column="4" Style="{StaticResource MBorder_LTR}"/>
                 <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LTR}"/>
-                <Border Grid.Row="2" Grid.Column="4" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed"/>
+                <Border Grid.Row="2" Grid.Column="4" Style="{StaticResource MBorder_LTR}"/>
                 <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}"/>
-                <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource MBorder_LTRB}"/>
+                <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LTRB}"/>
 
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text=""  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
                 <TextBlock Grid.Row="0" Grid.Column="1" Margin="10" FontSize="22" Text="名称" Style="{StaticResource TextBlockTitleBold}"/>
                 <TextBlock Grid.Row="0" Grid.Column="2" Margin="10" FontSize="22" Text="色号" Style="{StaticResource TextBlockTitleBold}"/>
                 <TextBlock Grid.Row="0" Grid.Column="3" Margin="10" FontSize="22" Text="等级" Style="{StaticResource TextBlockTitleBold}"/>
-                <TextBlock Grid.Row="0" Grid.Column="4" Margin="10" FontSize="22" Text="数量" Style="{StaticResource TextBlockTitleBold}" Visibility="Collapsed"/>
+                <TextBlock Grid.Row="0" Grid.Column="4" Margin="10" FontSize="22" Text="数量" Style="{StaticResource TextBlockTitleBold}"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="当前品种："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
                 <TextBlock Grid.Row="1" Grid.Column="1" Margin="10" FontSize="22" Text="{Binding NowGoodName}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="1" Grid.Column="2" Margin="10" FontSize="22" Text="{Binding NowGoodColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock Grid.Row="1" Grid.Column="3" Margin="10" FontSize="22" Text="{Binding NowLevel,Converter={StaticResource LevelValue2NameConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBlock Grid.Row="1" Grid.Column="4" Margin="10" FontSize="22" Text="{Binding NowGQty}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                <TextBlock Grid.Row="1" Grid.Column="4" Margin="10" FontSize="22" Text="{Binding NowGQty}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="预设品种："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
                 <TextBlock Grid.Row="2" Grid.Column="1" Margin="10" FontSize="22" Text="{Binding PreGoodName}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="2" Grid.Column="2" Margin="10" FontSize="22" Text="{Binding PreGoodColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBlock Grid.Row="2" Grid.Column="3" Margin="10" FontSize="22" Text="{Binding PreLevel,Converter={StaticResource LevelValue2NameConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBlock Grid.Row="2" Grid.Column="4" Margin="10" FontSize="22" Text="{Binding PreGQty}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                <TextBlock Grid.Row="2" Grid.Column="3" Margin="10" FontSize="22" Text="{Binding PreLevel,Converter={StaticResource LevelValue2NameConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           Visibility="{Binding ShowLevel,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"/>
+                <TextBlock Grid.Row="2" Grid.Column="4" Margin="10" FontSize="22" Text="{Binding PreGQty}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <Button Grid.Row="2" Grid.Column="5" Margin="10" Tag="chosepregood" Command="{Binding BtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}" Content="设置" FontSize="15"/>
                 <Button Grid.Row="2" Grid.Column="6" Margin="10" Tag="clearnpregood" Command="{Binding BtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonDanger}" Content="清空" FontSize="15"/>
 

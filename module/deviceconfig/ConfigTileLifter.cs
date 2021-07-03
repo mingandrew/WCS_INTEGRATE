@@ -113,6 +113,12 @@ namespace module.deviceconfig
 
         //没有保存到数据库中
         public DateTime last_shift_time { set; get; }//最近一次转产时间
+
+        public int now_good_qty { set; get; }//当前品种数量
+        public int pre_good_qty { set; get; }//预约品种数量
+        public bool now_good_all { set; get; }//当前使用全部库存
+        public bool pre_good_all { set; get; }//预约使用全部库存
+
         /// <summary>
         /// 入库策略
         /// </summary>
