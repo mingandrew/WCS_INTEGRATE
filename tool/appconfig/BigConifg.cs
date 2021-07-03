@@ -68,6 +68,17 @@ namespace tool.appconfig
             return GetItem(areaid, lineid)?.NotNeedSortToSplitUpPlace ?? false;
         }
 
+        /// <summary>
+        /// 使用自动转备用机第二种方式：砖机选备用机
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public bool IsUserAutoBackDevVersion2(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.UserAutoBackDevVersion2 ?? false;
+        }
+
 
         /// <summary>
         /// 接力暂停，运输车停止在放货点的几个车身位置
@@ -100,6 +111,7 @@ namespace tool.appconfig
                     UpTaskNewAllocate = false,
                     InMoveWhenFull = false,
                     NotNeedSortToSplitUpPlace = false,
+                    UserAutoBackDevVersion2 = false,
                 };
                 BigConfigList.Add(item);
                 GlobalWcsDataConfig.SaveBigConifg();
@@ -127,5 +139,10 @@ namespace tool.appconfig
         /// 接力暂停，运输车停止在放货点的几个车身位置
         /// </summary>
         public byte SortWaitNumberCarSpace { set; get; } = 3;
+
+        /// <summary>
+        /// 使用自动转备用机第二种方式：砖机选备用机
+        /// </summary>
+        public bool UserAutoBackDevVersion2 { set; get; }
     }
 }

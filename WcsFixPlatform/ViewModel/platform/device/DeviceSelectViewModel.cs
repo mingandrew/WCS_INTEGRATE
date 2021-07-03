@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Command;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.device;
+using module.deviceconfig;
 using module.window;
 using resource;
 using System;
@@ -111,6 +112,19 @@ namespace wcs.ViewModel
         public void SetSelectType(params DeviceTypeE[] types)
         {
             GetDevce(types);
+        }
+
+        public void ShowTileConfigAlertDevs(uint devid)
+        {
+            DevList.Clear();
+            ConfigTileLifter tile = PubMaster.DevConfig.GetTileLifter(devid);
+            if(tile != null)
+            {
+                foreach (var item in tile.GetAlertDevList())
+                {
+                    DevList.Add(PubMaster.Device.GetDevice(item));
+                }
+            }
         }
 
         private void CheckRadioBtn(RoutedEventArgs orgs)

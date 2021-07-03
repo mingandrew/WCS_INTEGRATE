@@ -329,7 +329,7 @@ namespace resource.device
                 }
                 catch { }
                 dev.goods_id = goodid;
-                PubMaster.Mod.DevConfigSql.EditGoods(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
                 return true;
             }
             return false;
@@ -349,14 +349,15 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("【入库逻辑】砖机[ {0} ], 策略[ {1} -> {2} ]", 
+                    mLog.Status(true, string.Format("【入库逻辑】砖机[ {0} ], 策略[ {1} -> {2} ], 作业类型[ {3} -> {4} ]", 
                         PubMaster.Device.GetDeviceName(dev.id),
-                        dev.InStrategey, instrategy));
+                        dev.InStrategey, instrategy,
+                        dev.WorkType, worktype));
                 }
                 catch { }
                 dev.InStrategey = instrategy;
                 dev.WorkType = worktype;
-                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Strategey);
                 return true;
             }
             return false;
@@ -383,7 +384,7 @@ namespace resource.device
                 catch { }
                 dev.OutStrategey = outstrategy;
                 dev.WorkType = worktype;
-                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Strategey);
                 return true;
             }
             return false;
@@ -431,7 +432,7 @@ namespace resource.device
                 }
                 catch { }
                 dev.last_track_id = trackid;
-                PubMaster.Mod.DevConfigSql.EditLastTrackId(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.LastTrack);
                 return true;
             }
             return false;
@@ -488,7 +489,7 @@ namespace resource.device
                     }
                     catch { }
                     ctl.non_work_track_id = newtrackid;
-                    PubMaster.Mod.DevConfigSql.EditNonWorkTrackId(ctl);
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(ctl, TileConfigUpdateE.NoWorkTrack);
                 }
             }
         }
@@ -678,7 +679,7 @@ namespace resource.device
                 }
                 catch { }
                 dev.pre_goodid = pregoodid;
-                PubMaster.Mod.DevConfigSql.EditGoods(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
                 result = "";
                 return true;
             }
@@ -719,7 +720,7 @@ namespace resource.device
                 dev.pre_goodid = 0;
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
-                PubMaster.Mod.DevConfigSql.EditGoods(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
                 try
                 {
                     mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ]",
@@ -793,7 +794,7 @@ namespace resource.device
                 dev.WorkModeNext = nextmode;
                 dev.pre_goodid = newgoodid;
                 dev.do_cutover = true;
-                PubMaster.Mod.DevConfigSql.EditWorkMode(dev); 
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.WorkMode); 
                 
                 result = "";
                 return true;
@@ -829,7 +830,7 @@ namespace resource.device
                     dev.pre_goodid = 0;
                 }
                 dev.do_cutover = false;
-                PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.WorkMode);
                 return true;
             }
             return false;
@@ -865,7 +866,7 @@ namespace resource.device
                 dev.WorkModeNext = TileWorkModeE.无;
                 dev.pre_goodid = 0;
                 dev.do_cutover = false;
-                PubMaster.Mod.DevConfigSql.EditWorkMode(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.WorkMode);
                 return true;
             }
             return false;
@@ -892,14 +893,16 @@ namespace resource.device
         /// <param name="need_id">需要备用的砖机id</param>
         /// <param name="backup_id">备用砖机id</param>
         /// <returns></returns>
-        public bool SetBackupTileLifter(uint need_id, uint backup_id)
+        public bool SetBackupTileLifter(uint need_id, uint backup_id, bool frombacktile = true)
         {
             //要备用的砖机
             ConfigTileLifter need_dev = ConfigTileLifterList.Find(c => c.id == need_id);
             //备用砖机
             ConfigTileLifter backup_dev = ConfigTileLifterList.Find(c => c.id == backup_id);
             if (need_dev != null && backup_dev != null 
-                && backup_dev.can_alter )
+                && backup_dev.can_alter
+                // 直接转备用    自动转备用，由普通砖机转，需要结束后才能继续转备用
+                && (frombacktile || backup_dev.alter_dev_id ==0))
             {
                 try
                 {
@@ -978,7 +981,7 @@ namespace resource.device
         }
 
         /// <summary>
-        /// 砖机传设备号过来进行设备转换
+        /// 第一种方式：备用砖机传设备号过来进行设备转换
         /// </summary>
         /// <param name="need_id">备用砖机ID</param>
         /// <param name="devcode">转产砖机设备号</param>
@@ -987,20 +990,30 @@ namespace resource.device
             uint need_id = PubMaster.Device.GetDevIdByMemo(devcode + "");
             if(need_id != 0)
             {
-                SetBackupTileLifter(backup_id, need_id);
+                SetBackupTileLifter(need_id, backup_id);
             }
         }
+
 
         /// <summary>
         /// 备用结束,备用砖机执行转产操作
         /// </summary>
         /// <param name="backup_id"></param>
-        public void StopBackupTileLifter(uint backup_id, bool doshift)
+        public bool StopBackupTileLifter(uint backup_id, bool doshift)
         {
             //备用砖机
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == backup_id);
             if (dev != null && dev.can_alter && dev.alter_dev_id != 0)
             {
+                try
+                {
+                    mLog.Status(true, string.Format("【备用结束】砖机[ {0} ], 备用砖机[ {1} ], 是否执行转产[ {2} ]",
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        PubMaster.Device.GetDeviceName(dev.alter_dev_id),
+                        doshift));
+                }
+                catch { }
+
                 if (doshift)
                 {
                     if (dev.pre_goodid == 0)
@@ -1009,21 +1022,16 @@ namespace resource.device
                         dev.pre_goodid = dev.goods_id;
                     }
 
-                    try
-                    {
-                        mLog.Status(true, string.Format("【备用结束，并转产】砖机[ {0} ], 备用砖机[ {1} ]",
-                            PubMaster.Device.GetDeviceName(dev.id),
-                            PubMaster.Device.GetDeviceName(dev.alter_dev_id)));
-                    }
-                    catch { }
-
                     UpdateShiftTileGood(backup_id, dev.goods_id, out string _);
                 }
 
-
                 dev.alter_dev_id = 0;
-                PubMaster.Mod.DevConfigSql.EditGoods(dev);
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Alert_Dev_Id);
+
+                return true;
             }
+
+            return false;
         }
 
         public bool IsTileHavePreGood(uint tile_id)
@@ -1039,6 +1047,37 @@ namespace resource.device
                 return device.IsLastShiftTimeOk();
             }
             return false;
+        }
+
+        /// <summary>
+        /// 设置普通砖机的当前备用砖机
+        /// </summary>
+        /// <param name="normaltileid"></param>
+        /// <param name="backuptileid"></param>
+        public void SetNormalTileBackTileId(uint normaltileid, uint backuptileid)
+        {
+            ConfigTileLifter device = GetTileLifter(normaltileid);
+            if (device != null && device.alter_dev_id != backuptileid)
+            {
+                try
+                {
+                    if(backuptileid == 0)
+                    {
+                        mLog.Status(true, string.Format("【普通砖机转备用-结束更新】普通砖机[ {0} ], 备用砖机[ {1} ]",
+                            PubMaster.Device.GetDeviceName(normaltileid, normaltileid + ""),
+                            PubMaster.Device.GetDeviceName(backuptileid, backuptileid + "")));
+                    }
+                    else
+                    {
+                        mLog.Status(true, string.Format("【普通砖机转备用-备用开始】普通砖机[ {0} ], 备用砖机[ {1} ]",
+                            PubMaster.Device.GetDeviceName(normaltileid, normaltileid + ""),
+                            PubMaster.Device.GetDeviceName(backuptileid, backuptileid + "")));
+                    }
+                }
+                catch { }
+                device.alter_dev_id = backuptileid;
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(device, TileConfigUpdateE.Alert_Dev_Id);
+            }
         }
         #endregion
 

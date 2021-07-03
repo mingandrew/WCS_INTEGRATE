@@ -170,33 +170,45 @@ can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, 
             return row >= 1;
         }
 
-        internal bool EditGoods(ConfigTileLifter dev)
+        /// <summary>
+        /// 更新砖机的配置信息
+        /// </summary>
+        /// <param name="dev"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal bool EditConfigTileLifter(ConfigTileLifter dev, TileConfigUpdateE type)
         {
-            string sql = string.Format(@"UPDATE config_tilelifter SET old_goodid = {1}, goods_id = {2}, pre_goodid = {3}, do_shift = {4} 
-WHERE id = {0}", dev.id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift);
-            int row = mSql.ExcuteSql(sql);
-            return row >= 1;
-        }
+            string sql = "UPDATE config_tilelifter SET ";
 
-        internal void EditLastTrackId(ConfigTileLifter dev)
-        {
-            string sql = string.Format("UPDATE config_tilelifter SET last_track_id = {1} WHERE id = {0}", 
-                dev.id, dev.last_track_id);
-            mSql.ExcuteSql(sql);
-        }
-
-        internal void EditNonWorkTrackId(ConfigTileLifter dev)
-        {
-            string sql = string.Format("UPDATE config_tilelifter SET non_work_track_id = {1}  WHERE id = {0}",
-                dev.id, dev.non_work_track_id);
-            mSql.ExcuteSql(sql);
-        }
-
-        internal bool EditWorkMode(ConfigTileLifter dev)
-        {
-            string sql = string.Format(@"UPDATE config_tilelifter SET can_cutover = {1}, work_mode = {2}, work_mode_next = {3}, do_cutover = {4}, 
-goods_id = {5}, pre_goodid = {6} WHERE id = {0}", 
-                dev.id, dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, GetIntOrNull(dev.goods_id), dev.pre_goodid);
+            switch (type)
+            {
+                case TileConfigUpdateE.Goods:
+                    sql += string.Format("old_goodid = {0}, goods_id = {1}, pre_goodid = {2}, do_shift = {3} ",
+                        dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift);
+                    break;
+                case TileConfigUpdateE.LastTrack:
+                    sql += string.Format("last_track_id = {0}", dev.last_track_id);
+                    break;
+                case TileConfigUpdateE.NoWorkTrack:
+                    sql += string.Format("non_work_track_id =  {0}", dev.non_work_track_id);
+                    break;
+                case TileConfigUpdateE.Alert_Dev_Id:
+                    sql += string.Format("alter_dev_id = {0}", dev.alter_dev_id);
+                    break;
+                case TileConfigUpdateE.WorkMode:
+                    sql += string.Format("can_cutover = {0}, work_mode = {1}, work_mode_next = {2}, " +
+                        "do_cutover = {3}, goods_id = {4}, pre_goodid = {5}", 
+                        dev.can_cutover, dev.work_mode, dev.work_mode_next, 
+                        dev.do_cutover, GetIntOrNull(dev.goods_id), dev.pre_goodid);
+                    break;
+                case TileConfigUpdateE.Strategey:
+                    sql += string.Format("strategy_in = {0}, strategy_out = {1}, work_type = {2}", dev.strategy_in, dev.strategy_out, dev.work_type);
+                    break;
+                default:
+                    sql += string.Format("brother_dev_id = {0}", dev.brother_dev_id);
+                    break;
+            }
+            sql += string.Format(" WHERE id = {0}", dev.id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

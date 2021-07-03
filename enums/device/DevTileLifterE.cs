@@ -94,4 +94,15 @@
         灯关,
         灯开
     }
+
+    public enum TileConfigUpdateE
+    {
+        Goods,
+        Alert_Dev_Id,
+        NoWorkTrack,
+        LastTrack,
+        WorkMode,
+        Strategey,
+
+    }
 }

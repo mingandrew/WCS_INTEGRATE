@@ -253,6 +253,15 @@ namespace simtask.master
             }
         }
 
+        public void SetBackUpDevice(uint deviceID, byte backdevcode)
+        {
+            SimTileLifterTask task = DevList.Find(c => c.ID == deviceID);
+            if (task != null)
+            {
+                task.DevStatus.BackupShiftDev = backdevcode;
+            }
+        }
+
         public void StartOrStopWork(uint devid, bool isstart)
         {
             if (isstart)

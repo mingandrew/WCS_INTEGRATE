@@ -929,17 +929,64 @@ namespace task.device
 
             #region[备用砖机切换备用]
 
-            if (task.DevConfig.can_alter
-                && PubMaster.Dic.IsSwitchOnOff(DicTag.AutoBackupTileFunc, false))
+            //是否 开启 自动转备用机 否则只能在界面通过备用砖机启用进行设定
+            if(PubMaster.Dic.IsSwitchOnOff(DicTag.AutoBackupTileFunc, false))
             {
-                if (task.DevStatus.BackupShiftDev > 0)
+                //第一种方式：备用机 指定 备用哪台砖机
+                if(!GlobalWcsDataConfig.BigConifg.IsUserAutoBackDevVersion2(task.AreaId, task.Line))
                 {
-                    PubMaster.DevConfig.SetBackupTileLifterCode(task.ID, task.DevStatus.BackupShiftDev);
+                    if (task.DevConfig.can_alter)
+                    {
+                        if (task.DevStatus.BackupShiftDev > 0)
+                        {
+                            if(task.DevConfig.alter_dev_id == 0)
+                            {
+                                PubMaster.DevConfig.SetBackupTileLifterCode(task.ID, task.DevStatus.BackupShiftDev);
+                            }
+                        }
+                        else
+                        {
+                            //结束备用
+                            PubMaster.DevConfig.StopBackupTileLifter(task.ID, task.DevStatus.Load1 || task.DevStatus.Load2);
+                        }
+                    }
                 }
+                //第二种方式：砖机 指定 备用机 进行 备用
                 else
                 {
-                    //结束备用
-                    PubMaster.DevConfig.StopBackupTileLifter(task.ID, task.DevStatus.Load1 || task.DevStatus.Load2);
+                    if (!task.DevConfig.can_alter)//普通砖机
+                    {
+                        //开始备用，
+                        if (task.DevStatus.BackupShiftDev > 0)
+                        {
+                            if(task.DevConfig.alter_dev_id == 0)
+                            {
+                                uint backup_id = PubMaster.Device.GetDevIdByMemo(task.DevStatus.BackupShiftDev + "");
+                                if (backup_id != 0
+                                    && task.DevConfig.IsInBackUpList(backup_id))
+                                {
+                                    if (PubMaster.DevConfig.SetBackupTileLifter(task.ID, backup_id, false))
+                                    {
+                                        PubMaster.DevConfig.SetNormalTileBackTileId(task.ID, backup_id);
+                                    }
+                                }
+                            }
+                        }
+                        else if(task.DevStatus.BackupShiftDev == 0 && task.DevConfig.alter_dev_id != 0)
+                        {
+                            TileLifterTask backtile = GetTileLifter(task.DevConfig.alter_dev_id);
+                            
+                            //备用砖机备用了当前普通砖机
+                            if(backtile!=null && backtile.DevConfig.alter_dev_id == task.ID)
+                            {
+                                //结束备用, 备用机有货则转产
+                                if (PubMaster.DevConfig.StopBackupTileLifter(backtile.ID, backtile.DevStatus.Load1 || backtile.DevStatus.Load2))
+                                {
+                                    PubMaster.DevConfig.SetNormalTileBackTileId(task.ID, 0);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
