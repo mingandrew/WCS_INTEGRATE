@@ -97,9 +97,6 @@ namespace task.device
             {
                 try
                 {
-
-
-                    uint xxxx = PubMaster.Goods.GetStockInStoreTrack(PubMaster.Track.GetTrack(5), 1550);
                     foreach (CarrierTask task in DevList)
                     {
                         try
@@ -890,7 +887,6 @@ namespace task.device
                 //小车当前所在RF点
                 //ushort site = GetCurrentSite(devid);
                 ushort site = GetCurrentPoint(devid); // 改用脉冲
-                ushort resetSite = 0; // 复位点脉冲
 
                 DevCarrierOrderE order = DevCarrierOrderE.终止指令;
                 ushort checkTra = 0;//校验轨道号
@@ -1100,16 +1096,10 @@ namespace task.device
                         }
 
                         // 超过复位点脉冲才能上摆渡
-                        resetSite = PubMaster.Track.GetCarrierPos(track.area, CarrierPosE.轨道后侧复位点);
-                        if (track.Type == TrackTypeE.上砖轨道 && track.ferry_up_code > 500)
-                        {
-                            resetSite = PubMaster.Track.GetCarrierPos(track.area, CarrierPosE.上砖机复位点);
-                        }
-                        if (resetSite > 0 && site > resetSite)
-                        {
-                            result = "小车需超复位点，位于轨道头才可上摆渡，请先后退至点";
-                            return false;
-                        }
+                        //if (PubMaster.Track.CanMoveToFerryAboutPos(track.id, DevMoveDirectionE.后退, site, out result))
+                        //{
+                        //    return false;
+                        //}
 
                         // 是否存在前侧到位的摆渡车
                         if (!PubTask.Ferry.HaveFerryInPlace(true, track.id, out toTrackid, out result))
@@ -1144,16 +1134,10 @@ namespace task.device
                         }
 
                         // 超过复位点脉冲才能上摆渡
-                        resetSite = PubMaster.Track.GetCarrierPos(track.area, CarrierPosE.轨道前侧复位点);
-                        if (track.Type == TrackTypeE.下砖轨道 && track.ferry_down_code < 200)
-                        {
-                            resetSite = PubMaster.Track.GetCarrierPos(track.area, CarrierPosE.下砖机复位点);
-                        }
-                        if (resetSite > 0 && site < resetSite)
-                        {
-                            result = "小车需超复位点，位于轨道头才可上摆渡，请先前进至点";
-                            return false;
-                        }
+                        //if (PubMaster.Track.CanMoveToFerryAboutPos(track.id, DevMoveDirectionE.前进, site, out result))
+                        //{
+                        //    return false;
+                        //}
 
                         // 是否存在后侧到位的摆渡车
                         if (!PubTask.Ferry.HaveFerryInPlace(false, track.id, out toTrackid, out result))
@@ -1605,7 +1589,7 @@ namespace task.device
 
             if (!CheckCarrierIsFree(task))
             {
-                res = "小车非空闲状态，请先终止";
+                res = "小车非空闲状态，请先终止并查看是否停用";
                 return false;
             }
 
@@ -1635,6 +1619,12 @@ namespace task.device
 
             task.IsResetWriting = true;
             List<CarrierPos> posList = PubMaster.Track.GetCarrierPosList(task.AreaId);
+            if (posList == null || posList.Count == 0 || posList.Exists(c => c.track_point == point && c.track_pos == 0))
+            {
+                res = "没有复位点脉冲数据";
+                return false;
+            }
+
             try
             {
                 foreach (CarrierPos item in posList)
@@ -2025,6 +2015,7 @@ namespace task.device
                             switch (trans.TransType)
                             {
                                 case TransTypeE.下砖任务:
+                                case TransTypeE.同向下砖:
                                     //空闲
                                     if (CheckCarrierIsFree(car))
                                     {
@@ -2275,6 +2266,7 @@ namespace task.device
                 {
                     case TransTypeE.下砖任务:
                     case TransTypeE.手动下砖:
+                    case TransTypeE.同向下砖:
                         if (CheckCarrierIsFree(carrier))
                         {
                             carrierid = carrier.ID;
@@ -3094,10 +3086,12 @@ namespace task.device
                     switch (type)
                     {
                         case TransTypeE.下砖任务:
+                        case TransTypeE.同向下砖:
                             carrier = DevList.Find(c => c.ID != carrierid
                                                 && c.CurrentTrackId == trackid
-                                                && (c.CurrentSite == track.rfid_1
-                                                    || (c.CurrentSite == track.rfid_2 && c.InTask(DevCarrierOrderE.放砖指令))));
+                                                //&& (c.CurrentSite == track.rfid_1
+                                                //    || (c.CurrentSite == track.rfid_2 && c.InTask(DevCarrierOrderE.放砖指令)))
+                                                    );
                             if (carrier != null)
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
@@ -3105,10 +3099,12 @@ namespace task.device
                             }
                             break;
                         case TransTypeE.上砖任务:
+                        case TransTypeE.同向上砖:
                             carrier = DevList.Find(c => c.ID != carrierid
                                                 && c.CurrentTrackId == trackid
-                                                && (c.CurrentSite == track.rfid_2
-                                                    || (c.CurrentSite == track.rfid_1 && c.InTask(DevCarrierOrderE.取砖指令))));
+                                                //&& (c.CurrentSite == track.rfid_2
+                                                //    || (c.CurrentSite == track.rfid_1 && c.InTask(DevCarrierOrderE.取砖指令)))
+                                                    );
                             if (carrier != null)
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);

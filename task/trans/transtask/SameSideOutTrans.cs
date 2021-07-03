@@ -12,7 +12,7 @@ using tool.appconfig;
 namespace task.trans.transtask
 {
     /// <summary>
-    /// 同向上砖
+    /// 同向上砖（code- XX06）
     /// 上砖机与下砖机在同一侧
     /// </summary>
     public class SameSideOutTrans : BaseTaskTrans

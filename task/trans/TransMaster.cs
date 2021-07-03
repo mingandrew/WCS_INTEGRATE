@@ -867,6 +867,7 @@ namespace task.trans
                         {
                             case TransTypeE.下砖任务:
                             case TransTypeE.手动下砖:
+                            case TransTypeE.同向下砖:
                                 switch (trans.TransStaus)
                                 {
                                     case TransStatusE.调度设备:
@@ -880,7 +881,7 @@ namespace task.trans
                                         Track nowtrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                                         if (PubTask.Carrier.IsNotLoad(trans.carrier_id)
                                             && !PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.取砖指令)
-                                            && nowtrack.Type != TrackTypeE.下砖轨道)
+                                            && nowtrack.NotInType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
                                         {
                                             SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;
@@ -912,7 +913,7 @@ namespace task.trans
                                         Track nowtrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                                         if (PubTask.Carrier.IsNotLoad(trans.carrier_id)
                                             && !PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.放砖指令)
-                                            && nowtrack.Type != TrackTypeE.上砖轨道)
+                                            && nowtrack.NotInType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
                                         {
                                             SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;
@@ -975,6 +976,7 @@ namespace task.trans
                             {
                                 case TransTypeE.下砖任务:
                                 case TransTypeE.手动下砖:
+                                case TransTypeE.同向下砖:
                                     if (PubTask.Carrier.IsLoad(t.carrier_id))
                                     {
                                         result = "运输车已取砖，不能取消任务！";
@@ -1183,7 +1185,7 @@ namespace task.trans
 
         internal void StopAreaDown(uint areaid, ushort lineid)
         {
-            StopAreaTask(areaid, lineid, new TransTypeE[] { TransTypeE.下砖任务, TransTypeE.手动下砖 });
+            StopAreaTask(areaid, lineid, new TransTypeE[] { TransTypeE.下砖任务, TransTypeE.手动下砖, TransTypeE.同向下砖 });
         }
 
         internal void StopAreaSort(uint areaid, ushort lineid)

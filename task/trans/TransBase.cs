@@ -4,6 +4,7 @@ using module.msg;
 using resource;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using task.diagnose;
 using task.trans.transtask;
@@ -42,6 +43,7 @@ namespace task.trans
         Out2OutSortTrans _out2outSortTrans;
         MoveTaskTrans _moveTrans;
         SameSideOutTrans _sameSideOutTrans;
+        SameSideInTrans _sameSideInTrans;
 
 
         #endregion
@@ -70,6 +72,7 @@ namespace task.trans
             _out2outSortTrans = new Out2OutSortTrans(trans);
             _moveTrans = new MoveTaskTrans(trans);
             _sameSideOutTrans = new SameSideOutTrans(trans);
+            _sameSideInTrans = new SameSideInTrans(trans);
         }
 
         private void InitTrans()
@@ -148,6 +151,9 @@ namespace task.trans
                                         break;
                                     case TransTypeE.同向上砖:
                                         _sameSideOutTrans.DoTrans(trans);
+                                        break;
+                                    case TransTypeE.同向下砖:
+                                        _sameSideInTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.上砖侧倒库:
                                         _out2outSortTrans.DoTrans(trans);
@@ -688,13 +694,13 @@ namespace task.trans
         /// <param name="goodsId"></param>
         /// <param name="tasktype"></param>
         /// <returns></returns>
-        internal bool HaveInGoods(uint areaId, uint goodsId, TransTypeE tasktype, List<uint> tileids)
+        internal bool HaveInGoods(uint areaId, uint goodsId, List<uint> tileids, params TransTypeE[] tasktype)
         {
             try
             {
                 return TransList.Exists(c => !c.finish && c.area_id == areaId
                         && tileids.Contains(c.tilelifter_id)
-                    && c.TransType == tasktype && c.goods_id == goodsId);
+                    && tasktype.Contains(c.TransType) && c.goods_id == goodsId);
             }
             catch { }
             return true;

@@ -1496,8 +1496,17 @@ namespace task.device
 
                 PubMaster.Track.UpdateRecentGood(lasttrack, goodid);
                 PubMaster.Track.UpdateRecentTile(lasttrack, tileid);
-                //生成入库交易
-                PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, lasttrack, 0, line);
+
+                if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.上砖轨道))
+                {
+                    //生成入库交易
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向下砖, goodid, stockid, tiletrackid, lasttrack, 0, line);
+                }
+                else
+                {
+                    //生成入库交易
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, lasttrack, 0, line);
+                }
             }
             else
             {
@@ -1618,8 +1627,18 @@ namespace task.device
                     PubMaster.DevConfig.SetLastTrackId(tileid, givetrackid);
                     PubMaster.Track.UpdateRecentGood(givetrackid, goodid);
                     PubMaster.Track.UpdateRecentTile(givetrackid, tileid);
-                    //生成入库交易
-                    uint transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid, 0, line);
+
+                    uint transid = 0;
+                    if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.上砖轨道))
+                    {
+                        //生成入库交易
+                        transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向下砖, goodid, stockid, tiletrackid, givetrackid, 0, line);
+                    }
+                    else
+                    {
+                        //生成入库交易
+                        transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid, 0, line);
+                    }
 
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
                     PubMaster.Warn.RemoveTaskWarn(WarningTypeE.PreventTimeConflict, tileid);
@@ -2000,7 +2019,7 @@ namespace task.device
                     {
                         tileids.Add(item.ID);
                     }
-                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, goodsId, TransTypeE.下砖任务, tileids);
+                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, goodsId, tileids, TransTypeE.下砖任务, TransTypeE.手动下砖, TransTypeE.同向下砖);
                     break;
             }
             return iseffect;
@@ -2048,7 +2067,7 @@ namespace task.device
                     {
                         tileids.Add(item.ID);
                     }
-                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.DevConfig.goods_id, TransTypeE.上砖任务, tileids);
+                    iseffect = PubTask.Trans.HaveInGoods(task.AreaId, task.DevConfig.goods_id, tileids, TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
                     break;
                 case StrategyOutE.优先上砖:
                     iseffect = PubTask.Trans.ExistInTileTrack(task.ID, trackid);

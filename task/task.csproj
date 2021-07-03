@@ -84,6 +84,7 @@
     <Compile Include="trans\transtask\Out2OutSortTrans.cs" />
     <Compile Include="trans\transtask\OutTaskTrans.cs" />
     <Compile Include="trans\transtask\OutTaskTransV2.cs" />
+    <Compile Include="trans\transtask\SameSideInTrans.cs" />
     <Compile Include="trans\transtask\SameSideOutTrans.cs" />
   </ItemGroup>
   <ItemGroup>

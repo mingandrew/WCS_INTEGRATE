@@ -48,7 +48,12 @@ namespace module.track
         public uint alert_trans { set; get; }//故障任务
         public bool early_full { set; get; }//提前满砖
         public DateTime? full_time { set; get; }//满砖时间
-        public bool same_side_inout { set; get; }//是否同侧出入库
+
+        /// <summary>
+        /// 是否同侧出入库
+        /// </summary>
+        public bool same_side_inout { set; get; }
+
         public int upcount { get; set; }//上砖车数
 
         /// <summary>
@@ -72,6 +77,18 @@ namespace module.track
         public ushort up_split_point { get; set; }
 
         public ushort line { set; get; }//线
+
+        /// <summary>
+        /// 是否入库 后退存砖
+        /// </summary>
+        public bool is_give_back { set; get; }
+
+        /// <summary>
+        /// 是否出库 前进取砖
+        /// </summary>
+        public bool is_take_forward { set; get; } 
+
+
         /// <summary>
         /// 轨道类型
         /// </summary>

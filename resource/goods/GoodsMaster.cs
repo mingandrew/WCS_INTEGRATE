@@ -203,11 +203,11 @@ namespace resource.goods
                     //如果入轨道没有库存，则分割点为起点进行计算
                     if (track.InType(TrackTypeE.储砖_入))
                     {
-                        loc = track.split_point;
+                        loc = track.is_give_back ? track.limit_point : track.split_point;
                     }
-                    else if (track.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                    else
                     {
-                        loc = track.limit_point_up;
+                        loc = track.is_give_back ? track.limit_point : track.limit_point_up;
                     }
                 }
 
@@ -225,11 +225,11 @@ namespace resource.goods
                         //出库轨道的分割点为放砖极限点
                         if (track.InType(TrackTypeE.储砖_出))
                         {
-                            count = (loc - track.split_point) / safe;
+                            count = (track.is_give_back ? (track.limit_point_up - loc) : (loc - track.split_point)) / safe;
                         }
                         else
                         {
-                            count =(int)Math.Truncate(((double)(loc - track.limit_point) / safe)); 
+                            count =(int)Math.Truncate(((double)(track.is_give_back ? (track.limit_point_up - loc) : (loc - track.limit_point)) / safe)); 
                         }
                         ableqty = count;
                         if (count < stockqty)
@@ -468,31 +468,35 @@ namespace resource.goods
                     {
                         //计算可存放位置
                         Stock buttomStock = GetTrackButtomStock(trackid);
+
+                        // (默认)前进存砖 下一车脉冲变小；后退存砖 下一车脉冲变大；
                         if (buttomStock != null)
                         {
+                            int loc = 0;
                             if (track.InType(TrackTypeE.储砖_出))
                             {
-                                maxaddcount = (buttomStock.location - track.split_point) / safe;
+                                loc = track.is_give_back ? (track.limit_point_up - buttomStock.location) : (buttomStock.location - track.split_point);
                             }
                             else
                             {
-                                maxaddcount = (buttomStock.location - track.limit_point) / safe;
+                                loc = track.is_give_back ? (track.limit_point_up - buttomStock.location) : (buttomStock.location - track.limit_point);
                             }
 
+                            maxaddcount = loc / safe;
                             if (maxaddcount > 0)
                             {
-                                nextstockloc = (ushort)(buttomStock.location - safe);
+                                nextstockloc = (ushort)(track.is_give_back ? (buttomStock.location + safe) : (buttomStock.location - safe));
                             }
                         }
                         else
                         {
                             if (track.InType(TrackTypeE.储砖_入))
                             {
-                                nextstockloc = track.split_point;
+                                nextstockloc = track.is_give_back ? track.limit_point : track.split_point;
                             }
-                            else if (track.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                            else
                             {
-                                nextstockloc = track.limit_point_up;
+                                nextstockloc = track.is_give_back ? track.limit_point : track.limit_point_up;
                             }
                         }
                     }
@@ -510,7 +514,15 @@ namespace resource.goods
                         if (nextstockloc > 0)
                         {
                             UpdateStockLocation(StockId, nextstockloc);
-                            nextstockloc -= safe;
+                            if (track.is_give_back)
+                            {
+                                nextstockloc += safe;
+                            }
+                            else
+                            {
+                                nextstockloc -= safe;
+                            }
+                            
                         }
                     }
 
@@ -518,7 +530,7 @@ namespace resource.goods
                     CheckTrackSum(trackid);
 
                     //判断是否能继续放砖
-                    if (IsTrackFull(trackid, track.limit_point, safe))
+                    if (IsTrackFull(trackid, (track.is_give_back ? track.limit_point_up : track.limit_point), safe, track.is_give_back))
                     {
                         PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.满砖, memo);
                     }
@@ -576,14 +588,14 @@ namespace resource.goods
                 if (list.Count > 0)
                 {
                     list.Sort((x, y) => x.pos.CompareTo(y.pos));
-                    stock = (isSameSide ? list[0] : list[list.Count - 1]);
+                    stock = list[0];
                 }
             }
             else
             {
                 if(stocks.Count >1)
                     stocks.Sort((x, y) => x.location.CompareTo(y.location));
-                stock = (isSameSide ? stocks[0] : stocks[stocks.Count - 1]);
+                stock = stocks[stocks.Count - 1];
             }
             return stock;
         }
@@ -711,13 +723,13 @@ namespace resource.goods
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        public bool IsTrackFull(uint trackid, uint limitpoint, ushort safe)
+        public bool IsTrackFull(uint trackid, uint limitpoint, ushort safe, bool isgiveback)
         {
             // 计算可存放位置
             Stock buttomStock = GetTrackButtomStock(trackid);
             if (buttomStock != null)
             {
-                uint count = (buttomStock.location - limitpoint) / safe;
+                uint count = (isgiveback ? (limitpoint - buttomStock.location) : (buttomStock.location - limitpoint)) / safe;
                 if (count <= 0)
                 {
                     return true;
@@ -1683,12 +1695,12 @@ namespace resource.goods
                 if (storecount == 0)
                 {
                     stock.PosType = StockPosE.头部;
-                    stock.pos = (short)(track.same_side_inout ? 50 : 0);
+                    stock.pos = (short)(track.is_give_back ? 50 : 0);
                 }
                 else
                 {
                     //如轨道是同向出入，则将后面添加的库存放在第一位
-                    if (track.same_side_inout)
+                    if (track.is_give_back)
                     {
                         Stock topStock = GetTrackTopStock(stock.track_id);
                         if (topStock != null)
@@ -1962,7 +1974,7 @@ namespace resource.goods
                 List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
                 if (stocks.Count > 1)
                 {
-                    stocks.Sort((x, y) => x.location.CompareTo(y.location));
+                    stocks.Sort((x, y) => y.pos.CompareTo(x.pos));
                     SetStockPosType(stocks[0], StockPosE.尾部);
                     return stocks[0].id;
                 }
@@ -2042,9 +2054,7 @@ namespace resource.goods
             else if(stocks.Count > 1)
             {
                 stocks.Sort((x, y) => y.location.CompareTo(x.location));
-                //return stocks[0].id;
-                // 常规轨道找最大脉冲；同侧上下轨道找最小脉冲
-                return (track.same_side_inout ? stocks[stocks.Count - 1] : stocks[0]).id;
+                return stocks[0].id;
             }
 
             //如果在储砖出、或者入的轨道找不到库存则在兄弟轨道查找该脉冲范围内有没有库存的信息
@@ -2868,21 +2878,41 @@ namespace resource.goods
             Track track = PubMaster.Track.GetTrack(trackid);
             if (stocks == null || stocks.Count == 0)
             {
-                location = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
+                if (tt == TransTypeE.同向下砖)
+                {
+                    location = (track.Type == TrackTypeE.储砖_出 ? track.split_point : track.limit_point);
+                }
+                else
+                {
+                    location = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point);
+                }
                 isOK = true;
             }
             else
             {
                 stockcount = (ushort)stocks.Count;
+                Stock bottom = GetTrackButtomStock(trackid); ;
+                ushort safe = GetStackSafe(bottom.goods_id, carrierid);
+                ushort limit = 0;
+
                 switch (tt)
                 {
                     case TransTypeE.下砖任务:
                     case TransTypeE.手动下砖:
-                        Stock bottom = GetTrackButtomStock(trackid);
-                        ushort safe = GetStackSafe(bottom.goods_id, carrierid);
-                        ushort limit = track.limit_point;
+                        limit = track.limit_point;
                         location = (ushort)(bottom.location - safe);
                         if (location < limit)
+                        {
+                            location = 0;
+                            break;
+                        }
+                        isOK = true;
+                        break;
+
+                    case TransTypeE.同向下砖:
+                        limit = track.limit_point_up;
+                        location = (ushort)(bottom.location - safe);
+                        if (location > limit)
                         {
                             location = 0;
                             break;

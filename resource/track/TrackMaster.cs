@@ -1267,8 +1267,13 @@ namespace resource.track
             switch (transType)
             {
                 case TransTypeE.下砖任务:
+                case TransTypeE.手动下砖:
+                case TransTypeE.同向下砖:
                     return TrackList.Exists(c => c.id == track_id && c.InStatus(TrackStatusE.停用, TrackStatusE.仅上砖));
+
                 case TransTypeE.上砖任务:
+                case TransTypeE.手动上砖:
+                case TransTypeE.同向上砖:
                     return TrackList.Exists(c => c.id == track_id && c.InStatus(TrackStatusE.停用, TrackStatusE.仅下砖));
                 default:
                     return TrackList.Exists(c => c.id == track_id && c.InStatus(TrackStatusE.停用));
@@ -1978,6 +1983,81 @@ namespace resource.track
         #region [运输车复位脉冲]
 
         /// <summary>
+        /// 是否能直接上摆渡车（复位脉冲判断）
+        /// </summary>
+        /// <param name="trackid">当前轨道ID</param>
+        /// <param name="md">移动方向</param>
+        /// <param name="point">当前脉冲</param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool CanMoveToFerryAboutPos(uint trackid, DevMoveDirectionE md, ushort point, out string result)
+        {
+            result = "";
+            Track track = GetTrack(trackid);
+            if (track == null)
+            {
+                result = "无轨道数据";
+                return false;
+            }
+
+            ushort reset = 0;
+            switch (md)
+            {
+                case DevMoveDirectionE.前进:
+                    if (track.Type == TrackTypeE.下砖轨道 && track.ferry_up_code < 200)
+                    {
+                        reset = GetCarrierPos(track.area, CarrierPosE.下砖机复位点);
+                    }
+                    else
+                    {
+                        reset = GetCarrierPos(track.area, CarrierPosE.轨道前侧复位点);
+                    }
+
+                    if (reset == 0)
+                    {
+                        result = "未配置相关复位点脉冲";
+                        return false;
+                    }
+
+                    if (reset > point)
+                    {
+                        result = "小车需超复位点，位于轨道头才可上摆渡，请先前进至点";
+                        return false;
+                    }
+                    break;
+
+                case DevMoveDirectionE.后退:
+                    if (track.Type == TrackTypeE.上砖轨道 && track.ferry_up_code > 500)
+                    {
+                        reset = GetCarrierPos(track.area, CarrierPosE.上砖机复位点);
+                    }
+                    else
+                    {
+                        reset = GetCarrierPos(track.area, CarrierPosE.轨道后侧复位点);
+                    }
+
+                    if (reset == 0)
+                    {
+                        result = "未配置相关复位点脉冲";
+                        return false;
+                    }
+
+                    if (reset < point)
+                    {
+                        result = "小车需超复位点，位于轨道头才可上摆渡，请先后进至点";
+                        return false;
+                    }
+                    break;
+
+                default:
+                    result = "请给定移动至摆渡车的方向";
+                    return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// 获取区域运输车复位点脉冲（单个）
         /// </summary>
         /// <param name="area_id"></param>
@@ -1985,7 +2065,7 @@ namespace resource.track
         /// <returns></returns>
         public ushort GetCarrierPos(uint area_id, CarrierPosE cp)
         {
-            return CarrierPosList.Find(c => c.area_id == area_id && c.track_point == (ushort)cp)?.track_pos ?? 0;
+            return CarrierPosList.Find(c => c.area_id == area_id && c.CarrierPosType == cp)?.track_pos ?? 0;
         }
 
         /// <summary>

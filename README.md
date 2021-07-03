@@ -341,6 +341,9 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (235, 3, 'CarrierNoLocation', '运输车失去位置信息', NULL, NULL, '运输车失去位置信息，为安全起见已停止所有任务及指令的执行，待恢复位置信息后再继续作业，请检查设备进行位置初始化操作！', NULL, NULL, NULL, NULL, NULL);
 
 
+#2021.07.03：新增轨道属性字段，确认轨道存取方向
+ALTER TABLE `track` ADD COLUMN `is_give_back` bit(1) NULL COMMENT '是否入库 后退存砖' AFTER `up_split_point`;
+ALTER TABLE `track` ADD COLUMN `is_take_forward` bit(1) NULL COMMENT '是否出库 前进取砖' AFTER `is_give_back`;
 
 
 
