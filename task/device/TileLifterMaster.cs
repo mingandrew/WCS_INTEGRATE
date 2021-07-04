@@ -2280,7 +2280,8 @@ namespace task.device
         /// <returns></returns>
         public bool IsSiteGoodSame(uint devid)
         {
-            return DevList.Exists(c => c.ID == devid && c.IsSiteGoodSame());
+            return true;  // 不管了直接转
+            //return DevList.Exists(c => c.ID == devid && c.IsSiteGoodSame());
         }
 
         private bool CheckTileLifterStatus(TileLifterTask task, out string result)

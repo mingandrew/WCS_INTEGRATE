@@ -1474,13 +1474,21 @@ namespace resource.goods
 
             stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
 
-            // 找时间最早的库存
+            // 找时间最早的库存,   同侧找最晚的
+            bool isSameSide = PubMaster.Track.IsSameSideTrack(stocks[0].track_id);
             stocks.Sort(
                 (x, y) => 
                 {
                     if(x.produce_time is DateTime xtime && y.produce_time is DateTime ytime)
                     {
-                        return xtime.CompareTo(ytime);
+                        if (isSameSide)
+                        {
+                            return ytime.CompareTo(xtime);
+                        }
+                        else
+                        {
+                            return xtime.CompareTo(ytime);
+                        }
                     }
                     return 0;
                 }
@@ -1745,7 +1753,7 @@ namespace resource.goods
                 }
                 else
                 {
-                    stock.pos = 1;
+                    stock.pos = (short)(track.is_give_back ? 50 : 1);
                 }
             }
         }
@@ -2911,7 +2919,7 @@ namespace resource.goods
 
                     case TransTypeE.同向下砖:
                         limit = track.limit_point_up;
-                        location = (ushort)(bottom.location - safe);
+                        location = (ushort)(bottom.location + safe);
                         if (location > limit)
                         {
                             location = 0;

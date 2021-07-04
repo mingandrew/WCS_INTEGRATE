@@ -346,6 +346,35 @@ ALTER TABLE `track` ADD COLUMN `is_give_back` bit(1) NULL COMMENT '是否入库 
 ALTER TABLE `track` ADD COLUMN `is_take_forward` bit(1) NULL COMMENT '是否出库 前进取砖' AFTER `is_give_back`;
 
 
+#2021.07.04：运输车新版报警更新
+UPDATE `diction_dtl` SET `name` = '急停触发', `string_value` = '急停触发' WHERE `id` = 	100;
+UPDATE `diction_dtl` SET `name` = '开始定位点范围内未取到砖', `string_value` = '开始定位点范围内未取到砖' WHERE `id` = 	101;
+UPDATE `diction_dtl` SET `name` = '未到取砖开始定位点范围，取砖定位光电触发', `string_value` = '未到取砖开始定位点范围，取砖定位光电触发' WHERE `id` = 	102;
+UPDATE `diction_dtl` SET `name` = '小车有砖光电未触发', `string_value` = '小车有砖光电未触发' WHERE `id` = 	103;
+UPDATE `diction_dtl` SET `name` = '前防撞触发', `string_value` = '前防撞触发' WHERE `id` = 	104;
+UPDATE `diction_dtl` SET `name` = '后防撞触发', `string_value` = '后防撞触发' WHERE `id` = 	105;
+UPDATE `diction_dtl` SET `name` = '下降超时', `string_value` = '下降超时' WHERE `id` = 	106;
+UPDATE `diction_dtl` SET `name` = '上升超时', `string_value` = '上升超时' WHERE `id` = 	107;
+UPDATE `diction_dtl` SET `name` = '未在上位状态', `string_value` = '未在上位状态' WHERE `id` = 	108;
+UPDATE `diction_dtl` SET `name` = '未在下位状态', `string_value` = '未在下位状态' WHERE `id` = 	109;
+UPDATE `diction_dtl` SET `name` = '未在下位前进时，载砖前进存砖定位光电保护触发', `string_value` = '未在下位前进时，载砖前进存砖定位光电保护触发' WHERE `id` = 	110;
+UPDATE `diction_dtl` SET `name` = '未在下位后退时，载砖后退存砖定位光电保护触发', `string_value` = '未在下位后退时，载砖后退存砖定位光电保护触发' WHERE `id` = 	111;
+UPDATE `diction_dtl` SET `name` = '上下摆渡时，超出保护范围位置', `string_value` = '上下摆渡时，超出保护范围位置' WHERE `id` = 	112;
+UPDATE `diction_dtl` SET `name` = '开始定位点=0', `string_value` = '开始定位点=0' WHERE `id` = 	113;
+UPDATE `diction_dtl` SET `name` = '结束定位点=0', `string_value` = '结束定位点=0' WHERE `id` = 	114;
+UPDATE `diction_dtl` SET `name` = '当前码盘坐标值=0', `string_value` = '当前码盘坐标值=0' WHERE `id` = 	115;
+UPDATE `diction_dtl` SET `name` = '1xx轨道码盘数值_复位点=0', `string_value` = '1xx轨道码盘数值_复位点=0' WHERE `id` = 	116;
+UPDATE `diction_dtl` SET `name` = '1xx轨道码盘数值_定位点=0', `string_value` = '1xx轨道码盘数值_定位点=0' WHERE `id` = 	117;
+UPDATE `diction_dtl` SET `name` = '2xx轨道码盘数值_定位点=0', `string_value` = '2xx轨道码盘数值_定位点=0' WHERE `id` = 	118;
+UPDATE `diction_dtl` SET `name` = '3xx轨道下砖侧码盘数值_定位点=0', `string_value` = '3xx轨道下砖侧码盘数值_定位点=0' WHERE `id` = 	119;
+UPDATE `diction_dtl` SET `name` = '3xx轨道下砖侧码盘数值_复位点=0', `string_value` = '3xx轨道下砖侧码盘数值_复位点=0' WHERE `id` = 	120;
+UPDATE `diction_dtl` SET `name` = '3xx轨道中间码盘数值_复位点=0', `string_value` = '3xx轨道中间码盘数值_复位点=0' WHERE `id` = 	121;
+UPDATE `diction_dtl` SET `name` = '3xx轨道上砖侧码盘数值_复位点=0', `string_value` = '3xx轨道上砖侧码盘数值_复位点=0' WHERE `id` = 	122;
+UPDATE `diction_dtl` SET `name` = '3xx轨道上砖侧码盘数值_定位点=0', `string_value` = '3xx轨道上砖侧码盘数值_定位点=0' WHERE `id` = 	123;
+UPDATE `diction_dtl` SET `name` = '4xx轨道码盘数值_定位点=0', `string_value` = '4xx轨道码盘数值_定位点=0' WHERE `id` = 	124;
+UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_定位点=0', `string_value` = '5xx轨道码盘数值_定位点=0' WHERE `id` = 	125;
+UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_复位点=0', `string_value` = '5xx轨道码盘数值_复位点=0' WHERE `id` = 	126;
+
 
 
 

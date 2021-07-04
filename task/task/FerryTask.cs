@@ -234,6 +234,8 @@ namespace task.task
         #region[发送指令]
         internal void DoQuery()
         {
+            if (IsSendAll) return;
+
             DevTcp?.SendCmd(DevFerryCmdE.查询, 0, 0, 0);
         }
 
@@ -245,6 +247,8 @@ namespace task.task
         /// <param name="recodeTraid"></param>
         internal void DoLocate(uint transid, ushort trackcode, uint ltrack, uint recodeTraid)
         {
+            if (IsSendAll) return;
+
             // 记录点未清零，不发其他定位
             if (RecordTraId > 0 && RecordTraId != recodeTraid) return;
 
@@ -269,6 +273,8 @@ namespace task.task
 
         internal void DoSiteQuery(ushort trackcode)
         {
+            if (IsSendAll) return;
+
             byte[] b = BitConverter.GetBytes(trackcode);
             DevTcp?.SendCmd(DevFerryCmdE.查询轨道坐标, b[1], b[0], 0);
         }
@@ -282,6 +288,8 @@ namespace task.task
 
         internal void DoReSet(DevFerryResetPosE resetpos)
         {
+            if (IsSendAll) return;
+
             DevTcp?.SendCmd(DevFerryCmdE.原点复位, (byte)resetpos, 0, 0);
             RecordTraId = 0;
             DevTcp.AddStatusLog(string.Format("复位-清除记录目标"));
@@ -307,6 +315,8 @@ namespace task.task
 
         internal void DoAutoPos(DevFerryAutoPosE posside, ushort starttrack, byte tracknumber, string memo)
         {
+            if (IsSendAll) return;
+
             DevTcp?.SendAutoPosCmd(DevFerryCmdE.自动对位, starttrack, (byte)posside, tracknumber);
             DevTcp.AddStatusLog(string.Format("摆渡车[ {0} ], 开始自动对位, 对位测[ {1} ], 开始轨道[ {2} ], 对位数量[ {3} ], 备注[ {4} ]",
                 Device.name, posside, starttrack, tracknumber, memo));
@@ -325,6 +335,8 @@ namespace task.task
         /// </summary>
         internal void DoRenew(ushort trackcode,  DevMoveDirectionE md)
         {
+            if (CanRenew) CanRenew = false;
+
             byte[] b = BitConverter.GetBytes(trackcode);
             DevTcp?.SendCmd(DevFerryCmdE.初始化, b[1], b[0], (int)md);
         }
@@ -584,6 +596,14 @@ namespace task.task
 
         #region[重新发送全部对位数据]
 
+        /// <summary>
+        /// 是否允许初始化（完成发送数据）
+        /// </summary>
+        public bool CanRenew { set; get; }
+
+        /// <summary>
+        /// 是否发送对位数据中
+        /// </summary>
         public bool IsSendAll = false;
         internal void DoSendAllPose()
         {
@@ -621,6 +641,7 @@ namespace task.task
             finally
             {
                 IsSendAll = false;
+                CanRenew = true;
             }
         }
         #endregion

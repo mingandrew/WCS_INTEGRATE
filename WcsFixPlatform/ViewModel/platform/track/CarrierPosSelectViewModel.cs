@@ -98,7 +98,7 @@ namespace wcs.ViewModel.platform.track
                             }
                             break;
                         case TrackTypeE.摆渡车_出:
-                            if (cp.CarrierPosType == CarrierPosE.上砖摆渡复位点)
+                            if (cp.CarrierPosType != CarrierPosE.上砖摆渡复位点)
                             {
                                 continue;
                             }

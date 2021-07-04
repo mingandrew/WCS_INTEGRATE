@@ -247,25 +247,23 @@ namespace task.device
                         }
                         finally
                         {
-                            task.DoQuery();
-
-                            //if (task.IsEnable && task.IsConnect)
-                            //{
-                            //    // 超过 60s 没有更新过设备状态就查询一次
-                            //    if (task.IsRefreshTimeOver(60))
-                            //    {
-                            //        task.DoQuery();
-                            //        task.ReSetRefreshTime();
-                            //    }
-                            //    else
-                            //    {
-                            //        if (task.ConnStatus != SocketConnectStatusE.通信正常)
-                            //        {
-                            //            task.DoQuery();
-                            //            task.ReSetRefreshTime();
-                            //        }
-                            //    }
-                            //}
+                            if (task.IsEnable && task.IsConnect)
+                            {
+                                // 超过 60s 没有更新过设备状态就查询一次
+                                if (task.IsRefreshTimeOver(60))
+                                {
+                                    task.DoQuery();
+                                    task.ReSetRefreshTime();
+                                }
+                                else
+                                {
+                                    if (task.ConnStatus != SocketConnectStatusE.通信正常)
+                                    {
+                                        task.DoQuery();
+                                        task.ReSetRefreshTime();
+                                    }
+                                }
+                            }
 
                         }
                     }
@@ -448,7 +446,7 @@ namespace task.device
                                     ferry.LoadStatus = task.DevStatus.LoadStatus;
                                 }
                                 task.DevStatus = ferry;
-                                //task.DoReply(); // 接收后回复PLC
+                                task.DoReply(); // 接收后回复PLC
                                 task.UpdateInfo();
                                 if (ferry.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, ferry.ID, 5))
                                 {
@@ -755,6 +753,13 @@ namespace task.device
                 {
                     return false;
                 }
+
+                if (task.IsSendAll)
+                {
+                    result = "发送PLC对位数据中，请稍后再试";
+                    return false;
+                }
+
                 mPosLog.Status(true, string.Format("摆渡车[ {0} ], 设置轨道[ {1} ], 值[ {2} ], 备注[ {3} ]", task.Device.name, ferry_code, intpos, memo));
                 task.DoSiteUpdate(ferry_code, intpos);
                 //_FerrySiteCode = ferry_code;
@@ -1261,6 +1266,12 @@ namespace task.device
                 return false;
             }
 
+            if (!task.IsNotDoingTask)
+            {
+                res = "摆渡车非空闲，请确认无任务锁定并发送终止指令";
+                return false;
+            }
+
             if (code == 0)
             {
                 res = "请选择初始化轨道";
@@ -1270,6 +1281,18 @@ namespace task.device
             if (md != DevMoveDirectionE.前进 && md != DevMoveDirectionE.后退)
             {
                 res = "请选择指令方向";
+                return false;
+            }
+
+            if (!task.CanRenew)
+            {
+                if (!task.IsSendAll)
+                {
+                    // 先发送对位数据
+                    task.DoSendAllPose();
+                }
+
+                res = "发送PLC对位数据中，请10秒后再操作";
                 return false;
             }
 
@@ -1952,6 +1975,12 @@ namespace task.device
 
             if (!IsLoadOrEmpty(task, out result))
             {
+                return false;
+            }
+
+            if (task.IsSendAll)
+            {
+                result = "发送PLC对位数据中，请稍后再试";
                 return false;
             }
 

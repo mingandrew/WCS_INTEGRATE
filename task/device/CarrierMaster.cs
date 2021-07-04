@@ -1613,7 +1613,7 @@ namespace task.device
 
             if (task.IsResetWriting)
             {
-                res = "初始化中，请稍后再试";
+                res = "初始化中，请5秒后再操作";
                 return false;
             }
 
