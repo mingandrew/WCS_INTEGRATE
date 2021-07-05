@@ -84,6 +84,7 @@ namespace socket.tcp
                 catch (Exception e)
                 {
                     _mLog.Error(true, e.StackTrace);
+                    Reconnect();
                 }
             }
         }

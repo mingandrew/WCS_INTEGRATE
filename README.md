@@ -548,3 +548,13 @@ INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`
 > 
 > UPDATE `config_tilelifter` SET `now_good_all` = b'1';
 > ```
+
+
+
+## 2021.07.05 更新上砖设定品种数量的报警信息
+
+```mysql
+UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'Warning37', `name` = '当前品种设定的上砖数量为零', `int_value` = NULL, `bool_value` = NULL, `string_value` = '当前品种设定的上砖数量为零,请执行转产操作', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 237;
+
+```
+
