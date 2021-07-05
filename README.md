@@ -547,6 +547,7 @@ INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`
 > ALTER TABLE `config_tilelifter` ADD COLUMN `pre_good_all` bit(1) NULL COMMENT '预约使用全部库存-不限制库存数量' AFTER `now_good_all`;
 > 
 > UPDATE `config_tilelifter` SET `now_good_all` = b'1';
+> UPDATE `config_tilelifter` SET `pre_good_all` = b'1';
 > ```
 
 
