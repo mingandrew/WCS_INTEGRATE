@@ -3357,7 +3357,7 @@ namespace resource.goods
         /// <returns></returns>
         public uint GetLastStockGid(uint traid)
         {
-            return GetTrackButtomStock(traid)?.id ?? 0;
+            return GetTrackButtomStock(traid)?.goods_id ?? 0;
             //List<Stock> list = StockList.FindAll(c => c.track_id == traid);
             //if (list.Count > 0)
             //{
