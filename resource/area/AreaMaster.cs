@@ -696,6 +696,17 @@ namespace resource.area
             return "";
         }
 
+        /// <summary>
+        /// 获取区域线路类型
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public LineTypeE GetLineType(uint areaid, ushort line)
+        {
+            return LineList.Find(c => c.area_id == areaid && c.line == line)?.LineType ?? LineTypeE.窑后;
+        }
+
         public bool IsSortTaskLimit(uint area, ushort line, int count)
         {
             if (line == 0)

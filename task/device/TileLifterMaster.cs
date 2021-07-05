@@ -986,7 +986,6 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
                         task.Do1Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -994,7 +993,6 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_1))
                         {
-                            Thread.Sleep(1000);
                             task.Do1Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1029,7 +1027,6 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
                         task.Do2Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1037,7 +1034,6 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_2))
                         {
-                            Thread.Sleep(1000);
                             task.Do2Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1066,7 +1062,6 @@ namespace task.device
                 {
                     if (task.IsEmpty_1 && task.IsInvo_1 && !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id))
                     {
-                        Thread.Sleep(1000);
                         task.Do1Invo(DevLifterInvolE.离开);
                         return;
                     }
@@ -1078,7 +1073,6 @@ namespace task.device
 
                     if (!task.IsInvo_1)
                     {
-                        Thread.Sleep(1000);
                         task.Do1Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1139,7 +1133,6 @@ namespace task.device
 
                     if (!task.IsInvo_1)
                     {
-                        Thread.Sleep(1000);
                         task.Do1Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1148,7 +1141,6 @@ namespace task.device
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
                         if (!brotask.IsInvo_1 && brotask.IsEmpty_1 && brotask.ConnStatus == SocketConnectStatusE.通信正常)
                         {
-                            Thread.Sleep(1000);
                             brotask.Do1Invo(DevLifterInvolE.介入);
                             return;
                         }
@@ -1181,6 +1173,7 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.品种作业:
+                            case DevWorkTypeE.混砖作业:
                                 TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id, task.Line);
                                 break;
                             case DevWorkTypeE.轨道作业:
@@ -1216,7 +1209,6 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
                         task.Do1Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1224,7 +1216,6 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_1))
                         {
-                            Thread.Sleep(1000);
                             task.Do1Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1244,7 +1235,6 @@ namespace task.device
                 {
                     if (task.IsEmpty_2 && task.IsInvo_2 && !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id))
                     {
-                        Thread.Sleep(1000);
                         task.Do2Invo(DevLifterInvolE.离开);
                         return;
                     }
@@ -1257,7 +1247,6 @@ namespace task.device
 
                     if (!task.IsInvo_2)
                     {
-                        Thread.Sleep(1000);
                         task.Do2Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1317,7 +1306,6 @@ namespace task.device
 
                     if (!task.IsInvo_2)
                     {
-                        Thread.Sleep(1000);
                         task.Do2Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1326,7 +1314,6 @@ namespace task.device
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
                         if (!brotask.IsInvo_2 && brotask.IsEmpty_2 && brotask.ConnStatus == SocketConnectStatusE.通信正常)
                         {
-                            Thread.Sleep(1000);
                             brotask.Do2Invo(DevLifterInvolE.介入);
                             return;
                         }
@@ -1359,6 +1346,7 @@ namespace task.device
                         switch (task.WorkType)
                         {
                             case DevWorkTypeE.品种作业:
+                            case DevWorkTypeE.混砖作业:
                                 TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id, task.Line);
                                 break;
                             case DevWorkTypeE.轨道作业:
@@ -1399,7 +1387,6 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
                         task.Do2Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1407,7 +1394,6 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_2))
                         {
-                            Thread.Sleep(1000);
                             task.Do2Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -2100,7 +2086,6 @@ namespace task.device
                     if (brotask.IsNeed_1) return false;
                     if (!brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1))
                     {
-                        Thread.Sleep(1000);
                         brotask.Do1Invo(DevLifterInvolE.介入);
                     }
                     return brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1);
@@ -2109,7 +2094,6 @@ namespace task.device
                 if (!brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2))
                 {
                     if (brotask.IsNeed_2) return false;
-                    Thread.Sleep(1000);
                     brotask.Do2Invo(DevLifterInvolE.介入);
                 }
                 return brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2);

@@ -372,6 +372,34 @@ namespace task.trans.transtask
                             }
                             else
                             {
+                                // 是否可以直接取砖
+                                // 获取库存脉冲
+                                //ushort stkloc = PubMaster.Goods.GetStockLocation(trans.stock_id);
+                                //if (stkloc == 0)
+                                //{
+                                //    // 先回轨道头再靠光电取
+                                //    if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                                //    && PubTask.Carrier.GetCurrentPoint(trans.carrier_id) < track.limit_point_up)
+                                //    {
+                                //        #region 【任务步骤记录】
+                                //        _M.LogForCarrierToTrack(trans, track.id);
+                                //        #endregion
+
+                                //        //前进至点
+                                //        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //        {
+                                //            Order = DevCarrierOrderE.定位指令,
+                                //            CheckTra = track.ferry_down_code,
+                                //            OverPoint = track.limit_point_up,
+                                //            ToTrackId = track.id
+                                //        });
+                                //    }
+                                //}
+
+                                // 不可以的话就先定位到该库存取砖范围（±10脉冲），再执行取砖指令
+
+                                // 最后上摆渡
+
                                 //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
                                 if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true))
                                 {

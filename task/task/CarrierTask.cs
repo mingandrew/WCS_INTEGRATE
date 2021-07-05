@@ -619,7 +619,7 @@ namespace task.device
             {
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X3, (ushort)ID, 2);
 
-                PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车取砖无砖");
+                //PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车取砖无砖");
 
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
@@ -665,7 +665,7 @@ namespace task.device
             {
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA2X6, (ushort)ID, 2);
 
-                PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车倒库无砖");
+                //PubMaster.Track.AddTrackLog((ushort)AreaId, ID, CurrentTrackId, TrackLogE.空轨道, Device.name + "运输车倒库无砖");
 
                 //1.将大于运输车当前坐标值的库存的实际坐标值删除掉
                 //2.判断是否还有库存，没有则轨道状态变为空
