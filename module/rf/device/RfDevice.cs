@@ -1,4 +1,5 @@
-﻿using module.device;
+﻿using enums;
+using module.device;
 using module.deviceconfig;
 
 namespace module.rf.device
@@ -19,7 +20,6 @@ namespace module.rf.device
         public uint old_goodid { set; get; }//旧品种ID
         public uint pre_goodid { set; get; }//预设品种ID
 
-
         private void CopyValue(Device dev)
         {
             id = dev.id;
@@ -33,9 +33,39 @@ namespace module.rf.device
             area = dev.area;
         }
 
+        private void CopyValue(Device dev,ConfigTileLifter config)
+        {
+            id = dev.id;
+            name = dev.name;
+            if (dev.Type == DeviceTypeE.砖机)
+            {
+                switch (config.WorkMode)
+                {
+                    case TileWorkModeE.上砖:
+                        type = (byte)DeviceTypeE.上砖机;
+                        break;
+                    case TileWorkModeE.下砖:
+                        type = (byte)DeviceTypeE.下砖机;
+                        break;
+                }
+            }
+            else
+            {
+            type = dev.type;
+            }
+            type2 = dev.type2;
+            enable = dev.enable;
+            att1 = dev.att1;
+            att2 = dev.att2;
+            memo = dev.memo;
+            area = dev.area;
+        }
+
+
+
         public RfDevice(Device dev, ConfigTileLifter config)
         {
-            CopyValue(dev);
+            CopyValue(dev,config);
             goods_id = config.goods_id;
             old_goodid = config.old_goodid;
             pre_goodid = config.pre_goodid;

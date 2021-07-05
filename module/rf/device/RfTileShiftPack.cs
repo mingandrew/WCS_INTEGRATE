@@ -15,17 +15,34 @@ namespace module.rf.device
             {
                 TileShift = new List<RfTileGoodPack>();
             }
-
-            TileShift.Add(new RfTileGoodPack()
+            if (dev.Type == DeviceTypeE.砖机)
             {
-                tile_id = dev.id,
-                area = dev.area,
-                type = dev.type,
-                good_id = cfg.goods_id,
-                oldgood_id = cfg.old_goodid,
-                pregood_id = cfg.pre_goodid,
-                shiftstatus = status
-            });
+                TileShift.Add(new RfTileGoodPack()
+                {
+                    tile_id = dev.id,
+                    area = dev.area,
+                    type = (cfg.WorkMode == TileWorkModeE.上砖)?(byte)DeviceTypeE.上砖机:(byte)DeviceTypeE.下砖机,
+                    good_id = cfg.goods_id,
+                    oldgood_id = cfg.old_goodid,
+                    pregood_id = cfg.pre_goodid,
+                    shiftstatus = status
+                });
+            }
+            else
+            {
+                TileShift.Add(new RfTileGoodPack()
+                {
+                    tile_id = dev.id,
+                    area = dev.area,
+                    type = dev.type,
+                    good_id = cfg.goods_id,
+                    oldgood_id = cfg.old_goodid,
+                    pregood_id = cfg.pre_goodid,
+                    shiftstatus = status
+                });
+            }
+
+
         }
     }
 }

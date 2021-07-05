@@ -974,6 +974,7 @@ namespace task.rf
                 mDicPack.AddEnum(typeof(DevCarrierCmdE), "运输车指令", nameof(DevCarrierCmdE));
                 mDicPack.AddEnum(typeof(DevCarrierPositionE), "运输车位置", nameof(DevCarrierPositionE));
                 mDicPack.AddEnum(typeof(DevCarrierOrderE), "运输车指令", nameof(DevCarrierOrderE));
+                mDicPack.AddEnum(typeof(RfDevCarrierTaskE), "平板运输车任务", nameof(RfDevCarrierTaskE));
 
                 mDicPack.AddEnum(typeof(DevFerryStatusE), "摆渡车状态", nameof(DevFerryStatusE));
                 mDicPack.AddEnum(typeof(DevFerryLoadE), "摆渡车载车状态", nameof(DevFerryLoadE));
@@ -1570,6 +1571,10 @@ namespace task.rf
         private void QueryDeviceInType(string MEID, List<DeviceTypeE> tlist, ref RfDevicePack pack)
         {
             List<Device> devices = new List<Device>();
+            if (tlist.Contains(DeviceTypeE.上砖机)||tlist.Contains(DeviceTypeE.下砖机))
+            {
+                tlist.Add(DeviceTypeE.砖机);
+            }
             if (IsClientFilterArea(MEID, out List<uint> areaids))
             {
                 devices.AddRange(PubMaster.Device.GetDevices(tlist, areaids));
@@ -1586,6 +1591,13 @@ namespace task.rf
                     case DeviceTypeE.砖机:
                     case DeviceTypeE.上砖机:
                     case DeviceTypeE.下砖机:
+                        if (item.Type == DeviceTypeE.砖机)
+                        {
+                            if (PubMaster.DevConfig.GetTileWorkMode(item.id) == TileWorkModeE.过砖 || PubMaster.DevConfig.GetTileWorkMode(item.id) == TileWorkModeE.无)
+                            {
+                                continue;
+                            } 
+                        }
                         pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
                         break;
                     case DeviceTypeE.上摆渡:
@@ -2013,6 +2025,7 @@ namespace task.rf
 
             List<DeviceTypeE> tlist = new List<DeviceTypeE>();
             GetDevType(msg.Pack.Data, ref tlist);
+            tlist.Add(DeviceTypeE.砖机);
             if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
                 foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids, tlist))
