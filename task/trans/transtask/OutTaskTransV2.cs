@@ -2,7 +2,6 @@
 using enums.track;
 using enums.warning;
 using module.goods;
-using module.track;
 using resource;
 using System.Collections.Generic;
 using task.device;
@@ -104,6 +103,7 @@ namespace task.trans.transtask
                 return;
             }
 
+            //锁定摆渡车
             if (trans.take_ferry_id != 0
                 && !trans.IsReleaseTakeFerry
                 && !PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id))
@@ -111,26 +111,50 @@ namespace task.trans.transtask
                 return;
             }
 
-            #region[分配摆渡车]
-            //还没有分配取货过程中的摆渡车
-            if (trans.take_ferry_id == 0 && !trans.IsReleaseTakeFerry)
-            {
-                string msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
-
-                #region 【任务步骤记录】
-                if (_M.LogForTakeFerry(trans, msg)) return;
-                #endregion
-            }
-            #endregion
-
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             tileemptyneed = PubTask.TileLifter.IsHaveEmptyNeed(trans.tilelifter_id, trans.give_track_id);
+
+            #region[分配摆渡车]
+
+            //分配摆渡车的情况
+            //开始分配
+            //  1.未在取砖轨道
+            //  2.在取砖轨道取到砖
+            //释放分配
+            //  1.在取砖轨道取砖(位置小于取砖轨道定位点)【取砖流程】
+            //  2.在砖机轨道停止位停止【放砖流程】
+
+            //无取砖摆渡车
+            //不在取砖轨道
+            //在取砖轨道，但无货并且无取砖任务
+            if (trans.take_ferry_id ==0 
+                &&(track.id != trans.take_track_id
+                        ||  (isnotload && !PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.取砖指令))))
+            {
+                if (!trans.HaveTakeFerry)
+                {
+                    AllocateTakeFerry(trans, DeviceTypeE.上摆渡, track, out isfalsereturn);
+                    if (isfalsereturn) return;
+                }
+            }
+
+            //在取砖轨道取到货
+            if (track.id == trans.take_track_id && isload)
+            {
+                if (!trans.HaveGiveFerry)
+                {
+                    AllocateGiveFerry(trans, DeviceTypeE.上摆渡, track, out isfalsereturn);
+                }
+            }
+
+            #endregion
 
             switch (track.Type)
             {
                 #region[小车在储砖轨道]
 
+                #region[储砖_出]
                 case TrackTypeE.储砖_出:
 
                     //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
@@ -248,7 +272,9 @@ namespace task.trans.transtask
                         }
                     }
                     break;
+                #endregion
 
+                #region[储砖_出入]
                 case TrackTypeE.储砖_出入:
                     if (!tileemptyneed
                         && PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
@@ -269,6 +295,20 @@ namespace task.trans.transtask
 
                         if (isnotload)
                         {
+                            #region[释放摆渡车]
+
+                            // 在取砖轨道，但是没货则是否取砖摆渡车
+                            if(GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line))
+                            {
+                                if (trans.HaveTakeFerry
+                                    && PubTask.Carrier.IsCarrierSmallerSite(trans.carrier_id, trans.take_track_id, track.rfid_2))
+                                {
+                                    RealseTakeFerry(trans);
+                                }
+                            }
+
+                            #endregion
+
                             // 取砖轨道改为优先清空轨道
                             uint take = PubTask.TileLifter.GetTileCurrentTake(trans.tilelifter_id);
                             if (take != 0 && take != trans.take_track_id)
@@ -365,6 +405,7 @@ namespace task.trans.transtask
                         }
                     }
                     break;
+                #endregion
 
                 #endregion
 
@@ -636,11 +677,8 @@ namespace task.trans.transtask
             {
                 if (trans.give_ferry_id == 0)
                 {
-                    string msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, true);
-
-                    #region 【任务步骤记录】
-                    if (_M.LogForGiveFerry(trans, msg)) return;
-                    #endregion
+                    AllocateGiveFerry(trans, DeviceTypeE.上摆渡, track, out isfalsereturn);
+                    if (isfalsereturn) return;
                 }
                 else if (!PubTask.Ferry.TryLock(trans, trans.give_ferry_id, track.id))
                 {
@@ -663,6 +701,7 @@ namespace task.trans.transtask
                         if(!trans.IsReleaseGiveFerry
                             && PubTask.Carrier.IsCarrierStockInTileSite(trans.carrier_id, trans.tilelifter_id, trans.give_track_id))
                         {
+                            RealseGiveFerry(trans);
                             if (!trans.IsReleaseGiveFerry
                                   && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
                                   && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
@@ -739,7 +778,7 @@ namespace task.trans.transtask
                 case TrackTypeE.摆渡车_出:
                     if (isload)
                     {
-                        if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
+                        if (PubTask.Ferry.IsLoad(trans.give_ferry_id)
                             && PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
                         {
                             PubMaster.Goods.MoveStock(trans.stock_id, track.id);
@@ -765,7 +804,7 @@ namespace task.trans.transtask
                             {
                                 //摆渡车 定位去 卸货点
                                 //小车到达摆渡车后短暂等待再开始定位
-                                if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                                if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
                                 {
                                     #region 【任务步骤记录】
                                     _M.LogForFerryMove(trans, trans.take_ferry_id, trans.give_track_id, res);

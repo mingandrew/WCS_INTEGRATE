@@ -21,6 +21,7 @@ namespace task.trans.transtask
         internal uint ferryTraid;
         internal string res = "", result = "";
         internal uint carrierid;
+        internal bool allocatakeferry, allocagiveferry, isfalsereturn;
         
         public BaseTaskTrans(TransMaster trans)
         {
@@ -31,12 +32,16 @@ namespace task.trans.transtask
         internal void Clearn()
         {
             track = null;
+            takeTrack = null;
             isload = false;
             isnotload = false;
             tileemptyneed = false;
+            ftask = false;
             ferryTraid = 0;
-            res = "";
             carrierid = 0;
+            allocatakeferry = false;
+            allocagiveferry = false;
+            res = "";
         }
         
         /// <summary>
@@ -255,6 +260,96 @@ namespace task.trans.transtask
             return haveintrack;
         }
 
+        #endregion
+
+        #region[分配摆渡车]
+
+        /// <summary>
+        /// 分配取货摆渡车
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="ferrytype"></param>
+        /// <param name="track"></param>
+        /// <param name="isfalsereturn"></param>
+        public void AllocateTakeFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, out bool isfalsereturn)
+        {
+            if (trans.take_ferry_id == 0
+               && !trans.IsReleaseTakeFerry)
+            {
+                string msg = _M.AllocateFerry(trans, ferrytype, track, false);
+
+                #region 【任务步骤记录】
+                if (_M.LogForTakeFerry(trans, msg))
+                {
+                    isfalsereturn = true;
+                    return;
+                }
+                #endregion
+            }
+            isfalsereturn = false;
+        }
+
+
+        /// <summary>
+        /// 分配放货摆渡车
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="ferrytype"></param>
+        /// <param name="track"></param>
+        /// <param name="isfalsereturn"></param>
+        public void AllocateGiveFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, out bool isfalsereturn)
+        {
+            if (trans.give_ferry_id == 0
+               && !trans.IsReleaseGiveFerry)
+            {
+                string msg = _M.AllocateFerry(trans, ferrytype, track, true);
+
+                #region 【任务步骤记录】
+                if (_M.LogForGiveFerry(trans, msg))
+                {
+                    isfalsereturn = true;
+                    return;
+                }
+                #endregion
+            }
+            isfalsereturn = false;
+        }
+
+        #endregion
+
+        #region[完全释放摆渡车]
+
+        /// <summary>
+        /// 释放取货摆渡车
+        /// </summary>
+        /// <param name="trans"></param>
+        public void RealseTakeFerry(StockTrans trans)
+        {
+            if (!trans.IsReleaseTakeFerry
+                && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
+                && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
+            {
+                _M.FreeTakeFerry(trans);
+
+                trans.take_ferry_id = 0;
+            }
+        }
+
+        /// <summary>
+        /// 是否送货摆渡车
+        /// </summary>
+        /// <param name="trans"></param>
+        public void RealseGiveFerry(StockTrans trans)
+        {
+            if (!trans.IsReleaseGiveFerry
+                && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
+                && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
+            {
+                _M.FreeGiveFerry(trans);
+
+                trans.give_ferry_id = 0;
+            }
+        }
         #endregion
     }
 }

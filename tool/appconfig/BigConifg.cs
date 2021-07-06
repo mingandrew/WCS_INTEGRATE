@@ -12,6 +12,11 @@ namespace tool.appconfig
         public static readonly string FileName = $"\\BigConifg.json";
         public static readonly string SavePath = $"{Path}{FileName}";
 
+        /// <summary>
+        /// 车辆转移服务检测超时任务时间
+        /// </summary>
+        public int MoveCarWaitOverTime { set; get; } = 60;
+        
         public List<BigConfigItem> BigConfigList { set; get; } = new List<BigConfigItem>();
 
         /// <summary>

@@ -149,6 +149,21 @@ namespace simtask
         {
             DevStatus.CurrentSite = site;
             NowTrack = track;
+            switch (NowTrack.Type)
+            {
+                case TrackTypeE.上砖轨道:
+                case TrackTypeE.下砖轨道:
+                case TrackTypeE.储砖_入:
+                case TrackTypeE.储砖_出:
+                case TrackTypeE.储砖_出入:
+                    DevStatus.Position = DevCarrierPositionE.在轨道上;
+                    break;
+                case TrackTypeE.摆渡车_入:
+                case TrackTypeE.摆渡车_出:
+
+                    DevStatus.Position = DevCarrierPositionE.在摆渡上;
+                    break;
+            }
         }
 
 
@@ -396,7 +411,7 @@ namespace simtask
                                 }
                                 break;
                             case DevCarrierLoadE.无货:
-                                if (mTimer.IsTimeUp("ToErrorLoad", 1))
+                                if (mTimer.IsTimeUp("ToErrorLoad", 30))
                                 {
                                     DevStatus.LoadStatus = DevCarrierLoadE.异常;
                                 }
