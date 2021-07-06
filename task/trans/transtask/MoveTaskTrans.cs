@@ -318,13 +318,13 @@ namespace task.trans.transtask
                         {
                             string msg = "";
                             //分配下摆渡车
-                            if (PubTask.Carrier.IsCarrierInTrackSmallerSite(trans.carrier_id, track.id)
+                            if (PubTask.Carrier.IsCarrierInTrackSmallerRfID1(trans.carrier_id, track.id)
                                 && !PubTask.Carrier.ExistCarBehind(trans.carrier_id, track.id))
                             {
                                 msg = _M.AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
                             }
                             //分配上摆渡车
-                            else if (PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, track.id)
+                            else if (PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, track.id)
                                 && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                             {
                                 msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);

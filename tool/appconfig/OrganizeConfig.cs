@@ -12,27 +12,36 @@ namespace tool.appconfig
         public static readonly string FileName = $"\\OrganizeConfig.json";
         public static readonly string SavePath = $"{Path}{FileName}";
 
-        public List<OrganizeCar> CarIds { set; get; } = new List<OrganizeCar>();
+        public List<OrganizeSet> OrgList { set; get; } = new List<OrganizeSet>();
 
         /// <summary>
         /// 获取区域里面配置的可库存整理车辆
         /// </summary>
         /// <param name="areaid"></param>
         /// <returns></returns>
-        public List<OrganizeCar> GetOrganizeCarIds(uint areaid)
+        public List<OrganizeSet> GetOrganizeCarIds(uint areaid, ushort lineid)
         {
-            return CarIds.FindAll(c => c.Area_ID == areaid);
+            return OrgList.FindAll(c => c.Area_ID == areaid && c.Line_ID == lineid);
         }
 
-        public bool IsCarSet(uint devid)
-        {
-            return CarIds.Exists(c => c.Car_ID == devid);
-        }
     }
 
-    public class OrganizeCar
+    public class OrganizeSet
     {
+        /// <summary>
+        /// 区域ID
+        /// </summary>
         public uint Area_ID { set; get; }
-        public uint Car_ID { set; get; }
+
+        /// <summary>
+        /// 线路ID
+        /// </summary>
+        public ushort Line_ID { set; get; }
+
+        /// <summary>
+        /// 库存间隔
+        /// </summary>
+        public ushort Stock_Space { set; get; } = 250;
+
     }
 }

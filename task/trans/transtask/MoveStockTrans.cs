@@ -1,6 +1,7 @@
 ﻿using enums;
 using enums.track;
 using module.goods;
+using module.track;
 using resource;
 using System.Collections.Generic;
 using task.device;
@@ -18,48 +19,6 @@ namespace task.trans.transtask
         public MoveStockTrans(TransMaster trans) : base(trans)
         {
 
-        }
-
-        private bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid)
-        {
-            CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
-            bool haveintrack = PubTask.Carrier.HaveDifTypeInTrack(trackid, carrier, out uint carrierid);
-
-            if (!haveintrack)
-            {
-                bool havecar = PubTask.Carrier.HaveInTrack(trackid, out carrierid);
-                if (havecar)
-                {
-                    List<OrganizeCar> allowcars = GlobalWcsDataConfig.OrganizeConfig.GetOrganizeCarIds(trans.area_id);
-                    if(!allowcars.Exists(c=>c.Car_ID == carrierid))
-                    {
-                        haveintrack = true;
-                    }
-                }
-            }
-
-            if (haveintrack &&  !_M.HaveCarrierInTrans(carrierid))
-            {
-                if (PubTask.Carrier.IsCarrierFree(carrierid))
-                {
-                    if (PubTask.Carrier.IsLoad(carrierid))
-                    {
-                        //下降放货
-                        PubTask.Carrier.DoOrder(carrierid, trans.id, new CarrierActionOrder()
-                        {
-                            Order = DevCarrierOrderE.放砖指令
-                        }, "库存转移下降放货");
-                    }
-                    else
-                    {
-                        //转移到同类型轨道
-                        TrackTypeE tracktype = PubMaster.Track.GetTrackType(trackid);
-                        _M.AddMoveCarrierTask(trackid, carrierid, tracktype, MoveTypeE.转移占用轨道);
-                    }
-                }
-            }
-
-            return haveintrack;
         }
 
         /// <summary>
@@ -282,7 +241,56 @@ namespace task.trans.transtask
                         //小车在摆渡车上
                         if (PubTask.Ferry.IsLoad(trans.give_ferry_id))
                         {
-                            PubMaster.Goods.MoveStock(trans.stock_id, track.id);
+                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            {
+                                if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                                {
+                                    #region 【任务步骤记录】
+                                    _M.LogForFerryMove(trans, trans.give_ferry_id, trans.give_track_id, res);
+                                    #endregion
+                                    return;
+                                }
+
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierGive(trans, trans.give_track_id);
+                                #endregion
+
+                                ushort count = 0, loc = 0;
+
+                                //后退放砖
+                                CarrierActionOrder cao = new CarrierActionOrder
+                                {
+                                    Order = DevCarrierOrderE.放砖指令,
+                                    CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id)
+                                };
+
+                                if (loc == 0)
+                                {
+                                    cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id);
+                                    cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
+                                }
+                                else
+                                {
+                                    Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                                    if (givetrack.Type == TrackTypeE.储砖_出入)
+                                    {
+                                        cao.ToRFID = givetrack.rfid_2;
+                                    }
+
+                                    if (givetrack.Type == TrackTypeE.储砖_入)
+                                    {
+                                        cao.ToPoint = givetrack.split_point;
+                                    }
+
+                                    cao.OverRFID = givetrack.rfid_1;
+
+                                    PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
+                                }
+                                cao.ToTrackId = trans.give_track_id;
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
+                                return;
+                            }
+
 
                             //摆渡车 定位去 放货点
                             //小车到达摆渡车后短暂等待再开始定位
@@ -290,6 +298,12 @@ namespace task.trans.transtask
                             {
                                 //后退放砖
                                 //TODO  后退放砖，但是使用脉冲间隔放砖
+
+                                Stock topstock = PubMaster.Goods.GetTrackTopStock(trans.give_track_id);
+                                if(topstock != null)
+                                {
+
+                                }
 
                             }
                         }

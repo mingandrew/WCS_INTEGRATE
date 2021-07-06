@@ -667,7 +667,7 @@ namespace task.trans.transtask
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                 && (trans.give_track_id == track.brother_track_id
                         || (track.id == trans.give_track_id
-                            && !PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))))
+                            && !PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))))
             {
                 #region 【任务步骤记录】
                 _M.LogForCarrierToTrack(trans, trans.give_track_id);
@@ -688,7 +688,7 @@ namespace task.trans.transtask
             // 完成？
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                 && track.id == trans.give_track_id
-                && PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
+                && PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
             {
                 _M.SetStatus(trans, TransStatusE.完成);
             }
@@ -741,7 +741,7 @@ namespace task.trans.transtask
                     });
                 }
 
-                if (PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
+                if (PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
                 {
                     _M.SetCarrier(trans, 0, string.Format("倒库任务暂停，释放小车[ {0} ]", PubMaster.Device.GetDeviceName(trans.carrier_id)));
                 }

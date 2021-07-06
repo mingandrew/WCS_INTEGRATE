@@ -291,6 +291,10 @@ namespace simtask.master
             {
                 #region[查询]
                 case DevLifterCmdTypeE.查询:
+                    if(task.DevStatus.ShiftStatus == TileShiftStatusE.转产中)
+                    {
+                        task.DevStatus.ShiftStatus = TileShiftStatusE.完成;
+                    }
                     break;
                 #endregion
 
@@ -381,6 +385,7 @@ namespace simtask.master
                     switch (cmd.ShiftType)
                     {
                         case TileShiftCmdE.复位:
+                            task.DevStatus.ShiftStatus = TileShiftStatusE.复位;
                             break;
                         case TileShiftCmdE.变更品种:
                             task.DevStatus.SetGoods = cmd.GoodId;
