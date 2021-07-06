@@ -900,7 +900,7 @@ namespace task.device
                         if (task.Type == DeviceTypeE.下砖机 && task.DevConfig.pre_goodid == 0)
                         {
                             //添加默认品种 A,B,C,D,E....
-                            if (!PubMaster.Goods.AddDefaultGood(task.DevConfig.goods_id, out string ad_rs, out uint pgoodid))
+                            if (!PubMaster.Goods.AddDefaultGood(task.DevConfig.id, task.DevConfig.goods_id, out string ad_rs, out uint pgoodid))
                             {
 
                             }

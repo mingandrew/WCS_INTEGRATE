@@ -2130,7 +2130,7 @@ namespace task.rf
                 if (!PubMaster.DevConfig.IsTileHavePreGood(pack.tile_id))
                 {
                     //添加默认品种 A,B,C,D,E....
-                    if (!PubMaster.Goods.AddDefaultGood(pack.good_id, out string ad_rs, out uint pgoodid))
+                    if (!PubMaster.Goods.AddDefaultGood(pack.tile_id, pack.good_id, out string ad_rs, out uint pgoodid))
                     {
                         SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, ad_rs);
                         return;

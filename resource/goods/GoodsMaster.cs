@@ -3285,17 +3285,23 @@ namespace resource.goods
         /// <param name="ad_rs"></param>
         /// <param name="pgoodid"></param>
         /// <returns></returns>
-        public bool AddDefaultGood(uint basegid, out string ad_rs, out uint pgoodid)
+        public bool AddDefaultGood(uint devid, uint basegid, out string ad_rs, out uint pgoodid)
         {
+            string dename = PubMaster.Device.GetDeviceName(devid);
             Goods ngood = GetGoods(basegid);
             Goods notusegood = GetNotUseGood(ngood);
+            if(notusegood == null)
+            {
+                notusegood = GetNotUseGood(ngood, dename+":");
+            }
+
             if (notusegood != null)
             {
                 ad_rs = "";
                 pgoodid = notusegood.id;
                 return true;
             }
-            string naddgname = GetPreAddName();
+            string naddgname = GetPreAddName(dename + ":");
 
             string levelname = PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel, ngood.level);
             Goods pgood = new Goods()
@@ -3320,12 +3326,12 @@ namespace resource.goods
         /// </summary>
         /// <param name="ngood"></param>
         /// <returns></returns>
-        public Goods GetNotUseGood(Goods ngood)
+        public Goods GetNotUseGood(Goods ngood, string devname = "")
         {
             if (ngood == null) return null;
             for (int v = 65; v < 90; v++)
             {
-                string vn = "" + (char)v;
+                string vn = devname + (char)v;
                 if (IsGoodNotUse(vn, ngood.size_id, ngood.level, out Goods good))
                 {
                     return good;
@@ -3348,18 +3354,18 @@ namespace resource.goods
             return false;
         }
 
-        public string GetPreAddName()
+        public string GetPreAddName(string devname = "")
         {
             for (int v = 65; v < 90; v++)
             {
-                string vn = "" + (char)v;
+                string vn = devname + (char)v;
                 if (!IsHaveGoodInName(vn))
                 {
                     return vn;
                 }
             }
 
-            return DateTime.Now.ToString("MM-dd:HH");
+            return devname+DateTime.Now.ToString("MM-dd:HH");
         }
 
         /// <summary>
