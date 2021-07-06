@@ -26,6 +26,7 @@ namespace resource.goods
         {
             _go = new object();
             _so = new object();
+            _sm = new object();
             GoodsList = new List<Goods>();
             StockList = new List<Stock>();
             StockSumList = new List<StockSum>();
@@ -37,6 +38,7 @@ namespace resource.goods
         public void Start()
         {
             Refresh();
+            DelectOverLimitGoods();
         }
 
         public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true, bool refr_4 = true)
@@ -74,7 +76,7 @@ namespace resource.goods
         #endregion
 
         #region[字段]
-        private readonly object _go, _so;
+        private readonly object _go, _so,_sm;
         private List<Goods> GoodsList { set; get; }
         private List<Stock> StockList { set; get; }
         private List<StockSum> StockSumList { set; get; }
@@ -91,6 +93,20 @@ namespace resource.goods
         {
             return GoodsList;
         }
+
+        public List<Goods> GetGoodsListView()
+        {
+            GoodsList.Sort((x, y) =>
+            {
+                return (x.updatetime is DateTime xtime && y.updatetime is DateTime ytime)?ytime.CompareTo(xtime):y.id.CompareTo(x.id);
+            });
+            //Goods good = GoodsList.FindLast(c=>c.id != 0);
+            //int lastindex = GoodsList.IndexOf(good);
+            int limit = PubMaster.Dic.GetDtlIntCode(DicTag.GoodsListLimit);
+            List<Goods> goodviewlist = GoodsList.Where((c, i) => i<limit).ToList();
+            return goodviewlist;
+        }
+
         public List<Goods> GetGoodsList(List<uint> areaids)
         {
             return GoodsList.FindAll(c => areaids.Contains(c.area_id));
@@ -269,6 +285,18 @@ namespace resource.goods
             return StockSumList.FindAll(c => c.area == areaid).ToList();
         }
 
+        /// <summary>
+        /// 获取轨道的库存统计
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public List<StockSum> GetTrackStockSums(uint trackid)
+        {
+            List<StockSum> goodsumlist = StockSumList.FindAll(c => c.track_id == trackid).ToList();
+            goodsumlist.Sort((x, y) => x.CompareProduceTime(y.produce_time));
+            return goodsumlist;
+        }
+             
         public int GetUpStocks(uint trackid)
         {
             int uppoint = PubMaster.Track.GetUpPoint(trackid);
@@ -337,7 +365,7 @@ namespace resource.goods
             List<uint> goodsids = StockList.FindAll(c => c.area == filterarea
                 && (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入) && c.PosType == StockPosE.头部).Select(t => t.goods_id).ToList();
             List<Goods> glist = new List<Goods>();
-            glist.AddRange(GoodsList.FindAll(c => c.area_id == filterarea && (goodsids.Contains(c.id) || c.empty)));
+            glist.AddRange(GoodsList.FindAll(c => goodsids.Contains(c.id) || c.empty));
             return glist;
             //return GoodsList.FindAll(c => c.area_id == filterarea && goodsids.Contains(c.id));
         }
@@ -449,7 +477,7 @@ namespace resource.goods
         /// <param name="memo">备注</param>
         /// <param name="rs">添加结果</param>
         /// <returns></returns>
-        public bool AddTrackStocks(uint tileid, uint trackid, uint goodsid, byte pieces, DateTime? produceTime, byte stockqty, string memo, out string rs)
+        public bool AddTrackStocks(uint tileid, uint trackid, uint goodsid, byte pieces, DateTime? produceTime, byte stockqty, string memo, out string rs, bool isaddbottom = false)
         {
             if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
             {
@@ -516,12 +544,60 @@ namespace resource.goods
                     //手动添加库存并计算脉冲
                     for (int i = 0; i < stockqty; i++)
                     {
-                        StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
-                        builder.Append(StockId + ", ");
-                        if (nextstockloc > 0)
+                        if (isaddbottom)
                         {
-                            UpdateStockLocation(StockId, nextstockloc);
-                            nextstockloc -= safe;
+                            StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                            builder.Append(StockId + ", ");
+                            if (nextstockloc > 0)
+                            {
+                                UpdateStockLocation(StockId, nextstockloc);
+                                nextstockloc -= safe;
+                            }
+                        }
+                        else
+                        {
+                            List<Stock> trackstocklist = StockList.FindAll(c => c.track_id == trackid);
+                            if (trackstocklist != null && trackstocklist.Exists(c => c.goods_id == goodsid))
+                            {
+                                trackstocklist.Sort((x, y) => x.pos.CompareTo(y.pos));
+                                Stock laststock = trackstocklist.FindLast(c => c.track_id == trackid);
+                                if (laststock != null && laststock.goods_id != goodsid)
+                                {
+                                    Stock lastsamestock = trackstocklist.FindLast(c => c.goods_id == goodsid);
+                                    Stock nextstock = trackstocklist.Find(c => c.pos == lastsamestock.pos + 1);
+
+                                    StockId = AddStock(tileid, trackid, laststock.goods_id, (byte)laststock.pieces, laststock.produce_time);
+                                    builder.Append(StockId + ", ");
+                                    if (nextstockloc > 0)
+                                    {
+                                        UpdateStockLocation(StockId, nextstockloc);
+                                        nextstockloc -= safe;
+                                    }
+
+                                    ChangeOneStock(nextstock.id, trackid, goodsid, false, null);
+                                }
+                                else
+                                {
+                                    StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                                    builder.Append(StockId + ", ");
+                                    if (nextstockloc > 0)
+                                    {
+                                        UpdateStockLocation(StockId, nextstockloc);
+                                        nextstockloc -= safe;
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                                builder.Append(StockId + ", ");
+                                if (nextstockloc > 0)
+                                {
+                                    UpdateStockLocation(StockId, nextstockloc);
+                                    nextstockloc -= safe;
+                                }
+                            }
                         }
                     }
 
@@ -894,8 +970,7 @@ namespace resource.goods
         public bool AddGoods(Goods good, out string result, out uint gid)
         {
             gid = 0;
-            if (GoodsList.Exists(c => c.area_id == good.area_id
-                                    && c.size_id == good.size_id
+            if (GoodsList.Exists(c =>  c.size_id == good.size_id
                                     && c.level == good.level
                                     && c.color.Equals(good.color)
                                     && c.name.Equals(good.name)))
@@ -924,6 +999,7 @@ namespace resource.goods
                 PubMaster.Dic.UpdateVersion(DicTag.PDA_GOOD_VERSION);
                 result = "";
                 gid = goodid;
+                DelectOverLimitGoods();
                 return true;
             }
             finally
@@ -949,7 +1025,7 @@ namespace resource.goods
             }
         }
 
-        public bool ChangeStockGood(uint trackid, uint goodid, bool changedate, DateTime? newdate, out string res)
+        public bool ChangeStockGood(uint trackid, uint goodid, bool changedate, DateTime? newdate, out string res, uint oldgoodid = 0)
         {
             res = "";
             if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
@@ -961,8 +1037,15 @@ namespace resource.goods
                     {
                         return false;
                     }
-
-                    List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+                    List<Stock> stocks;
+                    if (oldgoodid > 0)
+                    {
+                        stocks = StockList.FindAll(c => c.track_id == trackid && c.goods_id == oldgoodid);
+                    }
+                    else
+                    {
+                        stocks = StockList.FindAll(c => c.track_id == trackid);
+                    }
                     foreach (Stock stock in stocks)
                     {
                         if (changedate && newdate != null)
@@ -973,7 +1056,7 @@ namespace resource.goods
                         PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Goods);
                     }
 
-                    StockSumChangeGood(trackid, goodid);
+                    StockSumChangeGood(trackid, goodid, oldgoodid);
                     SortSumList();
                     SendTrackStockQtyChangeMsg(trackid);
                     return true;
@@ -1019,7 +1102,7 @@ namespace resource.goods
             return false;
         }
 
-        private void StockSumChangeGood(uint trackid, uint goodid)
+        private void StockSumChangeGood(uint trackid, uint goodid, uint oldgoodid)
         {
             List<StockSum> sums = StockSumList.FindAll(c => c.track_id == trackid);
             if (sums.Count == 1)
@@ -1044,12 +1127,16 @@ namespace resource.goods
 
                 foreach (StockSum sum in sums)
                 {
-                    newsum.count += sum.count;
-                    newsum.pieces += sum.pieces;
-                    newsum.stack += sum.stack;
-                    SendSumMsg(sum, ActionTypeE.Delete);
+                    if (sum.goods_id == oldgoodid)
+                    {
+                        newsum.count += sum.count;
+                        newsum.pieces += sum.pieces;
+                        newsum.stack += sum.stack;
+                        SendSumMsg(sum, ActionTypeE.Delete);
+                    }
+
                 }
-                StockSumList.RemoveAll(c => c.track_id == trackid);
+                StockSumList.RemoveAll(c => c.track_id == trackid && c.goods_id == oldgoodid);
                 StockSumList.Add(newsum);
 
                 SendSumMsg(newsum, ActionTypeE.Add);
@@ -1181,6 +1268,23 @@ namespace resource.goods
             return false;
         }
 
+        public void DelectOverLimitGoods()
+        {
+            GoodsList.Sort((x, y) =>
+            {
+                return (x.updatetime is DateTime xtime && y.updatetime is DateTime ytime) ? ytime.CompareTo(xtime) : y.id.CompareTo(x.id);
+            });
+            int limit = PubMaster.Dic.GetDtlIntCode(DicTag.GoodsListLimit);
+            List<Goods> delectlist = GoodsList.Where((c, i) => i >= limit).ToList();
+            foreach (Goods item in delectlist)
+            {
+                if (DeleteGood(item.id, out string result))
+                {
+                    _mlog.Status(true, string.Format("超出品种数量范围，自动删除[ {0} ]品种", item.info));
+                }
+            }
+        }
+
         #endregion
 
         #region[库存]
@@ -1208,7 +1312,7 @@ namespace resource.goods
                         goods_id = goodid,
                         produce_time = producetime ?? DateTime.Now,
                         stack = stack,
-                        pieces = allpieces, //总片数
+                        pieces = fullqty, //总片数
                         tilelifter_id = tile_id,
                         area = track.area,
                         track_type = track.type
@@ -1226,6 +1330,91 @@ namespace resource.goods
             }
             return 0;
         }
+
+        /// <summary>
+        /// 删除一个库存后，后面库存自动向前补
+        /// </summary>
+        /// <param name="stockid"></param>
+        /// <param name="rs"></param>
+        /// <param name="memo"></param>
+        /// <returns></returns>
+        public bool DeleteStocks(uint stockid,uint trackid,int samelastindex, uint deleteqty ,out string rs ,string memo = "删除库存")
+        {
+            List<Stock> trackstocklist = StockList.FindAll(c => c.track_id == trackid);
+            Stock stock = StockList.Find(c => c.id == stockid);
+            if (stock == null)
+            {
+                rs = "找不到库存记录";
+                return false;
+            }
+
+            if (PubMaster.DevConfig.GetCarrierByStockid(stock.id, out string carname))
+            {
+                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来删除库存！", stock.pos, carname);
+                return false;
+            }
+
+            List<Stock> transtocklist = new List<Stock>();
+            transtocklist.Clear();
+            foreach (Stock item in trackstocklist)
+            {
+                transtocklist.Add(new Stock {
+                    id = item.id,
+                    goods_id = item.goods_id,
+                    pos = item.pos,
+                    location = item.location,
+                    location_cal = item.location_cal,
+                    PosType = item.PosType,
+                });
+            }
+
+            if (samelastindex < (trackstocklist.Count() - 1))
+            {
+                for (int i = samelastindex; i < (trackstocklist.Count() - 1); i++)
+                {
+                    if (i < (trackstocklist.Count() - 1))
+                    {
+                        //short pos = transtocklist[i].pos;
+                        //StockPosE postype = transtocklist[i].PosType;
+                        //ushort location = transtocklist[i].location;
+                        trackstocklist[i + 1].pos = transtocklist[i].pos;
+                        if (trackstocklist[i + 1].PosType != StockPosE.尾部)
+                        {
+                            trackstocklist[i + 1].PosType = transtocklist[i].PosType;
+                        }
+                        //trackstocklist[i + 1].location = transtocklist[i].location;
+                        PubMaster.Mod.GoodSql.EditStock(trackstocklist[i + 1], StockUpE.Pos);
+                        //PubMaster.Mod.GoodSql.EditStock(trackstocklist[i + 1], StockUpE.Location);
+
+                    }
+                }
+                trackstocklist.Remove(stock);
+                StockList.RemoveAll(c => c.track_id == trackid);
+                StockList.AddRange(trackstocklist);
+                PubMaster.Mod.GoodSql.DeleteStock(stock);
+            }
+            else
+            {
+                if (trackstocklist.Count() > 1)
+                {
+                    trackstocklist[samelastindex - 1].PosType = StockPosE.尾部;
+                }
+                trackstocklist.Remove(stock);
+                StockList.RemoveAll(c => c.track_id == trackid);
+                StockList.AddRange(trackstocklist);
+                PubMaster.Mod.GoodSql.DeleteStock(stock);
+            }
+            try
+            {
+                AddStockLog(string.Format("【删除库存】库存[ {0} ], 轨道[ {1} ], 备注[ {2} ]", stock.ToString()
+                    , PubMaster.Track.GetTrackName(stock.track_id)
+                    , memo));
+            }
+            catch { }
+            DelectSumUpdate(stock);
+            rs = "";
+            return true;
+        } 
 
         /// <summary>
         /// 手动删除库存
@@ -2345,6 +2534,38 @@ namespace resource.goods
             }
         }
 
+        private void DelectSumUpdate(Stock stock)
+        {
+            if (Monitor.TryEnter(_sm,TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    StockSum sum = StockSumList.Find(c => c.track_id == stock.track_id && c.goods_id == stock.goods_id);
+                    if (sum != null)
+                    {
+                        sum.count -= 1;
+                        sum.stack -= stock.stack;
+                        sum.pieces -= stock.pieces;
+
+                        if (sum.count == 0)
+                        {
+                            StockSumList.Remove(sum);
+                            SendSumMsg(sum, ActionTypeE.Delete);
+                            return;
+                        }
+
+                        sum.produce_time = StockList.FindAll(c => c.track_id == stock.track_id && c.goods_id == stock.goods_id).Min(c => c.produce_time);
+                        SendSumMsg(sum, ActionTypeE.Update);
+                    }
+                }
+                finally
+                {
+                    Monitor.Exit(_sm);
+                }
+            }
+
+        }
+
         /// <summary>
         /// 判断库存是否是对应的品种
         /// </summary>
@@ -2422,6 +2643,39 @@ namespace resource.goods
             mMsg.o1 = sum;
             mMsg.o2 = type;
             Messenger.Default.Send(mMsg, MsgToken.StockSumeUpdate);
+            GetGoodCountList(0,0);
+        }
+
+        public void GetGoodCountList(uint filterarea, uint filtertype)
+        {
+            List<StockSum> filterlist = new List<StockSum>();
+            if (filterarea == 0 && filtertype == 0)
+            {
+                filterlist = StockSumList;
+            }
+            else if (filterarea != 0 && filtertype == 0)
+            {
+                filterlist = StockSumList.FindAll(c => c.area == filterarea);
+            }
+            else if (filtertype != 0 && filterarea == 0)
+            {
+                filterlist = StockSumList.FindAll(c => c.track_type == filtertype);
+            }
+            else if (filterarea != 0 && filtertype != 0)
+            {
+                filterlist = StockSumList.FindAll(c => c.area == filterarea && c.track_type == filtertype);
+            }
+            if (filterlist == null) return;
+            var list = filterlist.GroupBy(c => new { c.goods_id }).Select(c => new StockSum
+            {
+                goods_id = c.Key.goods_id,
+                count = (uint)c.Sum(b => b.count),
+                stack = (uint)c.Sum(b=>b.stack),
+                pieces = (uint)c.Sum(b => b.pieces),
+                produce_time = c.Min(b => b.produce_time)
+            });
+            List<StockSum> goodcountlist = list.ToList();
+            Messenger.Default.Send(goodcountlist, MsgToken.GoodSumUpdate);
         }
 
         /// <summary>
@@ -2463,7 +2717,12 @@ namespace resource.goods
                     }
                     sum.count = (uint)StockList.Count(c => c.goods_id == gid && c.track_id == trackId);
                     sum.stack = sum.count * (size?.stack ?? 1);
-                    sum.pieces = sum.stack * goods.pieces;
+                    List<Stock> stocklist = StockList.FindAll(c => c.track_id == trackId && c.goods_id == gid);
+                    foreach (Stock item in stocklist)
+                    {
+                        sum.pieces +=(uint) item.stack * item.pieces;
+                    }
+                    //sum.pieces = sum.stack * stocklist.Sum(c => c.pieces);
                     SendSumMsg(sum, ActionTypeE.Update);
                 }
                 SortSumList();
@@ -3146,8 +3405,8 @@ namespace resource.goods
                 name = naddgname,
                 color = naddgname,
                 memo = "自动生成",
-                area_id = ngood.area_id,
-                pieces = ngood.pieces,
+                //area_id = ngood.area_id,
+                //pieces = ngood.pieces,
                 GoodCarrierType = ngood.GoodCarrierType,
                 size_id = ngood.size_id,
                 level = ngood.level,

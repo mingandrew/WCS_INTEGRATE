@@ -5,6 +5,7 @@ namespace enums
     public static class MsgToken
     {
         public const string AllowShow = nameof(AllowShow); //授权显示
+        public const string ActiveTab = nameof(ActiveTab);
 
         public static string LangUpdated = nameof(LangUpdated);
 
@@ -34,6 +35,9 @@ namespace enums
 
         public const string StockSumeUpdate = nameof(StockSumeUpdate);
         public const string TrackStockQtyUpdate = nameof(TrackStockQtyUpdate);
+        public const string GoodSumUpdate = nameof(GoodSumUpdate);
+        public const string SetStockSelectTrack = nameof(SetStockSelectTrack);
+
         public const string TransUpdate = nameof(TransUpdate);
         public const string GoodsUpdate = nameof(GoodsUpdate);
         public const string TaskSwitchUpdate = nameof(TaskSwitchUpdate);

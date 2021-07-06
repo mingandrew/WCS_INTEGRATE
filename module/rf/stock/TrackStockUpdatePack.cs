@@ -10,5 +10,6 @@ namespace module.rf
         public byte AddQty { set; get; }
         public DateTime? ProduceTime { set; get; }
         public bool ChangeDate { set; get; }
+        public byte Pieces { set; get; }
     }
 }

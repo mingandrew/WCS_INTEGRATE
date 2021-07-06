@@ -188,11 +188,11 @@ namespace wcs.ViewModel
         /// </summary>
         private bool CheckAndAdd()
         {
-            if(SelectArea == null)
-            {
-                Growl.Warning("请选择区域");
-                return false;
-            }
+            //if(SelectArea == null)
+            //{
+            //    Growl.Warning("请选择区域");
+            //    return false;
+            //}
 
             if (string.IsNullOrEmpty(Name))
             {
@@ -202,8 +202,7 @@ namespace wcs.ViewModel
 
             if (string.IsNullOrEmpty(Color))
             {
-                Growl.Info("色号不能为空！");
-                return false;
+                color = "1";
             }
 
             if(size_id == 0)
@@ -212,11 +211,11 @@ namespace wcs.ViewModel
                 return false;
             }
 
-            if(Pieces == 0)
-            {
-                Growl.Warning("请输入满砖数！");
-                return false;
-            }
+            //if(Pieces == 0)
+            //{
+            //    Growl.Warning("请输入满砖数！");
+            //    return false;
+            //}
 
             if(SelectLevel == null)
             {
@@ -231,7 +230,7 @@ namespace wcs.ViewModel
                 color = color,
                 memo = Memo,
                 area_id = SelectArea.id,
-                pieces = Pieces,
+                //pieces = Pieces,
                 GoodCarrierType = CarrierType,
                 size_id = size_id,
                 level = (byte)SelectLevel.int_value,

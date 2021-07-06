@@ -26,6 +26,7 @@ namespace wcs.ViewModel
             AreaRadio = PubMaster.Area.GetAreaRadioList(true);
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.GoodsUpdate, GoodsUpdate);
+
             InitView();
 
             GoodListView = System.Windows.Data.CollectionViewSource.GetDefaultView(List);
@@ -95,6 +96,10 @@ namespace wcs.ViewModel
                     {
                         view = new GoodsView(goods);
                         List.Add(view);
+                        List.Sort((x, y) =>
+                        {
+                            return (x.UpdateTime is DateTime xtime && y.UpdateTime is DateTime ytime) ? ytime.CompareTo(xtime) : y.ID.CompareTo(x.ID);
+                        });
                     }
                     switch (type)
                     {
@@ -111,7 +116,7 @@ namespace wcs.ViewModel
             }
         }
 
-        private void InitView()
+        private void InitView(string str = null)
         {
             List.Clear();
             List<Goods> list = PubMaster.Goods.GetGoodsList();
@@ -119,6 +124,20 @@ namespace wcs.ViewModel
             {
                 List.Add(new GoodsView(goods));
             }
+        }
+
+        private void RefreshGoodList(string str)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                List.Clear();
+                List<Goods> list = PubMaster.Goods.GetGoodsList();
+                foreach (Goods goods in list)
+                {
+                    List.Add(new GoodsView(goods));
+                }
+                GoodListView.Refresh();
+            });
         }
 
         bool OnFilterMovie(object item)

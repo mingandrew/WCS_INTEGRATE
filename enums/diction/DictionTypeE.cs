@@ -50,7 +50,7 @@
         public static string TileLifterShiftCount = nameof(TileLifterShiftCount);//下砖机转产差值 层数
         public static string StackPluse = nameof(StackPluse);                              //计算库位置使用的一垛间距
         public static string Pulse2CM = nameof(Pulse2CM);                              //1脉冲=厘米
-
+        public static string GoodsListLimit = nameof(GoodsListLimit);                     //品种列表数量上限
         #endregion
 
         #region[任务逻辑开关]

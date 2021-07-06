@@ -41,6 +41,7 @@ namespace wcs.ViewModel
             MenuList = new ObservableCollection<MenuModel>();
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.OperateGrandUpdate, OperateGrandUpdate);
+            Messenger.Default.Register<string>(this, MsgToken.ActiveTab, SetTabActive);
         }
 
         #region[属性]
@@ -135,6 +136,15 @@ namespace wcs.ViewModel
         #endregion
 
         /// <summary>
+        /// 设置激活的tab
+        /// </summary>
+        /// <param name="tag"></param>
+        private void SetTabActive(string tag)
+        {
+            SideMenuItemSelect(tag);
+        }
+
+        /// <summary>
         /// 按钮菜单切换
         /// </summary>
         /// <param name="tag"></param>
@@ -142,7 +152,6 @@ namespace wcs.ViewModel
         {
             if (!IsExistTab(tag)) return;
             AddTabItem(tag);
-
             Messenger.Default.Send(tag, MsgToken.TabItemSelected);
         }
 

@@ -647,9 +647,9 @@ namespace task.rf
                         return;
                     }
 
-                    byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
+                    //byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
                     if (PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
-                        picese, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs))
+                        pack.Pieces, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.AddTrackStock, "添加成功！");
                     }
@@ -668,6 +668,7 @@ namespace task.rf
                 TrackStockPack pack = new TrackStockPack();
                 pack.TrackId = trackid;
                 pack.AddStocks(PubMaster.Goods.GetStocks(trackid));
+                pack.Stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
 
                 SendSucc2Rf(msg.MEID, FunTag.QueryTrackStock, JsonTool.Serialize(pack));
             }
@@ -1266,16 +1267,8 @@ namespace task.rf
         private void GetGoodsList(RfMsgMod msg)
         {
             GoodsPack gmsg = new GoodsPack();
-            if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
-            {
-                gmsg.AddGoodList(PubMaster.Goods.GetGoodsList(areaids));
-            }
-            else
-            {
-                gmsg.AddGoodList(PubMaster.Goods.GetGoodsList());
-            }
+            gmsg.AddGoodList(PubMaster.Goods.GetGoodsList());
             gmsg.AddGoodSizeList(PubMaster.Goods.GetGoodSizes());
-
             SendSucc2Rf(msg.MEID, FunTag.QueryGoods, JsonTool.Serialize(gmsg));
         }
 
