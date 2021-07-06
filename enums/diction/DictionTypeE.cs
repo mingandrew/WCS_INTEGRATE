@@ -105,6 +105,11 @@
         /// </summary>
         public static string Pulse2CM = nameof(Pulse2CM);
 
+        /// <summary>
+        /// 品种列表数量上限
+        /// </summary>
+        public static string GoodsListLimit = nameof(GoodsListLimit);
+
         #endregion
 
         #region[任务逻辑开关]

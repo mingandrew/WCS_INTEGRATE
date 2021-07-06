@@ -137,7 +137,7 @@ namespace wcs.ViewModel
             FilterName = string.Empty;
             List<Goods> list = new List<Goods>();
 
-            list.AddRange(PubMaster.Goods.GetGoodsList(filterareaid));
+            list.AddRange(PubMaster.Goods.GetGoodsList());
             Application.Current.Dispatcher.Invoke(() =>
             {
                 GoodsList.Clear();

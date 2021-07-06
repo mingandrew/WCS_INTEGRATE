@@ -38,7 +38,7 @@
                                          Width="100" Height="40" MinHeight="35" MinWidth="80"
                                          BorderBrush="{StaticResource BorderBrush}"
                                          Background="{StaticResource RegionBrush}"
-                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
+                                         BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" Visibility="Collapsed"/>
                     </DataTemplate>
                 </hc:ButtonGroup.ItemTemplate>
             </hc:ButtonGroup>

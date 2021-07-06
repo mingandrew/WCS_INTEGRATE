@@ -31,6 +31,7 @@ namespace wcs.ViewModel
         private string actiontitle;
         private bool isadd, qtyenable, isinsert;
         private short pos; //插入的位置
+        private bool isaddbottom = false;
         #endregion
 
         #region[属性]
@@ -51,6 +52,12 @@ namespace wcs.ViewModel
         {
             get => stockqty;
             set => Set(ref stockqty, value);
+        }
+
+        public byte Pieces
+        {
+            get => pieces;
+            set => Set(ref pieces, value);
         }
 
         public DateTime? ProduceTime
@@ -82,6 +89,12 @@ namespace wcs.ViewModel
         {
             get => qtyenable;
             set => Set(ref qtyenable, value);
+        }
+
+        public bool IsAddBottom
+        {
+            get => isaddbottom;
+            set => Set(ref isaddbottom, value);
         }
         #endregion
 
@@ -124,7 +137,13 @@ namespace wcs.ViewModel
 
                 if (StockQty <= 0 || StockQty >= 50)
                 {
-                    Growl.Warning("请输入正确范围的数量!");
+                    Growl.Warning("请输入正确范围的车数!");
+                    return;
+                }
+
+                if (Pieces<=0 || Pieces >70)
+                {
+                    Growl.Warning("请输入正确范围的片数!");
                     return;
                 }
 
@@ -150,7 +169,7 @@ namespace wcs.ViewModel
                 }
 
 
-                if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, pieces, ProduceTime, StockQty, "PC添加库存", out string rs))
+                if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, Pieces, ProduceTime, StockQty, "PC添加库存", out string rs, IsAddBottom))
                 {
                     Result.p1 = true;
                 }
@@ -184,14 +203,13 @@ namespace wcs.ViewModel
         /// <param name="gid"></param>
         /// <param name="tid"></param>
         /// <param name="pis"></param>
-        public void SetAddInput(uint gid, uint tid, ushort pis)
+        public void SetAddInput(uint gid, uint tid)
         {
             isadd = true;
             isinsert = false;
             ActionTile = "添加";
             GoodsId = gid;
             TrackId = tid;
-            pieces = (byte)pis;
             QtyEnable = true;
             StockQty = 1;
             ProduceTime = DateTime.Now;
