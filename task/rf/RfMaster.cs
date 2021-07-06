@@ -1753,6 +1753,7 @@ namespace task.rf
             DevTileLifterPack pack = new DevTileLifterPack();
             List<DeviceTypeE> tlist = new List<DeviceTypeE>();
             GetDevType(msg.Pack.Data, ref tlist);
+            tlist.Add(DeviceTypeE.砖机);
             if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
                 foreach (TileLifterTask item in PubTask.TileLifter.GetDevTileLifters(areaids, tlist))
