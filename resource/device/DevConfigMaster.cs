@@ -950,6 +950,7 @@ namespace resource.device
         /// </summary>
         /// <param name="need_id">需要备用的砖机id</param>
         /// <param name="backup_id">备用砖机id</param>
+        /// <param name="frombacktile">是否是来自备用砖机请求</param>
         /// <returns></returns>
         public bool SetBackupTileLifter(uint need_id, uint backup_id, bool frombacktile = true)
         {

@@ -1102,6 +1102,8 @@ namespace task.trans
             result = "";
             ferryTraid = PubTask.Ferry.GetFerryTrackId(ferryid);
 
+            if (ferryid == 0) return false;
+
             if (ferryid != 0 && isnotload && PubTask.Ferry.IsLoad(ferryid))
             {
                 result = "摆渡车载货状态未满足";

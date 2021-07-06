@@ -196,6 +196,15 @@ namespace module.goods
 
             return string.Format("{0}秒", span.Seconds);
         }
+
+        public bool HaveTakeFerry
+        {
+            get => take_ferry_id != 0 && !IsReleaseTakeFerry;
+        }
+        public bool HaveGiveFerry
+        {
+            get => give_ferry_id != 0 && !IsReleaseGiveFerry;
+        }
     }
 
     /// <summary>

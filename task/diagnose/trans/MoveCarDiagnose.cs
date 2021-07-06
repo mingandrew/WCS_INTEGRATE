@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using task.device;
 using task.trans;
+using tool.appconfig;
 using tool.mlog;
 
 namespace task.diagnose.trans
@@ -19,9 +20,13 @@ namespace task.diagnose.trans
     /// </summary>
     public class MoveCarDiagnose : TransBaseDiagnose
     {
+        private int MoveCarWaitOverTime { set; get; } = 20;
+
         public MoveCarDiagnose(TransMaster master) : base(master)
         {
             _mLog = (Log)new LogFactory().GetLog("移动车分析", false);
+
+            MoveCarWaitOverTime = GlobalWcsDataConfig.BigConifg.MoveCarWaitOverTime;
         }
 
         /// <summary>
@@ -37,7 +42,7 @@ namespace task.diagnose.trans
             //1 _ 上砖任务(手动/同侧)/下砖任务(手动/同侧)/倒库任务
             //2 _ 分配设备超时
             List<StockTrans> list = _M.GetTransList()?.FindAll(c => c.NotInType(TransTypeE.移车任务, TransTypeE.其他)
-                                                                                                && c.IsInStatusOverTime(TransStatusE.调度设备, 20)) ?? null;
+                                                                                                && c.IsInStatusOverTime(TransStatusE.调度设备, MoveCarWaitOverTime)) ?? null;
             if (list != null && list.Count > 0)
             {
                 foreach (var trans in list)

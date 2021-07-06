@@ -3648,6 +3648,20 @@ namespace task.device
         }
 
         /// <summary>
+		/// 运输车当前地标是否小于判断的地标
+        /// 不判断是否任务中
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <param name="rfid"></param>
+        /// <returns></returns>
+        internal bool IsCarrierSmallerSite(uint carrier_id, uint track_id, ushort rfid)
+        {
+            return DevList.Exists(c => c.ID == carrier_id && c.CurrentTrackId == track_id && c.CurrentSite <= rfid);
+        }
+
+
+        /// <summary>
         /// 判断小车是否处于轨道地标位置
         /// </summary>
         /// <param name="carrier_id"></param>
