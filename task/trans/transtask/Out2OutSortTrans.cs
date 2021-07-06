@@ -665,7 +665,7 @@ namespace task.trans.transtask
 
             // 任务运输车回到出库轨道头
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                && (track.id == track.brother_track_id
+                && (trans.give_track_id == track.brother_track_id
                         || (track.id == trans.give_track_id
                             && !PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))))
             {
@@ -812,6 +812,8 @@ namespace task.trans.transtask
                 _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
             }
 
+            bool need = PubMaster.Goods.ExistInfrontUpSplitPoint(track.id, nowpoint);
+
             //前面没有库存，继续倒库
             if (upnonestock || onestockcarloadit || nonetileusegood)
             {
@@ -849,7 +851,7 @@ namespace task.trans.transtask
                 //}else
                 #endregion
 
-                if(true)
+                if(need)
                 {
                     byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, nowpoint);
                     byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
