@@ -525,6 +525,7 @@ namespace task.device
 
         #region[执行任务]
 
+
         internal bool TryLock(StockTrans trans, uint ferryid, uint carriertrackid)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
@@ -1414,6 +1415,28 @@ namespace task.device
 
         #region[分配-摆渡车]
 
+        public bool HaveFreeFerryInTrans(StockTrans trans, DeviceTypeE ferrytype, out List<uint> ferryids)
+        {
+            ferryids = new List<uint>();
+            bool have = false;
+            try
+            {
+                //3.1获取能到达[取货/卸货]轨道的摆渡车的ID
+                List<uint> fids = PubMaster.Area.GetFerryWithTrackInOut(ferrytype, trans.area_id, trans.take_track_id, trans.give_track_id, 0, false);
+
+                //3.2摆渡车上是否有车[空闲，无货]
+               have = DevList.Exists(c => fids.Contains(c.ID) && c.IsWorking && c.IsFerryFree() && CheckFerryStatusResult(c,out string _));
+                ferryids.AddRange(fids);
+
+            }catch(Exception e)
+            {
+                mlog.Error(true, e.StackTrace + e.Message);
+            }
+
+            return have;
+        }
+
+
         /// <summary>
         /// 根据交易信息分配摆渡车
         /// 1.取货轨道是否有车
@@ -1956,6 +1979,27 @@ namespace task.device
             }
             catch { }
             return "";
+        }
+
+        /// <summary>
+        /// 获取摆渡车对上的轨道ids
+        /// </summary>
+        /// <param name="fids"></param>
+        /// <returns></returns>
+        internal List<uint> GetInTracks(List<uint> fids)
+        {
+            List<uint> tra = new List<uint>();
+            if (fids == null) return new List<uint>();
+            foreach (var item in fids)
+            {
+                FerryTask task = DevList.Find(c => c.ID == item) ;
+                if (task != null)
+                {
+                    tra.Add(task.GetFerryCurrentTrackId());
+                }
+            }
+
+            return tra;
         }
 
         #endregion
