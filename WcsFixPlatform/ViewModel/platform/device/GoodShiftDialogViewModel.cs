@@ -328,7 +328,7 @@ namespace wcs.ViewModel
                 if (_pregoodsid == 0 && !PubMaster.DevConfig.IsTileHavePreGood(_devid))
                 {
                     //添加默认品种 A,B,C,D,E....
-                    if (!PubMaster.Goods.AddDefaultGood(_goodsid, out string ad_rs, out uint pgoodid))
+                    if (!PubMaster.Goods.AddDefaultGood(_devid, _goodsid, out string ad_rs, out uint pgoodid))
                     {
                         Growl.Info(ad_rs);
                         return;
