@@ -946,8 +946,21 @@ namespace task.device
                         }
                         else
                         {
-                            //结束备用
-                            PubMaster.DevConfig.StopBackupTileLifter(task.ID, task.DevStatus.Load1 || task.DevStatus.Load2);
+                            //结束备用, 备用机有货则转产
+                            bool haveload = task.DevStatus.Load1 || task.DevStatus.Load2;
+                            if (haveload)
+                            {
+                                task.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
+                            }
+
+                            if ((!haveload || task.DevStatus.ReceiveSetFull)
+                                && PubMaster.DevConfig.StopBackupTileLifter(task.ID))
+                            {
+                                if (task.DevStatus.ReceiveSetFull)
+                                {
+                                    task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
+                                }
+                            }
                         }
                     }
                 }
@@ -977,12 +990,24 @@ namespace task.device
                             TileLifterTask backtile = GetTileLifter(task.DevConfig.alter_dev_id);
                             
                             //备用砖机备用了当前普通砖机
-                            if(backtile!=null && backtile.DevConfig.alter_dev_id == task.ID)
+                            if(backtile!=null && backtile.DevConfig.alter_dev_id == task.ID && backtile.DevConfig.WorkMode == TileWorkModeE.下砖)
                             {
                                 //结束备用, 备用机有货则转产
-                                if (PubMaster.DevConfig.StopBackupTileLifter(backtile.ID, backtile.DevStatus.Load1 || backtile.DevStatus.Load2))
+                                bool haveload = backtile.DevStatus.Load1 || backtile.DevStatus.Load2;
+                                if (haveload)
+                                {
+                                    backtile.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
+                                }
+
+                                if ((!haveload  || backtile.DevStatus.ReceiveSetFull)
+                                    && PubMaster.DevConfig.StopBackupTileLifter(backtile.ID))
                                 {
                                     PubMaster.DevConfig.SetNormalTileBackTileId(task.ID, 0);
+
+                                    if (backtile.DevStatus.ReceiveSetFull)
+                                    {
+                                        backtile.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
+                                    }
                                 }
                             }
                         }
@@ -1071,6 +1096,18 @@ namespace task.device
                         }
                     }
                 }
+            }
+
+            #endregion
+
+            #region[设满砖信号自动复位]
+            
+            if(task.DevStatus.ReceiveSetFull 
+                && task.DevConfig.WorkMode == TileWorkModeE.下砖 
+                && mTimer.IsOver("reveivesetfull"+task.ID, 60, 20))
+            {
+                Thread.Sleep(200);
+                task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
             }
 
             #endregion

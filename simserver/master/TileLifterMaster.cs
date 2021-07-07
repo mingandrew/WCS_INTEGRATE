@@ -386,6 +386,7 @@ namespace simtask.master
                     {
                         case TileShiftCmdE.复位:
                             task.DevStatus.ShiftStatus = TileShiftStatusE.复位;
+
                             break;
                         case TileShiftCmdE.变更品种:
                             task.DevStatus.SetGoods = cmd.GoodId;
@@ -405,18 +406,30 @@ namespace simtask.master
                 #region[模式]
                 case DevLifterCmdTypeE.模式:
                     task.DevStatus.WorkMode = cmd.WorkMode;
-                    if (cmd.SetFullType == TileFullE.设为满砖)
+                    switch (cmd.SetFullType)
                     {
-                        if (task.IsGood_1 || task.IsFull_1 || task.DevStatus.Site1Qty >0)
-                        {
-                            task.DevStatus.Need1 = true;
-                        }
+                        case TileFullE.忽略:
+                            if (task.DevStatus.ReceiveSetFull)
+                            {
+                                task.DevStatus.ReceiveSetFull = false;
+                            }
+                            break;
+                        case TileFullE.设为满砖:
+                            if (task.IsGood_1 || task.IsFull_1 || task.DevStatus.Site1Qty > 0)
+                            {
+                                task.DevStatus.Need1 = true;
+                            }
 
-                        if (task.IsGood_2 || task.IsFull_2 || task.DevStatus.Site2Qty > 0)
-                        {
-                            task.DevStatus.Need2 = true;
-                        }
+                            if (task.IsGood_2 || task.IsFull_2 || task.DevStatus.Site2Qty > 0)
+                            {
+                                task.DevStatus.Need2 = true;
+                            }
+
+                            task.DevStatus.ReceiveSetFull = true;
+                            break;
                     }
+
+
                     break;
                 #endregion
 
