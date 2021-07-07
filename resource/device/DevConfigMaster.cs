@@ -752,11 +752,11 @@ namespace resource.device
         /// <returns></returns>
         public bool DoCutover(uint devid, uint goodid, TileWorkModeE nextmode, uint newgoodid, out string result)
         {
-            if (nextmode == TileWorkModeE.补砖)
-            {
-                result = "暂未开放此模式！";
-                return false;
-            }
+            //if (nextmode == TileWorkModeE.补砖)
+            //{
+            //    result = "暂未开放此模式！";
+            //    return false;
+            //}
 
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)

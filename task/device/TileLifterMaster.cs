@@ -1082,6 +1082,11 @@ namespace task.device
 
                     #region[介入]
 
+                    if (task.IsEmpty_1)
+                    {
+                        return;
+                    }
+
                     if (!task.IsInvo_1)
                     {
                         task.Do1Invo(DevLifterInvolE.介入);
@@ -1142,11 +1147,17 @@ namespace task.device
 
                     #region[介入]
 
+                    if (task.IsLoad_1)
+                    {
+                        return;
+                    }
+
                     if (!task.IsInvo_1)
                     {
                         task.Do1Invo(DevLifterInvolE.介入);
                         return;
                     }
+
                     if (task.HaveBrother)
                     {
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
@@ -1257,6 +1268,11 @@ namespace task.device
 
                     #region[介入]
 
+                    if (task.IsEmpty_2)
+                    {
+                        return;
+                    }
+
                     if (!task.IsInvo_2)
                     {
                         task.Do2Invo(DevLifterInvolE.介入);
@@ -1316,11 +1332,17 @@ namespace task.device
 
                     #region[介入]
 
+                    if (task.IsLoad_2)
+                    {
+                        return;
+                    }
+
                     if (!task.IsInvo_2)
                     {
                         task.Do2Invo(DevLifterInvolE.介入);
                         return;
                     }
+
                     if (task.HaveBrother)
                     {
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
