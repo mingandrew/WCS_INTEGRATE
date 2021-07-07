@@ -375,7 +375,9 @@ UPDATE `diction_dtl` SET `name` = '3xx轨道上砖侧码盘数值_定位点=0', 
 UPDATE `diction_dtl` SET `name` = '4xx轨道码盘数值_定位点=0', `string_value` = '4xx轨道码盘数值_定位点=0' WHERE `id` = 124;
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_定位点=0', `string_value` = '5xx轨道码盘数值_定位点=0' WHERE `id` = 125;
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_复位点=0', `string_value` = '5xx轨道码盘数值_复位点=0' WHERE `id` = 126;
-UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘丢转故障，小车移动过程中码盘接近开关超过5秒无信号：1.检查小车是否被卡死无法移动；2.检查码盘接近开关；3.终止可复位' WHERE `id` = 127;
+UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘丢转故障，小车移动过程中码盘接近开关超过5秒无信号：1.检查是否撞车；2.检查刹车是否能正常打开；3.检查模拟量输出模块电压输出是否大于1.5V；4.检查码盘接近开关；检查无误时终止可复位' WHERE `id` = 127;
+
+
 
 
 

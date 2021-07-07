@@ -142,7 +142,7 @@ namespace task.trans.transtask
 
                                 // 摆渡车不到位则到出库轨道头等待
                                 if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                    && PubTask.Carrier.GetCurrentPoint(trans.carrier_id) > track.limit_point)
+                                    && PubTask.Carrier.GetCurrentPoint(trans.carrier_id) > (track.limit_point + 10))
                                 {
                                     #region 【任务步骤记录】
                                     _M.LogForCarrierToTrack(trans, track.id);
