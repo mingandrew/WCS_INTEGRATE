@@ -139,7 +139,7 @@ namespace task.device
 
                             #region 下砖-转产
 
-                            if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
+                            if (task.DevConfig.InWorkMode(TileWorkModeE.下砖, TileWorkModeE.补砖))
                             {
                                 int count = PubMaster.Dic.GetDtlIntCode(DicTag.TileLifterShiftCount);
                                 switch (task.DevStatus.ShiftStatus)
@@ -270,6 +270,15 @@ namespace task.device
                                             break;
 
                                         case TileWorkModeE.下砖: // xxx => 下砖
+                                        case TileWorkModeE.补砖: // xxx => 补砖
+                                            if (task.DevConfig.InWorkMode(TileWorkModeE.下砖, TileWorkModeE.补砖))
+                                            {
+                                                // 直接切换
+                                                task.DoCutover(task.DevConfig.WorkModeNext, TileFullE.忽略);
+                                                Thread.Sleep(1000);
+                                                break;
+                                            }
+
                                             if (!PubTask.Trans.CancelTaskForCutover(task.ID, task.DevConfig.goods_id, out string res))
                                             {
                                                 mlog.Info(true, res);
@@ -279,7 +288,7 @@ namespace task.device
                                             if (task.DevConfig.goods_id == task.DevConfig.pre_goodid ||
                                                 (!task.DevStatus.Load1 && !task.DevStatus.Load2))
                                             {
-                                                task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
+                                                task.DoCutover(task.DevConfig.WorkModeNext, TileFullE.忽略);
                                                 Thread.Sleep(1000);
                                             }
                                             break;
@@ -975,6 +984,7 @@ namespace task.device
                         isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.left_track_id);
                         break;
                     case TileWorkModeE.下砖:
+                    case TileWorkModeE.补砖:
                         isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id);
                         break;
                     default:
@@ -1015,6 +1025,7 @@ namespace task.device
                             isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.right_track_id);
                             break;
                         case TileWorkModeE.下砖:
+                        case TileWorkModeE.补砖:
                             isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id);
                             break;
                         default:
@@ -1058,7 +1069,7 @@ namespace task.device
             {
                 #region[下砖机-满砖]
 
-                if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
+                if (task.DevConfig.InWorkMode(TileWorkModeE.下砖, TileWorkModeE.补砖))
                 {
                     if (task.IsEmpty_1 && task.IsInvo_1 && !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id))
                     {
@@ -1198,6 +1209,7 @@ namespace task.device
                         isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.left_track_id);
                         break;
                     case TileWorkModeE.下砖:
+                    case TileWorkModeE.补砖:
                         isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id);
                         break;
                     default:
@@ -1231,7 +1243,7 @@ namespace task.device
 
                 #region[下砖机-满砖]
 
-                if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
+                if (task.DevConfig.InWorkMode(TileWorkModeE.下砖, TileWorkModeE.补砖))
                 {
                     if (task.IsEmpty_2 && task.IsInvo_2 && !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id))
                     {
@@ -1375,6 +1387,7 @@ namespace task.device
                             isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.right_track_id);
                             break;
                         case TileWorkModeE.下砖:
+                        case TileWorkModeE.补砖:
                             isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id);
                             break;
                         default:
@@ -1440,13 +1453,13 @@ namespace task.device
         /// <returns></returns>
         private bool IsAllowToWorkForCutover(uint goodsid, uint nextgoodsid, TileWorkModeE mode, TileWorkModeE nextmode)
         {
-            if (mode == TileWorkModeE.上砖 && nextmode == TileWorkModeE.下砖)
+            if (mode == TileWorkModeE.上砖 && (nextmode == TileWorkModeE.下砖 || nextmode == TileWorkModeE.补砖))
             {
                 // 上 -> 下 ，直接停止任务
                 return false;
             }
 
-            if (mode == TileWorkModeE.下砖 && nextmode == TileWorkModeE.上砖)
+            if ((mode == TileWorkModeE.下砖 || mode == TileWorkModeE.补砖) && nextmode == TileWorkModeE.上砖)
             {
                 // 下 -> 上，品种一致不拉走，直接等着上
                 if (goodsid == nextgoodsid)

@@ -1,5 +1,6 @@
 ﻿using enums;
 using System;
+using System.Linq;
 
 namespace module.deviceconfig
 {
@@ -197,5 +198,16 @@ namespace module.deviceconfig
         {
             return left_track_point == tracksite || right_track_point == tracksite;
         }
+
+        /// <summary>
+        /// 是否为当前砖机作业模式
+        /// </summary>
+        /// <param name="wm"></param>
+        /// <returns></returns>
+        public bool InWorkMode(params TileWorkModeE[] wm)
+        {
+            return wm.Contains(WorkMode);
+        }
+
     }
 }

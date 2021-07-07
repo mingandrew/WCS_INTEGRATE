@@ -152,9 +152,9 @@ namespace resource.device
         /// <param name="goodid">判断是否相同的品种</param>
         /// <param name="type">进行判断的砖机类型</param>
         /// <returns></returns>
-        public bool IsHaveSameTileNowGood(uint goodid, TileWorkModeE type)
+        public bool IsHaveSameTileNowGood(uint goodid, params TileWorkModeE[] types)
         {
-            return ConfigTileLifterList.Exists(c => c.WorkMode == type && c.goods_id == goodid);
+            return ConfigTileLifterList.Exists(c => types.Contains(c.WorkMode) && c.goods_id == goodid);
         }
 
 
@@ -456,7 +456,8 @@ namespace resource.device
         public void SetDownTileNonWorkTrack(uint tarckid)
         {
             // 根据当前作业轨道获取所有下砖机
-            List<ConfigTileLifter> ctls = ConfigTileLifterList.FindAll(c => c.last_track_id == tarckid && c.WorkMode == TileWorkModeE.下砖);
+            List<ConfigTileLifter> ctls = ConfigTileLifterList.FindAll(c => c.last_track_id == tarckid 
+                    && (c.WorkMode == TileWorkModeE.下砖 || c.WorkMode == TileWorkModeE.补砖));
 
             if (ctls != null && ctls.Count > 0)
             {
@@ -475,7 +476,9 @@ namespace resource.device
         /// <param name="newtrackid"></param>
         private void SetNonWorkTrackId(uint goodsid, uint oldtarckid, uint newtrackid)
         {
-            foreach (ConfigTileLifter ctl in ConfigTileLifterList.FindAll(c => c.goods_id == goodsid && c.non_work_track_id == oldtarckid && c.WorkMode == TileWorkModeE.下砖))
+            foreach (ConfigTileLifter ctl in ConfigTileLifterList.FindAll(c => c.goods_id == goodsid 
+                    && c.non_work_track_id == oldtarckid 
+                    && (c.WorkMode == TileWorkModeE.下砖 || c.WorkMode == TileWorkModeE.补砖)))
             {
                 if (ctl.non_work_track_id != newtrackid)
                 {
@@ -749,6 +752,12 @@ namespace resource.device
         /// <returns></returns>
         public bool DoCutover(uint devid, uint goodid, TileWorkModeE nextmode, uint newgoodid, out string result)
         {
+            if (nextmode == TileWorkModeE.补砖)
+            {
+                result = "暂未开放此模式！";
+                return false;
+            }
+
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {

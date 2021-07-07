@@ -45,6 +45,7 @@ namespace module.rf.device
                         type = (byte)DeviceTypeE.上砖机;
                         break;
                     case TileWorkModeE.下砖:
+                    case TileWorkModeE.补砖:
                         type = (byte)DeviceTypeE.下砖机;
                         break;
                 }

@@ -287,7 +287,7 @@ namespace simtask.master
 
                 #region[介入1]
                 case DevLifterCmdTypeE.介入1:
-                    if(task.DevConfig.WorkMode == TileWorkModeE.下砖)
+                    if(task.DevConfig.InWorkMode(TileWorkModeE.下砖, TileWorkModeE.补砖))
                     {
                         if(cmd.InVolType == DevLifterInvolE.离开)
                         {
@@ -328,7 +328,7 @@ namespace simtask.master
                 #region[介入2]
                 case DevLifterCmdTypeE.介入2:
 
-                    if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
+                    if (task.DevConfig.InWorkMode(TileWorkModeE.下砖, TileWorkModeE.补砖))
                     {
                         if (cmd.InVolType == DevLifterInvolE.离开)
                         {

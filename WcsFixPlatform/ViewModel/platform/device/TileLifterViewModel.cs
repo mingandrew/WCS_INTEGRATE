@@ -232,7 +232,7 @@ namespace wcs.ViewModel
                         break;
 
                     case 10://修改策略
-                        bool isdowntile = PubMaster.DevConfig.IsTileWorkMod(DeviceSelected.ID, TileWorkModeE.下砖);
+                        bool isdowntile = !PubMaster.DevConfig.IsTileWorkMod(DeviceSelected.ID, TileWorkModeE.上砖);
                         MsgAction strategyrs = await HandyControl.Controls.Dialog.Show<ChangeStrategyDialog>()
                             .Initialize<ChangeStrategyDialogViewModel>((vm) =>
                             {

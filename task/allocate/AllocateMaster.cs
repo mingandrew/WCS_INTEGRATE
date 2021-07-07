@@ -116,7 +116,7 @@ namespace task.allocate
                         if (!IsTrackOk4InTrans(traid)) continue;
 
                         lastgoodid = PubMaster.Goods.GetLastStockGid(traid);
-                        if (lastgoodid > 0 && PubMaster.DevConfig.IsHaveSameTileNowGood(lastgoodid, TileWorkModeE.下砖))
+                        if (lastgoodid > 0 && PubMaster.DevConfig.IsHaveSameTileNowGood(lastgoodid, TileWorkModeE.下砖, TileWorkModeE.补砖))
                         {
                             continue;
                         }

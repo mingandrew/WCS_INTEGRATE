@@ -143,9 +143,10 @@ namespace wcs.ViewModel
             switch (workmode)
             {
                 case TileWorkModeE.上砖:
-                    WORKMODE = TileWorkModeE.下砖;
+                    WORKMODE = TileWorkModeE.无;
                     break;
                 case TileWorkModeE.下砖:
+                case TileWorkModeE.补砖:
                     WORKMODE = TileWorkModeE.上砖;
                     break;
                 default:

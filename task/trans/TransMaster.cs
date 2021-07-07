@@ -997,9 +997,7 @@ namespace task.trans
                                         Track nowtrack = PubTask.Carrier.GetCarrierTrack(t.carrier_id);
                                         if (PubTask.Carrier.IsLoad(t.carrier_id)
                                             && (PubTask.Carrier.IsCarrierInTask(t.carrier_id, DevCarrierOrderE.放砖指令))
-                                            && (nowtrack.Type == TrackTypeE.摆渡车_入 ||
-                                                   nowtrack.Type == TrackTypeE.摆渡车_出 ||
-                                                   nowtrack.Type == TrackTypeE.上砖轨道))
+                                            && nowtrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出, TrackTypeE.上砖轨道))
                                         {
                                             result = "运输车正在上砖，不能取消任务！";
                                             return false;

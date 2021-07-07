@@ -839,7 +839,8 @@ namespace task.device
             FerryTask task = DevList.Find(c => c.ID == ferryid);
             try
             {
-                if (!IsAllowToMove(task, to_track_id, out result))
+                // 检查摆渡车状态
+                if (!CheckFerryStatus(task, out result))
                 {
                     return false;
                 }
@@ -890,6 +891,12 @@ namespace task.device
                             result = string.Format("[ {0} ]: 到位执行终止, [ {1} ]", task.Device.name, "定位完成3");
                         }
 
+                        return false;
+                    }
+
+                    // 是否允许移动？
+                    if (!IsAllowToMove(task, to_track_id, out result))
+                    {
                         return false;
                     }
 
