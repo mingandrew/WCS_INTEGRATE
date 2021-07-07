@@ -94,7 +94,7 @@ namespace socket.process
             mDev.NeedSytemShift = st.NeedSytemShift == 1;
             mDev.BackupShiftDev = st.BackupShiftDev;
             mDev.AlertLightStatus = st.AlertLightStatus;
-            mDev.Reserve2 = st.Reserve2;
+            mDev.receivesetfull = st.Reserve2;
             mDev.Reserve3 = st.Reserve3;
             mDev.Reserve4 = st.Reserve4;
             mDev.MarkCode = st.MarkCode;

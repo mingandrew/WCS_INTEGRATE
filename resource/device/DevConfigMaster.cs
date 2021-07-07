@@ -1058,7 +1058,7 @@ namespace resource.device
         /// 备用结束,备用砖机执行转产操作
         /// </summary>
         /// <param name="backup_id"></param>
-        public bool StopBackupTileLifter(uint backup_id, bool doshift)
+        public bool StopBackupTileLifter(uint backup_id, bool doshift =false)
         {
             //备用砖机
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == backup_id);
@@ -1073,16 +1073,16 @@ namespace resource.device
                 }
                 catch { }
 
-                if (doshift)
-                {
-                    if (dev.pre_goodid == 0)
-                    {
-                        //同品种转产
-                        dev.pre_goodid = dev.goods_id;
-                    }
-
-                    UpdateShiftTileGood(backup_id, dev.goods_id, out string _);
-                }
+                //结束备用，不能转产，设满砖
+                //if (doshift)
+                //{
+                //    if (dev.pre_goodid == 0)
+                //    {
+                //        //同品种转产
+                //        dev.pre_goodid = dev.goods_id;
+                //    }
+                //    UpdateShiftTileGood(backup_id, dev.goods_id, out string _);
+                //}
 
                 dev.alter_dev_id = 0;
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Alert_Dev_Id);
