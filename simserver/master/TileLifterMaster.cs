@@ -409,9 +409,9 @@ namespace simtask.master
                     switch (cmd.SetFullType)
                     {
                         case TileFullE.忽略:
-                            if (task.DevStatus.ReceiveSetFull)
+                            if (task.DevStatus.IsReceiveSetFull)
                             {
-                                task.DevStatus.ReceiveSetFull = false;
+                                task.DevStatus.receivesetfull = 0;
                             }
                             break;
                         case TileFullE.设为满砖:
@@ -425,7 +425,7 @@ namespace simtask.master
                                 task.DevStatus.Need2 = true;
                             }
 
-                            task.DevStatus.ReceiveSetFull = true;
+                            task.DevStatus.receivesetfull = 1;
                             break;
                     }
 

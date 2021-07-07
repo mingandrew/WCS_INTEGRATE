@@ -559,10 +559,10 @@ UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'Warning37', `name` = '当�
 
 ```
 
-## 2021.07.07 更新品种数量限制
+## 2021.07.07：更新品种数量限制
 
+```mysql
 INSERT INTO `diction`(`id`, `type`, `valuetype`, `name`, `isadd`, `isedit`, `isdelete`, `authorizelevel`) VALUES (11, 0, 0, '品种列表', b'0', b'1', b'0', 1);
 
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (236, 11, 'GoodsListLimit', '品种列表数量上限', 100, NULL, NULL, NULL, NULL, NULL, '2021-07-06 10:29:17', NULL);
-
-
+```
