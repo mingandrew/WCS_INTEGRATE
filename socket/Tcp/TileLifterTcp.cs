@@ -27,6 +27,15 @@ namespace socket.tcp
 
         public void SendCmd(DevLifterCmdTypeE type, byte value1, byte value2, uint value3)
         {
+            if (type == DevLifterCmdTypeE.查询)
+            {
+                if(DateTime.Now.Subtract(lastfunctime).TotalMilliseconds <= 1000) return;
+            }
+            else
+            {
+                lastfunctime = DateTime.Now;
+            }
+
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try

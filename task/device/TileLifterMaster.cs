@@ -953,10 +953,10 @@ namespace task.device
                                 task.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
                             }
 
-                            if ((!haveload || task.DevStatus.ReceiveSetFull)
-                                && PubMaster.DevConfig.StopBackupTileLifter(task.ID))
+                            if ((!haveload || task.DevStatus.IsReceiveSetFull)
+                                && PubMaster.DevConfig.StopBackupTileLifter(task.ID, haveload))
                             {
-                                if (task.DevStatus.ReceiveSetFull)
+                                if (task.DevStatus.IsReceiveSetFull)
                                 {
                                     task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
                                 }
@@ -999,12 +999,12 @@ namespace task.device
                                     backtile.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
                                 }
 
-                                if ((!haveload  || backtile.DevStatus.ReceiveSetFull)
-                                    && PubMaster.DevConfig.StopBackupTileLifter(backtile.ID))
+                                if ((!haveload  || backtile.DevStatus.IsReceiveSetFull)
+                                    && PubMaster.DevConfig.StopBackupTileLifter(backtile.ID, haveload))
                                 {
                                     PubMaster.DevConfig.SetNormalTileBackTileId(task.ID, 0);
 
-                                    if (backtile.DevStatus.ReceiveSetFull)
+                                    if (backtile.DevStatus.IsReceiveSetFull)
                                     {
                                         backtile.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
                                     }
@@ -1102,7 +1102,7 @@ namespace task.device
 
             #region[设满砖信号自动复位]
             
-            if(task.DevStatus.ReceiveSetFull 
+            if(task.DevStatus.IsReceiveSetFull 
                 && task.DevConfig.WorkMode == TileWorkModeE.下砖 
                 && mTimer.IsOver("reveivesetfull"+task.ID, 60, 20))
             {

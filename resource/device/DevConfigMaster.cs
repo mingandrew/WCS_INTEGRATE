@@ -1045,7 +1045,8 @@ namespace resource.device
         /// <summary>
         /// 备用结束,备用砖机执行转产操作
         /// </summary>
-        /// <param name="backup_id"></param>
+        /// <param name="backup_id">备用砖机ID</param>
+        /// <param name="doshift">是否设置满砖</param>
         public bool StopBackupTileLifter(uint backup_id, bool doshift =false)
         {
             //备用砖机
@@ -1054,7 +1055,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("【备用结束】砖机[ {0} ], 备用砖机[ {1} ], 是否执行转产[ {2} ]",
+                    mLog.Status(true, string.Format("【备用结束】砖机[ {0} ], 备用砖机[ {1} ], 是否设满砖[ {2} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Device.GetDeviceName(dev.alter_dev_id),
                         doshift));

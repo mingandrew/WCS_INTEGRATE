@@ -253,10 +253,15 @@ namespace module.device
             set => Set(ref alertlightstatus, value);
         }
 
-        public bool ReceiveSetFull
+        public byte ReceiveSetFull
         {
-            get =>receivesetfull == 1;
-            set => receivesetfull = (byte)(value ? 1 : 0);
+            get => receivesetfull;
+            set => Set(ref receivesetfull, value);
+        }
+
+        public bool IsReceiveSetFull
+        {
+            get => ReceiveSetFull == 1;
         }
         #endregion
 

@@ -50,6 +50,15 @@ namespace socket.tcp
         #region[发送信息]
         public void SendCmd(DevFerryCmdE type, byte b1, byte b2, int int3)
         {
+            if (type == DevFerryCmdE.查询)
+            {
+                if (DateTime.Now.Subtract(lastfunctime).TotalMilliseconds <= 1000) return;
+            }
+            else
+            {
+                lastfunctime = DateTime.Now;
+            }
+
             if (Monitor.TryEnter(_senobj, TimeSpan.FromSeconds(1)))
             {
                 try
