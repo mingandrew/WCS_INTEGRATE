@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using task.task;
+using tool.appconfig;
 using tool.mlog;
 
 namespace task.device
@@ -29,7 +30,11 @@ namespace task.device
             NeedList = new List<TileLifterNeed>();
             mMsg = new MsgAction();
             mlog = (Log)new LogFactory().GetLog("TileLifterNeed", false);
+
+            TileNeedRefreshTime = GlobalWcsDataConfig.BigConifg.TileNeedRefreshTime;
         }
+
+        private int TileNeedRefreshTime { set; get; }
 
         public void Start()
         {
@@ -48,6 +53,7 @@ namespace task.device
             _mRefresh.Start();
         }
 
+        private int uncreateneedcount;
         /// <summary>
         /// 循环需求列表
         /// </summary>
@@ -79,13 +85,21 @@ namespace task.device
                             }
                         }
                     }
+                    uncreateneedcount = uncreate.Count;
                 }
                 catch (Exception e)
                 {
                     mlog.Error(true, "Refresh() - " + e.Message, e);
                 }
 
-                Thread.Sleep(2000);
+                if (uncreateneedcount > 0)
+                {
+                    Thread.Sleep(TileNeedRefreshTime);
+                }
+                else
+                {
+                    Thread.Sleep(1000);
+                }
             }
         }
 

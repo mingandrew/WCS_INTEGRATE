@@ -50,7 +50,8 @@ namespace wcs.ViewModel
 
         private IList<MyRadioBtn> _arearadio;
         private bool showtrack = false;
-        private uint filterareaid = 0, filtertracktype = 0;
+        private uint filterareaid = 0;
+        private byte filtertracktype = 0;
         private ushort filterlineid = 0;
         private StockSumView trackselected;
 
@@ -118,15 +119,16 @@ namespace wcs.ViewModel
                 filterlineid = lineid;
             }
         }
+
         private void CheckTypeRadioBtn(RoutedEventArgs args)
         {
             if (args.OriginalSource is RadioButton btn)
             {
-                if (uint.TryParse(btn.Tag.ToString(), out uint type))
+                if (byte.TryParse(btn.Tag.ToString(), out byte type))
                 {
                     filtertracktype = type;
                     TrackSumListView.Refresh();
-                    PubMaster.Goods.GetGoodCountList(filterareaid, filtertracktype);
+                    PubMaster.Goods.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
                 }
             }
         }
@@ -138,7 +140,7 @@ namespace wcs.ViewModel
                 filterareaid = radio.AreaID;
                 filterlineid = radio.Line;
                 TrackSumListView.Refresh();
-                PubMaster.Goods.GetGoodCountList(filterareaid, filtertracktype);
+                PubMaster.Goods.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
             }
         }
         bool OnFilterMovie(object item)
@@ -153,14 +155,8 @@ namespace wcs.ViewModel
 
                 if (filtertracktype == 0)
                 {
-                    return sum.area == filterareaid;
-                }
-
-                if (filtertracktype == 0)
-                {
                     return sum.area == filterareaid && sum.line == filterlineid;
                 }
-
 
                 return sum.area == filterareaid && filterlineid == sum.line && sum.track_type == filtertracktype;
             }
@@ -243,7 +239,7 @@ namespace wcs.ViewModel
                 TrackSumList.Add(new StockSumView(sum));
             }
             GoodSumList.Clear();
-            PubMaster.Goods.GetGoodCountList(filterareaid, filtertracktype);
+            PubMaster.Goods.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
 
         }
 

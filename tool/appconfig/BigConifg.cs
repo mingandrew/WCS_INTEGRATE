@@ -16,7 +16,12 @@ namespace tool.appconfig
         /// 车辆转移服务检测超时任务时间
         /// </summary>
         public int MoveCarWaitOverTime { set; get; } = 60;
-        
+        public int TileRefreshTime { set; get; } = 1000;
+        public int TileLiveTime { set; get; } = 1000;
+        public int TileInvaTime { set; get; } = 1000;
+        public int TileOtherTime { set; get; } = 1000;
+        public int TileNeedRefreshTime { set; get; } = 1000;
+
         public List<BigConfigItem> BigConfigList { set; get; } = new List<BigConfigItem>();
 
         /// <summary>

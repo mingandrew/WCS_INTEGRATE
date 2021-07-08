@@ -75,8 +75,7 @@ namespace resource.module.modulesql
         public List<StockSum> QueryStockSumList()
         {
             List<StockSum> list = new List<StockSum>();
-            string sql = string.Format("SELECT t.goods_id, t.track_id, t.produce_time, t.count," +
-                " t.stack, t.pieces, t.area, t.track_type FROM stock_sum AS t ");
+            string sql = string.Format("SELECT t.* FROM stock_sum AS t ");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
             {

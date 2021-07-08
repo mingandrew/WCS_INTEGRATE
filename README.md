@@ -567,20 +567,61 @@ INSERT INTO `diction`(`id`, `type`, `valuetype`, `name`, `isadd`, `isedit`, `isd
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (238, 11, 'GoodsListLimit', '品种列表数量上限', 100, NULL, NULL, NULL, NULL, NULL, '2021-07-06 10:29:17', NULL);
 ```
 
+## 2021.07.08：库存统计加上线的信息
+
+```mysql
+CREATE OR REPLACE ALGORITHM = UNDEFINED DEFINER = `root`@`localhost` SQL SECURITY DEFINER VIEW `stock_sum` AS SELECT
+	`t`.`goods_id` AS `goods_id`,
+	`t`.`track_id` AS `track_id`,
+	min( `t`.`produce_time` ) AS `produce_time`,
+	count( `t`.`id` ) AS `count`,
+	sum( `t`.`pieces` ) AS `pieces`,
+	sum( `t`.`stack` ) AS `stack`,
+	`t`.`area` AS `area`,
+	`t`.`track_type` AS `track_type`,
+	(select line from track where id = t.track_id) as `line`
+
+FROM
+	`stock` `t` 
+WHERE
+	(
+	`t`.`track_type` IN ( 2, 3, 4 )) 
+GROUP BY
+	`t`.`track_id`,
+	`t`.`goods_id` 
+ORDER BY
+	`t`.`area`,
+	`t`.`goods_id`,
+	`produce_time`,
+	`t`.`track_id`;
+```
 
 
 
-#2021.07.08：注意是 version2.1版本！！！！！！！！！！！！！！！
 
-# version2.1：新增运输车报警
+
+## 2021.07.08：注意是 version2.1版本！！！！！！！！！！！！！！！
+
+## version2.1：新增运输车报警
+
+```mysql
+
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (239 3, 'CarrierIsInResetWork', '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (240, 3, 'CarrierNoLocation', '运输车失去位置信息', NULL, NULL, '运输车失去位置信息，为安全起见已停止所有任务及指令的执行，待恢复位置信息后再继续作业，请检查设备进行位置初始化操作！', NULL, NULL, NULL, NULL, NULL);
+```
 
-# version2.1：新增轨道属性字段，确认轨道存取方向
+
+
+
+## version2.1：新增轨道属性字段，确认轨道存取方向
+
+```mysql
 ALTER TABLE `track` ADD COLUMN `is_give_back` bit(1) NULL COMMENT '是否入库 后退存砖' AFTER `up_split_point`;
 ALTER TABLE `track` ADD COLUMN `is_take_forward` bit(1) NULL COMMENT '是否出库 前进取砖' AFTER `is_give_back`;
+```
 
-# version2.1：运输车新版报警更新
+## version2.1：运输车新版报警更新
+```mysql
 UPDATE `diction_dtl` SET `name` = '急停触发', `string_value` = '急停触发，急停开关是否误触发？是否有异常认为打开急停开关？' WHERE `id` = 100;
 UPDATE `diction_dtl` SET `name` = '开始定位点范围内未取到砖', `string_value` = '开始定位点范围内未取到砖：1.取砖定位光电无触发；2.库存脉冲数据与实际不符' WHERE `id` = 101;
 UPDATE `diction_dtl` SET `name` = '未到取砖开始定位点范围，取砖定位光电触发', `string_value` = '未到取砖开始定位点范围，取砖定位光电触发：1.取砖定位误触发；2.库存脉冲实际与实际不符' WHERE `id` = 102;
@@ -609,3 +650,4 @@ UPDATE `diction_dtl` SET `name` = '4xx轨道码盘数值_定位点=0', `string_v
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_定位点=0', `string_value` = '5xx轨道码盘数值_定位点=0' WHERE `id` = 125;
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_复位点=0', `string_value` = '5xx轨道码盘数值_复位点=0' WHERE `id` = 126;
 UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘丢转故障，小车移动过程中码盘接近开关超过5秒无信号：1.检查是否撞车；2.检查刹车是否能正常打开；3.检查模拟量输出模块电压输出是否大于1.5V；4.检查码盘接近开关；检查无误时终止可复位' WHERE `id` = 127;
+```

@@ -32,6 +32,24 @@ namespace task.device
         private MTimer mTimer;
         private Log mlog;
         private bool isWcsStoping;
+
+        /// <summary>
+        /// 轮询时间
+        /// </summary>
+        public int TileRefreshTime { set; get; }
+        /// <summary>
+        /// 离开等待时间
+        /// </summary>
+        private int TileLiveTime { set; get; }
+        /// <summary>
+        /// 介入等待时间
+        /// </summary>
+        private int TileInvaTime { set; get; }
+        /// <summary>
+        /// 其他等待时间
+        /// </summary>
+        private int TileOtherTime { set; get; }
+
         #endregion
 
         #region[属性]
@@ -49,6 +67,10 @@ namespace task.device
             _obj = new object();
             DevList = new List<TileLifterTask>();
             Messenger.Default.Register<SocketMsgMod>(this, MsgToken.TileLifterMsgUpdate, TileLifterMsgUpdate);
+            TileRefreshTime = GlobalWcsDataConfig.BigConifg.TileRefreshTime;
+            TileLiveTime = GlobalWcsDataConfig.BigConifg.TileLiveTime;
+            TileInvaTime = GlobalWcsDataConfig.BigConifg.TileInvaTime;
+            TileOtherTime = GlobalWcsDataConfig.BigConifg.TileOtherTime;
         }
 
         public void Start()
@@ -94,6 +116,10 @@ namespace task.device
 
         }
 
+        /// <summary>
+        /// 只要发送了内容，就会有反馈则不再发送查询内容
+        /// </summary>
+        private bool refreshsend = false;
         private void Refresh()
         {
             while (Refreshing)
@@ -137,6 +163,7 @@ namespace task.device
                                 continue;
                             }
 
+                            refreshsend = false;
                             #region 下砖-转产
 
                             if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
@@ -151,7 +178,7 @@ namespace task.device
                                             if (!task.DevStatus.ShiftAccept)
                                             {
                                                 task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
-                                                Thread.Sleep(1000);
+                                                refreshsend = true;
                                                 break;
                                             }
                                         }
@@ -160,8 +187,8 @@ namespace task.device
                                         {
                                             if (task.DevStatus.ShiftAccept)
                                             {
-                                                task.DoShift(TileShiftCmdE.复位);
-                                                Thread.Sleep(1000);
+                                                task.DoShift(TileShiftCmdE.复位); 
+                                                refreshsend = true;
                                                 break;
                                             }
                                         }
@@ -174,7 +201,7 @@ namespace task.device
                                             if (!task.DevStatus.ShiftAccept)
                                             {
                                                 task.DoShift(TileShiftCmdE.执行转产, (byte)count, task.DevConfig.goods_id);
-                                                Thread.Sleep(1000);
+                                                refreshsend = true;
                                                 break;
                                             }
                                         }
@@ -184,7 +211,7 @@ namespace task.device
                                             if (task.DevStatus.ShiftAccept)
                                             {
                                                 task.DoShift(TileShiftCmdE.复位);
-                                                Thread.Sleep(1000);
+                                                refreshsend = true;
                                                 break;
                                             }
                                         }
@@ -200,7 +227,7 @@ namespace task.device
                                             break;
                                         }
                                         task.DoShift(TileShiftCmdE.复位);
-                                        Thread.Sleep(1000);
+                                        refreshsend = true;
                                         #endregion
                                         break;
                                     default:
@@ -226,14 +253,14 @@ namespace task.device
                             if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
                             {
                                 task.DoShift(TileShiftCmdE.变更品种, 0, task.DevConfig.goods_id);
-                                Thread.Sleep(1000);
+                                refreshsend = true;
                             }
 
                             byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
                             if (level != task.DevStatus.SetLevel)
                             {
                                 task.DoUpdateLevel(level);
-                                Thread.Sleep(1000);
+                                refreshsend = true;
                             }
 
                             #endregion
@@ -266,7 +293,7 @@ namespace task.device
                                     {
                                         case TileWorkModeE.过砖: // xxx => 过砖
                                             task.DoCutover(TileWorkModeE.过砖, TileFullE.忽略);
-                                            Thread.Sleep(1000);
+                                            refreshsend = true;
                                             break;
 
                                         case TileWorkModeE.下砖: // xxx => 下砖
@@ -280,7 +307,7 @@ namespace task.device
                                                 (!task.DevStatus.Load1 && !task.DevStatus.Load2))
                                             {
                                                 task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
-                                                Thread.Sleep(1000);
+                                                refreshsend = true;
                                             }
                                             break;
 
@@ -290,13 +317,13 @@ namespace task.device
                                                 (!task.DevStatus.Need1 && !task.DevStatus.Need2))
                                             {
                                                 task.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
-                                                Thread.Sleep(1000);
+                                                refreshsend = true;
                                             }
 
                                             if (!task.DevStatus.Load1 && !task.DevStatus.Load2)
                                             {
                                                 task.DoCutover(TileWorkModeE.上砖, TileFullE.忽略);
-                                                Thread.Sleep(1000);
+                                                refreshsend = true;
                                                 break;
                                             }
 
@@ -309,7 +336,7 @@ namespace task.device
                                             if (task.DevConfig.goods_id == task.DevConfig.pre_goodid)
                                             {
                                                 task.DoCutover(TileWorkModeE.上砖, TileFullE.忽略);
-                                                Thread.Sleep(1000);
+                                                refreshsend = true;
                                             }
                                             break;
 
@@ -350,7 +377,7 @@ namespace task.device
                                     if (task.LightOff)
                                     {
                                         task.DoLight(TileLightShiftE.灯开);
-                                        Thread.Sleep(500);
+                                        refreshsend = true;
                                     }
                                 }
                                 //无报警，灯开 则 关灯
@@ -359,7 +386,7 @@ namespace task.device
                                     if (task.LightOn)
                                     {
                                         task.DoLight(TileLightShiftE.灯关);
-                                        Thread.Sleep(500);
+                                        refreshsend = true;
                                     }
                                 }
                             }
@@ -372,7 +399,7 @@ namespace task.device
                         }
                         finally
                         {
-                            if (task.IsEnable && task.IsConnect)
+                            if (task.IsEnable && task.IsConnect && !refreshsend)
                             {
                                 task.DoQuery();
                             }
@@ -383,7 +410,7 @@ namespace task.device
                 {
                     mlog.Error(true, e.Message, e);
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(TileRefreshTime);
             }
         }
 
@@ -402,7 +429,6 @@ namespace task.device
                 task.Stop("模拟停止");
             }
         }
-
 
         public TileShiftStatusE GetTileShiftStatus(uint devid)
         {
@@ -919,7 +945,7 @@ namespace task.device
                 {
                     if (mTimer.IsOver(task.ID + "", 2, 10))
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileOtherTime);
                         task.DoTileShiftSignal(TileAlertShiftE.收到转产);
                     }
                 }
@@ -1040,7 +1066,7 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileLiveTime);
                         task.Do1Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1048,7 +1074,7 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_1))
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(TileLiveTime);
                             task.Do1Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1083,7 +1109,7 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileLiveTime);
                         task.Do2Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1091,7 +1117,7 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_2))
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(TileLiveTime);
                             task.Do2Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1106,7 +1132,7 @@ namespace task.device
                 && task.DevConfig.WorkMode == TileWorkModeE.下砖 
                 && mTimer.IsOver("reveivesetfull"+task.ID, 60, 20))
             {
-                Thread.Sleep(200);
+                Thread.Sleep(TileOtherTime);
                 task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
             }
 
@@ -1132,19 +1158,18 @@ namespace task.device
                 {
                     if (task.IsEmpty_1 && task.IsInvo_1 && !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id))
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileLiveTime);
                         task.Do1Invo(DevLifterInvolE.离开);
                         return;
                     }
 
-                    //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
                     if (!PubMaster.Area.IsLineDownOnoff(task.AreaId, task.Device.line)) return;
 
                     #region[介入]
 
                     if (!task.IsInvo_1)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileInvaTime);
                         task.Do1Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1205,7 +1230,7 @@ namespace task.device
 
                     if (!task.IsInvo_1)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileInvaTime);
                         task.Do1Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1214,7 +1239,7 @@ namespace task.device
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
                         if (!brotask.IsInvo_1 && brotask.IsEmpty_1 && brotask.ConnStatus == SocketConnectStatusE.通信正常) 
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(TileInvaTime);
                             brotask.Do1Invo(DevLifterInvolE.介入);
                             return;
                         }
@@ -1291,7 +1316,7 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileLiveTime);
                         task.Do1Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1299,7 +1324,7 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_1))
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(TileLiveTime);
                             task.Do1Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1319,7 +1344,7 @@ namespace task.device
                 {
                     if (task.IsEmpty_2 && task.IsInvo_2 && !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id))
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileLiveTime);
                         task.Do2Invo(DevLifterInvolE.离开);
                         return;
                     }
@@ -1332,7 +1357,7 @@ namespace task.device
 
                     if (!task.IsInvo_2)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileInvaTime);
                         task.Do2Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1392,7 +1417,7 @@ namespace task.device
 
                     if (!task.IsInvo_2)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileInvaTime);
                         task.Do2Invo(DevLifterInvolE.介入);
                         return;
                     }
@@ -1401,7 +1426,7 @@ namespace task.device
                         TileLifterTask brotask = DevList.Find(c => c.ID == task.BrotherId);
                         if (!brotask.IsInvo_2 && brotask.IsEmpty_2 && brotask.ConnStatus == SocketConnectStatusE.通信正常)
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(TileInvaTime);
                             brotask.Do2Invo(DevLifterInvolE.介入);
                             return;
                         }
@@ -1483,7 +1508,7 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileLiveTime);
                         task.Do2Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1491,7 +1516,7 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_2))
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(TileLiveTime);
                             task.Do2Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -2175,7 +2200,7 @@ namespace task.device
                     if (brotask.IsNeed_1) return false;
                     if (!brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1))
                     {
-                        Thread.Sleep(1000);
+                        Thread.Sleep(TileInvaTime);
                         brotask.Do1Invo(DevLifterInvolE.介入);
                     }
                     return brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1);
@@ -2184,7 +2209,7 @@ namespace task.device
                 if (!brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2))
                 {
                     if (brotask.IsNeed_2) return false;
-                    Thread.Sleep(1000);
+                    Thread.Sleep(TileInvaTime);
                     brotask.Do2Invo(DevLifterInvolE.介入);
                 }
                 return brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2);
@@ -2579,7 +2604,7 @@ namespace task.device
                         if (task.DevConfig.goods_id != task.DevStatus.SetGoods)
                         {
                             task.DoShift(TileShiftCmdE.变更品种, 0, task.DevConfig.goods_id);
-                            Thread.Sleep(800);
+                            Thread.Sleep(TileOtherTime);
                         }
 
                         byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
