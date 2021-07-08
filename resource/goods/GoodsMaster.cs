@@ -1312,7 +1312,7 @@ namespace resource.goods
                         goods_id = goodid,
                         produce_time = producetime ?? DateTime.Now,
                         stack = stack,
-                        pieces = fullqty, //总片数
+                        pieces = allpieces, //总片数
                         tilelifter_id = tile_id,
                         area = track.area,
                         track_type = track.type
@@ -2718,11 +2718,7 @@ namespace resource.goods
                     sum.count = (uint)StockList.Count(c => c.goods_id == gid && c.track_id == trackId);
                     sum.stack = sum.count * (size?.stack ?? 1);
                     List<Stock> stocklist = StockList.FindAll(c => c.track_id == trackId && c.goods_id == gid);
-                    foreach (Stock item in stocklist)
-                    {
-                        sum.pieces +=(uint) item.stack * item.pieces;
-                    }
-                    //sum.pieces = sum.stack * stocklist.Sum(c => c.pieces);
+                    sum.pieces = (uint)stocklist.Sum(c => c.pieces);
                     SendSumMsg(sum, ActionTypeE.Update);
                 }
                 SortSumList();
