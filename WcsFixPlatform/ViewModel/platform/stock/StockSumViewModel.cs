@@ -115,7 +115,7 @@ namespace wcs.ViewModel
             {
                 ShowAreaFileter = false;
                 filterareaid = areaid;
-
+                filterlineid = lineid;
             }
         }
         private void CheckTypeRadioBtn(RoutedEventArgs args)
@@ -138,7 +138,7 @@ namespace wcs.ViewModel
                 filterareaid = radio.AreaID;
                 filterlineid = radio.Line;
                 TrackSumListView.Refresh();
-                GoodSumListView.Refresh();
+                PubMaster.Goods.GetGoodCountList(filterareaid, filtertracktype);
             }
         }
         bool OnFilterMovie(object item)
