@@ -362,8 +362,7 @@ namespace resource.goods
 
         public List<Goods> GetStockOutGoodsList(uint filterarea)
         {
-            List<uint> goodsids = StockList.FindAll(c => c.area == filterarea
-                && (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入) && c.PosType == StockPosE.头部).Select(t => t.goods_id).ToList();
+            List<uint> goodsids = StockList.FindAll(c => (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入) && c.PosType == StockPosE.头部).Select(t => t.goods_id).ToList();
             List<Goods> glist = new List<Goods>();
             glist.AddRange(GoodsList.FindAll(c => goodsids.Contains(c.id) || c.empty));
             return glist;
@@ -3402,7 +3401,7 @@ namespace resource.goods
                 color = naddgname,
                 memo = "自动生成",
                 //area_id = ngood.area_id,
-                //pieces = ngood.pieces,
+                pieces = ngood.pieces,
                 GoodCarrierType = ngood.GoodCarrierType,
                 size_id = ngood.size_id,
                 level = ngood.level,
