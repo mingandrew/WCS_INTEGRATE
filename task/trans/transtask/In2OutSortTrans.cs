@@ -66,7 +66,7 @@ namespace task.trans.transtask
             }
 
             //是否有小车在满砖轨道
-            if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
+            if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint fullcarrierid))
             {
                 if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
                 {

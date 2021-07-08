@@ -52,6 +52,7 @@ namespace task.trans
 
         private SeperateStockTrans _seperatestocktrans;
         private MoveStockTrans _movestocktrans;
+        private SecondUpTaskTrans _backUpTrans;
 
         #endregion
 
@@ -760,6 +761,24 @@ namespace task.trans
                 return TransList.Exists(c => !c.finish && c.area_id == areaId
                         && tileids.Contains(c.tilelifter_id)
                     && tasktype.Contains(c.TransType) && c.goods_id == goodsId);
+            }
+            catch { }
+            return true;
+        }
+
+        /// <summary>
+        /// 判断任务是否使用了该品种
+        /// </summary>
+        /// <param name="areaId"></param>
+        /// <param name="goodsId"></param>
+        /// <param name="tasktype"></param>
+        /// <returns></returns>
+        internal bool HaveInGoods(uint areaId, uint goodsId, TransTypeE tasktype)
+        {
+            try
+            {
+                return TransList.Exists(c => !c.finish && c.area_id == areaId
+                    && c.TransType == tasktype && c.goods_id == goodsId);
             }
             catch { }
             return true;

@@ -189,6 +189,12 @@
         /// 开关-允许出入倒库时可以上砖
         /// </summary>
         public static string UpTaskIgnoreInoutSortTask = nameof(UpTaskIgnoreInoutSortTask);
+
+        /// <summary>
+        /// 开关-启用反抛任务
+        /// </summary>
+        public static string EnableSecondUpTask = nameof(EnableSecondUpTask);
+
         #endregion
 
         #region[分析服务开关]
@@ -211,8 +217,15 @@
 
         #region[流程超时]
 
-        public static string StepOverTime = nameof(StepOverTime);               //除【倒库中】，其他流程的超时时间（秒）
-        public static string SortingStockStepOverTime = nameof(SortingStockStepOverTime);               //倒库中流程的超时时间（秒）
+        /// <summary>
+        /// 除【倒库中】，其他流程的超时时间（秒）
+        /// </summary>
+        public static string StepOverTime = nameof(StepOverTime);
+
+        /// <summary>
+        /// 倒库中流程的超时时间（秒）
+        /// </summary>
+        public static string SortingStockStepOverTime = nameof(SortingStockStepOverTime);
 
         #endregion
     }

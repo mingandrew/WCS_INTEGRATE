@@ -293,7 +293,7 @@ namespace module.device
                 "灯[ {19} ], 设满砖[ {20} ], 预3[ {21} ], 预4[ {22} ], 标识码[ {23} ]",
                 LoadStatus1, LoadStatus2, S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,
                 Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel, S(NeedSytemShift), BackupShiftDev,
-                AlertLightStatus, S(ReceiveSetFull), Reserve3, Reserve4, MarkCode);
+                AlertLightStatus, ReceiveSetFull, Reserve3, Reserve4, MarkCode);
         }
 
         private string S(bool v)

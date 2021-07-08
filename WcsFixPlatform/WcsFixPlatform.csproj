@@ -205,6 +205,12 @@
     <Compile Include="Dialog\platform\stock\StockGoodEditDialog.xaml.cs">
       <DependentUpon>StockGoodEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\track\CarrierPosSelectDialog.xaml.cs">
+      <DependentUpon>CarrierPosSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\track\LocationSelectDialog.xaml.cs">
+      <DependentUpon>LocationSelectDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\track\TrackSelectDialog.xaml.cs">
       <DependentUpon>TrackSelectDialog.xaml</DependentUpon>
     </Compile>
@@ -284,6 +290,8 @@
     <Compile Include="ViewModel\platform\stock\TileTrackViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\TrackAllocateViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\TransViewModel.cs" />
+    <Compile Include="ViewModel\platform\track\CarrierPosSelectViewModel.cs" />
+    <Compile Include="ViewModel\platform\track\LocationDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\track\OrganizeTrackViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackLogViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackSelectViewModel.cs" />
@@ -487,6 +495,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\stock\StockGoodEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\track\CarrierPosSelectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\track\LocationSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

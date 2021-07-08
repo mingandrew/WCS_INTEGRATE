@@ -339,17 +339,16 @@ namespace task.device
             return false;
         }
 
-        /// <summary>
-        /// 查找是否存在运输车在指定的轨道
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        internal bool HaveInTrack(uint trackid, out uint carrierid)
+        internal bool HaveDifTypeInTrack(uint trackid, CarrierTypeE carriertype, out uint carrierid)
         {
-            //Track track = PubMaster.Track.GetTrack(trackid);
             CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
-            carrierid = carrier?.ID ?? 0;
-            return carrier != null;
+            if (carrier != null && carrier.CarrierType != carriertype)
+            {
+                carrierid = carrier.ID;
+                return true;
+            }
+            carrierid = 0;
+            return false;
         }
 
         /// <summary>
@@ -389,7 +388,7 @@ namespace task.device
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool HaveInTrack(uint trackid, out uint carrierid)
+        internal bool HaveInTrackAndGet(uint trackid, out uint carrierid)
         {
             CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trackid);
             carrierid = carrier?.ID ?? 0;
@@ -1862,8 +1861,9 @@ namespace task.device
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
 
-            // 1.倒库空轨道是否有车[空闲，无货]
+            #region 1.倒库空轨道是否有车[空闲，无货
             CarrierTask carrier = DevList.Find(c => c.CurrentTrackId == trans.give_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
+            #endregion
 
             #region 2.满砖轨道是否有车[执行过倒库]
             if (carrier == null)
@@ -2167,7 +2167,7 @@ namespace task.device
                     return true;
                 }
 
-                if (CheckCarrierFreeNoTask(carrier))
+                if (CheckCarrierIsFree(carrier))
                 {
                     carrierid = carrier.ID;
                     return true;
@@ -2333,7 +2333,6 @@ namespace task.device
                         // 每条轨道只拿一车出来加以选择
                         CarrierTask tracar = null;
                         ushort dis = 0;
-                        bool isUp = false;
                         foreach (CarrierTask item in tasks)
                         {
                             if (item == null) continue;
@@ -2350,7 +2349,6 @@ namespace task.device
                                     continue;
                                 }
 
-                                isUp = false;
                                 // 需要小车后退作业的，以最小脉冲为准
                                 if (dis == 0 || dis > item.CurrentPoint)
                                 {
@@ -2430,7 +2428,7 @@ namespace task.device
                         }
                     }
 
-                    if (CheckCarrierFreeNoTask(carrier))
+                    if (CheckCarrierIsFree(carrier))
                     {
                         carrierid = carrier.ID;
                         return true;
@@ -2580,7 +2578,7 @@ namespace task.device
                                 case TransTypeE.上砖任务:
                                 case TransTypeE.同向上砖:
                                     //空闲
-                                    if (CheckCarrierFreeNoTask(car))
+                                    if (CheckCarrierIsFree(car))
                                     {
                                         if (car.IsLoad())
                                         {
@@ -2597,7 +2595,7 @@ namespace task.device
                                     break;
                                 case TransTypeE.反抛任务:
                                     //空闲
-                                    if (CheckCarrierFreeNoTask(car))
+                                    if (CheckCarrierIsFree(car))
                                     {
                                         if (car.IsLoad())
                                         {
@@ -2667,7 +2665,7 @@ namespace task.device
                                 }
                             }
 
-                            if (CheckCarrierFreeNoTask(carrier))
+                            if (CheckCarrierIsFree(carrier))
                             {
                                 carrierid = carrier.ID;
                                 return true;

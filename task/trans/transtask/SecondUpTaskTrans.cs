@@ -44,8 +44,9 @@ namespace task.trans.transtask
             }
 
             //上砖机当前品种的砖没有了可上的库存  或者   上砖机转产了，品种变了
-            if ((!PubMaster.Goods.ExistStockInTrackTopCanUp(trans.goods_id) 
-                || !PubTask.TileLifter.EqualTileGood(trans.tilelifter_id, trans.goods_id)) && !PubTask.Trans.HaveInGoods(trans.area_id, trans.goods_id, TransTypeE.上砖任务))
+            if ((!PubMaster.Goods.ExistStockInTrackTopCanUp(trans.goods_id)
+                || !PubTask.TileLifter.EqualTileGood(trans.tilelifter_id, trans.goods_id)) 
+                && !PubTask.Trans.HaveInGoods(trans.area_id, trans.goods_id, TransTypeE.上砖任务))
             {
                 PubMaster.Warn.RemoveTaskWarn(WarningTypeE.Warning35, trans.id);
                 _M.SetStatus(trans, TransStatusE.调度设备);

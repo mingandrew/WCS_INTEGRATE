@@ -471,7 +471,7 @@ namespace task.trans.transtask
                                 bool needtoemtpytrack = false;
                                 if(takeTrack.Type == TrackTypeE.储砖_出入)
                                 {
-                                    if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint carrierid))
+                                    if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint carrierid))
                                     {
                                         //停在出入储砖轨道，上砖侧的空闲运输车
                                         if(PubTask.Carrier.IsCarrierInTrackBiggerSite(carrierid, trans.take_track_id, takeTrack.rfid_2))
