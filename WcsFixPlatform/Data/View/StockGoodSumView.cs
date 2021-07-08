@@ -11,9 +11,6 @@ namespace wcs.Data.View
         private uint stack;
         private uint pieces;
         private bool selected;
-        private bool showcount;
-        private bool showlabel = true;
-
         public uint AreaId { set; get; }
         public uint GoodId { set; get; }
         public string GoodName { set; get; }
@@ -32,12 +29,6 @@ namespace wcs.Data.View
             get => count;
             set => Set(ref count, value);
         }
-
-        public int OrgCount
-        {
-            get => orgcount;
-            set => Set(ref orgcount, value);
-        }
         public uint Stack
         {
             get => stack;
@@ -53,22 +44,6 @@ namespace wcs.Data.View
         {
             get => selected;
             set => Set(ref selected, value);
-        }
-
-        public bool ShowCount
-        {
-            get => showcount;
-            set => Set(ref showcount, value);
-        }
-
-        public bool ShowLabel
-        {
-            get => showlabel;
-            set {
-                if(Set(ref showlabel, value)){
-                    Console.WriteLine("ShowLabel{0}", value);
-                }
-            }
         }
 
         public StockGoodSumView(StockSum sum)
@@ -97,16 +72,7 @@ namespace wcs.Data.View
 
         public bool IsUseAll()
         {
-            return count > orgcount;
-        }
-
-        /// <summary>
-        /// 是否超过最大值
-        /// </summary>
-        /// <returns></returns>
-        public bool IsOverMax()
-        {
-            return count > orgcount;
+            return orgcount == count;
         }
 
         public void SetSelected(bool v)
@@ -114,29 +80,21 @@ namespace wcs.Data.View
             Selected = v;
             if (!v)
             {
-                Count = orgcount + 1;
+                Count = orgcount;
             }
         }
 
         public void AddSubQty(bool v)
         {
-            if(v && count <= orgcount)
+            if(v && count < orgcount)
             {
                 Count++;
-            }
-
-            if (v && count > orgcount)
-            {
-                ShowCount = false;
-                Count = orgcount + 1;
             }
 
             if(!v && count > 1)
             {
                 Count--;
-                ShowCount = true;
             }
-            ShowLabel = !ShowCount;
         }
     }
 }

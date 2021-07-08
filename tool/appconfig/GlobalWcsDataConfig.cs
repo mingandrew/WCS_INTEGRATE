@@ -138,27 +138,6 @@ namespace tool.appconfig
             SaveAlertLightConfig();
 
             #endregion
-
-            #region[库存整理配置]
-            if (File.Exists(OrganizeConfig.SavePath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(OrganizeConfig.SavePath);
-                    OrganizeConfig = (string.IsNullOrEmpty(json) ? new OrganizeConfig() : JsonConvert.DeserializeObject<OrganizeConfig>(json)) ?? new OrganizeConfig();
-                }
-                catch
-                {
-                    OrganizeConfig = new OrganizeConfig();
-                }
-            }
-            else
-            {
-                OrganizeConfig = new OrganizeConfig();
-            }
-            SaveOrganizeConfig();
-            #endregion
-
         }
 
         public static void SaveMysqlConfig()
@@ -187,10 +166,6 @@ namespace tool.appconfig
         public static void SaveAlertLightConfig()
         {
             SaveJsonObj(AlertLightConfig, DevLightConfig.Path, DevLightConfig.SavePath);
-        }
-        public static void SaveOrganizeConfig()
-        {
-            SaveJsonObj(OrganizeConfig, OrganizeConfig.Path, OrganizeConfig.SavePath);
         }
 
         #region[保存配置文件]
@@ -227,6 +202,5 @@ namespace tool.appconfig
         public static DefaultConfig DefaultConfig { get; set; }
         public static BigConifg BigConifg { get; set; }
         public static DevLightConfig AlertLightConfig { get; set; }
-        public static OrganizeConfig OrganizeConfig { get; set; }
     }
 }

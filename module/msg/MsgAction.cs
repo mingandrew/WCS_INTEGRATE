@@ -12,6 +12,5 @@
         public object o6 { set; get; }
         public object o7 { set; get; }
         public object o8 { set; get; }
-        public object o9 { set; get; }
     }
 }

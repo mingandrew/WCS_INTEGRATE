@@ -900,13 +900,13 @@ namespace task.device
                         if (task.Type == DeviceTypeE.下砖机 && task.DevConfig.pre_goodid == 0)
                         {
                             //添加默认品种 A,B,C,D,E....
-                            if (!PubMaster.Goods.AddDefaultGood(task.DevConfig.id, task.DevConfig.goods_id, out string ad_rs, out uint pgoodid))
+                            if (!PubMaster.Goods.AddDefaultGood(task.DevConfig.goods_id, out string ad_rs, out uint pgoodid))
                             {
 
                             }
                             else
                             {
-                                if (!PubMaster.DevConfig.UpdateTilePreGood(task.ID, task.DevConfig.goods_id, pgoodid, 0, out string up_rs))
+                                if (!PubMaster.DevConfig.UpdateTilePreGood(task.ID, task.DevConfig.goods_id, pgoodid, out string up_rs))
                                 {
 
                                 }
@@ -956,89 +956,17 @@ namespace task.device
 
             #region[备用砖机切换备用]
 
-            //是否 开启 自动转备用机 否则只能在界面通过备用砖机启用进行设定
-            if(PubMaster.Dic.IsSwitchOnOff(DicTag.AutoBackupTileFunc, false))
+            if (task.DevConfig.can_alter
+                && PubMaster.Dic.IsSwitchOnOff(DicTag.AutoBackupTileFunc, false))
             {
-                //第一种方式：备用机 指定 备用哪台砖机
-                if(!GlobalWcsDataConfig.BigConifg.IsUserAutoBackDevVersion2(task.AreaId, task.Line))
+                if (task.DevStatus.BackupShiftDev > 0)
                 {
-                    if (task.DevConfig.can_alter)
-                    {
-                        if (task.DevStatus.BackupShiftDev > 0)
-                        {
-                            if(task.DevConfig.alter_dev_id == 0)
-                            {
-                                PubMaster.DevConfig.SetBackupTileLifterCode(task.ID, task.DevStatus.BackupShiftDev);
-                            }
-                        }
-                        else
-                        {
-                            //结束备用, 备用机有货则转产
-                            bool haveload = task.DevStatus.Load1 || task.DevStatus.Load2;
-                            if (haveload)
-                            {
-                                task.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
-                            }
-
-                            if ((!haveload || task.DevStatus.IsReceiveSetFull)
-                                && PubMaster.DevConfig.StopBackupTileLifter(task.ID, haveload))
-                            {
-                                if (task.DevStatus.IsReceiveSetFull)
-                                {
-                                    task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
-                                }
-                            }
-                        }
-                    }
+                    PubMaster.DevConfig.SetBackupTileLifterCode(task.ID, task.DevStatus.BackupShiftDev);
                 }
-                //第二种方式：砖机 指定 备用机 进行 备用
                 else
                 {
-                    if (!task.DevConfig.can_alter)//普通砖机
-                    {
-                        //开始备用，
-                        if (task.DevStatus.BackupShiftDev > 0)
-                        {
-                            if(task.DevConfig.alter_dev_id == 0)
-                            {
-                                uint backup_id = PubMaster.Device.GetDevIdByMemo(task.DevStatus.BackupShiftDev + "");
-                                if (backup_id != 0
-                                    && task.DevConfig.IsInBackUpList(backup_id))
-                                {
-                                    if (PubMaster.DevConfig.SetBackupTileLifter(task.ID, backup_id, false))
-                                    {
-                                        PubMaster.DevConfig.SetNormalTileBackTileId(task.ID, backup_id);
-                                    }
-                                }
-                            }
-                        }
-                        else if(task.DevStatus.BackupShiftDev == 0 && task.DevConfig.alter_dev_id != 0)
-                        {
-                            TileLifterTask backtile = GetTileLifter(task.DevConfig.alter_dev_id);
-                            
-                            //备用砖机备用了当前普通砖机
-                            if(backtile!=null && backtile.DevConfig.alter_dev_id == task.ID && backtile.DevConfig.WorkMode == TileWorkModeE.下砖)
-                            {
-                                //结束备用, 备用机有货则转产
-                                bool haveload = backtile.DevStatus.Load1 || backtile.DevStatus.Load2;
-                                if (haveload)
-                                {
-                                    backtile.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
-                                }
-
-                                if ((!haveload  || backtile.DevStatus.IsReceiveSetFull)
-                                    && PubMaster.DevConfig.StopBackupTileLifter(backtile.ID, haveload))
-                                {
-                                    PubMaster.DevConfig.SetNormalTileBackTileId(task.ID, 0);
-
-                                    if (backtile.DevStatus.IsReceiveSetFull)
-                                    {
-                                        backtile.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    //结束备用
+                    PubMaster.DevConfig.StopBackupTileLifter(task.ID, task.DevStatus.Load1 || task.DevStatus.Load2);
                 }
             }
 
@@ -1121,18 +1049,6 @@ namespace task.device
                         }
                     }
                 }
-            }
-
-            #endregion
-
-            #region[设满砖信号自动复位]
-            
-            if(task.DevStatus.IsReceiveSetFull 
-                && task.DevConfig.WorkMode == TileWorkModeE.下砖 
-                && mTimer.IsOver("reveivesetfull"+task.ID, 60, 20))
-            {
-                Thread.Sleep(200);
-                task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
             }
 
             #endregion
@@ -1776,17 +1692,6 @@ namespace task.device
         /// <param name="currentid">设置优先轨道</param>
         private void TileAddOutTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint currentid, ushort line)
         {
-            //判断砖机当前数量（全部、或者上砖数量是否大于0）
-            if (!PubMaster.DevConfig.IsTileNowGoodQtyOk(tileid, goodid))
-            {
-                PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.Warning37, (ushort)tileid);
-                return;
-            }
-            else
-            {
-                PubMaster.Warn.RemoveDevWarn(WarningTypeE.Warning37, (ushort)tileid);
-            }
-
             bool isallocate = false;
 
             // 1.查看当前设定优先作业轨道是否能作业
@@ -1860,7 +1765,7 @@ namespace task.device
                 foreach (Stock stock in allocatestocks)
                 {
                     //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
-                    if (PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id, TransTypeE.库存整理))
+                    if (PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id))
                     {
                         break;
                     }
@@ -2375,14 +2280,6 @@ namespace task.device
                     mMsg.o6 = task.IsWorking;
                     mMsg.o7 = PubMaster.Track.GetTrackName(task.DevConfig.last_track_id);
                     mMsg.o8 = task.WorkType;
-                    if (task.Type == DeviceTypeE.上砖机)
-                    {
-                        mMsg.o9 = task.DevConfig.now_good_all ? "不限" : (task.DevConfig.now_good_qty + "");
-                    }
-                    if (task.Type == DeviceTypeE.下砖机)
-                    {
-                        mMsg.o9 = "不限";
-                    }
                     Messenger.Default.Send(mMsg, MsgToken.TileLifterStatusUpdate);
                 }
                 finally
@@ -2506,47 +2403,6 @@ namespace task.device
             return false;
         }
 
-        /// <summary>
-        /// 判断上砖机是否可以放砖
-        /// </summary>
-        /// <param name="tilelifter_id"></param>
-        /// <param name="givetrackid"></param>
-        /// <param name="result"></param>
-        /// <returns></returns>
-        internal bool IsGiveReadyWithBackUp(uint tilelifter_id, uint givetrackid, out string result, bool isignoreneed)
-        {
-            result = "";
-            TileLifterTask task = DevList.Find(c => c.ID == tilelifter_id);
-            if (!CheckTileLifterStatus(task, out result))
-            {
-                return false;
-            }
-
-            if (!CheckUpBrotherIsReady(task, false, task.DevConfig.left_track_id == givetrackid))
-            {
-                return false;
-            }
-
-            if (task.DevConfig.left_track_id == givetrackid)
-            {
-                if (!task.IsInvo_1 && (task.IsNeed_1 || isignoreneed) && task.IsEmpty_1)
-                {
-                    task.Do1Invo(DevLifterInvolE.介入);
-                }
-                return (task.IsNeed_1 || isignoreneed) && task.IsEmpty_1 && task.IsInvo_1;
-            }
-
-            if (task.DevConfig.right_track_id == givetrackid)
-            {
-                if (!task.IsInvo_2 && (task.IsNeed_2 || isignoreneed) && task.IsEmpty_2)
-                {
-                    task.Do2Invo(DevLifterInvolE.介入);
-                }
-                return (task.IsNeed_2 || isignoreneed) && task.IsEmpty_2 && task.IsInvo_2;
-            }
-            return false;
-        }
-
         internal bool IsAnyoneNeeds(uint area, DeviceTypeE dt)
         {
             return DevList.Exists(c => c.AreaId == area && c.Type == dt && (c.IsNeed_1 || c.IsNeed_2));
@@ -2586,18 +2442,6 @@ namespace task.device
         {
             return DevList.Exists(c => c.ID == tilelifter_id && c.DevConfig.can_alter);
         }
-
-        /// <summary>
-        /// 判断品种跟指定的砖机的品种是否一致
-        /// </summary>
-        /// <param name="tile_id"></param>
-        /// <param name="goodid"></param>
-        /// <returns></returns>
-        public bool EqualTileGood(uint tile_id, uint goodid)
-        {
-            return DevList.Exists(c => c.ID == tile_id && c.DevConfig.goods_id == goodid);
-        }
-
         #endregion
 
         #region[更新品种信息]

@@ -124,7 +124,6 @@
     <Compile Include="Data\View\FerryPosView.cs" />
     <Compile Include="Data\View\FerryView.cs" />
     <Compile Include="Data\View\GoodsView.cs" />
-    <Compile Include="Data\View\OrgGoodTrackView.cs" />
     <Compile Include="Data\View\RfClientView.cs" />
     <Compile Include="Data\View\sim\SimDeviceView.cs" />
     <Compile Include="Data\View\StockGoodSumView.cs" />
@@ -153,9 +152,6 @@
     </Compile>
     <Compile Include="Dialog\platform\device\Carrier2TileLifterDialog.xaml.cs">
       <DependentUpon>Carrier2TileLifterDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Dialog\platform\stock\DeleteQtyDiaolog.xaml.cs">
-      <DependentUpon>DeleteQtyDiaolog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\platform\diction\DictionEditDialog.xaml.cs">
       <DependentUpon>DictionEditDialog.xaml</DependentUpon>
@@ -273,7 +269,6 @@
     <Compile Include="ViewModel\platform\diction\DictionDtlEditViewModel.cs" />
     <Compile Include="ViewModel\platform\diction\DictionSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\diction\DictionViewModel.cs" />
-    <Compile Include="ViewModel\platform\goods\DeleteQtyViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodSizeSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsEditViewModel.cs" />
@@ -292,7 +287,6 @@
     <Compile Include="ViewModel\platform\stock\TransViewModel.cs" />
     <Compile Include="ViewModel\platform\track\CarrierPosSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\track\LocationDialogViewModel.cs" />
-    <Compile Include="ViewModel\platform\track\OrganizeTrackViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackLogViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\track\TrackViewModel.cs" />
@@ -366,9 +360,6 @@
     <Compile Include="window\platform\stock\StockCtl.xaml.cs">
       <DependentUpon>StockCtl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="window\platform\track\OrganizeTrackCtl.xaml.cs">
-      <DependentUpon>OrganizeTrackCtl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="window\platform\track\TrackCtl.xaml.cs">
       <DependentUpon>TrackCtl.xaml</DependentUpon>
     </Compile>
@@ -427,10 +418,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\device\Carrier2TileLifterDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Dialog\platform\stock\DeleteQtyDiaolog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -499,12 +486,12 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\track\CarrierPosSelectDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\platform\track\LocationSelectDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\platform\track\TrackSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -643,10 +630,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="window\platform\stock\StockCtl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="window\platform\track\OrganizeTrackCtl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

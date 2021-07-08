@@ -440,16 +440,6 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取轨道RFID3（定位-反抛取砖地标）
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        public ushort GetTrackRFID3(uint trackid)
-        {
-            return TrackList.Find(c => c.id == trackid)?.rfid_3 ?? 0;
-        }
-
-        /// <summary>
         /// 获取轨道分割点脉冲
         /// </summary>
         /// <param name="trackid"></param>
@@ -718,17 +708,6 @@ namespace resource.track
         public bool ExistTrackInType(uint areaid, ushort lineid, params TrackTypeE[] types)
         {
             return TrackList.Exists(c => c.area == areaid && c.line == lineid && types.Contains(c.Type));
-        }
-
-        /// <summary>
-        /// 判断指定的轨道列表是否存在指定的状态的轨道
-        /// </summary>
-        /// <param name="tracks"></param>
-        /// <param name="statusEs"></param>
-        /// <returns></returns>
-        public bool ExistTracksStatus(List<uint> tracks, params TrackStatusE[] statusEs)
-        {
-            return TrackList.Exists(c => tracks.Contains(c.id) && c.InStatus(statusEs));
         }
         #endregion
 
@@ -1326,11 +1305,6 @@ namespace resource.track
             return TrackList.FindAll(c => c.area == areaid && c.Type == type).Select(c => c.id).ToList();
         }
 
-        /// <summary>
-        /// 判断轨道是否满砖状态
-        /// </summary>
-        /// <param name="track_id"></param>
-        /// <returns></returns>
         public bool IsTrackFull(uint track_id)
         {
             return TrackList.Exists(c => c.id == track_id && c.StockStatus == TrackStockStatusE.满砖);
@@ -1446,7 +1420,6 @@ namespace resource.track
 
             return tracks;
         }
-
 
         /// <summary>
         /// 判断是否是空轨道
@@ -2136,37 +2109,5 @@ namespace resource.track
         }
 
         #endregion
-
-
-        /// <summary>
-        /// 获取无任务，空闲轨道IDs
-        /// </summary>
-        /// <param name="id">指定轨道ID</param>
-        /// <returns></returns>
-        public List<uint> GetTrackFreeEmptyTrackIds(uint id)
-        {
-            Track track = GetTrack(id);
-            List<Track> tracks = TrackList.FindAll(c => c.Type == track.Type && c.StockStatus == TrackStockStatusE.空砖 && c.TrackStatus == TrackStatusE.启用);
-
-            List<TrackDis> tras = new List<TrackDis>();
-            foreach (var item in tracks)
-            {
-                tras.Add(new TrackDis()
-                {
-                    trackid = item.id,
-                    dis = Math.Abs((short)(item.id - id))
-                });
-            }
-
-            tras.Sort((x, y) => x.dis.CompareTo(y.dis));
-
-            return tras.Select(c => c.trackid)?.ToList() ?? new List<uint>();
-        }
-    }
-
-    class TrackDis
-    {
-        public uint trackid { set; get; }
-        public long dis { set; get; }
     }
 }

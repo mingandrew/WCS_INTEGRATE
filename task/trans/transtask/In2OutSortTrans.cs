@@ -66,7 +66,7 @@ namespace task.trans.transtask
             }
 
             //是否有小车在满砖轨道
-            if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint fullcarrierid))
+            if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
             {
                 if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
                 {
@@ -162,7 +162,6 @@ namespace task.trans.transtask
                                  && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
                             {
                                 trans.IsReleaseTakeFerry = true;
-                                _M.FreeTakeFerry(trans);
                             }
 
                             _M.SetStatus(trans, TransStatusE.倒库中);
@@ -503,7 +502,7 @@ namespace task.trans.transtask
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                 && (track.id == trans.take_track_id
                         || (track.id == trans.give_track_id
-                            && !PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))))
+                            && !PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))))
             {
                 #region 【任务步骤记录】
                 _M.LogForCarrierToTrack(trans, trans.give_track_id);
@@ -524,7 +523,7 @@ namespace task.trans.transtask
             // 完成？
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                 && track.id == trans.give_track_id
-                && PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
+                && PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
             {
                 // 入库侧仍还有库存
                 if (PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
@@ -737,7 +736,7 @@ namespace task.trans.transtask
                     });
                 }
 
-                if (PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
+                if (PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
                 {
                     _M.SetCarrier(trans, 0, string.Format("倒库任务暂停，释放运输车[ {0} ]", PubMaster.Device.GetDeviceName(trans.carrier_id)));
                 }
@@ -776,10 +775,6 @@ namespace task.trans.transtask
         public override void ReturnDevBackToTrack(StockTrans trans)
         {
 
-        }
-
-        public override void Organizing(StockTrans trans)
-        {
         }
 
         #endregion

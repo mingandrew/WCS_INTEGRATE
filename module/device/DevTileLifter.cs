@@ -29,7 +29,7 @@ namespace module.device
         private bool needsystemshift; //砖机需转产信号
         private byte backupshiftdev; //切换砖机设备号
         private byte alertlightstatus;       //报警灯状态
-        public byte receivesetfull;       //预留2：收到设满砖信号， 0：无    1：收到设满砖信号
+        private byte reserve2;       //预留2
         private byte reserve3;       //预留3
         private byte reserve4;       //预留4
         private byte markcode;       //标识码（PLC发送的码，需要PC进行控制码0x88回复）
@@ -244,15 +244,13 @@ namespace module.device
             set => Set(ref alertlightstatus, value);
         }
 
-        public byte ReceiveSetFull
+        /// <summary>
+        /// 预留2
+        /// </summary>
+        public byte Reserve2
         {
-            get => receivesetfull;
-            set => Set(ref receivesetfull, value);
-        }
-
-        public bool IsReceiveSetFull
-        {
-            get => ReceiveSetFull == 1;
+            set => Set(ref reserve2, value);
+            get => reserve2;
         }
 
         /// <summary>
@@ -290,10 +288,10 @@ namespace module.device
         {
             return string.Format("物1[ {0} ], 物2[ {1} ], 需1[ {2} ], 需2[ {3} ], 满[ {4} ], 工1[ {5} ], 工2[ {6} ], 介1[ {7} ], 介2[ {8} ], 操作[ {9} ], " +
                 "位1[ {10} ], 位2[ {11} ], 转产[ {12} ], 接收[ {13} ], 模式[ {14} ], 设品[ {15} ], 设级[ {16} ], 转产信号[ {17} ], 备用设备[ {18} ], " +
-                "灯[ {19} ], 设满砖[ {20} ], 预3[ {21} ], 预4[ {22} ], 标识码[ {23} ]",
+                "灯[ {19} ], 预2[ {20} ], 预3[ {21} ], 预4[ {22} ], 标识码[ {23} ]",
                 LoadStatus1, LoadStatus2, S(Need1), S(Need2), FullQty, Site1Qty, Site2Qty, S(Involve1), S(Involve2), OperateMode,
                 Goods1, Goods2, ShiftStatus, S(ShiftAccept), WorkMode, SetGoods, SetLevel, S(NeedSytemShift), BackupShiftDev,
-                AlertLightStatus, ReceiveSetFull, Reserve3, Reserve4, MarkCode);
+                AlertLightStatus, Reserve2, Reserve3, Reserve4, MarkCode);
         }
 
         private string S(bool v)

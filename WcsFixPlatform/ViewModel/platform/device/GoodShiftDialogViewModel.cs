@@ -1,5 +1,4 @@
 ﻿using enums;
-using enums.warning;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using HandyControl.Controls;
@@ -44,8 +43,6 @@ namespace wcs.ViewModel
         private string _devname;
         TileShiftStatusE _shiftstatus;
         private bool shiftbtnenable;
-
-        private bool showlevel = true;
 
         public uint AREA
         {
@@ -107,12 +104,6 @@ namespace wcs.ViewModel
             set => Set(ref _prelevel, value);
         }
 
-        public bool ShowLevel
-        {
-            get => showlevel;
-            set => Set(ref showlevel, value);
-        }
-
         public string NowGQty
         {
             get => _nowgqty;
@@ -168,7 +159,7 @@ namespace wcs.ViewModel
 
         private void ClearnPreGood()
         {
-            if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, 0, 0, out string msg))
+            if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, 0, out string msg))
             {
                 SetPreGood(0);
                 SetGQty();
@@ -193,7 +184,7 @@ namespace wcs.ViewModel
 
                 if (result.p1 is bool rs && result.p2 is GoodsView good)
                 {
-                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.ID, 0, out string msg))
+                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.ID, out string msg))
                     {
                         SetPreGood(good.ID);
                         SetGQty();
@@ -216,7 +207,7 @@ namespace wcs.ViewModel
                 if (result.p1 is bool rs && result.p2 is StockGoodSumView good)
                 {
                     int count = good.IsUseAll() ? 0 : good.Count;
-                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.GoodId, count, out string msg))
+                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.GoodId, out string msg))
                     {
                         SetPreGood(good.GoodId);
                         SetGQty();
@@ -232,20 +223,20 @@ namespace wcs.ViewModel
 
         private void SetGQty()
         {
-            ConfigTileLifter dev = PubMaster.DevConfig.GetTileLifter(_devid);
-            if (dev != null)
-            {
-                if (PubMaster.Device.GetDeviceType(_devid) == DeviceTypeE.下砖机)
-                {
-                    NowGQty = "-";
-                    PreGQty = "-";
-                }
-                else
-                {
-                    NowGQty = dev.now_good_all ? "不限" : dev.now_good_qty + "";
-                    PreGQty = dev.pre_good_all ? "不限" : (dev.pre_good_qty > 0 ? (dev.pre_good_qty + "") : "-");
-                }
-            }
+            //Device dev = PubMaster.Device.GetDevice(_devid);
+            //if (dev != null)
+            //{
+            //    if (dev.Type == DeviceTypeE.下砖机)
+            //    {
+            //        NowGQty = "-";
+            //        PreGQty = "-";
+            //    }
+            //    else
+            //    {
+            //        NowGQty = dev.now_good_all ? "全部" : dev.now_good_qty + "";
+            //        PreGQty = dev.pre_good_all ? "全部" : (dev.pre_good_qty > 0 ? (dev.pre_good_qty + "") : "-");
+            //    }
+            //}
         }
 
         private void SetNowGood(uint id)
@@ -269,7 +260,6 @@ namespace wcs.ViewModel
                 PreGoodName = goods.name;
                 PreLevel = goods.level;
                 PreGoodColor = goods.color;
-                ShowLevel = true;
             }
             else
             {
@@ -281,7 +271,6 @@ namespace wcs.ViewModel
         {
             PreGoodName = "";
             PreLevel = 0;
-            ShowLevel = false;
             PreGoodColor = "";
             PreGQty = "-";
             _pregoodsid = 0;
@@ -313,14 +302,8 @@ namespace wcs.ViewModel
 
             if (!PubMaster.DevConfig.IsShiftInAllowTime(_devid))
             {
-                string rr = string.Format("{0}砖机在5分钟内已转产过，请确认是否需要再次转产", PubMaster.Device.GetDeviceName(_devid));
-                MessageBoxResult box = HandyControl.Controls.MessageBox.Show(rr, "警告",
-                                       MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                if (box == MessageBoxResult.No)
-                {
-                    return;
-                }
+                Growl.Warning("砖机在短时间(5分钟)内已执行转产,无需重复操作");
+                return;
             }
 
             if (PubMaster.Device.IsDevType(_devid, DeviceTypeE.下砖机))
@@ -328,14 +311,14 @@ namespace wcs.ViewModel
                 if (_pregoodsid == 0 && !PubMaster.DevConfig.IsTileHavePreGood(_devid))
                 {
                     //添加默认品种 A,B,C,D,E....
-                    if (!PubMaster.Goods.AddDefaultGood(_devid, _goodsid, out string ad_rs, out uint pgoodid))
+                    if (!PubMaster.Goods.AddDefaultGood(_goodsid, out string ad_rs, out uint pgoodid))
                     {
                         Growl.Info(ad_rs);
                         return;
                     }
                     else
                     {
-                        if (!PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, pgoodid, 0, out string up_rs))
+                        if (!PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, pgoodid, out string up_rs))
                         {
                             Growl.Info(up_rs);
                             return;
@@ -364,9 +347,6 @@ namespace wcs.ViewModel
                 Growl.Warning(msg);
                 return;
             }
-            //清除上砖数量为0的报警
-            PubMaster.Warn.RemoveDevWarn(WarningTypeE.Warning37, (ushort)_devid);
-
             Growl.Success("开始转产！");
             CloseAction?.Invoke();
         }

@@ -855,38 +855,6 @@ namespace task.trans.transtask
                             _M.SetUnLoadTime(trans);
 
                             _M.SetStatus(trans, TransStatusE.还车回轨);
-                            PubMaster.DevConfig.SubTileNowGoodQty(trans.tilelifter_id, trans.goods_id);
-                            return;
-                        }
-
-                        //摆渡车去接运输车
-                        if (track.id != trans.give_track_id && trans.take_ferry_id != 0)
-                        {
-                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true))
-                            {
-                                #region 【任务步骤记录】
-                                _M.LogForFerryMove(trans, trans.take_ferry_id, track.id, res);
-                                #endregion
-                                return;
-                            }
-
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
-                            {
-                                #region 【任务步骤记录】
-                                _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
-                                #endregion
-
-                                // 后退至摆渡车
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    ToTrackId = ferryTraid
-                                });
-                                return;
-                            }
-
                         }
                     }
 
@@ -1304,7 +1272,6 @@ namespace task.trans.transtask
                         && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
                     {
                         trans.IsReleaseGiveFerry = true;
-                        _M.FreeGiveFerry(trans);
                     }
 
                     //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
@@ -1518,9 +1485,6 @@ namespace task.trans.transtask
         public override void ToGiveTrackGiveStock(StockTrans trans)
         {
 
-        }
-        public override void Organizing(StockTrans trans)
-        {
         }
         #endregion
     }

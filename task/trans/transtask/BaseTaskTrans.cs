@@ -2,9 +2,7 @@
 using enums.track;
 using module.goods;
 using module.track;
-using resource;
 using System;
-using task.device;
 using tool.timer;
 
 namespace task.trans.transtask
@@ -16,13 +14,11 @@ namespace task.trans.transtask
     {
         internal TransMaster _M {private set; get; }
         internal MTimer mTimer;
-        internal Track track, takeTrack;
-        internal bool isload, isnotload, tileemptyneed, ftask;
+        internal Track track;
+        internal bool isload, isnotload, tileemptyneed;
         internal uint ferryTraid;
         internal string res = "", result = "";
         internal uint carrierid;
-        internal bool allocatakeferry, allocagiveferry, isfalsereturn;
-        
         public BaseTaskTrans(TransMaster trans)
         {
             _M = trans;
@@ -32,18 +28,13 @@ namespace task.trans.transtask
         internal void Clearn()
         {
             track = null;
-            takeTrack = null;
             isload = false;
             isnotload = false;
             tileemptyneed = false;
-            ftask = false;
             ferryTraid = 0;
-            carrierid = 0;
-            allocatakeferry = false;
-            allocagiveferry = false;
             res = "";
+            carrierid = 0;
         }
-        
         /// <summary>
         /// 执行任务
         /// </summary>
@@ -53,13 +44,6 @@ namespace task.trans.transtask
             try
             {
                 Clearn();
-
-                #region[流程超时报警 - 默认超时10分钟则报警，倒库中流程则要2小时才报警]
-
-                PubTask.Trans.CheckAndAddTransStatusOverTimeWarn(trans);
-
-                #endregion
-
                 switch (trans.TransStaus)
                 {
                     case TransStatusE.调度设备:
@@ -98,9 +82,6 @@ namespace task.trans.transtask
                         break;
                     case TransStatusE.接力等待:
                         Out2OutRelayWait(trans);
-                        break;
-                    case TransStatusE.整理中:
-                        Organizing(trans);
                         break;
                     case TransStatusE.其他:
                         OtherAction(trans);
@@ -188,8 +169,6 @@ namespace task.trans.transtask
 
         public abstract void OtherAction(StockTrans trans);
 
-        public abstract void Organizing(StockTrans trans);
-
         #endregion
 
         #region[其他判断]
@@ -214,142 +193,6 @@ namespace task.trans.transtask
             }
         }
 
-        #endregion
-
-        #region[检测轨道并添加移车任务]
-
-
-
-        /// <summary>
-        /// 判断是否有其他车在需要作业的轨道
-        /// </summary>
-        /// <param name="trans"></param>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid)
-        {
-            CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
-            bool haveintrack = PubTask.Carrier.HaveDifTypeInTrack(trackid, carrier, out uint carrierid);
-
-            if (!haveintrack && trans.carrier_id != 0)
-            {
-                haveintrack = PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id, out carrierid);
-            }
-
-            if (haveintrack && !_M.HaveCarrierInTrans(carrierid))
-            {
-                if (PubTask.Carrier.IsCarrierFree(carrierid))
-                {
-                    if (PubTask.Carrier.IsLoad(carrierid))
-                    {
-                        //下降放货
-                        PubTask.Carrier.DoOrder(carrierid, trans.id, new CarrierActionOrder()
-                        {
-                            Order = DevCarrierOrderE.放砖指令
-                        }, "库存转移下降放货");
-                    }
-                    else
-                    {
-                        //转移到同类型轨道
-                        TrackTypeE tracktype = PubMaster.Track.GetTrackType(trackid);
-                        _M.AddMoveCarrierTask(trackid, carrierid, tracktype, MoveTypeE.转移占用轨道);
-                    }
-                }
-            }
-
-            return haveintrack;
-        }
-
-        #endregion
-
-        #region[分配摆渡车]
-
-        /// <summary>
-        /// 分配取货摆渡车
-        /// </summary>
-        /// <param name="trans"></param>
-        /// <param name="ferrytype"></param>
-        /// <param name="track"></param>
-        /// <param name="isfalsereturn"></param>
-        public void AllocateTakeFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, out bool isfalsereturn)
-        {
-            if (trans.take_ferry_id == 0
-               && !trans.IsReleaseTakeFerry)
-            {
-                string msg = _M.AllocateFerry(trans, ferrytype, track, false);
-
-                #region 【任务步骤记录】
-                if (_M.LogForTakeFerry(trans, msg))
-                {
-                    isfalsereturn = true;
-                    return;
-                }
-                #endregion
-            }
-            isfalsereturn = false;
-        }
-
-
-        /// <summary>
-        /// 分配放货摆渡车
-        /// </summary>
-        /// <param name="trans"></param>
-        /// <param name="ferrytype"></param>
-        /// <param name="track"></param>
-        /// <param name="isfalsereturn"></param>
-        public void AllocateGiveFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, out bool isfalsereturn)
-        {
-            if (trans.give_ferry_id == 0
-               && !trans.IsReleaseGiveFerry)
-            {
-                string msg = _M.AllocateFerry(trans, ferrytype, track, true);
-
-                #region 【任务步骤记录】
-                if (_M.LogForGiveFerry(trans, msg))
-                {
-                    isfalsereturn = true;
-                    return;
-                }
-                #endregion
-            }
-            isfalsereturn = false;
-        }
-
-        #endregion
-
-        #region[完全释放摆渡车]
-
-        /// <summary>
-        /// 释放取货摆渡车
-        /// </summary>
-        /// <param name="trans"></param>
-        public void RealseTakeFerry(StockTrans trans)
-        {
-            if (!trans.IsReleaseTakeFerry
-                && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
-                && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
-            {
-                _M.FreeTakeFerry(trans);
-
-                trans.take_ferry_id = 0;
-            }
-        }
-
-        /// <summary>
-        /// 是否送货摆渡车
-        /// </summary>
-        /// <param name="trans"></param>
-        public void RealseGiveFerry(StockTrans trans)
-        {
-            if (!trans.IsReleaseGiveFerry
-                && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
-                && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
-            {
-                _M.FreeGiveFerry(trans);
-
-                trans.give_ferry_id = 0;
-            }
-        }
         #endregion
     }
 }

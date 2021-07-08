@@ -1,8 +1,6 @@
-﻿using enums;
-using enums.track;
+﻿using enums.track;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.goods;
@@ -12,9 +10,7 @@ using resource;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using task;
 using wcs.Data.View;
 using wcs.Dialog;
@@ -26,8 +22,6 @@ namespace wcs.ViewModel
         public StockViewModel():base("StockView")
         {
             List = new ObservableCollection<Stock>();
-            BriefList = new ObservableCollection<StockSum>();
-            Messenger.Default.Register<uint>(this, MsgToken.SetStockSelectTrack, SetStockSelectTrack);
         }
 
         #region[字段]
@@ -35,12 +29,8 @@ namespace wcs.ViewModel
         private Track _selecttrack;
         private string _selecttrackname;
         private ObservableCollection<Stock> _list;
-        private ObservableCollection<StockSum> _brieflist;
         private Stock _selectstock;
         private DateTime? _refreshtime;
-        private bool showbrief = true;
-        private StockSum selectgood;
-        private List<Stock> stocklist;
         #endregion
 
         #region[属性]
@@ -56,12 +46,6 @@ namespace wcs.ViewModel
             get => _list;
             set => Set(ref _list, value);
         }
-
-        public ObservableCollection<StockSum> BriefList
-        {
-            get => _brieflist;
-            set => Set(ref _brieflist, value);
-        }
         
         public Stock SelectStock
         {
@@ -75,57 +59,16 @@ namespace wcs.ViewModel
             set => Set(ref _refreshtime, value);
         }
 
-        public bool ShowBrief
-        {
-            get => showbrief;
-            set => Set(ref showbrief, value);
-        }
-
-        public StockSum SelectGood
-        {
-            get => selectgood;
-            set => Set(ref selectgood, value);
-        }
-
-        public List<Stock> StockList
-        {
-            get => stocklist;
-            set => Set(ref stocklist, value);
-        }
-
         #endregion
 
         #region[命令]
         public RelayCommand TrackSelectedCmd => new Lazy<RelayCommand>(() => new RelayCommand(TrackSelected)).Value;
         public RelayCommand<string> ActionStockCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(ActionStock)).Value;
         public RelayCommand<string> StockEditCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(StockEdit)).Value;
-        public RelayCommand<RoutedEventArgs> ShowBriefOrDetailCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(ShowBriefOrDetail)).Value;
 
         #endregion
 
         #region[方法]
-        /// <summary>
-        /// 显示简要或详细货物
-        /// </summary>
-        /// <param name="args"></param>
-        private void ShowBriefOrDetail(RoutedEventArgs args)
-        {
-            if (args.OriginalSource is RadioButton btn)
-            {
-                string tag = btn.Tag.ToString();
-                switch (tag)
-                {
-                    case "brief":
-                        ShowBrief = true;
-                        break;
-                    case "detail":
-                        ShowBrief = false;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
 
         /// <summary>
         /// 操作选择
@@ -150,14 +93,7 @@ namespace wcs.ViewModel
                         EditStock();
                         break;
                     case 3://删除库存
-                        if (ShowBrief)
-                        {
-                            DelectSotckQty();
-                        }
-                        else
-                        {
-                            DeleteStock();
-                        }
+                        DeleteStock();
                         break;
                     case 4://往前 + 库存
                         InsertStock(true);
@@ -214,11 +150,6 @@ namespace wcs.ViewModel
         private void ActionStock(string tag)
         {
             if (_selecttrack == null) return;
-            if (ShowBrief && SelectGood == null && (List == null || BriefList == null))
-            {
-                Growl.Warning("请选择库存品种");
-                return;
-            }
             if (int.TryParse(tag, out int type))
             {
                 switch (type)
@@ -226,17 +157,11 @@ namespace wcs.ViewModel
 
                     case 0://刷新
                         List.Clear();
-                        StockList = PubMaster.Goods.GetStocks(_selecttrack.id);
-                        StockList.Sort((x, y) => x.pos.CompareTo(y.pos));
-                        foreach (Stock stock in StockList)
+                        List<Stock> stocks = PubMaster.Goods.GetStocks(_selecttrack.id);
+                        stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
+                        foreach (Stock stock in stocks)
                         {
                             List.Add(stock);
-                        }
-                        BriefList.Clear();
-                        List<StockSum> stocksum = PubMaster.Goods.GetTrackStockSums(_selecttrack.id);
-                        foreach (StockSum item in stocksum)
-                        {
-                            BriefList.Add(item);
                         }
                         break;
                     case 1://添加
@@ -278,12 +203,6 @@ namespace wcs.ViewModel
                 return;
             }
 
-            if (ShowBrief && SelectGood == null)
-            {
-                Growl.Warning("请选择库存品种！");
-                return;
-            }
-
             DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
              .Initialize<GoodsSelectViewModel>((vm) =>
              {
@@ -299,14 +218,7 @@ namespace wcs.ViewModel
                     Growl.Warning("库存品种相同，不用修改！");
                     return;
                 }
-                if (ShowBrief)
-                {
-                    ShowStockGoodEditDialog(_selecttrack.id, SelectGood.goods_id, good.ID);
-                }
-                else
-                {
-                    ShowStockGoodEditDialog(_selecttrack.id, stock.goods_id, good.ID);
-                }
+                ShowStockGoodEditDialog(_selecttrack.id, stock.goods_id, good.ID);
             }
         }
 
@@ -332,7 +244,7 @@ namespace wcs.ViewModel
 
                 if (ars == MessageBoxResult.Yes)
                 {
-                    if (PubMaster.Goods.ChangeStockGood(trackid, newgoodid, changedate, nd, out string res, oldgoodid))
+                    if (PubMaster.Goods.ChangeStockGood(trackid, newgoodid, changedate, nd, out string res))
                     {
                         Growl.Success("更改成功！");
                         ActionStock("0");
@@ -415,15 +327,7 @@ namespace wcs.ViewModel
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
-                if (ShowBrief)
-                {
-                    TrackStockAdd(good.ID, true);
-                    //TrackStockAdd(good.ID, good.Pieces,false);
-                }
-                else
-                {
-                    TrackStockAdd(good.ID, true);
-                }
+                TrackStockAdd(good.ID, good.Pieces);
             }
         }
 
@@ -432,72 +336,18 @@ namespace wcs.ViewModel
         /// </summary>
         /// <param name="gid"></param>
         /// <param name="picese"></param>
-        private async void TrackStockAdd(uint gid, bool isaddbottom = false)
+        private async void TrackStockAdd(uint gid, ushort picese)
         {
             DialogResult result = await HandyControl.Controls.Dialog.Show<StockEditDialog>()
                  .Initialize<StockEditViewModel>((vm) =>
                  {
-                     vm.SetAddInput(gid, _selecttrack.id);
-                     vm.IsAddBottom = isaddbottom;
+                     vm.SetAddInput(gid, _selecttrack.id, picese);
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && rs)
             {
                 Growl.Success("添加成功！");
                 ActionStock("0");
             }
-        }
-
-        private async void DelectSotckQty()
-        {
-            if (SelectGood == null)
-            {
-                Growl.Warning("请先选择修改的库存品种");
-                return;
-            }
-            DialogResult result = await HandyControl.Controls.Dialog.Show<DeleteQtyDiaolog>()
-                .Initialize<DeleteQtyViewModel>((vm) =>
-                {
-                    vm.DelectQty = 0;
-                    vm.DelectQtyList.Clear();
-                    vm.SetDelectQtyList(SelectGood.count);
-                }).GetResultAsync<DialogResult>();
-            if (result.p1 is bool rs && rs && result.p2 is uint delectqty)
-            {
-                if (delectqty > SelectGood.count)
-                {
-                    Growl.Warning("请输入合适的数值");
-                    return;
-                }
-                MessageBoxResult result1 = HandyControl.Controls.MessageBox.Show("是否确认删除库存记录", "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (result1 == MessageBoxResult.Yes)
-                {
-                    List<Stock> samegoodlist = StockList.FindAll(c => c.goods_id == SelectGood.goods_id);
-                    samegoodlist.Sort((x, y) => x.pos.CompareTo(y.pos));
-                    Stock samelastgood = samegoodlist.FindLast(c => c.track_id == SelectGood.track_id);
-
-                    Stock samelaststock = StockList.FindLast(c => c.goods_id == SelectGood.goods_id);
-                    int samelastindex = StockList.IndexOf(samelaststock);
-                    for (int i = samelastindex; i > (samelastindex - delectqty); i--)
-                    {
-                        if (PubTask.Trans.IsStockInTrans(StockList[i].track_id, out string rs1))
-                        {
-                            Growl.Warning(rs1);
-                            return;
-                        }
-
-                        if (!PubMaster.Goods.DeleteStocks(StockList[i].id, _selecttrack.id, i, delectqty, out rs1))
-                        {
-                            Growl.Warning(rs1);
-                            return;
-                        }
-                    }
-
-                    ActionStock("0");
-                    Growl.Success("删除成功!");
-                }
-                
-            }
-
         }
 
         private void DeleteStock()
@@ -559,7 +409,7 @@ namespace wcs.ViewModel
 
                 if (!isUpInsert && pos == 0)
                 {
-                    TrackStockAdd(good.ID);
+                    TrackStockAdd(good.ID, good.Pieces);
                 }
                 else
                 {
@@ -609,17 +459,6 @@ namespace wcs.ViewModel
             }
 
             return true;
-        }
-
-        private void SetStockSelectTrack(uint traid)
-        {
-            if (traid == 0) return;
-            if (_selecttrack == null || _selecttrack.id != traid)
-            {
-                _selecttrack = PubMaster.Track.GetTrack(traid);
-                SelectTrackName = _selecttrack.name;
-            }
-            ActionStock("0");
         }
 
         protected override void TabActivate()

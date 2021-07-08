@@ -1,6 +1,5 @@
 ﻿using enums;
 using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.diction;
@@ -237,11 +236,6 @@ namespace wcs.ViewModel
             if (result.p1 is bool rs && rs)
             {
                 //MsgHelper.SendAction(SQLDataE.QueryDiction);
-                
-                if (DictionDtlSelected.code == DicTag.GoodsListLimit)
-                {
-                    PubMaster.Goods.DelectOverLimitGoods();
-                }
                 ItemRefresh(true);
             }
         }

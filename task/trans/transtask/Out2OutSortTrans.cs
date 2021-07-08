@@ -27,7 +27,7 @@ namespace task.trans.transtask
         public override void CheckingTrack(StockTrans trans)
         {
             //是否有小车在满砖轨道
-            if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint carrierid))
+            if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint carrierid))
             {
                 if (PubTask.Carrier.IsCarrierFree(carrierid))
                 {
@@ -133,7 +133,6 @@ namespace task.trans.transtask
                                  && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
                             {
                                 trans.IsReleaseTakeFerry = true;
-                                _M.FreeTakeFerry(trans);
                             }
 
                             _M.SetStatus(trans, TransStatusE.倒库中);
@@ -335,14 +334,7 @@ namespace task.trans.transtask
             if(track.brother_track_id == trans.take_track_id)
             {
                 if(PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
-                {
-                    #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1308, string.Format("运输车[ {0} ], 接力不允许取入库轨道砖,系统自动终止；",
-                        PubMaster.Device.GetDeviceName(trans.carrier_id)));
-                    #endregion
-
-                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.CarrierLoadNotSortTask, (ushort)trans.carrier_id, trans.id);
-
+                { 
                     //终止
                     PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                     {
@@ -410,13 +402,12 @@ namespace task.trans.transtask
                     #endregion
 
                     //前进放砖
-                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                    CarrierActionOrder cao = new CarrierActionOrder
                     {
                         Order = DevCarrierOrderE.放砖指令,
                         CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                        ToTrackId = trans.give_track_id
-                    });
+                        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id)
+                    };
 
                     return;
                 }
@@ -665,9 +656,9 @@ namespace task.trans.transtask
 
             // 任务运输车回到出库轨道头
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                && (trans.give_track_id == track.brother_track_id
+                && (track.id == track.brother_track_id
                         || (track.id == trans.give_track_id
-                            && !PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))))
+                            && !PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))))
             {
                 #region 【任务步骤记录】
                 _M.LogForCarrierToTrack(trans, trans.give_track_id);
@@ -688,7 +679,7 @@ namespace task.trans.transtask
             // 完成？
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                 && track.id == trans.give_track_id
-                && PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
+                && PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
             {
                 _M.SetStatus(trans, TransStatusE.完成);
             }
@@ -741,7 +732,7 @@ namespace task.trans.transtask
                     });
                 }
 
-                if (PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
+                if (PubTask.Carrier.IsCarrierInTrackBiggerSite(trans.carrier_id, trans.give_track_id))
                 {
                     _M.SetCarrier(trans, 0, string.Format("倒库任务暂停，释放小车[ {0} ]", PubMaster.Device.GetDeviceName(trans.carrier_id)));
                 }
@@ -812,8 +803,6 @@ namespace task.trans.transtask
                 _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
             }
 
-            bool need = PubMaster.Goods.ExistInfrontUpSplitPoint(track.id, nowpoint);
-
             //前面没有库存，继续倒库
             if (upnonestock || onestockcarloadit || nonetileusegood)
             {
@@ -851,7 +840,7 @@ namespace task.trans.transtask
                 //}else
                 #endregion
 
-                if(need)
+                if(true)
                 {
                     byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, nowpoint);
                     byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
@@ -922,9 +911,6 @@ namespace task.trans.transtask
 
         }
 
-        public override void Organizing(StockTrans trans)
-        {
-        }
         #endregion
     }
 }

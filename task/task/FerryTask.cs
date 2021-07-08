@@ -352,7 +352,7 @@ namespace task.task
                 UpTrackId = 0;
             }
 
-            if (UpSite != 0)
+            if (UpSite != 0 && (DevStatus?.IsUpSiteChange ?? false))
             {
                 UpTrackId = PubMaster.Track.GetAreaTrack(ID, (ushort)AreaId, Type, UpSite);
             }
@@ -362,7 +362,7 @@ namespace task.task
                 DownTrackId = 0;
             }
 
-            if (DownSite != 0)
+            if (DownSite != 0 && (DevStatus?.IsDownSiteChange ?? false))
             {
                 DownTrackId = PubMaster.Track.GetAreaTrack(ID, (ushort)AreaId, Type, DownSite);
             }

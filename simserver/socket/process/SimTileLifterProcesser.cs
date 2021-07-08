@@ -42,7 +42,7 @@ namespace simserver.simsocket.process
                 NeedSytemShift = (byte)(dev.NeedSytemShift ? 0x01 : 0x00),
                 BackupShiftDev = dev.BackupShiftDev,
                 AlertLightStatus = dev.AlertLightStatus,
-                Reserve2 = dev.ReceiveSetFull,
+                Reserve2 = dev.Reserve2,
                 Reserve3 = dev.Reserve3,
                 Reserve4 = dev.Reserve4,
                 MarkCode = dev.MarkCode,

@@ -52,8 +52,6 @@
         /// </summary>
         public const string NewTrafficCtlId = nameof(NewTrafficCtlId);
 
-        public const string NewTranDtlId = nameof(NewTranDtlId);
-
         #endregion
 
         #region[平板]
@@ -104,11 +102,6 @@
         /// 1脉冲=厘米
         /// </summary>
         public static string Pulse2CM = nameof(Pulse2CM);
-
-        /// <summary>
-        /// 品种列表数量上限
-        /// </summary>
-        public static string GoodsListLimit = nameof(GoodsListLimit);
 
         #endregion
 
@@ -189,12 +182,6 @@
         /// 开关-允许出入倒库时可以上砖
         /// </summary>
         public static string UpTaskIgnoreInoutSortTask = nameof(UpTaskIgnoreInoutSortTask);
-
-        /// <summary>
-        /// 开关-启用反抛任务
-        /// </summary>
-        public static string EnableSecondUpTask = nameof(EnableSecondUpTask);
-
         #endregion
 
         #region[分析服务开关]
@@ -212,20 +199,6 @@
         /// 开关-启用移车分析服务
         /// </summary>
         public static string EnableMoveCarDiagnose = nameof(EnableMoveCarDiagnose);
-
-        #endregion
-
-        #region[流程超时]
-
-        /// <summary>
-        /// 除【倒库中】，其他流程的超时时间（秒）
-        /// </summary>
-        public static string StepOverTime = nameof(StepOverTime);
-
-        /// <summary>
-        /// 倒库中流程的超时时间（秒）
-        /// </summary>
-        public static string SortingStockStepOverTime = nameof(SortingStockStepOverTime);
 
         #endregion
     }

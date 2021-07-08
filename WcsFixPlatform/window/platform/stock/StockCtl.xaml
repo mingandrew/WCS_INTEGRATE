@@ -20,17 +20,6 @@
                     <Button Content="选择" Style="{StaticResource ButtonPrimary}" Command="{Binding TrackSelectedCmd}" FontSize="16" Height="35"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <hc:ButtonGroup Style="{StaticResource ButtonGroupSolid}" Margin="0,0,10,0"
-                                    Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <hc:Interaction.Triggers>
-                            <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
-                                <hc:EventToCommand Command="{Binding ShowBriefOrDetailCmd}" PassEventArgsToCommand="True"/>
-                            </hc:RoutedEventTrigger>
-                        </hc:Interaction.Triggers>
-                        <RadioButton Content="简要" Tag="brief"  Width="60" Height="35" FontSize="16"/>
-                        <RadioButton Content="详细" Tag="detail"  Width="60" Height="35" FontSize="16"/>
-
-                    </hc:ButtonGroup>
 
                     <Button Content="刷新信息" HorizontalAlignment="Right" 
                             Style="{StaticResource ButtonWarning}" 
@@ -56,36 +45,11 @@
                 </StackPanel>
             </Grid>
             <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                              ItemsSource="{Binding BriefList}" SelectedItem="{Binding SelectGood}"
-                              SelectionUnit="FullRow" SelectionMode="Single" 
-                              CanUserAddRows="False" CanUserResizeColumns="False"
-                              CanUserDeleteRows="False" CanUserSortColumns="False"
-                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
-                              Visibility="{Binding ShowBrief, Converter={StaticResource Boolean2VisibilityConverter}}">
-                <DataGrid.ContextMenu>
-                    <ContextMenu>
-                        <!--<MenuItem Header="往前+库存" Visibility="Visible" Tag="4" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
-                        <!--<MenuItem Header="往后+库存" Visibility="Visible" Tag="5" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
-                        <!--<MenuItem Header="修改"   Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" Tag="2" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
-                        <!--<MenuItem Header="删除" Tag="3" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
-                    <DataGridTextColumn Binding="{Binding count}" Header="车"/>
-                    <DataGridTextColumn Binding="{Binding stack}" Header="垛"/>
-                    <DataGridTextColumn Binding="{Binding pieces}" Header="片数"/>
-                    <DataGridTextColumn Binding="{Binding produce_time,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间"/>
-                </DataGrid.Columns>
-            </DataGrid>
-            <DataGrid Grid.Row="1" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
                               ItemsSource="{Binding List}" SelectedItem="{Binding SelectStock}"
                               SelectionUnit="FullRow" SelectionMode="Single" 
                               CanUserAddRows="False" CanUserResizeColumns="False"
                               CanUserDeleteRows="False" CanUserSortColumns="False"
-                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
-                              Visibility="{Binding ShowBrief, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <!--<MenuItem Header="往前+库存" Visibility="Visible" Tag="4" Command="{Binding StockEditCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->

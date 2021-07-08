@@ -58,7 +58,6 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<StockSumViewModel>();
             SimpleIoc.Default.Register<StockEditViewModel>();
             SimpleIoc.Default.Register<StockGoodEditViewModel>();
-            SimpleIoc.Default.Register<DeleteQtyViewModel>();
             SimpleIoc.Default.Register<TransViewModel>();
             SimpleIoc.Default.Register<TestGoodViewModel>();
             SimpleIoc.Default.Register<AddManualTransViewModel>();
@@ -78,7 +77,6 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<CarrierPosViewModel>();
 
             SimpleIoc.Default.Register<SimulationViewModel>();
-            SimpleIoc.Default.Register<OrganizeTrackViewModel>();
 
             SimpleIoc.Default.Register<LocationDialogViewModel>();
             SimpleIoc.Default.Register<CarrierPosSelectViewModel>();
@@ -148,7 +146,7 @@ namespace wcs.ViewModel
         public AddManualTransViewModel AddManualTrans => ServiceLocator.Current.GetInstance<AddManualTransViewModel>();
         public TrackAllocateViewModel StockAllocate => ServiceLocator.Current.GetInstance<TrackAllocateViewModel>();
         public TileTrackViewModel TileTrack => ServiceLocator.Current.GetInstance<TileTrackViewModel>();
-        public DeleteQtyViewModel DelectQty => ServiceLocator.Current.GetInstance<DeleteQtyViewModel>();
+
         #endregion
 
         #region[菜单-角色-用户]
@@ -167,15 +165,9 @@ namespace wcs.ViewModel
         public SimulationViewModel Simulation => ServiceLocator.Current.GetInstance<SimulationViewModel>();
         #endregion
 
-        #region[库存整理]
-
-        public OrganizeTrackViewModel OrganizeTrack => ServiceLocator.Current.GetInstance<OrganizeTrackViewModel>();
-
-        #endregion
-
-        public static void Cleanup()
-        {
+            public static void Cleanup()
+            {
                 // TODO Clear the ViewModels
-        }
+            }
     }
 }

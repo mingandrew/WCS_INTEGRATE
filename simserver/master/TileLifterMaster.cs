@@ -253,15 +253,6 @@ namespace simtask.master
             }
         }
 
-        public void SetBackUpDevice(uint deviceID, byte backdevcode)
-        {
-            SimTileLifterTask task = DevList.Find(c => c.ID == deviceID);
-            if (task != null)
-            {
-                task.DevStatus.BackupShiftDev = backdevcode;
-            }
-        }
-
         public void StartOrStopWork(uint devid, bool isstart)
         {
             if (isstart)
@@ -291,10 +282,6 @@ namespace simtask.master
             {
                 #region[查询]
                 case DevLifterCmdTypeE.查询:
-                    if(task.DevStatus.ShiftStatus == TileShiftStatusE.转产中)
-                    {
-                        task.DevStatus.ShiftStatus = TileShiftStatusE.完成;
-                    }
                     break;
                 #endregion
 
@@ -385,8 +372,6 @@ namespace simtask.master
                     switch (cmd.ShiftType)
                     {
                         case TileShiftCmdE.复位:
-                            task.DevStatus.ShiftStatus = TileShiftStatusE.复位;
-
                             break;
                         case TileShiftCmdE.变更品种:
                             task.DevStatus.SetGoods = cmd.GoodId;
@@ -406,30 +391,18 @@ namespace simtask.master
                 #region[模式]
                 case DevLifterCmdTypeE.模式:
                     task.DevStatus.WorkMode = cmd.WorkMode;
-                    switch (cmd.SetFullType)
+                    if (cmd.SetFullType == TileFullE.设为满砖)
                     {
-                        case TileFullE.忽略:
-                            if (task.DevStatus.IsReceiveSetFull)
-                            {
-                                task.DevStatus.receivesetfull = 0;
-                            }
-                            break;
-                        case TileFullE.设为满砖:
-                            if (task.IsGood_1 || task.IsFull_1 || task.DevStatus.Site1Qty > 0)
-                            {
-                                task.DevStatus.Need1 = true;
-                            }
+                        if (task.IsGood_1 || task.IsFull_1 || task.DevStatus.Site1Qty >0)
+                        {
+                            task.DevStatus.Need1 = true;
+                        }
 
-                            if (task.IsGood_2 || task.IsFull_2 || task.DevStatus.Site2Qty > 0)
-                            {
-                                task.DevStatus.Need2 = true;
-                            }
-
-                            task.DevStatus.receivesetfull = 1;
-                            break;
+                        if (task.IsGood_2 || task.IsFull_2 || task.DevStatus.Site2Qty > 0)
+                        {
+                            task.DevStatus.Need2 = true;
+                        }
                     }
-
-
                     break;
                 #endregion
 

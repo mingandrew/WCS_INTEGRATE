@@ -97,21 +97,6 @@ namespace resource.module.modulesql
             return list;
         }
 
-        /// <summary>
-        /// 查询任务细单信息列表
-        /// </summary>
-        /// <returns></returns>
-        public List<StockTransDtl> QueryTransDtlList()
-        {
-            List<StockTransDtl> list = new List<StockTransDtl>();
-            string sql = string.Format("select * from stock_trans_dtl where dtl_finish is null or dtl_finish = 0");
-            DataTable dt = mSql.ExecuteQuery(@sql);
-            if (!mSql.IsNoData(dt))
-            {
-                list = dt.ToDataList<StockTransDtl>();
-            }
-            return list;
-        }
         #endregion
 
         #region[添加]
@@ -184,23 +169,6 @@ namespace resource.module.modulesql
             string sql = string.Format(@str, stock.goods_id, stock.area, stock.stack, stock.pieces, stock.track_id, stock.tilelifter_id,
                 GetTimeOrNull(stock.produce_time), tileid, GetTimeOrNull(DateTime.Now));
             mSql.ExcuteSql(sql);
-        }
-
-
-        /// <summary>
-        /// 添加交易细单信息
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="tileid"></param>
-        public bool AddStockTransDtl(StockTransDtl dtl)
-        {
-            string str = "INSERT INTO `stock_trans_dtl`(`dtl_id`, `dtl_p_id`, `dtl_trans_id`, `dtl_area_id`, `dtl_line_id`, `dtl_type`, `dtl_good_id`, " +
-                "`dtl_take_track_id`, `dtl_give_track_id`, `dtl_status`, `dtl_all_qty`, `dtl_left_qty`, `dtl_finish`) " +
-                " VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})";
-            string sql = string.Format(@str, dtl.dtl_id, dtl.dtl_p_id, dtl.dtl_trans_id, dtl.dtl_area_id, dtl.dtl_line_id, dtl.dtl_type, dtl.dtl_good_id,
-                dtl.dtl_take_track_id, dtl.dtl_give_track_id, dtl.dtl_status, dtl.dtl_all_qty, dtl.dtl_left_qty, dtl.dtl_finish);
-            int row = mSql.ExcuteSql(sql);
-            return row >= 1;
         }
 
         #endregion
@@ -322,41 +290,6 @@ namespace resource.module.modulesql
         }
 
 
-        /// <summary>
-        /// 更新交易细单状态
-        /// </summary>
-        /// <param name="trans"></param>
-        /// <param name="updateE"></param>
-        /// <returns></returns>
-        public bool EditTransDtl(StockTransDtl trans, TransDtlUpdateE updateE)
-        {
-            string sql = "UPDATE `stock_trans_dtl` SET ";
-            switch (updateE)
-            {
-                case TransDtlUpdateE.Status:
-                    sql += string.Format("`dtl_status` = {0}", trans.dtl_status);
-                    break;
-                case TransDtlUpdateE.TakeTrack:
-                    sql += string.Format("`dtl_take_track_id` = {0}", trans.dtl_take_track_id);
-                    break;
-                case TransDtlUpdateE.GiveTrack:
-                    sql += string.Format("`dtl_give_track_id` = {0}", trans.dtl_give_track_id);
-                    break;
-                case TransDtlUpdateE.Qty:
-                    sql += string.Format("`dtl_left_qty` = {0}", trans.dtl_left_qty);
-                    break;
-                case TransDtlUpdateE.Finish:
-                    sql += string.Format("`dtl_finish` = {0}", trans.dtl_finish);
-                    break;
-                case TransDtlUpdateE.TransId:
-                    sql += string.Format("`dtl_trans_id` = {0}", trans.dtl_trans_id);
-                    break;
-            }
-
-            sql += string.Format(" WHERE `dtl_id` = {0}", trans.dtl_id);
-            int row = mSql.ExcuteSql(sql);
-            return row >= 1;
-        }
         #endregion
 
         #region[删除]

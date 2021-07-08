@@ -101,14 +101,6 @@
                                                         Command="{Binding DataContext.TileRequireShiftCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
                                                         CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
 
-                                                <Button Content="选择备用" HorizontalAlignment="Center" Style="{StaticResource ButtonWarning}" Margin="20,0,0,0" FontSize="16"
-                                                        Command="{Binding DataContext.BackUptSelectCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
-                                                
-                                                <Button Content="结束备用" HorizontalAlignment="Center" Style="{StaticResource ButtonWarning}" Margin="20,0,0,0" FontSize="16"
-                                                        Command="{Binding DataContext.BackUpFinishCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
-                                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
-
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

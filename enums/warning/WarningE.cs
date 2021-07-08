@@ -60,14 +60,8 @@
         SortFinishButDownExistStock,//倒库指令完成，但入库轨道还有库存
         GetStockButNull,//取砖指令完成后，没有取到砖
 
-        Warning34,//【反抛未执行】，等待上砖机工位空砖
-        Warning35,//【反抛未执行】，上砖侧库存里有反抛任务的品种可上
-        Warning36,//【流程超时】
-        Warning37,//当前品种设定的上砖数量为零
-
         CarrierIsInResetWork,//运输车初始化/寻点指令中，已暂停相关作业，请确认完成发送终止指令
         CarrierNoLocation,  //运输车没有位置信息
-
     }
 
     /// <summary>

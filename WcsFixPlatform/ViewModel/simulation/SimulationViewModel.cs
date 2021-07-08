@@ -5,7 +5,6 @@ using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
-using module.device;
 using module.goods;
 using module.track;
 using module.window;
@@ -67,7 +66,6 @@ namespace wcs.ViewModel
         private string trackname;
         private ushort stockpoint;
         private uint trackid;
-        private Track track;
         #endregion
 
         #endregion
@@ -149,8 +147,6 @@ namespace wcs.ViewModel
         public RelayCommand<SimDeviceView> TileSite1NeedCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite1Need)).Value;
         public RelayCommand<SimDeviceView> TileSite2NeedCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileSite2Need)).Value;
         public RelayCommand<SimDeviceView> TileRequireShiftCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(TileRequireShift)).Value;
-        public RelayCommand<SimDeviceView> BackUptSelectCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(BackUptSelect)).Value;
-        public RelayCommand<SimDeviceView> BackUpFinishCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(BackUpFinish)).Value;
         #endregion
 
         #region[运输车]
@@ -371,43 +367,6 @@ namespace wcs.ViewModel
             }
         }
 
-        /// <summary>
-        /// 选择备用机开始备用
-        /// </summary>
-        /// <param name="dev"></param>
-        private async void BackUptSelect(SimDeviceView dev)
-        {
-            if (dev != null)
-            {
-                DialogResult result = await HandyControl.Controls.Dialog.Show<DeviceSelectDialog>()
-                    .Initialize<DeviceSelectViewModel>((vm) =>
-                    {
-                        vm.FilterArea = false;
-                        vm.ShowTileConfigAlertDevs(dev.dev_id);
-                    }).GetResultAsync<DialogResult>();
-                if (result.p1 is bool rs && result.p2 is Device device)
-                {
-                    if(byte.TryParse(device.memo, out byte code))
-                    {
-                        SimServer.TileLifter.SetBackUpDevice(dev.dev_id, code);
-                        Growl.Success("开始备用！");
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 结束备用
-        /// </summary>
-        /// <param name="dev"></param>
-        private void BackUpFinish(SimDeviceView dev)
-        {
-            if (dev != null)
-            {
-                SimServer.TileLifter.SetBackUpDevice(dev.dev_id, 0);
-            }
-        }
-
         #endregion
 
         #region[小车操作]
@@ -522,13 +481,12 @@ namespace wcs.ViewModel
                     if (result.p1 is Track tra)
                     {
                         trackid = tra.id;
-                        track = tra;
                         TrackName = tra.name;
                     }
                     break;
                 case "getstocklist":
 
-                    List<Stock> list = PubMaster.Goods.GetStockListInPoint(track, StockPoint);
+                    List<Stock> list = PubMaster.Goods.GetStockListInPoint(trackid, StockPoint);
                     StockList.Clear();
                     if (list.Count > 0)
                     {

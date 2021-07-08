@@ -12,11 +12,6 @@ namespace tool.appconfig
         public static readonly string FileName = $"\\BigConifg.json";
         public static readonly string SavePath = $"{Path}{FileName}";
 
-        /// <summary>
-        /// 车辆转移服务检测超时任务时间
-        /// </summary>
-        public int MoveCarWaitOverTime { set; get; } = 60;
-        
         public List<BigConfigItem> BigConfigList { set; get; } = new List<BigConfigItem>();
 
         /// <summary>
@@ -73,17 +68,6 @@ namespace tool.appconfig
             return GetItem(areaid, lineid)?.NotNeedSortToSplitUpPlace ?? false;
         }
 
-        /// <summary>
-        /// 使用自动转备用机第二种方式：砖机选备用机
-        /// </summary>
-        /// <param name="areaid"></param>
-        /// <param name="lineid"></param>
-        /// <returns></returns>
-        public bool IsUserAutoBackDevVersion2(uint areaid, ushort lineid)
-        {
-            return GetItem(areaid, lineid)?.UserAutoBackDevVersion2 ?? false;
-        }
-
 
         /// <summary>
         /// 接力暂停，运输车停止在放货点的几个车身位置
@@ -116,7 +100,6 @@ namespace tool.appconfig
                     UpTaskNewAllocate = false,
                     InMoveWhenFull = false,
                     NotNeedSortToSplitUpPlace = false,
-                    UserAutoBackDevVersion2 = false,
                 };
                 BigConfigList.Add(item);
                 GlobalWcsDataConfig.SaveBigConifg();
@@ -144,10 +127,5 @@ namespace tool.appconfig
         /// 接力暂停，运输车停止在放货点的几个车身位置
         /// </summary>
         public byte SortWaitNumberCarSpace { set; get; } = 3;
-
-        /// <summary>
-        /// 使用自动转备用机第二种方式：砖机选备用机
-        /// </summary>
-        public bool UserAutoBackDevVersion2 { set; get; }
     }
 }
