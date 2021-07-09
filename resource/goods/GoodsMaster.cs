@@ -2716,19 +2716,19 @@ namespace resource.goods
             mMsg.o1 = sum;
             mMsg.o2 = type;
             Messenger.Default.Send(mMsg, MsgToken.StockSumeUpdate);
-            GetGoodCountList(0, 0);
+            GetGoodCountList(0, 0, 0);
         }
 
-        public void GetGoodCountList(uint filterarea, uint filtertype)
+        public void GetGoodCountList(uint filterarea, ushort filterline, byte filtertype)
         {
             List<StockSum> filterlist = new List<StockSum>();
             if (filterarea == 0 && filtertype == 0)
             {
                 filterlist = StockSumList;
             }
-            else if (filterarea != 0 && filtertype == 0)
+            else if (filterarea != 0 && filterline !=0 && filtertype == 0)
             {
-                filterlist = StockSumList.FindAll(c => c.area == filterarea);
+                filterlist = StockSumList.FindAll(c => c.area == filterarea && c.line == filterline);
             }
             else if (filtertype != 0 && filterarea == 0)
             {
@@ -2736,7 +2736,7 @@ namespace resource.goods
             }
             else if (filterarea != 0 && filtertype != 0)
             {
-                filterlist = StockSumList.FindAll(c => c.area == filterarea && c.track_type == filtertype);
+                filterlist = StockSumList.FindAll(c => c.area == filterarea && c.line == filterline && c.track_type == filtertype);
             }
             if (filterlist == null) return;
             var list = filterlist.GroupBy(c => new { c.goods_id }).Select(c => new StockSum
@@ -2745,9 +2745,18 @@ namespace resource.goods
                 count = (uint)c.Sum(b => b.count),
                 stack = (uint)c.Sum(b => b.stack),
                 pieces = (uint)c.Sum(b => b.pieces),
-                produce_time = c.Min(b => b.produce_time)
+                produce_time = c.Min(b => b.produce_time),
             });
             List<StockSum> goodcountlist = list.ToList();
+            if(filterarea != 0 || filtertype != 0)
+            {
+                foreach (var item in goodcountlist)
+                {
+                    item.area = filterarea;
+                    item.line = filterline;
+                    item.track_type = filtertype;
+                }
+            }
             Messenger.Default.Send(goodcountlist, MsgToken.GoodSumUpdate);
         }
 
