@@ -226,7 +226,7 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid)
+        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid, DeviceTypeE ferytype = DeviceTypeE.其他)
         {
             CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
             bool haveintrack = PubTask.Carrier.HaveDifTypeInTrack(trackid, carrier, out uint carrierid);
@@ -252,7 +252,7 @@ namespace task.trans.transtask
                     {
                         //转移到同类型轨道
                         TrackTypeE tracktype = PubMaster.Track.GetTrackType(trackid);
-                        _M.AddMoveCarrierTask(trackid, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                        _M.AddMoveCarrierTask(trackid, carrierid, tracktype, MoveTypeE.转移占用轨道, ferytype);
                     }
                 }
             }

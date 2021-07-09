@@ -73,6 +73,7 @@ namespace module.goods
         /// </summary>
         public TransStep StepLog { set; get; } = new TransStep();
 
+        public DeviceTypeE AllocateFerryType { set; get; } = DeviceTypeE.其他;
         /// <summary>
         /// 是否记录步骤信息
         /// </summary>

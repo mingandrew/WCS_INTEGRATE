@@ -166,7 +166,7 @@ namespace task.trans
         #endregion
 
         #region[添加移车任务]
-        public void AddMoveCarrierTask(uint trackid, uint carrierid, TrackTypeE totracktype, MoveTypeE movetype)
+        public void AddMoveCarrierTask(uint trackid, uint carrierid, TrackTypeE totracktype, MoveTypeE movetype, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
             if (HaveCarrierInTrans(carrierid)) return;
 
@@ -185,7 +185,16 @@ namespace task.trans
                         List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, track.order);
 
                         //能去这个取货/卸货轨道的所有配置的摆渡车信息
-                        List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(trackid);
+                        List<uint> ferryids;
+                        if (ferrytype != DeviceTypeE.其他)
+                        {
+                            //如果指定摆渡车类型则查找选定的摆渡车类型
+                            ferryids = PubMaster.Area.GetWithTracksFerryIds(ferrytype, trackid);
+                        }
+                        else
+                        {
+                            ferryids = PubMaster.Area.GetWithTracksFerryIds(trackid);
+                        }
                         ferryids = PubTask.Ferry.GetWorkingAndEnable(ferryids);
 
                         foreach (uint t in tids)
@@ -209,7 +218,7 @@ namespace task.trans
 
                 if (givetrackid != 0)
                 {
-                    AddTransWithoutLock(track.area, 0, TransTypeE.移车任务, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid, track.line);
+                    AddTransWithoutLock(track.area, 0, TransTypeE.移车任务, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid, track.line, ferrytype);
                 }
             }
         }

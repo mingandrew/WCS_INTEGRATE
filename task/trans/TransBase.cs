@@ -268,7 +268,7 @@ namespace task.trans
                                         uint goodsid, uint stocksid,
                                         uint taketrackid, uint givetrackid,
                                         TransStatusE initstatus = TransStatusE.调度设备,
-                                        uint carrierid = 0, ushort line = 0)
+                                        uint carrierid = 0, ushort line = 0, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
             uint newid = PubMaster.Dic.GenerateID(DicTag.NewTranId);
             StockTrans trans = new StockTrans()
@@ -284,7 +284,8 @@ namespace task.trans
                 give_track_id = givetrackid,
                 create_time = DateTime.Now,
                 carrier_id = carrierid,
-                line = line
+                line = line,
+                AllocateFerryType = ferrytype
             };
             bool isadd = PubMaster.Mod.GoodSql.AddStockTrans(trans);
             if (!isadd)
@@ -341,10 +342,10 @@ namespace task.trans
                         break;
                     case TransTypeE.移车任务:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], " +
-                            "取轨[ {3} ], 卸轨[ {4} ]",
+                            "取轨[ {3} ], 卸轨[ {4} ], 摆渡车[ {5} ]",
                             trans.id, type, initstatus,
                             PubMaster.Track.GetTrackName(taketrackid, taketrackid + ""),
-                            PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
+                            PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""), ferrytype);
                         break;
                     default:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], 砖机[ {3} ], " +
