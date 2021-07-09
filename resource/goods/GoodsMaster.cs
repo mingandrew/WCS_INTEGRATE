@@ -3409,7 +3409,7 @@ namespace resource.goods
                 name = naddgname,
                 color = naddgname,
                 memo = "自动生成",
-                //area_id = ngood.area_id,
+                area_id = ngood.area_id,
                 pieces = ngood.pieces,
                 GoodCarrierType = ngood.GoodCarrierType,
                 size_id = ngood.size_id,
