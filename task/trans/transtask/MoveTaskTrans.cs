@@ -313,17 +313,24 @@ namespace task.trans.transtask
                         if (trans.take_ferry_id == 0)
                         {
                             string msg = "";
-                            //分配下摆渡车
-                            if (PubTask.Carrier.IsCarrierInTrackSmallerRfID1(trans.carrier_id, track.id)
-                                && !PubTask.Carrier.ExistCarBehind(trans.carrier_id, track.id))
+                            if (trans.AllocateFerryType == DeviceTypeE.其他)
                             {
-                                msg = _M.AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
+                                //分配下摆渡车
+                                if (PubTask.Carrier.IsCarrierInTrackSmallerRfID1(trans.carrier_id, track.id)
+                                    && !PubTask.Carrier.ExistCarBehind(trans.carrier_id, track.id))
+                                {
+                                    msg = _M.AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
+                                }
+                                //分配上摆渡车
+                                else if (PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, track.id)
+                                    && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                                {
+                                    msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                                }
                             }
-                            //分配上摆渡车
-                            else if (PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, track.id)
-                                && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                            else
                             {
-                                msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                                msg = _M.AllocateFerry(trans, trans.AllocateFerryType, track, false);
                             }
 
                             #region 【任务步骤记录】
