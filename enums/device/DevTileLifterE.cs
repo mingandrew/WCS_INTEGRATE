@@ -16,7 +16,8 @@
     public enum DevLifterInvolE
     {
         离开,
-        介入
+        介入,
+        清除需求
     }
 
     public enum DevLifterCmdTypeE

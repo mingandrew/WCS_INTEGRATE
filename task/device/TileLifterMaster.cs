@@ -527,8 +527,10 @@ namespace task.device
                         }
                         else
                         {
-                            if (bro != null && bro.IsNeed_1 && bro.Type == DeviceTypeE.下砖机)
+                            if (bro != null && bro.IsNeed_1 && bro.Type == DeviceTypeE.下砖机 && task.IsNeed_1)
                             {
+                                task.Do1Invo(DevLifterInvolE.清除需求);
+                                mlog.Status(true, string.Format("发送砖机：[ {0} ] 工位1清除需求指令", task.Device.name));
                                 return true;
                             }
 
@@ -573,8 +575,10 @@ namespace task.device
                         }
                         else
                         {
-                            if (bro != null && bro.IsNeed_2 && bro.Type == DeviceTypeE.下砖机)
+                            if (bro != null && bro.IsNeed_2 && bro.Type == DeviceTypeE.下砖机 && task.IsNeed_2)
                             {
+                                task.Do2Invo(DevLifterInvolE.清除需求);
+                                mlog.Status(true, string.Format("发送砖机：[ {0} ] 工位2清除需求指令", task.Device.name));
                                 return true;
                             }
 
