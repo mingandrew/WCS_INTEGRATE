@@ -2075,11 +2075,11 @@ namespace task.rf
                     return;
                 }
 
-                if (!PubTask.TileLifter.IsSiteGoodSame(pack.tile_id))
-                {
-                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机左右工位品种不一致！");
-                    return;
-                }
+                //if (!PubTask.TileLifter.IsSiteGoodSame(pack.tile_id))
+                //{
+                //    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机左右工位品种不一致！");
+                //    return;
+                //}
 
                 //if (!PubMaster.DevConfig.IsShiftInAllowTime(pack.tile_id))
                 //{
@@ -2114,11 +2114,11 @@ namespace task.rf
                     return;
                 }
 
-                if (!PubTask.TileLifter.IsSiteGoodSame(pack.tile_id))
-                {
-                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机左右工位品种不一致！");
-                    return;
-                }
+                //if (!PubTask.TileLifter.IsSiteGoodSame(pack.tile_id))
+                //{
+                //    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机左右工位品种不一致！");
+                //    return;
+                //}
 
                 if (!PubMaster.DevConfig.IsTileHavePreGood(pack.tile_id))
                 {
