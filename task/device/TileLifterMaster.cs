@@ -312,9 +312,9 @@ namespace task.device
                                             break;
 
                                         case TileWorkModeE.上砖: // xxx => 上砖
-                                            if (task.DevConfig.goods_id != task.DevConfig.pre_goodid &&
-                                                (task.DevStatus.Load1 || task.DevStatus.Load2) &&
-                                                (!task.DevStatus.Need1 && !task.DevStatus.Need2))
+                                            if (task.DevConfig.goods_id != task.DevConfig.pre_goodid 
+                                                && (task.DevStatus.Load1 || task.DevStatus.Load2) 
+                                                && (!task.DevStatus.Need1 && !task.DevStatus.Need2))
                                             {
                                                 task.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
                                                 refreshsend = true;
