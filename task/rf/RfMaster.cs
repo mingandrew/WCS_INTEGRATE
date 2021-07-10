@@ -649,7 +649,7 @@ namespace task.rf
 
                     //byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
                     if (PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
-                        pack.Pieces, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs))
+                        pack.Pieces, pack.ProduceTime, pack.AddQty, pack.Level, "平板添加库存", out string rs))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.AddTrackStock, "添加成功！");
                     }
@@ -731,7 +731,7 @@ namespace task.rf
                         return;
                     }
 
-                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime, out string res))
+                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime, pack.Level, out string res))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdateStockGood, res);
                     }
@@ -986,7 +986,7 @@ namespace task.rf
                 mDicPack.AddTrack(PubMaster.Track.GetTrackList());
                 mDicPack.AddDevice(PubMaster.Device.GetDeviceList());
                 mDicPack.AddGood(PubMaster.Goods.GetGoodsList());
-                mDicPack.AddGoodLevel(PubMaster.Dic.GetDicDtls(DicTag.GoodLevel));
+                mDicPack.AddGoodLevel(PubMaster.Dic.GetDicDtls(DicTag.TileLevel));
                 //mDicPack.AddFerry(PubMaster.Device.GetFerrys());
 
                 #endregion
@@ -2007,6 +2007,12 @@ namespace task.rf
                 //    return;
                 //}
 
+                uint confgoodid = PubMaster.DevConfig.GetTileGood(pack.tile_id);
+                if (confgoodid != pack.good_id)
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "请先刷新设备信息，再执行转产操作！");
+                }
+
                 if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
                 {
                     //发送砖机转产信号
@@ -2051,6 +2057,13 @@ namespace task.rf
                     else
                     {
                         GetGoodDic(msg);
+
+                        uint confgoodid = PubMaster.DevConfig.GetTileGood(pack.tile_id);
+                        if (confgoodid != pack.good_id)
+                        {
+                            SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "请先刷新设备信息，再执行转产操作！");
+                        }
+
                         if (!PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pgoodid, pack.pre_good_qty, out string up_rs))
                         {
                             SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, up_rs);

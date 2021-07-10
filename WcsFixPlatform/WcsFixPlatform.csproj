@@ -123,6 +123,7 @@
     <Compile Include="Data\View\CarrierView.cs" />
     <Compile Include="Data\View\FerryPosView.cs" />
     <Compile Include="Data\View\FerryView.cs" />
+    <Compile Include="Data\View\SynroTileView.cs" />
     <Compile Include="Data\View\GoodsView.cs" />
     <Compile Include="Data\View\OrgGoodTrackView.cs" />
     <Compile Include="Data\View\RfClientView.cs" />
@@ -133,11 +134,17 @@
     <Compile Include="Data\View\TrackView.cs" />
     <Compile Include="Data\View\TransView.cs" />
     <Compile Include="Data\View\WarningView.cs" />
+    <Compile Include="Dialog\platform\device\ChangeLevelTypeDialog.xaml.cs">
+      <DependentUpon>ChangeLevelTypeDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\device\ChangeStrategyDialog.xaml.cs">
       <DependentUpon>ChangeStrategyDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\platform\device\DeviceBackupSelectDialog.xaml.cs">
       <DependentUpon>DeviceBackupSelectDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\device\DeviceCheckComboSelectDialog.xaml.cs">
+      <DependentUpon>DeviceCheckComboSelectDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\platform\device\GoodShiftDialog.xaml.cs">
       <DependentUpon>GoodShiftDialog.xaml</DependentUpon>
@@ -253,7 +260,9 @@
     <Compile Include="ViewModel\platform\BindingProxy.cs" />
     <Compile Include="ViewModel\platform\device\CarrierViewModel.cs" />
     <Compile Include="ViewModel\platform\device\Carrier2TileLifterViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\ChangeLevelTypeViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceBackupSelectViewModel.cs" />
+    <Compile Include="ViewModel\platform\device\DeviceCheckComboSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\device\GoodShiftDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\CutoverDialogViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceEditViewModel.cs" />
@@ -394,11 +403,19 @@
     <Compile Include="window\simulation\SimulationWindow.xaml.cs">
       <DependentUpon>SimulationWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Dialog\platform\device\ChangeLevelTypeDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Dialog\platform\device\ChangeStrategyDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\device\DeviceBackupSelectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\device\DeviceCheckComboSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

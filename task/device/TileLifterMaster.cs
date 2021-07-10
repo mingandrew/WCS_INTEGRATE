@@ -256,7 +256,8 @@ namespace task.device
                                 refreshsend = true;
                             }
 
-                            byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
+                            //byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
+                            byte level = task.DevConfig.level;
                             if (level != task.DevStatus.SetLevel)
                             {
                                 task.DoUpdateLevel(level);
@@ -675,6 +676,20 @@ namespace task.device
                 {
                     task.OutStrategy = outstrategy;
                     task.WorkType = worktype;
+                    MsgSend(task, task.DevStatus);
+                }
+            }
+            catch { }
+        }
+
+        public void UpdateTileLevel(uint id, int level)
+        {
+            try
+            {
+                TileLifterTask task = DevList.Find(c => c.ID == id);
+                if (task != null)
+                {
+                    task.DevConfig.level = (byte)level;
                     MsgSend(task, task.DevStatus);
                 }
             }
@@ -1595,8 +1610,10 @@ namespace task.device
         /// <param name="stockid"></param>
         private void AddMixTrackTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line)
         {
+            byte level = GetTileLevel(tileid);
             if (stockid == 0) return;
             uint lasttrack = PubMaster.DevConfig.GetLastTrackId(tileid);
+            //TODO 是否还有其他不同品种的砖机要下这条轨道
             if (lasttrack != 0 && PubMaster.Track.IsStatusOkToGive(lasttrack))
             {
                 if (PubTask.Trans.IsTraInTransWithLock(lasttrack))
@@ -1694,11 +1711,12 @@ namespace task.device
         /// <param name="stockid"></param>
         private void AddAndGetStockId(uint tileid, uint tiletrackid, uint goodid, byte fullqty, out uint stockid)
         {
+            byte level = GetTileLevel(tileid);
             //[已有库存]
-            if (!PubMaster.Goods.HaveStockInTrack(tiletrackid, goodid, out stockid))
+            if (!PubMaster.Goods.HaveStockInTrack(tiletrackid, goodid, out stockid, level))
             {
                 ////[生成库存]
-                stockid = PubMaster.Goods.AddStock(tileid, tiletrackid, goodid, fullqty);
+                stockid = PubMaster.Goods.AddStock(tileid, tiletrackid, goodid, fullqty, level);
                 if (stockid > 0)
                 {
                     PubMaster.Track.UpdateStockStatus(tiletrackid, TrackStockStatusE.有砖, "下砖");
@@ -1777,6 +1795,8 @@ namespace task.device
 
             bool isallocate = false;
 
+            byte level = GetTileLevel(tileid);
+
             // 1.查看当前设定优先作业轨道是否能作业
             if (PubMaster.Track.HaveTrackInGoodFrist(areaid, tileid, goodid, currentid, out uint trackid))
             {
@@ -1785,7 +1805,7 @@ namespace task.device
                 {
                     uint stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
                     //有库存但是不是砖机需要的品种
-                    if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goodid))
+                    if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goodid, level))
                     {
                         PubMaster.Track.UpdateRecentTile(trackid, 0);
                         PubMaster.Track.UpdateRecentGood(trackid, 0);
@@ -2092,6 +2112,21 @@ namespace task.device
         }
 
         /// <summary>
+        /// 获取砖机等级/窑位
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        internal byte GetTileLevel(uint devid)
+        {
+            TileLifterTask tile = DevList.Find(c => c.ID == devid);
+            if (tile != null)
+            {
+                return tile.DevConfig.level;
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// 检查入库策略
         /// </summary>
         /// <param name="task"></param>
@@ -2117,9 +2152,9 @@ namespace task.device
                     iseffect = PubTask.Trans.ExistInTileTrack(task.ID, trackid);
                     break;
                 case StrategyInE.同规同轨:
-                    // 获取所有同策略砖机
+                    // 获取所有同策略且同等级砖机
                     List<uint> tileids = new List<uint>();
-                    foreach (TileLifterTask item in DevList.FindAll(c => c.InStrategy == task.InStrategy))
+                    foreach (TileLifterTask item in DevList.FindAll(c => c.InStrategy == task.InStrategy && c.DevConfig.level == task.DevConfig.level))
                     {
                         tileids.Add(item.ID);
                     }
@@ -2167,7 +2202,7 @@ namespace task.device
                 case StrategyOutE.同规同轨:
                     // 获取所有同策略砖机
                     List<uint> tileids = new List<uint>();
-                    foreach (TileLifterTask item in DevList.FindAll(c => c.OutStrategy == task.OutStrategy))
+                    foreach (TileLifterTask item in DevList.FindAll(c => c.OutStrategy == task.OutStrategy && c.DevConfig.level == task.DevConfig.level))
                     {
                         tileids.Add(item.ID);
                     }
@@ -2373,6 +2408,7 @@ namespace task.device
                     {
                         mMsg.o9 = "不限";
                     }
+                    mMsg.o10 = task.DevConfig.level;
                     Messenger.Default.Send(mMsg, MsgToken.TileLifterStatusUpdate);
                 }
                 finally
@@ -2611,7 +2647,8 @@ namespace task.device
                             Thread.Sleep(TileOtherTime);
                         }
 
-                        byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
+                        //byte level = PubMaster.Goods.GetGoodsLevel(task.DevConfig.goods_id);
+                        byte level = task.DevConfig.level;
                         if (level != task.DevStatus.SetLevel)
                         {
                             task.DoUpdateLevel(level);

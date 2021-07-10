@@ -30,6 +30,7 @@ namespace module.goods
         public bool cancel { set; get; }
         public uint finish_track_id { set; get; }
         public ushort line { set; get; }//线
+        public byte level { set; get; } //砖机等级/窑位
 
         public TransTypeE TransType
         {

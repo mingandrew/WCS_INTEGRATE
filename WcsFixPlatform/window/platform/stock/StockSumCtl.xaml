@@ -78,6 +78,7 @@
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
+                    <DataGridTextColumn Binding="{Binding sum_level, Converter={StaticResource LevelValue2NameConverter}}" Header="品种等级" MaxWidth="130"/>
                     <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
                     <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
                     <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
@@ -99,6 +100,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道"/>
                     <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
+                    <DataGridTextColumn Binding="{Binding sum_level, Converter={StaticResource LevelValue2NameConverter}}" Header="品种等级" MaxWidth="130"/>
                     <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
                     <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
                     <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>

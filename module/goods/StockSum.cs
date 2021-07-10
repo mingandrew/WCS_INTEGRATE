@@ -15,6 +15,11 @@ namespace module.goods
         public ushort line { set; get; }
         public byte track_type { set; get; }
 
+        /// <summary>
+        /// 砖机设定等级
+        /// </summary>
+        public byte sum_level { set; get; }
+
         public int CompareProduceTime(DateTime? time)
         {
             if (produce_time is DateTime dtime && time is DateTime ctime)
@@ -27,6 +32,11 @@ namespace module.goods
         public TrackTypeE TrackType
         {
             get => (TrackTypeE)track_type;
+        }
+
+        public bool EqualGoodAndLevel(uint gid, byte lev)
+        {
+            return goods_id == gid && sum_level == lev;
         }
     }
 }

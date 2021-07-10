@@ -44,7 +44,8 @@
 
         #region[其他]
 
-        public static string GoodLevel = nameof(GoodLevel);                             //品种等级
+        public static string TileLevel = nameof(TileLevel);                             //砖机等级
+        public static string TileSite = nameof(TileSite);                             //砖机窑位
         public static string MinStockTime = nameof(MinStockTime);               //最小库存存放时间 小时数
         public static string FerryAvoidNumber = nameof(FerryAvoidNumber);//摆渡车安全距离 轨道数
         public static string TileLifterShiftCount = nameof(TileLifterShiftCount);//下砖机转产差值 层数

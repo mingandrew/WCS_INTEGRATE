@@ -66,6 +66,7 @@
                         <MenuItem Header="转产操作" Tag="14" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         <MenuItem Header="切换作业模式" Tag="15" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         <MenuItem Header="取消切换作业模式" Tag="16" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <MenuItem Header="修改砖机等级/窑位" Tag="17" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
 
                     </ContextMenu>
                 </DataGrid.ContextMenu>
@@ -107,6 +108,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="砖机等级"/>
                     <DataGridTextColumn Binding="{Binding GoodsId, Converter={StaticResource GoodId2NameConverter}}" Header="品种"/>
                     <DataGridTextColumn Binding="{Binding GoodsCount}" Header="剩余数量"/>
                     <DataGridTemplateColumn>

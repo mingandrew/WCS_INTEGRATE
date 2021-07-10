@@ -79,6 +79,9 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<SimulationViewModel>();
             SimpleIoc.Default.Register<OrganizeTrackViewModel>();
 
+            SimpleIoc.Default.Register<ChangeLevelTypeViewModel>();
+            SimpleIoc.Default.Register<DeviceCheckComboSelectViewModel>();
+
             GlobalWcsDataConfig.Init();
             PubMaster.Init();
             PubTask.Init();
@@ -124,6 +127,7 @@ namespace wcs.ViewModel
         public GoodShiftDialogViewModel GoodShift => ServiceLocator.Current.GetInstance<GoodShiftDialogViewModel>();
         public CarrierPosViewModel CarrierPos => ServiceLocator.Current.GetInstance<CarrierPosViewModel>();
         public Carrier2TileLifterViewModel Carrier2TileLifter => ServiceLocator.Current.GetInstance<Carrier2TileLifterViewModel>();
+        public DeviceCheckComboSelectViewModel DeviceCheckComboSelect => ServiceLocator.Current.GetInstance<DeviceCheckComboSelectViewModel>();
         #endregion
 
         #region[品种/库存/交易]
@@ -164,6 +168,12 @@ namespace wcs.ViewModel
         #region[库存整理]
 
         public OrganizeTrackViewModel OrganizeTrack => ServiceLocator.Current.GetInstance<OrganizeTrackViewModel>();
+
+        #endregion
+
+        #region[砖机等级/窑位]
+        
+        public ChangeLevelTypeViewModel ChangeLevelType => ServiceLocator.Current.GetInstance<ChangeLevelTypeViewModel>();
 
         #endregion
 

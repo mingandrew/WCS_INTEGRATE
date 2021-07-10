@@ -266,6 +266,7 @@ namespace task.trans
                                         uint carrierid = 0, ushort line = 0, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
             uint newid = PubMaster.Dic.GenerateID(DicTag.NewTranId);
+            byte lvl = PubTask.TileLifter.GetTileLevel(lifterid);
             StockTrans trans = new StockTrans()
             {
                 id = newid,
@@ -280,7 +281,8 @@ namespace task.trans
                 create_time = DateTime.Now,
                 carrier_id = carrierid,
                 line = line,
-                AllocateFerryType = ferrytype
+                AllocateFerryType = ferrytype,
+                level = lvl
             };
             bool isadd = PubMaster.Mod.GoodSql.AddStockTrans(trans);
             if (!isadd)
@@ -858,7 +860,8 @@ namespace task.trans
             {
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask))
                 {
-                    return TransList.Exists(c => !c.finish && c.tilelifter_id == tile_id && c.InType(TransTypeE.反抛任务) && c.goods_id != goodid);
+                    byte level = PubTask.TileLifter.GetTileLevel(tile_id);
+                    return TransList.Exists(c => !c.finish && c.tilelifter_id == tile_id && c.InType(TransTypeE.反抛任务) && c.goods_id != goodid && c.level == level);
                 }
             }
             catch { }

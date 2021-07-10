@@ -84,7 +84,7 @@
                 <DataGridTextColumn Binding="{Binding Pieces}" Header="满砖数" Visibility="Collapsed"/>
                 <DataGridTextColumn Binding="{Binding MinStack}" Header="最少车数" Visibility="Collapsed"/>
                 <DataGridTextColumn Binding="{Binding Memo}" Header="备注" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级"/>
+                <!--<DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级"/>-->
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

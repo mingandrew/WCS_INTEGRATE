@@ -24,7 +24,7 @@ namespace wcs.ViewModel
             _result = new DialogResult();
             Param = new DialogResult();
             AreaList = PubMaster.Area.GetAreaList();
-            LevelList = PubMaster.Dic.GetDicDtls(DicTag.GoodLevel);
+            LevelList = PubMaster.Dic.GetDicDtls(DicTag.TileLevel);
         }
 
         #region[字段]
@@ -233,7 +233,7 @@ namespace wcs.ViewModel
                 //pieces = Pieces,
                 GoodCarrierType = CarrierType,
                 size_id = size_id,
-                level = (byte)SelectLevel.int_value,
+                //level = (byte)SelectLevel.int_value,
                 info = name + "/" + color + "/" + selectlevel.name
             };
 

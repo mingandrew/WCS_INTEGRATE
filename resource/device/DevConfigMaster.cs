@@ -65,6 +65,13 @@ namespace resource.device
             {
                 ConfigTileLifterList.Clear();
                 ConfigTileLifterList.AddRange(PubMaster.Mod.DevConfigSql.QueryConfigTileLifter());
+                if (ConfigTileLifterList != null && ConfigTileLifterList.Count != 0)
+                {
+                    foreach (ConfigTileLifter item in ConfigTileLifterList)
+                    {
+                        item.GetSynTileList();
+                    }
+                }
             }
         }
 
@@ -421,6 +428,31 @@ namespace resource.device
         }
 
         /// <summary>
+        /// 设置砖机等级/窑位
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public bool SetTileLevel(uint devid, int level)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null && dev.level != level)
+            {
+                try
+                {
+                    mLog.Status(true, string.Format("【砖机等级/窑位】砖机[ {0} ], 等级/窑位[ {1} -> {2} ]",
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        dev.level, level));
+                }
+                catch { }
+                dev.level = (byte)level;
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Level);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// 获取砖机配置的工位取货地标点
         /// </summary>
         /// <param name="tilelifter_id"></param>
@@ -466,6 +498,11 @@ namespace resource.device
                 return true;
             }
             return false;
+        }
+
+        public byte GetConfTileLevel(uint devid)
+        {
+            return ConfigTileLifterList.Find(c => c.id == devid)?.level ?? 0;
         }
 
         #region 不作业轨道
@@ -732,7 +769,7 @@ namespace resource.device
         /// <param name="nowgoodid"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, out string result)
+        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, out string result, bool ischeck = true)
         {
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
@@ -743,11 +780,12 @@ namespace resource.device
                     return false;
                 }
 
-                if (dev.goods_id != nowgoodid)
+                if (ischeck && dev.goods_id != nowgoodid)
                 {
                     result = "请刷新设备信息！";
                     return false;
                 }
+
                 if (dev.do_shift)
                 {
                     result = "正在转产中！";
@@ -773,6 +811,60 @@ namespace resource.device
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.old_goodid),
                         PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
+                }
+                catch { }
+                result = "";
+                return true;
+            }
+            result = "找不到砖机配置信息！";
+            return false;
+        }
+
+        /// <summary>
+        /// 开始砖机转产作业
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="nowgoodid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool UpdateShiftTileGoodWithOtherTile(uint devid, uint same_dev_id, out string result)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            ConfigTileLifter same_dev = ConfigTileLifterList.Find(c => c.id == same_dev_id);
+            if (dev != null)
+            {
+                if (dev.do_cutover)
+                {
+                    result = "切换模式中, 无法转产！";
+                    return false;
+                }
+
+                if (dev.do_shift)
+                {
+                    result = "正在转产中！";
+                    return false;
+                }
+
+                dev.old_goodid = dev.goods_id;
+                dev.goods_id = same_dev.goods_id;
+                dev.pre_goodid = 0;
+
+                dev.now_good_all = same_dev.now_good_all;
+                dev.now_good_qty = same_dev.now_good_qty;
+
+                dev.pre_good_qty = 0;
+                dev.pre_good_all = false;
+
+                dev.do_shift = true;
+                dev.last_shift_time = DateTime.Now;//更新转产时间
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
+                try
+                {
+                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ], 备注[同步转产-主砖机{6}]",
+                        PubMaster.Device.GetDeviceName(dev.id),
+                        PubMaster.Goods.GetGoodsName(dev.old_goodid),
+                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + "")),
+                        PubMaster.Device.GetDeviceName(same_dev_id)));
                 }
                 catch { }
                 result = "";
@@ -1149,6 +1241,16 @@ namespace resource.device
             return ConfigTileLifterList.FindAll(c => c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.pre_goodid)?.ToList() ?? new List<uint>();
         }
 
+        /// <summary>
+        /// 获取砖机品种
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetTileGood(uint devid)
+        {
+            return ConfigTileLifterList.Find(c => c.id == devid)?.goods_id ?? 0;
+        }
+
         #endregion
 
         /// <summary>
@@ -1184,7 +1286,28 @@ namespace resource.device
                 }
             }
         }
+
+        //获取砖机显示的类型
+        public LevelTypeE GetConfigLevelType(uint tileid)
+        {
+            return ConfigTileLifterList.Find(c => c.id == tileid)?.LevelType ?? LevelTypeE.TileLevel;
+        }
         
+        public void SetSynchTileIds(List<uint> tileids)
+        {
+            string a = string.Join("#", tileids);
+            foreach (uint tid in tileids)
+            {
+                ConfigTileLifter conf = ConfigTileLifterList.Find(c => c.id == tid);
+                if (conf != null)
+                {
+                    conf.syn_tile_list = a;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(conf);
+                }
+            }
+            Refresh(false, false, true);
+        }
+
         #endregion
 
         #endregion

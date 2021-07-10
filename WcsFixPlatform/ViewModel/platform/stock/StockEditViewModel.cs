@@ -32,6 +32,8 @@ namespace wcs.ViewModel
         private bool isadd, qtyenable, isinsert;
         private short pos; //插入的位置
         private bool isaddbottom = false;
+
+        private byte level;
         #endregion
 
         #region[属性]
@@ -40,6 +42,12 @@ namespace wcs.ViewModel
         {
             get => goodsid;
             set => Set(ref goodsid, value);
+        }
+
+        public byte Level
+        {
+            get => level;
+            set => Set(ref level, value);
         }
         
         public uint TrackId
@@ -129,7 +137,7 @@ namespace wcs.ViewModel
                 }
 
                 // 时间判断
-                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)producetime, out string res))
+                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)producetime, Level, out string res))
                 {
                     Growl.Warning(res);
                     return;
@@ -169,7 +177,7 @@ namespace wcs.ViewModel
                 }
 
 
-                if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, Pieces, ProduceTime, StockQty, "PC添加库存", out string rs, IsAddBottom))
+                if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, Pieces, ProduceTime, StockQty, Level, "PC添加库存", out string rs, IsAddBottom))
                 {
                     Result.p1 = true;
                 }

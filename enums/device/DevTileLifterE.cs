@@ -104,6 +104,7 @@
         LastTrack,
         WorkMode,
         Strategey,
+        Level,
 
     }
 }

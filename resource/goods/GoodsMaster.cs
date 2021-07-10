@@ -345,10 +345,11 @@ namespace resource.goods
             return GoodsList.Find(c => c.id == Goods_id)?.info ?? "";
         }
 
-        public byte GetGoodsLevel(uint Goods_id)
-        {
-            return GoodsList.Find(c => c.id == Goods_id)?.level ?? 0;
-        }
+        //public byte GetGoodsLevel(uint Goods_id)
+        //{
+        //    return GoodsList.Find(c => c.id == Goods_id)?.level ?? 0;
+        //}
+
         public bool IsGoodEmpty(uint goodsId)
         {
             return GoodsList.Exists(c => c.id == goodsId && c.empty);
@@ -476,14 +477,14 @@ namespace resource.goods
         /// <param name="memo">备注</param>
         /// <param name="rs">添加结果</param>
         /// <returns></returns>
-        public bool AddTrackStocks(uint tileid, uint trackid, uint goodsid, byte pieces, DateTime? produceTime, byte stockqty, string memo, out string rs, bool isaddbottom = false)
+        public bool AddTrackStocks(uint tileid, uint trackid, uint goodsid, byte pieces, DateTime? produceTime, byte stockqty, byte level, string memo, out string rs, bool isaddbottom = false)
         {
             if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
             {
                 try
                 {
                     // 时间判断
-                    if (produceTime != null && !PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)produceTime, out rs))
+                    if (produceTime != null && !PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)produceTime, level, out rs))
                     {
                         return false;
                     }
@@ -545,7 +546,7 @@ namespace resource.goods
                     {
                         if (isaddbottom)
                         {
-                            StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                            StockId = AddStock(tileid, trackid, goodsid, pieces, level, produceTime);
                             builder.Append(StockId + ", ");
                             if (nextstockloc > 0)
                             {
@@ -565,7 +566,7 @@ namespace resource.goods
                                     Stock lastsamestock = trackstocklist.FindLast(c => c.goods_id == goodsid);
                                     Stock nextstock = trackstocklist.Find(c => c.pos == lastsamestock.pos + 1);
 
-                                    StockId = AddStock(tileid, trackid, laststock.goods_id, (byte)laststock.pieces, laststock.produce_time);
+                                    StockId = AddStock(tileid, trackid, laststock.goods_id, (byte)laststock.pieces, level, laststock.produce_time);
                                     builder.Append(StockId + ", ");
                                     if (nextstockloc > 0)
                                     {
@@ -577,7 +578,7 @@ namespace resource.goods
                                 }
                                 else
                                 {
-                                    StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                                    StockId = AddStock(tileid, trackid, goodsid, pieces, level, produceTime);
                                     builder.Append(StockId + ", ");
                                     if (nextstockloc > 0)
                                     {
@@ -589,7 +590,7 @@ namespace resource.goods
                             }
                             else
                             {
-                                StockId = AddStock(tileid, trackid, goodsid, pieces, produceTime);
+                                StockId = AddStock(tileid, trackid, goodsid, pieces, level, produceTime);
                                 builder.Append(StockId + ", ");
                                 if (nextstockloc > 0)
                                 {
@@ -672,9 +673,13 @@ namespace resource.goods
             return stock;
         }
 
-        public bool HaveStockInTrack(uint trackid, uint goodsid, out uint stockid)
+        public bool HaveStockInTrack(uint trackid, uint goodsid, out uint stockid, byte level = 0)
         {
             stockid = StockList.Find(c => c.track_id == trackid && c.goods_id == goodsid)?.id ?? 0;
+            if (level != 0)
+            {
+                stockid = StockList.Find(c => c.track_id == trackid && c.EqualGoodAndLevel(goodsid, level))?.id ?? 0;
+            }
             return stockid != 0;
         }
 
@@ -856,10 +861,10 @@ namespace resource.goods
         /// <param name="goodid"></param>
         /// <param name="types"></param>
         /// <returns></returns>
-        public Stock GetTheEarliestStock(uint goodid, params TrackTypeE[] types)
+        public Stock GetTheEarliestStock(uint goodid, byte level, params TrackTypeE[] types)
         {
             Stock stk = null;
-            List<Stock> stklist = StockList.FindAll(c => c.goods_id == goodid && types.Contains(c.TrackType));
+            List<Stock> stklist = StockList.FindAll(c => c.EqualGoodAndLevel(goodid, level) && types.Contains(c.TrackType));
             if (stklist != null && stklist.Count > 0)
             {
                 stklist.Sort(
@@ -885,10 +890,10 @@ namespace resource.goods
         /// <param name="goodid"></param>
         /// <param name="types"></param>
         /// <returns></returns>
-        public Stock GetTheLatestStock(uint goodid, params TrackTypeE[] types)
+        public Stock GetTheLatestStock(uint goodid, byte level, params TrackTypeE[] types)
         {
             Stock stk = null;
-            List<Stock> stklist = StockList.FindAll(c => c.goods_id == goodid && types.Contains(c.TrackType));
+            List<Stock> stklist = StockList.FindAll(c => c.EqualGoodAndLevel(goodid, level) && types.Contains(c.TrackType));
             if (stklist != null && stklist.Count > 0)
             {
                 stklist.Sort(
@@ -915,7 +920,7 @@ namespace resource.goods
         /// <param name="producetime"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool IsAllowToOperateStock(uint trackid, uint goodid, DateTime producetime, out string result)
+        public bool IsAllowToOperateStock(uint trackid, uint goodid, DateTime producetime, byte level, out string result)
         {
             result = "";
             Track tra = PubMaster.Track.GetTrack(trackid);
@@ -924,7 +929,7 @@ namespace resource.goods
             {
                 case TrackTypeE.储砖_入:
                     // 时间要比出库侧都晚
-                    stk = GetTheLatestStock(goodid, TrackTypeE.储砖_出);
+                    stk = GetTheLatestStock(goodid, level, TrackTypeE.储砖_出);
                     if (stk != null && stk.produce_time != null && producetime != null
                         && DateTime.Compare((DateTime)stk.produce_time, (DateTime)producetime) > 0)
                     {
@@ -934,7 +939,7 @@ namespace resource.goods
                     break;
                 case TrackTypeE.储砖_出:
                     // 时间要比入库侧都早
-                    stk = GetTheEarliestStock(goodid, TrackTypeE.储砖_入);
+                    stk = GetTheEarliestStock(goodid, level, TrackTypeE.储砖_入);
                     if (stk != null && stk.produce_time != null && producetime != null
                         && DateTime.Compare((DateTime)stk.produce_time, (DateTime)producetime) < 0)
                     {
@@ -969,8 +974,9 @@ namespace resource.goods
         public bool AddGoods(Goods good, out string result, out uint gid)
         {
             gid = 0;
-            if (GoodsList.Exists(c =>  c.size_id == good.size_id
-                                    && c.level == good.level
+            if (GoodsList.Exists(c => c.area_id == good.area_id
+                                    && c.size_id == good.size_id
+                                    //&& c.level == good.level
                                     && c.color.Equals(good.color)
                                     && c.name.Equals(good.name)))
             {
@@ -1024,7 +1030,7 @@ namespace resource.goods
             }
         }
 
-        public bool ChangeStockGood(uint trackid, uint goodid, bool changedate, DateTime? newdate, out string res, uint oldgoodid = 0)
+        public bool ChangeStockGood(uint trackid, uint goodid, bool changedate, DateTime? newdate, byte level, out string res, uint oldgoodid = 0)
         {
             res = "";
             if (Monitor.TryEnter(_so, TimeSpan.FromSeconds(2)))
@@ -1032,7 +1038,7 @@ namespace resource.goods
                 try
                 {
                     // 时间判断
-                    if (newdate != null && !PubMaster.Goods.IsAllowToOperateStock(trackid, goodid, (DateTime)newdate, out res))
+                    if (newdate != null && !PubMaster.Goods.IsAllowToOperateStock(trackid, goodid, (DateTime)newdate, level, out res))
                     {
                         return false;
                     }
@@ -1055,7 +1061,7 @@ namespace resource.goods
                         PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Goods);
                     }
 
-                    StockSumChangeGood(trackid, goodid, oldgoodid);
+                    StockSumChangeGood(trackid, goodid, oldgoodid, level);
                     SortSumList();
                     SendTrackStockQtyChangeMsg(trackid);
                     return true;
@@ -1101,7 +1107,7 @@ namespace resource.goods
             return false;
         }
 
-        private void StockSumChangeGood(uint trackid, uint goodid, uint oldgoodid)
+        private void StockSumChangeGood(uint trackid, uint goodid, uint oldgoodid, byte level)
         {
             List<StockSum> sums = StockSumList.FindAll(c => c.track_id == trackid);
             if (sums.Count == 1)
@@ -1121,7 +1127,8 @@ namespace resource.goods
                     produce_time = GetEarliestTime(trackid),
                     track_id = trackid,
                     area = sums[0].area,
-                    track_type = sums[0].track_type
+                    track_type = sums[0].track_type,
+                    sum_level = level
                 };
 
                 foreach (StockSum sum in sums)
@@ -1187,7 +1194,7 @@ namespace resource.goods
                     g.name = good.name;
                     g.color = good.color;
                     g.size_id = good.size_id;
-                    g.level = good.level;
+                    //g.level = good.level;
                     g.info = good.info;
                     g.memo = good.memo;
                     g.pieces = good.pieces;
@@ -1294,7 +1301,7 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="goodid"></param>
         /// <param name="transid"></param>
-        public uint AddStock(uint tile_id, uint trackid, uint goodid, byte fullqty, DateTime? producetime = null)
+        public uint AddStock(uint tile_id, uint trackid, uint goodid, byte fullqty, byte level, DateTime? producetime = null)
         {
             if (Monitor.TryEnter(_go, TimeSpan.FromSeconds(2)))
             {
@@ -1314,7 +1321,8 @@ namespace resource.goods
                         pieces = allpieces, //总片数
                         tilelifter_id = tile_id,
                         area = track.area,
-                        track_type = track.type
+                        track_type = track.type,
+                        level = level
                     };
 
                     UpdateTrackPos(stock, track);
@@ -1608,11 +1616,13 @@ namespace resource.goods
         {
             allocatstocks = new List<Stock>();
 
+            byte level = PubMaster.DevConfig.GetConfTileLevel(tilelifterid);
+
             #region 时间判断
             if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableStockTimeForUp))
             {
                 // 当最早的库存在入库侧，停止作业且报警
-                Stock stk = GetTheEarliestStock(goodsid, TrackTypeE.储砖_入, TrackTypeE.储砖_出);
+                Stock stk = GetTheEarliestStock(goodsid, level, TrackTypeE.储砖_入, TrackTypeE.储砖_出);
                 if (stk != null && stk.TrackType == TrackTypeE.储砖_入)
                 {
                     PubMaster.Warn.AddTaskWarn(areaid, lineid, WarningTypeE.TheEarliestStockInDown, (ushort)tilelifterid, tilelifterid, 
@@ -1640,7 +1650,7 @@ namespace resource.goods
 
 
             //2.根据优先级查看非空且是需求的品种的轨道
-            List<Stock> stocks = StockList.FindAll(c => c.goods_id == goodsid
+            List<Stock> stocks = StockList.FindAll(c => c.EqualGoodAndLevel(goodsid, level) 
                                                     && c.PosType == StockPosE.头部
                                                     && devtrack.Exists(d => d.track_id == c.track_id)
                                                     && (!isnotuseupsplitstock 
@@ -2073,7 +2083,8 @@ namespace resource.goods
         /// <param name="goodid">品种ID</param>
         public void RemoveTileTrackOtherStock(uint tileid, uint tiletrackid, uint goodid)
         {
-            List<Stock> stocks = StockList.FindAll(c => c.track_id == tiletrackid && c.tilelifter_id == tileid && c.goods_id != goodid);
+            byte level = PubMaster.DevConfig.GetConfTileLevel(tileid);
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == tiletrackid && c.tilelifter_id == tileid && !c.EqualGoodAndLevel(goodid, level));
             if (stocks == null || stocks.Count == 0) return;
             string trackname = PubMaster.Track.GetTrackName(tiletrackid);
             foreach (Stock item in stocks)
@@ -2491,7 +2502,8 @@ namespace resource.goods
                     stack = stock.stack,
                     produce_time = stock.produce_time,
                     area = track.area,
-                    track_type = track.type
+                    track_type = track.type,
+                    sum_level = stock.level
                 };
                 StockSumList.Add(sum);
                 SendSumMsg(sum, ActionTypeE.Add);
@@ -2571,9 +2583,9 @@ namespace resource.goods
         /// <param name="stockid">库存ID</param>
         /// <param name="goodsId">品种ID</param>
         /// <returns></returns>
-        public bool IsStockWithGood(uint stockid, uint goodsId)
+        public bool IsStockWithGood(uint stockid, uint goodsId, byte level)
         {
-            return StockList.Exists(c => c.id == stockid && c.goods_id == goodsId);
+            return StockList.Exists(c => c.id == stockid && c.EqualGoodAndLevel(goodsId, level));
         }
 
         /// <summary>
@@ -2613,6 +2625,16 @@ namespace resource.goods
         public CarrierTypeE GetGoodsCarrierType(uint goods_id)
         {
             return GoodsList.Find(c => c.id == goods_id).GoodCarrierType;
+        }
+
+        /// <summary>
+        /// 获取库存的等级
+        /// </summary>
+        /// <param name="stock_id">库存ID</param>
+        /// <returns></returns>
+        public byte GetStockLevel(uint stock_id)
+        {
+            return StockList.Find(c => c.id == stock_id)?.level ?? 0;
         }
 
         /// <summary>
@@ -2743,9 +2765,13 @@ namespace resource.goods
             {
                 if (x.area == y.area)
                 {
-                    if (x.goods_id == y.goods_id)
+                    if (x.EqualGoodAndLevel(y.goods_id, y.sum_level))
                     {
                         return x.CompareProduceTime(y.produce_time);
+                    }
+                    else if (x.goods_id == y.goods_id)
+                    {
+                        return x.sum_level.CompareTo(y.sum_level);
                     }
                     else
                     {
@@ -2778,6 +2804,7 @@ namespace resource.goods
         public bool AllocateGiveTrack(uint areaid, ushort lineid, uint devid, uint goodsid, out List<uint> traids)
         {
             List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            byte level = PubMaster.DevConfig.GetConfTileLevel(devid);
             traids = new List<uint>();
             ///
             List<TrackStoreCount> trackstores = new List<TrackStoreCount>();//1.[同品种,未满] 入
@@ -2802,7 +2829,7 @@ namespace resource.goods
                 if (track.StockStatus == TrackStockStatusE.满砖) continue;
 
                 //是否已存同品种并且未满
-                if (IsTrackFineToStore(adt.track_id, goodsid, out storecount))
+                if (IsTrackFineToStore(adt.track_id, goodsid, level, out storecount))
                 {
                     /// 1、找同品种未满入轨道
                     trackstores.Add(new TrackStoreCount()
@@ -2828,7 +2855,7 @@ namespace resource.goods
 
                     #region[入库轨道】
                     // 2、优先找出轨道同品种空的入轨道（不能连续两次下同一条轨道）
-                    if (PubMaster.Goods.HaveGoodInTrack(track.brother_track_id, goodsid))
+                    if (PubMaster.Goods.HaveGoodInTrack(track.brother_track_id, goodsid, level))
                     {
                         // [同品种] 出 -   [空] 入
                         same_out_good_in.Add(adt.track_id);
@@ -2912,9 +2939,9 @@ namespace resource.goods
         /// <param name="id"></param>
         /// <param name="goodsid"></param>
         /// <returns></returns>
-        public bool HaveGoodInTrack(uint id, uint goodsid)
+        public bool HaveGoodInTrack(uint id, uint goodsid, byte level)
         {
-            return StockList.Exists(c => c.track_id == id && c.goods_id == goodsid);
+            return StockList.Exists(c => c.track_id == id && c.EqualGoodAndLevel(goodsid, level));
         }
 
         private List<uint> OrderEmptyTrackList(uint devid, List<AreaDeviceTrack> list, List<uint> emptylist)
@@ -2966,12 +2993,12 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="goodsid"></param>
         /// <returns></returns>
-        private bool IsTrackFineToStore(uint trackid, uint goodsid, out uint storecount)
+        private bool IsTrackFineToStore(uint trackid, uint goodsid, byte level, out uint storecount)
         {
             //bool isok = StockList.Exists(c => c.track_id == trackid && c.goods_id == goodsid);
             //存在但不一定在轨道最后存放的库存
-            uint gooid = PubMaster.Goods.GetLastStockGid(trackid);
-            if (gooid == goodsid)
+            Stock stock = PubMaster.Goods.GetTrackButtomStock(trackid);
+            if (stock != null && stock.EqualGoodAndLevel(goodsid, level))
             {
                 int maxstore = PubMaster.Track.GetTrackMaxStore(trackid);
                 storecount = StockSumList.Find(c => c.track_id == trackid)?.count ?? 0;
@@ -3389,6 +3416,13 @@ namespace resource.goods
         {
             string dename = PubMaster.Device.GetDeviceName(devid);
             Goods ngood = GetGoods(basegid);
+            if (ngood == null)
+            {
+                ad_rs = "没有设置预设品种，且没有历史品种，不能转产！请添加预设品种，再执行转产操作！";
+                pgoodid = 0;
+                return false;
+            }
+
             Goods notusegood = GetNotUseGood(ngood);
             if(notusegood == null)
             {
@@ -3403,7 +3437,7 @@ namespace resource.goods
             }
             string naddgname = GetPreAddName(dename + ":");
 
-            string levelname = PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel, ngood.level);
+            //string levelname = PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel, ngood.level);
             Goods pgood = new Goods()
             {
                 name = naddgname,
@@ -3413,8 +3447,8 @@ namespace resource.goods
                 pieces = ngood.pieces,
                 GoodCarrierType = ngood.GoodCarrierType,
                 size_id = ngood.size_id,
-                level = ngood.level,
-                info = naddgname + "/" + naddgname + PubMaster.Goods.GetGoodSizeSimpleName(ngood.size_id, "/") + "/" + levelname
+                //level = ngood.level,
+                info = naddgname + "/" + naddgname + PubMaster.Goods.GetGoodSizeSimpleName(ngood.size_id, "/") + "/"    /* + levelname*/
             };
 
             return AddGoods(pgood, out ad_rs, out pgoodid);
@@ -3432,7 +3466,8 @@ namespace resource.goods
             for (int v = 65; v < 90; v++)
             {
                 string vn = devname + (char)v;
-                if (IsGoodNotUse(vn, ngood.size_id, ngood.level, out Goods good))
+                //if (IsGoodNotUse(vn, ngood.size_id, ngood.level, out Goods good))
+                if (IsGoodNotUse(vn, ngood.size_id, out Goods good))
                 {
                     return good;
                 }
@@ -3440,9 +3475,10 @@ namespace resource.goods
             return null;
         }
 
-        private bool IsGoodNotUse(string name, uint sizeid, byte level, out Goods good)
+        private bool IsGoodNotUse(string name, uint sizeid, out Goods good)
         {
-            good = GoodsList.Find(c => name.Equals(c.name) && c.size_id == sizeid && c.level == level);
+            //good = GoodsList.Find(c => name.Equals(c.name) && c.size_id == sizeid && c.level == level);
+            good = GoodsList.Find(c => name.Equals(c.name) && c.size_id == sizeid);
             if (good != null)
             {
                 if (!PubMaster.DevConfig.HaveTileSetGood(good.id)

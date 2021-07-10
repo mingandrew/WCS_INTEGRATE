@@ -92,4 +92,10 @@
         to
     }
 
+    public enum LevelTypeE
+    {
+        TileLevel,  //等级
+        TileSite,   //窑位
+    }
+
 }

@@ -29,6 +29,11 @@ namespace module.goods
         /// </summary>
         public ushort location_cal { set; get; }
 
+        /// <summary>
+        /// 砖机设定等级
+        /// </summary>
+        public byte level { set; get; }
+
         public StockPosE PosType
         {
             get => (StockPosE)pos_type;
@@ -68,6 +73,11 @@ namespace module.goods
         {
             return string.Format("标识[ {0} ]，轨道[ {1}^{2} ]，位置[ {3}^{4} ]", id, TrackType, track_id,
                 PosType, pos);
+        }
+
+        public bool EqualGoodAndLevel(uint gid, byte lvl)
+        {
+            return goods_id == gid && level == lvl;
         }
     }
 }

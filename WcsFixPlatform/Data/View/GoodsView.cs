@@ -130,7 +130,7 @@ namespace wcs.Data.View
             ID = goods.id;
             Name = goods.name;
             Color = goods.color;
-            Level = goods.level;
+            //Level = goods.level;
             if(sizeid != goods.size_id)
             {
                 SizeId = goods.size_id;

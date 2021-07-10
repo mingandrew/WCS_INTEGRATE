@@ -118,10 +118,10 @@ namespace resource.module.modulesql
 
         internal bool AddGoods(Goods goods)
         {
-            string str = "INSERT INTO `goods`(`id`, `area_id`, `name`, `color`, `pieces`, `carriertype`, `memo`, `updatetime`, `info`, `size_id`, `level`, `createtime`) " +
-                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', {7}, '{8}', {9}, {10}, {11})";
+            string str = "INSERT INTO `goods`(`id`, `area_id`, `name`, `color`, `pieces`, `carriertype`, `memo`, `updatetime`, `info`, `size_id`, `createtime`) " +
+                "VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', {7}, '{8}', {9}, {10})";
             string sql = string.Format(@str, goods.id, goods.area_id, goods.name, goods.color, goods.pieces,
-                goods.carriertype, goods.memo, GetTimeOrNull(goods.updatetime), goods.info, goods.size_id, goods.level, GetTimeOrNull(goods.createtime));
+                goods.carriertype, goods.memo, GetTimeOrNull(goods.updatetime), goods.info, goods.size_id, GetTimeOrNull(goods.createtime));
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -130,11 +130,11 @@ namespace resource.module.modulesql
         internal bool AddStock(Stock stock)
         {
             string str = "INSERT INTO `stock`(`id`, `goods_id`, `stack`, `pieces`, `track_id`" +
-                ", `produce_time`, `pos`, `pos_type`, `tilelifter_id`, `area`, `track_type`, `location`, `location_cal`) " +
-                "VALUES('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})";
+                ", `produce_time`, `pos`, `pos_type`, `tilelifter_id`, `area`, `track_type`, `location`, `location_cal`, `level`) " +
+                "VALUES('{0}', '{1}', {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13})";
             string sql = string.Format(@str, stock.id, stock.goods_id, stock.stack, stock.pieces, stock.track_id,
                 GetTimeOrNull(stock.produce_time), stock.pos, stock.pos_type, stock.tilelifter_id, stock.area, 
-                stock.track_type, stock.location, stock.location_cal);
+                stock.track_type, stock.location, stock.location_cal, stock.level);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -209,10 +209,10 @@ namespace resource.module.modulesql
         internal bool EditGoods(Goods goods)
         {
             string sql = "UPDATE `goods` SET `name` = '{0}', `color` = '{1}', `size_id` = {2}," +
-                " `info` = '{3}', `level` = {4}, `memo` = '{5}', `pieces` = '{6}'" +
-                ", `carriertype` = '{7}', `updatetime` = {8} WHERE `id` = '{9}'";
+                " `info` = '{3}', `memo` = '{4}', `pieces` = '{5}'" +
+                ", `carriertype` = '{6}', `updatetime` = {7} WHERE `id` = '{8}'";
             sql = string.Format(sql, goods.name, goods.color, goods.size_id
-                , goods.info, goods.level, goods.memo, goods.pieces
+                , goods.info, goods.memo, goods.pieces
                 , goods.carriertype, GetTimeOrNull(goods.updatetime), goods.id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;

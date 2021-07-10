@@ -115,6 +115,23 @@ namespace resource.device
             return DeviceList.FindAll(c => c.area == areaid && c.Type == type) ;
         }
 
+        /// <summary>
+        /// 其余同类型的砖机
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="tileid"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public List<Device> GetTileLiftersWithoutSelf(uint tileid, DeviceTypeE type)
+        {
+            Device tile = DeviceList.Find(c => c.id == tileid);
+            if (tile != null)
+            {
+                return DeviceList.FindAll(c => c.area == tile.area && c.id != tileid && c.Type == type);
+            }
+            return new List<Device>();
+        }
+
         public List<Device> GetFerrys(uint areaid)
         {
             List<uint> devids = PubMaster.Area.GetAreaFerryIds(areaid);

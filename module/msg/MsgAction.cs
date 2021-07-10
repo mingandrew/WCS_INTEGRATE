@@ -13,5 +13,6 @@
         public object o7 { set; get; }
         public object o8 { set; get; }
         public object o9 { set; get; }
+        public object o10 { set; get; }
     }
 }

@@ -651,3 +651,55 @@ UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_定位点=0', `string_v
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_复位点=0', `string_value` = '5xx轨道码盘数值_复位点=0' WHERE `id` = 126;
 UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘丢转故障，小车移动过程中码盘接近开关超过5秒无信号：1.检查是否撞车；2.检查刹车是否能正常打开；3.检查模拟量输出模块电压输出是否大于1.5V；4.检查码盘接近开关；检查无误时终止可复位' WHERE `id` = 127;
 ```
+
+
+
+
+
+## 2021.07.10更新统计视图
+
+CREATE 
+	OR REPLACE ALGORITHM = UNDEFINED DEFINER = `root` @`localhost` SQL SECURITY DEFINER VIEW `stock_sum` AS SELECT
+	`t`.`goods_id` AS `goods_id`,
+	`t`.`track_id` AS `track_id`,
+	min( `t`.`produce_time` ) AS `produce_time`,
+	count( `t`.`id` ) AS `count`,
+	sum( `t`.`pieces` ) AS `pieces`,
+	sum( `t`.`stack` ) AS `stack`,
+	`t`.`area` AS `area`,
+	`t`.`track_type` AS `track_type`,
+	`t`.`level` AS `sum_level` 
+FROM
+	`stock` `t` 
+WHERE
+	( `t`.`track_type` IN ( 2, 3, 4 ) ) 
+GROUP BY
+	`t`.`track_id`,
+	`t`.`goods_id`,
+	`t`.`level` 
+ORDER BY
+	`t`.`area`,
+	`t`.`goods_id`,
+	`produce_time`,
+	`t`.`track_id`;
+	
+	
+## 2021.07.10新增库存等级字段
+ALTER TABLE `stock` ADD COLUMN `level` tinyint unsigned NULL COMMENT '砖机等级/窑位' AFTER `last_track_id`;	
+ALTER TABLE `stock_trans` ADD COLUMN `level` int unsigned NULL COMMENT '砖机等级/窑位' AFTER `cancel`;
+ALTER TABLE `goods` DROP COLUMN `level`;
+ALTER TABLE `config_tilelifter` ADD COLUMN `level_type` tinyint unsigned NULL COMMENT '等级类型：0等级，1窑位' AFTER `pre_good_all`;
+
+ALTER TABLE `config_tilelifter` ADD COLUMN `syn_tile_list` varchar(10) NULL COMMENT '同步转产砖机id（用#隔开）' AFTER `level_type`;
+
+UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '全捡混砖', `int_value` = 0, `bool_value` = NULL, `string_value` = '全捡混砖', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = '2021-07-07 16:18:51', `level` = NULL WHERE `id` = 40;
+UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '优等品', `int_value` = 1, `bool_value` = NULL, `string_value` = '优等品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 41;
+UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '一级品', `int_value` = 2, `bool_value` = NULL, `string_value` = '一级品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 42;
+UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '二级品', `int_value` = 3, `bool_value` = NULL, `string_value` = '二级品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 43;
+UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '合格品', `int_value` = 4, `bool_value` = NULL, `string_value` = '合格品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 44;
+
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (45, 9, 'TileSite', '窑位1', 5, NULL, '窑位1', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (46, 9, 'TileSite', '窑位2', 6, NULL, '窑位2', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (47, 9, 'TileSite', '窑位3', 7, NULL, '窑位3', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (48, 9, 'TileSite', '窑位4', 8, NULL, '窑位4', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (49, 9, 'TileSite', '窑位5', 9, NULL, '窑位5', NULL, NULL, NULL, NULL, NULL);

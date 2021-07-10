@@ -22,27 +22,31 @@
 
                 <Grid.RowDefinitions>
                     <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LT}"/>
-                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}"/>
+                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource MBorder_LTR}"/>
                 <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LT}"/>
-                <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LTR}"/>
+                <Border Grid.Row="1" Grid.Column="3" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="1" Grid.Column="4" Style="{StaticResource MBorder_LTR}"/>
                 <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MBorder_LT}"/>
-                <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LTR}"/>
+                <Border Grid.Row="2" Grid.Column="3" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="2" Grid.Column="4" Style="{StaticResource MBorder_LTR}"/>
-                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}"/>
-                <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LTRB}"/>
+                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}" MinHeight="65" VerticalAlignment="Top"/>
+                <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LTR}"/>
+
+                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}"/>
+                <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LTRB}"/>
 
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text=""  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
@@ -63,14 +67,30 @@
                 <TextBlock Grid.Row="2" Grid.Column="3" Margin="10" FontSize="22" Text="{Binding PreLevel,Converter={StaticResource LevelValue2NameConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Visibility="{Binding ShowLevel,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"/>
                 <TextBlock Grid.Row="2" Grid.Column="4" Margin="10" FontSize="22" Text="{Binding PreGQty}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button Grid.Row="2" Grid.Column="5" Margin="10" Tag="chosepregood" Command="{Binding BtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}" Content="设置" FontSize="15"/>
-                <Button Grid.Row="2" Grid.Column="6" Margin="10" Tag="clearnpregood" Command="{Binding BtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonDanger}" Content="清空" FontSize="15"/>
+                <StackPanel Grid.Row="2" Grid.Column="5" Orientation="Horizontal">
+                    <Button Tag="chosepregood" Command="{Binding BtnCmd}" Margin="10,0,10,0"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}" Content="设置" FontSize="15"/>
+                    <Button Tag="clearnpregood" Command="{Binding BtnCmd}"  Margin="10,0,10,0"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonDanger}" Content="清空" FontSize="15"/>
 
+                </StackPanel>
+                
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="转产状态："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="10" FontSize="22" Text="{Binding SHIFTSTATUS}" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="10" FontSize="22" Text="{Binding SHIFTSTATUS}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 <Button Grid.Row="3" Grid.Column="2" Margin="10"  Tag="refreshstatus" Command="{Binding BtnCmd}" 
                         CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}"
                         Content="刷新" FontSize="15" Visibility="Collapsed"/>
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="同步砖机："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20" Foreground="#FFF51D1D"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Margin="10" FontSize="22" Text="{Binding SynTileName}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <Button Grid.Row="4" Grid.Column="5"  Tag="chosesyntiles" Command="{Binding BtnCmd}"  
+                        CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}" Content="设置同步砖机" FontSize="15" Width="120"/>
+
+
+                <!--<hc:CheckComboBox Name="shifttilecombo"  Grid.Row="4" Grid.Column="1" MaxWidth="980" ShowClearButton="False" ItemsSource="{Binding SynchroTileLifterList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CheckComboBoxPlus}"
+                                   Margin="12,18,10,17" ShowSelectAllButton="True" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                   SelectedItem="{Binding SelectSynTiles,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                  
+                                      DisplayMemberPath="Name" Grid.ColumnSpan="4" Width="308" IsEnabled="{Binding EnableSyTiles}"/>-->
+                <!--<CheckBox Grid.Row="4" Grid.Column="5" Content="使用当前品种同步转产" IsChecked="{Binding CheckUseSameGood}" Margin="10" IsEnabled="{Binding SynchroTileLifterList}"/>-->
 
             </Grid>
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,30,0,0">
