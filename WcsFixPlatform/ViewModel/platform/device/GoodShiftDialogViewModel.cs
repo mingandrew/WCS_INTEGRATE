@@ -366,11 +366,11 @@ namespace wcs.ViewModel
                 return;
             }
             
-            if (!PubTask.TileLifter.IsSiteGoodSame(_devid))
-            {
-                Growl.Warning("砖机左右工位品种不一致！");
-                return;
-            }
+            //if (!PubTask.TileLifter.IsSiteGoodSame(_devid))
+            //{
+            //    Growl.Warning("砖机左右工位品种不一致！");
+            //    return;
+            //}
 
             uint confgoodid = PubMaster.DevConfig.GetTileGood(_devid);
             if (confgoodid != _goodsid)

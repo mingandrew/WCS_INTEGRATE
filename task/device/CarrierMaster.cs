@@ -624,7 +624,14 @@ namespace task.device
             //放货动作
             if (task.DevConfig.stock_id != 0 && task.IsNotLoad() && track != null)
             {
-                PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GivePoint);
+                if(task.DevStatus.GivePoint != 0)
+                {
+                    PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.GivePoint);
+                }
+                else
+                {
+                    PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.CurrentPoint);
+                }
 
                 //判断放下砖的时候轨道是否是能否放砖的轨道
                 if (track.NotInType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
@@ -949,6 +956,13 @@ namespace task.device
                         {
                             return false;
                         }
+
+                        if (PubTask.Ferry.IsLoad(ferryTraid))
+                        {
+                            result = "摆渡车上有运输车";
+                            return false;
+                        }
+
                         checkTra = PubMaster.Track.GetTrackDownCode(ferryTraid);
                         toRFID = PubMaster.Track.GetTrackRFID1(ferryTraid);
                         order = DevCarrierOrderE.定位指令;
