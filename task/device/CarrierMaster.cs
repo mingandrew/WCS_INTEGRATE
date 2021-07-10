@@ -988,6 +988,13 @@ namespace task.device
                         {
                             return false;
                         }
+
+                        if (PubTask.Ferry.IsLoad(ferryTraid))
+                        {
+                            result = "摆渡车上有运输车";
+                            return false;
+                        }
+
                         checkTra = PubMaster.Track.GetTrackUpCode(ferryTraid);
                         toRFID = PubMaster.Track.GetTrackRFID2(ferryTraid);
                         order = DevCarrierOrderE.定位指令;
