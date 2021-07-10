@@ -2217,13 +2217,34 @@ namespace task.device
             {
                 if (checkleft)
                 {
-                    if (brotask.IsNeed_1) return false;
+                    if (brotask.DevConfig.WorkMode == TileWorkModeE.下砖 
+                        && brotask.IsNeed_1  
+                        && brotask.IsEmpty_1)
+                    {
+                        brotask.Do1Invo(DevLifterInvolE.清除需求);
+                        mlog.Status(true, string.Format("发送砖机：[ {0} ] 工位1清除需求指令", brotask.Device.name));
+                        return true;
+                    }
+
+                    if (brotask.IsNeed_1 && (checkfull ? brotask.IsEmpty_1 : brotask.IsLoad_1)) return false;
+
                     if (!brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1))
                     {
                         brotask.Do1Invo(DevLifterInvolE.介入);
                     }
                     return brotask.IsInvo_1 && (checkfull ? brotask.IsLoad_1 : brotask.IsEmpty_1);
                 }
+
+                if (brotask.DevConfig.WorkMode == TileWorkModeE.下砖
+                        && brotask.IsNeed_2
+                        && brotask.IsEmpty_2)
+                {
+                    brotask.Do2Invo(DevLifterInvolE.清除需求);
+                    mlog.Status(true, string.Format("发送砖机：[ {0} ] 工位1清除需求指令", brotask.Device.name));
+                    return true;
+                }
+
+                if (brotask.IsNeed_2 && (checkfull ? brotask.IsEmpty_2 : brotask.IsLoad_2)) return false;
 
                 if (!brotask.IsInvo_2 && (checkfull ? brotask.IsLoad_2 : brotask.IsEmpty_2))
                 {
