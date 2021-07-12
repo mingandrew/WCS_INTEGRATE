@@ -65,7 +65,8 @@ namespace task.device
                 try
                 {
                     //所有没有生成任务的需求，按时间升序排序
-                    List<TileLifterNeed> uncreate = NeedList.FindAll(c => !c.finish && c.trans_id == 0)?.OrderBy(c => c.create_time)?.ToList();
+                    //List<TileLifterNeed> uncreate = NeedList.FindAll(c => !c.finish && c.trans_id == 0)?.OrderBy(c => c.create_time)?.ToList();
+                    List<TileLifterNeed> uncreate = NeedList.FindAll(c => !c.finish && c.trans_id == 0);
                     if (uncreate != null && uncreate.Count != 0)
                     {
                         foreach (TileLifterNeed nd in uncreate)
@@ -167,6 +168,20 @@ namespace task.device
             {
                 try
                 {
+                    ushort pri = 99;
+                    uint ncount = (uint)NeedList.Count(c => c.device_id == task.ID && !c.finish && c.trans_id == 0);
+                    if (ncount != 0)
+                    {
+                        if (task.HaveBrother)
+                        {
+                            pri = 1;
+                        }
+                        else
+                        {
+                            pri = 2;
+                        }
+                        UpdateTileNeedPrior(task.ID, pri);
+                    }
                     TileLifterNeed tileLifterNeed = new TileLifterNeed()
                     {
                         device_id = task.ID,
@@ -175,6 +190,7 @@ namespace task.device
                         left = isleft,
                         need_type = task.Type,
                         area_id = task.AreaId,
+                        prior = pri,
                     };
 
                     NeedList.Add(tileLifterNeed);
@@ -185,6 +201,39 @@ namespace task.device
                     mlog.Error(true, task.Device.name + e.Message, e);
                 }
                 finally { Monitor.Exit(_obj); }
+            }
+        }
+
+        public void UpdateTileNeedPrior(uint devid, ushort pri)
+        {
+            try
+            {
+                List<TileLifterNeed> updateNeeds = NeedList.FindAll(c => c.device_id == devid && !c.finish && c.trans_id == 0);
+                if (updateNeeds != null)
+                {
+                    foreach (TileLifterNeed need in updateNeeds)
+                    {
+                        need.prior = pri;
+                        PubMaster.Mod.TileLifterNeedSql.EditTileLifterNeed(need, TileNeedStatusE.Prior);
+                    }
+                    NeedList.Sort(
+                        (x, y) =>
+                        {
+                            if (x.prior == y.prior)
+                            {
+                                if (x.create_time is DateTime xc && y.create_time is DateTime yc)
+                                {
+                                    return xc.CompareTo(yc);
+                                }
+                            }
+                            return x.prior.CompareTo(y.prior);
+                        }
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                mlog.Error(true, devid + "号砖机 - " + e.Message, e);
             }
         }
 

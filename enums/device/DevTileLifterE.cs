@@ -82,6 +82,7 @@
         Trans = 0, //生成任务
         Finish = 1, //任务完成
         UpdateCreateTime = 2, //更新需求生成时间
+        Prior = 3, //更新优先级
     }
 
     public enum TileAlertShiftE

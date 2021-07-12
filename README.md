@@ -703,3 +703,12 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (47, 9, 'TileSite', '窑位3', 7, NULL, '窑位3', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (48, 9, 'TileSite', '窑位4', 8, NULL, '窑位4', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (49, 9, 'TileSite', '窑位5', 9, NULL, '窑位5', NULL, NULL, NULL, NULL, NULL);
+
+
+
+
+
+
+
+## 2021.07.12 优化串联下砖机的任务生成顺序
+ALTER TABLE `tilelifterneed` ADD COLUMN `prior` smallint unsigned NULL COMMENT '优先级' AFTER `area_id`;
