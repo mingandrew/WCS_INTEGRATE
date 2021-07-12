@@ -53,6 +53,7 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<GoodsSelectViewModel>();
             SimpleIoc.Default.Register<StockSelectViewModel>();
             SimpleIoc.Default.Register<GoodSizeSelectViewModel>();
+            SimpleIoc.Default.Register<GoodSizeEditViewModel>();
             SimpleIoc.Default.Register<StockViewModel>();
             SimpleIoc.Default.Register<StockSumViewModel>();
             SimpleIoc.Default.Register<StockEditViewModel>();
@@ -130,6 +131,7 @@ namespace wcs.ViewModel
 
         public GoodsViewModel Goods => ServiceLocator.Current.GetInstance<GoodsViewModel>();
         public GoodsEditViewModel GoodsEdit => ServiceLocator.Current.GetInstance<GoodsEditViewModel>();
+        public GoodSizeEditViewModel GoodSizeEdit => ServiceLocator.Current.GetInstance<GoodSizeEditViewModel>();
         public GoodsSelectViewModel GoodSelect => ServiceLocator.Current.GetInstance<GoodsSelectViewModel>(); 
         public StockSelectViewModel StockSelect => ServiceLocator.Current.GetInstance<StockSelectViewModel>();
         public GoodSizeSelectViewModel SizeSelect => ServiceLocator.Current.GetInstance<GoodSizeSelectViewModel>();

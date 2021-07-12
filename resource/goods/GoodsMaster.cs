@@ -3763,7 +3763,6 @@ namespace resource.goods
         }
         #endregion
 
-
         #region[库存整理]
 
 
@@ -3820,6 +3819,70 @@ namespace resource.goods
             List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
             int mingoodpos = stocks.FindAll(c => c.goods_id == goodid)?.Min(c => c.pos) ?? 0;
             return !stocks.Exists(c => c.goods_id != goodid && c.pos > mingoodpos);
+        }
+        #endregion
+
+        #region[规格添加修改]
+        
+        public uint GetMaxGoodSizeId()
+        {
+            return GoodSizeList.Max(c => c.id);
+        }
+
+        public bool CheckHaveGoodSize(uint id, ushort width, ushort lenght)
+        {
+            return GoodSizeList.Exists(c => c.id != id && c.width == width && c.length == lenght);
+        }
+
+        public bool AddGoodSize(GoodSize size, out string result)
+        {
+            if(CheckHaveGoodSize(0, size.width, size.length))
+            {
+                result = "已经有相同的规格信息！";
+                return false;
+            }
+            size.id = GetMaxGoodSizeId() + 1;
+            PubMaster.Mod.GoodSql.AddGoodSize(size);
+            Refresh(false, false, false, true);
+            result = "";
+            return true;
+        }
+
+        public bool EditGoodSize(GoodSize size, out string result)
+        {
+            if (CheckHaveGoodSize(size.id, size.width, size.length))
+            {
+                result = "已经有相同的规格信息！";
+                return false;
+            }
+
+            PubMaster.Mod.GoodSql.EditGoodSize(size);
+            Refresh(false, false, false, true);
+            result = "";
+            return true;
+        }
+        public bool ExistGoodWithSize(uint sizeid)
+        {
+            return GoodsList.Exists(c => c.size_id == sizeid);
+        }
+
+        /// <summary>
+        /// 删除库存
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="res"></param>
+        /// <returns></returns>
+        public bool DeleteSize(GoodSize size, out string res)
+        {
+            if (ExistGoodWithSize(size.id))
+            {
+                res = "存在使用该规格的品种信息！请确保无品种使用该规格";
+                return false;
+            }
+
+            PubMaster.Mod.GoodSql.DeleteGoodSize(size.id);
+            res = "";
+            return true;
         }
         #endregion
     }

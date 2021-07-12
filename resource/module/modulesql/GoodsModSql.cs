@@ -202,6 +202,19 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        /// <summary>
+        /// 添加规格信息
+        /// </summary>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        internal bool AddGoodSize(GoodSize size)
+        {
+            string str = "INSERT INTO `good_size`( `id`, `name`, `length`, `width`, `stack`, `car_lenght`, `car_space`) VALUES({0}, '{1}',  {2}, {3}, {4}, {5}, {6})";
+            string sql = string.Format(@str, size.id, size.name, size.length, size.width, size.stack, size.car_lenght, size.car_space);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
         #endregion
 
         #region[修改]
@@ -356,6 +369,23 @@ namespace resource.module.modulesql
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
+
+
+        /// <summary>
+        /// 更新规格信息
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="qty"></param>
+        /// <returns></returns>
+        internal bool EditGoodSize(GoodSize size)
+        {
+            string sql = string.Format("UPDATE `good_size` SET `name` = '{0}', `length` = {1}, `width` = {2}, " +
+                                                        "`stack` = {3}, `car_lenght` = {4}, `car_space` = {5} WHERE `id` = {6}", 
+                                                        size.name, size.length, size.width, size.stack, size.car_lenght, size.car_space,size.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
         #endregion
 
         #region[删除]
@@ -387,7 +417,12 @@ namespace resource.module.modulesql
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
-
+        internal bool DeleteGoodSize(uint sizeid)
+        {
+            string sql = string.Format("DELETE FROM `good_size` WHERE `id` = '{0}'", sizeid);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
         #endregion
     }
 }
