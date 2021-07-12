@@ -154,6 +154,9 @@
     <Compile Include="Dialog\platform\device\Carrier2TileLifterDialog.xaml.cs">
       <DependentUpon>Carrier2TileLifterDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\goods\GoodSizeEditDialog.xaml.cs">
+      <DependentUpon>GoodSizeEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\stock\DeleteQtyDiaolog.xaml.cs">
       <DependentUpon>DeleteQtyDiaolog.xaml</DependentUpon>
     </Compile>
@@ -274,6 +277,7 @@
     <Compile Include="ViewModel\platform\diction\DictionSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\diction\DictionViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\DeleteQtyViewModel.cs" />
+    <Compile Include="ViewModel\platform\goods\GoodSizeEditViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodSizeSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\goods\GoodsEditViewModel.cs" />
@@ -429,6 +433,10 @@
     <Page Include="Dialog\platform\device\Carrier2TileLifterDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialog\platform\goods\GoodSizeEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialog\platform\stock\DeleteQtyDiaolog.xaml">
       <SubType>Designer</SubType>

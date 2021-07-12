@@ -10,6 +10,7 @@ using module.window;
 using resource;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +24,7 @@ namespace wcs.ViewModel
         public GoodsViewModel()
         {
             _list = new List<GoodsView>();
+            _sizelist = new ObservableCollection<GoodSize>();
             AreaRadio = PubMaster.Area.GetAreaRadioList(true);
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.GoodsUpdate, GoodsUpdate);
@@ -32,6 +34,8 @@ namespace wcs.ViewModel
             GoodListView = System.Windows.Data.CollectionViewSource.GetDefaultView(List);
             GoodListView.Filter = new Predicate<object>(OnFilterMovie);
             CheckIsSingle();
+
+            InitSizeView();
         }
 
 
@@ -41,6 +45,9 @@ namespace wcs.ViewModel
         private IList<MyRadioBtn> _arearadio;
         private uint filterareaid = 0;
         private bool showareafilter = true;
+
+        private ObservableCollection<GoodSize> _sizelist;
+        private GoodSize _selectsize;
         #endregion
 
         #region[属性]
@@ -54,6 +61,8 @@ namespace wcs.ViewModel
             get => _arearadio;
             set => Set(ref _arearadio, value);
         }
+
+        #region【品种】
         public ICollectionView GoodListView { set; get; }
 
         public List<GoodsView> List
@@ -67,7 +76,21 @@ namespace wcs.ViewModel
             get => _selectgood;
             set => Set(ref _selectgood, value);
         }
+        #endregion
 
+        #region【规格】
+        public ObservableCollection<GoodSize> SizeList
+        {
+            get => _sizelist;
+            set => Set(ref _sizelist, value);
+        }
+
+        public GoodSize SelectSize
+        {
+            get => _selectsize;
+            set => Set(ref _selectsize, value);
+        }
+        #endregion
         #endregion
 
         #region[命令]
@@ -154,6 +177,7 @@ namespace wcs.ViewModel
         {
             switch (tag)
             {
+                #region[添加品种]
                 case "add":
                     DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsEditDialog>()
                               .Initialize<GoodsEditViewModel>((vm) =>
@@ -165,6 +189,9 @@ namespace wcs.ViewModel
                         Growl.Success("添加成功！");
                     }
                     break;
+                #endregion
+
+                #region[编辑品种]
                 case "edite":
                     if (SelectGood == null)
                     {
@@ -189,6 +216,9 @@ namespace wcs.ViewModel
                         Growl.Success("修改成功！");
                     }
                     break;
+                #endregion
+
+                #region[删除品种]
                 case "delete":
                     if (SelectGood == null)
                     {
@@ -212,6 +242,72 @@ namespace wcs.ViewModel
                     }
 
                     break;
+                #endregion
+
+                #region[添加规格]
+                case "addsize":
+
+                    result = await HandyControl.Controls.Dialog.Show<GoodSizeEditDialog>()
+                              .Initialize<GoodSizeEditViewModel>((vm) => { 
+                                  vm.SetAdd(true); 
+                              })
+                              .GetResultAsync<DialogResult>();
+                    if (result.p1 is bool addrs && addrs)
+                    {
+                        Growl.Success("添加成功！");
+                        InitSizeView();
+                    }
+
+                    break;
+                    
+                 #endregion
+
+                #region[修改规格]
+                case "editesize":
+                    if(SelectSize == null)
+                    {
+                        Growl.Warning("请先选择规格后进行修改！");
+                        return;
+                    }
+                    result = await HandyControl.Controls.Dialog.Show<GoodSizeEditDialog>()
+                              .Initialize<GoodSizeEditViewModel>((vm) => {
+                                  vm.SetAdd(false);
+                                  vm.SetEditSize(SelectSize);
+                              })
+                              .GetResultAsync<DialogResult>();
+                    if (result.p1 is bool isedit && isedit)
+                    {
+                        Growl.Success("修改成功！");
+                        InitSizeView();
+                    }
+
+
+
+                    break;
+
+                #endregion
+
+                #region[删除规格]
+                case "deletesize":
+
+                    if (SelectSize == null)
+                    {
+                        Growl.Warning("请先选择规格！");
+                        return;
+                    }
+
+                    if (!PubMaster.Goods.DeleteSize(SelectSize, out res))
+                    {
+                        Growl.Warning(res);
+                        return;
+                    }
+
+                    Growl.Success("删除成功！");
+                    InitSizeView();
+
+                    break;
+
+                    #endregion
             }
         }
 
@@ -226,6 +322,20 @@ namespace wcs.ViewModel
                 }
             }
         }
+        #endregion
+
+        #region[规格]
+
+        private void InitSizeView()
+        {
+            List<GoodSize> sizes = PubMaster.Goods.GetGoodSizes();
+            SizeList.Clear();
+            foreach (var item in sizes)
+            {
+                SizeList.Add(item);
+            }
+        }
+
         #endregion
     }
 }
