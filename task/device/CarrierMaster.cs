@@ -1004,10 +1004,13 @@ namespace task.device
                         break;
 
                     case DevCarrierTaskE.前进至点:
+                        //常规：摆渡车出前进至点到达储砖轨道，在储砖轨道前进至点
+                        //新增：在摆渡车入前进至点到达上砖机轨道
+
                         #region 前进至点
-                        if (track.NotInType(TrackTypeE.摆渡车_入, TrackTypeE.储砖_入, TrackTypeE.储砖_出入,TrackTypeE.储砖_出))
+                        if (track.NotInType(TrackTypeE.摆渡车_入,TrackTypeE.摆渡车_出, TrackTypeE.储砖_入, TrackTypeE.储砖_出入,TrackTypeE.储砖_出))
                         {
-                            result = "须在下砖摆渡车或储砖轨道上执行！";
+                            result = "须在摆渡车或储砖轨道上执行！";
                             return false;
                         }
 
@@ -1045,13 +1048,17 @@ namespace task.device
                         isferryupsite = true;
 
                         #endregion
+
                         break;
 
                     case DevCarrierTaskE.后退至点:
+                        //常规：摆渡车出后退至点到达储砖轨道，在储砖轨道后退至点
+                        //新增：在摆渡车入后退至点到达下砖机轨道
+
                         #region 后退至点
-                        if (track.NotInType(TrackTypeE.摆渡车_出, TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.储砖_出))
+                        if (track.NotInType(TrackTypeE.摆渡车_出,TrackTypeE.摆渡车_入, TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.储砖_出))
                         {
-                            result = "须在上砖摆渡车或储砖轨道上执行！";
+                            result = "须在摆渡车或储砖轨道上执行！";
                             return false;
                         }
 
@@ -1085,6 +1092,8 @@ namespace task.device
                             checkTra = track.ferry_up_code;
                             toRFID = track.rfid_1;
                         }
+
+                        isferryupsite = false;
 
                         #endregion
                         break;

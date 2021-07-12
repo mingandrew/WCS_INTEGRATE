@@ -287,14 +287,47 @@ namespace task.trans.transtask
 
                                 #region[先后退至点，在轨道后再执行倒库任务]
 
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //出库轨道
+                                //      有砖：则先定位至无砖的地方再执行倒库任务
+                                //      无砖：则定位到定位点执行倒库
+                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id))
                                 {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                    ToTrackId = trans.give_track_id
-                                });
+                                    Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                                    if (gtrack != null)
+                                    {
+                                        ushort toempypoint =0 ;
 
+                                        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                        if (btmstock != null)
+                                        {
+                                            ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
+                                            toempypoint = (ushort)(btmstock.location - (3 * safe));
+                                        }
+
+                                        if (toempypoint < gtrack.split_point)
+                                        {
+                                            toempypoint = gtrack.split_point;
+                                        }
+
+                                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                        {
+                                            Order = DevCarrierOrderE.定位指令,
+                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                            ToPoint = toempypoint,
+                                            ToTrackId = trans.give_track_id
+                                        });
+                                    }
+                                }
+                                else
+                                {
+                                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                    {
+                                        Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                        ToTrackId = trans.give_track_id
+                                    });
+                                }
                                 #endregion
 
                                 //int count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
