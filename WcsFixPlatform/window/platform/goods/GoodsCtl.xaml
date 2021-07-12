@@ -7,85 +7,119 @@
              Background="{StaticResource RegionBrush}"
              mc:Ignorable="d"  DataContext="{Binding Goods,Source={StaticResource Locator}}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0"  Margin="0,0,0,10" Visibility="Collapsed">
-            <!--Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}"-->
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
-            <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+    <TabControl>
+        
+        <TabItem Header="品种" FontSize="20" Height="40" Width="250" >
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0"  Margin="0,0,0,10" Visibility="Collapsed">
+                    <!--Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}"-->
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
+                    <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
                                 ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}" Visibility="Collapsed">
-                <hc:Interaction.Triggers>
-                    <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
-                        <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
-                    </hc:RoutedEventTrigger>
-                </hc:Interaction.Triggers>
+                        <hc:Interaction.Triggers>
+                            <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
+                                <hc:EventToCommand Command="{Binding CheckRadioBtnCmd}" PassEventArgsToCommand="True"/>
+                            </hc:RoutedEventTrigger>
+                        </hc:Interaction.Triggers>
 
-                <hc:ButtonGroup.ItemTemplate>
-                    <DataTemplate DataType="mwindow:AreaRadioBtn">
-                        <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
+                        <hc:ButtonGroup.ItemTemplate>
+                            <DataTemplate DataType="mwindow:AreaRadioBtn">
+                                <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaTag}"  GroupName="Area"
                                          Style="{StaticResource RadioGroupItemBaseStyle}" 
                                          Width="100" Height="40" MinHeight="35" MinWidth="80"
                                          BorderBrush="{StaticResource BorderBrush}"
                                          Background="{StaticResource RegionBrush}"
                                          BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />
-                    </DataTemplate>
-                </hc:ButtonGroup.ItemTemplate>
-            </hc:ButtonGroup>
-        </Grid>
-        <StackPanel Grid.Row="1" Margin="10,5,10,10" Orientation="Horizontal">
-            <Button Content="添加" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
+                            </DataTemplate>
+                        </hc:ButtonGroup.ItemTemplate>
+                    </hc:ButtonGroup>
+                </Grid>
+                <StackPanel Grid.Row="1" Margin="10,5,10,10" Orientation="Horizontal">
+                    <Button Content="添加" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
                         Tag="add" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-            <Button Content="修改" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
+                    <Button Content="修改" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
                         Tag="edite" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-            <Button Content="删除" Margin="5" Style="{StaticResource ButtonDanger}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
+                    <Button Content="删除" Margin="5" Style="{StaticResource ButtonDanger}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
                         Tag ="delete" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-        </StackPanel>
-        <DataGrid Grid.Row="2" Grid.Column="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                </StackPanel>
+                <DataGrid Grid.Row="2" Grid.Column="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
                       SelectedItem="{Binding SelectGood}" ItemsSource="{Binding GoodListView}"
                       SelectionUnit="FullRow" SelectionMode="Single"
                       CanUserAddRows="False" CanUserResizeColumns="False"
                       CanUserDeleteRows="False" CanUserSortColumns="False"
                       CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <!--<DataGridTextColumn Binding="{Binding AreaId,Converter={StaticResource AreaId2NameConverter}}" Header="区域" />-->
-                <DataGridTextColumn Binding="{Binding Name}" Header="名称" />
-                <DataGridTextColumn Binding="{Binding Color}" Header="色号"/>
-                <DataGridTextColumn Binding="{Binding Width}" Header="宽"/>
-                <DataGridTextColumn Binding="{Binding Length}" Header="长"/>
-                <DataGridTemplateColumn Visibility="Collapsed">
-                    <DataGridTemplateColumn.Header>
-                        <TextBlock Text="超限"/>
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Grid Margin="5,5,5,5">
-                                <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
-                                    <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                </Border>
-                                <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
+                    <DataGrid.Columns>
+                        <!--<DataGridTextColumn Binding="{Binding AreaId,Converter={StaticResource AreaId2NameConverter}}" Header="区域" />-->
+                        <DataGridTextColumn Binding="{Binding Name}" Header="名称" />
+                        <DataGridTextColumn Binding="{Binding Color}" Header="色号"/>
+                        <DataGridTextColumn Binding="{Binding Width}" Header="宽"/>
+                        <DataGridTextColumn Binding="{Binding Length}" Header="长"/>
+                        <DataGridTemplateColumn Visibility="Collapsed">
+                            <DataGridTemplateColumn.Header>
+                                <TextBlock Text="超限"/>
+                            </DataGridTemplateColumn.Header>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="5,5,5,5">
+                                        <Border Width="30" Height="30" CornerRadius="10" BorderThickness="1" BorderBrush="Transparent">
+                                            <Ellipse Width="25" Height="25" Fill="{DynamicResource BorderBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        </Border>
+                                        <Border Width="30" Height="30" CornerRadius="4" BorderThickness="1" BorderBrush="Transparent"
                                             Visibility="{Binding Isoversize,Converter={StaticResource Boolean2VisibilityConverter}}">
-                                    <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkWarningBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
-                                </Border>
-                            </Grid>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Binding="{Binding CarrierType}" Header="车型" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding Stack}" Header="垛数" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding Pieces}" Header="满砖数" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding MinStack}" Header="最少车数" Visibility="Collapsed"/>
-                <DataGridTextColumn Binding="{Binding Memo}" Header="备注" Visibility="Collapsed"/>
-                <!--<DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级"/>-->
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+                                            <Ellipse Width="25" Height="25" Fill="{DynamicResource DarkWarningBrush}" StrokeThickness="1" Stroke="{DynamicResource BorderBrush}"/>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Binding="{Binding CarrierType}" Header="车型" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding Stack}" Header="垛数" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding Pieces}" Header="满砖数" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding MinStack}" Header="最少车数" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding Memo}" Header="备注" Visibility="Collapsed"/>
+                        <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+        <TabItem Header="规格" FontSize="20" Height="40" Width="250" >
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Margin="10,5,10,10" Orientation="Horizontal">
+                    <Button Content="添加" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
+                        Tag="addsize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                    <Button Content="修改" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
+                        Tag="editesize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                    <Button Content="删除" Margin="5" Style="{StaticResource ButtonDanger}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
+                        Tag ="deletesize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                </StackPanel>
+                <DataGrid Grid.Row="2" Grid.Column="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                      SelectedItem="{Binding SelectSize}" ItemsSource="{Binding SizeList}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding name}" Header="规格"/>
+                        <DataGridTextColumn Binding="{Binding stack}" Header="一车垛数"/>
+                        <DataGridTextColumn Binding="{Binding car_lenght}" Header="每车长度"/>
+                        <DataGridTextColumn Binding="{Binding car_space}" Header="每车间隔"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+    </TabControl>
 </UserControl>

@@ -10,7 +10,7 @@
     <StackPanel>
         <Grid>
             <Grid >
-                <Grid Visibility="{Binding SHOWSTATUSERROR}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Grid Visibility="{Binding SHOWSTATUSERROR}" Width="150" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
                     <Grid >
                         <hc:SimplePanel >
                             <ContentPresenter/>
@@ -39,7 +39,7 @@
                         </hc:SimplePanel>
                     </Grid>
                 </Grid>
-                <Grid Visibility="{Binding SHOWSTATUSERROR}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Grid Visibility="{Binding SHOWSTATUSERROR}" Width="150" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
 
                     <Border Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Center" VerticalAlignment="Center"
                             BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
@@ -55,8 +55,8 @@
                             Margin="0,25,0,0" Padding="0" Width="95" Height="65"  >
                     </Button>
                 </Grid>
-                <Grid Visibility="{Binding SHOWSTATUSOK}" Width="120" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <Border BorderBrush="{StaticResource BorderBrush}" Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"
+                <Grid Visibility="{Binding SHOWSTATUSOK}" Width="150" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <Border BorderBrush="{StaticResource BorderBrush}" Width="112" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"
                             BorderThickness="1">
                         <Border Background="{DynamicResource SuccessBrush}" Width="80" Height="80" CornerRadius="40" HorizontalAlignment="Right" VerticalAlignment="Top"
                             BorderBrush="White" BorderThickness="5">
@@ -67,7 +67,7 @@
 
             </Grid>
 
-            <hc:SimplePanel Margin="0,100,0,0" VerticalAlignment="Center" Width="450"
+            <hc:SimplePanel Margin="0,100,0,0" VerticalAlignment="Center" Width="500"
                     Visibility="{Binding SHOWERRORLIST}">
                 <Border Name="BorderRootEffect" Background="{DynamicResource RegionBrush}" CornerRadius="10" Effect="{StaticResource EffectShadow4}" Margin="16" Visibility="Collapsed"/>
                 <Border Name="BorderRoot" Style="{StaticResource BorderClip}" Margin="0,16,0,0">
@@ -110,7 +110,7 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
  
-                                    <DataGridTextColumn Binding="{Binding CREATETIME,Converter={StaticResource Date2StringConverter}}" Header="时间" Visibility="Collapsed"/>
+                                    <DataGridTextColumn Binding="{Binding CREATETIME,Converter={StaticResource Date2StringConverter}}" Header="时间"/>
                                     <DataGridTextColumn Binding="{Binding REMAINTIME}" Header="持续" Visibility="Collapsed"/>
                                 </DataGrid.Columns>
                             </DataGrid>
