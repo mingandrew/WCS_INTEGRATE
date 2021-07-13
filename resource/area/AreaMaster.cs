@@ -250,6 +250,32 @@ namespace resource.area
             return list;
         }
 
+        /// <summary>
+        /// 获取砖机作业对应储砖轨道
+        /// </summary>
+        /// <param name="areaid">区域ID</param>
+        /// <param name="devid">设备ID</param>
+        /// <param name="isup">是否上砖作业</param>
+        /// <returns></returns>
+        public List<AreaDeviceTrack> GetTileWorkTraList(uint areaid, uint devid, bool isup)
+        {
+            List<AreaDeviceTrack> list = new List<AreaDeviceTrack>();
+            if (isup)
+            {
+                list = AreaDevTraList.FindAll(c => c.area_id == areaid && c.device_id == devid && c.can_up);
+            }
+            else
+            {
+                list = AreaDevTraList.FindAll(c => c.area_id == areaid && c.device_id == devid && c.can_down);
+            }
+
+            if (list.Count > 0)
+            {
+                list.Sort((x, y) => x.prior.CompareTo(y.prior));
+            }
+            return list;
+        }
+
         public bool ExistAreaDevTrack(uint areaid, uint devid)
         {
             return AreaDevTraList.Exists(c => c.area_id == areaid && c.device_id == devid);
@@ -514,7 +540,7 @@ namespace resource.area
                 prior += 1;
             }
 
-            Refresh(false, false, false, true);
+            Refresh(false, false, false, true, false);
         }
 
         /// <summary>
@@ -578,11 +604,11 @@ namespace resource.area
                 prior += 1;
             }
 
-            Refresh(false, false, false, true);
+            Refresh(false, false, false, true, false);
         }
 
         /// <summary>
-        /// 添加区域轨道信息
+        /// 获取区域轨道信息
         /// </summary>
         /// <param name="areaid"></param>
         /// <returns></returns>
@@ -609,7 +635,8 @@ namespace resource.area
 
         public void AddAreaTrack(uint trackid, uint toareaid, Device dev)
         {
-            ushort prior = (ushort)AreaDevTraList.Count(c => c.area_id == toareaid && c.device_id == dev.id);
+            //ushort prior = (ushort)AreaDevTraList.Count(c => c.area_id == toareaid && c.device_id == dev.id);
+            ushort prior = (ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == dev.id).Max(c => c.prior);
             prior++;
 
             if (AreaDevTraList.Exists(c => c.area_id == toareaid && c.device_id == dev.id && c.track_id == trackid))
@@ -627,38 +654,31 @@ namespace resource.area
                 prior = prior,
             };
 
+            switch (dev.Type)
+            {
+                case DeviceTypeE.上砖机:
+                    areatradev.can_up = true;
+                    break;
+                case DeviceTypeE.下砖机:
+                    areatradev.can_down = true;
+                    break;
+                case DeviceTypeE.砖机:
+                    areatradev.can_up = true;
+                    areatradev.can_down = true;
+                    break;
+                default:
+                    break;
+            }
+
             PubMaster.Mod.AreaSql.AddAreaDeviceTrack(areatradev);
             prior += 1;
 
-            Refresh(false, false, false, true);
+            Refresh(false, false, false, true, false);
         }
 
         public bool IsFerrySetTrack(uint ferryid, uint trackid)
         {
             return AreaDevTraList.Exists(c => c.device_id == ferryid && c.track_id == trackid);
-        }
-
-        public List<uint> GetTileTrackIds(StockTrans trans)
-        {
-            List<AreaDeviceTrack> list = GetAreaDevTraList(trans.area_id, trans.tilelifter_id);
-            return list?.Select(c => c.track_id).ToList() ?? new List<uint>();
-        }
-
-        public List<AreaTrack> GetAreaTrackIds(uint areaid)
-        {
-            return AreaTraList.FindAll(c => c.area_id == areaid);
-        }
-
-        /// <summary>
-        /// 获取区域内可用轨道（已含出入轨道）
-        /// </summary>
-        /// <param name="areaid"></param>
-        /// <param name="typeE"></param>
-        /// <returns></returns>
-        public List<uint> GetAreaTrackIds(uint areaid, TrackTypeE typeE)
-        {
-            List<AreaTrack> areaTracks = AreaTraList.FindAll(c => c.area_id == areaid && (c.TrackType == typeE || c.TrackType == TrackTypeE.储砖_出入));
-            return areaTracks.Select(c => c.track_id).ToList();
         }
 
         /// <summary>
@@ -829,7 +849,7 @@ namespace resource.area
                 }
                 else
                 {
-                    Refresh(false, true, false, false);
+                    Refresh(false, true, false, false, false);
                     result = "请刷新数据!再试！";
                     return false;
                 }

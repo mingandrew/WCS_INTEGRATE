@@ -111,8 +111,8 @@ namespace resource.module.modulesql
         
         internal bool AddAreaDeviceTrack(AreaDeviceTrack areadevtra)
         {
-            string str = "INSERT INTO `area_device_track`(`id`, `area_id`, `device_id`, `track_id`, `prior`) VALUES('{0}', '{1}', '{2}', '{3}', '{4}')";
-            string sql = string.Format(@str,areadevtra.id,  areadevtra.area_id, areadevtra.device_id, areadevtra.track_id, areadevtra.prior);
+            string str = "INSERT INTO `area_device_track`(`id`, `area_id`, `device_id`, `track_id`, `prior`, `can_up`, `can_down`) VALUES('{0}', '{1}', '{2}', '{3}', '{4}', {5}, {6})";
+            string sql = string.Format(@str,areadevtra.id,  areadevtra.area_id, areadevtra.device_id, areadevtra.track_id, areadevtra.prior, areadevtra.can_up, areadevtra.can_down);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -125,7 +125,7 @@ namespace resource.module.modulesql
         /// <returns></returns>
         internal bool CopyOtherDeviceTrackByDevId(uint from_id, uint to_id)
         {
-            string str = "INSERT INTO area_device_track ( area_id, device_id, track_id, prior ) SELECT area_id, {0}, track_id, prior FROM area_device_track WHERE device_id = {1}";
+            string str = "INSERT INTO area_device_track ( area_id, device_id, track_id, prior, can_up, can_down ) SELECT area_id, {0}, track_id, prior, can_up, can_down FROM area_device_track WHERE device_id = {1}";
             string sql = string.Format(@str, to_id, from_id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
@@ -175,8 +175,8 @@ namespace resource.module.modulesql
         
         internal bool EditAreaDeviceTrack(AreaDeviceTrack areadevtra)
         {
-            string sql = "UPDATE `area_device_track` set area_id = '{0}', `device_id` = {1}, `track_id` = {2} , `prior` = {3} where id = '{4}'";
-            sql = string.Format(sql, areadevtra.area_id, areadevtra.device_id, areadevtra.track_id, areadevtra.prior, areadevtra.id);
+            string sql = "UPDATE `area_device_track` set area_id = '{1}', `device_id` = {2}, `track_id` = {3} , `prior` = {4}, `can_up` = {5}, `can_down` = {6} where id = '{0}'";
+            sql = string.Format(sql, areadevtra.id, areadevtra.area_id, areadevtra.device_id, areadevtra.track_id, areadevtra.prior, areadevtra.can_up, areadevtra.can_down);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

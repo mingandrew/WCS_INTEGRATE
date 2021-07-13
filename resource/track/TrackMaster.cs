@@ -207,13 +207,14 @@ namespace resource.track
         /// <param name="tileid">砖机ID</param>
         /// <param name="types">轨道类型/param>
         /// <returns></returns>
-        public List<uint> GetAreaLineAndTileTrack(uint areaid, uint line, uint tileid, params TrackTypeE[] types)
+        public List<uint> GetAreaLineAndTileTrack(uint areaid, uint line, uint tileid, bool isup, params TrackTypeE[] types)
         {
             List<uint> trackid = new List<uint>();
             //查找砖机配置的轨道
             if(tileid != 0)
             {
-                List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, tileid);
+                //List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, tileid);
+                List<AreaDeviceTrack> list = PubMaster.Area.GetTileWorkTraList(areaid, tileid, isup);
                 List<uint> tiletraids = list?.Select(c => c.track_id).ToList() ?? new List<uint>();
                 trackid.AddRange(tiletraids);
             }
@@ -1631,7 +1632,8 @@ namespace resource.track
         public bool HaveTrackInGoodButNotStock(uint areaid, uint tilelifterid, uint goodsid, out List<uint> trackids)
         {
             trackids = new List<uint>();
-            List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
+            //List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
+            List<AreaDeviceTrack> devtrack = PubMaster.Area.GetTileWorkTraList(areaid, tilelifterid, true);
 
             #region[ 判断是否使用分割点后的库存做出库任务]
             bool isnotuseupsplitstock = false;
@@ -1709,7 +1711,8 @@ namespace resource.track
 
         public bool HaveEmptyTrackInTile(ushort areaid, uint devid)
         {
-            List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            //List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            List<AreaDeviceTrack> list = PubMaster.Area.GetTileWorkTraList(areaid, devid, false);
             return TrackList.Exists(c => c.StockStatus == TrackStockStatusE.空砖
                     && list.Exists(l => l.track_id == c.id));
         }

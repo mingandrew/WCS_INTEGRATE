@@ -2044,6 +2044,8 @@ namespace task.device
         {
             result = "";
             carrierid = 0;
+            bool isup = trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
+
             if (trans.goods_id == 0)
             {
                 result = "任务没有品种id";
@@ -2152,8 +2154,7 @@ namespace task.device
             #endregion
 
 
-            if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line)
-                && trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖))
+            if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line)  && isup)
             {
                 #region [1.上砖机轨道是否有车]
 
@@ -2413,11 +2414,11 @@ namespace task.device
                 List<uint> trackids; //= PubMaster.Area.GetTileTrackIds(trans);
                 if (ferrytype == DeviceTypeE.上摆渡)
                 {
-                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
                 }
                 else
                 {
-                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
+                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
                 }
 
                 // 按离取货点近远排序
@@ -2684,6 +2685,7 @@ namespace task.device
                                                                                             out List<uint> tids, out List<uint> ferryids)
         {
             List<CarrierTask> freecarrierid = new List<CarrierTask>();
+            bool isup = trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
 
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
@@ -2700,11 +2702,11 @@ namespace task.device
             // 获取任务区域所有可作业轨道
             if (ferrytype == DeviceTypeE.上摆渡)
             {
-                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
             }
             else
             {
-                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
+                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
             }
             // 按离取货点近远排序    tids
             //能去这个取货/卸货轨道的所有配置的摆渡车信息    ferryids

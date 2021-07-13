@@ -7,5 +7,8 @@
         public uint device_id { set; get; }
         public uint track_id { set; get; }
         public ushort prior { set; get; }
+
+        public bool can_up { set; get; }
+        public bool can_down { set; get; }
     }
 }

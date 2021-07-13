@@ -980,7 +980,7 @@ namespace resource.device
                 //}
                 #endregion
 
-                PubMaster.Area.Refresh(false, false, false, true);
+                PubMaster.Area.Refresh(false, false, false, true, false);
                 #endregion
 
                 return true;
