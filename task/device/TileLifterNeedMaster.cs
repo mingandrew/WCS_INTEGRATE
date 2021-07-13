@@ -68,27 +68,12 @@ namespace task.device
                 {
                     //所有没有生成任务的需求，按时间升序排序
                     //List<TileLifterNeed> uncreate = NeedList.FindAll(c => !c.finish && c.trans_id == 0)?.OrderBy(c => c.create_time)?.ToList();
-                    List<TileLifterNeed> uncreate = NeedList.FindAll(c => !c.finish && c.trans_id == 0);
-                    if (uncreate != null && uncreate.Count != 0)
-                    {
-                        foreach (TileLifterNeed nd in uncreate)
-                        {
-                            //如果需求所在的砖机离线/没需求了，删除需求
-                            TileLifterTask needtask = PubTask.TileLifter.GetTileLifter(nd.device_id);
-                            if (!PubTask.TileLifter.CheckTileLifterStatusWithNeed(needtask, nd.left, out string result))
-                            {
-                                RemoveTileLifterNeed(nd.device_id, nd.track_id);
-                                continue;
-                            }
-                            //让需求尝试生成任务，可以生成就跳出当前循环
-                            PubTask.TileLifter.CheckAndCreateStockTrans(needtask, nd);
-                            if (nd.trans_id != 0)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    uncreateneedcount = uncreate.Count;
+                    List<TileLifterNeed> uncreateDown = NeedList.FindAll(c => !c.finish && c.trans_id == 0 && c.need_type == DeviceTypeE.下砖机);
+                    List<TileLifterNeed> uncreateUp = NeedList.FindAll(c => !c.finish && c.trans_id == 0 && c.need_type == DeviceTypeE.上砖机);
+                    //分开上砖需求和下砖需求，互不干扰
+                    CreateStockTrans(uncreateDown, out int downcount);
+                    CreateStockTrans(uncreateUp, out int upcount);
+                    uncreateneedcount = downcount + upcount;
                 }
                 catch (Exception e)
                 {
@@ -103,6 +88,36 @@ namespace task.device
                 {
                     Thread.Sleep(1000);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 尝试根据需求列表生成任务
+        /// </summary>
+        /// <param name="uncreate"></param>
+        /// <param name="uncreateneedcount"></param>
+        private void CreateStockTrans(List<TileLifterNeed> uncreate, out int uncreateneedcount)
+        {
+            uncreateneedcount = 0;
+            if (uncreate != null && uncreate.Count != 0)
+            {
+                foreach (TileLifterNeed nd in uncreate)
+                {
+                    //如果需求所在的砖机离线/没需求了，删除需求
+                    TileLifterTask needtask = PubTask.TileLifter.GetTileLifter(nd.device_id);
+                    if (!PubTask.TileLifter.CheckTileLifterStatusWithNeed(needtask, nd.left, out string result))
+                    {
+                        RemoveTileLifterNeed(nd.device_id, nd.track_id);
+                        continue;
+                    }
+                    //让需求尝试生成任务，可以生成就跳出当前循环
+                    PubTask.TileLifter.CheckAndCreateStockTrans(needtask, nd);
+                    if (nd.trans_id != 0)
+                    {
+                        break;
+                    }
+                }
+                uncreateneedcount = uncreate.Count;
             }
         }
 
@@ -174,7 +189,7 @@ namespace task.device
                     ushort pri = 99;
                     bool isUpdate = false;
                     uint ncount = (uint)NeedList.Count(c => c.device_id == task.ID && !c.finish && c.trans_id == 0);
-                    if (ncount != 0)
+                    if (ncount != 0 && task.Type == DeviceTypeE.下砖机)
                     {
                         //第一优先：双需求的远离摆渡的砖机
                         if (task.HaveBrother)
