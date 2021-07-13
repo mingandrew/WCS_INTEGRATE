@@ -1801,9 +1801,10 @@ namespace task.device
         /// <param name="trackid">判断摆渡车是否对上轨道</param>
         /// <param name="result">结果</param>
         /// <returns></returns>
-        public bool HaveFerryInPlace(DevCarrierTaskE carriertask, DeviceTypeE dt, uint trackid, out uint ferryTrackid, out string result)
+        public bool HaveFerryInPlace(DevCarrierTaskE carriertask, DeviceTypeE dt, uint trackid, out uint ferryTrackid, out uint ferryid, out string result)
         {
             ferryTrackid = 0;
+            ferryid = 0;
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
                 result = "稍后再试！";
@@ -1823,6 +1824,7 @@ namespace task.device
                 if (task.Status == DevFerryStatusE.停止)
                 {
                     ferryTrackid = task.FerryTrackId;
+                    ferryid = task.ID;
                     return true;
                 }
             }
