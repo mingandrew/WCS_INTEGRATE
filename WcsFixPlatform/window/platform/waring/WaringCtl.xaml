@@ -101,6 +101,7 @@
                                     </ContextMenu>
                                 </DataGrid.ContextMenu>
                                 <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding CREATETIME,Converter={StaticResource Date2StringLongConverter}}" Header="时间"/>
                                     <DataGridTextColumn Binding="{Binding ID}" Header="ID" Visibility="Collapsed"/>
                                     <DataGridTextColumn Width="1*" Header="信息" Binding="{Binding CONTENT}">
                                         <DataGridTextColumn.ElementStyle>
@@ -110,7 +111,6 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
  
-                                    <DataGridTextColumn Binding="{Binding CREATETIME,Converter={StaticResource Date2StringConverter}}" Header="时间"/>
                                     <DataGridTextColumn Binding="{Binding REMAINTIME}" Header="持续" Visibility="Collapsed"/>
                                 </DataGrid.Columns>
                             </DataGrid>
