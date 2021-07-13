@@ -952,12 +952,12 @@ namespace task.device
                             return false;
                         }
                         if (!PubTask.Ferry.HaveFerryInPlace(carriertask, track.Type == TrackTypeE.上砖轨道 ? DeviceTypeE.上摆渡 : DeviceTypeE.下摆渡,
-                            track.id, out ferryTraid, out result))
+                            track.id, out ferryTraid, out uint ferryid, out result))
                         {
                             return false;
                         }
 
-                        if (PubTask.Ferry.IsLoad(ferryTraid))
+                        if (PubTask.Ferry.IsLoad(ferryid))
                         {
                             result = "摆渡车上有运输车";
                             return false;
@@ -984,12 +984,12 @@ namespace task.device
                             return false;
                         }
                         if (!PubTask.Ferry.HaveFerryInPlace(carriertask, track.Type == TrackTypeE.下砖轨道 ? DeviceTypeE.下摆渡 : DeviceTypeE.上摆渡,
-                            track.id, out ferryTraid, out result))
+                            track.id, out ferryTraid, out ferryid, out result))
                         {
                             return false;
                         }
 
-                        if (PubTask.Ferry.IsLoad(ferryTraid))
+                        if (PubTask.Ferry.IsLoad(ferryid))
                         {
                             result = "摆渡车上有运输车";
                             return false;
