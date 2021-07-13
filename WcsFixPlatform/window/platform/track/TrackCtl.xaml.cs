@@ -71,6 +71,7 @@ namespace wcs.window
 
         void sv2_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
+            if (sv1 == null) return;
             sv1.ScrollToVerticalOffset(sv2.VerticalOffset);
         }
     }

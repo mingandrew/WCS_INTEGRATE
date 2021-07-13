@@ -56,7 +56,7 @@
                     </Button>
                 </Grid>
                 <Grid Visibility="{Binding SHOWSTATUSOK}" Width="150" Height="120" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <Border BorderBrush="{StaticResource BorderBrush}" Width="112" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    <Border BorderBrush="{StaticResource BorderBrush}" Width="82" Height="82" CornerRadius="41" HorizontalAlignment="Right" VerticalAlignment="Top"
                             BorderThickness="1">
                         <Border Background="{DynamicResource SuccessBrush}" Width="80" Height="80" CornerRadius="40" HorizontalAlignment="Right" VerticalAlignment="Top"
                             BorderBrush="White" BorderThickness="5">
