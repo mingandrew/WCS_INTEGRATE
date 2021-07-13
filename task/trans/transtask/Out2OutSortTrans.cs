@@ -867,6 +867,7 @@ namespace task.trans.transtask
                         MoveCount = movecount,
                         ToTrackId = track.id
                     }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, nowpoint));
+                    return;
                 }
             }
 
@@ -874,7 +875,7 @@ namespace task.trans.transtask
 
             #region[前进至点  / 替换任务执行 入库到出库的倒库]
 
-            if(stockqty == 0 &&  carrierfree && !havecarinfront)
+            if((stockqty == 0 || nonetileusegood) &&  carrierfree && !havecarinfront)
             {
                 //Track btrack = PubMaster.Track.GetTrack(track.brother_track_id);
                 //if(btrack != null 
