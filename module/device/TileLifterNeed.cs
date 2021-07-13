@@ -15,6 +15,7 @@ namespace module.device
         public bool finish { set; get; }
         public byte type { set; get; }
         public uint area_id { set; get; }
+        public ushort prior { set; get; }
 
         public DeviceTypeE need_type
         {
