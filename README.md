@@ -651,3 +651,12 @@ UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_定位点=0', `string_v
 UPDATE `diction_dtl` SET `name` = '5xx轨道码盘数值_复位点=0', `string_value` = '5xx轨道码盘数值_复位点=0' WHERE `id` = 126;
 UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘丢转故障，小车移动过程中码盘接近开关超过5秒无信号：1.检查是否撞车；2.检查刹车是否能正常打开；3.检查模拟量输出模块电压输出是否大于1.5V；4.检查码盘接近开关；检查无误时终止可复位' WHERE `id` = 127;
 ```
+
+
+
+
+
+## *****！！！整合版！！！***** 2021.07.12 优化串联下砖机的任务生成顺序  version2.0
+ALTER TABLE `tilelifterneed` ADD COLUMN `prior` smallint unsigned NULL COMMENT '优先级' AFTER `area_id`;
+
+

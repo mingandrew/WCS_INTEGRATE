@@ -20,7 +20,7 @@ namespace resource.module.modulesql
         public List<TileLifterNeed> QueryTileLifterNeedList()
         {
             List<TileLifterNeed> list = new List<TileLifterNeed>();
-            string sql = string.Format("SELECT t.device_id, t.track_id, t.`left`, t.trans_id, t.create_time, t.trans_create_time, t.finish, t.type, t.area_id " +
+            string sql = string.Format("SELECT t.device_id, t.track_id, t.`left`, t.trans_id, t.create_time, t.trans_create_time, t.finish, t.type, t.area_id, t.prior " +
                 " FROM tilelifterneed AS t  WHERE t.finish IS NULL ORDER BY t.create_time ASC");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))
@@ -36,9 +36,9 @@ namespace resource.module.modulesql
 
         public bool AddTileLifterNeed(TileLifterNeed tileLifterNeed)
         {
-            string str = "INSERT INTO `tilelifterneed`(`device_id`, `track_id`, `left`, `create_time`, `type`, `area_id`) VALUES({0}, {1}, {2}, {3}, {4}, {5})";
+            string str = "INSERT INTO `tilelifterneed`(`device_id`, `track_id`, `left`, `create_time`, `type`, `area_id`, `prior`) VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6})";
             string sql = string.Format(@str, tileLifterNeed.device_id, tileLifterNeed.track_id, tileLifterNeed.left, GetTimeOrNull(tileLifterNeed.create_time),
-                 tileLifterNeed.type, tileLifterNeed.area_id);
+                 tileLifterNeed.type, tileLifterNeed.area_id, tileLifterNeed.prior);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -64,6 +64,9 @@ namespace resource.module.modulesql
                 case TileNeedStatusE.UpdateCreateTime:
                     sql += string.Format("`create_time` = {0}",
                         GetTimeOrNull(tileLifterNeed.create_time));
+                    break;
+                case TileNeedStatusE.Prior:
+                    sql += string.Format("`prior` = {0}", tileLifterNeed.prior);
                     break;
                 default:
                     break;
