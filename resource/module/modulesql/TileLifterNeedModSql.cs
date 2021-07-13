@@ -20,7 +20,7 @@ namespace resource.module.modulesql
         public List<TileLifterNeed> QueryTileLifterNeedList()
         {
             List<TileLifterNeed> list = new List<TileLifterNeed>();
-            string sql = string.Format("SELECT t.device_id, t.track_id, t.`left`, t.trans_id, t.create_time, t.trans_create_time, t.finish, t.type, t.area_id " +
+            string sql = string.Format("SELECT t.device_id, t.track_id, t.`left`, t.trans_id, t.create_time, t.trans_create_time, t.finish, t.type, t.area_id, t.prior " +
                 " FROM tilelifterneed AS t  WHERE t.finish IS NULL ORDER BY t.create_time ASC");
             DataTable dt = mSql.ExecuteQuery(@sql);
             if (!mSql.IsNoData(dt))

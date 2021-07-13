@@ -41,6 +41,8 @@ namespace task.device
             NeedList.Clear();
             NeedList.AddRange(PubMaster.Mod.TileLifterNeedSql.QueryTileLifterNeedList());
 
+            SortNeedList();
+
             //开始 - 循环需求列表的 线程
             if (_mRefresh == null || !_mRefresh.IsAlive || _mRefresh.ThreadState == ThreadState.Aborted)
             {
@@ -168,20 +170,25 @@ namespace task.device
             {
                 try
                 {
+                    //第三优先：单需求的砖机（不分里外侧）
                     ushort pri = 99;
+                    bool isUpdate = false;
                     uint ncount = (uint)NeedList.Count(c => c.device_id == task.ID && !c.finish && c.trans_id == 0);
                     if (ncount != 0)
                     {
+                        //第一优先：双需求的远离摆渡的砖机
                         if (task.HaveBrother)
                         {
                             pri = 1;
                         }
+                        //第二优先：双需求的靠近摆渡的砖机
                         else
                         {
                             pri = 2;
                         }
-                        UpdateTileNeedPrior(task.ID, pri);
+                        isUpdate = true;
                     }
+                    
                     TileLifterNeed tileLifterNeed = new TileLifterNeed()
                     {
                         device_id = task.ID,
@@ -195,6 +202,11 @@ namespace task.device
 
                     NeedList.Add(tileLifterNeed);
                     PubMaster.Mod.TileLifterNeedSql.AddTileLifterNeed(tileLifterNeed);
+
+                    if (isUpdate)
+                    {
+                        UpdateTileNeedPrior(task.ID, pri);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -203,7 +215,12 @@ namespace task.device
                 finally { Monitor.Exit(_obj); }
             }
         }
-
+        
+        /// <summary>
+        /// 更新需求的优先级
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="pri"></param>
         public void UpdateTileNeedPrior(uint devid, ushort pri)
         {
             try
@@ -216,19 +233,7 @@ namespace task.device
                         need.prior = pri;
                         PubMaster.Mod.TileLifterNeedSql.EditTileLifterNeed(need, TileNeedStatusE.Prior);
                     }
-                    NeedList.Sort(
-                        (x, y) =>
-                        {
-                            if (x.prior == y.prior)
-                            {
-                                if (x.create_time is DateTime xc && y.create_time is DateTime yc)
-                                {
-                                    return xc.CompareTo(yc);
-                                }
-                            }
-                            return x.prior.CompareTo(y.prior);
-                        }
-                    );
+                    SortNeedList();
                 }
             }
             catch (Exception e)
@@ -236,7 +241,30 @@ namespace task.device
                 mlog.Error(true, devid + "号砖机 - " + e.Message, e);
             }
         }
-
+        
+        /// <summary>
+        /// 根据优先级-生成时间来排序需求列表
+        /// </summary>
+        private void SortNeedList()
+        {
+            if (NeedList != null && NeedList.Count > 0)
+            {
+                NeedList.Sort(
+                    (x, y) =>
+                    {
+                        if (x.prior == y.prior)
+                        {
+                            if (x.create_time is DateTime xc && y.create_time is DateTime yc)
+                            {
+                                return xc.CompareTo(yc);
+                            }
+                        }
+                        return x.prior.CompareTo(y.prior);
+                    }
+                );
+            }
+        }
+        
         //生成任务时,更新需求的任务信息
         public void UpdateTileLifterNeedTrans(uint devid, uint trackid, DateTime? ctime, uint transid)
         {
