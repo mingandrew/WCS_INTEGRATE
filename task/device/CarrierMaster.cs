@@ -157,19 +157,19 @@ namespace task.device
                                 && task.ConnStatus != SocketConnectStatusE.通信正常
                                 && task.ConnStatus != SocketConnectStatusE.连接成功)
                             {
-                                //离线超过20秒并且没有在主动断开
+                                //离线超过10秒并且没有在主动断开
                                 if (!task.IsDevOfflineInBreak
                                     && task.IsOfflineTimeOver())
                                 {
                                     task.SetDevConnOnBreak(true);
-                                    task.Stop("休息5秒断开连接");
+                                    task.Stop("休息3秒断开连接");
                                 }
 
                                 //主动断开时间超过后，开始重连
                                 if (task.IsDevOfflineInBreak && task.IsInBreakOver())
                                 {
                                     task.SetDevConnOnBreak(false);
-                                    task.Start("休息5秒后开始连接");
+                                    task.Start("休息3秒后开始连接");
                                 }
                             }
 
@@ -537,10 +537,11 @@ namespace task.device
                                 task.UpdateInfo();
                                 CheckDev(task);
 
-                                if (carrier.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, carrier.ID, 5))
-                                {
-                                    MsgSend(task, carrier);
-                                }
+                                MsgSend(task, carrier);
+                                //if (carrier.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, carrier.ID, 5))
+                                //{
+                                //    MsgSend(task, carrier);
+                                //}
                             }
 
                             CheckConn(task);
