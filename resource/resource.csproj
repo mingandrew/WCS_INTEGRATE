@@ -63,6 +63,7 @@
     <Compile Include="diction\DictionMaster.cs" />
     <Compile Include="goods\GoodsMaster.cs" />
     <Compile Include="module\ModuleMaster.cs" />
+    <Compile Include="module\modulesql\ExcelConfigModSql.cs" />
     <Compile Include="module\modulesql\AreaModSql.cs" />
     <Compile Include="module\modulesql\BaseModSql.cs" />
     <Compile Include="module\modulesql\DeviceConfigModSql.cs" />
