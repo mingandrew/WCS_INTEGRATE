@@ -976,15 +976,34 @@ namespace task.device
                         }
                         else
                         {
+                            bool needhavetrans = true;
                             //结束备用, 备用机有货则转产
-                            bool haveload = task.DevStatus.Load1 || task.DevStatus.Load2;
-                            if (haveload)
+                            bool haveload1 = task.DevStatus.Load1 ? task.DevStatus.Need1 : true;
+                            bool haveload2 = task.DevStatus.Load2 ? task.DevStatus.Need2 : true;
+                            if (!haveload1 || !haveload2)
                             {
                                 task.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
+                                needhavetrans = false;
                             }
 
-                            if ((!haveload || task.DevStatus.IsReceiveSetFull)
-                                && PubMaster.DevConfig.StopBackupTileLifter(task.ID, haveload))
+                            //左工位有需求，但没任务则不结束备用
+                            if(task.DevStatus.Load1
+                                && task.DevStatus.Need1
+                                && !PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id))
+                            {
+                                needhavetrans = false;
+                            }
+
+                            //右工位有需求，但没任务则不结束备用
+                            if(task.DevStatus.Load2
+                                && task.DevStatus.Need2
+                                && !PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id))
+                            {
+                                needhavetrans = false;
+                            }
+
+                            if (haveload1 && haveload2 && needhavetrans
+                                && PubMaster.DevConfig.StopBackupTileLifter(task.ID, task.DevStatus.Load1 || task.DevStatus.Load2))
                             {
                                 if (task.DevStatus.IsReceiveSetFull)
                                 {
@@ -1023,14 +1042,35 @@ namespace task.device
                             if(backtile!=null && backtile.DevConfig.alter_dev_id == task.ID && backtile.DevConfig.WorkMode == TileWorkModeE.下砖)
                             {
                                 //结束备用, 备用机有货则转产
-                                bool haveload = backtile.DevStatus.Load1 || backtile.DevStatus.Load2;
-                                if (haveload)
+
+                                bool needhavetrans = true;
+                                //结束备用, 备用机有货则转产
+                                bool haveload1 = backtile.DevStatus.Load1 ? backtile.DevStatus.Need1 : true;
+                                bool haveload2 = backtile.DevStatus.Load2 ? backtile.DevStatus.Need2 : true;
+                                if ((!haveload1 || !haveload2) && !backtile.DevStatus.IsReceiveSetFull)
                                 {
                                     backtile.DoCutover(TileWorkModeE.下砖, TileFullE.设为满砖);
+                                    needhavetrans = false;
                                 }
 
-                                if ((!haveload  || backtile.DevStatus.IsReceiveSetFull)
-                                    && PubMaster.DevConfig.StopBackupTileLifter(backtile.ID, haveload))
+                                //左工位有需求，但没任务则不结束备用
+                                if (backtile.DevStatus.Load1
+                                    && backtile.DevStatus.Need1
+                                    && !PubTask.Trans.HaveInTileTrack(backtile.DevConfig.left_track_id))
+                                {
+                                    needhavetrans = false;
+                                }
+
+                                //右工位有需求，但没任务则不结束备用
+                                if (backtile.DevStatus.Load2
+                                    && backtile.DevStatus.Need2
+                                    && !PubTask.Trans.HaveInTileTrack(backtile.DevConfig.right_track_id))
+                                {
+                                    needhavetrans = false;
+                                }
+
+                                if (haveload1 && haveload2 && needhavetrans
+                                    && PubMaster.DevConfig.StopBackupTileLifter(backtile.ID, backtile.DevStatus.Load1 || backtile.DevStatus.Load2))
                                 {
                                     PubMaster.DevConfig.SetNormalTileBackTileId(task.ID, 0);
 
