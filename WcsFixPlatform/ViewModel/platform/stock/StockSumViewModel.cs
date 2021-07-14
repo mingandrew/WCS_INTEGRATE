@@ -3,6 +3,7 @@ using enums;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Views;
+using Microsoft.Win32;
 using module.goods;
 using module.msg;
 using module.window;
@@ -16,6 +17,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using tool.excel;
 using wcs.Data.View;
 using wcs.window;
 
@@ -93,6 +95,8 @@ namespace wcs.ViewModel
         public RelayCommand<string> StockSumActionCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(StockSumAction)).Value;
         public RelayCommand<RoutedEventArgs> ShowGoodsOrTrackCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(ShowGoodsOrTrack)).Value;
         public RelayCommand<StockSumView> ChangeGoodCmd => new Lazy<RelayCommand<StockSumView>>(() => new RelayCommand<StockSumView>(ChangeGood)).Value;
+
+        public RelayCommand ExportSumViewCmd => new Lazy<RelayCommand>(() => new RelayCommand(ExportSumView)).Value;
 
         private void StockSumAction(string tag)
         {
@@ -265,6 +269,35 @@ namespace wcs.ViewModel
         {
             AreaRadio = PubMaster.Area.GetAreaLineRadioList(true);
         }
+
+        private void ExportSumView()
+        {
+            SaveFileDialog saveFileDialog = ExcelTool.createSaveFileDialog(!ShowTrack ? "品种分类-库存统计-" : "轨道分类-库存统计-");
+
+            bool? result = saveFileDialog.ShowDialog();
+            if (result == null || result == false)
+            {
+                return;
+            }
+
+            string sql = "select `g`.`info` AS `品种`,min(`t`.`produce_time`) AS `生产时间`,count(`t`.`id`) AS `车数`,sum(`t`.`stack`) AS `垛数`,sum(`t`.`pieces`) AS `片数`,`a`.`name` AS `区域`," +
+                    "(select `line`.`name` from (`track` join `line`) where ((`track`.`id` = `t`.`track_id`) and (`track`.`line` = `line`.`line`))) AS `线` " +
+                    "from (((`stock` `t` join `goods` `g`) join `track` `tt`) join `area` `a`) " +
+                    "where ((`t`.`track_type` in (2,3,4)) and (`t`.`goods_id` = `g`.`id`) and (`t`.`track_id` = `tt`.`id`) and (`a`.`id` = `t`.`area`)) " +
+                    "group by `t`.`goods_id` " +
+                    "order by `t`.`area`,`t`.`goods_id`,`t`.`produce_time`";
+            if (ShowTrack)
+            {
+                sql = "select `tt`.`name` AS `轨道`,`g`.`info` AS `品种`,min(`t`.`produce_time`) AS `生产时间`,count(`t`.`id`) AS `车数`,sum(`t`.`stack`) AS `垛数`,sum(`t`.`pieces`) AS `片数`," +
+                "`a`.`name` AS `区域`,(select `line`.`name` from (`track` join `line`) where ((`track`.`id` = `t`.`track_id`) and (`track`.`line` = `line`.`line`))) AS `线` " +
+                "from (((`stock` `t` join `goods` `g`) join `track` `tt`) join `area` `a`) " +
+                "where ((`t`.`track_type` in (2,3,4)) and (`t`.`goods_id` = `g`.`id`) and (`t`.`track_id` = `tt`.`id`) and (`a`.`id` = `t`.`area`)) " +
+                "group by `t`.`goods_id`,`t`.`track_id` " +
+                "order by `t`.`area`,`t`.`goods_id`,`t`.`produce_time`,`t`.`track_id`";
+            }
+            PubMaster.Mod.ExcelConfigSql.SaveToExcel(saveFileDialog, sql);
+        }
+
         #endregion
 
         protected override void TabActivate()

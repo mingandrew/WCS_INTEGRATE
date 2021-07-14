@@ -51,6 +51,12 @@
                         </DataTemplate>
                     </hc:ButtonGroup.ItemTemplate>
                 </hc:ButtonGroup>
+
+                <Button Content="导出统计数据" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                            Style="{StaticResource ButtonDanger}"  Margin="0,0,10,0" 
+                            Command="{Binding ExportSumViewCmd}" 
+                            FontSize="16" Height="35" Grid.Column="2"/>
+
                 <hc:ButtonGroup Grid.Column="3" Style="{StaticResource ButtonGroupSolid}" 
                                 Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left">
                     <hc:Interaction.Triggers>
