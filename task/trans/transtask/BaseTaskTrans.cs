@@ -106,7 +106,7 @@ namespace task.trans.transtask
                         OtherAction(trans);
                         break;
                 }
-            }catch(Exception ex)
+            }catch(Exception)
             {
 
             }

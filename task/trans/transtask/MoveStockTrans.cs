@@ -255,7 +255,7 @@ namespace task.trans.transtask
                                 _M.LogForCarrierGive(trans, trans.give_track_id);
                                 #endregion
 
-                                ushort count = 0, loc = 0;
+                                ushort loc = 0;
 
                                 //后退放砖
                                 CarrierActionOrder cao = new CarrierActionOrder
