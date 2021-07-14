@@ -2421,6 +2421,8 @@ namespace task.device
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
 
+            bool isup = trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
+
             CarrierTask carrier = null;
 
             #region 绝对优先 - 摆渡车上
@@ -2488,8 +2490,7 @@ namespace task.device
 
             #endregion
 
-            if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line)
-                && trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖))
+            if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line) && isup)
             {
                 bool isallocate = GetTransOutCarrier(trans, ferrytype, goodssizeID, out carrierid, out result, out bool returnfalse, fids);
                 if (isallocate)
@@ -2650,11 +2651,11 @@ namespace task.device
                 List<uint> trackids; //= PubMaster.Area.GetTileTrackIds(trans);
                 if (ferrytype == DeviceTypeE.上摆渡)
                 {
-                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道);
+                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道);
                 }
                 else
                 {
-                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
+                    trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
                 }
 
                 // 按离取货点近远排序
@@ -2899,6 +2900,8 @@ namespace task.device
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
 
+            bool isup = trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
+
             // 优先车：同侧无砖
             List<CarrierTask> first_allocate_cars = new List<CarrierTask>();
             // 次级车：同侧载砖
@@ -2911,11 +2914,11 @@ namespace task.device
             // 获取任务区域所有可作业轨道
             if (ferrytype == DeviceTypeE.上摆渡)
             {
-                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
             }
             else
             {
-                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
+                trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_入, TrackTypeE.储砖_出入);
             }
             // 按离取货点近远排序    tids
             //能去这个取货/卸货轨道的所有配置的摆渡车信息    ferryids

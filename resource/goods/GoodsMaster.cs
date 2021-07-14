@@ -1690,7 +1690,8 @@ namespace resource.goods
             #endregion
 
             //1.找到上砖机配置的轨道
-            List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
+            //List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
+            List<AreaDeviceTrack> devtrack = PubMaster.Area.GetTileWorkTraList(areaid, tilelifterid, true);
 
 
             //2.根据优先级查看非空且是需求的品种的轨道
@@ -1756,7 +1757,8 @@ namespace resource.goods
         public List<Stock> GetStock(uint areaid, uint tilelifterid, uint goodsid)
         {
             //1.找到上砖机配置的轨道
-            List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
+            //List<AreaDeviceTrack> devtrack = PubMaster.Area.GetAreaDevTraList(areaid, tilelifterid);
+            List<AreaDeviceTrack> devtrack = PubMaster.Area.GetTileWorkTraList(areaid, tilelifterid, true);
 
             //2.根据优先级查看非空且是需求的品种的轨道
             List<Stock> stocks = StockList.FindAll(c => c.goods_id == goodsid
@@ -2851,7 +2853,8 @@ namespace resource.goods
         /// <returns></returns>
         public bool AllocateGiveTrack(uint areaid, ushort lineid, uint devid, uint goodsid, out List<uint> traids)
         {
-            List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            //List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            List<AreaDeviceTrack> list = PubMaster.Area.GetTileWorkTraList(areaid, devid, false);
             traids = new List<uint>();
             ///
             List<TrackStoreCount> trackstores = new List<TrackStoreCount>();//1.[同品种,未满] 入
@@ -3056,30 +3059,6 @@ namespace resource.goods
             }
             storecount = 0;
             return false;
-        }
-
-        public bool IsHaveEmtpyTrackEnough(uint areaid, uint devid, out List<uint> traids)
-        {
-            List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
-            traids = new List<uint>();
-            if (list == null || list.Count == 0)
-            {
-                return false;
-            }
-            foreach (AreaDeviceTrack adt in list)
-            {
-                //是否是储砖轨道
-                if (!PubMaster.Track.IsStoreGiveTrack(adt.track_id)) continue;
-
-                //轨道是否启用
-                if (!PubMaster.Track.IsTrackEnable(adt.track_id, TrackStatusE.仅下砖)) continue;
-
-                //轨道空否
-                if (!PubMaster.Track.IsTrackEmtpy(adt.track_id)) continue;
-
-                traids.Add(adt.track_id);
-            }
-            return traids.Count > 0;
         }
 
         #endregion
@@ -3677,7 +3656,8 @@ namespace resource.goods
         /// <returns></returns>
         public bool AllocateLimitGiveTrack(uint areaid, uint devid, uint goodsid, out List<uint> traids)
         {
-            List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            //List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
+            List<AreaDeviceTrack> list = PubMaster.Area.GetTileWorkTraList(areaid, devid, false);
             traids = new List<uint>();
 
             uint storecount = 0;
