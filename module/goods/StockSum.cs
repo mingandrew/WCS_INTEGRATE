@@ -8,9 +8,9 @@ namespace module.goods
         public uint goods_id { set; get; }
         public uint track_id { set; get; }
         public DateTime? produce_time { set; get; }
-        public uint count { set; get; }
-        public uint stack { set; get; }
-        public uint pieces { set; get; }
+        public int count { set; get; }
+        public int stack { set; get; }
+        public int pieces { set; get; }
         public uint area { set; get; }
         public ushort line { set; get; }
         public byte track_type { set; get; }

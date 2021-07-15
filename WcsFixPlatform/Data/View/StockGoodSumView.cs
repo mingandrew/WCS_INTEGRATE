@@ -8,8 +8,8 @@ namespace wcs.Data.View
     {
         public DateTime? produce_time;
         private int count, orgcount;
-        private uint stack;
-        private uint pieces;
+        private int stack;
+        private int pieces;
         private bool selected;
         private bool showcount;
         private bool showlabel = true;
@@ -38,12 +38,12 @@ namespace wcs.Data.View
             get => orgcount;
             set => Set(ref orgcount, value);
         }
-        public uint Stack
+        public int Stack
         {
             get => stack;
             set => Set(ref stack, value);
         }
-        public uint Pieces
+        public int Pieces
         {
             get => pieces;
             set => Set(ref pieces, value);
@@ -74,7 +74,7 @@ namespace wcs.Data.View
         public StockGoodSumView(StockSum sum)
         {
             AreaId = sum.area;
-            Count = (int)sum.count;
+            Count = sum.count;
             Stack = sum.stack;
             Pieces = sum.pieces;
             ProduceTime = sum.produce_time;
@@ -84,7 +84,7 @@ namespace wcs.Data.View
 
         public void AddToSum(StockSum sum)
         {
-            Count += (int)sum.count;
+            Count += sum.count;
             Stack += sum.stack;
             Pieces += sum.pieces;
             if(sum.CompareProduceTime(ProduceTime) <= 0)

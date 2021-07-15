@@ -68,7 +68,7 @@ namespace wcs.ViewModel
             CloseAction?.Invoke();
         }
 
-        public void SetDelectQtyList(uint qty)
+        public void SetDelectQtyList(int qty)
         {
             DelectQtyList.Clear();
             for (uint i = 1; i <= qty; i++)
