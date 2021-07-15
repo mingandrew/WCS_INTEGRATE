@@ -122,6 +122,13 @@
         public const string QueryTileTrackStatus = nameof(QueryTileTrackStatus);//查询砖机轨道的状态
         #endregion
 
+        #region[库存整理]
+        public const string PreSetOrganize = nameof(PreSetOrganize);
+        public const string QueryOrganizeTrans = nameof(QueryOrganizeTrans);
+        public const string AddOrganizeTrans = nameof(AddOrganizeTrans);
+        public const string CheckOrganizeType = nameof(CheckOrganizeType);
+
+        #endregion
 
         #region[转品种]
         public const string QueryTileShift = nameof(QueryTileShift);//查询砖机转产信息
