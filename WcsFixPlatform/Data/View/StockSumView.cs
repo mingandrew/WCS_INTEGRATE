@@ -10,9 +10,9 @@ namespace wcs.Data.View
         public uint track_id { set; get; }
         public uint goods_id;
         public DateTime? produce_time;
-        private uint count;
-        private uint stack;
-        private uint pieces;
+        private int count;
+        private int stack;
+        private int pieces;
         public uint area { set; get; }
         public ushort line { set; get; }
         public byte track_type { set; get; }
@@ -30,17 +30,17 @@ namespace wcs.Data.View
             set => Set(ref produce_time, value);
         }
 
-        public uint Count
+        public int Count
         {
             get => count;
             set => Set(ref count, value);
         }
-        public uint Stack
+        public int Stack
         {
             get => stack;
             set => Set(ref stack, value);
         }
-        public uint Pieces
+        public int Pieces
         {
             get => pieces;
             set => Set(ref pieces, value);

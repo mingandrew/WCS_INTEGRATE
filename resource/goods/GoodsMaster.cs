@@ -460,7 +460,7 @@ namespace resource.goods
 
         #region[库存]
 
-        public uint GetTrackStock(uint trackid)
+        public int GetTrackStock(uint trackid)
         {
             return StockSumList.Find(c => c.track_id == trackid)?.stack ?? 0;
         }
@@ -2690,9 +2690,9 @@ namespace resource.goods
             var list = filterlist.GroupBy(c => new { c.goods_id }).Select(c => new StockSum
             {
                 goods_id = c.Key.goods_id,
-                count = (uint)c.Sum(b => b.count),
-                stack = (uint)c.Sum(b=>b.stack),
-                pieces = (uint)c.Sum(b => b.pieces),
+                count = c.Sum(b => b.count),
+                stack = c.Sum(b=>b.stack),
+                pieces = c.Sum(b => b.pieces),
                 produce_time = c.Min(b => b.produce_time),
             });
             List<StockSum> goodcountlist = list.ToList();
@@ -2746,10 +2746,10 @@ namespace resource.goods
                         };
                         StockSumList.Add(sum);
                     }
-                    sum.count = (uint)StockList.Count(c => c.goods_id == gid && c.track_id == trackId);
+                    sum.count = StockList.Count(c => c.goods_id == gid && c.track_id == trackId);
                     sum.stack = sum.count * (size?.stack ?? 1);
                     List<Stock> stocklist = StockList.FindAll(c => c.track_id == trackId && c.goods_id == gid);
-                    sum.pieces = (uint)stocklist.Sum(c => c.pieces);
+                    sum.pieces = stocklist.Sum(c => c.pieces);
                     SendSumMsg(sum, ActionTypeE.Update);
                 }
                 SortSumList();
@@ -3002,7 +3002,8 @@ namespace resource.goods
             if (stock != null && stock.EqualGoodAndLevel(goodsid, level))
             {
                 int maxstore = PubMaster.Track.GetTrackMaxStore(trackid);
-                storecount = StockSumList.Find(c => c.track_id == trackid)?.count ?? 0;
+                int scount = StockSumList.Find(c => c.track_id == trackid)?.count ?? 0;
+                storecount = scount > 0 ? (uint)scount : 0;
                 if (storecount < maxstore)
                 {
                     return true;
