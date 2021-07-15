@@ -235,6 +235,7 @@
                             <TextBlock Text="脉冲：" Style="{StaticResource TextBlockLarge}"/>
                             <TextBox Text="{Binding StockPoint, Mode=OneWayToSource}" Width="120"/>
                             <Button Content="获取库存" Style="{StaticResource ButtonPrimary}" Margin="20,0,0,0" Tag="getstocklist" Command="{Binding StockTestBtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="转移库存测试" Style="{StaticResource ButtonPrimary}" Margin="20,0,0,0" Tag="movestock" Command="{Binding StockTestBtnCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                         </StackPanel>
                         <Grid Grid.Row="1">
                             <Grid Margin="5">
