@@ -66,6 +66,10 @@
     <Compile Include="goods\GoodSize.cs" />
     <Compile Include="goods\Stock.cs" />
     <Compile Include="goods\StockSum.cs" />
+    <Compile Include="rf\stock\AddOrganizePack.cs" />
+    <Compile Include="rf\stock\StockTransDtlPack.cs" />
+    <Compile Include="rf\stock\RfStockTransDtl.cs" />
+    <Compile Include="rf\stock\PreSetOrganizePack.cs" />
     <Compile Include="trans\StockTrans.cs" />
     <Compile Include="line\Line.cs" />
     <Compile Include="msg\MsgAction.cs" />
