@@ -2705,7 +2705,7 @@ namespace resource.goods
                     item.track_type = filtertype;
                 }
             }
-            goodcountlist.RemoveAll(c => c.count <= 0);
+            goodcountlist.RemoveAll(c => c.count <= 0 || c.count > 10000);
             Messenger.Default.Send(goodcountlist, MsgToken.GoodSumUpdate);
         }
 
