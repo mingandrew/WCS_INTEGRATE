@@ -1155,6 +1155,7 @@ namespace resource.track
                     list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_出)).Select(c => c.id));
                     break;
                 case TransTypeE.其他:
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出)).Select(c => c.id));
                     break;
                 default:
                     break;

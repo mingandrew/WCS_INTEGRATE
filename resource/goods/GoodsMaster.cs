@@ -2597,7 +2597,7 @@ namespace resource.goods
                 sum.stack -= stock.stack;
                 sum.pieces -= stock.pieces;
 
-                if (sum.count == 0)
+                if (sum.count <= 0)
                 {
                     StockSumList.Remove(sum);
                     SendSumMsg(sum, ActionTypeE.Delete);
@@ -2622,7 +2622,7 @@ namespace resource.goods
                         sum.stack -= stock.stack;
                         sum.pieces -= stock.pieces;
 
-                        if (sum.count == 0)
+                        if (sum.count <= 0)
                         {
                             StockSumList.Remove(sum);
                             SendSumMsg(sum, ActionTypeE.Delete);
@@ -2759,6 +2759,7 @@ namespace resource.goods
                     item.track_type = filtertype;
                 }
             }
+            goodcountlist.RemoveAll(c => c.count <= 0);
             Messenger.Default.Send(goodcountlist, MsgToken.GoodSumUpdate);
         }
 
