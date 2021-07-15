@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Messaging;
 using module;
 using module.device;
 using module.diction;
+using module.goods;
 using module.line;
 using module.msg;
 using module.rf;
@@ -563,6 +564,21 @@ namespace task.rf
                         break;
                     #endregion
 
+                    #region[库存整理]
+                    case FunTag.PreSetOrganize:
+                        PreSetOrganize(msg);
+                        break;
+                    case FunTag.QueryOrganizeTrans:
+                        GetOrganizeTrans(msg);
+                        break;
+                    case FunTag.AddOrganizeTrans:
+                        AddOrganizeTrans(msg);
+                        break;
+                    case FunTag.CheckOrganizeType:
+                        CheckDtlTypeChange(msg);
+                        break;
+                    #endregion
+
                     #region[过滤设置]
                     case FunTag.QueryFilterData:
                         GetFilterData(msg);
@@ -978,6 +994,9 @@ namespace task.rf
 
                 mDicPack.AddEnum(typeof(RfTileWorkModeE), "平板可选模式", nameof(RfTileWorkModeE));//平板可选模式
                 mDicPack.AddEnum(typeof(TileWorkModeE), "砖机模式", nameof(TileWorkModeE));//砖机模式
+
+                mDicPack.AddEnum(typeof(StockTransDtlTypeE), "整理类型", nameof(StockTransDtlTypeE));
+                mDicPack.AddEnum(typeof(StockTransDtlStatusE), "整理状态", nameof(StockTransDtlStatusE));
                 #endregion
 
                 #region[List]
@@ -2227,6 +2246,168 @@ namespace task.rf
                     UpdateRfClient(msg.MEID, pack.FilterArea, pack.FilterType);
                     SendSucc2Rf(msg.MEID, FunTag.SaveFilterSetting, "更新成功");
                     GetDicData(msg);
+                }
+            }
+        }
+
+        #endregion
+
+        #region[库存整理]
+        public void PreSetOrganize(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                if (uint.TryParse(msg.Pack.Data, out uint trackid))
+                {
+                    List<StockTransDtl> dtls = PubMaster.Goods.GetTrackGood2Organize(trackid);
+                    PreSetOrganizePack pack = new PreSetOrganizePack();
+                    if (PubTask.Trans.RfPreSetOrganizeTrans(trackid, dtls, out string result))
+                    {
+                        PubTask.Trans.UpdateTrackGoodOrganizeTrack(trackid, dtls, out result);
+                        pack.TrackId = trackid;
+                        pack.AddList(dtls);
+                        SendSucc2Rf(msg.MEID, FunTag.PreSetOrganize, JsonTool.Serialize(pack));
+                    }
+                    else
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.PreSetOrganize, result);
+                    }
+                }
+
+            }
+        }
+
+        public void GetOrganizeTrans(RfMsgMod msg)
+        {
+            List<StockTransDtl> dtls = PubTask.Trans.GetStockTransDtlsList();
+            StockTransDtlPack pack = new StockTransDtlPack();
+            pack.AddList(dtls);
+            SendSucc2Rf(msg.MEID, FunTag.QueryOrganizeTrans, JsonTool.Serialize(pack));
+
+        }
+
+        public void AddOrganizeTrans(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+
+                AddOrganizePack pack = JsonTool.Deserialize<AddOrganizePack>(msg.Pack.Data);
+                List<StockTransDtl> dtls = new List<StockTransDtl>();
+                foreach (RfStockTransDtl item in pack.PreSetList)
+                {
+                    dtls.Add(new StockTransDtl()
+                    {
+                        dtl_area_id = item.areaid,
+                        dtl_line_id = item.lineid,
+                        DtlType = (StockTransDtlTypeE)item.dtltype,
+                        dtl_type = (byte)item.dtltype,
+                        dtl_good_id = item.goodid,
+                        dtl_take_track_id = item.taketrackid,
+                        dtl_give_track_id = item.givetrackid,
+                        dtl_all_qty = (ushort)item.allqty,
+                    });
+                }
+
+                if (pack != null)
+                {
+                    String result = null;
+                    Track track = PubMaster.Track.GetTrack(pack.TrackId);
+                    if (PubTask.Trans.ExistTransWithType(track.area, TransTypeE.库存整理))
+                    {
+                        result = "当前已经有一个库存整理任务了！";
+                        SendFail2Rf(msg.MEID, FunTag.AddOrganizeTrans, result);
+                        return;
+                    }
+
+                    foreach (var item in dtls)
+                    {
+                        if (item.dtl_give_track_id == 0 && item.DtlType == StockTransDtlTypeE.转移品种)
+                        {
+                            result = "存在转移轨道为空的转移品种类型";
+                            SendFail2Rf(msg.MEID, FunTag.AddOrganizeTrans, result);
+                            return;
+                        }
+                    }
+
+                    if (PubTask.Trans.AddOrganizeTrans(pack.TrackId, dtls, out result))
+                    {
+                        SendSucc2Rf(msg.MEID, FunTag.AddOrganizeTrans, "ok");
+                    }
+                    else
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.AddOrganizeTrans, result);
+                    }
+                }
+            }
+        }
+
+        private void CheckDtlTypeChange(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                AddOrganizePack pack = JsonTool.Deserialize<AddOrganizePack>(msg.Pack.Data);
+                List<StockTransDtl> dtls = new List<StockTransDtl>();
+                foreach (RfStockTransDtl item in pack.PreSetList)
+                {
+                    dtls.Add(new StockTransDtl()
+                    {
+                        dtl_area_id = item.areaid,
+                        dtl_line_id = item.lineid,
+                        DtlType = (StockTransDtlTypeE)item.dtltype,
+                        dtl_type = (byte)item.dtltype,
+                        dtl_good_id = item.goodid,
+                        dtl_take_track_id = item.taketrackid,
+                        dtl_give_track_id = item.givetrackid,
+                        dtl_all_qty = (ushort)item.allqty,
+                    });
+                }
+                string result = null;
+                PreSetOrganizePack newpack = new PreSetOrganizePack();
+                StockTransDtl dtl = dtls.Find(c => c.dtl_good_id == pack.GoodId);
+
+                switch ((StockTransDtlTypeE)pack.DtlType)
+                {
+                    case StockTransDtlTypeE.上砖品种:
+                        dtl.DtlType = StockTransDtlTypeE.上砖品种;
+                        dtl.dtl_give_track_id = 0;
+                        PubTask.Trans.UpdateTrackGoodOrganizeTrack(pack.TrackId, dtls, out result);
+                        newpack.TrackId = pack.TrackId;
+                        newpack.AddList(dtls);
+                        SendSucc2Rf(msg.MEID, FunTag.PreSetOrganize, JsonTool.Serialize(newpack));
+                        break;
+
+                    case StockTransDtlTypeE.转移品种:
+                        dtl.DtlType = StockTransDtlTypeE.转移品种;
+                        if (PubTask.Trans.UpdateTrackGoodOrganizeTrack(pack.TrackId, dtls, out result))
+                        {
+                            newpack.TrackId = pack.TrackId;
+                            newpack.AddList(dtls);
+                            SendSucc2Rf(msg.MEID, FunTag.PreSetOrganize, JsonTool.Serialize(newpack));
+                        }
+                        else
+                        {
+                            SendFail2Rf(msg.MEID, FunTag.CheckOrganizeType, result);
+                        }
+                        break;
+
+                    case StockTransDtlTypeE.保留品种:
+                        if (!PubMaster.Goods.IsGoodAllInButton(pack.TrackId, pack.GoodId))
+                        {
+                            result = "该品种并没有集中在轨道后面！";
+                            SendFail2Rf(msg.MEID, FunTag.CheckOrganizeType, result);
+                        }
+                        else
+                        {
+                            dtl.DtlType = StockTransDtlTypeE.保留品种;
+                            dtl.dtl_give_track_id = 0;
+                            PubTask.Trans.UpdateTrackGoodOrganizeTrack(pack.TrackId, dtls, out result);
+                            newpack.TrackId = pack.TrackId;
+                            newpack.AddList(dtls);
+                            SendSucc2Rf(msg.MEID, FunTag.PreSetOrganize, JsonTool.Serialize(newpack));
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
         }
