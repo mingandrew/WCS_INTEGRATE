@@ -667,5 +667,11 @@ UPDATE `diction_dtl` SET `id` = 79 WHERE `id` = 251;
 
 
 
+## 2021.07.16 [ V2.0 ] 添加运输车报警
+
+```mysql
+UPDATE `diction_dtl` SET `name` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作', `string_value` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作' WHERE `code` = 'WarningA3X7';
+```
+
 
 
