@@ -679,14 +679,14 @@ namespace task.device
                 //判断放下砖的时候轨道是否是能否放砖的轨道
                 if (track.NotInType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                 {
+                    //将库存转移到轨道的位置
+                    PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.id, false, "", task.ID);
+
                     if (task.IsUnloadInFerry)
                     {
                         task.IsUnloadInFerry = false;
                         mErrorLog.Error(true, string.Format("【放砖】轨道[ {0} ], 需要调整极限地标,否则影响倒库; 小车[ {1} ]",
                             track.GetLog(), task.Device.name));
-
-                        //将库存转移到轨道的位置
-                        PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.id, false, "", task.ID);
                     }
 
                     try
