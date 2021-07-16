@@ -4,6 +4,7 @@ using enums.warning;
 using module.goods;
 using module.track;
 using resource;
+using System;
 using System.Collections.Generic;
 using task.device;
 
@@ -187,6 +188,48 @@ namespace task.trans.transtask
 
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierSort(trans, trans.give_track_id, count.ToString());
+                                #endregion
+
+                                #region[如果出库轨道有库存信息则后退到砖后再倒库]
+
+                                //出库轨道
+                                //      有砖：则先定位至无砖的地方再执行倒库任务
+                                //      无砖：则定位到定位点执行倒库
+                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id))
+                                {
+                                    Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                                    if (gtrack != null)
+                                    {
+                                        ushort toempypoint = 0;
+
+                                        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                        if (btmstock != null)
+                                        {
+                                            ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
+                                            toempypoint = (ushort)(btmstock.location - (3 * safe));
+                                        }
+
+                                        if (toempypoint < gtrack.split_point)
+                                        {
+                                            toempypoint = gtrack.split_point;
+                                        }
+
+                                        ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
+                                        if (Math.Abs(toempypoint - nowpoint) > 200)
+                                        {
+                                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                            {
+                                                Order = DevCarrierOrderE.定位指令,
+                                                CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                                ToPoint = toempypoint,
+                                                ToTrackId = trans.give_track_id
+                                            },string.Format("倒库的时候前面有砖，先定位到砖后面[ {0} -> {1} ]", nowpoint, toempypoint));
+
+                                            return;
+                                        }
+                                    }
+                                }
+
                                 #endregion
 
                                 //后退至轨道倒库
