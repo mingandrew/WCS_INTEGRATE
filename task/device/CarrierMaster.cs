@@ -574,11 +574,10 @@ namespace task.device
                                 task.UpdateInfo();
                                 CheckDev(task);
 
-                                MsgSend(task, carrier);
-                                //if (carrier.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, carrier.ID, 5))
-                                //{
-                                //    MsgSend(task, carrier);
-                                //}
+                                if (carrier.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, carrier.ID, 5))
+                                {
+                                    MsgSend(task, carrier);
+                                }
                             }
 
                             CheckConn(task);

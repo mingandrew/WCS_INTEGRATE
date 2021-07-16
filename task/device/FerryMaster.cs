@@ -449,11 +449,10 @@ namespace task.device
                                 task.DoReply(); // 接收后回复PLC
                                 task.UpdateInfo();
 
-                                MsgSend(task, ferry);
-                                //if (ferry.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, ferry.ID, 5))
-                                //{
-                                //    MsgSend(task, ferry);
-                                //}
+                                if (ferry.IsUpdate || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, ferry.ID, 5))
+                                {
+                                    MsgSend(task, ferry);
+                                }
 
                                 ///摆渡车对位中
                                 if (_IsSetting)

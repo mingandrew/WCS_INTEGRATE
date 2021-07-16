@@ -14,7 +14,7 @@ namespace task.trans.transtask
     /// </summary>
     public abstract class BaseTaskTrans
     {
-        internal TransMaster _M {private set; get; }
+        internal TransMaster _M { private set; get; }
         internal MTimer mTimer;
         internal Track track, takeTrack;
         internal bool isload, isnotload, tileemptyneed, ftask;
@@ -22,7 +22,7 @@ namespace task.trans.transtask
         internal string res = "", result = "";
         internal uint carrierid;
         internal bool allocatakeferry, allocagiveferry, isfalsereturn;
-        
+
         public BaseTaskTrans(TransMaster trans)
         {
             _M = trans;
@@ -43,12 +43,12 @@ namespace task.trans.transtask
             allocagiveferry = false;
             res = "";
         }
-        
+
         /// <summary>
         /// 执行任务
         /// </summary>
         /// <param name="trans"></param>
-        public  void DoTrans(StockTrans trans)
+        public void DoTrans(StockTrans trans)
         {
             try
             {
@@ -106,7 +106,8 @@ namespace task.trans.transtask
                         OtherAction(trans);
                         break;
                 }
-            }catch(Exception)
+            }
+            catch (Exception)
             {
 
             }
@@ -351,5 +352,126 @@ namespace task.trans.transtask
             }
         }
         #endregion
+
+        #region [运输车指令]
+
+        /// <summary>
+        /// 移至轨道定位点
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="trackID"></param>
+        /// <param name="carrierID"></param>
+        /// <param name="transID"></param>
+        public void MoveToPos(uint trackID, uint carrierID, uint transID, CarrierPosE cp, string mes = "")
+        {
+            // 目的轨道
+            Track toTrack = PubMaster.Track.GetTrack(trackID);
+
+            CarrierActionOrder cao = new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.定位指令,
+                CheckTra = toTrack.ferry_up_code,  // 无所谓了 反正都是同一个轨道编号
+                ToTrackId = toTrack.id,
+            };
+
+            switch (cp)
+            {
+                case CarrierPosE.下砖机复位点:
+                    cao.OverPoint = toTrack.limit_point_up;
+                    break;
+                case CarrierPosE.上砖机复位点:
+                    cao.OverPoint = toTrack.limit_point;
+                    break;
+                case CarrierPosE.下砖摆渡复位点:
+                case CarrierPosE.上砖摆渡复位点:
+                    cao.OverPoint = toTrack.limit_point;
+                    break;
+                case CarrierPosE.轨道后侧定位点:
+                case CarrierPosE.轨道后侧复位点:
+                    cao.OverPoint = toTrack.limit_point;
+                    break;
+                case CarrierPosE.轨道中间复位点:
+                    cao.OverPoint = toTrack.split_point;
+                    break;
+                case CarrierPosE.轨道前侧定位点:
+                case CarrierPosE.轨道前侧复位点:
+                    cao.OverPoint = toTrack.limit_point_up;
+                    break;
+                default:
+                    break;
+            }
+            PubTask.Carrier.DoOrder(carrierID, trackID, cao, mes);
+        }
+
+        /// <summary>
+        /// 移至指定脉冲
+        /// </summary>
+        /// <param name="trackID"></param>
+        /// <param name="carrierID"></param>
+        /// <param name="transID"></param>
+        /// <param name="loc"></param>
+        public void MoveToLoc(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "")
+        {
+            // 目的轨道
+            Track toTrack = PubMaster.Track.GetTrack(trackID);
+
+            // 至指定脉冲
+            PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.定位指令,
+                CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
+                OverPoint = loc,
+                ToTrackId = toTrack.id
+            }, mes);
+        }
+
+        /// <summary>
+        /// 移至指定脉冲取砖
+        /// </summary>
+        /// <param name="trackID"></param>
+        /// <param name="carrierID"></param>
+        /// <param name="transID"></param>
+        /// <param name="loc"></param>
+        public void MoveToTake(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "")
+        {
+            // 目的轨道
+            Track toTrack = PubMaster.Track.GetTrack(trackID);
+
+            // 至指定脉冲取砖
+            PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.取砖指令,
+                CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
+                ToPoint = loc,
+                OverPoint = toTrack.is_take_forward ? toTrack.limit_point : toTrack.limit_point_up, // 前进取则后侧停，后退取则前侧停
+                ToTrackId = toTrack.id
+            }, mes);
+        }
+
+        /// <summary>
+        /// 移至指定脉冲存砖
+        /// </summary>
+        /// <param name="trackID"></param>
+        /// <param name="carrierID"></param>
+        /// <param name="transID"></param>
+        /// <param name="loc"></param>
+        public void MoveToGive(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "")
+        {
+            // 目的轨道
+            Track toTrack = PubMaster.Track.GetTrack(trackID);
+
+            // 至指定脉冲放砖
+            PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.放砖指令,
+                CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
+                ToPoint = loc,
+                OverPoint = toTrack.is_give_back ? toTrack.limit_point_up : toTrack.limit_point, // 后退存则前侧停，前进存则后侧停
+                ToTrackId = toTrack.id
+            }, mes);
+        }
+
+        #endregion
+
     }
 }

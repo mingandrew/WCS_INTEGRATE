@@ -190,13 +190,14 @@ namespace task.trans.transtask
                             #endregion
 
                             //至摆渡车
-                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                            {
-                                Order = DevCarrierOrderE.定位指令,
-                                CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
-                                ToTrackId = ferryTraid
-                            });
+                            //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            //{
+                            //    Order = DevCarrierOrderE.定位指令,
+                            //    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                            //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
+                            //    ToTrackId = ferryTraid
+                            //});
+                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
                             return;
                         }
                     }
@@ -271,14 +272,15 @@ namespace task.trans.transtask
                                     torfid = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id);
                                 }
                                 //取砖
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.取砖指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                    ToPoint = torfid,
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
-                                    ToTrackId = trans.take_track_id
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.取砖指令,
+                                //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
+                                //    ToPoint = torfid,
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
+                                //    ToTrackId = trans.take_track_id
+                                //});
+                                MoveToTake(trans.take_track_id, trans.carrier_id, trans.id, torfid);
                                 return;
                             }
                         }
@@ -343,14 +345,15 @@ namespace task.trans.transtask
                                     torfid = PubMaster.Track.GetTrackLimitPointIn(trans.take_track_id);
                                 }
                                 //取砖
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.取砖指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                    ToPoint = torfid,
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
-                                    ToTrackId = trans.take_track_id
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.取砖指令,
+                                //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
+                                //    ToPoint = torfid,
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.take_track_id),
+                                //    ToTrackId = trans.take_track_id
+                                //});
+                                MoveToTake(trans.take_track_id, trans.carrier_id, trans.id, torfid);
                                 return;
                             }
                         }
@@ -418,13 +421,14 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //至点
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = track.ferry_down_code,
-                                    OverPoint = track.limit_point_up,
-                                    ToTrackId = track.id
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = track.ferry_down_code,
+                                //    OverPoint = track.limit_point_up,
+                                //    ToTrackId = track.id
+                                //});
+                                MoveToPos(track.id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
                             }
 
                             return;
@@ -438,13 +442,14 @@ namespace task.trans.transtask
                             #endregion
 
                             //至摆渡车
-                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                            {
-                                Order = DevCarrierOrderE.定位指令,
-                                CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
-                                ToTrackId = ferryTraid
-                            });
+                            //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            //{
+                            //    Order = DevCarrierOrderE.定位指令,
+                            //    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                            //    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
+                            //    ToTrackId = ferryTraid
+                            //});
+                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
                             return;
                         }
                     }
@@ -547,33 +552,36 @@ namespace task.trans.transtask
 
                                     Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
                                     //放砖
-                                    CarrierActionOrder cao = new CarrierActionOrder
-                                    {
-                                        Order = DevCarrierOrderE.放砖指令,
-                                        CheckTra = PubMaster.Track.GetTrackDownCode(givetrack.id),
-                                        OverPoint = givetrack.limit_point_up,
-                                        ToTrackId = givetrack.id
-                                    };
+                                    //CarrierActionOrder cao = new CarrierActionOrder
+                                    //{
+                                    //    Order = DevCarrierOrderE.放砖指令,
+                                    //    CheckTra = PubMaster.Track.GetTrackDownCode(givetrack.id),
+                                    //    OverPoint = givetrack.limit_point_up,
+                                    //    ToTrackId = givetrack.id
+                                    //};
 
                                     if (loc == 0)
                                     {
                                         if (givetrack.Type == TrackTypeE.储砖_出入)
                                         {
-                                            cao.ToPoint = givetrack.limit_point;
+                                            //cao.ToPoint = givetrack.limit_point;
+                                            loc = givetrack.limit_point;
                                         }
 
                                         if (givetrack.Type == TrackTypeE.储砖_入)
                                         {
-                                            cao.ToPoint = givetrack.split_point;
+                                            //cao.ToPoint = givetrack.split_point;
+                                            loc = givetrack.split_point;
                                         }
                                     }
                                     else
                                     {
-                                        cao.ToPoint = loc; // 定位脉冲放砖
+                                        //cao.ToPoint = loc; // 定位脉冲放砖
                                         PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
                                     }
 
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
+                                    //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
+                                    MoveToGive(givetrack.id, trans.carrier_id, trans.id, loc);
                                     return;
                                 }
                             }
@@ -811,13 +819,14 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //至点
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
-                                    ToTrackId = trans.give_track_id
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
+                                //    ToTrackId = trans.give_track_id
+                                //});
+                                MoveToPos(trans.give_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
                                 return;
                             }
                         }
@@ -859,13 +868,14 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //至摆渡车
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
-                                    ToTrackId = ferryTraid
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
+                                //    ToTrackId = ferryTraid
+                                //});
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
                                 return;
                             }
                         }
@@ -953,13 +963,14 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //至点
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.finish_track_id),
-                                    ToTrackId = trans.finish_track_id
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.finish_track_id),
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.finish_track_id),
+                                //    ToTrackId = trans.finish_track_id
+                                //});
+                                MoveToPos(trans.finish_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
                                 return;
                             }
                         }
@@ -1015,13 +1026,14 @@ namespace task.trans.transtask
                             #endregion
 
                             //至摆渡车
-                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                            {
-                                Order = DevCarrierOrderE.定位指令,
-                                CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
-                                ToTrackId = ferryTraid
-                            });
+                            //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            //{
+                            //    Order = DevCarrierOrderE.定位指令,
+                            //    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                            //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
+                            //    ToTrackId = ferryTraid
+                            //});
+                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
                             return;
                         }
                     }

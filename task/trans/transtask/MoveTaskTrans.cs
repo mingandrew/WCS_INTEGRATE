@@ -99,14 +99,15 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //前进至点
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
-                                    ToTrackId = trans.give_track_id
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                //    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
+                                //    ToTrackId = trans.give_track_id
+                                //});
+                                MoveToPos(trans.give_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
                                 return;
                             }
                         }
@@ -140,14 +141,15 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //后退至摆渡车
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
-                                    ToTrackId = ferryTraid
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                                //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
+                                //    ToTrackId = ferryTraid
+                                //});
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.下砖摆渡复位点);
                                 return;
                             }
 
@@ -219,14 +221,15 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //后退至点
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
-                                    ToTrackId = trans.give_track_id
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
+                                //    ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
+                                //    ToTrackId = trans.give_track_id
+                                //});
+                                MoveToPos(trans.give_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道后侧定位点);
                                 return;
                             }
                         }
@@ -260,14 +263,15 @@ namespace task.trans.transtask
                                 #endregion
 
                                 //前进至摆渡车
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.定位指令,
-                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
-                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
-                                    ToTrackId = ferryTraid
-                                });
+                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //{
+                                //    Order = DevCarrierOrderE.定位指令,
+                                //    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                //    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
+                                //    ToTrackId = ferryTraid
+                                //});
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
                                 return;
                             }
 
@@ -359,14 +363,15 @@ namespace task.trans.transtask
                             #endregion
 
                             //后退至摆渡车
-                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                            {
-                                Order = DevCarrierOrderE.定位指令,
-                                CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
-                                ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
-                                OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
-                                ToTrackId = ferryTraid
-                            });
+                            //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            //{
+                            //    Order = DevCarrierOrderE.定位指令,
+                            //    CheckTra = PubMaster.Track.GetTrackDownCode(ferryTraid),
+                            //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                            //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
+                            //    ToTrackId = ferryTraid
+                            //});
+                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.下砖摆渡复位点);
                             return;
                         }
                     }
@@ -410,14 +415,15 @@ namespace task.trans.transtask
                         #endregion
 
                         //前进至点
-                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                        {
-                            Order = DevCarrierOrderE.定位指令,
-                            CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
-                            ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
-                            OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
-                            ToTrackId = trans.give_track_id
-                        });
+                        //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                        //{
+                        //    Order = DevCarrierOrderE.定位指令,
+                        //    CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id),
+                        //    ToRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id),
+                        //    OverPoint = PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id),
+                        //    ToTrackId = trans.give_track_id
+                        //});
+                        MoveToPos(trans.give_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道后侧定位点);
                         return;
                     }
 
@@ -454,14 +460,15 @@ namespace task.trans.transtask
                         #endregion
 
                         //后退至点
-                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                        {
-                            Order = DevCarrierOrderE.定位指令,
-                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                            ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                            OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
-                            ToTrackId = trans.give_track_id
-                        });
+                        //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                        //{
+                        //    Order = DevCarrierOrderE.定位指令,
+                        //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                        //    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                        //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id),
+                        //    ToTrackId = trans.give_track_id
+                        //});
+                        MoveToPos(trans.give_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
                         return;
                     }
 
