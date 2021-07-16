@@ -406,7 +406,7 @@ UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA2X3', `name` = '小
 ```
 
 ## 2021.06.21：更新小车报警 A3X6
-```
+```mysql
 UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA3X6', `name` = '取砖异常，存砖定位光电异常', `int_value` = NULL, `bool_value` = NULL, `string_value` = '取砖异常，存砖定位光电异常，检查存砖定位光电是否误触发', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL WHERE `id` = 122;
 ```
 
