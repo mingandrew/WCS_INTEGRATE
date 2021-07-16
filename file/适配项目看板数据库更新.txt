@@ -1,0 +1,86 @@
+
+-- 砖机配置表添加字段
+ALTER TABLE `config_tilelifter` ADD COLUMN `good_change` bit(1) NULL COMMENT '品种修改';
+
+-- 添加视图，提供给看板项目
+
+CREATE VIEW `tile_gchange_v` AS SELECT
+	c.id,
+	d.area,
+	d.`name`,
+	d.type,
+	d.type2,
+	c.old_goodid,
+	c.pre_goodid,
+	c.goods_id,
+	c.work_type,
+	c.`level`,
+	c.work_mode 
+FROM
+	config_tilelifter AS c
+	INNER JOIN device AS d ON c.id = d.id 
+WHERE
+	c.id = d.id 
+	AND c.good_change = 1;
+	
+	CREATE OR REPLACE VIEW `tile_gchange_v` AS SELECT
+	c.id,
+	d.area,
+	d.`name`,
+	d.type,
+	d.type2,
+	c.old_goodid,
+	c.pre_goodid,
+	c.goods_id,
+	c.work_type,
+	c.`level`,
+	c.work_mode 
+FROM
+	config_tilelifter AS c
+	INNER JOIN device AS d ON c.id = d.id 
+WHERE
+	c.id = d.id 
+	AND c.good_change = 1;
+
+CREATE VIEW `area_stock_sum` AS SELECT
+	`t`.`goods_id` AS `goods_id`,
+	min( `t`.`produce_time` ) AS `produce_time`,
+	count( `t`.`id` ) AS `count`,
+	sum( `t`.`pieces` ) AS `pieces`,
+	sum( `t`.`stack` ) AS `stack`,
+	`t`.`area` AS `area` 
+FROM
+	`stock` `t` 
+WHERE
+	(
+	`t`.`track_type` IN ( 2, 3, 4 )) 
+GROUP BY
+	`t`.`goods_id` 
+ORDER BY
+	`t`.`area`,
+	`t`.`goods_id`,
+	`produce_time`,
+	`t`.`track_id`;
+
+-- 
+
+INSERT INTO `diction`(`id`, `type`, `valuetype`, `name`, `isadd`, `isedit`, `isdelete`, `authorizelevel`) VALUES (11, 0, 2, '上砖班次', b'1', b'1', b'1', 10);
+INSERT INTO `diction`(`id`, `type`, `valuetype`, `name`, `isadd`, `isedit`, `isdelete`, `authorizelevel`) VALUES (12, 0, 2, '下砖班次', b'1', b'1', b'1', 10);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (500, 11, 'UpShiftTime', 'A班', NULL, b'0', '08:00', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (501, 11, 'UpShiftTime', 'B班', NULL, b'0', '20:00', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (502, 12, 'DownShiftTime', 'A班', NULL, b'0', '08:00', NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`) VALUES (503, 12, 'DownShiftTime', 'B班', NULL, b'0', '20:00', NULL, NULL, NULL, NULL);
+
+-- 砖机品种修改触发器
+DROP TRIGGER IF EXISTS update_good_change;
+DELIMITER $
+CREATE TRIGGER update_good_change BEFORE UPDATE 
+ON `config_tilelifter` FOR EACH ROW
+ BEGIN
+    IF
+		(old.goods_id != new.goods_id) OR (old.pre_goodid != new.pre_goodid) 
+		THEN
+			SET new.good_change = 1;
+	END IF;
+END $
+
