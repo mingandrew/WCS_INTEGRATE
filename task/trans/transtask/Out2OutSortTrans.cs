@@ -652,13 +652,16 @@ namespace task.trans.transtask
                     return;
                 }
 
-                //定位到当前卸货位置或当前位置往后两个车位
-                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                if (Math.Abs(_nowpoint - _topoint) <= 100)
                 {
-                    Order = DevCarrierOrderE.定位指令,
-                    CheckTra = track.ferry_down_code,
-                    ToPoint = _topoint,
-                }, "接力后退两个位置避让取砖");
+                    //定位到当前卸货位置或当前位置往后两个车位
+                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                    {
+                        Order = DevCarrierOrderE.定位指令,
+                        CheckTra = track.ferry_down_code,
+                        ToPoint = _topoint,
+                    }, "接力后退两个位置避让取砖");
+                }
                 return;
             }
 
