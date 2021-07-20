@@ -3312,6 +3312,20 @@ namespace task.device
 
             return false;
         }
+
+        /// <summary>
+        /// 判断接力车和上砖车是否会相撞
+        /// 如果接力车在前进，上砖车停止或者在后退，则判断会相撞
+        /// </summary>
+        /// <param name="one_car_id">接力车</param>
+        /// <param name="two_car_id">上砖车</param>
+        /// <returns></returns>
+        public bool IsCollision(uint one_car_id, uint two_car_id)
+        {
+            CarrierTask onecar = DevList.Find(c => c.ID == one_car_id && c.DevStatus.DeviceStatus == DevCarrierStatusE.前进);
+            return onecar != null ? DevList.Exists(c => c.ID == two_car_id && (c.DevStatus.DeviceStatus == DevCarrierStatusE.后退 || c.DevStatus.DeviceStatus == DevCarrierStatusE.停止 )) : false;
+        }
+
         #endregion
 
         #region[小车逻辑警告]
