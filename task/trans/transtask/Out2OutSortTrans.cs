@@ -604,11 +604,15 @@ namespace task.trans.transtask
                 {
                     if (!iscarrierferr)
                     {
-                        //终止
-                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                        //判断othercar的方向跟接力车的方向是否一致，一致则不用发终止，否则发终止
+                        if (PubTask.Carrier.IsCollision(trans.carrier_id, othercarrier))
                         {
-                            Order = DevCarrierOrderE.终止指令
-                        }, string.Format("前方存在其他运输车[ {0} ]", PubMaster.Device.GetDeviceName(othercarrier)));
+                            //终止
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.终止指令
+                            }, string.Format("前方存在其他运输车[ {0} ]", PubMaster.Device.GetDeviceName(othercarrier)));
+                        }
                     }
 
                     if (intrans)
