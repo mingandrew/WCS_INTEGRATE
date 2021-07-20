@@ -1832,6 +1832,9 @@ namespace task.device
                         case TransTypeE.倒库任务:
                             IsGetCarrier = GetTransSortCarrier(trans, out carrierid, out result);
                             break;
+                        case TransTypeE.库存转移:
+                            break;
+
                     }
                     if (IsGetCarrier)
                     {

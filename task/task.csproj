@@ -89,6 +89,7 @@
     <Compile Include="trans\transtask\SameSideOutTrans.cs" />
     <Compile Include="trans\transtask\SecondUpTaskTrans.cs" />
     <Compile Include="trans\transtask\SeperateStockTrans.cs" />
+    <Compile Include="trans\transtask\TransitStockTrans.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\enums\enums.csproj">

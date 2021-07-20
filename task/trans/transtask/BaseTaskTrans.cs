@@ -17,7 +17,7 @@ namespace task.trans.transtask
         internal TransMaster _M { private set; get; }
         internal MTimer mTimer;
         internal Track track, takeTrack;
-        internal bool isload, isnotload, tileemptyneed, ftask;
+        internal bool isload, isnotload, tileemptyneed, isftask;
         internal uint ferryTraid;
         internal string res = "", result = "";
         internal uint carrierid;
@@ -36,7 +36,7 @@ namespace task.trans.transtask
             isload = false;
             isnotload = false;
             tileemptyneed = false;
-            ftask = false;
+            isftask = false;
             ferryTraid = 0;
             carrierid = 0;
             allocatakeferry = false;
@@ -355,6 +355,7 @@ namespace task.trans.transtask
 
         #region [运输车指令]
 
+        #region 基础指令
         /// <summary>
         /// 移至轨道定位点
         /// </summary>
@@ -384,7 +385,7 @@ namespace task.trans.transtask
                     break;
                 case CarrierPosE.下砖摆渡复位点:
                 case CarrierPosE.上砖摆渡复位点:
-                    cao.OverPoint = toTrack.limit_point;
+                    cao.OverPoint = toTrack.limit_point;  // 无所谓了 反正都是只有一个定位点
                     break;
                 case CarrierPosE.轨道后侧定位点:
                 case CarrierPosE.轨道后侧复位点:
@@ -469,6 +470,79 @@ namespace task.trans.transtask
                 OverPoint = toTrack.is_give_back ? toTrack.limit_point_up : toTrack.limit_point, // 后退存则前侧停，前进存则后侧停
                 ToTrackId = toTrack.id
             }, mes);
+        }
+
+        #endregion
+
+
+        /// <summary>
+        /// 运输车直接取砖 By 指定库存
+        /// </summary>
+        /// <param name="stockID"></param>
+        /// <param name="trackID"></param>
+        /// <param name="carrierID"></param>
+        /// <param name="transID"></param>
+        /// <param name="mes"></param>
+        public void TakeInTarck(uint stockID, uint trackID, uint carrierID, uint transID, out string mes)
+        {
+            // 获取库存脉冲
+            ushort stkloc = PubMaster.Goods.GetStockLocation(stockID);
+            ushort carloc = PubTask.Carrier.GetCurrentPoint(trackID);
+            ushort safeloc = 10; // ±10脉冲
+            bool isforward = PubMaster.Track.IsTakeForwardTrack(trackID);
+            if (stkloc == 0)
+            {
+                // 先回轨道头再靠光电取
+                if (isforward && carloc < (track.limit_point + safeloc))
+                {
+                    // 前进取 - 回后侧点
+                    mes = "无库存脉冲，尝试前进取砖先回轨道后侧点";
+                    MoveToPos(track.id, carrierID, transID, CarrierPosE.轨道后侧定位点);
+                    return;
+                }
+                else if (!isforward && carloc < (track.limit_point_up - safeloc))
+                {
+                    // 后退取 - 回前侧点
+                    mes = "无库存脉冲，尝试后退取砖先回轨道前侧点";
+                    MoveToPos(track.id, carrierID, transID, CarrierPosE.轨道前侧定位点);
+                    return;
+                }
+                else
+                {
+                    // 直接靠光电取砖 前-65535；后-1
+                    mes = "无库存脉冲，尝试直接靠光电取砖";
+                    MoveToTake(track.id, carrierID, transID, (ushort)(isforward ? 65535 : 1));
+                    return;
+                }
+
+            }
+            else
+            {
+                ushort toloc = (ushort)(isforward ? (stkloc - safeloc) : (stkloc + safeloc));
+                if (isforward && carloc > toloc)
+                {
+                    // 前进取 -小车要在库存位后至少 10 脉冲；
+                    mes = "前进取砖，小车需先到合适位置";
+                    MoveToLoc(track.id, carrierID, transID, toloc);
+                    return;
+                }
+                else if (!isforward && carloc < toloc)
+                {
+                    // 后退取 -小车要在库存位前至少 10 脉冲；
+                    mes = "后退取砖，小车需先到合适位置";
+                    MoveToLoc(track.id, carrierID, transID, toloc);
+                    return;
+                }
+                else
+                {
+                    // 取砖
+                    mes = "执行取砖";
+                    MoveToTake(track.id, carrierID, transID, stkloc);
+                    return;
+                }
+
+            }
+
         }
 
         #endregion

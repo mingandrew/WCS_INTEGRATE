@@ -139,7 +139,7 @@ namespace resource.module.modulesql
         /// <returns></returns>
         internal bool CopyOtherDeviceTrackByTrackId(uint from_track_id, uint to_track_id)
         {
-            string str = "INSERT INTO area_device_track ( area_id, device_id, track_id, prior ) SELECT area_id, device_id, {0}, prior FROM area_device_track WHERE track_id = {1}";
+            string str = "INSERT INTO area_device_track ( area_id, device_id, track_id, prior, can_up, can_down ) SELECT area_id, device_id, {0}, prior, can_up, can_down FROM area_device_track WHERE track_id = {1}";
             string sql = string.Format(@str, to_track_id, from_track_id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;

@@ -1413,7 +1413,7 @@ namespace task.trans
                 return true;
             }
 
-            if ((isignoresorttask || inoutignoresort) && ExistSortBackTask(trackid) && PubMaster.Goods.GetTrackStockCount(trackid) > 1)
+            if ((isignoresorttask || inoutignoresort) && ExistSortBackTask(trackid)) //&& PubMaster.Goods.GetTrackStockCount(trackid) > 1)
             {
                 result = "轨道存在还车回轨的倒库任务";
                 return true;

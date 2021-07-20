@@ -214,7 +214,7 @@ namespace task.trans.transtask
                                             toempypoint = gtrack.split_point;
                                         }
 
-                                        ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
+                                        ushort nowpoint = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
                                         if (Math.Abs(toempypoint - nowpoint) > 200)
                                         {
                                             PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()

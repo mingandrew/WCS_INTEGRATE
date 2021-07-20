@@ -10,19 +10,17 @@ using System.Threading.Tasks;
 namespace task.trans.transtask
 {
     /// <summary>
-    /// 库存整理
-    /// 1.单品种库存，转移轨道
-    /// 2.多品种库存，分开轨道
+    /// 中转库存（倒库？从当前轨道由中转摆渡移至其他轨道）
     /// </summary>
-    public class SeperateStockTrans : BaseTaskTrans
+    class TransitStockTrans : BaseTaskTrans
     {
         /**
          * 1.检测轨道库存
-         * 2.根据头部库存生成
-         * 3.根据库存是否需要转移
+         * 2.根据库存生成
+         * 3.获取转移的目的轨道
          * 4.全部转移完毕后完成任务
          */
-        public SeperateStockTrans(TransMaster trans) : base(trans)
+        public TransitStockTrans(TransMaster trans) : base(trans)
         {
 
         }
@@ -35,17 +33,28 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void Organizing(StockTrans trans)
         {
-            Stock top = PubMaster.Goods.GetTrackTopStock(trans.take_track_id);
+            Stock stk = null;
+            // 获取轨道出库取砖顺序
+            if (PubMaster.Track.IsTakeForwardTrack(trans.take_track_id))
+            {
+                // 前进取-库存脉冲从小到大
+                stk = PubMaster.Goods.GetStockInLocMin(trans.take_track_id);
+            }
+            else
+            {
+                // 后退取-库存脉冲从大到小
+                stk = PubMaster.Goods.GetStockInLocMax(trans.take_track_id);
+            }
+
             List<StockTransDtl> dtl = _M.GetTransDtls(trans.id);
             foreach (var item in dtl)
             {
-                CheckTransDtlAndAddMoveStockTrans(trans, item, top);
+                CheckTransDtlAndAddMoveStockTrans(trans, item, stk);
             }
 
             //判断所有细单都完成了
             CheckAllDtlFinish(trans, dtl);
         }
-
 
         /// <summary>
         /// 检测细单
@@ -54,38 +63,19 @@ namespace task.trans.transtask
         /// <param name="dtl"></param>
         private void CheckTransDtlAndAddMoveStockTrans(StockTrans trans, StockTransDtl dtl, Stock top)
         {
-            switch (dtl.DtlType)
+            if (dtl.DtlType == StockTransDtlTypeE.中转库存)
             {
-                case StockTransDtlTypeE.上砖品种:
-                    DoUpGood(trans, dtl, top);
-                    break;
-                case StockTransDtlTypeE.转移品种:
-                    DoMoveGood(trans, dtl, top);
-                    break;
-                case StockTransDtlTypeE.保留品种:
-                    DoStayGood(trans, dtl, top);
-                    break;
+                DoMoveStock(trans, dtl, top);
             }
         }
 
         /// <summary>
-        /// 上砖品种
+        /// 库存转移
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="dtl"></param>
         /// <param name="top"></param>
-        private void DoUpGood(StockTrans trans, StockTransDtl dtl, Stock top)
-        {
-
-        }
-
-        /// <summary>
-        /// 库存转移品种
-        /// </summary>
-        /// <param name="trans"></param>
-        /// <param name="dtl"></param>
-        /// <param name="top"></param>
-        private void DoMoveGood(StockTrans trans, StockTransDtl dtl, Stock top)
+        private void DoMoveStock(StockTrans trans, StockTransDtl dtl, Stock top)
         {
             if (dtl.DtlStatus == StockTransDtlStatusE.完成) return;
 
@@ -94,10 +84,9 @@ namespace task.trans.transtask
                 return;
             }
 
-            if (top == null || dtl.dtl_left_qty == 0 || !PubMaster.Goods.HaveGoodInTrack(dtl.dtl_take_track_id, dtl.dtl_good_id))
+            if (top == null || dtl.dtl_left_qty == 0)
             {
-                if (dtl.dtl_trans_id == 0
-                    && !PubMaster.Goods.HaveGoodInTrack(dtl.dtl_take_track_id, dtl.dtl_good_id))
+                if (dtl.dtl_trans_id == 0)
                 {
                     _M.SetDtlStatus(dtl, StockTransDtlStatusE.完成);
                 }
@@ -105,29 +94,16 @@ namespace task.trans.transtask
 
             if (top != null)
             {
-                if (dtl.dtl_good_id == top.goods_id
-                    && dtl.dtl_trans_id == 0
+                if (dtl.dtl_trans_id == 0
                     && !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.库存转移)
-                    && !_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.库存整理))
+                    && !_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.中转倒库))
                 {
-                    uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.id, trans.take_track_id, dtl.dtl_give_track_id, TransStatusE.检查轨道, 0, trans.line, DeviceTypeE.上摆渡);
+                    uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.id, trans.take_track_id, dtl.dtl_give_track_id, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
 
                     _M.SetDtlTransId(dtl, transid);
                 }
             }
         }
-
-        /// <summary>
-        /// 保留品种
-        /// </summary>
-        /// <param name="trans"></param>
-        /// <param name="dtl"></param>
-        /// <param name="top"></param>
-        private void DoStayGood(StockTrans trans, StockTransDtl dtl, Stock top)
-        {
-
-        }
-
 
         /// <summary>
         /// 完成任务
@@ -162,6 +138,8 @@ namespace task.trans.transtask
         {
 
         }
+
+
 
         #region[其他流程]
 

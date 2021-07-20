@@ -522,6 +522,26 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 判断轨道是否 后退存砖
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        public bool IsGiveBackTrack(uint track_id)
+        {
+            return TrackList.Find(c => c.id == track_id)?.is_give_back ?? false;
+        }
+
+        /// <summary>
+        /// 判断轨道是否 前进取砖
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        public bool IsTakeForwardTrack(uint track_id)
+        {
+            return TrackList.Find(c => c.id == track_id)?.is_take_forward ?? false;
+        }
+
+        /// <summary>
         /// 获取摆渡车分配的轨道
         /// </summary>
         /// <param name="ferryid"></param>
