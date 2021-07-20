@@ -507,6 +507,18 @@ namespace task.device
         }
 
         /// <summary>
+        /// 小车是否上升/下降 中
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <returns></returns>
+        internal bool IsLoadLifting(uint carrier_id)
+        {
+            return DevList.Exists(c => c.ID == carrier_id
+                        && c.ConnStatus == SocketConnectStatusE.通信正常
+                        && (c.Load == DevCarrierLoadE.上升中 || c.Load == DevCarrierLoadE.下降中));
+        }
+
+        /// <summary>
         /// 获取小车当前位置状态
         /// </summary>
         /// <param name="carrier_id"></param>
@@ -928,8 +940,10 @@ namespace task.device
                 Track track = GetCarrierTrack(devid);
                 if (carriertask != DevCarrierTaskE.终止
                     && carriertask != DevCarrierTaskE.前进寻复位标志点
-                    && carriertask != DevCarrierTaskE.后退寻复位标志点  // 不用管当前位置的指令
-                    && track == null)
+                    && carriertask != DevCarrierTaskE.后退寻复位标志点
+                    && carriertask != DevCarrierTaskE.测试上升
+                    && carriertask != DevCarrierTaskE.测试下降
+                    && track == null)                                   // 不用管当前位置的指令
                 {
                     result = "未能获取到小车位置相关信息！";
                     return false;
@@ -939,6 +953,13 @@ namespace task.device
                 if (carriertask != DevCarrierTaskE.终止 && IsResetWriting(devid))
                 {
                     result = "小车初始化/复位寻点中，请先终止";
+                    return false;
+                }
+
+                // 上升/下降 不能发任何指令
+                if (carriertask != DevCarrierTaskE.终止 && IsLoadLifting(devid))
+                {
+                    result = "小车上升中/下降中，请确认或终止";
                     return false;
                 }
 
@@ -1332,10 +1353,6 @@ namespace task.device
                         overPoint = isInFerry ? toTrack.limit_point : toTrack.limit_point_up;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
-
-                        // 前进 直到扫到复位接近开关 停
-                        //order = DevCarrierOrderE.定位指令;
-                        //overPoint = 65535; // 无确定值，直接给最大脉冲表示 前进
                         break;
 
                     case DevCarrierTaskE.后退至定位点:
@@ -1382,10 +1399,6 @@ namespace task.device
                         overPoint = isInFerry ? toTrack.limit_point_up : toTrack.limit_point;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
-
-                        // 后退 直到扫到复位接近开关 停
-                        //order = DevCarrierOrderE.定位指令;
-                        //overPoint = 1; // 无确定值，直接给最小脉冲表示 前进
                         break;
 
                     case DevCarrierTaskE.倒库:
@@ -1473,6 +1486,14 @@ namespace task.device
                     case DevCarrierTaskE.后退寻复位标志点:
                         order = DevCarrierOrderE.寻点;
                         overPoint = 1;          //最小脉冲-表示 后退
+                        break;
+
+                    case DevCarrierTaskE.测试上升:
+                        order = DevCarrierOrderE.测试上升;
+                        break;
+
+                    case DevCarrierTaskE.测试下降:
+                        order = DevCarrierOrderE.测试上升;
                         break;
 
                 }

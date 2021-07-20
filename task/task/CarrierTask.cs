@@ -235,10 +235,10 @@ namespace task.device
         /// <returns></returns>
         public bool IsLoad()
         {
-            return Load == DevCarrierLoadE.有货
-                || (Load == DevCarrierLoadE.异常
-                    && TakeSite > 0
-                    && TakePoint > 0);
+            return Load == DevCarrierLoadE.有货;
+                //|| (Load == DevCarrierLoadE.异常
+                //    && TakeSite > 0
+                //    && TakePoint > 0);
         }
 
         /// <summary>
@@ -247,10 +247,10 @@ namespace task.device
         /// <returns></returns>
         public bool IsNotLoad()
         {
-            return Load == DevCarrierLoadE.无货
-                || (Load == DevCarrierLoadE.异常
-                    && GiveSite > 0
-                    && GivePoint > 0);
+            return Load == DevCarrierLoadE.无货;
+                //|| (Load == DevCarrierLoadE.异常
+                //    && GiveSite > 0
+                //    && GivePoint > 0);
         }
 
         /// <summary>
