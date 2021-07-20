@@ -130,6 +130,8 @@ namespace task.device
                     {
                         try
                         {
+                            refreshsend = false;
+
                             #region 断线重连
 
                             ///离线住够长时间，自动断开重连
@@ -163,7 +165,6 @@ namespace task.device
                                 continue;
                             }
 
-                            refreshsend = false;
                             #region 下砖-转产
 
                             if (task.DevConfig.WorkMode == TileWorkModeE.下砖)
