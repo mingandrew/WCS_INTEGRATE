@@ -117,7 +117,7 @@ namespace task.trans.transtask
                             //还没有分配取货过程中的摆渡车
                             if (trans.take_ferry_id == 0)
                             {
-                                string msg = _M.AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
+                                string msg = _M.AllocateFerry(trans, DeviceTypeE.后摆渡, track, false);
 
                                 #region 【任务步骤记录】
                                 if (_M.LogForTakeFerry(trans, msg)) return;
@@ -149,7 +149,7 @@ namespace task.trans.transtask
                                 //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
                                 //    ToTrackId = ferryTraid
                                 //});
-                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.下砖摆渡复位点);
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.后置摆渡复位点);
                                 return;
                             }
 
@@ -239,7 +239,7 @@ namespace task.trans.transtask
                             //还没有分配取货过程中的摆渡车
                             if (trans.take_ferry_id == 0)
                             {
-                                string msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                                string msg = _M.AllocateFerry(trans, DeviceTypeE.前摆渡, track, false);
 
                                 #region 【任务步骤记录】
                                 if (_M.LogForTakeFerry(trans, msg)) return;
@@ -271,7 +271,7 @@ namespace task.trans.transtask
                                 //    OverPoint = PubMaster.Track.GetTrackLimitPointIn(ferryTraid),
                                 //    ToTrackId = ferryTraid
                                 //});
-                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                                 return;
                             }
 
@@ -327,13 +327,13 @@ namespace task.trans.transtask
                                 if (PubTask.Carrier.IsCarrierInTrackSmallerRfID1(trans.carrier_id, track.id)
                                     && !PubTask.Carrier.ExistCarBehind(trans.carrier_id, track.id))
                                 {
-                                    msg = _M.AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
+                                    msg = _M.AllocateFerry(trans, DeviceTypeE.后摆渡, track, false);
                                 }
                                 //分配上摆渡车
                                 else if (PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, track.id)
                                     && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                 {
-                                    msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                                    msg = _M.AllocateFerry(trans, DeviceTypeE.前摆渡, track, false);
                                 }
                             }
                             else
@@ -371,7 +371,7 @@ namespace task.trans.transtask
                             //    OverPoint = PubMaster.Track.GetTrackLimitPointOut(ferryTraid),
                             //    ToTrackId = ferryTraid
                             //});
-                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.下砖摆渡复位点);
+                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.后置摆渡复位点);
                             return;
                         }
                     }
@@ -386,13 +386,13 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[摆渡车入]
-                case TrackTypeE.摆渡车_入:
+                case TrackTypeE.后置摆渡轨道:
 
                     #region[分配摆渡车]
                     //还没有分配取货过程中的摆渡车
                     if (trans.take_ferry_id == 0)
                     {
-                        string msg = _M.AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
+                        string msg = _M.AllocateFerry(trans, DeviceTypeE.后摆渡, track, false);
 
                         #region 【任务步骤记录】
                         if (_M.LogForTakeFerry(trans, msg)) return;
@@ -431,13 +431,13 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[摆渡车出]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
 
                     #region[分配摆渡车]
                     //还没有分配取货过程中的摆渡车
                     if (trans.take_ferry_id == 0)
                     {
-                        string msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                        string msg = _M.AllocateFerry(trans, DeviceTypeE.前摆渡, track, false);
 
                         #region 【任务步骤记录】
                         if (_M.LogForTakeFerry(trans, msg)) return;

@@ -446,12 +446,12 @@ namespace wcs.ViewModel
                         setsite = tra.rfid_1;
                         setpoint = tra.limit_point;
                         break;
-                    case TrackTypeE.摆渡车_入:
+                    case TrackTypeE.后置摆渡轨道:
                         setsite = tra.rfid_1;
                         setpoint = SimServer.Carrier.GetFerryTrackPos(tra.rfid_1);
                         isontrack = false;
                         break;
-                    case TrackTypeE.摆渡车_出:
+                    case TrackTypeE.前置摆渡轨道:
                         setsite = tra.rfid_1;
                         setpoint = SimServer.Carrier.GetFerryTrackPos(tra.rfid_1);
                         isontrack = false;
@@ -491,7 +491,7 @@ namespace wcs.ViewModel
                         ferrycode = tra.ferry_down_code;
                         break;
                     case TrackTypeE.储砖_出入:
-                        ferrycode = dev.DevType == DeviceTypeE.下摆渡 ? tra.ferry_up_code : tra.ferry_down_code;
+                        ferrycode = dev.DevType == DeviceTypeE.后摆渡 ? tra.ferry_up_code : tra.ferry_down_code;
                         break;
                 }
                 SimServer.Ferry.SetCurrentSite(dev.dev_id, tra, ferrycode);

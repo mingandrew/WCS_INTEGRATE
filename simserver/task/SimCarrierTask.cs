@@ -158,8 +158,8 @@ namespace simtask
                 case TrackTypeE.储砖_出入:
                     DevStatus.Position = DevCarrierPositionE.在轨道上;
                     break;
-                case TrackTypeE.摆渡车_入:
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.后置摆渡轨道:
+                case TrackTypeE.前置摆渡轨道:
 
                     DevStatus.Position = DevCarrierPositionE.在摆渡上;
                     break;
@@ -287,11 +287,11 @@ namespace simtask
                                     DevStatus.CurrentPoint = TargetTrack.limit_point_up;
                                 }
                                 break;
-                            case TrackTypeE.摆渡车_入:
+                            case TrackTypeE.后置摆渡轨道:
                                 DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
                                 SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                                 break;
-                            case TrackTypeE.摆渡车_出:
+                            case TrackTypeE.前置摆渡轨道:
                                 DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
                                 SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                                 break;
@@ -343,7 +343,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.下砖轨道)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.摆渡车_入 ? -270 : 270;
+                            int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                             OnLoading = true;
@@ -351,7 +351,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_2 && TargetTrack.Type == TrackTypeE.下砖轨道)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.摆渡车_出 ? -540 : 540;
+                            int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -540 : 540;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_2) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_2);
                             OnLoading = true;
@@ -359,7 +359,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_3 && TargetTrack.Type == TrackTypeE.上砖轨道)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.摆渡车_出 ? -270 : 270;
+                            int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_3);
                             OnLoading = true;
@@ -494,7 +494,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_1 || TO_SITE == TargetTrack.rfid_2)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.摆渡车_入 ? -270 : 270;
+                            int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                             OnUnloading = true;
@@ -1358,7 +1358,7 @@ namespace simtask
 
             if(NowTrack!=null)
             {
-                if(NowTrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
+                if(NowTrack.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
                 {
                     DevStatus.Position = DevCarrierPositionE.在摆渡上;
                 }

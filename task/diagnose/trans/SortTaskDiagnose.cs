@@ -90,7 +90,7 @@ namespace task.diagnose.trans
                     if(item.carrier_id != 0)
                     {
                         Track track = PubTask.Carrier.GetCarrierTrack(item.carrier_id);
-                        List<uint> ferrys = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.上摆渡, areaid, track.id, item.give_track_id, 0, false);
+                        List<uint> ferrys = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.前摆渡, areaid, track.id, item.give_track_id, 0, false);
                         if (ferrys.Count > 0)
                         {
                             _M.SetStatus(item, TransStatusE.倒库暂停, string.Format("上砖任务[ {0} ]需要车, 暂停倒库运输车[ {1} ]的任务[ {2} ]",
@@ -115,7 +115,7 @@ namespace task.diagnose.trans
                     if (item.carrier_id != 0 && !PubMaster.DevConfig.IsHaveSameTileNowGood(item.goods_id, TileWorkModeE.上砖))
                     {
                         Track track = PubTask.Carrier.GetCarrierTrack(item.carrier_id);
-                        List<uint> ferrys = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.上摆渡, areaid, track.id, item.give_track_id, 0, false);
+                        List<uint> ferrys = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.前摆渡, areaid, track.id, item.give_track_id, 0, false);
                         if (ferrys.Count > 0)
                         {
                             _M.SetStatus(item, TransStatusE.倒库暂停, string.Format("上砖任务[ {0} ]需要车, 暂停倒库运输车[ {1} ]的任务[ {2} ]",

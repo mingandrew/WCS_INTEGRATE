@@ -116,7 +116,7 @@ namespace task.trans.transtask
             //还没有分配取货过程中的摆渡车
             if (trans.take_ferry_id == 0 && !trans.IsReleaseTakeFerry)
             {
-                string msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                string msg = _M.AllocateFerry(trans, DeviceTypeE.前摆渡, track, false);
 
                 #region 【任务步骤记录】
                 if (_M.LogForTakeFerry(trans, msg)) return;
@@ -176,7 +176,7 @@ namespace task.trans.transtask
                             //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                             //    ToTrackId = ferryTraid
                             //});
-                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                             return;
                         }
                     }
@@ -226,7 +226,7 @@ namespace task.trans.transtask
                             //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                             //    ToTrackId = ferryTraid
                             //});
-                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                            MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                             return;
                         }
                     }
@@ -235,7 +235,7 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[小车在摆渡车]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
 
                     if (isnotload)
                     {
@@ -563,7 +563,7 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[小车在摆渡车上]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
                     if (isnotload)
                     {
                         //小车在摆渡车上
@@ -684,7 +684,7 @@ namespace task.trans.transtask
             {
                 if (trans.take_ferry_id == 0)
                 {
-                    string msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                    string msg = _M.AllocateFerry(trans, DeviceTypeE.前摆渡, track, false);
 
                     #region 【任务步骤记录】
                     if (_M.LogForTakeFerry(trans, msg)) return;
@@ -784,7 +784,7 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[小车在摆渡车上]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
                     if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                     {
                         if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))

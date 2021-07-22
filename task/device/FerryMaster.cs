@@ -661,8 +661,8 @@ namespace task.device
                 case TrackTypeE.储砖_出入:
                     ferrycode = isdownferry ? tra.ferry_up_code : tra.ferry_down_code;
                     break;
-                case TrackTypeE.摆渡车_入:
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.后置摆渡轨道:
+                case TrackTypeE.前置摆渡轨道:
                     result = "请重新选择其他轨道";
                     return false;
             }
@@ -1566,7 +1566,7 @@ namespace task.device
                     List<uint> ferryids;
                     Track carrierTrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                     bool isCarInFerry = false;
-                    if (carrierTrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
+                    if (carrierTrack.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
                     {
                         isCarInFerry = true;
                     }
@@ -1953,7 +1953,7 @@ namespace task.device
                 Track tt = PubMaster.Track.GetTrackBySite(area, to);
                 if (ft != null)
                 {
-                    if (ft.Type == TrackTypeE.摆渡车_入 || ft.Type == TrackTypeE.摆渡车_出)
+                    if (ft.Type == TrackTypeE.后置摆渡轨道 || ft.Type == TrackTypeE.前置摆渡轨道)
                     {
                         result = "小车已经在摆渡车上了！";
                         return onferryboolvalue;
@@ -2015,13 +2015,13 @@ namespace task.device
                 return false;
             }
 
-            if (totrackid != 0 && task.Type == DeviceTypeE.上摆渡 && !PubMaster.Track.IsUpAreaTrack(totrackid))
+            if (totrackid != 0 && task.Type == DeviceTypeE.前摆渡 && !PubMaster.Track.IsUpAreaTrack(totrackid))
             {
                 result = string.Format("上摆渡，不能定位到轨道[ {0} ]", PubMaster.Track.GetTrackName(totrackid));
                 return false;
             }
 
-            if (totrackid != 0 && task.Type == DeviceTypeE.下摆渡 && !PubMaster.Track.IsDownAreaTrack(totrackid))
+            if (totrackid != 0 && task.Type == DeviceTypeE.后摆渡 && !PubMaster.Track.IsDownAreaTrack(totrackid))
             {
                 result = string.Format("下摆渡，不能定位到轨道[ {0} ]", PubMaster.Track.GetTrackName(totrackid));
                 return false;

@@ -142,12 +142,12 @@ namespace resource.module.modulesql
 
         internal bool AddTrack(Track track)
         {
-            string str = "INSERT INTO `track`( `name`, `area`, `type`, `stock_status`, `width`, `left_distance`, `right_distance`," +
+            string str = "INSERT INTO `track`( `name`, `area`, `type`, `type2`, `stock_status`, `width`, `left_distance`, `right_distance`," +
                 " `ferry_up_code`, `ferry_down_code`, `max_store`, `brother_track_id`, `left_track_id`, `right_track_id`, `memo`," +
                 " `rfid_1`, `rfid_2`, `rfid_3`, `rfid_4`, `rfid_5`, `rfid_6`, `order`, `recent_goodid`, `recent_tileid`) " +
                 "VALUES('{0}', '{1}', '{2}', '{3}', {4}, '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', " +
-                "'{14}', '{15}', '{16}', '{17}', '{18}', '{19}', '{20}', '{21}', '{22}')";
-            string sql = string.Format(@str, track.name, track.area, track.type, track.stock_status, track.width, track.left_distance, track.right_distance,
+                "'{14}', '{15}', '{16}', '{17}', '{18}', '{19}', '{20}', '{21}', '{22}', '{23}')";
+            string sql = string.Format(@str, track.name, track.area, track.type, track.type2, track.stock_status, track.width, track.left_distance, track.right_distance,
                 track.ferry_up_code, track.ferry_down_code, track.max_store, track.brother_track_id, track.left_track_id, track.right_track_id, track.memo,
                 track.rfid_1, track.rfid_2, track.rfid_3, track.rfid_4, track.rfid_5, track.rfid_6, track.order, track.recent_goodid, track.recent_tileid);
             int row = mSql.ExcuteSql(sql);
@@ -217,8 +217,8 @@ namespace resource.module.modulesql
                     sql += string.Format("`track_status` = {0}", track.track_status);
                     break;
                 case TrackUpdateE.Common:
-                    sql += string.Format("`name` = '{0}', `area` = {1}, `type` = {2}, `max_store` = {3}, `memo` = '{4}'", 
-                        track.name, track.area, track.type, track.max_store, track.memo);
+                    sql += string.Format("`name` = '{0}', `area` = {1}, `type` = {2}, `type2` = {3}, `max_store` = {4}, `memo` = '{5}'", 
+                        track.name, track.area, track.type, track.type2, track.max_store, track.memo);
                     break;
                 case TrackUpdateE.Size:
                     sql += string.Format("`width` = {0}, `left_distance` = {1}, `right_distance` = {2}", 

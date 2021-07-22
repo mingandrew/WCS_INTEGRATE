@@ -203,7 +203,7 @@ namespace task.trans.transtask
         {
             if (trans.carrier_id == 0) return;
             track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
-            if (track == null || track.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出)) return;
+            if (track == null || track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道)) return;
             if (trans.take_ferry_id != 0)
             {
                 PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id);
@@ -213,6 +213,56 @@ namespace task.trans.transtask
             {
                 PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id);
             }
+        }
+
+        /// <summary>
+        /// 判断是否满砖(返回下一车库存脉冲)
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="trackID"></param>
+        /// <param name="stkLoc"></param>
+        /// <returns></returns>
+        public bool CheckTrackFull(StockTrans trans, uint trackID, out ushort stkLoc)
+        {
+            // 是否已满砖
+            if (PubMaster.Track.IsTrackFull(trackID))
+            {
+                stkLoc = 0;
+                return true;
+            }
+
+            bool isback = PubMaster.Track.IsGiveBackTrack(trackID);
+
+            // 判断下一车库存脉冲
+            if (!PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, trans.carrier_id, trackID, trans.stock_id, out stkLoc)
+                || PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.line, trackID))
+            {
+                // 设满砖
+                PubMaster.Track.UpdateStockStatus(trackID, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
+                PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trackID, TrackLogE.满轨道, "计算坐标值无法存入下一车");
+
+                #region 【任务步骤记录】
+                _M.LogForTrackFull(trans, trackID);
+                #endregion
+
+                return true;
+            }
+
+            // 判断是否库存数已到设定的上限
+            if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.line, trackID))
+            {
+                // 设满砖
+                PubMaster.Track.UpdateStockStatus(trackID, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
+                PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trackID, TrackLogE.满轨道, "当前库存数已达上限，无法存入下一车");
+
+                #region 【任务步骤记录】
+                _M.LogForTrackFull(trans, trackID);
+                #endregion
+
+                return true;
+            }
+
+            return false;
         }
 
         #endregion
@@ -383,8 +433,8 @@ namespace task.trans.transtask
                 case CarrierPosE.上砖机复位点:
                     cao.OverPoint = toTrack.limit_point;
                     break;
-                case CarrierPosE.下砖摆渡复位点:
-                case CarrierPosE.上砖摆渡复位点:
+                case CarrierPosE.后置摆渡复位点:
+                case CarrierPosE.前置摆渡复位点:
                     cao.OverPoint = toTrack.limit_point;  // 无所谓了 反正都是只有一个定位点
                     break;
                 case CarrierPosE.轨道后侧定位点:
@@ -487,7 +537,7 @@ namespace task.trans.transtask
         {
             // 获取库存脉冲
             ushort stkloc = PubMaster.Goods.GetStockLocation(stockID);
-            ushort carloc = PubTask.Carrier.GetCurrentPoint(trackID);
+            ushort carloc = PubTask.Carrier.GetCurrentPoint(carrierID);
             ushort safeloc = 10; // ±10脉冲
             bool isforward = PubMaster.Track.IsTakeForwardTrack(trackID);
             if (stkloc == 0)
@@ -543,6 +593,45 @@ namespace task.trans.transtask
 
             }
 
+        }
+
+        /// <summary>
+        /// 运输车直接放砖 By 指定脉冲
+        /// </summary>
+        /// <param name="stkloc"></param>
+        /// <param name="trackID"></param>
+        /// <param name="carrierID"></param>
+        /// <param name="transID"></param>
+        /// <param name="mes"></param>
+        public void GiveInTarck(ushort stkloc, uint trackID, uint carrierID, uint transID, out string mes)
+        {
+            if (stkloc == 0)
+            {
+                mes = "无效库存存放位置！";
+                return;
+            }
+
+            // 当前位置是否异常
+            ushort carloc = PubTask.Carrier.GetCurrentPoint(carrierID);
+            ushort safeloc = 20; // ±20脉冲
+            bool isback = PubMaster.Track.IsGiveBackTrack(trackID);
+
+            if (isback && carloc < (stkloc - safeloc))
+            {
+                mes = "后退放砖-小车位置再无法后退到库存存放位置！";
+                return;
+            }
+
+            if (isback && carloc > (stkloc + safeloc))
+            {
+                mes = "前进放砖-小车位置再无法前进到库存存放位置！";
+                return;
+            }
+
+            // 放砖
+            mes = "执行放砖";
+            MoveToGive(track.id, carrierID, transID, stkloc);
+            return;
         }
 
         #endregion

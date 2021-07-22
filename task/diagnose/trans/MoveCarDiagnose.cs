@@ -75,18 +75,18 @@ namespace task.diagnose.trans
                 case TransTypeE.手动上砖:
                 case TransTypeE.同向下砖:
                     checktakegivetrack = true;
-                    ferrytype = DeviceTypeE.上摆渡;
+                    ferrytype = DeviceTypeE.前摆渡;
                     break;
                 case TransTypeE.下砖任务:
                 case TransTypeE.手动下砖:
                 case TransTypeE.同向上砖:
                     checktakegivetrack = true;
-                    ferrytype = DeviceTypeE.下摆渡;
+                    ferrytype = DeviceTypeE.后摆渡;
                     break;
                 case TransTypeE.倒库任务:
                 case TransTypeE.上砖侧倒库:
                     checktakegivetrack = false;
-                    ferrytype = DeviceTypeE.上摆渡;
+                    ferrytype = DeviceTypeE.前摆渡;
                     break;
             }
 
@@ -137,8 +137,8 @@ namespace task.diagnose.trans
             if (trans.IsInStatusOverTime(TransStatusE.调度设备, 60))
             {
                 // 当前-上下砖侧运输车的数量
-                uint currentUpCarCount = PubTask.Carrier.GetCurrentCarCount(trans.area_id, true, TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.摆渡车_出);
-                uint currentDownCarCount = PubTask.Carrier.GetCurrentCarCount(trans.area_id, false, TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.摆渡车_入);
+                uint currentUpCarCount = PubTask.Carrier.GetCurrentCarCount(trans.area_id, true, TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.前置摆渡轨道);
+                uint currentDownCarCount = PubTask.Carrier.GetCurrentCarCount(trans.area_id, false, TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.后置摆渡轨道);
                 // 设定-上下砖侧运输车的数量
                 uint settingUpCarCount = PubMaster.Area.GetAreaUpCarCount(trans.area_id);
                 uint settingDownCarCount = PubMaster.Area.GetAreaDownCarCount(trans.area_id);
@@ -151,7 +151,7 @@ namespace task.diagnose.trans
 
                 CarrierTask freeCarrier = null;
                 uint brotrackid = 0;
-                if (ferrytype == DeviceTypeE.上摆渡)
+                if (ferrytype == DeviceTypeE.前摆渡)
                 {
                     //如果当前下砖多于设定下砖，且当前上砖少于设定上砖
                     if (currentDownCarCount > settingDownCarCount && currentUpCarCount < settingUpCarCount)

@@ -91,12 +91,12 @@ namespace wcs.ViewModel
             STARTTRACKCODE = ferrycode;
             TRACKNUMBER = (byte)maxtracknum;
 
-            if (((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.下摆渡)
+            if (((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.后摆渡)
                 || STARTTRACKCODE > 500 && STARTTRACKCODE < 600))
             {
                 AUTOPOSSIDE = DevFerryAutoPosE.前侧对位;
             }
-            if ((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.上摆渡)
+            if ((STARTTRACKCODE > 300 && STARTTRACKCODE < 400 && (DeviceTypeE)SELECTFERRY.type == DeviceTypeE.前摆渡)
                 || (STARTTRACKCODE > 100 && STARTTRACKCODE < 200))
             {
                 AUTOPOSSIDE = DevFerryAutoPosE.后侧对位;

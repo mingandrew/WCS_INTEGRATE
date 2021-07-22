@@ -11,6 +11,7 @@ namespace module.track
         public string name { set; get; }
         public ushort area { set; get; }
         public byte type { set; get; }
+        public byte type2 { set; get; }
         public byte stock_status { set; get; }//库存状态
         public byte track_status { set; get; }//轨道使用状态
         public ushort width { set; get; }
@@ -96,6 +97,15 @@ namespace module.track
         {
             get => (TrackTypeE)type;
             set => type = (byte)value;
+        }
+
+        /// <summary>
+        /// 轨道出入库类型
+        /// </summary>
+        public TrackType2E Type2
+        {
+            get => (TrackType2E)type2;
+            set => type2 = (byte)value;
         }
 
         /// <summary>
@@ -190,7 +200,7 @@ namespace module.track
         /// <returns></returns>
         public bool IsUpAreaTrack()
         {
-            return InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.摆渡车_出);
+            return InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.前置摆渡轨道);
         }
         
         /// <summary>
@@ -199,7 +209,7 @@ namespace module.track
         /// <returns></returns>
         public bool IsDownAreaTrack()
         {
-            return InType(TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.摆渡车_入);
+            return InType(TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.后置摆渡轨道);
         }
 
 
@@ -210,7 +220,7 @@ namespace module.track
 
         public bool IsFerryTrack()
         {
-            return InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出);
+            return InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道);
         }
 
         /// <summary>

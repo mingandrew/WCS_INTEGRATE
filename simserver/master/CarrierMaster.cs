@@ -252,7 +252,7 @@ namespace simtask.master
 
         public ushort GetUpTileTrackPoint(uint areaid)
         {
-            List<ushort> upferrys = PubMaster.Track.GetFerryTrackCode(areaid, TrackTypeE.摆渡车_出);
+            List<ushort> upferrys = PubMaster.Track.GetFerryTrackCode(areaid, TrackTypeE.前置摆渡轨道);
             return (ushort)(CarrierPosList.Find(c => upferrys.Contains(c.track_point) && c.track_pos > 0)?.track_pos + 260 ?? 10000);
         }
 
@@ -263,7 +263,7 @@ namespace simtask.master
 
         public ushort GetDownTileTrackPoint(uint areaid)
         {
-            List<ushort> upferrys = PubMaster.Track.GetFerryTrackCode(areaid, TrackTypeE.摆渡车_入);
+            List<ushort> upferrys = PubMaster.Track.GetFerryTrackCode(areaid, TrackTypeE.后置摆渡轨道);
             return (ushort)(CarrierPosList.Find(c => upferrys.Contains(c.track_point) && c.track_pos > 0)?.track_pos - 260 ?? 500);
         }
 

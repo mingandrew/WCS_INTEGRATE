@@ -493,10 +493,10 @@ namespace task.task
             uint trackId = 0;
             switch (Type)
             {
-                case DeviceTypeE.上摆渡:
+                case DeviceTypeE.前摆渡:
                     trackId = IsUpLight ? UpTrackId : DownTrackId;
                     break;
-                case DeviceTypeE.下摆渡:
+                case DeviceTypeE.后摆渡:
                     trackId = IsDownLight ? DownTrackId : UpTrackId;
                     break;
                 default:
@@ -545,10 +545,10 @@ namespace task.task
             {
                 switch (Type)
                 {
-                    case DeviceTypeE.上摆渡:
+                    case DeviceTypeE.前摆渡:
                         trackIds.Add(DownTrackId);
                         break;
-                    case DeviceTypeE.下摆渡:
+                    case DeviceTypeE.后摆渡:
                         trackIds.Add(UpTrackId);
                         break;
                     default:

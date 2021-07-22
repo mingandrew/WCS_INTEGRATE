@@ -334,6 +334,11 @@ namespace resource.goods
             return GoodSizeList;
         }
 
+        public string GetSizeName(uint sizeid)
+        {
+            return GoodSizeList.Find(c => c.id == sizeid)?.name ?? "";
+        }
+
         #endregion
         #endregion
 
@@ -446,7 +451,7 @@ namespace resource.goods
             return GoodsList.Exists(c => name.Equals(c.name));
         }
 
-        public string GetGoodsSizeName(uint Goods_id)
+        public string GetGoodsSizeNameByGid(uint Goods_id)
         {
             GoodSize size = GetGoodSize(Goods_id);
             if (size != null)
@@ -455,6 +460,7 @@ namespace resource.goods
             }
             return "";
         }
+
         #endregion
 
         #region[库存]
@@ -1837,7 +1843,7 @@ namespace resource.goods
                 //将库存 移入 储砖轨道
                 if (totrack != null && totrack.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
                 {
-                    if (fromtrack.InType(TrackTypeE.摆渡车_出))
+                    if (fromtrack.InType(TrackTypeE.前置摆渡轨道))
                     {
                         UpdateTrackPos(stock, totrack, false);
                     }

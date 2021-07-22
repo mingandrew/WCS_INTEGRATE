@@ -38,6 +38,20 @@ namespace task.trans
         /// </summary>
         public override void CheckTrackSort()
         {
+            /** 触发条件
+             * 1. 获取可倒库的入库轨道
+             *      1.1 优先砖机当前上砖品种
+             *      1.2 优先砖机当前预约品种
+             *      1.3 按入库时间最早
+             * 2. 分配空砖出库轨道
+             * 3. 生成任务
+             */
+
+            // 获取可倒库的入库轨道
+            List<Track> inTracks = PubMaster.Track.GetFullInTrackList();
+
+
+            #region old
             List<Track> tracks = PubMaster.Track.GetFullInTrackList();
             foreach (Track track in tracks)
             {
@@ -82,6 +96,7 @@ namespace task.trans
                         , TransStatusE.检查轨道, 0, track.line);
                 }
             }
+            #endregion
         }
 
         /// <summary>
@@ -429,7 +444,7 @@ namespace task.trans
                     }
                     break;
 
-                case TrackTypeE.摆渡车_入://小车在摆渡车上(已经在摆渡车上)
+                case TrackTypeE.后置摆渡轨道://小车在摆渡车上(已经在摆渡车上)
 
                     uint tferryid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(track.id);
                     if (tferryid != 0)
@@ -461,7 +476,7 @@ namespace task.trans
                         }
                     }
                     break;
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
                     uint outtferryid = PubMaster.DevConfig.GetFerryIdByFerryTrackId(track.id);
                     if (outtferryid != 0)
                     {
@@ -1035,7 +1050,7 @@ namespace task.trans
                                         Track nowtrack = PubTask.Carrier.GetCarrierTrack(t.carrier_id);
                                         if (PubTask.Carrier.IsLoad(t.carrier_id)
                                             && (PubTask.Carrier.IsCarrierInTask(t.carrier_id, DevCarrierOrderE.放砖指令))
-                                            && nowtrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出, TrackTypeE.上砖轨道))
+                                            && nowtrack.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道, TrackTypeE.上砖轨道))
                                         {
                                             result = "运输车正在上砖，不能取消任务！";
                                             return false;

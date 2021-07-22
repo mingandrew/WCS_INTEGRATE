@@ -1426,6 +1426,59 @@ namespace task.device
 
         #endregion
 
+        #region [条件判断]
+
+        /// <summary>
+        /// 检查运输车是否可分配使用
+        /// </summary>
+        /// <param name="carrier"></param>
+        /// <param name="gsize"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool CheckCarrierIsUsable(uint gsize, out string result)
+        {
+            if (PubTask.Trans.HaveInCarrier(ID))
+            {
+                result = string.Format("{0}已被任务锁定-等待空闲解锁；", Device.name);
+                return false;
+            }
+
+            if (ConnStatus != SocketConnectStatusE.通信正常)
+            {
+                result = string.Format("{0}通信不正常-等待恢复通讯；", Device.name);
+                return false;
+            }
+
+            if (OperateMode == DevOperateModeE.手动)
+            {
+                result = string.Format("{0}被手动操作中-等待恢复自动；", Device.name);
+                return false;
+            }
+
+            if (!DevConfig.IsUseGoodsSize(gsize))
+            {
+                result = string.Format("{0}无法作业{1}的砖；", Device.name, PubMaster.Goods.GetSizeName(gsize));
+                return false;
+            }
+
+            if (!IsEnable)
+            {
+                result = string.Format("{0}已被断开通讯-请操作连接通讯；", Device.name);
+                return false;
+            }
+
+            if (!IsWorking)
+            {
+                result = string.Format("{0}已被停用-等待恢复启用；", Device.name);
+                return false;
+            }
+
+            result = "";
+            return true;
+        }
+
+        #endregion
+
     }
 
 }

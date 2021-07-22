@@ -187,7 +187,7 @@ namespace simtask.master
             if (task != null)
             {
                 bool isup = false, isdown = false;
-                if(task.Device.Type == DeviceTypeE.上摆渡)
+                if(task.Device.Type == DeviceTypeE.前摆渡)
                 {
                     if (ferrypose < 500)
                     {
@@ -305,7 +305,7 @@ namespace simtask.master
                         task.DevId = mod.Devid;
                         task.DevStatus.ID = mod.Devid;
                         task.SetUpFerry();
-                        bool isup = task.Device.Type == DeviceTypeE.上摆渡;
+                        bool isup = task.Device.Type == DeviceTypeE.前摆渡;
                         task.SetInitSiteAndPos(isup, !isup);
                         task.SetUpSimulate(GlobalWcsDataConfig.SimulateConfig.GetSimFerry(dev.id));
                         DevList.Add(task);

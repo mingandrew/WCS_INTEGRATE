@@ -140,7 +140,7 @@ namespace task.allocate
         /// <returns>Ture:分配成功 False:找不到摆渡车上的有货运输车</returns>
         public bool AllocateOutInFerry(uint areaid, uint goodid, out uint stockcarrierid,out Stock stock)
         {
-            if (PubTask.Carrier.GetInFerryAndLoad(areaid, out List<uint> carrierids, TrackTypeE.摆渡车_出))
+            if (PubTask.Carrier.GetInFerryAndLoad(areaid, out List<uint> carrierids, TrackTypeE.前置摆渡轨道))
             {
                 foreach (var carrid in carrierids)
                 {

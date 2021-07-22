@@ -190,8 +190,8 @@ namespace wcs.ViewModel.platform.track
             // 初始化指令
             switch (DEVTYPE)
             {
-                case DeviceTypeE.上摆渡:
-                case DeviceTypeE.下摆渡:
+                case DeviceTypeE.前摆渡:
+                case DeviceTypeE.后摆渡:
                     // 复位指令
                     if (!PubTask.Ferry.DoReNew(DEVID, TRACKCODE, MOVEDIR, out string res))
                     {

@@ -91,14 +91,14 @@ namespace wcs.ViewModel.platform.track
                             }
                             break;
 
-                        case TrackTypeE.摆渡车_入:
-                            if (cp.CarrierPosType != CarrierPosE.下砖摆渡复位点)
+                        case TrackTypeE.后置摆渡轨道:
+                            if (cp.CarrierPosType != CarrierPosE.后置摆渡复位点)
                             {
                                 continue;
                             }
                             break;
-                        case TrackTypeE.摆渡车_出:
-                            if (cp.CarrierPosType != CarrierPosE.上砖摆渡复位点)
+                        case TrackTypeE.前置摆渡轨道:
+                            if (cp.CarrierPosType != CarrierPosE.前置摆渡复位点)
                             {
                                 continue;
                             }

@@ -94,13 +94,13 @@ namespace wcs.ViewModel
                     {
                         vm.FilterArea = false;
                         vm.AreaId = 0;
-                        if(to_ferry.Type == DeviceTypeE.上摆渡)
+                        if(to_ferry.Type == DeviceTypeE.前摆渡)
                         {
-                            vm.SetSelectType(DeviceTypeE.上摆渡 );
+                            vm.SetSelectType(DeviceTypeE.前摆渡 );
                         }
                         else
                         {
-                            vm.SetSelectType(DeviceTypeE.下摆渡 );
+                            vm.SetSelectType(DeviceTypeE.后摆渡 );
                         }
                     }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)

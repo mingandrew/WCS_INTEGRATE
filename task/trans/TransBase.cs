@@ -180,6 +180,7 @@ namespace task.trans
                                         _backUpTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.库存整理:
+                                    case TransTypeE.中转倒库:
                                         organizelist.Add(trans);
                                         break;
                                     case TransTypeE.库存转移:
@@ -950,11 +951,12 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="memo"></param>
-        internal void LogForCarrierGive(StockTrans trans, uint trackid)
+        internal void LogForCarrierGive(StockTrans trans, uint trackid, string memo = "")
         {
-            SetStepLog(trans, true, 405, string.Format("控制运输车[ {0} ]移至[ {1} ]放砖；",
+            SetStepLog(trans, true, 405, string.Format("控制运输车[ {0} ]移至[ {1} ]放砖；{2}",
                 PubMaster.Device.GetDeviceName(trans.carrier_id),
-                PubMaster.Track.GetTrackName(trackid)));
+                PubMaster.Track.GetTrackName(trackid),
+                memo), true);
         }
 
         /// <summary>

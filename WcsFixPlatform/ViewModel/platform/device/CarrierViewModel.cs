@@ -183,7 +183,7 @@ namespace wcs.ViewModel
                                 return;
                             }
 
-                            if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
+                            if (track.InType(TrackTypeE.前置摆渡轨道, TrackTypeE.后置摆渡轨道))
                             {
                                 if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, (type == DevCarrierTaskE.前进取砖 || type == DevCarrierTaskE.前进放砖), 
                                         out uint intrackid, out string warning))

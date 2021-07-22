@@ -167,7 +167,7 @@ namespace resource.area
         internal List<uint> GetAreaFerryIds(uint areaid)
         {
             return AreaDevList.FindAll(c => c.area_id == areaid 
-                                && (c.DevType == DeviceTypeE.上摆渡 || c.DevType == DeviceTypeE.下摆渡))
+                                && (c.DevType == DeviceTypeE.前摆渡 || c.DevType == DeviceTypeE.后摆渡))
                                     .Select(c=>c.device_id).ToList();
         }
 
@@ -319,7 +319,7 @@ namespace resource.area
         public List<uint> GetFerryTrackSortIds(StockTrans trans, bool istrackid)
         {
             List<uint> list = new List<uint>();
-            List<AreaDevice> ferrys = AreaDevList.FindAll(c => c.area_id == trans.area_id && c.DevType == DeviceTypeE.上摆渡);
+            List<AreaDevice> ferrys = AreaDevList.FindAll(c => c.area_id == trans.area_id && c.DevType == DeviceTypeE.前摆渡);
 
             if (ferrys != null && ferrys.Count > 0)
             {
@@ -397,7 +397,7 @@ namespace resource.area
 
             if (ferryids == null)
             {
-                ferryids = PubMaster.Device.GetDevIds(DeviceTypeE.上摆渡, DeviceTypeE.下摆渡);
+                ferryids = PubMaster.Device.GetDevIds(DeviceTypeE.前摆渡, DeviceTypeE.后摆渡);
             }
             //查找能满砖所有轨道的摆渡车
             bool havealltrack;
@@ -571,7 +571,7 @@ namespace resource.area
             TrackTypeE tracktype = TrackTypeE.储砖_入;
             TrackTypeE tiletrtype = TrackTypeE.下砖轨道;
 
-            if (ferry.Type == DeviceTypeE.上摆渡)
+            if (ferry.Type == DeviceTypeE.前摆渡)
             {
                 tracktype = TrackTypeE.储砖_出; 
                 tiletrtype = TrackTypeE.上砖轨道;

@@ -164,7 +164,7 @@ namespace simtask.task
             List<FerryPos> tracks = FerryPosList.FindAll(c => c.SimIsInArea(NowPos, 50));
             foreach (var item in tracks)
             {
-                if (Device.Type == DeviceTypeE.上摆渡)
+                if (Device.Type == DeviceTypeE.前摆渡)
                 {
                     if(item.ferry_code < 500)
                     {

@@ -91,7 +91,7 @@ namespace resource.device
 
         public List<Device> GetFerrys()
         {
-            return DeviceList.FindAll(c => c.Type == DeviceTypeE.上摆渡 || c.Type == DeviceTypeE.下摆渡);
+            return DeviceList.FindAll(c => c.Type == DeviceTypeE.前摆渡 || c.Type == DeviceTypeE.后摆渡);
         }
 
         public List<Device> GetTileLifters()

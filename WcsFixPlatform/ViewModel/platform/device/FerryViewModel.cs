@@ -197,7 +197,7 @@ namespace wcs.ViewModel
                         break;
 
                     case 6://定位
-                        bool isdownferry = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.下摆渡);
+                        bool isdownferry = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.后摆渡);
                         DialogResult result = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
                          .Initialize<TrackSelectViewModel>((vm) =>
                          {
@@ -216,11 +216,11 @@ namespace wcs.ViewModel
                         break;
 
                     case 7://位置初始化
-                        isdownferry = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.下摆渡);
+                        isdownferry = PubMaster.Device.IsDevType(DeviceSelected.ID, DeviceTypeE.后摆渡);
                         await HandyControl.Controls.Dialog.Show<LocationSelectDialog>()
                             .Initialize<LocationDialogViewModel>((vm) =>
                             {
-                                vm.SetArea(DeviceSelected.AreaId, DeviceSelected.ID, isdownferry ? DeviceTypeE.下摆渡 : DeviceTypeE.下摆渡, DeviceSelected.Name);
+                                vm.SetArea(DeviceSelected.AreaId, DeviceSelected.ID, isdownferry ? DeviceTypeE.后摆渡 : DeviceTypeE.后摆渡, DeviceSelected.Name);
                             }).GetResultAsync<MsgAction>();
                         break;
 

@@ -282,7 +282,7 @@ namespace wcs.ViewModel
                     _filterdevtype = DeviceTypeE.上砖机;
                     break;
                 case "ferry":
-                    _filterdevtype = DeviceTypeE.上摆渡;
+                    _filterdevtype = DeviceTypeE.前摆渡;
                     break;
                 case "carrier":
                     _filterdevtype = DeviceTypeE.运输车;
@@ -301,9 +301,9 @@ namespace wcs.ViewModel
                     case DeviceTypeE.上砖机:
                     case DeviceTypeE.下砖机:
                         return _filterdevtype == DeviceTypeE.上砖机;
-                    case DeviceTypeE.上摆渡:
-                    case DeviceTypeE.下摆渡:
-                        return _filterdevtype == DeviceTypeE.上摆渡;
+                    case DeviceTypeE.前摆渡:
+                    case DeviceTypeE.后摆渡:
+                        return _filterdevtype == DeviceTypeE.前摆渡;
                     case DeviceTypeE.运输车:
                         return _filterdevtype == DeviceTypeE.运输车;
                 }
@@ -492,7 +492,7 @@ namespace wcs.ViewModel
                 {
                     vm.FilterArea = true;
                     vm.AreaId = SelectAreaId;
-                    vm.SetSelectType(DeviceTypeE.上摆渡, DeviceTypeE.下摆渡);
+                    vm.SetSelectType(DeviceTypeE.前摆渡, DeviceTypeE.后摆渡);
                 }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is Device dev)
             {

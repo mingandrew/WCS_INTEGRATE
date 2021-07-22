@@ -147,9 +147,24 @@ namespace resource.track
             return TrackList.Find(c =>c.IsInTrack(trackrfid)).Type;
         }
 
+        /// <summary>
+        /// 获取轨道类型
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
         public TrackTypeE GetTrackType(uint track_id)
         {
             return TrackList.Find(c => c.id == track_id).Type;
+        }
+
+        /// <summary>
+        /// 获取轨道出入库类型
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        public TrackType2E GetTrackType2(uint track_id)
+        {
+            return TrackList.Find(c => c.id == track_id).Type2;
         }
 
         public List<Track> GetTracksInTypes(List<TrackTypeE> types)
@@ -171,6 +186,16 @@ namespace resource.track
         public Track GetAreaTrack(uint areaid, ushort lineid, TrackTypeE type)
         {
             return TrackList.Find(c => c.area == areaid && c.line == lineid && c.Type == type);
+        }
+
+        /// <summary>
+        /// 获取同区域内所有轨道
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public List<uint> GetAreaAllTrackIdList(uint area)
+        {
+            return TrackList.FindAll(c => c.area == area)?.Select(c => c.id).ToList() ?? new List<uint>();
         }
 
         /// <summary>
@@ -282,7 +307,7 @@ namespace resource.track
         public uint GetAreaTrack(uint devid, ushort area, DeviceTypeE type, ushort site)
         {
             if (site == 0) return 0;
-            if (type == DeviceTypeE.上摆渡)
+            if (type == DeviceTypeE.前摆渡)
             {
                 return TrackList.Find(c => c.area == area
                                         && c.InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入)
@@ -307,10 +332,10 @@ namespace resource.track
             switch (type)
             {
                 case DeviceTypeE.上砖机:
-                case DeviceTypeE.上摆渡:
+                case DeviceTypeE.前摆渡:
                     return TrackList.Find(c => c.area == areaid && c.IsUpAreaTrack() && c.IsInTrack(site))?.name ?? site + "";
                 case DeviceTypeE.下砖机:
-                case DeviceTypeE.下摆渡:
+                case DeviceTypeE.后摆渡:
                     return TrackList.Find(c => c.area == areaid && c.IsDownAreaTrack() && c.IsInTrack(site))?.name ?? site + "";
                 case DeviceTypeE.砖机:
                 case DeviceTypeE.其他:
@@ -593,17 +618,86 @@ namespace resource.track
         /// <param name="tid">排序参照轨道</param>
         /// <param name="order">排序参照轨道order</param>
         /// <returns>返回一个以参考轨道为起点轨道id列表【越靠近参考轨道越前的】</returns>
-        public List<uint> SortTrackIdsWithOrder(List<uint> trackids, uint tid, short order)
+        public List<uint> SortTrackIdsWithOrder(List<uint> trackids, uint tid, short order, bool checkType = false)
         {
             List<Track> tracks = TrackList.FindAll(c => c.id != tid && trackids.Contains(c.id));
             if (tracks.Count > 0)
             {
+                // 按位置相对顺序排序
                 tracks.Sort((x, y) =>
                 {
                     int xorder = Math.Abs(x.order - order);
                     int yorder = Math.Abs(y.order - order);
                     return xorder.CompareTo(yorder);
                 });
+
+                // 再按轨道类型排序 ？
+                if (checkType)
+                {
+                    TrackTypeE tt = GetTrackType(tid);
+                    TrackType2E tt2 = GetTrackType2(tid);
+                    // -1: x在前； 0:同序； 1: y在前；
+                    tracks.Sort((x, y) =>
+                    {
+                        if (x.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
+                        {
+                            if (y.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
+                            {
+                                return 0;
+                            }
+                            return -1;
+                        }
+
+                        if (x.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                        {
+                            if (y.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                            {
+                                return 0;
+                            }
+                            return 1;
+                        }
+
+                        if (x.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                        {
+                            if (y.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
+                            {
+                                return 1;
+                            }
+
+                            if (y.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                            {
+                                return -1;
+                            }
+
+                            if (x.Type == tt && y.Type != tt)
+                            {
+                                return -1;
+                            }
+
+                            if (x.Type != tt && y.Type == tt)
+                            {
+                                return 1;
+                            }
+
+                            if (tt == TrackTypeE.储砖_出入 && x.Type == tt && y.Type == tt)
+                            {
+                                if (x.Type2 == tt2 && y.Type2 != tt2)
+                                {
+                                    return -1;
+                                }
+
+                                if (x.Type2 != tt2 && y.Type2 == tt2)
+                                {
+                                    return 1;
+                                }
+                            }
+
+                        }
+
+                        return 0;
+                    });
+                }
+
             }
             return tracks.Select(c => c.id).ToList();
         }
@@ -639,7 +733,7 @@ namespace resource.track
         public uint GetTrackIDByOrder(ushort area, DeviceTypeE type, int order)
         {
             List<Track> tracks;
-            if (type == DeviceTypeE.上摆渡)
+            if (type == DeviceTypeE.前摆渡)
             {
                 tracks =  TrackList.FindAll(c => c.area == area && c.order == order 
                             && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道));
@@ -672,11 +766,11 @@ namespace resource.track
         {
             switch (dt)
             {
-                case DeviceTypeE.上摆渡:
+                case DeviceTypeE.前摆渡:
                     return TrackList.FindAll(c => c.area == area 
                             && c.InType(TrackTypeE.储砖_出入, TrackTypeE.上砖轨道,TrackTypeE.储砖_出)).Min(c => c.order);
 
-                case DeviceTypeE.下摆渡:
+                case DeviceTypeE.后摆渡:
                     return TrackList.FindAll(c => c.area == area 
                             && c.InType(TrackTypeE.储砖_出入, TrackTypeE.下砖轨道, TrackTypeE.储砖_入)).Min(c => c.order);
 
@@ -693,11 +787,11 @@ namespace resource.track
         {
             switch (dt)
             {
-                case DeviceTypeE.上摆渡:
+                case DeviceTypeE.前摆渡:
                     return TrackList.FindAll(c => c.area == area 
                             && c.InType(TrackTypeE.储砖_出入, TrackTypeE.上砖轨道, TrackTypeE.储砖_出)).Max(c => c.order);
 
-                case DeviceTypeE.下摆渡:
+                case DeviceTypeE.后摆渡:
                     return TrackList.FindAll(c => c.area == area 
                             && c.InType(TrackTypeE.储砖_出入, TrackTypeE.下砖轨道, TrackTypeE.储砖_入)).Max(c => c.order);
 
@@ -1075,7 +1169,7 @@ namespace resource.track
             {
                 return new List<FerryPos>();
             }
-            bool isdownferry = PubMaster.Device.IsDevType(devid, DeviceTypeE.下摆渡);
+            bool isdownferry = PubMaster.Device.IsDevType(devid, DeviceTypeE.后摆渡);
             Track track;
             FerryPos pos;
             foreach (AreaDeviceTrack item in deviceTracks)
@@ -1100,8 +1194,8 @@ namespace resource.track
                     case TrackTypeE.下砖轨道:
                         pos.ferry_code = track.ferry_down_code;
                         break;
-                    case TrackTypeE.摆渡车_入:
-                    case TrackTypeE.摆渡车_出:
+                    case TrackTypeE.后置摆渡轨道:
+                    case TrackTypeE.前置摆渡轨道:
                         continue;
                 }
                 PubMaster.Mod.TraSql.AddFerryPos(pos);
@@ -1166,16 +1260,16 @@ namespace resource.track
             switch (transType)
             {
                 case TransTypeE.下砖任务:
-                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_入)).Select(c => c.id));
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.后置摆渡轨道)).Select(c => c.id));
                     break;
                 case TransTypeE.上砖任务:
-                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_出)).Select(c => c.id));
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.前置摆渡轨道)).Select(c => c.id));
                     break;
                 case TransTypeE.倒库任务:
-                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_出)).Select(c => c.id));
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.前置摆渡轨道)).Select(c => c.id));
                     break;
                 case TransTypeE.其他:
-                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出)).Select(c => c.id));
+                    list.AddRange(TrackList.FindAll(c => c.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道)).Select(c => c.id));
                     break;
                 default:
                     break;
@@ -1230,7 +1324,7 @@ namespace resource.track
                         trackferrycode = track.ferry_down_code;
                         break;
                     case TrackTypeE.储砖_出入:
-                        if (ferrytype == DeviceTypeE.下摆渡)
+                        if (ferrytype == DeviceTypeE.后摆渡)
                         {
                             trackferrycode = track.ferry_up_code;
                         }
@@ -1366,10 +1460,10 @@ namespace resource.track
             {
                 switch (PubMaster.Device.GetDeviceType(ferryid))
                 {
-                    case DeviceTypeE.上摆渡:
+                    case DeviceTypeE.前摆渡:
                         code = t.ferry_down_code;
                         break;
-                    case DeviceTypeE.下摆渡:
+                    case DeviceTypeE.后摆渡:
                         code = t.ferry_up_code;
                         break;
                 }
@@ -1557,7 +1651,7 @@ namespace resource.track
         public Track GetTrackBySite(ushort area, DeviceTypeE type, ushort site)
         {
             if (site == 0) return null;
-            if (type == DeviceTypeE.上摆渡)
+            if (type == DeviceTypeE.前摆渡)
             {
                 return GetTrackBySite(area, new List<TrackTypeE>() { TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道 }, site);
             }
@@ -1581,7 +1675,7 @@ namespace resource.track
         public ushort GetFerryTrackArea(uint devId, ushort startTrack)
         {
             Device dev = PubMaster.Device.GetDevice(devId);
-            if(dev.Type == DeviceTypeE.上摆渡)
+            if(dev.Type == DeviceTypeE.前摆渡)
             {
                 return TrackList.Find(c => c.IsUpAreaTrack() && (c.ferry_down_code == startTrack || c.ferry_up_code == startTrack))?.area ?? dev.area;
             }

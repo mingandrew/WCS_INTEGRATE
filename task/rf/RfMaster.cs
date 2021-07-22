@@ -175,11 +175,11 @@ namespace task.rf
                         break;
                     case 1: //上砖侧
                         rf.filter_type = true;
-                        rf.filter_typevalues = (byte)DeviceTypeE.上砖机 + ":" + (byte)DeviceTypeE.上摆渡 + ":" + (byte)DeviceTypeE.运输车;
+                        rf.filter_typevalues = (byte)DeviceTypeE.上砖机 + ":" + (byte)DeviceTypeE.前摆渡 + ":" + (byte)DeviceTypeE.运输车;
                         break;
                     case 2: //下砖侧
                         rf.filter_type = true;
-                        rf.filter_typevalues = (byte)DeviceTypeE.下砖机 + ":" + (byte)DeviceTypeE.下摆渡 + ":" + (byte)DeviceTypeE.运输车;
+                        rf.filter_typevalues = (byte)DeviceTypeE.下砖机 + ":" + (byte)DeviceTypeE.后摆渡 + ":" + (byte)DeviceTypeE.运输车;
                         break;
                 }
                 rf.SetupFilterArea();
@@ -1203,7 +1203,7 @@ namespace task.rf
                 FerryTaskPack pack = JsonTool.Deserialize<FerryTaskPack>(msg.Pack.Data);
                 if (pack != null && pack.Id > 0 && pack.Value1 > 0)
                 {
-                    bool isdownferry = PubMaster.Device.IsDevType(pack.Id, DeviceTypeE.下摆渡);
+                    bool isdownferry = PubMaster.Device.IsDevType(pack.Id, DeviceTypeE.后摆渡);
                     if (!PubTask.Ferry.DoManualLocate(pack.Id, pack.Value1, isdownferry, out string locateresult))
                     {
                         SendFail2Rf(msg.MEID, FunTag.TaskFerryToPos, locateresult);
@@ -1612,8 +1612,8 @@ namespace task.rf
                         }
                         pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetTileLifter(item.id)));
                         break;
-                    case DeviceTypeE.上摆渡:
-                    case DeviceTypeE.下摆渡:
+                    case DeviceTypeE.前摆渡:
+                    case DeviceTypeE.后摆渡:
                         pack.AddDevs(new RfDevice(item, PubMaster.DevConfig.GetFerry(item.id)));
                         break;
                     case DeviceTypeE.运输车:
@@ -1678,8 +1678,8 @@ namespace task.rf
                         case DeviceTypeE.下砖机:
                             PubTask.TileLifter.UpdateWorking(pack.DevId, pack.Working, pack.WorkType);
                             break;
-                        case DeviceTypeE.上摆渡:
-                        case DeviceTypeE.下摆渡:
+                        case DeviceTypeE.前摆渡:
+                        case DeviceTypeE.后摆渡:
                             PubTask.Ferry.UpdateWorking(pack.DevId, pack.Working);
                             break;
                         case DeviceTypeE.运输车:
@@ -1822,7 +1822,7 @@ namespace task.rf
                         return;
                     }
 
-                    if (track.InType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
+                    if (track.InType(TrackTypeE.前置摆渡轨道, TrackTypeE.后置摆渡轨道))
                     {
                         if (!PubTask.Ferry.IsStopAndSiteOnTrack(track.id, (type == DevCarrierTaskE.前进取砖 || type == DevCarrierTaskE.前进放砖),
                                 out uint intrackid, out string warning))
@@ -1879,7 +1879,7 @@ namespace task.rf
                         return;
                     }
 
-                    if (track.NotInType(TrackTypeE.摆渡车_出, TrackTypeE.摆渡车_入))
+                    if (track.NotInType(TrackTypeE.前置摆渡轨道, TrackTypeE.后置摆渡轨道))
                     {
                         SendFail2Rf(msg.MEID, FunTag.DoDevCarrierTask, "小车没在摆渡车上！");
                         return;

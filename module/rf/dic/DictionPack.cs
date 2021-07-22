@@ -190,8 +190,8 @@ namespace module.rf
                         });
                         tileoder++;
                         break;
-                    case DeviceTypeE.上摆渡:
-                    case DeviceTypeE.下摆渡:
+                    case DeviceTypeE.前摆渡:
+                    case DeviceTypeE.后摆渡:
 
                         ferrydic.AddDtl(new RfDictionDtl()
                         {

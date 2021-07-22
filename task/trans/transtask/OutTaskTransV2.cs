@@ -68,7 +68,7 @@ namespace task.trans.transtask
             }
 
             //是否有空闲的摆渡车
-            if (!PubTask.Ferry.HaveFreeFerryInTrans(trans, DeviceTypeE.上摆渡, out List<uint> ferryids))
+            if (!PubTask.Ferry.HaveFreeFerryInTrans(trans, DeviceTypeE.前摆渡, out List<uint> ferryids))
             {
                 #region 【任务步骤记录】
                 _M.SetStepLog(trans, false, 1601, string.Format("当前没有空闲的摆渡车"));
@@ -134,7 +134,7 @@ namespace task.trans.transtask
             {
                 if (!trans.HaveTakeFerry)
                 {
-                    AllocateTakeFerry(trans, DeviceTypeE.上摆渡, track, out isfalsereturn);
+                    AllocateTakeFerry(trans, DeviceTypeE.前摆渡, track, out isfalsereturn);
                     if (isfalsereturn) return;
                 }
             }
@@ -144,7 +144,7 @@ namespace task.trans.transtask
             {
                 if (!trans.HaveGiveFerry)
                 {
-                    AllocateGiveFerry(trans, DeviceTypeE.上摆渡, track, out isfalsereturn);
+                    AllocateGiveFerry(trans, DeviceTypeE.前摆渡, track, out isfalsereturn);
                 }
             }
 
@@ -217,7 +217,7 @@ namespace task.trans.transtask
                                     //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     //    ToTrackId = ferryTraid
                                     //});
-                                    MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                                    MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                                     return;
                                 }
                             }
@@ -268,7 +268,7 @@ namespace task.trans.transtask
                                 //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                 //    ToTrackId = ferryTraid
                                 //});
-                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                                 return;
                             }
                         }
@@ -352,7 +352,7 @@ namespace task.trans.transtask
                                     //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                     //    ToTrackId = ferryTraid
                                     //});
-                                    MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                                    MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                                     return;
                                 }
                             }
@@ -403,7 +403,7 @@ namespace task.trans.transtask
                                 //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                 //    ToTrackId = ferryTraid
                                 //});
-                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                                 return;
                             }
                         }
@@ -414,7 +414,7 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[小车在摆渡车]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
                     //取消任务
                     if (!tileemptyneed
                         && PubTask.Carrier.IsCarrierFree(trans.carrier_id))
@@ -487,7 +487,7 @@ namespace task.trans.transtask
                                         if (PubTask.Carrier.IsCarrierInTrackSmallerSite(carrierid, trans.take_track_id, takeTrack.rfid_1)
                                             && !_M.HaveInCarrier(carrierid))
                                         {
-                                            CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.下摆渡);
+                                            CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.后摆渡);
                                         }
                                     }
                                 }
@@ -567,7 +567,7 @@ namespace task.trans.transtask
                                     {
                                         if (takeTrack.Type == TrackTypeE.储砖_出入)
                                         {
-                                            if (CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.下摆渡))
+                                            if (CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.后摆渡))
                                             {
                                                 #region 【任务步骤记录】
                                                 _M.SetStepLog(trans, false, 1401, string.Format("取砖轨道[ {0} ]内有其他运输车，等待轨道中的运输车转移；", takeTrack.name));
@@ -689,7 +689,7 @@ namespace task.trans.transtask
                                 //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                                 //    ToTrackId = ferryTraid
                                 //});
-                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                                MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                                 return;
                             }
                         }
@@ -714,11 +714,11 @@ namespace task.trans.transtask
 
             #region[分配摆渡车/锁定摆渡车]
 
-            if (track.Type == TrackTypeE.储砖_出入 || track.Type == TrackTypeE.摆渡车_出)
+            if (track.Type == TrackTypeE.储砖_出入 || track.Type == TrackTypeE.前置摆渡轨道)
             {
                 if (trans.give_ferry_id == 0)
                 {
-                    AllocateGiveFerry(trans, DeviceTypeE.上摆渡, track, out isfalsereturn);
+                    AllocateGiveFerry(trans, DeviceTypeE.前摆渡, track, out isfalsereturn);
                     if (isfalsereturn) return;
                 }
                 else if (!PubTask.Ferry.TryLock(trans, trans.give_ferry_id, track.id))
@@ -818,7 +818,7 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[小车在摆渡车上]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
                     if (isload)
                     {
                         if (PubTask.Ferry.IsLoad(trans.give_ferry_id)
@@ -957,7 +957,7 @@ namespace task.trans.transtask
                         //    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
                         //    ToTrackId = ferryTraid
                         //});
-                        MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.上砖摆渡复位点);
+                        MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
                         return;
                     }
                     break;
@@ -1013,7 +1013,7 @@ namespace task.trans.transtask
             {
                 if (trans.take_ferry_id == 0)
                 {
-                    string msg = _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                    string msg = _M.AllocateFerry(trans, DeviceTypeE.前摆渡, track, false);
 
                     #region 【任务步骤记录】
                     if (_M.LogForTakeFerry(trans, msg)) return;
@@ -1040,7 +1040,7 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[小车在摆渡车]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
                     if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                     {
                         if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
