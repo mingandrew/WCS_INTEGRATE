@@ -26,7 +26,7 @@ namespace wcs.ViewModel
         public StockViewModel():base("StockView")
         {
             List = new ObservableCollection<Stock>();
-            BriefList = new ObservableCollection<StockSum>();
+            BriefList = new ObservableCollection<StockSumStocks>();
             Messenger.Default.Register<uint>(this, MsgToken.SetStockSelectTrack, SetStockSelectTrack);
         }
 
@@ -35,7 +35,7 @@ namespace wcs.ViewModel
         private Track _selecttrack;
         private string _selecttrackname;
         private ObservableCollection<Stock> _list;
-        private ObservableCollection<StockSum> _brieflist;
+        private ObservableCollection<StockSumStocks> _brieflist;
         private Stock _selectstock;
         private DateTime? _refreshtime;
         private bool showbrief = true;
@@ -57,7 +57,7 @@ namespace wcs.ViewModel
             set => Set(ref _list, value);
         }
 
-        public ObservableCollection<StockSum> BriefList
+        public ObservableCollection<StockSumStocks> BriefList
         {
             get => _brieflist;
             set => Set(ref _brieflist, value);
@@ -104,6 +104,18 @@ namespace wcs.ViewModel
         #endregion
 
         #region[方法]
+
+        private bool CheckSelectTrack()
+        {
+            if(_selecttrack == null)
+            {
+                Growl.Warning("请先选择轨道！");
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// 显示简要或详细货物
         /// </summary>
@@ -133,11 +145,7 @@ namespace wcs.ViewModel
         /// <param name="tag"></param>
         private void StockEdit(string tag)
         {
-            if (_selecttrack == null)
-            {
-                Growl.Warning("请先选择轨道");
-                return;
-            }
+            if (!CheckSelectTrack()) return;
 
             if (int.TryParse(tag, out int type))
             {
@@ -174,7 +182,7 @@ namespace wcs.ViewModel
         /// </summary>
         private void ShiftStock()
         {
-            if (_selecttrack == null) return;
+            if (!CheckSelectTrack()) return;
 
             if (_selecttrack.Type != TrackTypeE.储砖_入)
             {
@@ -213,7 +221,8 @@ namespace wcs.ViewModel
         /// </summary>
         private void ActionStock(string tag)
         {
-            if (_selecttrack == null) return;
+            if (!CheckSelectTrack()) return;
+
             if (ShowBrief && SelectGood == null && (List == null || BriefList == null))
             {
                 Growl.Warning("请选择库存品种");
@@ -223,21 +232,8 @@ namespace wcs.ViewModel
             {
                 switch (type)
                 {
-
                     case 0://刷新
-                        List.Clear();
-                        StockList = PubMaster.Goods.GetStocks(_selecttrack.id);
-                        StockList.Sort((x, y) => x.pos.CompareTo(y.pos));
-                        foreach (Stock stock in StockList)
-                        {
-                            List.Add(stock);
-                        }
-                        BriefList.Clear();
-                        List<StockSum> stocksum = PubMaster.Goods.GetTrackStockSums(_selecttrack.id);
-                        foreach (StockSum item in stocksum)
-                        {
-                            BriefList.Add(item);
-                        }
+                        RefreshStockList();
                         break;
                     case 1://添加
                            //if (List.Count == 0)
@@ -262,9 +258,47 @@ namespace wcs.ViewModel
 
         }
 
+        /// <summary>
+        /// 1.加载库存详细信息
+        /// 2.统计库存
+        /// </summary>
+        private void RefreshStockList()
+        {
+            if (!CheckSelectTrack()) return;
+
+            List.Clear();
+            BriefList.Clear();
+
+            StockList = PubMaster.Goods.GetStocks(_selecttrack.id);
+            StockList.Sort((x, y) => x.pos.CompareTo(y.pos));
+
+            StockSumStocks sum = null;
+
+            foreach (Stock stock in StockList)
+            {
+                List.Add(stock);
+
+                if (sum != null && !sum.AddToSum(stock))
+                {
+                    BriefList.Add(sum);
+                    sum = null;
+                }
+
+                if (sum == null)
+                {
+                    sum = new StockSumStocks(stock);
+                }
+            }
+            if (sum != null)
+            {
+                BriefList.Add(sum);
+            }
+        }
 
         private async void ChangeGoodAsync()
         {
+            if (!CheckSelectTrack()) return;
+
             uint area = _selecttrack.area;
             if (!PubMaster.Goods.ExistStockInTrack(_selecttrack.id))
             {
@@ -407,6 +441,8 @@ namespace wcs.ViewModel
         /// </summary>
         private async void TrackGoodsSelected()
         {
+            if (!CheckSelectTrack()) return;
+
             DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
                  .Initialize<GoodsSelectViewModel>((vm) =>
                  {
@@ -434,6 +470,8 @@ namespace wcs.ViewModel
         /// <param name="picese"></param>
         private async void TrackStockAdd(uint gid, bool isaddbottom = false)
         {
+            if (!CheckSelectTrack()) return;
+
             DialogResult result = await HandyControl.Controls.Dialog.Show<StockEditDialog>()
                  .Initialize<StockEditViewModel>((vm) =>
                  {
@@ -449,6 +487,8 @@ namespace wcs.ViewModel
 
         private async void DelectSotckQty()
         {
+            if (!CheckSelectTrack()) return;
+
             if (SelectGood == null)
             {
                 Growl.Warning("请先选择修改的库存品种");
@@ -531,6 +571,7 @@ namespace wcs.ViewModel
 
         private async void InsertStock(bool isUpInsert)
         {
+            if (!CheckSelectTrack()) return;
             if (SelectStock == null)
             {
                 Growl.Warning("请先选择库存记录");

@@ -43,7 +43,7 @@ namespace wcs
         void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             //MessageBox.Show("妈的！发现异常：\n" + e.Exception.Message + e.Exception.Source, "Error");
-            Console.WriteLine("妈的！发现异常：\n" + e.Exception?.InnerException?.StackTrace + e.Exception?.InnerException);
+            Console.WriteLine("妈的！发现异常：\n" + e.Exception + e.Exception?.InnerException?.StackTrace + e.Exception?.InnerException);
             //LoggerHelper._.Error("妈的！发现异常：\n" + e.Exception.InnerException.StackTrace, e.Exception.InnerException);
             //_mLog.Error(true, e.Exception.InnerException.StackTrace, e.Exception.InnerException);
             _mLog.Error(true, e.Exception);
