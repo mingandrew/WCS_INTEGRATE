@@ -52,11 +52,11 @@ namespace task.trans
                 uint goodsid = PubMaster.Goods.GetGoodsId(inTra.id);
                 if (goodsid == 0) continue;
 
-                uint outTraID = GetOutTrackIDByInTrack(inTra, goodsid);
-                if (outTraID == 0) continue;
+                List<uint> outTracks = GetOutTrackIDByInTrack(inTra, goodsid);
+                if (outTracks == null || outTracks.Count == 0) continue;
 
-                AddTransWithoutLock(inTra.area, 0, TransTypeE.中转倒库, goodsid, 0, inTra.id, outTraID
-                    , TransStatusE.整理中, 0, inTra.line, (inTra.is_take_forward ? DeviceTypeE.前摆渡 : DeviceTypeE.后摆渡));
+                AddTransWithoutLock(inTra.area, 0, TransTypeE.中转倒库, goodsid, 0, inTra.id, outTracks[0]
+                    , TransStatusE.整理中, 0, inTra.line, (inTra.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
             }
 
         }
@@ -66,7 +66,7 @@ namespace task.trans
         /// </summary>
         /// <param name="inTra"></param>
         /// <returns></returns>
-        public uint GetOutTrackIDByInTrack(Track inTra, uint goodsid)
+        public List<uint> GetOutTrackIDByInTrack(Track inTra, uint goodsid)
         {
             // 获取同区域内轨道
             List<uint> trackids = PubMaster.Track.GetAreaLineTracks(inTra.area, inTra.line, TrackTypeE.储砖_出入);
@@ -74,6 +74,7 @@ namespace task.trans
             // 排序
             List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, inTra.id, inTra.order);
 
+            List<uint> outTracks = new List<uint>();
             foreach (uint tid in tids)
             {
                 if (!PubMaster.Goods.IsTrackOkForGoods(tid, goodsid)) continue;
@@ -84,10 +85,10 @@ namespace task.trans
                 if (track.TrackStatus != TrackStatusE.启用) continue;
                 if (track.StockStatus != TrackStockStatusE.空砖) continue;
 
-                return tid;
+                outTracks.Add(tid);
             }
 
-            return 0;
+            return outTracks;
         }
 
         /// <summary>

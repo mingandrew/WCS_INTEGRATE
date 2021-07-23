@@ -274,7 +274,21 @@ namespace task.trans.transtask
                         {
                             bool isWarn = false;
 
-                            // TODO 换轨道?
+                            // 换轨道?
+                            List<uint> newTraIDs = _M.GetOutTrackIDByInTrack(PubMaster.Track.GetTrack(trans.take_track_id), trans.goods_id);
+                            if (newTraIDs != null && newTraIDs.Count > 0)
+                            {
+                                foreach (uint traid in newTraIDs)
+                                {
+                                    if (!PubTask.Carrier.HaveInTrack(traid, trans.carrier_id)
+                                        && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, traid)
+                                        && _M.SetGiveSite(trans, traid))
+                                    {
+                                        isWarn = true;
+                                        break;
+                                    }
+                                }
+                            }
 
                             if (isWarn)
                             {
@@ -452,7 +466,7 @@ namespace task.trans.transtask
                     }
 
                     break;
-                #endregion
+                    #endregion
 
             }
         }

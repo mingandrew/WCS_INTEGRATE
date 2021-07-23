@@ -101,7 +101,7 @@ namespace task.diagnose.trans
             {
                 uint cartrackid = car.CurrentTrackId;
                 //判断运输车所在轨道和任务
-                List<uint> ctrackid = PubMaster.Track.SortTrackIdsWithOrder(trackid, cartrackid, PubMaster.Track.GetTrackOrder(car.CurrentTrackId));
+                List<uint> ctrackid = PubMaster.Track.SortTrackIdsWithOrder(trackid, cartrackid, PubMaster.Track.GetTrackOrder(car.CurrentTrackId), false);
                 foreach (var traid in ctrackid)
                 {
                     //轨道被任务或者有车在

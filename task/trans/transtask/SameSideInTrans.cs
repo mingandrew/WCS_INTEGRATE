@@ -698,7 +698,7 @@ namespace task.trans.transtask
                             //List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出入);
                             List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出入);
 
-                            List<uint> tids = PubMaster.Track.SortTrackIdsWithLineOrder(trackids, track.id, PubMaster.Track.GetTrack(track.id).order);
+                            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, track.id, PubMaster.Track.GetTrack(track.id).order);
 
                             foreach (uint t in tids)
                             {

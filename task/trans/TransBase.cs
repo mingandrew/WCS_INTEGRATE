@@ -334,6 +334,7 @@ namespace task.trans
                     case TransTypeE.倒库任务:
                     case TransTypeE.上砖侧倒库:
                     case TransTypeE.库存整理:
+                    case TransTypeE.中转倒库:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], " +
                             "货物[ {3} ], 取轨[ {4} ], 卸轨[ {5} ]",
                             trans.id, type, initstatus,

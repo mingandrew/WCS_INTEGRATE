@@ -470,6 +470,36 @@ namespace task.device
         }
 
         /// <summary>
+        /// 获取当前RFID（轨道编号）
+        /// </summary>
+        /// <param name="devId"></param>
+        /// <returns></returns>
+        internal ushort GetCurrentSite(uint devId)
+        {
+            return DevList.Find(c => c.ID == devId)?.CurrentSite ?? 0;
+        }
+
+        /// <summary>
+        /// 获取当前坐标值
+        /// </summary>
+        /// <param name="devId"></param>
+        /// <returns></returns>
+        internal ushort GetCurrentPoint(uint devId)
+        {
+            return DevList.Find(c => c.ID == devId)?.CurrentPoint ?? 0;
+        }
+
+        /// <summary>
+        /// 获取目标坐标值
+        /// </summary>
+        /// <param name="devId"></param>
+        /// <returns></returns>
+        internal ushort GetTargetPoint(uint devId)
+        {
+            return DevList.Find(c => c.ID == devId)?.TargetPoint ?? 0;
+        }
+
+        /// <summary>
         /// 小车是否载货
         /// </summary>
         /// <param name="carrier_id"></param>
@@ -2034,7 +2064,7 @@ namespace task.device
                 }
 
                 // 按离卸货点排序
-                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.give_track_id, PubMaster.Track.GetTrackOrder(trans.give_track_id), true);
+                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.give_track_id, PubMaster.Track.GetTrackOrder(trans.give_track_id));
 
                 //能去这个取货/卸货轨道的所有配置的摆渡车信息
                 List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(trans.AllocateFerryType, trans.take_track_id, trans.give_track_id);
@@ -2049,7 +2079,7 @@ namespace task.device
                     }
 
                     CarrierTask car = GetOnlyCarrierInTrack(traid, trans.AllocateFerryType == DeviceTypeE.前摆渡, false);
-                    if(car != null) totalList.Add(car);
+                    if (car != null) totalList.Add(car);
                 }
 
                 if (totalList == null || totalList.Count == 0)
@@ -2233,7 +2263,7 @@ namespace task.device
                 // 获取任务砖机所有可作业轨道
                 List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出);
                 // 按离取货点近远排序
-                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.give_track_id, PubMaster.Track.GetTrackOrder(trans.give_track_id));
+                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.give_track_id, PubMaster.Track.GetTrackOrder(trans.give_track_id), false);
 
                 //能去这个倒库轨道所有配置的摆渡车轨道信息
                 List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(DeviceTypeE.前摆渡, trans.give_track_id);
@@ -2453,7 +2483,7 @@ namespace task.device
                 Track tiletrack = PubMaster.Track.GetTrack(tiletrackid);
                 if (tiletrack != null)
                 {
-                    List<uint> ids = PubMaster.Track.SortTrackIdsWithOrder(tracids, tiletrackid, tiletrack.order);
+                    List<uint> ids = PubMaster.Track.SortTrackIdsWithOrder(tracids, tiletrackid, tiletrack.order, false);
                     if (ids.Count > 0) return ids[0];
                 }
             }
@@ -2641,7 +2671,7 @@ namespace task.device
             {
                 if (!carrier.IsWorking)
                 {
-                    result = "["+ carrier.Device.name+ "]运输车已停用！";
+                    result = "[" + carrier.Device.name + "]运输车已停用！";
                     mlog.Status(true, string.Format("小车已停用-跳过分配\n" +
                         "小车：{0}\n" +
                         "任务：{1}", carrier.DevStatus.ToString(), trans.ToString()));
@@ -2864,7 +2894,7 @@ namespace task.device
                     case TransTypeE.反抛任务:
                         if (!carrier.IsWorking)
                         {
-                            result = "["+ carrier.Device.name + "]运输车已停用！";
+                            result = "[" + carrier.Device.name + "]运输车已停用！";
                             mlog.Status(true, string.Format("小车已停用-跳过分配\n" +
                                 "小车：{0}\n" +
                                 "任务：{1}", carrier.DevStatus.ToString(), trans.ToString()));
@@ -3018,7 +3048,7 @@ namespace task.device
                             // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
                             //else if (tracar.CurrentSite % 100 > 90)
                             // 以轨道中间点判断？
-                            else if(tracar.CurrentPoint >= PubMaster.Track.GetTrackSplitPoint(traid))
+                            else if (tracar.CurrentPoint >= PubMaster.Track.GetTrackSplitPoint(traid))
                             {
                                 if (tracar.IsNotLoad())
                                 {
@@ -3443,26 +3473,6 @@ namespace task.device
         #endregion
 
         #region[判断条件]
-
-        /// <summary>
-        /// 获取当前RFID（轨道编号）
-        /// </summary>
-        /// <param name="devId"></param>
-        /// <returns></returns>
-        internal ushort GetCurrentSite(uint devId)
-        {
-            return DevList.Find(c => c.ID == devId)?.CurrentSite ?? 0;
-        }
-
-        /// <summary>
-        /// 获取当前坐标值
-        /// </summary>
-        /// <param name="devId"></param>
-        /// <returns></returns>
-        internal ushort GetCurrentPoint(uint devId)
-        {
-            return DevList.Find(c => c.ID == devId)?.CurrentPoint ?? 0;
-        }
 
         /// <summary>
         /// 判断小车是否完成了取砖
