@@ -1146,18 +1146,18 @@ namespace resource.device
         /// 获取上砖机当前品种列表
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetUpTileGood()
+        public List<uint> GetUpTileGood(List<uint> ids)
         {
-            return ConfigTileLifterList.FindAll(c => c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.goods_id)?.ToList() ?? new List<uint>() ;
+            return ConfigTileLifterList.FindAll(c => ids.Contains(c.id) && c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.goods_id)?.ToList() ?? new List<uint>() ;
         }
 
         /// <summary>
-        /// 获取下砖机当前预设品种列表
+        /// 获取上砖机当前预设品种列表
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetUpTilePreGood()
+        public List<uint> GetUpTilePreGood(List<uint> ids)
         {
-            return ConfigTileLifterList.FindAll(c => c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.pre_goodid)?.ToList() ?? new List<uint>();
+            return ConfigTileLifterList.FindAll(c => ids.Contains(c.id) && c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.pre_goodid)?.ToList() ?? new List<uint>();
         }
 
         #endregion

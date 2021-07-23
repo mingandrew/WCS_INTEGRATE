@@ -144,7 +144,7 @@ namespace resource.track
 
         public TrackTypeE GetTrackType(ushort trackrfid)
         {
-            return TrackList.Find(c =>c.IsInTrack(trackrfid)).Type;
+            return TrackList.Find(c => c.IsInTrack(trackrfid)).Type;
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取区域指定类型的轨道
+        /// 获取区域指定类型的单笔轨道
         /// </summary>
         /// <param name="areaid"></param>
         /// <param name="type"></param>
@@ -186,6 +186,18 @@ namespace resource.track
         public Track GetAreaTrack(uint areaid, ushort lineid, TrackTypeE type)
         {
             return TrackList.Find(c => c.area == areaid && c.line == lineid && c.Type == type);
+        }
+
+        /// <summary>
+        /// 获取区域线所有的指定类型轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="line"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public List<uint> GetAreaLineTracks(uint areaid, uint lineid, TrackTypeE type)
+        {
+            return TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.Type == type)?.Select(c => c.id).ToList() ?? new List<uint>();
         }
 
         /// <summary>
@@ -218,8 +230,8 @@ namespace resource.track
         /// <returns></returns>
         public List<uint> GetAreaSortOutTrack(uint areaid, uint line, params TrackTypeE[] types)
         {
-            return TrackList.FindAll(c => c.area == areaid 
-                                    && c.line == line 
+            return TrackList.FindAll(c => c.area == areaid
+                                    && c.line == line
                                     && c.InType(types))
                 ?.Select(c => c.id).ToList() ?? new List<uint>();
         }
@@ -236,7 +248,7 @@ namespace resource.track
         {
             List<uint> trackid = new List<uint>();
             //查找砖机配置的轨道
-            if(tileid != 0)
+            if (tileid != 0)
             {
                 //List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, tileid);
                 List<AreaDeviceTrack> list = PubMaster.Area.GetTileWorkTraList(areaid, tileid, isup);
@@ -245,7 +257,7 @@ namespace resource.track
             }
 
             //查找区域线路的所有轨道
-            foreach (var item in TrackList.FindAll(c=>c.area == areaid && c.line == line && c.InType(types)))
+            foreach (var item in TrackList.FindAll(c => c.area == areaid && c.line == line && c.InType(types)))
             {
                 if (!trackid.Contains(item.id))
                 {
@@ -314,7 +326,7 @@ namespace resource.track
                                         && c.IsInTrack(site))?.id ?? 0;
             }
             return TrackList.Find(c => c.area == area
-                                    && c.InType(TrackTypeE.下砖轨道, TrackTypeE.储砖_入,TrackTypeE.储砖_出入)
+                                    && c.InType(TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入)
                                     && c.IsInTrack(site))?.id ?? 0;
         }
 
@@ -523,7 +535,7 @@ namespace resource.track
         internal bool IsStoreTrack(uint track_id)
         {
             return TrackList.Exists(c => c.id == track_id
-                                        && c.InType(TrackTypeE.储砖_入,TrackTypeE.储砖_出,TrackTypeE.储砖_出入));
+                                        && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入));
         }
 
         /// <summary>
@@ -605,9 +617,9 @@ namespace resource.track
             else
             {
                 newOrder = (t.order - difference) < 1 ? 1 : (t.order - difference);
-            }      
+            }
             // && c.area == t.area
-            return TrackList.Find(c => c.order == newOrder 
+            return TrackList.Find(c => c.order == newOrder
                         && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))?.id ?? 0;
         }
 
@@ -681,14 +693,43 @@ namespace resource.track
 
                             if (tt == TrackTypeE.储砖_出入 && x.Type == tt && y.Type == tt)
                             {
-                                if (x.Type2 == tt2 && y.Type2 != tt2)
+                                switch (tt2)
                                 {
-                                    return -1;
-                                }
+                                    case TrackType2E.通用:
+                                        if (x.Type2 == tt2 && y.Type2 != tt2)
+                                        {
+                                            return -1;
+                                        }
 
-                                if (x.Type2 != tt2 && y.Type2 == tt2)
-                                {
-                                    return 1;
+                                        if (x.Type2 != tt2 && y.Type2 == tt2)
+                                        {
+                                            return 1;
+                                        }
+                                        break;
+
+                                    case TrackType2E.入库:
+                                        if (x.IsWorkIn() && !y.IsWorkIn())
+                                        {
+                                            return -1;
+                                        }
+
+                                        if (!x.IsWorkIn() && y.IsWorkIn())
+                                        {
+                                            return 1;
+                                        }
+                                        break;
+
+                                    case TrackType2E.出库:
+                                        if (x.IsWorkOut() && !y.IsWorkOut())
+                                        {
+                                            return -1;
+                                        }
+
+                                        if (!x.IsWorkOut() && y.IsWorkOut())
+                                        {
+                                            return 1;
+                                        }
+                                        break;
                                 }
                             }
 
@@ -713,7 +754,7 @@ namespace resource.track
         public List<uint> SortTrackIdsWithLineOrder(List<uint> trackids, uint tid, short order)
         {
             Track track = GetTrack(tid);
-            List<Track> tracks = TrackList.FindAll(c => c.id != tid && c.line == track.line &&  trackids.Contains(c.id));
+            List<Track> tracks = TrackList.FindAll(c => c.id != tid && c.line == track.line && trackids.Contains(c.id));
             if (tracks.Count > 0)
             {
                 tracks.Sort((x, y) =>
@@ -735,8 +776,8 @@ namespace resource.track
             List<Track> tracks;
             if (type == DeviceTypeE.前摆渡)
             {
-                tracks =  TrackList.FindAll(c => c.area == area && c.order == order 
-                            && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道));
+                tracks = TrackList.FindAll(c => c.area == area && c.order == order
+                           && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道));
 
             }
             else
@@ -745,12 +786,12 @@ namespace resource.track
                             && c.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出入, TrackTypeE.下砖轨道));
             }
 
-            if(tracks !=null && tracks.Count > 1)
+            if (tracks != null && tracks.Count > 1)
             {
                 tracks.Sort((x, y) => y.type.CompareTo(x.type));
             }
 
-            if(tracks != null && tracks.Count >= 1)
+            if (tracks != null && tracks.Count >= 1)
             {
                 return tracks[0].id;
             }
@@ -767,11 +808,11 @@ namespace resource.track
             switch (dt)
             {
                 case DeviceTypeE.前摆渡:
-                    return TrackList.FindAll(c => c.area == area 
-                            && c.InType(TrackTypeE.储砖_出入, TrackTypeE.上砖轨道,TrackTypeE.储砖_出)).Min(c => c.order);
+                    return TrackList.FindAll(c => c.area == area
+                            && c.InType(TrackTypeE.储砖_出入, TrackTypeE.上砖轨道, TrackTypeE.储砖_出)).Min(c => c.order);
 
                 case DeviceTypeE.后摆渡:
-                    return TrackList.FindAll(c => c.area == area 
+                    return TrackList.FindAll(c => c.area == area
                             && c.InType(TrackTypeE.储砖_出入, TrackTypeE.下砖轨道, TrackTypeE.储砖_入)).Min(c => c.order);
 
                 default:
@@ -788,11 +829,11 @@ namespace resource.track
             switch (dt)
             {
                 case DeviceTypeE.前摆渡:
-                    return TrackList.FindAll(c => c.area == area 
+                    return TrackList.FindAll(c => c.area == area
                             && c.InType(TrackTypeE.储砖_出入, TrackTypeE.上砖轨道, TrackTypeE.储砖_出)).Max(c => c.order);
 
                 case DeviceTypeE.后摆渡:
-                    return TrackList.FindAll(c => c.area == area 
+                    return TrackList.FindAll(c => c.area == area
                             && c.InType(TrackTypeE.储砖_出入, TrackTypeE.下砖轨道, TrackTypeE.储砖_入)).Max(c => c.order);
 
                 default:
@@ -1547,14 +1588,20 @@ namespace resource.track
         public List<Track> GetFullInTrackList()
         {
             List<Track> tracks = new List<Track>();
-
-            // 获取所有满砖轨道（按头部库存时间从早到晚顺序）
-            List<Stock> stocks = PubMaster.Goods.GetStocksOrderByTop(TrackTypeE.储砖_入);
+            List<Stock> stocks = new List<Stock>();
+            // 获取区域
+            List<Area> areas = PubMaster.Area.GetAreaList();
+            foreach (Area area in areas)
+            {
+                // 获取所有满砖轨道可倒库的库存
+                List<Stock> areastocks = PubMaster.Goods.GetStocksOrderByOut(area.id);
+                if (areastocks != null && areastocks.Count > 0) stocks.AddRange(areastocks);
+            }
 
             foreach (Stock item in stocks)
             {
                 Track tra = GetTrack(item.track_id);
-                if (tra.TrackStatus == TrackStatusE.启用 && tra.StockStatus == TrackStockStatusE.满砖 && tra.Type == TrackTypeE.储砖_入)
+                if (tra.TrackStatus == TrackStatusE.启用 && tra.StockStatus == TrackStockStatusE.满砖)
                 {
                     tracks.Add(tra);
                 }
@@ -1562,7 +1609,6 @@ namespace resource.track
 
             return tracks;
         }
-
 
         /// <summary>
         /// 判断是否是空轨道
@@ -1675,7 +1721,7 @@ namespace resource.track
         public ushort GetFerryTrackArea(uint devId, ushort startTrack)
         {
             Device dev = PubMaster.Device.GetDevice(devId);
-            if(dev.Type == DeviceTypeE.前摆渡)
+            if (dev.Type == DeviceTypeE.前摆渡)
             {
                 return TrackList.Find(c => c.IsUpAreaTrack() && (c.ferry_down_code == startTrack || c.ferry_up_code == startTrack))?.area ?? dev.area;
             }
@@ -1713,11 +1759,11 @@ namespace resource.track
         /// </summary>
         public List<Track> GetUpSortTrack()
         {
-            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用 
+            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用
                                                         && c.InType(TrackTypeE.储砖_出)
-                                                        && c.InStockStatus( TrackStockStatusE.有砖)
+                                                        && c.InStockStatus(TrackStockStatusE.有砖)
                                                         && c.up_split_point != 0
-                                                        && GetAndRefreshUpCount(c.id) == 0 
+                                                        && GetAndRefreshUpCount(c.id) == 0
                                                         && PubMaster.Goods.GetStocks(c.id).Count > 1);
         }
 
@@ -1828,7 +1874,7 @@ namespace resource.track
             #endregion
 
             Track track = PubMaster.Track.GetTrack(currentTake);
-            if (track == null )
+            if (track == null)
             {
                 trackid = 0;
                 return false;
@@ -1882,7 +1928,7 @@ namespace resource.track
 
             return true;
         }
-       
+
         /// <summary>
         /// 获取并刷新轨道上砖数量
         /// </summary>
@@ -2047,7 +2093,7 @@ namespace resource.track
             }
             return false;
         }
-        
+
 
         /// <summary>
         /// 更新轨道
@@ -2100,7 +2146,7 @@ namespace resource.track
         /// <returns></returns>
         public bool UpdateTrackSortOut(uint areaid, ushort lineid, ushort point)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == areaid &&  c.line == lineid && c.InType(TrackTypeE.储砖_出));
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_出));
             if (tracks.Count > 0)
             {
                 foreach (var item in tracks)
@@ -2229,8 +2275,8 @@ namespace resource.track
         /// <param name="pos"></param>
         public void AddCarrierPos(CarrierPos pos)
         {
-            if (CarrierPosList.Exists(c=> c.area_id == pos.area_id 
-                    && c.track_point == pos.track_point 
+            if (CarrierPosList.Exists(c => c.area_id == pos.area_id
+                    && c.track_point == pos.track_point
                     && c.track_pos == pos.track_pos))
             {
                 return;

@@ -141,18 +141,27 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 获取指定类型轨道上的所有头部库存（按时间从早到晚）
+        /// 获取入库轨道上的所有头部库存（先进先出）(倒库)
         /// </summary>
-        /// <param name="tt"></param>
+        /// <param name="areaid"></param>
         /// <returns></returns>
-        public List<Stock> GetStocksOrderByTop(TrackTypeE tt)
+        public List<Stock> GetStocksOrderByOut(uint areaid)
         {
-            List<Stock> stocks = StockList.FindAll(c => c.TrackType == tt && c.PosType == StockPosE.头部);
+            List<Stock> stocks = null;
+            // 获取所有轨道 出库侧的头部库存
+            List<Track> tracks = PubMaster.Track.GetTrackList(areaid);
+            foreach (Track tra in tracks)
+            {
+                if (tra.IsWorkOut()) continue;
+
+                Stock stk = GetStockForOut(tra.id);
+                if (stk != null) stocks.Add(stk);
+            }
 
             if (stocks.Count == 0)
             {
                 //找不到库存
-                return stocks;
+                return null;
             }
 
             // 按时间从早到晚
@@ -171,8 +180,9 @@ namespace resource.goods
 
             if (stocks.Count > 0)
             {
-                List<uint> nowuptilegood = PubMaster.DevConfig.GetUpTileGood();
-                List<uint> preuptilegood = PubMaster.DevConfig.GetUpTilePreGood();
+                List<uint> ids = PubMaster.Device.GetDevIds(areaid, DeviceTypeE.上砖机);
+                List<uint> nowuptilegood = PubMaster.DevConfig.GetUpTileGood(ids);
+                List<uint> preuptilegood = PubMaster.DevConfig.GetUpTilePreGood(ids);
 
                 if (nowuptilegood != null && nowuptilegood.Count > 0)
                 {
@@ -706,8 +716,7 @@ namespace resource.goods
             }
             else
             {
-                if (stocks.Count > 1) stocks.Sort((x, y) => x.location.CompareTo(y.location));
-                return stocks[0];
+                return stocks.Find(c => c.location == stocks.Min(x => x.location));
             }
         }
 
@@ -726,10 +735,50 @@ namespace resource.goods
             }
             else
             {
-                if (stocks.Count > 1) stocks.Sort((x, y) => y.location.CompareTo(x.location));
-                return stocks[0];
+                return stocks.Find(c=>c.location == stocks.Max(x => x.location));
             }
         }
+
+        /// <summary>
+        /// 轨道入库侧端口头部库存
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public Stock GetStockForIn(uint trackid)
+        {
+            // 获取轨道入库顺序
+            if (PubMaster.Track.IsGiveBackTrack(trackid))
+            {
+                // 后退放-库存脉冲从小到大，即轨道口最大
+                return PubMaster.Goods.GetStockInLocMax(trackid);
+            }
+            else
+            {
+                // 前进放-库存脉冲从大到小，即轨道口最小
+                return PubMaster.Goods.GetStockInLocMin(trackid);
+            }
+        }
+
+        /// <summary>
+        /// 轨道出库侧端口头部库存
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public Stock GetStockForOut(uint trackid)
+        {
+            // 获取轨道出库顺序
+            if (PubMaster.Track.IsTakeForwardTrack(trackid))
+            {
+                // 前进取-库存脉冲从小到大，即轨道口最小
+                return PubMaster.Goods.GetStockInLocMin(trackid);
+            }
+            else
+            {
+                // 后退取-库存脉冲从大到小，即轨道口最大
+                return PubMaster.Goods.GetStockInLocMax(trackid);
+            }
+        }
+
 
         public bool HaveStockInTrack(uint trackid, uint goodsid, out uint stockid)
         {
@@ -3098,6 +3147,12 @@ namespace resource.goods
             return true;
         }
 
+        /// <summary>
+        /// 判断轨道是否可以存放该品种
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="goodsid"></param>
+        /// <returns></returns>
         public bool IsTrackOkForGoods(uint trackid, uint goodsid)
         {
             Goods goods = GoodsList.Find(c => c.id == goodsid);

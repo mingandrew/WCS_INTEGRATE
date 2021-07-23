@@ -284,5 +284,24 @@ namespace module.track
         {
             return !status.Contains(StockStatus);
         }
+
+        /// <summary>
+        /// 是否入库作业轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsWorkIn()
+        {
+            return (Type2 == TrackType2E.通用 || Type2 == TrackType2E.入库);
+        }
+
+        /// <summary>
+        /// 是否出库作业轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsWorkOut()
+        {
+            return (Type2 == TrackType2E.通用 || Type2 == TrackType2E.出库);
+        }
+
     }
 }

@@ -38,65 +38,56 @@ namespace task.trans
         /// </summary>
         public override void CheckTrackSort()
         {
-            /** 触发条件
-             * 1. 获取可倒库的入库轨道
-             *      1.1 优先砖机当前上砖品种
-             *      1.2 优先砖机当前预约品种
-             *      1.3 按入库时间最早
-             * 2. 分配空砖出库轨道
-             * 3. 生成任务
-             */
-
             // 获取可倒库的入库轨道
             List<Track> inTracks = PubMaster.Track.GetFullInTrackList();
-
-
-            #region old
-            List<Track> tracks = PubMaster.Track.GetFullInTrackList();
-            foreach (Track track in tracks)
+            foreach (Track inTra in inTracks)
             {
-                if (!PubMaster.Area.IsLineSortOnoff(track.area, track.line)) continue;
+                if (!PubMaster.Area.IsLineSortOnoff(inTra.area, inTra.line)) continue;
 
-                if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
+                int count = GetAreaSortTaskCount(inTra.area, inTra.line);
+                if (PubMaster.Area.IsSortTaskLimit(inTra.area, inTra.line, count)) continue;
 
-                int count = GetAreaSortTaskCount(track.area, track.line);
-                if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
+                if (IsTraInTrans(inTra.id)) continue;
 
-                //同时判断入库
-                //不判断出轨道，出现回轨分配出轨道，如果限制出轨道（回轨空轨道），很可能会进行了下一个轨道
-                //但是分配车时判断出轨道是否有任务
-                if (TransList.Exists(c => !c.finish && c.InTrack(track.id)))// || c.InTrack(track.brother_track_id)
-                {
-                    continue;
-                }
+                uint goodsid = PubMaster.Goods.GetGoodsId(inTra.id);
+                if (goodsid == 0) continue;
 
-                uint goodsid = PubMaster.Goods.GetGoodsId(track.id);
+                uint outTraID = GetOutTrackIDByInTrack(inTra, goodsid);
+                if (outTraID == 0) continue;
 
-                if (goodsid != 0)
-                {
-                    if (!PubMaster.Goods.IsTrackOkForGoods(track.brother_track_id, goodsid))
-                    {
-                        continue;
-                    }
-
-                    uint stockid = PubMaster.Goods.GetTrackStockId(track.id);
-                    if (stockid == 0) continue;
-                    uint tileid = PubMaster.Goods.GetStockTileId(stockid);
-
-                    uint tileareaid = PubMaster.Area.GetAreaDevAreaId(tileid);
-
-                    if (!PubMaster.Track.IsEarlyFullTimeOver(track.id))
-                    {
-                        continue;
-                    }
-
-                    PubMaster.Track.SetTrackEaryFull(track.id, false, null);
-
-                    AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, stockid, track.id, track.brother_track_id
-                        , TransStatusE.检查轨道, 0, track.line);
-                }
+                AddTransWithoutLock(inTra.area, 0, TransTypeE.中转倒库, goodsid, 0, inTra.id, outTraID
+                    , TransStatusE.整理中, 0, inTra.line, (inTra.is_take_forward ? DeviceTypeE.前摆渡 : DeviceTypeE.后摆渡));
             }
-            #endregion
+
+        }
+
+        /// <summary>
+        /// 根据入库轨道获取合适的出库轨道（中转倒库）
+        /// </summary>
+        /// <param name="inTra"></param>
+        /// <returns></returns>
+        public uint GetOutTrackIDByInTrack(Track inTra, uint goodsid)
+        {
+            // 获取同区域内轨道
+            List<uint> trackids = PubMaster.Track.GetAreaLineTracks(inTra.area, inTra.line, TrackTypeE.储砖_出入);
+
+            // 排序
+            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, inTra.id, inTra.order);
+
+            foreach (uint tid in tids)
+            {
+                if (!PubMaster.Goods.IsTrackOkForGoods(tid, goodsid)) continue;
+                if (IsTraInTrans(tid)) continue;
+
+                Track track = PubMaster.Track.GetTrack(tid);
+                if (track.IsWorkIn()) continue;
+                if (track.TrackStatus != TrackStatusE.启用) continue;
+                if (track.StockStatus != TrackStockStatusE.空砖) continue;
+
+                return tid;
+            }
+
+            return 0;
         }
 
         /// <summary>

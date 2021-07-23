@@ -26,7 +26,7 @@ namespace resource.device
             Refresh();
         }
 
-        public void Refresh(bool refr_1 = true, bool refr_2 = true,bool refr_3 = true)
+        public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true)
         {
             if (refr_1)
             {
@@ -52,13 +52,12 @@ namespace resource.device
         public List<Device> GetDeviceList()
         {
             return DeviceList;
-        } 
+        }
 
         public List<Device> GetDeviceList(DeviceTypeE type)
         {
             return DeviceList.FindAll(c => c.Type == type);
         }
-
 
         public List<Device> GetDevices(List<DeviceTypeE> types)
         {
@@ -84,10 +83,6 @@ namespace resource.device
         {
             return DeviceList.FindAll(c => c.area == areaid && c.line == lineid && types.Contains(c.Type));
         }
-        internal List<uint> GetDevIds(params DeviceTypeE[] types)
-        {
-            return DeviceList.FindAll(c => c.InType(types))?.Select(c => c.id).ToList();
-        }
 
         public List<Device> GetFerrys()
         {
@@ -112,7 +107,7 @@ namespace resource.device
 
         public List<Device> GetTileLifters(uint areaid, DeviceTypeE type)
         {
-            return DeviceList.FindAll(c => c.area == areaid && c.Type == type) ;
+            return DeviceList.FindAll(c => c.area == areaid && c.Type == type);
         }
 
         public List<Device> GetFerrys(uint areaid)
@@ -124,6 +119,16 @@ namespace resource.device
         public Device GetDevice(uint devid)
         {
             return DeviceList.Find(c => c.id == devid);
+        }
+
+        internal List<uint> GetDevIds(uint areaid, params DeviceTypeE[] types)
+        {
+            return DeviceList.FindAll(c => c.InType(types))?.Select(c => c.id).ToList();
+        }
+
+        internal List<uint> GetDevIds(params DeviceTypeE[] types)
+        {
+            return DeviceList.FindAll(c => c.InType(types))?.Select(c => c.id).ToList();
         }
 
         public Device GetDeviceByMemo(string memo)
@@ -199,7 +204,7 @@ namespace resource.device
         {
             Device backdev = GetDevice(backup_id);
             Device needdev = GetDevice(need_id);
-            if(backdev != null && needdev != null)
+            if (backdev != null && needdev != null)
             {
                 backdev.line = needdev.line;
                 if (backdev.line > 0)
