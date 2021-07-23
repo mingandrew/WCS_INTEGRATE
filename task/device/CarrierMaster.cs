@@ -3103,8 +3103,8 @@ namespace task.device
             carrier = DevList.Find(c => c.CurrentTrackId == brotherid);
             if (carrier != null)
             {
-                if ((PubMaster.Goods.GetTrackStock(trackid)
-                    + PubMaster.Goods.GetTrackStock(brotherid)) > 3)
+                if ((PubMaster.Goods.GetTrackStockCount(trackid)
+                    + PubMaster.Goods.GetTrackStockCount(brotherid)) > 3)
                 {
                     return true;
                 }
