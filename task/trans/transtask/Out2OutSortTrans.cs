@@ -535,7 +535,6 @@ namespace task.trans.transtask
             }
 
             #region【接力倒库完成后，如果前面有车有任务，则先定位到后一个位置】
-            bool separesort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber);
             ushort _topoint = 0;
             PubTask.Carrier.GetCarrierNowUnloadPoint(trans.carrier_id, out ushort _nowpoint, out ushort _givepoint);
             bool localneed = true; //需要定位到下一个位置
@@ -567,7 +566,7 @@ namespace task.trans.transtask
             if (PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
             {
                 //需要定位，并且分割点前有库存 => 才需要定位到下一个位置
-                if (separesort && localneed && PubMaster.Goods.ExistBehindUpSplitPoint(track.id, track.up_split_point))
+                if (localneed && PubMaster.Goods.ExistBehindUpSplitPoint(track.id, track.up_split_point))
                 {
                     dolocate = true;
                 }
@@ -597,7 +596,7 @@ namespace task.trans.transtask
                 bool intrans = _M.HaveCarrierInTrans(othercarrier);
 
                 //上砖车有任务，接力需要定位，并且分割点前有库存 => 才需要定位到下一个位置
-                if (separesort && (intrans || localneed) && PubMaster.Goods.ExistBehindUpSplitPoint(track.id, track.up_split_point))
+                if ((intrans || localneed) && PubMaster.Goods.ExistBehindUpSplitPoint(track.id, track.up_split_point))
                 {
                     dolocate = true;
                 }
@@ -650,14 +649,14 @@ namespace task.trans.transtask
                 }
             }
 
-            if (separesort && dolocate && _topoint != 0)
+            if (dolocate && _topoint != 0)
             {
                 if (!iscarrierferr)
                 {
                     return;
                 }
 
-                if (Math.Abs(_nowpoint - _topoint) <= 100)
+                if (Math.Abs(_nowpoint - _topoint) >= 100)
                 {
                     //定位到当前卸货位置或当前位置往后两个车位
                     PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
