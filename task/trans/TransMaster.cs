@@ -1436,7 +1436,7 @@ namespace task.trans
         public bool ExistSortBackTask(uint trackid)
         {
             return TransList.Exists(c => c.give_track_id == trackid
-                                && c.TransStaus == TransStatusE.小车回轨
+                                && c.InStatus(TransStatusE.小车回轨, TransStatusE.完成)
                                 && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
         }
 
