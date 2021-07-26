@@ -151,7 +151,7 @@ namespace resource.device
         /// </summary>
         /// <param name="goodid">判断是否相同的品种</param>
         /// <param name="type">进行判断的砖机类型</param>
-        /// <returns></returns>
+        /// <returns>找到砖机返回：true, 反之则返回：false</returns>
         public bool IsHaveSameTileNowGood(uint goodid, TileWorkModeE type)
         {
             return ConfigTileLifterList.Exists(c => c.WorkMode == type && c.goods_id == goodid);

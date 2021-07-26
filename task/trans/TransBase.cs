@@ -45,6 +45,7 @@ namespace task.trans
         private OutTaskTransV2 _outTransV2;
 
         private In2OutSortTrans _in2outSortTrans;
+        private In2OutSortTrans_V2 _in2outSortTransV2;
         private Out2OutSortTrans _out2outSortTrans;
         private MoveTaskTrans _moveTrans;
         private SameSideOutTrans _sameSideOutTrans;
@@ -78,6 +79,7 @@ namespace task.trans
             _outTransV2 = new OutTaskTransV2(trans);
 
             _in2outSortTrans = new In2OutSortTrans(trans);
+            _in2outSortTransV2 = new In2OutSortTrans_V2(trans);
             _out2outSortTrans = new Out2OutSortTrans(trans);
             _moveTrans = new MoveTaskTrans(trans);
             _sameSideOutTrans = new SameSideOutTrans(trans);
@@ -155,7 +157,14 @@ namespace task.trans
                                         }
                                         break;
                                     case TransTypeE.倒库任务:
-                                        _in2outSortTrans.DoTrans(trans);
+                                        if (GlobalWcsDataConfig.BigConifg.UseSortV2)
+                                        {
+                                            _in2outSortTransV2.DoTrans(trans);
+                                        }
+                                        else
+                                        {
+                                            _in2outSortTrans.DoTrans(trans);
+                                        }
                                         break;
                                     case TransTypeE.移车任务:
                                         _moveTrans.DoTrans(trans);

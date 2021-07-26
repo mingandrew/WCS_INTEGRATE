@@ -22,7 +22,20 @@ namespace tool.appconfig
         public int TileOtherTime { set; get; } = 1000;
         public int TileNeedRefreshTime { set; get; } = 1000;
 
+        /// <summary>
+        /// 轨道前空出默认5个位置
+        /// </summary>
+        public int TrackSortFrontCount { set; get; } = 5;
+        /// <summary>
+        /// 轨道后空出默认5个位置
+        /// </summary>
+        public int TrackSortBackCount { set; get; } = 5;
+
         public List<BigConfigItem> BigConfigList { set; get; } = new List<BigConfigItem>();
+        public bool UseSortV2 { get; set; }
+        public bool UseInOutLeftRight { set; get; }
+        public byte UseInOutLeftRightOdd { set; get; } = 1;
+        public byte UseInOutLeftRightEven { set; get; } = 0;
 
         /// <summary>
         /// 是否释放上砖摆渡车
