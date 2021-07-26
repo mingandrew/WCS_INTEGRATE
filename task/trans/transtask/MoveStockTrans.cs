@@ -114,7 +114,7 @@ namespace task.trans.transtask
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -256,7 +256,7 @@ namespace task.trans.transtask
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -343,14 +343,12 @@ namespace task.trans.transtask
                         _M.FreeGiveFerry(trans);
                     }
 
-                    if (track.id == trans.give_track_id)
-                    {
-                        PubMaster.Goods.MoveStock(trans.stock_id, trans.give_track_id);
-                    }
-
-                    if (isnotload && isftask)
+                    if (PubTask.Carrier.IsCarrierFinishUnLoad(trans.carrier_id))
                     {
                         _M.SetUnLoadTime(trans);
+
+                        CheckTrackFull(trans, trans.give_track_id, out ushort loc);
+
                         _M.SetStatus(trans, TransStatusE.完成);
                     }
                     #endregion
@@ -391,7 +389,7 @@ namespace task.trans.transtask
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             if (isload)
             {

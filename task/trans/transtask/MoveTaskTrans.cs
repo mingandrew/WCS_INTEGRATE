@@ -31,7 +31,7 @@ namespace task.trans.transtask
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {

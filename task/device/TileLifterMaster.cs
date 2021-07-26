@@ -1250,14 +1250,14 @@ namespace task.device
                             case DevWorkTypeE.品种作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out uint stockid);
                                 TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line);
-                                break;
+                                return;
                             case DevWorkTypeE.轨道作业:
 
-                                break;
+                                return;
                             case DevWorkTypeE.混砖作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out stockid);
                                 AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line);
-                                break;
+                                return;
                         }
                     }
 
@@ -1325,10 +1325,10 @@ namespace task.device
                             case DevWorkTypeE.品种作业:
                             case DevWorkTypeE.混砖作业:
                                 TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id, task.Line);
-                                break;
+                                return;
                             case DevWorkTypeE.轨道作业:
                                 TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, task.DevConfig.goods_id, task.Line);
-                                break;
+                                return;
                         }
                     }
 
@@ -1436,14 +1436,14 @@ namespace task.device
                             case DevWorkTypeE.品种作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out uint stockid);
                                 TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line);
-                                break;
+                                return;
                             case DevWorkTypeE.轨道作业:
 
-                                break;
+                                return;
                             case DevWorkTypeE.混砖作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out stockid);
                                 AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line);
-                                break;
+                                return;
                         }
                     }
 
@@ -1510,10 +1510,10 @@ namespace task.device
                             case DevWorkTypeE.品种作业:
                             case DevWorkTypeE.混砖作业:
                                 TileAddOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.DevConfig.last_track_id, task.Line);
-                                break;
+                                return;
                             case DevWorkTypeE.轨道作业:
                                 TileAddTrackOutTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, task.DevConfig.goods_id, task.Line);
-                                break;
+                                return;
                         }
                     }
 

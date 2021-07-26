@@ -110,7 +110,7 @@ namespace task.trans.transtask
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             tileemptyneed = PubTask.TileLifter.IsHaveEmptyNeed(trans.tilelifter_id, trans.give_track_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -128,7 +128,7 @@ namespace task.trans.transtask
                     }
 
                     if (!tileemptyneed
-                        && PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                        && isftask
                         && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 10, 5))
                     {
                         _M.SetStatus(trans, TransStatusE.完成, "工位非无货需求，直接完成任务");
@@ -176,6 +176,15 @@ namespace task.trans.transtask
 
                         if (isnotload && isftask)
                         {
+                            // 取砖轨道改为优先清空轨道
+                            uint take = PubTask.TileLifter.GetTileCurrentTake(trans.tilelifter_id);
+                            if (take != 0 && take != trans.take_track_id)
+                            {
+                                //直接完成
+                                _M.SetStatus(trans, TransStatusE.完成, string.Format("存在设置好的优先清空轨道[ {0} ]", PubMaster.Track.GetTrackName(take)));
+                                return;
+                            }
+
                             if (PubMaster.Track.IsEmtpy(trans.take_track_id)
                                 || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
                             {
@@ -183,46 +192,40 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            if (!PubMaster.Track.IsTrackEmtpy(trans.take_track_id))
+                            //取砖失败，报警且不能
+                            if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.取砖指令))
                             {
-                                //取砖失败，报警且不能
-                                if (PubTask.Carrier.IsCarrierFinishTask(trans.carrier_id, DevCarrierOrderE.取砖指令))
-                                {
-                                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.GetStockButNull, (ushort)trans.carrier_id, trans.id);
-                                    #region 【任务步骤记录】
-                                    _M.LogForCarrierGetStockFalse(trans);
-                                    #endregion
-                                    return;
-                                }
-                                PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
-
-                                // 轨道内直接取砖
-                                TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
-
+                                PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.GetStockButNull, (ushort)trans.carrier_id, trans.id);
                                 #region 【任务步骤记录】
-                                _M.LogForCarrierTake(trans, trans.take_track_id, res);
+                                _M.LogForCarrierGetStockFalse(trans);
                                 #endregion
                                 return;
-
                             }
+                            PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
+
+                            // 轨道内直接取砖
+                            TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierTake(trans, trans.take_track_id, res);
+                            #endregion
+                            return;
+
                         }
                     }
                     else //在非取货轨道
                     {
-                        if (isload)
+                        if (isload && isftask)
                         {
-                            if (isftask)
-                            {
-                                #region 【任务步骤记录】
-                                _M.LogForCarrierGiving(trans);
-                                #endregion
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierGiving(trans);
+                            #endregion
 
-                                //下降放货
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.放砖指令
-                                });
-                            }
+                            //下降放货
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.放砖指令
+                            });
                             return;
                         }
 
@@ -570,7 +573,7 @@ namespace task.trans.transtask
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -905,7 +908,7 @@ namespace task.trans.transtask
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             tileemptyneed = PubTask.TileLifter.IsHaveEmptyNeed(trans.tilelifter_id, trans.give_track_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             //有需求，取货了，回去取砖流程
             if (!PubTask.TileLifter.IsTileCutover(trans.tilelifter_id)
