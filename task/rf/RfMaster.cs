@@ -639,7 +639,7 @@ namespace task.rf
                 if (int.TryParse(msg.Pack.Data, out int areaid))
                 {
                     StockSumPack pack = new StockSumPack();
-                    pack.AddSumList(PubMaster.Goods.GetStockSums(areaid));
+                    pack.AddSumList(PubMaster.Sums.GetStockSums(areaid));
                     string data = JsonTool.Serialize(pack);
 
                     SendSucc2Rf(msg.MEID, FunTag.QueryStockSum, data);
@@ -648,7 +648,7 @@ namespace task.rf
             else
             {
                 StockSumPack pack = new StockSumPack();
-                pack.AddSumList(PubMaster.Goods.GetStockSums());
+                pack.AddSumList(PubMaster.Sums.GetStockSums());
                 string data = JsonTool.Serialize(pack);
 
                 SendSucc2Rf(msg.MEID, FunTag.QueryStockSum, data);
@@ -2021,7 +2021,7 @@ namespace task.rf
                 RfTileTrackPack pack = new RfTileTrackPack();
                 pack.TileId = tileid;
                 pack.SetTileTrackStatus(PubMaster.Track.GetTileTrack(tileid));
-                pack.SetStockSumList(PubMaster.Goods.GetStockSumsByDevId(tileid));
+                pack.SetStockSumList(PubMaster.Sums.GetStockSumsByDevId(tileid));
 
                 SendSucc2Rf(msg.MEID, FunTag.QueryTileTrackStatus, JsonTool.Serialize(pack));
             }
