@@ -132,7 +132,7 @@ namespace wcs.ViewModel
                 {
                     filtertracktype = type;
                     TrackSumListView.Refresh();
-                    PubMaster.Goods.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
+                    PubMaster.Sums.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
                 }
             }
         }
@@ -144,7 +144,7 @@ namespace wcs.ViewModel
                 filterareaid = radio.AreaID;
                 filterlineid = radio.Line;
                 TrackSumListView.Refresh();
-                PubMaster.Goods.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
+                PubMaster.Sums.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
             }
         }
         bool OnFilterMovie(object item)
@@ -237,13 +237,13 @@ namespace wcs.ViewModel
         private void InitList()
         {
             TrackSumList.Clear();
-            List<StockSum> sums = PubMaster.Goods.GetStockSums();
+            List<StockSum> sums = PubMaster.Sums.GetStockSums();
             foreach (StockSum sum in sums)
             {
                 TrackSumList.Add(new StockSumView(sum));
             }
             GoodSumList.Clear();
-            PubMaster.Goods.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
+            PubMaster.Sums.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
 
         }
 

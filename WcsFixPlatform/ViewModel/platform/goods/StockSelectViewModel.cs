@@ -148,7 +148,7 @@ namespace wcs.ViewModel
         {
             Clear();
             FilterName = string.Empty;
-            List<StockSum> sums = PubMaster.Goods.GetStockSums();
+            List<StockSum> sums = PubMaster.Sums.GetStockSums();
             List<StockGoodSumView> goodsums = new List<StockGoodSumView>();
             foreach (var item in sums)
             {
