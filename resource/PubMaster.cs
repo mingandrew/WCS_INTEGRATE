@@ -20,6 +20,7 @@ namespace resource
         public static DeviceMaster Device { set; get; }
         public static DevConfigMaster DevConfig { set; get; }
         public static GoodsMaster Goods { set; get; }
+        public static GoodSumMaster Sums { set; get; }
         public static WarningMaster Warn { set; get; }
         public static TileTrackMaster TileTrack { set; get; }
         public static RoleMaster Role { set; get; }
@@ -33,6 +34,7 @@ namespace resource
             Device = new DeviceMaster();
             DevConfig = new DevConfigMaster();
             Goods = new GoodsMaster();
+            Sums = new GoodSumMaster();
             Warn = new WarningMaster();
             TileTrack = new TileTrackMaster();
             Role = new RoleMaster();
@@ -53,6 +55,7 @@ namespace resource
             Device.Start();
             DevConfig.Start();
             Goods.Start();
+            Sums.Start();
             TileTrack.Start();
             Track.Start();
             _isready = true;
@@ -69,6 +72,7 @@ namespace resource
             Track.Stop();
             Area.Stop();
             Goods.Stop();
+            Sums.Stop();
             TileTrack.Stop();
         }
 
