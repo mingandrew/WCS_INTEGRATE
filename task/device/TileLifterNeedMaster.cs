@@ -305,11 +305,14 @@ namespace task.device
         //完成任务时,更新需求的完成任务状态
         public void FinishTileLifterNeed(uint transid)
         {
-            TileLifterNeed tileneed = NeedList.Find(c => c.trans_id == transid);
-            if (tileneed != null)
+            List<TileLifterNeed> tileneeds = NeedList.FindAll(c => c.trans_id == transid);
+            foreach (TileLifterNeed item in tileneeds)
             {
-                tileneed.finish = true;
-                PubMaster.Mod.TileLifterNeedSql.EditTileLifterNeed(tileneed, TileNeedStatusE.Finish);
+                if (item != null)
+                {
+                    item.finish = true;
+                    PubMaster.Mod.TileLifterNeedSql.EditTileLifterNeed(item, TileNeedStatusE.Finish);
+                }
             }
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
