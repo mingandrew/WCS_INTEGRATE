@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using tool.appconfig;
 using wcs.Data.View;
 
 namespace wcs.ViewModel
@@ -28,6 +29,10 @@ namespace wcs.ViewModel
             _out_tracklist = new ObservableCollection<TrackView>();
             InitAreaRadio();
 
+            UseInOutLeftRight = GlobalWcsDataConfig.BigConifg.UseInOutLeftRight;
+            UseInOutLeftRightOdd = GlobalWcsDataConfig.BigConifg.UseInOutLeftRightOdd;
+            UseInOutLeftRightEven = GlobalWcsDataConfig.BigConifg.UseInOutLeftRightEven;
+
             Messenger.Default.Register<MsgAction>(this, MsgToken.TrackStatusUpdate, TrackStatusUpdate);
             Messenger.Default.Register<uint>(this, MsgToken.TrackStockQtyUpdate, TrackStockQtyUpdate);
 
@@ -39,6 +44,7 @@ namespace wcs.ViewModel
             OutTrackView = System.Windows.Data.CollectionViewSource.GetDefaultView(OutTrackList);
             OutTrackView.Filter = new Predicate<object>(OnFilterMovie);
             CheckIsSingle();
+
         }
 
         /// <summary>
@@ -96,6 +102,9 @@ namespace wcs.ViewModel
         }
 
         #region[字段]
+        private bool UseInOutLeftRight = false;
+        private byte UseInOutLeftRightOdd = 1;
+        private byte UseInOutLeftRightEven = 0;
         private bool showareafilter = true;
         private ObservableCollection<TrackView> _tracklist;
         private ObservableCollection<TrackView> _out_tracklist;
@@ -281,11 +290,13 @@ namespace wcs.ViewModel
                 TrackView view = new TrackView(track);
                 view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(track.id));
                 if (track.Type == TrackTypeE.储砖_入
-                    || track.Type == TrackTypeE.储砖_出入)
+                    || (!UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入)
+                    || (UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入 && (track.id % 2 == UseInOutLeftRightOdd)))
                 {
                     TrackList.Add(view);
                 }
-                else if (track.Type == TrackTypeE.储砖_出)
+                else if (track.Type == TrackTypeE.储砖_出
+                    || (UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入 && (track.id % 2 == UseInOutLeftRightEven)))
                 {
                     OutTrackList.Add(view);
                 }
@@ -297,7 +308,8 @@ namespace wcs.ViewModel
             if (msg.o1 is Track track)
             {
                 if (track.Type == TrackTypeE.储砖_入
-                    || track.Type == TrackTypeE.储砖_出入)
+                    || (!UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入)
+                    || (track.Type == TrackTypeE.储砖_出入 && (track.id % 2 == UseInOutLeftRightOdd)))
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -312,7 +324,8 @@ namespace wcs.ViewModel
                     });
                 }
 
-                if (track.Type == TrackTypeE.储砖_出)
+                if (track.Type == TrackTypeE.储砖_出
+                    || (UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入 && (track.id % 2 == UseInOutLeftRightEven)))
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {

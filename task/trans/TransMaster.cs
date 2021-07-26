@@ -3,6 +3,7 @@ using enums.track;
 using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
 using module.goods;
+using module.line;
 using module.tiletrack;
 using module.track;
 using resource;
@@ -37,6 +38,134 @@ namespace task.trans
         /// 2.生成倒库任务
         /// </summary>
         public override void CheckTrackSort()
+        {
+            CheckTrackSortV3();
+
+            //使用倒库版本V2
+            if (GlobalWcsDataConfig.BigConifg.UseSortV2)
+            {
+                CheckTrackSortV1();
+                CheckTrackSortV2();
+            }
+        }
+
+        /// <summary>
+        /// 根据轨道满砖空转生成任务
+        /// </summary>
+        private void CheckTrackSortV1()
+        {
+            List<Track> tracks = PubMaster.Track.GetFullInTrackList();
+            foreach (Track track in tracks)
+            {
+                if (!PubMaster.Area.IsLineSortOnoff(track.area, track.line)) continue;
+
+                if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
+
+                int count = GetAreaSortTaskCount(track.area, track.line);
+                if (PubMaster.Area.IsSortTaskLimit(track.area, track.line, count)) continue;
+
+                //同时判断入库
+                //不判断出轨道，出现回轨分配出轨道，如果限制出轨道（回轨空轨道），很可能会进行了下一个轨道
+                //但是分配车时判断出轨道是否有任务
+                if (TransList.Exists(c => !c.finish && c.InTrack(track.id)))// || c.InTrack(track.brother_track_id)
+                {
+                    continue;
+                }
+
+                uint goodsid = PubMaster.Goods.GetGoodsId(track.id);
+
+                if (goodsid != 0)
+                {
+                    if (!PubMaster.Goods.IsTrackOkForGoods(track.brother_track_id, goodsid))
+                    {
+                        continue;
+                    }
+
+                    uint stockid = PubMaster.Goods.GetTrackStockId(track.id);
+                    if (stockid == 0) continue;
+                    uint tileid = PubMaster.Goods.GetStockTileId(stockid);
+
+                    uint tileareaid = PubMaster.Area.GetAreaDevAreaId(tileid);
+
+                    if (!PubMaster.Track.IsEarlyFullTimeOver(track.id))
+                    {
+                        continue;
+                    }
+
+                    PubMaster.Track.SetTrackEaryFull(track.id, false, null);
+
+                    AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, stockid, track.id, track.brother_track_id
+                        , TransStatusE.检查轨道, 0, track.line);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 根据轨道倒库状态生成
+        /// </summary>
+        private void CheckTrackSortV2()
+        {
+            List<Line> line = PubMaster.Area.GetLineList();
+            foreach (var item in line)
+            {
+                if (!PubMaster.Area.IsLineSortOnoff(item.area_id, item.line)) continue;
+
+                int count = GetAreaSortTaskCount(item.area_id, item.line);
+                if (PubMaster.Area.IsSortTaskLimit(item.area_id, item.line, count)) continue;
+                CheckLineTrackSortV2(item);
+            }
+        }
+
+        /// <summary>
+        /// 检查区域线路对应轨道生成倒库任务
+        /// </summary>
+        /// <param name="line"></param>
+        private void CheckLineTrackSortV2(Line line)
+        {
+            //入库轨道检查并添加任务
+            List<Track> inttrack = PubMaster.Track.GetSortTrackList(line.area_id, line.line, TrackTypeE.储砖_入);
+            foreach (var track in inttrack)
+            {
+                //没有其他任务使用了该轨道
+                if (!ExistTransWithTracks(track.id, track.brother_track_id))
+                {
+                    if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
+                    Stock btmstock = PubMaster.Goods.GetTrackButtomStock(track.id);
+                    if (btmstock != null
+                        && track.StockStatus == TrackStockStatusE.有砖
+                        && PubMaster.DevConfig.IsHaveSameTileNowGood(btmstock.goods_id, TileWorkModeE.下砖))
+                    {
+                        continue;
+                    }
+                    Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, track.id, track.brother_track_id, TransStatusE.检查轨道, 0, track.line);
+                    return;
+                }
+            }
+
+            //出库轨道检查并添加任务
+            List<Track> outtrack = PubMaster.Track.GetSortTrackList(line.area_id, line.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+            foreach (var track in outtrack)
+            {
+                //没有其他任务使用了该轨道
+                if (!ExistTransWithTracks(track.id, track.brother_track_id))
+                {
+                    Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
+                    {
+                        AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
+                        return;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 检查满砖轨道进行倒库
+        /// 1.检查入库满砖轨道
+        /// 2.生成倒库任务
+        /// </summary>
+        public override void CheckTrackSortV3()
         {
             // 获取可倒库的入库轨道
             List<Track> inTracks = PubMaster.Track.GetFullInTrackList();

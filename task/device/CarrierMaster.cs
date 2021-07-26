@@ -2263,7 +2263,7 @@ namespace task.device
                 List<CarrierTask> allocate_cars_4 = new List<CarrierTask>();
 
                 // 获取任务砖机所有可作业轨道
-                List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出);
+                List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
                 // 按离取货点近远排序
                 List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.give_track_id, PubMaster.Track.GetTrackOrder(trans.give_track_id), false);
 

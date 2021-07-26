@@ -7,6 +7,8 @@ namespace module.track
 {
     public class Track
     {
+        #region[字段属性]
+
         public uint id { set; get; }
         public string name { set; get; }
         public ushort area { set; get; }
@@ -89,6 +91,9 @@ namespace module.track
         /// </summary>
         public bool is_take_forward { set; get; } 
 
+        public bool sort_able { set; get; }//倒库状态
+        public byte sort_level { set; get; }//倒库等级
+        #endregion
 
         /// <summary>
         /// 轨道类型

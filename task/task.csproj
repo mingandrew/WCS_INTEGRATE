@@ -64,6 +64,7 @@
     <Compile Include="device\TrafficControlMaster.cs" />
     <Compile Include="diagnose\base\FerryBaseDiagnose.cs" />
     <Compile Include="diagnose\trans\MoveCarDiagnose.cs" />
+    <Compile Include="diagnose\trans\TrackDiagnose.cs" />
     <Compile Include="ping\PingMaster.cs" />
     <Compile Include="rf\RfMaster.cs" />
     <Compile Include="task\CarrierTask.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="diagnose\base\TransBaseDiagnose.cs" />
     <Compile Include="trans\TransMaster.cs" />
     <Compile Include="trans\transtask\BaseTaskTrans.cs" />
+    <Compile Include="trans\transtask\In2OutSortTrans_V2.cs" />
     <Compile Include="trans\transtask\In2OutSortTrans.cs" />
     <Compile Include="trans\transtask\InTaskTrans.cs" />
     <Compile Include="trans\transtask\MoveStockTrans.cs" />
