@@ -14,6 +14,7 @@ namespace task.diagnose
         #region[分析]
         SortTaskDiagnose SortDiagnose;
         MoveCarDiagnose MoveDiagnose;
+        TrackDiagnose TrackDiagnose;
         #endregion
 
         /// <summary>
@@ -24,6 +25,7 @@ namespace task.diagnose
         {
             SortDiagnose = new SortTaskDiagnose(trans);
             MoveDiagnose = new MoveCarDiagnose(trans);
+            TrackDiagnose = new TrackDiagnose(trans);
         }
 
         /// <summary>
@@ -53,6 +55,7 @@ namespace task.diagnose
                 //分析分配运输车：移车任务
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableMoveCarDiagnose))  MoveDiagnose?.Diagnose();
 
+                TrackDiagnose?.Diagnose();
             }
             catch { }
         }

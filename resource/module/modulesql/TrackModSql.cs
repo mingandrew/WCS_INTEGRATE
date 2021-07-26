@@ -242,6 +242,10 @@ namespace resource.module.modulesql
                 case TrackUpdateE.UpCount:
                     sql += string.Format("`upcount` = {0} ", track.upcount);
                     break;
+                case TrackUpdateE.SortAble:
+                    sql += string.Format("`sort_able` = {0} ,`sort_level` = {1} ",
+                        track.sort_able, track.sort_level);
+                    break;
                 default:
                     sql += " 1=1";
                     break;
