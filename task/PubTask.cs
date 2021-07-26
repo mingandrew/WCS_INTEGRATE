@@ -61,13 +61,13 @@ namespace task
             {
                 Thread.Sleep(2000);
             }
+            TileLifterNeed?.Start();
             TileLifter?.Start();
             Ferry?.Start();
             Carrier?.Start();
             Trans?.Start();
             Rf?.Start();
             Ping?.Start();
-            TileLifterNeed?.Start();
             TrafficControl?.Start();
             Allocate?.Start();
         }
