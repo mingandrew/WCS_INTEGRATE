@@ -3528,6 +3528,18 @@ namespace task.device
             return IsCarrierInTrackBiggerSite(carrier_id, track_id, track.rfid_1);
         }
 
+        /// <summary>
+        /// 判断小车是否处于轨道地标位置
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        internal bool IsCarrierInTrackBiggerRfID2(uint carrier_id, uint track_id)
+        {
+            Track track = PubMaster.Track.GetTrack(track_id);
+            return IsCarrierInTrackBiggerSite(carrier_id, track_id, track.rfid_2);
+        }
+
         internal bool IsCarrierInTrackBiggerSite(uint carrier_id, uint track_id, ushort rfid)
         {
             return DevList.Exists(c => c.ID == carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite >= rfid);

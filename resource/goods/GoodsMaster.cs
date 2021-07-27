@@ -3513,8 +3513,6 @@ namespace resource.goods
         }
         #endregion
 
-
-
         /// <summary>
         /// 判断库存是否是对应的品种
         /// </summary>
@@ -3550,5 +3548,30 @@ namespace resource.goods
         {
             return StockList.FindAll(c => c.track_id == trackid && c.goods_id != 0)?.Select(c => c.goods_id)?.Distinct()?.ToList() ?? new List<uint>();
         }
+
+
+        /// <summary>
+        /// 判断轨道库存排列中，是否存在中间空闲指定位置的库存信息
+        /// </summary>
+        /// <param name="id">轨道ID</param>
+        /// <param name="emptycount">空余车数</param>
+        /// <param name="safe">每车距离</param>
+        /// <returns></returns>
+        internal bool ExistCountEmptySpace(uint id, int emptycount, ushort safe)
+        {
+            int space = emptycount * safe;
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == id);
+            stocks.Sort((x, y) => x.location.CompareTo(y.location));
+            for(int i =0; i< stocks.Count-1; i++)
+            {
+                if(Math.Abs(stocks[i].location - stocks[i+1].location) >= space)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
     }
 }
