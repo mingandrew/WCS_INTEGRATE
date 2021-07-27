@@ -2673,16 +2673,25 @@ namespace resource.track
                                 }
                             }
                         }
+
                         //第一车库存距离轨道头部有5个车的距离
                         int discount = GetPointCompareCount(track.limit_point_up, topstock.location, safe);
                         if (discount >= TrackSortFrontCount)
                         {
                             SetTrackSortable(track, true, SORT_LEVEL_2);
                         }
+                        else if (PubMaster.Goods.ExistCountEmptySpace(track.id, TrackSortFrontCount, safe))
+                        {
+                            SetTrackSortable(track, true, SORT_LEVEL_2, string.Format("中间存在[ {0} ]车的空位", TrackSortFrontCount));
+                        }
                         else
                         {
-                            SetTrackSortable(track, false, SORT_LEVEL_NO,string.Format("空位不满[ {0} -> {1} ]", discount, TrackSortFrontCount));
+                            SetTrackSortable(track, false, SORT_LEVEL_NO, string.Format("空位不满[ {0} -> {1} ]", discount, TrackSortFrontCount));
                         }
+                    }
+                    else
+                    {
+                        SetTrackSortable(track, false, SORT_LEVEL_NO, "有砖机正在上该品种");
                     }
                 }
             }
