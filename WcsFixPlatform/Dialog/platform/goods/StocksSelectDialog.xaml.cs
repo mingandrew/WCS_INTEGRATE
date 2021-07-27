@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using enums;
+using GalaSoft.MvvmLight.Messaging;
+using System.Text.RegularExpressions;
 
 namespace wcs.Dialog
 {
@@ -17,6 +19,12 @@ namespace wcs.Dialog
             Regex re = new Regex("[^0-9]+");
 
             e.Handled = re.IsMatch(e.Text);
+        }
+
+        private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            string fname = ((System.Windows.Controls.TextBox)e.Source).Text;
+            Messenger.Default.Send(fname, MsgToken.AutoSearchStockGood);
         }
     }
 }

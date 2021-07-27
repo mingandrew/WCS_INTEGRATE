@@ -1,6 +1,8 @@
-﻿using enums.track;
+﻿using enums;
+using enums.track;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.goods;
@@ -28,6 +30,8 @@ namespace wcs.ViewModel
 
             GoodListView = System.Windows.Data.CollectionViewSource.GetDefaultView(StockList);
             GoodListView.Filter = new Predicate<object>(OnFilterMovie);
+
+            Messenger.Default.Register<string>(this, MsgToken.AutoSearchStockGood, AutoSearch);
         }
 
         #region[字段]
@@ -116,6 +120,15 @@ namespace wcs.ViewModel
             });
         }
 
+        private void AutoSearch(string fname)
+        {
+            FilterName = fname;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                GoodListView.Refresh();
+            });
+        }
+
         public void SetAreaFilter(uint areaid, bool isshow)
         {
             filterareaid = areaid;
@@ -135,7 +148,7 @@ namespace wcs.ViewModel
 
             if (item is StockGoodSumView view)
             {
-                if (filterareaid == 0 || filterareaid == view.AreaId) return true;
+                if (string.IsNullOrEmpty(FilterName) && (filterareaid == 0 || filterareaid == view.AreaId)) return true;
 
                 return (filterareaid == 0 || filterareaid == view.AreaId)
                     && (filterwidth == 0 || filterwidth == view.Width)

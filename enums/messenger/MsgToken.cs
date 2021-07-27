@@ -46,6 +46,9 @@ namespace enums
         public const string RefreshRfTrackPos = nameof(RefreshRfTrackPos);
         public const string StockTransDtlUpdate = nameof(StockTransDtlUpdate);//库存细单状态更新
 
+        public const string AutoSearchGood = nameof(AutoSearchGood);//自动搜索品种
+        public const string AutoSearchStockGood = nameof(AutoSearchStockGood);//自动搜索品种
+
         #region[模拟系统]
 
         public const string SimCarrierMsgUpdate = nameof(SimCarrierMsgUpdate);//通讯
