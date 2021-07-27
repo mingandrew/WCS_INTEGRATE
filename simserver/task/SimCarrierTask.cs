@@ -158,8 +158,8 @@ namespace simtask
                 case TrackTypeE.储砖_出入:
                     DevStatus.Position = DevCarrierPositionE.在轨道上;
                     break;
-                case TrackTypeE.后置摆渡轨道:
-                case TrackTypeE.前置摆渡轨道:
+                case TrackTypeE.摆渡车_入:
+                case TrackTypeE.摆渡车_出:
 
                     DevStatus.Position = DevCarrierPositionE.在摆渡上;
                     break;
@@ -287,11 +287,11 @@ namespace simtask
                                     DevStatus.CurrentPoint = TargetTrack.limit_point_up;
                                 }
                                 break;
-                            case TrackTypeE.后置摆渡轨道:
+                            case TrackTypeE.摆渡车_入:
                                 DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
                                 SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                                 break;
-                            case TrackTypeE.前置摆渡轨道:
+                            case TrackTypeE.摆渡车_出:
                                 DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
                                 SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                                 break;
@@ -343,7 +343,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.下砖轨道)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
+                            int dif = NowTrack.Type == TrackTypeE.摆渡车_入 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                             OnLoading = true;
@@ -351,7 +351,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_2 && TargetTrack.Type == TrackTypeE.下砖轨道)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -540 : 540;
+                            int dif = NowTrack.Type == TrackTypeE.摆渡车_出 ? -540 : 540;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_2) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_2);
                             OnLoading = true;
@@ -359,7 +359,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_3 && TargetTrack.Type == TrackTypeE.上砖轨道)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -270 : 270;
+                            int dif = NowTrack.Type == TrackTypeE.摆渡车_出 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_3);
                             OnLoading = true;
@@ -494,7 +494,7 @@ namespace simtask
 
                         if (TO_SITE == TargetTrack.rfid_1 || TO_SITE == TargetTrack.rfid_2)
                         {
-                            int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
+                            int dif = NowTrack.Type == TrackTypeE.摆渡车_入 ? -270 : 270;
                             DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
                             SetNowTrack(TargetTrack, TargetTrack.rfid_1);
                             OnUnloading = true;
@@ -650,7 +650,7 @@ namespace simtask
                                 }
                                 break;
                             case SimCarrierSortStepE.取货完成获取卸货位置:
-                                Stock infrontstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id);
+                                Stock infrontstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id, DevStatus.CurrentPoint);
                                 if (infrontstock != null)
                                 {
                                     ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
@@ -711,11 +711,14 @@ namespace simtask
                         switch (SORT_STEP)
                         {
                             case SimCarrierSortStepE.获取取货库存位置:
-                                Stock intopstock = PubMaster.Goods.GetStockForOut(TargetTrack.id);
-                                if (intopstock != null)
+                                if (TargetTrack != null)
                                 {
-                                    TAKE_STOCK_POINT = intopstock.location;
-                                    SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+                                    Stock intopstock = PubMaster.Goods.GetStockBehindStockPoint(TargetTrack.id, DevStatus.CurrentPoint);
+                                    if (intopstock != null)
+                                    {
+                                        TAKE_STOCK_POINT = intopstock.location;
+                                        SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+                                    }
                                 }
                                 break;
                             case SimCarrierSortStepE.前往取货库存位置:
@@ -747,17 +750,35 @@ namespace simtask
                                 }
                                 break;
                             case SimCarrierSortStepE.取货完成获取卸货位置:
-                                Stock outbuttomstock = PubMaster.Goods.GetStockForIn(EndTrack.id);
-                                if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
+                                if(EndTrack.Type == TrackTypeE.储砖_出入)
                                 {
-                                    ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
-                                    GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+                                    Stock outbuttomstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id, DevStatus.CurrentPoint);
+                                    if (outbuttomstock != null && outbuttomstock.location != 0)
+                                    {
+                                        ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+                                        GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+                                    }
+                                    else
+                                    {
+                                        GIVE_STOCK_POINT = EndTrack.limit_point_up;
+                                    }
+                                    SORT_STEP = SimCarrierSortStepE.前往卸货位置;
                                 }
                                 else
                                 {
-                                    GIVE_STOCK_POINT = EndTrack.limit_point_up;
+                                    Stock outbuttomstock = PubMaster.Goods.GetTrackButtomStock(EndTrack.id);
+                                    if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
+                                    {
+                                        ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+                                        GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+                                    }
+                                    else
+                                    {
+                                        GIVE_STOCK_POINT = EndTrack.limit_point_up;
+                                    }
+                                    SORT_STEP = SimCarrierSortStepE.前往卸货位置;
                                 }
-                                SORT_STEP = SimCarrierSortStepE.前往卸货位置;
+                                
                                 break;
                             case SimCarrierSortStepE.前往卸货位置:
                                 if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
@@ -1198,7 +1219,7 @@ namespace simtask
                     &&((EndTrack.Type == TrackTypeE.储砖_出 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
                 {
                     GIVE_STOCK_POINT = 0;
-                    Stock stock = PubMaster.Goods.GetStockForOut(EndTrack.id);
+                    Stock stock = PubMaster.Goods.GetTrackTopStock(EndTrack.id);
                     if (stock != null)
                     {
                         TAKE_STOCK_POINT = stock.location;
@@ -1217,7 +1238,7 @@ namespace simtask
                     && ((EndTrack.Type == TrackTypeE.储砖_入 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
                 {
                     TAKE_STOCK_POINT = 0;
-                    if (PubMaster.Goods.CalculateNextLocByDir(EndTrack.is_give_back ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, DevId, EndTrack.id, DevConfig.stock_id, out ushort location))
+                    if (PubMaster.Goods.CalculateNextLocation(TransTypeE.下砖任务, 0, EndTrack.id, out ushort stockcount, out ushort location))
                     {
                         GIVE_STOCK_POINT = location;
                     }
@@ -1233,17 +1254,25 @@ namespace simtask
             if (cmd.CarrierOrder == DevCarrierOrderE.往前倒库
                 || cmd.CarrierOrder == DevCarrierOrderE.往后倒库)
             {
-                if(TO_POINT != ZERO_POINT)
+                EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出,TrackTypeE.储砖_出入 }, cmd.CheckTrackCode);
+                if (TO_POINT != ZERO_POINT)
                 {
                     SORT_TYPE = OUT_2_OUT_SORT;
-                    EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出 }, cmd.CheckTrackCode);
                 }
                 else
                 {
                     SORT_TYPE = IN_2_OUT_SORT;
-                    TargetTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_入 }, cmd.CheckTrackCode);
-                    EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出 }, cmd.CheckTrackCode);
+                    if(EndTrack.Type == TrackTypeE.储砖_出入)
+                    {
+                        TargetTrack = EndTrack;
+
+                    }
+                    else
+                    {
+                        TargetTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_入 }, cmd.CheckTrackCode);
+                    }
                 }
+                
                 SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
             }
             DevStatus.MoveCount = 0;
@@ -1358,7 +1387,7 @@ namespace simtask
 
             if(NowTrack!=null)
             {
-                if(NowTrack.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                if(NowTrack.InType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                 {
                     DevStatus.Position = DevCarrierPositionE.在摆渡上;
                 }

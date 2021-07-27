@@ -896,6 +896,24 @@ namespace resource.track
         {
             return TrackList.Exists(c => tracks.Contains(c.id) && c.InStatus(statusEs));
         }
+
+
+        /// <summary>
+        /// 获取出入库轨道的中间ID
+        /// </summary>
+        /// <returns></returns>
+        public uint GetMidId(uint areaid, ushort lineid)
+        {
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_出入));
+            tracks.Sort((x, y) => x.id.CompareTo(y.id));
+            int idx = (tracks.Count / 2)-1;
+            if (idx < tracks.Count)
+            {
+                Track track = tracks[idx];
+                return track?.id ?? 10000;
+            }
+            return 10000;
+        }
         #endregion
 
         #region[更改]
@@ -2489,13 +2507,14 @@ namespace resource.track
         /// <param name="track"></param>
         /// <param name="able"></param>
         /// <param name="sortlevel"></param>
-        private void SetTrackSortable(Track track, bool able, byte sortlevel)
+        private void SetTrackSortable(Track track, bool able, byte sortlevel, string memo = null)
         {
             if(track.sort_able != able || track.sort_level != sortlevel)
             {
                 try
                 {
-                    mLog.Status(true, string.Format("轨道[ {0} ], 倒库[ {1} -> {2} ], 等级[ {3} -> {4} ]", track.name, track.sort_able, able, track.sort_level, sortlevel));
+                    mLog.Status(true, string.Format("轨道[ {0} ], 倒库[ {1} -> {2} ], 等级[ {3} -> {4} ], 备注[ {5} ]",
+                        track.name, track.sort_able, able, track.sort_level, sortlevel, memo));
                 }
                 catch { }
                 track.sort_able = able;
@@ -2541,7 +2560,7 @@ namespace resource.track
             //空砖->跳出
             if (track.StockStatus == TrackStockStatusE.空砖)
             {
-                SetTrackSortable(track, false, SORT_LEVEL_NO);
+                SetTrackSortable(track, false, SORT_LEVEL_NO, "轨道空砖");
                 return;
             }
             
@@ -2585,7 +2604,7 @@ namespace resource.track
                 Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
                 if (topstock != null)
                 {
-                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.id, TileWorkModeE.上砖))
+                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
                     {
                         //第一车库存距离轨道头部有5个车的距离
                         int discount = GetPointCompareCount(track.limit_point_up, topstock.location, safe);
@@ -2594,6 +2613,10 @@ namespace resource.track
                             SetTrackSortable(track, true, SORT_LEVEL_2);
                             return;
                         }
+                    }
+                    else
+                    {
+                        SetTrackSortable(track, false, SORT_LEVEL_NO, "有砖机正在上该品种");
                     }
                 }
             }
@@ -2626,7 +2649,7 @@ namespace resource.track
             // 1.出轨道空
             if (track.StockStatus == TrackStockStatusE.空砖)
             {
-                SetTrackSortable(track, false, SORT_LEVEL_NO);
+                SetTrackSortable(track, false, SORT_LEVEL_NO,"轨道空砖");
                 return;
             }
 
@@ -2635,7 +2658,7 @@ namespace resource.track
                 Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
                 if (topstock != null)
                 {
-                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.id, TileWorkModeE.上砖))
+                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
                     {
                         //如果未满，则需要判断尾部是否有砖机继续下砖
                         if(track.StockStatus == TrackStockStatusE.有砖)
@@ -2645,6 +2668,7 @@ namespace resource.track
                             {
                                 if(PubMaster.DevConfig.IsHaveSameTileNowGood(bottomstock.goods_id, TileWorkModeE.下砖))
                                 {
+                                    SetTrackSortable(track, false, SORT_LEVEL_NO, "有砖机正在下该品种");
                                     return;
                                 }
                             }
@@ -2654,6 +2678,10 @@ namespace resource.track
                         if (discount >= TrackSortFrontCount)
                         {
                             SetTrackSortable(track, true, SORT_LEVEL_2);
+                        }
+                        else
+                        {
+                            SetTrackSortable(track, false, SORT_LEVEL_NO,string.Format("空位不满[ {0} -> {1} ]", discount, TrackSortFrontCount));
                         }
                     }
                 }

@@ -3232,12 +3232,12 @@ namespace resource.goods
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        public Stock GetInfrontUpSplitButtonStock(uint trackid)
+        public Stock GetInfrontUpSplitButtonStock(uint trackid, ushort point)
         {
             Track track = PubMaster.Track.GetTrack(trackid);
             if (track != null)
             {
-                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (track.is_take_forward ? (c.location < track.up_split_point) : (c.location > track.up_split_point)));
+                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (track.is_take_forward ? (c.location < point) : (c.location > point)));
                 if (stocks.Count > 0)
                 {
                     stocks.Sort((x, y) => y.location.CompareTo(x.location));
