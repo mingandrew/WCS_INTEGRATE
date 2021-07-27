@@ -34,8 +34,6 @@ namespace tool.appconfig
         public List<BigConfigItem> BigConfigList { set; get; } = new List<BigConfigItem>();
         public bool UseSortV2 { get; set; }
         public bool UseInOutLeftRight { set; get; }
-        public byte UseInOutLeftRightOdd { set; get; } = 1;
-        public byte UseInOutLeftRightEven { set; get; } = 0;
 
         /// <summary>
         /// 是否释放上砖摆渡车

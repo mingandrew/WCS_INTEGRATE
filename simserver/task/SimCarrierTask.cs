@@ -650,7 +650,7 @@ namespace simtask
                                 }
                                 break;
                             case SimCarrierSortStepE.取货完成获取卸货位置:
-                                Stock infrontstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id);
+                                Stock infrontstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id, DevStatus.CurrentPoint);
                                 if (infrontstock != null)
                                 {
                                     ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
@@ -711,11 +711,14 @@ namespace simtask
                         switch (SORT_STEP)
                         {
                             case SimCarrierSortStepE.获取取货库存位置:
-                                Stock intopstock = PubMaster.Goods.GetTrackTopStock(TargetTrack.id);
-                                if (intopstock != null)
+                                if (TargetTrack != null)
                                 {
-                                    TAKE_STOCK_POINT = intopstock.location;
-                                    SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+                                    Stock intopstock = PubMaster.Goods.GetStockBehindStockPoint(TargetTrack.id, DevStatus.CurrentPoint);
+                                    if (intopstock != null)
+                                    {
+                                        TAKE_STOCK_POINT = intopstock.location;
+                                        SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+                                    }
                                 }
                                 break;
                             case SimCarrierSortStepE.前往取货库存位置:
@@ -747,17 +750,35 @@ namespace simtask
                                 }
                                 break;
                             case SimCarrierSortStepE.取货完成获取卸货位置:
-                                Stock outbuttomstock = PubMaster.Goods.GetTrackButtomStock(EndTrack.id);
-                                if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
+                                if(EndTrack.Type == TrackTypeE.储砖_出入)
                                 {
-                                    ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
-                                    GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+                                    Stock outbuttomstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id, DevStatus.CurrentPoint);
+                                    if (outbuttomstock != null && outbuttomstock.location != 0)
+                                    {
+                                        ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+                                        GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+                                    }
+                                    else
+                                    {
+                                        GIVE_STOCK_POINT = EndTrack.limit_point_up;
+                                    }
+                                    SORT_STEP = SimCarrierSortStepE.前往卸货位置;
                                 }
                                 else
                                 {
-                                    GIVE_STOCK_POINT = EndTrack.limit_point_up;
+                                    Stock outbuttomstock = PubMaster.Goods.GetTrackButtomStock(EndTrack.id);
+                                    if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
+                                    {
+                                        ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+                                        GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+                                    }
+                                    else
+                                    {
+                                        GIVE_STOCK_POINT = EndTrack.limit_point_up;
+                                    }
+                                    SORT_STEP = SimCarrierSortStepE.前往卸货位置;
                                 }
-                                SORT_STEP = SimCarrierSortStepE.前往卸货位置;
+                                
                                 break;
                             case SimCarrierSortStepE.前往卸货位置:
                                 if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
@@ -1233,17 +1254,25 @@ namespace simtask
             if (cmd.CarrierOrder == DevCarrierOrderE.往前倒库
                 || cmd.CarrierOrder == DevCarrierOrderE.往后倒库)
             {
-                if(TO_POINT != ZERO_POINT)
+                EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出,TrackTypeE.储砖_出入 }, cmd.CheckTrackCode);
+                if (TO_POINT != ZERO_POINT)
                 {
                     SORT_TYPE = OUT_2_OUT_SORT;
-                    EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出 }, cmd.CheckTrackCode);
                 }
                 else
                 {
                     SORT_TYPE = IN_2_OUT_SORT;
-                    TargetTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_入 }, cmd.CheckTrackCode);
-                    EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出 }, cmd.CheckTrackCode);
+                    if(EndTrack.Type == TrackTypeE.储砖_出入)
+                    {
+                        TargetTrack = EndTrack;
+
+                    }
+                    else
+                    {
+                        TargetTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_入 }, cmd.CheckTrackCode);
+                    }
                 }
+                
                 SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
             }
             DevStatus.MoveCount = 0;

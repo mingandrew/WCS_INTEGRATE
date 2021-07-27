@@ -130,6 +130,13 @@ namespace task.trans
                 if(!ExistTransWithTracks(track.id, track.brother_track_id))
                 {
                     if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
+                    Stock btmstock = PubMaster.Goods.GetTrackButtomStock(track.id);
+                    if(btmstock != null 
+                        && track.StockStatus == TrackStockStatusE.有砖
+                        && PubMaster.DevConfig.IsHaveSameTileNowGood(btmstock.goods_id, TileWorkModeE.下砖))
+                    {
+                        continue;
+                    }
                     Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
                     AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, track.id, track.brother_track_id, TransStatusE.检查轨道, 0, track.line);
                     return;
@@ -144,8 +151,11 @@ namespace task.trans
                 if (!ExistTransWithTracks(track.id, track.brother_track_id))
                 {
                     Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
-                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id == 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
-                    return;
+                    if(!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
+                    {
+                        AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
+                        return;
+                    }
                 }
             }
         }

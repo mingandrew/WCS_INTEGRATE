@@ -197,6 +197,7 @@ namespace task.device
             }
         }
 
+
         /// <summary>
         /// 停止模拟的设备连接
         /// </summary>
@@ -3334,6 +3335,43 @@ namespace task.device
             return onecar != null ? DevList.Exists(c => c.ID == two_car_id && (c.DevStatus.DeviceStatus == DevCarrierStatusE.后退 || c.DevStatus.DeviceStatus == DevCarrierStatusE.停止 )) : false;
         }
 
+        /// <summary>
+        /// 根据运输车所在的位置，判断需要使用上摆渡车还是下摆渡车
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <returns></returns>
+        internal DeviceTypeE GetCarrierNeedFerryType(uint carrierid)
+        {
+            CarrierTask task = DevList.Find(c => c.ID == carrierid);
+            if (task != null)
+            {
+                Track currenttrack = PubMaster.Track.GetTrack(task.CurrentTrackId);
+                if (currenttrack != null)
+                {
+                    switch (currenttrack.Type)
+                    {
+                        case TrackTypeE.下砖轨道:
+                        case TrackTypeE.摆渡车_入:
+                        case TrackTypeE.储砖_入:
+                            return DeviceTypeE.下摆渡;
+                        case TrackTypeE.上砖轨道:
+                        case TrackTypeE.摆渡车_出:
+                        case TrackTypeE.储砖_出:
+                            return DeviceTypeE.上摆渡;
+                        case TrackTypeE.储砖_出入:
+                            int downdis = Math.Abs(task.CurrentPoint - currenttrack.limit_point);
+                            int updis = Math.Abs(task.CurrentPoint - currenttrack.limit_point_up);
+                            if (downdis < updis)
+                            {
+                                return DeviceTypeE.下摆渡;
+                            }
+                            return DeviceTypeE.上摆渡;
+                    }
+                }
+            }
+
+            return DeviceTypeE.其他;
+        }
         #endregion
 
         #region[小车逻辑警告]
