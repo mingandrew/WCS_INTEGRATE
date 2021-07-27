@@ -33,6 +33,9 @@
 
         public static string FullTrackLowerLimit = nameof(FullTrackLowerLimit);//满砖库存数量下限
         public static string FullTrackUpperLimit = nameof(FullTrackUpperLimit);//满砖库存数量上限
+
+        public static string FullTrackLowerLimitTwo = nameof(FullTrackLowerLimitTwo);//满砖库存数量下限
+        public static string FullTrackUpperLimitTwo = nameof(FullTrackUpperLimitTwo);//满砖库存数量上限
     }
 
     public static class DicSwitchTag

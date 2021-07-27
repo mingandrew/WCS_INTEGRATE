@@ -584,6 +584,10 @@ namespace task.device
                     //ushort areafullqty = PubMaster.Area.GetAreaFullQty(task.AreaId);
                     //保存在字典里的 - 【满砖库存数量下限】
                     ushort areafullqty = (ushort)PubMaster.Dic.GetDtlIntCode(DicTag.FullTrackLowerLimit);
+                    if (givetrack.area == 2)
+                    {
+                        areafullqty = (ushort)PubMaster.Dic.GetDtlIntCode(DicTag.FullTrackLowerLimitTwo);
+                    }
                     if (storecount >= areafullqty)
                     {
                         //PubMaster.Track.SetTrackEaryFull(givetrack.id, true, DateTime.Now);
