@@ -27,60 +27,110 @@ namespace task.trans.transtask
             bool havedifcaringive = true, havecarintake = true;
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
-            // 是否有不符规格的车在轨道
-            if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trans.give_track_id, goodssizeID, out uint carrierid))
+
+            //出入轨道
+            if (PubMaster.Track.IsTrackType(trans.give_track_id, TrackTypeE.储砖_出入))
             {
-                if (_M.HaveCarrierInTrans(carrierid))
+                // 是否有不符规格的车在轨道
+                if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trans.give_track_id, goodssizeID, out uint carrierid))
                 {
+                    if (_M.HaveCarrierInTrans(carrierid))
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 1002, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                            PubMaster.Device.GetDeviceName(carrierid),
+                            PubMaster.Track.GetTrackName(trans.give_track_id)));
+                        #endregion
+                        return;
+                    }
+
+                    if (!PubTask.Carrier.IsCarrierFree(carrierid))
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 1102, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                            PubMaster.Device.GetDeviceName(carrierid),
+                            PubMaster.Track.GetTrackName(trans.give_track_id)));
+                        #endregion
+                        return;
+                    }
+
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1002, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                    _M.SetStepLog(trans, false, 1202, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
                         PubMaster.Device.GetDeviceName(carrierid),
                         PubMaster.Track.GetTrackName(trans.give_track_id)));
                     #endregion
-                    return;
+
+                    //转移到同类型轨道
+                    TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                    track = PubTask.Carrier.GetCarrierTrack(carrierid);
+
+                    DeviceTypeE ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(carrierid);
+
+                    _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道, ferrytype);
                 }
-
-                if (!PubTask.Carrier.IsCarrierFree(carrierid))
+                else
                 {
-                    #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1102, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
-                        PubMaster.Device.GetDeviceName(carrierid),
-                        PubMaster.Track.GetTrackName(trans.give_track_id)));
-                    #endregion
-                    return;
-                }
-
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1202, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
-                    PubMaster.Device.GetDeviceName(carrierid),
-                    PubMaster.Track.GetTrackName(trans.give_track_id)));
-                #endregion
-
-                //转移到同类型轨道
-                TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
-                track = PubTask.Carrier.GetCarrierTrack(carrierid);
-                _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
-            }
-            else
-            {
-                havedifcaringive = false;
-            }
-
-            //是否有小车在满砖轨道
-            if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
-            {
-                if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
-                {
-                    _M.AddMoveCarrierTask(trans.take_track_id, fullcarrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
-                }
-                else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
-                {
+                    havedifcaringive = false;
                     havecarintake = false;
                 }
             }
-            else
+            else//出轨道、入轨道
             {
-                havecarintake = false;
+                // 是否有不符规格的车在轨道
+                if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trans.give_track_id, goodssizeID, out uint carrierid))
+                {
+                    if (_M.HaveCarrierInTrans(carrierid))
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 1002, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                            PubMaster.Device.GetDeviceName(carrierid),
+                            PubMaster.Track.GetTrackName(trans.give_track_id)));
+                        #endregion
+                        return;
+                    }
+
+                    if (!PubTask.Carrier.IsCarrierFree(carrierid))
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 1102, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                            PubMaster.Device.GetDeviceName(carrierid),
+                            PubMaster.Track.GetTrackName(trans.give_track_id)));
+                        #endregion
+                        return;
+                    }
+
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 1202, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
+                        PubMaster.Device.GetDeviceName(carrierid),
+                        PubMaster.Track.GetTrackName(trans.give_track_id)));
+                    #endregion
+
+                    //转移到同类型轨道
+                    TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
+                    track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                    _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                }
+                else
+                {
+                    havedifcaringive = false;
+                }
+
+                //是否有小车在满砖轨道
+                if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
+                {
+                    if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
+                    {
+                        _M.AddMoveCarrierTask(trans.take_track_id, fullcarrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
+                    }
+                    else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                    {
+                        havecarintake = false;
+                    }
+                }
+                else
+                {
+                    havecarintake = false;
+                }
             }
 
             if (!havecarintake && !havedifcaringive)
@@ -196,7 +246,8 @@ namespace task.trans.transtask
                                 //出库轨道
                                 //      有砖：则先定位至无砖的地方再执行倒库任务
                                 //      无砖：则定位到定位点执行倒库
-                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id))
+                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id)
+                                    && track.Type == TrackTypeE.储砖_出)
                                 {
                                     Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
                                     if (gtrack != null)
@@ -334,7 +385,8 @@ namespace task.trans.transtask
                                 //出库轨道
                                 //      有砖：则先定位至无砖的地方再执行倒库任务
                                 //      无砖：则定位到定位点执行倒库
-                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id))
+                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id)
+                                    && PubMaster.Track.IsTrackType(trans.give_track_id, TrackTypeE.储砖_出))
                                 {
                                     Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
                                     if (gtrack != null)
@@ -373,23 +425,6 @@ namespace task.trans.transtask
                                     });
                                 }
                                 #endregion
-
-                                //int count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
-
-                                //#region 【任务步骤记录】
-                                //_M.LogForCarrierSort(trans, trans.give_track_id, count.ToString());
-                                //#endregion
-
-                                ////后退至轨道倒库
-                                //PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                //{
-                                //    Order = DevCarrierOrderE.往前倒库,
-                                //    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                //    //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                //    MoveCount = (byte)count,
-                                //    ToTrackId = trans.give_track_id
-                                //});
-
                             }
                         }
                     }
@@ -399,9 +434,8 @@ namespace task.trans.transtask
 
                 #region[小车在上砖轨道]
                 case TrackTypeE.上砖轨道:
-
                     break;
-                    #endregion
+                #endregion
             }
         }
 
@@ -571,7 +605,7 @@ namespace task.trans.transtask
 
             // 任务运输车回到出库轨道头
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                && (track.id == trans.take_track_id
+                && ((track.id == trans.take_track_id && track.Type == TrackTypeE.储砖_入)
                         || (track.id == trans.give_track_id
                             && !PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))))
             {
@@ -596,7 +630,8 @@ namespace task.trans.transtask
                 && PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
             {
                 // 入库侧仍还有库存
-                if (PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
+                if (PubMaster.Track.IsTrackType(trans.take_track_id,TrackTypeE.储砖_入)
+                    && PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
                 {
                     //_M.SetStatus(trans, TransStatusE.移车中, "入库侧还有库存没倒完，重新发起倒库指令");
                     //报警运输车倒库后入库轨道还有库存，请在核实并修改入库轨道的库存后，1.如果需要继续倒库，请手动给运输车发倒库任务，2.如果不需要继续倒库，请取消当前轨道的倒库任务并修改轨道状态为空砖/有砖
