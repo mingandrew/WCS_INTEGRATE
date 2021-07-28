@@ -75,8 +75,7 @@
                         <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal">
                             <TextBlock Text="出定位脉冲" FontSize="18" VerticalAlignment="Bottom"/>
                         </StackPanel>
-                        <StackPanel  Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal"
-                                     Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <StackPanel  Grid.Row="0" Grid.Column="3" Grid.ColumnSpan="2"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal">
                             <TextBlock Text="接力点脉冲" VerticalAlignment="Bottom" FontSize="18"/>
                         </StackPanel>
                         <StackPanel  Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="3"  HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal"
@@ -89,8 +88,7 @@
                         <Rectangle Grid.Row="1" Grid.Column="5" Height="12" Fill="#FFDBF00D" Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"  Text="{Binding Out_Loc_Point}" VerticalAlignment="Top" FontSize="18"/>
-                        <TextBlock Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2"  Text="{Binding Out_Sort_Point}" VerticalAlignment="Top" FontSize="18"
-                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2"  Text="{Binding Out_Sort_Point}" VerticalAlignment="Top" FontSize="18"/>
                         <TextBlock Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2"  Text="{Binding Out_Last_Point}" VerticalAlignment="Top" FontSize="18"
                                    Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}"/>
                     </Grid>
@@ -289,8 +287,7 @@
                         </Grid>
 
                     </TabItem>
-                    <TabItem Header="接力点设置" FontSize="20"
-                                   Visibility="{Binding IsNotInOutTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <TabItem Header="接力点设置" FontSize="20">
                         <Grid>
                             <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Grid.ColumnDefinitions>
@@ -319,7 +316,7 @@
                                     <TextBlock Text="接力点脉冲：" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                 </Border>
                                 <Border Grid.Row="1" Grid.Column="1" MinWidth="150" Style="{StaticResource MBorder_LT}">
-                                    <TextBox Text="{Binding Set_Out_Sort_Point}" Margin="5" IsReadOnly="True"/>
+                                    <TextBox Text="{Binding Set_Out_Sort_Point}" Margin="5"/>
                                 </Border>
                                 <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource MBorder_LTR}">
                                     <Button Content="更新" Style="{StaticResource ButtonPrimary}" FontSize="20" Width="80" Height="30" Padding="2" Margin="0"

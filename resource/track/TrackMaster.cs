@@ -2174,7 +2174,7 @@ namespace resource.track
         /// <returns></returns>
         public bool UpdateTrackSortOut(uint areaid, ushort lineid, ushort point)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_出));
+            List<Track> tracks = TrackList.FindAll(c => c.area == areaid &&  c.line == lineid && c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入));
             if (tracks.Count > 0)
             {
                 foreach (var item in tracks)
