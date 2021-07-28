@@ -580,7 +580,6 @@ namespace task.trans.transtask
                                 _M.FreeGiveFerry(trans);
                             }
 
-                            PubMaster.Goods.MoveStock(trans.stock_id, trans.give_track_id);
                             _M.SetUnLoadTime(trans);
 
                             //上砖任务，在上砖轨道放砖后直接完成任务
@@ -620,8 +619,6 @@ namespace task.trans.transtask
                     {
                         if (PubTask.Ferry.IsLoad(trans.give_ferry_id))
                         {
-                            PubMaster.Goods.MoveStock(trans.stock_id, track.id);
-
                             #region 没库存时就将轨道设为空砖
 
                             if (!PubMaster.Track.IsEmtpy(trans.take_track_id)

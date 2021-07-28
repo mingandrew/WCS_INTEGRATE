@@ -320,9 +320,9 @@ namespace task.trans
 
                     if (!HaveInTileTrack(taketrackid))
                     {
-                        uint stockid = PubMaster.Goods.GetTrackTopStockId(taketrackid);
+                        Stock stock = PubMaster.Goods.GetStockForOut(taketrackid);
                         //有库存但是不是砖机需要的品种
-                        if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goods_id))
+                        if (stock != null && stock.goods_id != goods_id)
                         {
                             PubMaster.Track.UpdateRecentTile(taketrackid, 0);
                             PubMaster.Track.UpdateRecentGood(taketrackid, 0);
@@ -330,7 +330,7 @@ namespace task.trans
                             return false;
                         }
                         //生成出库交易
-                        AddTrans(area, devid, transtype, goods_id, stockid, taketrackid, givetrackid);
+                        AddTrans(area, devid, transtype, goods_id, stock.id, taketrackid, givetrackid);
                         //PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
 
                         return true;
@@ -349,9 +349,9 @@ namespace task.trans
                     {
                         if (!HaveInTileTrack(trackid))
                         {
-                            uint stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
+                            Stock stock = PubMaster.Goods.GetStockForOut(taketrackid);
                             //有库存但是不是砖机需要的品种
-                            if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goods_id))
+                            if (stock != null && stock.goods_id != goods_id)
                             {
                                 PubMaster.Track.UpdateRecentTile(trackid, 0);
                                 PubMaster.Track.UpdateRecentGood(trackid, 0);
@@ -359,7 +359,7 @@ namespace task.trans
                                 return false;
                             }
                             //生成出库交易
-                            AddTrans(area, devid, transtype, goods_id, stockid, trackid, givetrackid);
+                            AddTrans(area, devid, transtype, goods_id, stock.id, trackid, givetrackid);
                             //PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
                             return true;
                         }
@@ -1465,7 +1465,7 @@ namespace task.trans
         {
             if (stockid == 0)
             {
-                stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
+                stockid = PubMaster.Goods.GetStockForOut(trackid)?.id ?? 0;
             }
             if (stockid == 0) return false;
 
@@ -1521,7 +1521,7 @@ namespace task.trans
         {
             if (stockid == 0)
             {
-                stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
+                stockid = PubMaster.Goods.GetStockForOut(trackid)?.id ?? 0;
             }
 
             if (stockid == 0) return false;

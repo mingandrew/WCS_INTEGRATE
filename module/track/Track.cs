@@ -291,7 +291,8 @@ namespace module.track
         /// <returns></returns>
         public bool IsWorkIn()
         {
-            return (Type2 == TrackType2E.通用 || Type2 == TrackType2E.入库);
+            return Type == TrackTypeE.储砖_入
+                || (Type == TrackTypeE.储砖_出入 && (Type2 == TrackType2E.通用 || Type2 == TrackType2E.入库));
         }
 
         /// <summary>
@@ -300,7 +301,8 @@ namespace module.track
         /// <returns></returns>
         public bool IsWorkOut()
         {
-            return (Type2 == TrackType2E.通用 || Type2 == TrackType2E.出库);
+            return Type == TrackTypeE.储砖_出
+                || (Type == TrackTypeE.储砖_出入 && (Type2 == TrackType2E.通用 || Type2 == TrackType2E.出库));
         }
 
     }

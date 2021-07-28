@@ -33,19 +33,7 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void Organizing(StockTrans trans)
         {
-            Stock stk = null;
-            // 获取轨道出库取砖顺序
-            if (PubMaster.Track.IsTakeForwardTrack(trans.take_track_id))
-            {
-                // 前进取-库存脉冲从小到大
-                stk = PubMaster.Goods.GetStockInLocMin(trans.take_track_id);
-            }
-            else
-            {
-                // 后退取-库存脉冲从大到小
-                stk = PubMaster.Goods.GetStockInLocMax(trans.take_track_id);
-            }
-
+            Stock stk = PubMaster.Goods.GetStockForOut(trans.take_track_id);
             List<StockTransDtl> dtl = _M.GetTransDtls(trans.id);
             foreach (var item in dtl)
             {

@@ -711,7 +711,7 @@ namespace simtask
                         switch (SORT_STEP)
                         {
                             case SimCarrierSortStepE.获取取货库存位置:
-                                Stock intopstock = PubMaster.Goods.GetTrackTopStock(TargetTrack.id);
+                                Stock intopstock = PubMaster.Goods.GetStockForOut(TargetTrack.id);
                                 if (intopstock != null)
                                 {
                                     TAKE_STOCK_POINT = intopstock.location;
@@ -747,7 +747,7 @@ namespace simtask
                                 }
                                 break;
                             case SimCarrierSortStepE.取货完成获取卸货位置:
-                                Stock outbuttomstock = PubMaster.Goods.GetTrackButtomStock(EndTrack.id);
+                                Stock outbuttomstock = PubMaster.Goods.GetStockForIn(EndTrack.id);
                                 if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
                                 {
                                     ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
@@ -1198,7 +1198,7 @@ namespace simtask
                     &&((EndTrack.Type == TrackTypeE.储砖_出 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
                 {
                     GIVE_STOCK_POINT = 0;
-                    Stock stock = PubMaster.Goods.GetTrackTopStock(EndTrack.id);
+                    Stock stock = PubMaster.Goods.GetStockForOut(EndTrack.id);
                     if (stock != null)
                     {
                         TAKE_STOCK_POINT = stock.location;
@@ -1217,7 +1217,7 @@ namespace simtask
                     && ((EndTrack.Type == TrackTypeE.储砖_入 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
                 {
                     TAKE_STOCK_POINT = 0;
-                    if (PubMaster.Goods.CalculateNextLocation(TransTypeE.下砖任务, 0, EndTrack.id, out ushort stockcount, out ushort location))
+                    if (PubMaster.Goods.CalculateNextLocByDir(EndTrack.is_give_back ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, DevId, EndTrack.id, DevConfig.stock_id, out ushort location))
                     {
                         GIVE_STOCK_POINT = location;
                     }

@@ -269,8 +269,6 @@ namespace task.trans.transtask
 
         #region[检测轨道并添加移车任务]
 
-
-
         /// <summary>
         /// 判断是否有其他车在需要作业的轨道
         /// </summary>
@@ -279,36 +277,47 @@ namespace task.trans.transtask
         /// <returns></returns>
         internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid, DeviceTypeE ferytype = DeviceTypeE.其他)
         {
-            CarrierTypeE carrier = PubMaster.Goods.GetGoodsCarrierType(trans.goods_id);
-            bool haveintrack = PubTask.Carrier.HaveDifTypeInTrack(trackid, carrier, out uint carrierid);
-
-            if (!haveintrack && trans.carrier_id != 0)
+            // 获取任务品种规格ID
+            uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
+            // 是否有不符规格的车在轨道
+            if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trackid, goodssizeID, out uint carrierid))
             {
-                haveintrack = PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id, out carrierid);
-            }
-
-            if (haveintrack && !_M.HaveCarrierInTrans(carrierid))
-            {
-                if (PubTask.Carrier.IsCarrierFree(carrierid))
+                if (_M.HaveCarrierInTrans(carrierid))
                 {
-                    if (PubTask.Carrier.IsLoad(carrierid))
-                    {
-                        //下降放货
-                        PubTask.Carrier.DoOrder(carrierid, trans.id, new CarrierActionOrder()
-                        {
-                            Order = DevCarrierOrderE.放砖指令
-                        }, "库存转移下降放货");
-                    }
-                    else
-                    {
-                        //转移到同类型轨道
-                        TrackTypeE tracktype = PubMaster.Track.GetTrackType(trackid);
-                        _M.AddMoveCarrierTask(trackid, carrierid, tracktype, MoveTypeE.转移占用轨道, ferytype);
-                    }
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 1000, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                        PubMaster.Device.GetDeviceName(carrierid),
+                        PubMaster.Track.GetTrackName(trackid)));
+                    #endregion
+                    return true;
                 }
-            }
 
-            return haveintrack;
+                if (!PubTask.Carrier.IsCarrierFree(carrierid))
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 1100, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                        PubMaster.Device.GetDeviceName(carrierid),
+                        PubMaster.Track.GetTrackName(trackid)));
+                    #endregion
+                    return true;
+                }
+
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 1200, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
+                    PubMaster.Device.GetDeviceName(carrierid),
+                    PubMaster.Track.GetTrackName(trackid)));
+                #endregion
+
+                //转移到同类型轨道
+                TrackTypeE tracktype = PubMaster.Track.GetTrackType(trackid);
+                track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         #endregion

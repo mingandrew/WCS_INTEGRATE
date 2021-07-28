@@ -547,7 +547,7 @@ namespace wcs.ViewModel
                         return;
                     }
 
-                    Stock top = PubMaster.Goods.GetTrackTopStock(trackid);
+                    Stock top = PubMaster.Goods.GetStockForOut(trackid);
                     if (top != null)
                     {
                         List<uint> tras = PubMaster.Track.GetFerryTrackId(1, TransTypeE.上砖任务);

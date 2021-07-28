@@ -31,20 +31,12 @@ namespace task.trans.transtask
             //转移取货轨道不符合的运输车
             if (CheckTrackAndAddMoveTask(trans, trans.take_track_id))
             {
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1011, string.Format("有不符合规格作业要求的运输车停在[ {0} ]，尝试对其生成移车任务；",
-                    PubMaster.Track.GetTrackName(trans.take_track_id)));
-                #endregion
                 return;
             }
 
             //转移卸货轨道不符合的运输车
             if (CheckTrackAndAddMoveTask(trans, trans.give_track_id))
             {
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1111, string.Format("有不符合规格作业要求的运输车停在[ {0} ]，尝试对其生成移车任务；",
-                    PubMaster.Track.GetTrackName(trans.give_track_id)));
-                #endregion
                 return;
             }
 
@@ -215,7 +207,6 @@ namespace task.trans.transtask
 
                     if (isload && isftask)
                     {
-                        PubMaster.Goods.MoveStock(trans.stock_id, track.id);
                         _M.SetLoadTime(trans);
                         _M.SetStatus(trans, TransStatusE.放砖流程);
                     }

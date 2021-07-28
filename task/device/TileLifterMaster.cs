@@ -1839,9 +1839,9 @@ namespace task.device
                 //判断是否轨道是否已经有任务占用[忽略倒库任务]
                 if (!PubTask.Trans.HaveInTrackButSortTask(trackid))
                 {
-                    uint stockid = PubMaster.Goods.GetTrackTopStockId(trackid);
+                    Stock stock = PubMaster.Goods.GetStockForOut(trackid);
                     //有库存但是不是砖机需要的品种
-                    if (stockid != 0 && !PubMaster.Goods.IsStockWithGood(stockid, goodid))
+                    if (stock != null && stock.goods_id != goodid)
                     {
                         PubMaster.Track.UpdateRecentTile(trackid, 0);
                         PubMaster.Track.UpdateRecentGood(trackid, 0);
@@ -1851,12 +1851,12 @@ namespace task.device
                     if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, trackid, tiletrackid, 0, line);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, trackid, tiletrackid, 0, line);
                     }
                     else
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, trackid, tiletrackid, 0, line);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, trackid, tiletrackid, 0, line);
                     }
                     //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                     isallocate = true;
@@ -1962,7 +1962,7 @@ namespace task.device
                     continue;
                 }
 
-                Stock stock = PubMaster.Goods.GetTrackTopStock(tt.track_id);
+                Stock stock = PubMaster.Goods.GetStockForOut(tt.track_id);
                 uint goodid = 0;
                 uint stockid = 0;
                 if (stock != null)
@@ -1980,6 +1980,7 @@ namespace task.device
                         goodid = tilegoodid;
                     }
                 }
+
                 if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                 {
                     //生成出库交易
@@ -1990,6 +1991,7 @@ namespace task.device
                     //生成出库交易
                     PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tt.track_id, tiletrackid, 0, line);
                 }
+
                 //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileHaveNoTrackToOut, (ushort)tileid);
                 isallocate = true;

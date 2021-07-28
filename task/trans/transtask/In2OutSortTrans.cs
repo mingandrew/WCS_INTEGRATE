@@ -201,7 +201,7 @@ namespace task.trans.transtask
                                     {
                                         ushort toempypoint = 0;
 
-                                        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                        Stock btmstock = PubMaster.Goods.GetStockForIn(trans.give_track_id);
                                         if (btmstock != null)
                                         {
                                             ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
@@ -326,7 +326,7 @@ namespace task.trans.transtask
                                 {
                                     ushort toempypoint = 0;
 
-                                    Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                    Stock btmstock = PubMaster.Goods.GetStockForIn(trans.give_track_id);
                                     if (btmstock != null)
                                     {
                                         ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)

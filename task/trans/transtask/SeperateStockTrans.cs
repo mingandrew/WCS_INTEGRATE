@@ -35,7 +35,7 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void Organizing(StockTrans trans)
         {
-            Stock top = PubMaster.Goods.GetTrackTopStock(trans.take_track_id);
+            Stock top = PubMaster.Goods.GetStockForOut(trans.take_track_id);
             List<StockTransDtl> dtl = _M.GetTransDtls(trans.id);
             foreach (var item in dtl)
             {

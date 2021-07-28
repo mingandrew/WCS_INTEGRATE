@@ -27,7 +27,6 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CheckingTrack(StockTrans trans)
         {
-
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
             // 是否有不符规格的车在轨道

@@ -1551,7 +1551,7 @@ namespace resource.track
             return TrackList.Exists(c => c.id == give_track_id
                                     && c.StockStatus != TrackStockStatusE.满砖
                                     && c.AlertStatus == TrackAlertE.正常
-                                    && (c.TrackStatus == TrackStatusE.启用 || c.TrackStatus == TrackStatusE.仅下砖));
+                                    && c.InStatus(TrackStatusE.启用, TrackStatusE.仅下砖));
         }
 
         /// <summary>
@@ -1612,7 +1612,7 @@ namespace resource.track
         /// <returns></returns>
         internal bool IsTrackEnable(uint track_id, TrackStatusE trackStatus)
         {
-            return TrackList.Exists(c => c.id == track_id && c.AlertStatus == TrackAlertE.正常 && (c.TrackStatus == TrackStatusE.启用 || c.TrackStatus == trackStatus));
+            return TrackList.Exists(c => c.id == track_id && c.AlertStatus == TrackAlertE.正常 && c.InStatus(TrackStatusE.启用, trackStatus));
         }
 
         /// <summary>
@@ -1815,7 +1815,7 @@ namespace resource.track
             foreach (Track track in recentusetracks)
             {
                 if (track.StockStatus != TrackStockStatusE.有砖
-                    || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
+                    || track.NotInStatus(TrackStatusE.启用, TrackStatusE.仅上砖)
                     || track.AlertStatus != TrackAlertE.正常
                     || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0))
                 {
@@ -1857,7 +1857,7 @@ namespace resource.track
             }
 
             if (track.StockStatus == TrackStockStatusE.空砖
-                    || (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖)
+                    || track.NotInStatus(TrackStatusE.启用, TrackStatusE.仅上砖)
                     || track.AlertStatus != TrackAlertE.正常
                     || (isnotuseupsplitstock && track.up_split_point != 0 && PubMaster.Track.GetAndRefreshUpCount(track.id) <= 0)
                     )

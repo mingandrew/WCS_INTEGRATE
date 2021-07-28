@@ -3651,7 +3651,9 @@ namespace task.device
             foreach (var item in carriers)
             {
                 uint stockid = item.DevConfig.stock_id;
-                if (stockid != 0 && PubMaster.Goods.IsTopStock(stockid))
+                // 获取轨道内靠近出库口库存
+                Stock topSTK = PubMaster.Goods.GetStockForOut(track_id);
+                if (stockid != 0 && topSTK.goods_id == stockid)
                 {
                     return true;
                 }

@@ -782,7 +782,7 @@ namespace task.trans.transtask
                 && havecarinfront
                 && stockqty > 1)
             {
-                Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
                 if (topstock != null && topstock.location > nowpoint
                     && PubMaster.DevConfig.IsCarrierBindStock(othercarid, topstock.id))
                 {

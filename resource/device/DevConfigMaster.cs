@@ -154,7 +154,7 @@ namespace resource.device
         /// <returns></returns>
         public bool IsHaveSameTileNowGood(uint goodid, params TileWorkModeE[] types)
         {
-            return ConfigTileLifterList.Exists(c => types.Contains(c.WorkMode) && c.goods_id == goodid);
+            return ConfigTileLifterList.Exists(c => types.Contains(c.WorkMode) && (c.goods_id == goodid || c.old_goodid == goodid));
         }
 
 

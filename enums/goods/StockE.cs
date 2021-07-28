@@ -67,9 +67,9 @@
 
     public enum StockPosE
     {
-        头部,
+        首车,
         中部,
-        尾部
+        尾车
     }
 
     public enum StockUpE
