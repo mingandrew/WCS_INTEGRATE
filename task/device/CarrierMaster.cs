@@ -122,13 +122,13 @@ namespace task.device
                                     // 判断是否有摆渡车
                                     if (!PubTask.Ferry.IsTargetFerryInPlace((ushort)task.AreaId, task.CurrentSite, task.TargetSite, out string result, true))
                                     {
-                                        task.DoStop(0, string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 其他[ {2} ]", "摆渡车状态不对", track.Type, result));
+                                        task.DoStop(0, string.Format("【自动终止小车】, 触发[ {0} ], 位置[ {1} ], 其他[ {2} ]", "摆渡车状态不对", track?.Type, result));
                                         Thread.Sleep(500);
                                     }
 
                                     if (task.OnGoingOrder == DevCarrierOrderE.定位指令)
                                     {
-                                        PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id, string.Format("运输车[ {0} ], 定位[ {1} -> {2} ]", task.Device.name, track.name, targettrack.name), "锁定");
+                                        PubTask.Ferry.StopFerryByFerryTrackId(targettrack.id, string.Format("运输车[ {0} ], 定位[ {1} -> {2} ]", task.Device.name, track?.name, targettrack.name), "锁定");
                                     }
                                 }
 
@@ -2033,7 +2033,8 @@ namespace task.device
                         }
 
                         //无任务，不做放砖任务
-                        if (!PubTask.Trans.HaveInCarrier(carrier.ID)
+                        if (carrier != null
+                            && !PubTask.Trans.HaveInCarrier(carrier.ID)
                             && carrier.NotInTask(DevCarrierOrderE.放砖指令))
                         {
                             //取砖任务

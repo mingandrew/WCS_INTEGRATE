@@ -1054,6 +1054,9 @@ namespace task.trans
                                             result = "小车正在上砖！";
                                         }
                                         break;
+                                    case TransStatusE.放砖流程:
+                                        SetStatus(trans, TransStatusE.取消, "手动取消任务");
+                                        break;
                                     case TransStatusE.还车回轨: 
                                         result = "正在调度小车回轨道";
                                         break;
@@ -1415,9 +1418,9 @@ namespace task.trans
             //1.打开使用-开关(使用上砖侧分割点坐标)
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return false;
 
-            //2.判断是否是出轨道
+            //2.判断是否是出轨道,出入轨道
             Track track = PubMaster.Track.GetTrack(track_id);
-            if (track == null || track.Type != TrackTypeE.储砖_出) return false;
+            if (track == null || track.NotInType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入)) return false;
 
             //3.如果已经有倒库任务则不发了
             if (TransList.Exists(c => !c.finish && c.take_track_id == track_id && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖侧倒库)))
