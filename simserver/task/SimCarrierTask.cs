@@ -610,7 +610,7 @@ namespace simtask
                         switch (SORT_STEP)
                         {
                             case SimCarrierSortStepE.获取取货库存位置:
-                                Stock behindstock = PubMaster.Goods.GetBehindUpSplitTopStock(EndTrack.id);
+                                Stock behindstock = PubMaster.Goods.GetStockBehindStockPoint(EndTrack.id, (ushort)(DevStatus.CurrentPoint-50));
                                 if (behindstock != null)
                                 {
                                     TAKE_STOCK_POINT = behindstock.location;
@@ -650,7 +650,7 @@ namespace simtask
                                 }
                                 break;
                             case SimCarrierSortStepE.取货完成获取卸货位置:
-                                Stock infrontstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id, DevStatus.CurrentPoint);
+                                Stock infrontstock = PubMaster.Goods.GetInfrontUpSplitButtonStock(EndTrack.id, (ushort)(DevStatus.CurrentPoint + 50));
                                 if (infrontstock != null)
                                 {
                                     ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
@@ -1344,7 +1344,7 @@ namespace simtask
             }else if(GIVE_STOCK_POINT != ZERO_POINT)
             {
                 rs = DevStatus.CurrentPoint.CompareTo(GIVE_STOCK_POINT);
-            }else if(TO_POINT != ZERO_POINT)
+            }else if(TO_POINT != ZERO_POINT && TO_POINT != 50)
             {
                 rs = DevStatus.CurrentPoint.CompareTo(TO_POINT);
             }

@@ -321,11 +321,23 @@ namespace wcs.ViewModel
                             return;
                         }
 
-                        if (Set_Out_Sort_Point <= Out_Last_Point || Set_Out_Sort_Point >= Out_Loc_Point)
+                        if (IsNotInOutTrack)
                         {
-                            Growl.Warning("倒库接力脉冲需要在出轨道范围内！");
-                            return;
+                            if (Set_Out_Sort_Point <= Out_Last_Point || Set_Out_Sort_Point >= Out_Loc_Point)
+                            {
+                                Growl.Warning("倒库接力脉冲需要在出轨道范围内！");
+                                return;
+                            }
                         }
+                        else
+                        {
+                            if(Set_Out_Sort_Point <= In_Loc_Point || Set_Out_Sort_Point >= Out_Loc_Point)
+                            {
+                                Growl.Warning("倒库接力脉冲需要在轨道范围内！");
+                                return;
+                            }
+                        }
+
 
                         if (PubMaster.Track.UpdateTrackSortOut(filterareaid, filterlineid, Set_Out_Sort_Point))
                         {
@@ -420,7 +432,7 @@ namespace wcs.ViewModel
             bool onlyinouttrack = PubMaster.Track.ExistTrackInType(filterareaid, filterlineid, TrackTypeE.储砖_出入);
 
             IsNotInOutTrack = !onlyinouttrack;
-            if (!onlyinouttrack)
+            if (IsNotInOutTrack)
             {
                 InOrOutGridLen = GridLength.Auto;
                 InOutGridLen = onegridlen;
@@ -457,6 +469,7 @@ namespace wcs.ViewModel
 
                 In_Loc_Point = inouttrack.limit_point;
                 Out_Loc_Point = inouttrack.limit_point_up;
+                Out_Sort_Point = inouttrack.up_split_point;
 
                 CalInOutTrackLenQty();
 
@@ -464,6 +477,8 @@ namespace wcs.ViewModel
                 {
                     Set_In_Loc_Point = inouttrack.limit_point;
                     Set_Out_Loc_Point = inouttrack.limit_point_up;
+
+                    Set_Out_Sort_Point = inouttrack.up_split_point;
                 }
             }
 

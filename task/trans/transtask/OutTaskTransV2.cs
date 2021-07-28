@@ -276,8 +276,18 @@ namespace task.trans.transtask
 
                 #region[储砖_出入]
                 case TrackTypeE.储砖_出入:
+
+                    //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
+                    if (_M.CheckCarrierInSortTaskAndAddTask(trans, trans.carrier_id, trans.take_track_id))
+                    {
+                        _M.SetStatus(trans, TransStatusE.完成,
+                            string.Format("小车【{0}】执行接力倒库，完成上砖任务", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                        return;
+                    }
+
+                    ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
                     if (!tileemptyneed
-                        && PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                        && ftask
                         && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 10, 5))
                     {
                         _M.SetStatus(trans, TransStatusE.完成, "工位非无货需求，直接完成任务");
@@ -297,8 +307,9 @@ namespace task.trans.transtask
                         {
                             #region[释放摆渡车]
 
-                            // 在取砖轨道，但是没货则是否取砖摆渡车
-                            if(GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line))
+                            // 在取砖轨道，但是没货且在任务中，则释放取砖摆渡车
+                            if(GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line)
+                                && !ftask)
                             {
                                 if (trans.HaveTakeFerry
                                     && PubTask.Carrier.IsCarrierSmallerSite(trans.carrier_id, trans.take_track_id, track.rfid_2))
