@@ -715,6 +715,11 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CancelStockTrans(StockTrans trans)
         {
+            if (trans.carrier_id == 0)
+            {
+                _M.SetStatus(trans, TransStatusE.完成, "取消流程，当前没有运输车，结束任务");
+                return;
+            }
             _M.SetStatus(trans, TransStatusE.小车回轨, "取消任务，让运输车回轨道！");
         }
 
