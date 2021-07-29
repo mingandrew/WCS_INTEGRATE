@@ -1279,7 +1279,7 @@ namespace task.device
                     OverPoint = overPoint,
                     MoveCount = moveCount,
                     ToTrackId = toTrackid
-                },string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo));
+                },string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo), true);
 
                 try
                 {
@@ -1305,7 +1305,7 @@ namespace task.device
         /// <param name="devid"></param>
         /// <param name="cao"></param>
         /// <param name="memo">备注：非空则记录信息</param>
-        public void DoOrder(uint devid, uint transid, CarrierActionOrder cao, string memo = "")
+        public void DoOrder(uint devid, uint transid, CarrierActionOrder cao, string memo = "", bool autostop = false)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -1324,8 +1324,16 @@ namespace task.device
                         // 连续同类型指令 需要先终止 - 待 PLC 后续优化
                         if (task.CurrentOrder == cao.Order)
                         {
-                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
-                            return;
+                            if (autostop)
+                            {
+                                task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
+                                Thread.Sleep(500);
+                            }
+                            else
+                            {
+                                task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
+                                return;
+                            }
                         }
 
                         // 定位与结束相同时，不发结束
