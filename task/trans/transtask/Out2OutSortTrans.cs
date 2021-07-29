@@ -669,11 +669,11 @@ namespace task.trans.transtask
                 return;
             }
 
+            ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
             // 任务运输车回到出库轨道头
-            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                && (trans.give_track_id == track.brother_track_id
-                        || (track.id == trans.give_track_id
-                            && !PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))))
+            if (ftask
+                && (trans.give_track_id == track.brother_track_id || trans.give_track_id == track.id)
+                && !PubTask.Carrier.IsCarrierInTrackBiggerRfID2(trans.carrier_id, trans.give_track_id))
             {
                 #region 【任务步骤记录】
                 _M.LogForCarrierToTrack(trans, trans.give_track_id);
@@ -691,9 +691,9 @@ namespace task.trans.transtask
             }
 
             // 完成？
-            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+            if (ftask
                 && track.id == trans.give_track_id
-                && PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))
+                && PubTask.Carrier.IsCarrierInTrackBiggerRfID2(trans.carrier_id, trans.give_track_id))
             {
                 _M.SetStatus(trans, TransStatusE.完成);
             }
