@@ -217,8 +217,8 @@ namespace resource.module.modulesql
                     sql += string.Format("`track_status` = {0}", track.track_status);
                     break;
                 case TrackUpdateE.Common:
-                    sql += string.Format("`name` = '{0}', `area` = {1}, `type` = {2}, `type2` = {3}, `max_store` = {4}, `memo` = '{5}'", 
-                        track.name, track.area, track.type, track.type2, track.max_store, track.memo);
+                    sql += string.Format("`name` = '{0}', `area` = {1}, `type` = {2}, `max_store` = {3}, `memo` = '{4}'", 
+                        track.name, track.area, track.type, track.max_store, track.memo);
                     break;
                 case TrackUpdateE.Size:
                     sql += string.Format("`width` = {0}, `left_distance` = {1}, `right_distance` = {2}", 
@@ -259,6 +259,10 @@ namespace resource.module.modulesql
                     break;
                 case TrackUpdateE.UpCount:
                     sql += string.Format("`upcount` = {0} ", track.upcount);
+                    break;
+                case TrackUpdateE.TGtype:
+                    sql += string.Format("`type2` = {0} ,`is_take_forward` = {1} ,`is_give_back` = {2} ",
+                        track.type2, track.is_take_forward, track.is_give_back);
                     break;
                 default:
                     sql += " 1=1";

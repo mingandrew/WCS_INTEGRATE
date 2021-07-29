@@ -606,11 +606,11 @@ namespace wcs.ViewModel
         {
             if (_tabtag.Equals("tiletrack"))
             {
-                PubMaster.Area.SaveToDb(SelectAreaId, _selecttile.id);
+                PubMaster.Area.SaveToDb(SelectAreaId, _selecttile);
             }
             else
             {
-                PubMaster.Area.SaveToDb(SelectAreaId, _selectferry.id);
+                PubMaster.Area.SaveToDb(SelectAreaId, _selectferry);
             }
         }
 

@@ -279,6 +279,16 @@ namespace resource.device
         }
 
         /// <summary>
+        /// 获取砖机左工位轨道ID
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetLeftTrackId(uint devid)
+        {
+            return GetTileLifter(devid)?.left_track_id ?? 0;
+        }
+
+        /// <summary>
         /// 获取砖机最后作业轨道ID
         /// </summary>
         /// <param name="devid"></param>

@@ -19,9 +19,9 @@ using wcs.Dialog;
 
 namespace wcs.ViewModel
 {
-    public class GoodsViewModel : ViewModelBase
+    public class GoodsViewModel : MViewModel
     {
-        public GoodsViewModel()
+        public GoodsViewModel() : base("Goods")
         {
             _list = new List<GoodsView>();
             _sizelist = new ObservableCollection<GoodSize>();
@@ -248,8 +248,9 @@ namespace wcs.ViewModel
                 case "addsize":
 
                     result = await HandyControl.Controls.Dialog.Show<GoodSizeEditDialog>()
-                              .Initialize<GoodSizeEditViewModel>((vm) => { 
-                                  vm.SetAdd(true); 
+                              .Initialize<GoodSizeEditViewModel>((vm) =>
+                              {
+                                  vm.SetAdd(true);
                               })
                               .GetResultAsync<DialogResult>();
                     if (result.p1 is bool addrs && addrs)
@@ -259,18 +260,19 @@ namespace wcs.ViewModel
                     }
 
                     break;
-                    
-                 #endregion
+
+                #endregion
 
                 #region[修改规格]
                 case "editesize":
-                    if(SelectSize == null)
+                    if (SelectSize == null)
                     {
                         Growl.Warning("请先选择规格后进行修改！");
                         return;
                     }
                     result = await HandyControl.Controls.Dialog.Show<GoodSizeEditDialog>()
-                              .Initialize<GoodSizeEditViewModel>((vm) => {
+                              .Initialize<GoodSizeEditViewModel>((vm) =>
+                              {
                                   vm.SetAdd(false);
                                   vm.SetEditSize(SelectSize);
                               })
@@ -337,5 +339,14 @@ namespace wcs.ViewModel
         }
 
         #endregion
+
+        protected override void TabActivate()
+        {
+        }
+
+        protected override void TabDisActivate()
+        {
+        }
+
     }
 }

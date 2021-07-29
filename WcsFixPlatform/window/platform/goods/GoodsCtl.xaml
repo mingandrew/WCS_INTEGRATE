@@ -100,11 +100,14 @@
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Margin="10,5,10,10" Orientation="Horizontal">
                     <Button Content="添加" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
-                        Tag="addsize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        Tag="addsize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
+                            Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
                     <Button Content="修改" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
-                        Tag="editesize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        Tag="editesize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
+                            Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
                     <Button Content="删除" Margin="5" Style="{StaticResource ButtonDanger}" hc:IconElement.Geometry="{StaticResource DeleteGeometry}" 
-                        Tag ="deletesize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        Tag ="deletesize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"
+                            Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
                 </StackPanel>
                 <DataGrid Grid.Row="2" Grid.Column="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
                       SelectedItem="{Binding SelectSize}" ItemsSource="{Binding SizeList}"

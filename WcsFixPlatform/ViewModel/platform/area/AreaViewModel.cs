@@ -87,6 +87,11 @@ namespace wcs.ViewModel
             set => Set(ref _arearadio, value);
         }
 
+        public bool IsUpDownTile
+        {
+            get => _selecttile?.Type == DeviceTypeE.砖机;
+        }
+
         #region[设备配置]
 
 
@@ -711,6 +716,26 @@ namespace wcs.ViewModel
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is Track tra)
             {
+                if (tra.Type2 == TrackType2E.入库 && _selecttile.Type == DeviceTypeE.上砖机)
+                {
+                    // 确认当前下砖机是否配置了该轨道
+                    if (PubMaster.Area.IsTrackInTiles(_selecttile.area, DeviceTypeE.下砖机, tra.id))
+                    {
+                        Growl.Warning("该轨道已被下砖机配置，无法再配置给上砖机！");
+                        return;
+                    }
+                }
+
+                if (tra.Type2 == TrackType2E.出库 && _selecttile.Type == DeviceTypeE.下砖机)
+                {
+                    // 确认当前下砖机是否配置了该轨道
+                    if (PubMaster.Area.IsTrackInTiles(_selecttile.area, DeviceTypeE.上砖机, tra.id))
+                    {
+                        Growl.Warning("该轨道已被上砖机配置，无法再配置给下砖机！");
+                        return;
+                    }
+                }
+
                 if (PubMaster.Area.IsInDevTrack(tra.id, SelectAreaId, _selecttile.id))
                 {
                     Growl.Warning("已存在该轨道！");
@@ -741,7 +766,7 @@ namespace wcs.ViewModel
                     return;
                 }
 
-                PubMaster.Area.SaveToDb(SelectAreaId, _selecttile.id);
+                PubMaster.Area.SaveToDb(SelectAreaId, _selecttile);
             }
             else
             {
@@ -750,7 +775,7 @@ namespace wcs.ViewModel
                     return;
                 }
 
-                PubMaster.Area.SaveToDb(SelectAreaId, _selectferry.id);
+                PubMaster.Area.SaveToDb(SelectAreaId, _selectferry);
             }
             Growl.Success("保存成功！");
         }

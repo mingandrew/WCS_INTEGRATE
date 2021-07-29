@@ -2277,6 +2277,110 @@ namespace resource.track
 
         #endregion
 
+        #region 更新轨道取放方向
+
+        /// <summary>
+        /// 根据上砖 砖机工位轨道吧变更类型及取放方向
+        /// </summary>
+        /// <param name="tileTrackID"></param>
+        /// <param name="setTrackID"></param>
+        public void UpdateDirByUp(uint tileTrackID, uint setTrackID)
+        {
+            // 获取砖机轨道
+            Track tileTrack = TrackList.Find(c => c.id == tileTrackID);
+
+            // 获取作业轨道
+            Track setTrack = TrackList.Find(c => c.id == setTrackID);
+
+            if (tileTrack == null || setTrack == null) return;
+
+            // 先确认轨道取货方向 
+            // (砖机code < 作业code [后退放砖 即前进取砖])
+            // (砖机code > 作业code [前进放砖 即后退取砖])
+            bool is_take_forward = (tileTrack.ferry_up_code / 100) < (setTrack.ferry_up_code / 100);
+
+            // 再确认轨道放货方向（常规是相反，当同侧上下时为一致方向）
+            bool is_give_forward = setTrack.same_side_inout ? is_take_forward : !is_take_forward;
+
+            bool isupdate = false;
+            if (!isupdate)
+            {
+                // 确认是否改为出库为主
+                if (setTrack.Type2 == TrackType2E.入库)
+                {
+                    setTrack.Type2 = TrackType2E.出库;
+                    isupdate = true;
+                }
+
+                // 更新取放方向
+                if (setTrack.is_take_forward != is_take_forward)
+                {
+                    setTrack.is_take_forward = is_take_forward;
+                    isupdate = true;
+                }
+
+                if (setTrack.is_give_back == is_give_forward)
+                {
+                    setTrack.is_give_back = !is_give_forward;
+                    isupdate = true;
+                }
+            }
+
+            if (isupdate) PubMaster.Mod.TraSql.EditTrack(setTrack, TrackUpdateE.TGtype);
+        }
+
+        /// <summary>
+        /// 根据下砖 砖机工位轨道吧变更类型及取放方向
+        /// </summary>
+        /// <param name="tileTrackID"></param>
+        /// <param name="setTrackID"></param>
+        public void UpdateDirByDown(uint tileTrackID, uint setTrackID)
+        {
+            // 获取砖机轨道
+            Track tileTrack = TrackList.Find(c => c.id == tileTrackID);
+
+            // 获取作业轨道
+            Track setTrack = TrackList.Find(c => c.id == setTrackID);
+
+            if (tileTrack == null || setTrack == null) return;
+
+            // 先确认轨道放货方向 
+            // (砖机code > 作业code [前进取砖 即后退放砖])
+            // (砖机code < 作业code [后退取砖 即前进放砖])
+            bool is_give_back = (tileTrack.ferry_up_code / 100) > (setTrack.ferry_up_code / 100);
+
+            // 再确认轨道取货方向（常规是相反，当同侧上下时为一致方向）
+            bool is_take_back = setTrack.same_side_inout ? is_give_back : !is_give_back;
+
+            bool isupdate = false;
+            if (!isupdate)
+            {
+                // 确认是否改为入库为主
+                if (setTrack.Type2 == TrackType2E.出库)
+                {
+                    setTrack.Type2 = TrackType2E.入库;
+                    isupdate = true;
+                }
+
+                // 更新取放方向
+                if (setTrack.is_give_back != is_give_back)
+                {
+                    setTrack.is_give_back = is_give_back;
+                    isupdate = true;
+                }
+
+                if (setTrack.is_take_forward == is_take_back)
+                {
+                    setTrack.is_take_forward = !is_take_back;
+                    isupdate = true;
+                }
+            }
+
+            if (isupdate) PubMaster.Mod.TraSql.EditTrack(setTrack, TrackUpdateE.TGtype);
+        }
+
+        #endregion
+
 
         /// <summary>
         /// 获取无任务，空闲轨道IDs

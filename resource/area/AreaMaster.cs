@@ -492,10 +492,23 @@ namespace resource.area
         /// </summary>
         /// <param name="areaid"></param>
         /// <param name="devid"></param>
-        public void SaveToDb(uint areaid, uint devid)
+        public void SaveToDb(uint areaid, Device dev)
         {
-            foreach (AreaDeviceTrack item in AreaDevTraList.FindAll(c => c.area_id == areaid && c.device_id == devid))
+            foreach (AreaDeviceTrack item in AreaDevTraList.FindAll(c => c.area_id == areaid && c.device_id == dev.id))
             {
+                // 更新轨道取放方向
+                switch (dev.Type)
+                {
+                    case DeviceTypeE.上砖机:
+                        PubMaster.Track.UpdateDirByUp(PubMaster.DevConfig.GetLeftTrackId(dev.id), item.track_id);
+                        break;
+
+                    case DeviceTypeE.下砖机:
+                        PubMaster.Track.UpdateDirByDown(PubMaster.DevConfig.GetLeftTrackId(dev.id), item.track_id);
+                        break;
+                }
+
+                // 保存到数据库
                 PubMaster.Mod.AreaSql.EditAreaDeviceTrack(item);
             }
         }
@@ -635,7 +648,6 @@ namespace resource.area
 
         public void AddAreaTrack(uint trackid, uint toareaid, Device dev)
         {
-            //ushort prior = (ushort)AreaDevTraList.Count(c => c.area_id == toareaid && c.device_id == dev.id);
             ushort prior = (ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == dev.id).Max(c => c.prior);
             prior++;
 
@@ -658,9 +670,11 @@ namespace resource.area
             {
                 case DeviceTypeE.上砖机:
                     areatradev.can_up = true;
+                    PubMaster.Track.UpdateDirByUp(PubMaster.DevConfig.GetLeftTrackId(dev.id), trackid);
                     break;
                 case DeviceTypeE.下砖机:
                     areatradev.can_down = true;
+                    PubMaster.Track.UpdateDirByDown(PubMaster.DevConfig.GetLeftTrackId(dev.id), trackid);
                     break;
                 case DeviceTypeE.砖机:
                     areatradev.can_up = true;
@@ -671,8 +685,6 @@ namespace resource.area
             }
 
             PubMaster.Mod.AreaSql.AddAreaDeviceTrack(areatradev);
-            prior += 1;
-
             Refresh(false, false, false, true, false);
         }
 
@@ -808,6 +820,19 @@ namespace resource.area
         public uint GetAreaDownCarCount(uint area)
         {
             return AreaList.Find(c => c.id == area)?.down_car_count ?? 0;
+        }
+
+        /// <summary>
+        /// 判断轨道是否存在于同类型设备的配置中
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="dt"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsTrackInTiles(uint area, DeviceTypeE dt, uint trackid)
+        {
+            List<uint> tileids = PubMaster.Device.GetDevIds(area, dt);
+            return AreaDevTraList.Exists(c => tileids.Contains(c.device_id) && c.track_id == trackid);
         }
 
         #endregion

@@ -14,59 +14,205 @@
     /// </summary>
     public enum WarningTypeE
     {
-        DeviceOffline,//设备离线
-        TrackFullButNoneStock,//轨道满砖但没库存
-        CarrierLoadSortTask,//小车倒库中但是小车有货
-        CarrierLoadNotSortTask,//小车倒库中任务清除
-        TileNoneStrategy,//砖机没有设置策略
-        CarrierFullSignalFullNotOnStoreTrack,//小车满砖信号不在储砖轨道
-        CarrierGiveMissTrack,//小车前进放货没有扫到地标
-        DownTileHaveNotTrackToStore,//砖机找不到空闲轨道存放
-        UpTileHaveNotStockToOut,//砖机找不到库存出库
-        TrackEarlyFull,//轨道提前满砖报警
-        UpTileHaveNoTrackToOut,//砖机找不到有砖轨道上砖
-        CarrierLoadNeedTakeCare,//小车没任务，有货需要手动处理
-        HaveOtherCarrierInSortTrack,//有别的小车在倒库轨道，倒库车已经停止
-        CarrierSortButStop,//倒库小车任务终止，需要手动发送倒库
-        TileMixLastTrackInTrans,//砖机混砖作业，轨道被占用
+        /// <summary>
+        /// 设备离线
+        /// </summary>
+        DeviceOffline,
 
-        TileGoodsIsZero,  //砖机工位品种反馈异常
-        TileGoodsIsNull,  //砖机工位品种没有配置
+        /// <summary>
+        /// 轨道满砖但没库存
+        /// </summary>
+        TrackFullButNoneStock,
 
-        TransHaveNotTheGiveTrack, // 任务没有合适的轨道卸砖
-        UpTilePreGoodNotSet,//上砖机预设品种没有设置
+        /// <summary>
+        /// 小车倒库中但是小车有货
+        /// </summary>
+        CarrierLoadSortTask,
 
-        DeviceSortRunOutTrack,//运输车倒库没有扫到定位点冲出轨道
+        /// <summary>
+        /// 小车倒库中任务清除
+        /// </summary>
+        CarrierLoadNotSortTask,
 
-        FerryNoLocation,  //摆渡车没有位置信息
-        FerryTargetUnconfigured,  //摆渡车没有目的位置对位坐标值
+        /// <summary>
+        /// 砖机没有设置策略
+        /// </summary>
+        TileNoneStrategy,
 
-        FailAllocateCarrier, //分配运输车失败
-        FailAllocateFerry, //分配摆渡车失败
+        /// <summary>
+        /// 小车满砖信号不在储砖轨道
+        /// </summary>
+        CarrierFullSignalFullNotOnStoreTrack,
 
-        UpTileEmptyNeedAndNoBack, //任务中上砖机没有需求信号且小车无轨可回
+        /// <summary>
+        /// 小车前进放货没有扫到地标
+        /// </summary>
+        CarrierGiveMissTrack,
 
-        CarrierFreeButMoveInFerry, //运输车空闲状态(停止/指令完成)，但处于上下摆渡中
-        CarrierFreeInFerryButLocErr, //运输车空闲状态(停止/指令完成)在摆渡上，但当前轨道有误
+        /// <summary>
+        /// 砖机找不到空闲轨道存放
+        /// </summary>
+        DownTileHaveNotTrackToStore,
 
+        /// <summary>
+        /// 砖机找不到库存出库
+        /// </summary>
+        UpTileHaveNotStockToOut,
 
-        TheEarliestStockInDown,// 以先进先出为原则，发现最早的库存在下砖入库侧轨道，暂无法上砖
-        PreventTimeConflict,// 不允许下砖连续下满同一条轨道，需变更轨道下砖，防止时间冲突
+        /// <summary>
+        /// 轨道提前满砖报警
+        /// </summary>
+        TrackEarlyFull,
 
-        DownTaskSwitchClosed,//【下砖任务开关】关闭
-        UpTaskSwitchClosed,//【上砖任务开关】关闭
-        SortTaskSwitchClosed,//【倒库任务开关】关闭
+        /// <summary>
+        /// 砖机找不到有砖轨道上砖
+        /// </summary>
+        UpTileHaveNoTrackToOut,
 
-        SortFinishButDownExistStock,//倒库指令完成，但入库轨道还有库存
-        GetStockButNull,//取砖指令完成后，没有取到砖
+        /// <summary>
+        /// 小车没任务，有货需要手动处理
+        /// </summary>
+        CarrierLoadNeedTakeCare,
 
-        Warning34,//【反抛未执行】，等待上砖机工位空砖
-        Warning35,//【反抛未执行】，上砖侧库存里有反抛任务的品种可上
-        Warning36,//【流程超时】
-        Warning37,//当前品种设定的上砖数量为零
+        /// <summary>
+        /// 有别的小车在倒库轨道，倒库车已经停止
+        /// </summary>
+        HaveOtherCarrierInSortTrack,
 
-        CarrierIsInResetWork,//运输车初始化/寻点指令中，已暂停相关作业，请确认完成发送终止指令
-        CarrierNoLocation,  //运输车没有位置信息
+        /// <summary>
+        /// 倒库小车任务终止，需要手动发送倒库
+        /// </summary>
+        CarrierSortButStop,
+
+        /// <summary>
+        /// 砖机混砖作业，轨道被占用
+        /// </summary>
+        TileMixLastTrackInTrans,
+
+        /// <summary>
+        /// 砖机工位品种反馈异常
+        /// </summary>
+        TileGoodsIsZero,
+
+        /// <summary>
+        /// 砖机工位品种没有配置
+        /// </summary>
+        TileGoodsIsNull,
+
+        /// <summary>
+        /// 任务没有合适的轨道卸砖
+        /// </summary>
+        TransHaveNotTheGiveTrack,
+
+        /// <summary>
+        /// 上砖机预设品种没有设置
+        /// </summary>
+        UpTilePreGoodNotSet,
+
+        /// <summary>
+        /// 运输车倒库没有扫到定位点冲出轨道
+        /// </summary>
+        DeviceSortRunOutTrack,
+
+        /// <summary>
+        /// 摆渡车没有位置信息
+        /// </summary>
+        FerryNoLocation,
+
+        /// <summary>
+        /// 摆渡车没有目的位置对位坐标值
+        /// </summary>
+        FerryTargetUnconfigured,
+
+        /// <summary>
+        /// 分配运输车失败
+        /// </summary>
+        FailAllocateCarrier,
+
+        /// <summary>
+        /// 分配摆渡车失败
+        /// </summary>
+        FailAllocateFerry,
+
+        /// <summary>
+        /// 任务中上砖机没有需求信号且小车无轨可回
+        /// </summary>
+        UpTileEmptyNeedAndNoBack,
+
+        /// <summary>
+        /// 运输车空闲状态(停止/指令完成)，但处于上下摆渡中
+        /// </summary>
+        CarrierFreeButMoveInFerry,
+
+        /// <summary>
+        /// 运输车空闲状态(停止/指令完成)在摆渡上，但当前轨道有误
+        /// </summary>
+        CarrierFreeInFerryButLocErr,
+
+        /// <summary>
+        /// 以先进先出为原则，发现最早的库存在下砖入库侧轨道，暂无法上砖
+        /// </summary>
+        TheEarliestStockInDown,
+
+        /// <summary>
+        /// 不允许下砖连续下满同一条轨道，需变更轨道下砖，防止时间冲突
+        /// </summary>
+        PreventTimeConflict,
+
+        /// <summary>
+        /// 【下砖任务开关】关闭
+        /// </summary>
+        DownTaskSwitchClosed,
+
+        /// <summary>
+        /// 【上砖任务开关】关闭
+        /// </summary>
+        UpTaskSwitchClosed,
+
+        /// <summary>
+        /// 【倒库任务开关】关闭
+        /// </summary>
+        SortTaskSwitchClosed,
+
+        /// <summary>
+        /// 倒库指令完成，但入库轨道还有库存
+        /// </summary>
+        SortFinishButDownExistStock,
+
+        /// <summary>
+        /// 取砖指令完成后，没有取到砖
+        /// </summary>
+        GetStockButNull,
+
+        /// <summary>
+        /// 【反抛未执行】，等待上砖机工位空砖
+        /// </summary>
+        Warning34,
+
+        /// <summary>
+        /// 【反抛未执行】，上砖侧库存里有反抛任务的品种可上
+        /// </summary>
+        Warning35,
+
+        /// <summary>
+        /// 【流程超时】
+        /// </summary>
+        Warning36,
+
+        /// <summary>
+        /// 当前品种设定的上砖数量为零
+        /// </summary>
+        Warning37,
+
+        /// <summary>
+        /// 运输车初始化/寻点指令中，已暂停相关作业，请确认完成发送终止指令
+        /// </summary>
+        CarrierIsInResetWork,
+
+        /// <summary>
+        /// 运输车没有位置信息
+        /// </summary>
+        CarrierNoLocation,
 
     }
 

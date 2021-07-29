@@ -50,7 +50,7 @@ namespace module.device
             set => att2 = (byte)value;
         }
 
-        public bool InType(DeviceTypeE[] types)
+        public bool InType(params DeviceTypeE[] types)
         {
             return types.Contains(Type);
         }
