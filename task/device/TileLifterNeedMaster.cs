@@ -212,6 +212,7 @@ namespace task.device
                         left = isleft,
                         need_type = task.Type,
                         area_id = task.AreaId,
+                        prior = pri,
                     };
 
                     NeedList.Add(tileLifterNeed);

@@ -1,0 +1,307 @@
+﻿<UserControl x:Class="wcs.window.InitSettingCtl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.window"
+             mc:Ignorable="d" Background="{StaticResource RegionBrush}"
+             xmlns:hc="https://handyorg.github.io/handycontrol" 
+             DataContext="{Binding InitSetting,Source={StaticResource Locator}}"
+             MinWidth="800" MinHeight="600">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        
+        <!--<hc:TransitioningContentControl Grid.Column="0" Grid.Row="0">
+            <TreeView Width="200" Margin="10" ItemsSource="{Binding SettingMenuList}" HorizontalAlignment="Left">
+                <TreeView.Resources>
+                </TreeView.Resources>
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="TreeView.SelectedItemChanged">
+                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                    <hc:RoutedEventTrigger RoutedEvent="TreeView.MouseDoubleClick">
+                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="新增区域" Tag="AddArea" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="编辑区域" Tag="EditArea" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="新增线" Tag="AddLine" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        <MenuItem Header="编辑线" Tag="EditLine" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                    </ContextMenu>
+                </TreeView.ContextMenu>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding childlist}">
+                        <TextBlock Text="{Binding name}"/>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </hc:TransitioningContentControl>-->
+
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTR}">
+                <TextBlock Text="区域信息" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+            <hc:TransitioningContentControl Grid.Column="0" Grid.Row="1">
+                <ListBox Width="auto" ItemsSource="{Binding AreaList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding name}" FontSize="20"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </hc:TransitioningContentControl>
+
+            <Border Style="{StaticResource MBorder_LTB}" Grid.Column="1" Grid.Row="1">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                        <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding AREAACTIONNAME, Mode=TwoWay}"/>
+                        <TextBlock Style="{StaticResource TextBlockLarge}" Text="区域"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" MinWidth="60"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_T}">
+                            <TextBlock Text="名称:" Style="{StaticResource TextBlockLarge}"/>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_T}">
+                            <StackPanel VerticalAlignment="Center" Margin="10">
+                                <TextBlock Text="上砖侧运输车：" Style="{StaticResource TextBlockLarge}"/>
+                                <TextBlock Text="(可选）" Style="{StaticResource TextBlockLarge}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_TB}">
+                            <StackPanel VerticalAlignment="Center" Margin="10">
+                                <TextBlock Text="下砖侧运输车：" Style="{StaticResource TextBlockLarge}"/>
+                                <TextBlock Text="(可选）" Style="{StaticResource TextBlockLarge}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_TR}">
+                            <TextBox x:Name="AutoPostBack" Text="{Binding AreaName,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_TR}">
+                            <TextBox Text="{Binding UpCar,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                        </Border>
+
+                        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_TRB}">
+                            <TextBox Text="{Binding DownCar,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                        </Border>
+                    </Grid>
+
+                    <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,20">
+                        <Button Width="120" Margin="0,0,55,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" IsCancel="True"/>
+                        <Button Width="120" Margin="55,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="保存" IsDefault="True"
+                              Tag="ComfirmArea"   CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+        
+
+
+        <!--<hc:TransitioningContentControl Grid.Column="2" Grid.Row="0">
+            <TreeView Width="200" Margin="10" ItemsSource="{Binding SettingMenuList}" HorizontalAlignment="Left">
+                <TreeView.Resources>
+                </TreeView.Resources>
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="TreeView.SelectedItemChanged">
+                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                    <hc:RoutedEventTrigger RoutedEvent="TreeView.MouseDoubleClick">
+                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding childlist}">
+                        <TextBlock Text="{Binding name}"/>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </hc:TransitioningContentControl>-->
+        
+
+        <Grid Grid.Column="2" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Style="{StaticResource MBorder_LTR}">
+                <TextBlock Text="线列表" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+            <hc:TransitioningContentControl Grid.Row="1">
+                <ListBox Width="auto" ItemsSource="{Binding LineList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding name}" FontSize="20"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </hc:TransitioningContentControl>
+        </Grid>
+
+        <Grid  Grid.Column="3" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding AREAACTIONNAME}"/>
+                <TextBlock Style="{StaticResource TextBlockLarge}" Text="线路" FontSize="20"/>
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                    <TextBlock Text="线名:" Style="{StaticResource TextBlockLarge}"/>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LT}">
+                    <TextBlock Text="线号:" Style="{StaticResource TextBlockLarge}"/>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                    <TextBlock Text="倒库任务数量上限:" Style="{StaticResource TextBlockLarge}"/>
+                </Border>
+
+                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                    <TextBlock Text="上砖任务数量上限:" Style="{StaticResource TextBlockLarge}"/>
+                </Border>
+
+                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                    <TextBlock Text="下砖任务数量上限:" Style="{StaticResource TextBlockLarge}"/>
+                </Border>
+
+                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                    <TextBlock Text="是否需要倒库:" Style="{StaticResource TextBlockLarge}"/>
+                </Border>
+
+                <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTB}">
+                    <StackPanel VerticalAlignment="Center" Margin="10">
+                        <TextBlock Text="下砖轨道满砖上限：" Style="{StaticResource TextBlockLarge}"/>
+                        <TextBlock Text="(可选）" Style="{StaticResource TextBlockLarge}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
+                    <TextBox Text="{Binding LineName,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                </Border>
+
+                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
+                    <TextBox Text="{Binding LineNum,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                </Border>
+
+                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
+                    <TextBox Text="{Binding SortCount,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                </Border>
+
+                <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
+                    <TextBox Text="{Binding UpCount,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                </Border>
+
+                <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
+                    <TextBox Text="{Binding DownCount,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                </Border>
+
+                <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
+                    <ComboBox ItemsSource="{Binding Source={StaticResource LineTypeE}}" Margin="10"
+                                    SelectedItem="{Binding LineType,Mode=TwoWay}" FontSize="25"/>
+                </Border>
+
+                <Border Grid.Row="5" Grid.Column="2" Style="{StaticResource MBorder_LTRB}">
+                    <TextBox Text="{Binding FullQty,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+                </Border>
+            </Grid>
+
+            <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,20">
+                <Button Width="120" Margin="0,0,55,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" IsCancel="True"/>
+                <Button Width="120" Margin="55,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="保存" IsDefault="True"
+                              Tag="ComfirmLine"   CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+            </StackPanel>
+        </Grid>
+
+        <!--<TabControl Grid.Column="2" Style="{StaticResource TabControlInLine}">
+            <hc:Interaction.Triggers>
+                <hc:RoutedEventTrigger RoutedEvent="TabControl.SelectionChanged">
+                    <hc:EventToCommand Command="{Binding TabSelectedCmd}" PassEventArgsToCommand="True"/>
+                </hc:RoutedEventTrigger>
+            </hc:Interaction.Triggers>
+            <TabItem Visibility="Hidden"></TabItem>
+            <TabItem Tag="area" Header="区域" Visibility="{Binding ShowArea, Converter={StaticResource Boolean2VisibilityConverter}}" IsSelected="{Binding ShowArea}">
+                
+            </TabItem>
+
+            <TabItem Tag="line" Header="线路" IsSelected="{Binding ShowLine}"
+                     Visibility="{Binding ShowLine, Converter={StaticResource Boolean2VisibilityConverter}}">
+                
+            </TabItem>
+
+            <TabItem Header="轨道" Tag="track"  Visibility="{Binding ShowTrack, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
+            </TabItem>
+
+            <TabItem Header="运输车"  Tag="carrier" Visibility="{Binding ShowCarrier, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
+               
+                
+            </TabItem>
+
+            <TabItem Header="摆渡车"  Tag="ferry" Visibility="{Binding ShowFerry, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
+                
+            </TabItem>
+
+            <TabItem Header="砖机" Tag="tilelifter" Visibility="{Binding ShowTilelifter, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
+                
+            </TabItem>
+        </TabControl>-->
+    </Grid>
+    
+</UserControl>

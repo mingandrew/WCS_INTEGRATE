@@ -85,10 +85,10 @@ namespace resource.module.modulesql
         #region[添加]
 
 
-        internal bool AddArea(Area area)
+        public bool AddArea(Area area)
         {
-            string str = "INSERT INTO `area`(`name`, `enable`, `devautorun`, `memo`) VALUES('{0}', {1}, {2}, '{3}')";
-            string sql = string.Format(@str, area.name, area.enable, area.devautorun, area.memo);
+            string str = "INSERT INTO `area`(`name`, `enable`, `devautorun`, `memo`, `up_car_count`, `down_car_count`) VALUES('{0}', {1}, {2}, '{3}', {4}, {5})";
+            string sql = string.Format(@str, area.name, area.enable, area.devautorun, area.memo, area.up_car_count, area.down_car_count);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -113,6 +113,15 @@ namespace resource.module.modulesql
         {
             string str = "INSERT INTO `area_device_track`(`id`, `area_id`, `device_id`, `track_id`, `prior`) VALUES('{0}', '{1}', '{2}', '{3}', '{4}')";
             string sql = string.Format(@str,areadevtra.id,  areadevtra.area_id, areadevtra.device_id, areadevtra.track_id, areadevtra.prior);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        public bool AddLine(Line line)
+        {
+            string str = "INSERT INTO `line`(`area_id`, `line`, `name`, `sort_task_qty`, `up_task_qty`, `down_task_qty`, `line_type`, `full_qty`)" +
+                " VALUES ({0}, {1}, '{2}', {3}, {4}, {5}, {6}, {7})";
+            string sql = string.Format(@str, line.area_id, line.line, line.name, line.sort_task_qty, line.up_task_qty, line.down_task_qty, line.line_type, line.full_qty);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -148,11 +157,11 @@ namespace resource.module.modulesql
 
         #region[修改]
 
-        internal bool EditArea(Area area)
+        public bool EditArea(Area area)
         {
             string sql = "UPDATE `area` set name = '{0}', `enable` = {1}, `devautorun` = {2}," +
-                " `memo` = '{3}', `full_qty` = '{4}' where id = '{5}'";
-            sql = string.Format(sql, area.name, area.enable, area.devautorun, area.memo, area.full_qty, area.id);
+                " `memo` = '{3}', `full_qty` = '{4}', `up_car_count` = '{6}' , `down_car_count` = '{7}'  where id = '{5}'";
+            sql = string.Format(sql, area.name, area.enable, area.devautorun, area.memo, area.full_qty, area.id, area.up_car_count, area.down_car_count);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -182,10 +191,14 @@ namespace resource.module.modulesql
         }
 
 
-        internal bool EditAreaLine(Line line)
+        public bool EditAreaLine(Line line)
         {
-            string sql = "UPDATE `line` SET `max_upsort_num` = {0} WHERE `id` =  '{1}'";
-            sql = string.Format(sql, line.max_upsort_num, line.id);
+            string str = "UPDATE `line` SET `area_id` = {0}, `line` = {1}, `name` = '{2}', `sort_task_qty` = {3}, `up_task_qty` = {4}, `down_task_qty` = {5}, " +
+                "`max_upsort_num` = {6}, `line_type` = {7}, `full_qty` = {8} WHERE `id` = {9}";
+            string sql = string.Format(@str, line.area_id, line.line, line.name, line.sort_task_qty, line.up_task_qty, line.down_task_qty, 
+                line.max_upsort_num, line.LineType, line.full_qty, line.id);
+            //string sql = "UPDATE `line` SET `max_upsort_num` = {0} WHERE `id` =  '{1}'";
+            //sql = string.Format(sql, line.max_upsort_num, line.id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

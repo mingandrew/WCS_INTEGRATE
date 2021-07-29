@@ -118,6 +118,8 @@
     <Compile Include="Data\Model\TabItemModel.cs" />
     <Compile Include="Data\Model\WinCtlModel.cs" />
     <Compile Include="Data\MyResourceToken.cs" />
+    <Compile Include="Data\View\SettingAreaView.cs" />
+    <Compile Include="Data\View\SettingMenuView.cs" />
     <Compile Include="Data\View\AreaLineView.cs" />
     <Compile Include="Data\View\BackupTileLifterView.cs" />
     <Compile Include="Data\View\CarrierView.cs" />
@@ -299,6 +301,7 @@
     <Compile Include="ViewModel\setting\ferry\FerryCopyPosDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryAutoPosDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryPosViewModel.cs" />
+    <Compile Include="ViewModel\setting\init\InitSettingViewModel.cs" />
     <Compile Include="ViewModel\setting\menu\MenuSelectViewModel.cs" />
     <Compile Include="ViewModel\setting\menu\MenuViewModel.cs" />
     <Compile Include="ViewModel\setting\module\ModuleSelectViewModel.cs" />
@@ -382,6 +385,9 @@
     </Compile>
     <Compile Include="window\setting\ferry\FerryPosCtl.xaml.cs">
       <DependentUpon>FerryPosCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\setting\init\InitSettingCtl.xaml.cs">
+      <DependentUpon>InitSettingCtl.xaml</DependentUpon>
     </Compile>
     <Compile Include="window\setting\menu\MenuCtl.xaml.cs">
       <DependentUpon>MenuCtl.xaml</DependentUpon>
@@ -665,6 +671,10 @@
     <Page Include="window\setting\ferry\FerryPosCtl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="window\setting\init\InitSettingCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="window\setting\menu\MenuCtl.xaml">
       <SubType>Designer</SubType>

@@ -32,8 +32,9 @@
             <prov:EnumDataProvider x:Key="DevWorkTypeE" Type="enums:DevWorkTypeE"/>
             <prov:EnumDataProvider x:Key="DevFerryAutoPosE" Type="enums:DevFerryAutoPosE"/>
             <prov:EnumDataProvider x:Key="TileWorkModeE" Type="enums:TileWorkModeE"/>
+            <prov:EnumDataProvider x:Key="LineTypeE" Type="enums:LineTypeE"/>
 
             <!--//<langs:LangProvider x:Key="DemoLangs"/>-->
         </ResourceDictionary>
     </Application.Resources>
-</Application>
+</Application> 

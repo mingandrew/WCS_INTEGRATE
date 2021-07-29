@@ -80,6 +80,8 @@ namespace wcs.ViewModel
             SimpleIoc.Default.Register<SimulationViewModel>();
             SimpleIoc.Default.Register<OrganizeTrackViewModel>();
 
+            SimpleIoc.Default.Register<InitSettingViewModel>();
+
             GlobalWcsDataConfig.Init();
             PubMaster.Init();
             PubTask.Init();
@@ -166,6 +168,12 @@ namespace wcs.ViewModel
         #region[库存整理]
 
         public OrganizeTrackViewModel OrganizeTrack => ServiceLocator.Current.GetInstance<OrganizeTrackViewModel>();
+
+        #endregion
+
+        #region[系统设置]
+
+        public InitSettingViewModel InitSetting => ServiceLocator.Current.GetInstance<InitSettingViewModel>();
 
         #endregion
 
