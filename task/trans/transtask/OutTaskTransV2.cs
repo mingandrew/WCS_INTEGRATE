@@ -413,26 +413,26 @@ namespace task.trans.transtask
                                     }
                                     else
                                     {
-                                        if (takeTrack.Type == TrackTypeE.储砖_出入)
-                                        {
-                                            if (CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.后摆渡))
-                                            {
-                                                #region 【任务步骤记录】
-                                                _M.SetStepLog(trans, false, 1401, string.Format("取砖轨道[ {0} ]内有其他运输车，等待轨道中的运输车转移；", takeTrack.name));
-                                                #endregion
-                                                return;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (CheckTrackAndAddMoveTask(trans, trans.take_track_id))
-                                            {
-                                                #region 【任务步骤记录】
-                                                _M.SetStepLog(trans, false, 1401, string.Format("取砖轨道[ {0} ]内有其他运输车，等待轨道中的运输车转移；", takeTrack.name));
-                                                #endregion
-                                                return;
-                                            }
-                                        }
+                                        //if (takeTrack.Type == TrackTypeE.储砖_出入)
+                                        //{
+                                        //    if (CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.后摆渡))
+                                        //    {
+                                        //        #region 【任务步骤记录】
+                                        //        _M.SetStepLog(trans, false, 1401, string.Format("取砖轨道[ {0} ]内有其他运输车，等待轨道中的运输车转移；", takeTrack.name));
+                                        //        #endregion
+                                        //        return;
+                                        //    }
+                                        //}
+                                        //else
+                                        //{
+                                        //    if (CheckTrackAndAddMoveTask(trans, trans.take_track_id))
+                                        //    {
+                                        //        #region 【任务步骤记录】
+                                        //        _M.SetStepLog(trans, false, 1401, string.Format("取砖轨道[ {0} ]内有其他运输车，等待轨道中的运输车转移；", takeTrack.name));
+                                        //        #endregion
+                                        //        return;
+                                        //    }
+                                        //}
 
                                         //判断是否需要在库存在上砖分割点后，是否需要发送倒库任务
                                         if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id))

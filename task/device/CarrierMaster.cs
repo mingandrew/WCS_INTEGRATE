@@ -3764,6 +3764,17 @@ namespace task.device
                             break;
                         case TransTypeE.上砖任务:
                         case TransTypeE.同向上砖:
+                            //除了倒库任务的运输车
+                            carrier = DevList.Find(c => c.ID != carrierid
+                               && c.CurrentTrackId == track.id
+                               && c.NotInTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                               && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid, TransTypeE.上砖侧倒库, TransTypeE.倒库任务, TransTypeE.中转倒库));
+                            if (carrier != null)
+                            {
+                                result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
+                                return true;
+                            }
+
                             carrier = DevList.Find(c => c.ID != carrierid
                                                 && c.CurrentTrackId == trackid
                                                     //&& (c.CurrentSite == track.rfid_2
