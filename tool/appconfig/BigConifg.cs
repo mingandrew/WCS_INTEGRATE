@@ -66,6 +66,16 @@ namespace tool.appconfig
         }
 
         /// <summary>
+        /// 是否优先使用上砖机轨道的运输车，即使取砖轨道有运输车也需要用这个
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <returns></returns>
+        public bool IsUseUpTileLifterCar(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.UseUpTileLifterCar ?? false;
+        }
+
+        /// <summary>
         /// 判断是否启用轨道满砖则移到空轨道
         /// </summary>
         /// <param name="area_id"></param>
@@ -150,12 +160,14 @@ namespace tool.appconfig
         public bool FreeDownFerry { set; get; }//是否释放下砖摆渡车
         public bool UpTaskNewAllocate { set; get; }//上砖任务新分配逻辑
         public bool InMoveWhenFull { set; get; }//出入库轨道，满砖移车
+
         /// <summary>
         /// 1.不需要接力运输车把库存放下才取<br/>
         /// 2.接力前面没有砖都可以进去取砖<br/>
         /// 3.让上砖的车与接力车防撞触发停止，接力车放下砖，取货车取砖<br/>
         /// </summary>
         public bool NotNeedSortToSplitUpPlace { set; get; }
+
         /// <summary>
         /// 接力暂停，运输车停止在放货点的几个车身位置
         /// </summary>
@@ -165,5 +177,10 @@ namespace tool.appconfig
         /// 使用自动转备用机第二种方式：砖机选备用机
         /// </summary>
         public bool UserAutoBackDevVersion2 { set; get; }
+
+        /// <summary>
+        /// 优先使用停在砖机轨道的运输车，即使取砖轨道有车也先找砖机轨道的运输车
+        /// </summary>
+        public bool UseUpTileLifterCar { set; get; }
     }
 }
