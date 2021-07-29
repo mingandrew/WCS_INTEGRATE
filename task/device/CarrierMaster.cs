@@ -1545,7 +1545,7 @@ namespace task.device
                     OverPoint = overPoint,
                     MoveCount = moveCount,
                     ToTrackId = toTrackid
-                }, string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo));
+                },string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo), true);
 
                 try
                 {
@@ -1571,7 +1571,7 @@ namespace task.device
         /// <param name="devid"></param>
         /// <param name="cao"></param>
         /// <param name="memo">备注：非空则记录信息</param>
-        public void DoOrder(uint devid, uint transid, CarrierActionOrder cao, string memo = "")
+        public void DoOrder(uint devid, uint transid, CarrierActionOrder cao, string memo = "", bool autostop = false)
         {
             if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))
             {
@@ -1597,15 +1597,17 @@ namespace task.device
                         // 手动中的直接终止
                         if (task.OperateMode == DevOperateModeE.手动 || cao.Order == DevCarrierOrderE.终止指令)
                         {
-                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 模式[ {1} ], 指令[ {2} ], 备注[ {3} ]", "手动/终止指令", task.OperateMode, cao.Order, memo));
+                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 模式[ {1} ], 指令[ {2} ], 备注[ {3} ]", "手动中/终止中", task.OperateMode, cao.Order, memo));
                             return;
                         }
 
                         // 手动中连续不同类型指令 需要先终止
                         if (transid == 0 && !task.IsNotDoingTask && task.NotInTask(cao.Order))
                         {
-                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "连续发送不同类型的指令要先终止", cao.Order, memo));
-                            return;
+                            task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
+
+                            if (!autostop) return;
+                            Thread.Sleep(500); // 手动操作的终止后继续下发其他指令
                         }
 
                         // 连续同类型指令  无需发送指令类型  只改变其中位置信息即可
