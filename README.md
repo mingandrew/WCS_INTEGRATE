@@ -406,7 +406,7 @@ UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA2X3', `name` = '小
 ```
 
 ## 2021.06.21：更新小车报警 A3X6
-```mysql
+```
 UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA3X6', `name` = '取砖异常，存砖定位光电异常', `int_value` = NULL, `bool_value` = NULL, `string_value` = '取砖异常，存砖定位光电异常，检查存砖定位光电是否误触发', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL WHERE `id` = 122;
 ```
 
@@ -598,29 +598,22 @@ ORDER BY
 
 
 
+## 2021.07.08 [ V2.1 ]：新增运输车报警
 
-
-## 2021.07.08：注意是 version2.1版本！！！！！！！！！！！！！！！
-
-## version2.1：新增运输车报警
-
+### [ V2.1 ]  新增运输车报警
 ```mysql
 
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (239 3, 'CarrierIsInResetWork', '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, '运输车初始化/寻点指令中，已暂停相关作业，请确认操作完成-发送终止指令', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (240, 3, 'CarrierNoLocation', '运输车失去位置信息', NULL, NULL, '运输车失去位置信息，为安全起见已停止所有任务及指令的执行，待恢复位置信息后再继续作业，请检查设备进行位置初始化操作！', NULL, NULL, NULL, NULL, NULL);
 ```
-
-
-
-
-## version2.1：新增轨道属性字段，确认轨道存取方向
+### [ V2.1 ]  新增轨道属性字段，确认轨道存取方向
 
 ```mysql
 ALTER TABLE `track` ADD COLUMN `is_give_back` bit(1) NULL COMMENT '是否入库 后退存砖' AFTER `up_split_point`;
 ALTER TABLE `track` ADD COLUMN `is_take_forward` bit(1) NULL COMMENT '是否出库 前进取砖' AFTER `is_give_back`;
 ```
 
-## version2.1：运输车新版报警更新
+### [ V2.1 ]  运输车新版报警更新
 ```mysql
 UPDATE `diction_dtl` SET `name` = '急停触发', `string_value` = '急停触发，急停开关是否误触发？是否有异常认为打开急停开关？' WHERE `id` = 100;
 UPDATE `diction_dtl` SET `name` = '开始定位点范围内未取到砖', `string_value` = '开始定位点范围内未取到砖：1.取砖定位光电无触发；2.库存脉冲数据与实际不符' WHERE `id` = 101;
@@ -653,22 +646,32 @@ UPDATE `diction_dtl` SET `name` = '码盘丢转故障', `string_value` = '码盘
 ```
 
 
-
-
-
-## *****！！！整合版！！！***** 2021.07.12 优化串联下砖机的任务生成顺序  version2.0
+## 2021.07.12  [ V2.0 ]  优化串联下砖机的任务生成顺序
+```mysql
 ALTER TABLE `tilelifterneed` ADD COLUMN `prior` smallint unsigned NULL COMMENT '优先级' AFTER `area_id`;
+```
 
-
-##2021.07.14：【version2.1】 新增区域设备轨道对应关系-砖机配置轨道上下砖作业区分：
+## 2021.07.14 [ V2.1 ]  新增区域设备轨道对应关系-砖机配置轨道上下砖作业区分
+```mysql
 ALTER TABLE `area_device_track` ADD COLUMN `can_up` bit(1) NULL COMMENT '是否用于上砖' AFTER `prior`;
 ALTER TABLE `area_device_track` ADD COLUMN `can_down` bit(1) NULL COMMENT '是否用于下砖' AFTER `can_up`;
 UPDATE area_device_track set can_up = true, can_down = true;
+```
 
 
-
-## 2021.07.14 *****！！！整合版！！！***** 2021.07.12 整理字典顺序  version2.0
+## 2021.07.14 [ V2.0 ]  整理字典顺序 
 ```mysql
 UPDATE `diction_dtl` SET `id` = 78 WHERE `id` = 250;
 UPDATE `diction_dtl` SET `id` = 79 WHERE `id` = 251;
 ```
+
+
+
+## 2021.07.16 [ V2.0 ] 添加运输车报警
+
+```mysql
+UPDATE `diction_dtl` SET `name` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作', `string_value` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作' WHERE `code` = 'WarningA3X7';
+```
+
+
+

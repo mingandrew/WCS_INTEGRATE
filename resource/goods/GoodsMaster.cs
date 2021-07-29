@@ -3572,6 +3572,5 @@ namespace resource.goods
 
             return false;
         }
-
     }
 }

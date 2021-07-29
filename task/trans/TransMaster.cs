@@ -1500,7 +1500,7 @@ namespace task.trans
                 return true;
             }
 
-            if ((isignoresorttask || inoutignoresort) && ExistSortBackTask(trackid) && PubMaster.Goods.GetTrackStockCount(trackid) > 1)
+            if ((isignoresorttask || inoutignoresort) && ExistSortBackTask(trackid))  // && PubMaster.Goods.GetTrackStockCount(trackid) > 1
             {
                 result = "轨道存在还车回轨的倒库任务";
                 return true;
@@ -1516,7 +1516,7 @@ namespace task.trans
         public bool ExistSortBackTask(uint trackid)
         {
             return TransList.Exists(c => c.give_track_id == trackid
-                                && c.TransStaus == TransStatusE.小车回轨
+                                && c.InStatus(TransStatusE.小车回轨, TransStatusE.完成)
                                 && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
         }
 

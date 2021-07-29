@@ -1,9 +1,11 @@
 ﻿using enums;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
 using module.goods;
+using module.msg;
 using module.window;
 using resource;
 using System;
@@ -28,6 +30,7 @@ namespace wcs.ViewModel
 
             GoodListView = System.Windows.Data.CollectionViewSource.GetDefaultView(GoodsList);
             GoodListView.Filter = new Predicate<object>(OnFilterMovie);
+            Messenger.Default.Register<string>(this, MsgToken.AutoSearchGood, AutoSearch);
         }
 
         #region[字段]
@@ -98,6 +101,15 @@ namespace wcs.ViewModel
         #region[方法]
         private void Search()
         {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                GoodListView.Refresh();
+            });
+        }
+
+        private void AutoSearch(string fname)
+        {
+            FilterName = fname;
             Application.Current.Dispatcher.Invoke(() =>
             {
                 GoodListView.Refresh();

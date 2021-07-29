@@ -60,7 +60,7 @@
                 <RadioButton Content="1600" Tag="1600" FontSize="20" Height="30"/>
             </hc:ButtonGroup>
             <TextBlock Text="名称：" Style="{StaticResource TextBlockLarge}"/>
-            <TextBox Width="100" Margin="0,5,5,5" Text="{Binding FilterName, Mode=TwoWay}"/>
+            <TextBox Width="100" Margin="0,5,5,5" Text="{Binding FilterName, Mode=TwoWay}" TextChanged="TextBox_TextChanged"/>
             <Button Content="过滤" Style="{StaticResource ButtonPrimary}" FontSize="20" Height="40" Command="{Binding SearchCmd}"/>
         </StackPanel>
         <DataGrid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
