@@ -887,7 +887,7 @@ namespace task.trans.transtask
                     break;
                 #endregion
 
-                #region[小车在取砖轨道]
+                #region[小车在储砖_出入]
                 case TrackTypeE.储砖_出入:
 
                     //摆渡车接车，取到砖后不等完成指令-无缝上摆渡
@@ -935,6 +935,82 @@ namespace task.trans.transtask
                             ToTrackId = ferryTraid
                         });
                         return;
+                    }
+                    break;
+                #endregion
+
+                #region[小车在储砖_出]
+
+                case TrackTypeE.储砖_出:
+
+                    //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
+                    if (_M.CheckCarrierInSortTaskAndAddTask(trans, trans.carrier_id, trans.take_track_id))
+                    {
+                        _M.SetStatus(trans, TransStatusE.完成,
+                            string.Format("小车【{0}】执行接力倒库，完成上砖任务", PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                        return;
+                    }
+
+                    if (!tileemptyneed
+                        && PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                        && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 10, 5))
+                    {
+                        _M.SetStatus(trans, TransStatusE.完成, "工位非无货需求，直接完成任务");
+                        return;
+                    }
+
+                    if (trans.take_track_id == track.id)
+                    {
+                        if (isload)
+                        {
+                            _M.SetLoadTime(trans);
+                            //摆渡车接车，取到砖后不等完成指令-无缝上摆渡
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true))
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForFerryMove(trans, trans.take_ferry_id, track.id, res);
+                                #endregion
+
+                                // 摆渡车不到位则到出库轨道头等待
+                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                                    && PubTask.Carrier.GetCurrentSite(trans.carrier_id) < track.rfid_2)
+                                {
+                                    #region 【任务步骤记录】
+                                    _M.LogForCarrierToTrack(trans, track.id);
+                                    #endregion
+
+                                    //前进至点
+                                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                    {
+                                        Order = DevCarrierOrderE.定位指令,
+                                        CheckTra = track.ferry_down_code,
+                                        ToRFID = track.rfid_2,
+                                        ToTrackId = track.id
+                                    });
+                                }
+
+                                return;
+                            }
+
+                            if ((PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
+                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
+                                #endregion
+
+                                //前进至摆渡车
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                {
+                                    Order = DevCarrierOrderE.定位指令,
+                                    CheckTra = PubMaster.Track.GetTrackUpCode(ferryTraid),
+                                    ToRFID = PubMaster.Track.GetTrackRFID1(ferryTraid),
+                                    ToTrackId = ferryTraid
+                                });
+                                return;
+                            }
+                        }
                     }
                     break;
                     #endregion
