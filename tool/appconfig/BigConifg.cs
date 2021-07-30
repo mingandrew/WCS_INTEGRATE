@@ -27,6 +27,10 @@ namespace tool.appconfig
         /// </summary>
         public int TrackSortFrontCount { set; get; } = 5;
         /// <summary>
+        /// 轨道中间空出默认5个位置
+        /// </summary>
+        public int TrackSortMidCount { set; get; } = 5;
+        /// <summary>
         /// 轨道后空出默认5个位置
         /// </summary>
         public int TrackSortBackCount { set; get; } = 5;
