@@ -664,6 +664,18 @@ namespace task.trans
         }
 
         /// <summary>
+        /// 判断是否有其他任务的取卸货轨道用的是当前任务的卸货轨道
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <returns></returns>
+        public bool HaveTaskUsedGiveTrackId(StockTrans trans)
+        {
+            return TransList.Exists(c => c.id != trans.id
+                                    && c.TransStaus != TransStatusE.完成
+                                    && (c.take_track_id == trans.give_track_id || c.give_track_id == trans.give_track_id));
+        }
+
+        /// <summary>
         /// 判断任务占用轨道
         /// </summary>
         /// <param name="trans"></param>

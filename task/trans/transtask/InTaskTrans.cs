@@ -84,7 +84,7 @@ namespace task.trans.transtask
             }
 
             //是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
-            if (_M.HaveGiveInTrackId(trans))
+            if (_M.HaveTaskUsedGiveTrackId(trans))
             {
                 #region 【任务步骤记录】
                 _M.SetStepLog(trans, false, 1300, string.Format("存在相同作业轨道的任务，等待任务完成；"));

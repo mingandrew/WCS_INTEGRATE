@@ -162,6 +162,12 @@
         /// 开关-允许清除任务
         /// </summary>
         public static string AllowClearTask = nameof(AllowClearTask);
+
+        /// <summary>
+        /// 开关-启用移车时可下砖
+        /// </summary>
+        public static string EnableMoveToDown = nameof(EnableMoveToDown);
+
         #endregion
 
         #region[接力倒库、倒库同时上砖开关]

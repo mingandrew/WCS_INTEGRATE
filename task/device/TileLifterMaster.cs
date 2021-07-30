@@ -2665,6 +2665,20 @@ namespace task.device
             return DevList.Exists(c => c.ID == tile_id && c.DevConfig.goods_id == goodid);
         }
 
+        /// <summary>
+        /// 判断轨道是否下砖机上一次放砖的轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsInTileLastTrack(uint trackid)
+        {
+            if (trackid == 0)
+            {
+                return false;
+            }
+            return DevList.Exists(c => c.DevConfig.WorkMode == TileWorkModeE.下砖 && c.DevConfig.last_track_id == trackid && c.ConnStatus == SocketConnectStatusE.通信正常);
+        }
+
         #endregion
 
         #region[更新品种信息]
