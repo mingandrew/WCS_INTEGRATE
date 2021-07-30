@@ -262,6 +262,18 @@ namespace wcs.ViewModel
 
                 if (filterareaid == 0)
                 {
+                    if (view.Type == TrackTypeE.储砖_出入)
+                    {
+                        switch (tt)
+                        {
+                            case TrackTypeE.储砖_入:
+                                return view.IsWorkIn();
+
+                            case TrackTypeE.储砖_出:
+                                return view.IsWorkOut();
+                        }
+                    }
+
                     return view.Type == tt;
                 }
 
@@ -306,14 +318,26 @@ namespace wcs.ViewModel
                 return;
             }
             Result.p1 = TrackSelected;
+
+            ClearData();
             CloseAction?.Invoke();
         }
 
         private void CancelChange()
         {
             Result.p1 = null;
+
+            ClearData();
             CloseAction?.Invoke();
         }
+
+        private void ClearData()
+        {
+            filterareaid = 0;
+            filtertracktype = 0;
+            filterlineid = 0;
+    }
+
         #endregion
     }
 }

@@ -41,7 +41,7 @@ namespace wcs.ViewModel
         private IList<MyRadioBtn> _arearadio;
         private uint SelectAreaId = 0;
         private ushort SelectLineId = 0;
-        private bool _refrdev, _refareatrac, _refrtra, _refrtraprior;
+        private bool _refrdev, _refareatrac, _refrtra, _refrtraprior, _isupdown;
         private string _tabtag;
 
 
@@ -85,11 +85,6 @@ namespace wcs.ViewModel
         {
             get => _arearadio;
             set => Set(ref _arearadio, value);
-        }
-
-        public bool IsUpDownTile
-        {
-            get => _selecttile?.Type == DeviceTypeE.砖机;
         }
 
         #region[设备配置]
@@ -619,6 +614,7 @@ namespace wcs.ViewModel
             TileTraList.Clear();
             foreach (var item in PubMaster.Area.GetAreaDevTraList(SelectAreaId, _selecttile.id))
             {
+                item.IsEnabledToUpDown = _isupdown;
                 TileTraList.Add(item);
             }
 
@@ -632,6 +628,7 @@ namespace wcs.ViewModel
 
                         foreach (var item in PubMaster.Area.GetAreaDevTraList(SelectAreaId, _selecttile.id))
                         {
+                            item.IsEnabledToUpDown = _isupdown;
                             TileTraList.Add(item);
                         }
                     }
@@ -660,6 +657,7 @@ namespace wcs.ViewModel
             if (result.p1 is bool rs && result.p2 is Device dev)
             {
                 _selecttile = dev;
+                _isupdown = dev.Type == DeviceTypeE.砖机;
                 TileName = dev.name;
                 RefreshTileLifterTrackPrior();
             }

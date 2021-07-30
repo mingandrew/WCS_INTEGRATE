@@ -10,5 +10,12 @@
 
         public bool can_up { set; get; }
         public bool can_down { set; get; }
+
+
+
+        /// <summary>
+        /// 虚拟字段：是否可更改上下砖作业选项
+        /// </summary>
+        public bool IsEnabledToUpDown { set; get; }
     }
 }

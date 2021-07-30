@@ -201,7 +201,7 @@
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Grid IsEnabled="False">
+                                            <Grid IsEnabled="{Binding IsEnabledToUpDown}">
                                                 <ToggleButton BorderThickness="0" IsChecked="{Binding can_down,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="5" HorizontalAlignment="Center" Style="{StaticResource ToggleButtonFlip}">
                                                     <hc:StatusSwitchElement.CheckedElement>
                                                         <Border Background="{DynamicResource SuccessBrush}">
@@ -223,7 +223,7 @@
                                     </DataGridTemplateColumn.Header>
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Grid  IsEnabled="False">
+                                            <Grid  IsEnabled="{Binding IsEnabledToUpDown}">
                                                 <ToggleButton BorderThickness="0" IsChecked="{Binding can_up,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="5" HorizontalAlignment="Center" Style="{StaticResource ToggleButtonFlip}">
                                                     <hc:StatusSwitchElement.CheckedElement>
                                                         <Border Background="{DynamicResource SuccessBrush}">
