@@ -167,6 +167,11 @@ namespace resource.track
             return TrackList.Find(c => c.id == track_id).Type2;
         }
 
+        public List<Track> GetTracksInTypes(uint areaid, List<TrackTypeE> types)
+        {
+            return TrackList.FindAll(c => c.area == areaid && types.Contains(c.Type));
+        }
+
         public List<Track> GetTracksInTypes(List<TrackTypeE> types)
         {
             return TrackList.FindAll(c => types.Contains(c.Type));

@@ -144,6 +144,25 @@ namespace wcs.ViewModel
             Types = types;
         }
 
+        public void QueryTrack(uint areaid, List<TrackTypeE> types)
+        {
+            if (refreshtime is null
+                || (refreshtime is DateTime time && (DateTime.Now - time).TotalSeconds > 60)
+                || IsTypeChange(types))
+            {
+                List<Track> tracks = PubMaster.Track.GetTracksInTypes(areaid, types);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    TraList.Clear();
+                    foreach (Track track in tracks)
+                    {
+                        TraList.Add(track);
+                    }
+                });
+            }
+            Types = types;
+        }
+
         public void SetAreaFilter(uint areaid, bool isshow)
         {
             filterareaid = areaid;
@@ -239,9 +258,11 @@ namespace wcs.ViewModel
             if (filterareaid == 0 && filtertracktype == 0) return true;
             if (item is Track view)
             {
+                TrackTypeE tt = (TrackTypeE)filtertracktype;
+
                 if (filterareaid == 0)
                 {
-                    return view.Type == (TrackTypeE)filtertracktype;
+                    return view.Type == tt;
                 }
 
                 if (filtertracktype == 0)
@@ -249,7 +270,19 @@ namespace wcs.ViewModel
                     return view.area == filterareaid && view.line == filterlineid;
                 }
 
-                return filterareaid == view.area && filterlineid == view.line && (TrackTypeE)filtertracktype == view.Type;
+                if (view.Type == TrackTypeE.储砖_出入)
+                {
+                    switch (tt)
+                    {
+                        case TrackTypeE.储砖_入:
+                            return filterareaid == view.area && filterlineid == view.line && view.IsWorkIn();
+
+                        case TrackTypeE.储砖_出:
+                            return filterareaid == view.area && filterlineid == view.line && view.IsWorkOut();
+                    }
+                }
+
+                return filterareaid == view.area && filterlineid == view.line && tt == view.Type;
             }
             return true;
         }
