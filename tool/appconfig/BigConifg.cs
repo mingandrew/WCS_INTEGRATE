@@ -141,7 +141,7 @@ namespace tool.appconfig
                     FreeUpFerry = false,
                     UpTaskNewAllocate = false,
                     InMoveWhenFull = false,
-                    NotNeedSortToSplitUpPlace = false,
+                    NotNeedSortToSplitUpPlace = true,
                     UserAutoBackDevVersion2 = false,
                 };
                 BigConfigList.Add(item);
