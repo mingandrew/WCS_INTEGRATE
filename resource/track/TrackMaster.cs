@@ -37,6 +37,7 @@ namespace resource.track
             _obj = new object();
 
             TrackSortFrontCount = GlobalWcsDataConfig.BigConifg.TrackSortFrontCount;
+            TrackSortMidCount = GlobalWcsDataConfig.BigConifg.TrackSortMidCount;
             TrackSortBackCount = GlobalWcsDataConfig.BigConifg.TrackSortBackCount;
         }
 
@@ -2498,6 +2499,10 @@ namespace resource.track
         /// </summary>
         public int TrackSortFrontCount { set; get; }
         /// <summary>
+        /// 轨道中间空出默认5个位置
+        /// </summary>
+        public int TrackSortMidCount { set; get; } = 5;
+        /// <summary>
         /// 轨道后空出默认5个位置
         /// </summary>
         public int TrackSortBackCount { set; get; }
@@ -2680,7 +2685,7 @@ namespace resource.track
                         {
                             SetTrackSortable(track, true, SORT_LEVEL_2);
                         }
-                        else if (PubMaster.Goods.ExistCountEmptySpace(track.id, TrackSortFrontCount, safe))
+                        else if (PubMaster.Goods.ExistCountEmptySpace(track.id, TrackSortMidCount, safe))
                         {
                             SetTrackSortable(track, true, SORT_LEVEL_2, string.Format("中间存在[ {0} ]车的空位", TrackSortFrontCount));
                         }

@@ -69,15 +69,15 @@
                     </hc:EventTrigger>
                 </hc:Interaction.Triggers>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Width="1*" Header="名称" Binding="{Binding name}">
+                    <DataGridTextColumn Header="名称" Binding="{Binding name}" Width="2*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="TextWrapping" Value="Wrap"/>
                             </Style>
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
-                    <DataGridTextColumn Binding="{Binding int_value}" Header="数据" Visibility="{Binding Data.IntVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}"/>
-                    <DataGridTemplateColumn Visibility="{Binding Data.BoolVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}">
+                    <DataGridTextColumn Binding="{Binding int_value}" Header="数据" Visibility="{Binding Data.IntVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}" Width="*"/>
+                    <DataGridTemplateColumn Visibility="{Binding Data.BoolVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}" Width="*">
                         <DataGridTemplateColumn.Header>
                             <TextBlock Text="数据"/>
                         </DataGridTemplateColumn.Header>
@@ -95,10 +95,10 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Binding="{Binding string_value}" Header="数据" Visibility="{Binding Data.StringVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}"/>
-                    <DataGridTextColumn Binding="{Binding double_value}" Header="数据"  Visibility="{Binding Data.DoubleVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}" />
-                    <DataGridTextColumn Binding="{Binding uint_value}" Header="数据"  Visibility="{Binding Data.UIntVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}" />
-                    <DataGridTextColumn Binding="{Binding order}" Header="顺序"/>
+                    <DataGridTextColumn Binding="{Binding string_value}" Header="数据" Visibility="{Binding Data.StringVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}" Width="*"/>
+                    <DataGridTextColumn Binding="{Binding double_value}" Header="数据"  Visibility="{Binding Data.DoubleVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}"  Width="*"/>
+                    <DataGridTextColumn Binding="{Binding uint_value}" Header="数据"  Visibility="{Binding Data.UIntVis, Converter={StaticResource Boolean2VisibilityConverter}, Source={StaticResource proxy}}" Width="*" />
+                    <DataGridTextColumn Binding="{Binding order}" Header="顺序" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
