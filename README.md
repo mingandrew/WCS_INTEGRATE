@@ -675,3 +675,29 @@ UPDATE `diction_dtl` SET `name` = '任务被中断时，尚未升降到位，运
 
 
 
+## 2021.07.30 [V2.0] 新增移车任务的轨道可用于下砖任务的开关
+
+```mysql
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (80, 8, 'EnableMoveToDown', '开关-启用移车时可下砖', NULL, b'0', '开关-启用移车时可下砖', NULL, NULL, NULL, NULL, NULL);
+```
+
+
+
+## 2021.07.30 [V2.0] 谨慎更新！！！ 设置所有的任务开关打开，然后删除了电脑和平板上的任务开关界面，需要提前和现场人员沟通好
+
+```mysql
+-- UPDATE line SET onoff_up = 1, onoff_down = 1, onoff_sort = 1;
+
+-- DELETE FROM	wcs_menu_dtl WHERE	module_id IN (SELECT id FROM wcs_module WHERE `key` = "AreaSwitch");
+```
+
+
+
+
+
+
+
+
+
+
+

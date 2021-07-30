@@ -90,7 +90,14 @@ namespace task.allocate
             {
                 foreach (uint traid in traids)
                 {
-                    if (!IsTrackOk4InTrans(traid)) continue;
+                    if (!IsTrackOk4InTrans(traid))
+                    {
+                        //如果轨道是移车任务的话，可以分配该轨道执行下砖任务
+                        if (!PubMaster.Dic.IsSwitchOnOff(DicTag.EnableMoveToDown) || !PubTask.Trans.IsTrasInTransWithType(traid, TransTypeE.移车任务))
+                        {
+                            continue;
+                        }
+                    }
 
                     givetrackid = traid;
                     return;

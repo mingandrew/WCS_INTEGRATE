@@ -100,6 +100,12 @@ namespace task.diagnose.trans
             foreach (CarrierTask car in carriers)
             {
                 uint cartrackid = car.CurrentTrackId;
+                //判断运输车所在轨道是否是下砖机上一次放砖的轨道
+                if (PubTask.TileLifter.IsInTileLastTrack(cartrackid))
+                {
+                    continue;
+                }
+
                 //判断运输车所在轨道和任务
                 List<uint> ctrackid = PubMaster.Track.SortTrackIdsWithOrder(trackid, cartrackid, PubMaster.Track.GetTrackOrder(car.CurrentTrackId));
                 foreach (var traid in ctrackid)
