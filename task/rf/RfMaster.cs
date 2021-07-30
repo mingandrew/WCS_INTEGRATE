@@ -760,7 +760,7 @@ namespace task.rf
                         return;
                     }
 
-                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime, out string res))
+                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime, out string res, pack.GoodId))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdateStockGood, res);
                     }
