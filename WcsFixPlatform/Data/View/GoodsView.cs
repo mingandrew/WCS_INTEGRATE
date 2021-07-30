@@ -145,7 +145,7 @@ namespace wcs.Data.View
             }
             Pieces = goods.pieces;
             Memo = goods.memo;
-            AreaId = goods.area_id;
+            //AreaId = goods.area_id;
             CarrierType = goods.GoodCarrierType;
             MinStack = goods.minstack;
             empty = goods.empty;

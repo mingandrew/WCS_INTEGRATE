@@ -229,7 +229,7 @@ namespace wcs.ViewModel
                 name = Name,
                 color = color,
                 memo = Memo,
-                area_id = SelectArea.id,
+                //area_id = SelectArea.id,
                 //pieces = Pieces,
                 GoodCarrierType = CarrierType,
                 size_id = size_id,
@@ -239,7 +239,7 @@ namespace wcs.ViewModel
 
             if (mIsAdd)
             {
-                mEidtGood.GoodCarrierType = PubMaster.Area.GetCarrierType(mEidtGood.area_id);
+                //mEidtGood.GoodCarrierType = PubMaster.Area.GetCarrierType(mEidtGood.area_id);
                 if (!PubMaster.Goods.AddGoods(mEidtGood, out string result, out uint pgoodid))
                 {
                     Growl.Warning(result);
@@ -248,7 +248,7 @@ namespace wcs.ViewModel
                 else
                 {
                     PubTask.Rf.SendGoodDic2ToAll();
-                    GlobalWcsDataConfig.DefaultConfig.UpdateAreaDefault(SelectArea.id, Pieces, size_id, (byte)SelectLevel.int_value);
+                    //GlobalWcsDataConfig.DefaultConfig.UpdateAreaDefault(SelectArea.id, Pieces, size_id, (byte)SelectLevel.int_value);
                 }
             }
             else
@@ -285,7 +285,7 @@ namespace wcs.ViewModel
                 Color = "";
                 Memo = "";
                 Pieces = 0;
-                SelectArea = AreaList.Find(c => c.id == area_id);
+                //SelectArea = AreaList.Find(c => c.id == area_id);
             }
             else
             {
@@ -295,7 +295,7 @@ namespace wcs.ViewModel
                     Name = view.Name;
                     Color = view.Color;
                     Memo = view.Memo;
-                    SelectArea = AreaList.Find(c => c.id == view.AreaId);
+                    //SelectArea = AreaList.Find(c => c.id == view.AreaId);
                     CarrierType = view.CarrierType;
                     Pieces = view.Pieces;
 

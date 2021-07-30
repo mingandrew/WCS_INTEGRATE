@@ -19,26 +19,26 @@ namespace tool.appconfig
             return AreaDefaultList.Find(c => c.AreaId == areaid);
         }
 
-        public void UpdateAreaDefault(uint areaid, ushort goodqty, uint goodsizeid, byte goodlevel)
+        public void UpdateAreaDefault( ushort goodqty, uint goodsizeid, byte goodlevel)
         {
-            AreaDefaultData area = GetAreaDefault(areaid);
-            if(area == null)
-            {
-                area = new AreaDefaultData()
-                {
-                    AreaId = areaid,
-                    Last_Good_Qty = goodqty,
-                    Last_Good_SizeId = goodsizeid,
-                    Last_Good_Level = goodlevel,
-                };
-                AreaDefaultList.Add(area);
-            }
-            else
-            {
-                area.Last_Good_Qty = goodqty;
-                area.Last_Good_SizeId = goodsizeid;
-                area.Last_Good_Level = goodlevel;
-            }
+            //AreaDefaultData area = GetAreaDefault(areaid);
+            //if(area == null)
+            //{
+            //    area = new AreaDefaultData()
+            //    {
+            //        //AreaId = areaid,
+            //        Last_Good_Qty = goodqty,
+            //        Last_Good_SizeId = goodsizeid,
+            //        Last_Good_Level = goodlevel,
+            //    };
+            //    AreaDefaultList.Add(area);
+            //}
+            //else
+            //{
+            //    area.Last_Good_Qty = goodqty;
+            //    area.Last_Good_SizeId = goodsizeid;
+            //    area.Last_Good_Level = goodlevel;
+            //}
             GlobalWcsDataConfig.SaveDefaultConfig();
         }
         #endregion

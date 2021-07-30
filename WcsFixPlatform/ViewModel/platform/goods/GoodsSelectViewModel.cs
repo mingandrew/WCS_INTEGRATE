@@ -118,28 +118,44 @@ namespace wcs.ViewModel
 
         public void SetAreaFilter(uint areaid, bool isshow)
         {
-            filterareaid = areaid; 
+            filterareaid = areaid;
+            showareafilter = false;
             if (PubMaster.Area.IsSingleArea(out uint aid))
             {
                 showareafilter = false;
             }
             else
             {
-                ShowAreaFilter = isshow;
+                ShowAreaFilter = false;
             }
         }
 
+        //bool OnFilterMovie(object item)
+        //{
+        //    if (filterareaid == 0 && filterwidth == 0) return true;
+
+        //    if (item is GoodsView view)
+        //    {
+        //        if (view.empty && (filterareaid == 0 || filterareaid == view.AreaId)) return true;
+
+        //        return (filterareaid == 0 || filterareaid == view.AreaId)
+        //            && (filterwidth == 0 || filterwidth == view.Width)
+        //            && (string.IsNullOrEmpty(FilterName) || view.Name.Contains(FilterName));
+        //    }
+        //    return true;
+        //}
+
         bool OnFilterMovie(object item)
         {
-            if (filterareaid == 0 && filterwidth == 0) return true;
+            if (filterwidth == 0) return true;
 
             if (item is GoodsView view)
             {
-                if (view.empty && (filterareaid == 0 || filterareaid == view.AreaId)) return true;
+                //if (view.empty && (filterareaid == 0 || filterareaid == view.AreaId)) return true;
 
-                return (filterareaid == 0 || filterareaid == view.AreaId)
-                    && (filterwidth == 0 || filterwidth == view.Width)
+                return (filterwidth == 0 || filterwidth == view.Width)
                     && (string.IsNullOrEmpty(FilterName) || view.Name.Contains(FilterName));
+                //(filterareaid == 0 || filterareaid == view.AreaId) &&
             }
             return true;
         }
