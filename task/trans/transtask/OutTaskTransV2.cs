@@ -496,50 +496,48 @@ namespace task.trans.transtask
                                             && !_M.HaveInCarrier(carrierid))
                                         {
                                             CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.下摆渡);
+                                            return;
                                         }
                                     }
                                 }
 
-                                if (takeTrack.Type == TrackTypeE.储砖_出 || needtoemtpytrack)
+                                #region[取砖轨道有车则找空轨道放]
+
+                                //1.不允许，则不可以有车
+                                //2.允许，则不可以有非倒库车
+                                if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result))
                                 {
-                                    #region[取砖轨道有车则找空轨道放]
+                                    // 优先移动到空轨道
+                                    //List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
+                                    List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
 
-                                    //1.不允许，则不可以有车
-                                    //2.允许，则不可以有非倒库车
-                                    if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result))
+                                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+
+                                    foreach (uint t in tids)
                                     {
-                                        // 优先移动到空轨道
-                                        //List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);
-                                        List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
-
-                                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
-
-                                        foreach (uint t in tids)
+                                        if (!_M.IsTraInTrans(t)
+                                            && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t)
+                                            && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                         {
-                                            if (!_M.IsTraInTrans(t)
-                                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t)
-                                                && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                            if (_M.SetTakeSite(trans, t))
                                             {
-                                                if (_M.SetTakeSite(trans, t))
-                                                {
-                                                    _M.SetStatus(trans, TransStatusE.取消, "轨道内有其他运输车");
-                                                }
-
-                                                return;
+                                                _M.SetStatus(trans, TransStatusE.取消, "轨道内有其他运输车");
                                             }
+
+                                            return;
                                         }
-
-                                        #region 【任务步骤记录】
-                                        _M.SetStepLog(trans, false, 1401, string.Format("取砖轨道[ {0} ]内有其他运输车，且运输车[ {1} ]无合适轨道可以回轨；",
-                                            PubMaster.Track.GetTrackName(trans.take_track_id),
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id)));
-                                        #endregion
-
-                                        return;
                                     }
 
+                                    #region 【任务步骤记录】
+                                    _M.SetStepLog(trans, false, 1401, string.Format("取砖轨道[ {0} ]内有其他运输车，且运输车[ {1} ]无合适轨道可以回轨；",
+                                        PubMaster.Track.GetTrackName(trans.take_track_id),
+                                        PubMaster.Device.GetDeviceName(trans.carrier_id)));
                                     #endregion
+
+                                    return;
                                 }
+
+                                #endregion
 
                                 if (ftask)
                                 {
