@@ -172,12 +172,18 @@ namespace task.trans.transtask
 
                                 int stockqty = PubMaster.Goods.GetTrackStockCount(track.id);
 
+                                ushort tpoint = track.split_point;
+                                if (track.Type == TrackTypeE.储砖_出)
+                                {
+                                    tpoint -= 50;
+                                }
+
                                 //后退至轨道倒库
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.往前倒库,
                                     CheckTra = track.ferry_down_code,
-                                    ToPoint = (ushort)(track.split_point + 50),
+                                    ToPoint = tpoint,
                                     MoveCount = movecount,
                                     ToTrackId = track.id
                                 }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, track.up_split_point));
@@ -284,12 +290,18 @@ namespace task.trans.transtask
 
                                 int stockqty = PubMaster.Goods.GetTrackStockCount(gtrack.id);
 
+                                ushort tpoint = gtrack.split_point;
+                                if (gtrack.Type == TrackTypeE.储砖_出)
+                                {
+                                    tpoint -= 50;
+                                }
+
                                 //后退至轨道倒库
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.往前倒库,
                                     CheckTra = gtrack.ferry_down_code,
-                                    ToPoint = (ushort)(gtrack.split_point + 50),
+                                    ToPoint = tpoint,
                                     MoveCount = movecount,
                                     ToTrackId = gtrack.id
                                 }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, gtrack.up_split_point));
@@ -870,12 +882,18 @@ namespace task.trans.transtask
                         movecount = line_max_move;
                     }
 
+                    ushort tpoint = track.split_point;
+                    if(track.Type == TrackTypeE.储砖_出)
+                    {
+                        tpoint -= 50;
+                    }
+
                     //后退至轨道倒库
                     PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                     {
                         Order = DevCarrierOrderE.往前倒库,
                         CheckTra = track.ferry_down_code,
-                        ToPoint = (ushort)(track.split_point + 50),
+                        ToPoint = tpoint,
                         MoveCount = movecount,
                         ToTrackId = track.id
                     }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, nowpoint));
