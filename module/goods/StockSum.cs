@@ -14,6 +14,7 @@ namespace module.goods
         public uint area { set; get; }
         public ushort line { set; get; }
         public byte track_type { set; get; }
+        public DateTime? last_produce_time { set; get; }
 
         public int CompareProduceTime(DateTime? time)
         {
