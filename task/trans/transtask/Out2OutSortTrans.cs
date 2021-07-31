@@ -835,9 +835,15 @@ namespace task.trans.transtask
                 }
             }
 
+
             //砖机不再使用该品种
             bool nonetileusegood = false;
-            if(!PubMaster.DevConfig.IsHaveSameTileNowGood(trans.goods_id, TileWorkModeE.上砖))
+            uint gid = PubMaster.Goods.GetTrackTopStockGoodId(trans.give_track_id);
+            if(gid == 0)
+            {
+                gid = trans.goods_id;
+            }
+            if (!PubMaster.DevConfig.IsHaveSameTileNowGood(gid, TileWorkModeE.上砖))
             {
                 nonetileusegood = true;
                 _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
