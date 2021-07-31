@@ -31,11 +31,7 @@ namespace wcs.ViewModel
 
             CheckIsSingle();
 
-            UseInOutLeftRight = GlobalWcsDataConfig.BigConifg.UseInOutLeftRight;
-            if (UseInOutLeftRight)
-            {
-                UseInOutLeftViewMaxId = PubMaster.Track.GetMidId(filterareaid, filterlineid);
-            }
+            UseInOutLeftViewMaxId = PubMaster.Track.GetMidId(filterareaid, filterlineid);
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.TrackStatusUpdate, TrackStatusUpdate);
             Messenger.Default.Register<uint>(this, MsgToken.TrackStockQtyUpdate, TrackStockQtyUpdate);
@@ -76,7 +72,6 @@ namespace wcs.ViewModel
         }
 
         #region[字段]
-        private bool UseInOutLeftRight = false;
         private uint UseInOutLeftViewMaxId = 0;
         private bool showareafilter = true;
         private ObservableCollection<TrackView> _tracklist;
@@ -263,13 +258,12 @@ namespace wcs.ViewModel
                 TrackView view = new TrackView(track);
                 view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(track.id));
                 if (track.Type == TrackTypeE.储砖_入
-                    || (!UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入)
-                    || (UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入 && (track.id <= UseInOutLeftViewMaxId)))
+                    || (track.Type == TrackTypeE.储砖_出入 && (track.id <= UseInOutLeftViewMaxId)))
                 {
                     TrackList.Add(view);
                 }
                 else if (track.Type == TrackTypeE.储砖_出
-                    || (UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入 && (track.id > UseInOutLeftViewMaxId)))
+                    || (track.Type == TrackTypeE.储砖_出入 && (track.id > UseInOutLeftViewMaxId)))
                 {
                     OutTrackList.Add(view);
                 }
@@ -281,7 +275,6 @@ namespace wcs.ViewModel
             if (msg.o1 is Track track)
             {
                 if (track.Type == TrackTypeE.储砖_入
-                    || (!UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入)
                     || (track.Type == TrackTypeE.储砖_出入 && (track.id <= UseInOutLeftViewMaxId)))
                 {
                     Application.Current.Dispatcher.Invoke(() =>
@@ -298,7 +291,7 @@ namespace wcs.ViewModel
                 }
 
                 if (track.Type == TrackTypeE.储砖_出
-                    || (UseInOutLeftRight && track.Type == TrackTypeE.储砖_出入 && (track.id > UseInOutLeftViewMaxId)))
+                    || (track.Type == TrackTypeE.储砖_出入 && (track.id > UseInOutLeftViewMaxId)))
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -359,11 +352,7 @@ namespace wcs.ViewModel
                 filterareaid = radio.AreaID;
                 filterlineid = radio.Line;
 
-
-                if (UseInOutLeftRight)
-                {
-                    UseInOutLeftViewMaxId = PubMaster.Track.GetMidId(filterareaid, filterlineid);
-                }
+                UseInOutLeftViewMaxId = PubMaster.Track.GetMidId(filterareaid, filterlineid);
 
                 TrackView.Refresh();
                 OutTrackView.Refresh();

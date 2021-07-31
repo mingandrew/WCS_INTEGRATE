@@ -16,10 +16,13 @@ namespace task.diagnose.trans
         {
             _mLog = (Log)new LogFactory().GetLog("轨道分析", false);
         }
-
+        bool dodiagnose;
         public override void Diagnose()
         {
-            PubMaster.Track.DoSortTrackDiagnose();
+            dodiagnose = !dodiagnose;
+            if (dodiagnose) return;
+            List<uint> transtrack = _M.GetTransTrackIds();
+            PubMaster.Track.DoSortTrackDiagnose(transtrack);
         }
     }
 }

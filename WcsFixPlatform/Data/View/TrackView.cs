@@ -1,5 +1,6 @@
 ﻿using enums.track;
 using GalaSoft.MvvmLight;
+using HandyControl.Data;
 using module.track;
 using System.Windows.Media;
 
@@ -30,6 +31,8 @@ namespace wcs.Data.View
         private int max_store;
         private string memo;
         private ushort stock_qty;
+        private bool sort_able;//倒库状态
+        private int sort_level;//倒库等级
         private SolidColorBrush trackbrush, trackfbrush, stockbrush;
 
         #region[轨道状态]
@@ -107,6 +110,18 @@ namespace wcs.Data.View
             set => Set(ref stock_qty, value);
         }
 
+        public bool SortAble
+        {
+            get => sort_able;
+            set => Set(ref sort_able, value);
+        }
+
+        public int SortLevel
+        {
+            get => sort_level;
+            set => Set(ref sort_level, value);
+        }
+
         public SolidColorBrush TrackBrush
         {
             get => trackbrush;
@@ -139,7 +154,8 @@ namespace wcs.Data.View
             Right_distance = track.right_distance;
             Max_store = track.max_store;
             Memo = track.memo;
-
+            SortAble = track.sort_able;
+            SortLevel = track.sort_level;
             switch (TrackStatus)
             {
                 case TrackStatusE.停用:

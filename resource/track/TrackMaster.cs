@@ -235,9 +235,13 @@ namespace resource.track
 
         public List<Track> GetSortTrackList(uint area_id, ushort line, params TrackTypeE[] types)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.area == area_id && c.line == line && c.sort_able && c.InType(types));
+            List<Track> tracks = TrackList.FindAll(c => c.area == area_id 
+                                                    && c.line == line 
+                                                    && c.TrackStatus == TrackStatusE.启用
+                                                    && c.sort_able 
+                                                    && c.InType(types));
 
-            tracks?.Sort((x, y) => x.sort_level);
+            tracks?.Sort((x, y) => x.sort_level.CompareTo(y.sort_level));
 
             return tracks;
         }
@@ -730,12 +734,15 @@ namespace resource.track
         public uint GetMidId(uint areaid, ushort lineid)
         {
             List<Track> tracks = TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.InType(TrackTypeE.储砖_出入));
-            tracks.Sort((x, y) => x.id.CompareTo(y.id));
-            int idx = (tracks.Count / 2)-1;
-            if (idx < tracks.Count)
+            if (tracks.Count > 0)
             {
-                Track track = tracks[idx];
-                return track?.id ?? 10000;
+                tracks.Sort((x, y) => x.id.CompareTo(y.id));
+                int idx = (tracks.Count / 2) - 1;
+                if (idx < tracks.Count)
+                {
+                    Track track = tracks[idx];
+                    return track?.id ?? 10000;
+                }
             }
             return 10000;
         }
@@ -2087,19 +2094,27 @@ namespace resource.track
                 track.sort_able = able;
                 track.sort_level = sortlevel;
                 PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.SortAble);
+
+
+                SendMsg(track);
             }
         }
 
         /// <summary>
         /// 分析倒库轨道状态
         /// </summary>
-        public void DoSortTrackDiagnose()
+        public void DoSortTrackDiagnose(List<uint> tracids)
         {
             ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 0);//217
 
             foreach (var item in TrackList)
             {
                 if (item.TrackStatus == TrackStatusE.停用) continue;
+                if (tracids.Contains(item.id))
+                {
+                    SetTrackSortable(item, false, SORT_LEVEL_NO, "任务中");
+                    continue;
+                }
                 switch (item.Type)
                 {
                     case TrackTypeE.储砖_入:
@@ -2247,13 +2262,14 @@ namespace resource.track
                         {
                             SetTrackSortable(track, true, SORT_LEVEL_2);
                         }
-                        else if (PubMaster.Goods.ExistCountEmptySpace(track.id, TrackSortMidCount, safe))
+                        else if (GlobalWcsDataConfig.BigConifg.TrackSortMid
+                            && PubMaster.Goods.ExistCountEmptySpace(track.id, TrackSortMidCount, safe, out string rs))
                         {
-                            SetTrackSortable(track, true, SORT_LEVEL_2, string.Format("中间存在[ {0} ]车的空位", TrackSortFrontCount));
+                            SetTrackSortable(track, true, SORT_LEVEL_2, string.Format("中间存在[ {0} ]车的空位,备注[ {1} ]", TrackSortMidCount, rs));
                         }
                         else
                         {
-                            SetTrackSortable(track, false, SORT_LEVEL_NO, string.Format("空位不满[ {0} -> {1} ]", discount, TrackSortFrontCount));
+                            SetTrackSortable(track, false, SORT_LEVEL_NO, string.Format("不满足倒库, 头部空位[ {0} ], 头部设置空位[ {1} ]", discount, TrackSortFrontCount));
                         }
                     }
                     else
