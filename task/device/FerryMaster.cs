@@ -1309,6 +1309,27 @@ namespace task.device
             return true;
         }
 
+        /// <summary>
+        /// 摆渡车寻点
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="resettype"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool ResetPoint(uint id, DevFerryResetPosE resettype, string memo, out string result)
+        {
+            FerryTask task = DevList.Find(c => c.ID == id);
+            if (!IsAllowToMove(task, 0, out result))
+            {
+                return false;
+            }
+
+            task.DoMoveToNextPoint(resettype);
+            mlog.Info(true, string.Format(@"摆渡车[ {0} ]-当前轨道[ {1} ],  手动寻点[ {2} ]", 
+                task.Device.name, PubMaster.Track.GetTrackName(task.GetFerryCurrentTrackId()), resettype));
+            return true;
+        }
+
         #endregion
 
         #region[发送信息]

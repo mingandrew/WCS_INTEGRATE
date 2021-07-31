@@ -1241,10 +1241,10 @@ namespace task.rf
                 FerryTaskPack pack = JsonTool.Deserialize<FerryTaskPack>(msg.Pack.Data);
                 if (pack != null && pack.Id > 0)
                 {
-                    DevFerryResetPosE type = DevFerryResetPosE.前进回原点;
+                    DevFerryResetPosE type = DevFerryResetPosE.前进寻点;
                     if (pack.Value1 == 1)
                     {
-                        type = DevFerryResetPosE.后退回原点;
+                        type = DevFerryResetPosE.后退寻点;
                     }
                     if (PubTask.Ferry.ReSetFerry(pack.Id, type, "平板", out string result))
                     {

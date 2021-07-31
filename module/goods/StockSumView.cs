@@ -9,7 +9,7 @@ namespace module.goods
 {
     public class StockSumStocks : StockSum
     {
-        public StockSumStocks(Stock stock)
+        public StockSumStocks(Stock stock, byte tt2)
         {
             goods_id = stock.goods_id;
             count = 1;
@@ -19,6 +19,7 @@ namespace module.goods
             track_id = stock.track_id;
             area = stock.area;
             track_type = stock.track_type;
+            track_type2 = tt2;
         }
 
         public List<uint> StockIds { set; get; }

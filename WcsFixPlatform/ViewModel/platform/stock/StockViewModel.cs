@@ -286,7 +286,7 @@ namespace wcs.ViewModel
 
                 if (sum == null)
                 {
-                    sum = new StockSumStocks(stock);
+                    sum = new StockSumStocks(stock, PubMaster.Track.GetTrackType2ForByte(stock.track_id));
                 }
             }
             if (sum != null)

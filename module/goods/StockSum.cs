@@ -14,6 +14,7 @@ namespace module.goods
         public uint area { set; get; }
         public ushort line { set; get; }
         public byte track_type { set; get; }
+        public byte track_type2 { set; get; }
         public DateTime? last_produce_time { set; get; }
 
         public int CompareProduceTime(DateTime? time)
@@ -29,5 +30,11 @@ namespace module.goods
         {
             get => (TrackTypeE)track_type;
         }
+
+        public TrackType2E TrackType2
+        {
+            get => (TrackType2E)track_type2;
+        }
+
     }
 }

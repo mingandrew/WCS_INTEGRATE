@@ -31,7 +31,7 @@
                     <DataTemplate DataType="mwindow:AreaRadioBtn">
                         <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaID}"  GroupName="Area"
                                          Style="{StaticResource RadioGroupItemBaseStyle}" 
-                                         Width="80" Height="35"
+                                         Width="85" Height="35"
                                          BorderBrush="{StaticResource BorderBrush}"
                                          Background="{StaticResource RegionBrush}"
                                          BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />

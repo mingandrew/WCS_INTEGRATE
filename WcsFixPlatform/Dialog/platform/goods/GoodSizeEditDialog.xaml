@@ -47,11 +47,11 @@
                 <TextBlock Text="一车垛数:" Style="{StaticResource TextBlockLarge}"/>
             </Border>
 
-            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}" Visibility="Collapsed">
                 <TextBlock Text="每车长度:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
             </Border>
 
-            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}" Visibility="Collapsed">
                 <TextBlock Text="每车间隔:" Style="{StaticResource TextBlockLarge}" Margin="15"/>
             </Border>
 
@@ -74,11 +74,11 @@
                 <TextBox Text="{Binding Stack,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
             </Border>
 
-            <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource MBorder_LTR}">
+            <Border Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource MBorder_LTR}" Visibility="Collapsed">
                 <TextBox Text="{Binding CarLength,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
             </Border>
 
-            <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource MBorder_LTRB}">
+            <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Style="{StaticResource MBorder_LTRB}" Visibility="Collapsed">
                 <TextBox Text="{Binding CarSpace,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
             </Border>
         </Grid>

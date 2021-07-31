@@ -167,6 +167,16 @@ namespace resource.track
             return TrackList.Find(c => c.id == track_id).Type2;
         }
 
+        /// <summary>
+        /// 获取轨道出入库类型(byte)
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        public byte GetTrackType2ForByte(uint track_id)
+        {
+            return TrackList.Find(c => c.id == track_id)?.type2 ?? 0;
+        }
+
         public List<Track> GetTracksInTypes(uint areaid, List<TrackTypeE> types)
         {
             return TrackList.FindAll(c => c.area == areaid && types.Contains(c.Type));
@@ -1574,7 +1584,7 @@ namespace resource.track
             List<Area> areas = PubMaster.Area.GetAreaList();
             foreach (Area area in areas)
             {
-                // 获取所有满砖轨道可倒库的库存
+                // 获取所有可倒库的库存
                 List<Stock> areastocks = PubMaster.Goods.GetStocksOrderByOut(area.id);
                 if (areastocks != null && areastocks.Count > 0) stocks.AddRange(areastocks);
             }
@@ -2331,7 +2341,7 @@ namespace resource.track
                 }
             }
 
-            if (isupdate) PubMaster.Mod.TraSql.EditTrack(setTrack, TrackUpdateE.TGtype);
+            if (isupdate) UpdateType2AndDir(setTrack);
         }
 
         /// <summary>
@@ -2381,7 +2391,22 @@ namespace resource.track
                 }
             }
 
-            if (isupdate) PubMaster.Mod.TraSql.EditTrack(setTrack, TrackUpdateE.TGtype);
+            if (isupdate) UpdateType2AndDir(setTrack);
+        }
+
+        /// <summary>
+        /// 更新轨道出入库类型及取放方向
+        /// </summary>
+        /// <param name="setTrack"></param>
+        private void UpdateType2AndDir(Track setTrack)
+        {
+            if (setTrack.StockStatus != TrackStockStatusE.空砖)
+            {
+                // 更新库存统计-出入库类型
+                PubMaster.Sums.CheckTrackSum(setTrack.id);
+            }
+
+            PubMaster.Mod.TraSql.EditTrack(setTrack, TrackUpdateE.TGtype);
         }
 
         #endregion

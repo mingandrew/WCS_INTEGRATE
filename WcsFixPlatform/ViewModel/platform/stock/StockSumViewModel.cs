@@ -1,5 +1,6 @@
 ﻿using CommonServiceLocator;
 using enums;
+using enums.track;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using GalaSoft.MvvmLight.Views;
@@ -34,12 +35,11 @@ namespace wcs.ViewModel
             InitAreaRadio();
 
             Messenger.Default.Register<MsgAction>(this, MsgToken.StockSumeUpdate, StockSumeUpdate);
-            Messenger.Default.Register<List<StockSum>>(this, MsgToken.GoodSumUpdate, GoodSumUpdate);
 
             InitList();
 
             GoodSumListView = System.Windows.Data.CollectionViewSource.GetDefaultView(GoodSumList);
-            //GoodSumListView.Filter = new Predicate<object>(OnFilterMovie);
+
             TrackSumListView = System.Windows.Data.CollectionViewSource.GetDefaultView(TrackSumList);
             TrackSumListView.Filter = new Predicate<object>(OnFilterMovie);
             CheckIsSingle();
@@ -132,7 +132,7 @@ namespace wcs.ViewModel
                 {
                     filtertracktype = type;
                     TrackSumListView.Refresh();
-                    PubMaster.Sums.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
+                    UpdateGoodsSum();
                 }
             }
         }
@@ -144,9 +144,10 @@ namespace wcs.ViewModel
                 filterareaid = radio.AreaID;
                 filterlineid = radio.Line;
                 TrackSumListView.Refresh();
-                PubMaster.Sums.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
+                UpdateGoodsSum();
             }
         }
+
         bool OnFilterMovie(object item)
         {
             if (filterareaid == 0 && filtertracktype == 0) return true;
@@ -154,7 +155,7 @@ namespace wcs.ViewModel
             {
                 if (filterareaid == 0)
                 {
-                    return sum.track_type == filtertracktype;
+                    return IsShow(sum);
                 }
 
                 if (filtertracktype == 0)
@@ -162,7 +163,7 @@ namespace wcs.ViewModel
                     return sum.area == filterareaid && sum.line == filterlineid;
                 }
 
-                return sum.area == filterareaid && filterlineid == sum.line && sum.track_type == filtertracktype;
+                return sum.area == filterareaid && filterlineid == sum.line && IsShow(sum);
             }
             return true;
         }
@@ -174,13 +175,16 @@ namespace wcs.ViewModel
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    StockSumView view = TrackSumList.FirstOrDefault(c => c.track_id == sum.track_id && c.goods_id == sum.goods_id);
+                    StockSumView view = TrackSumList.FirstOrDefault(c => c.track_id == sum.track_id && c.GoodId == sum.goods_id);
                     if (view == null)
                     {
                         view = new StockSumView(sum);
                         TrackSumList.Add(view);
                     }
+
+                    bool isUpdateType2 = view.track_type2 != sum.track_type2;
                     view.Update(sum);
+
                     switch (type)
                     {
                         case ActionTypeE.Add:
@@ -195,34 +199,16 @@ namespace wcs.ViewModel
                             break;
                     }
 
-                    //if (List.Count(c=> c.track_id== sum.track_id) <= 1)
-                    //{
+                    UpdateGoodsSum();
 
-                    //}
-                    //else
-                    //{
-                    //    InitList();
-                    //}
-
-                });
-            }
-        }
-
-        private void GoodSumUpdate(List<StockSum> list)
-        {
-            if (list == null) return;
-            if (list is List<StockSum> goodcountlist)
-            {
-                Application.Current.Dispatcher.Invoke(delegate
-                {
-                    GoodSumList.Clear();
-                    foreach (StockSum sum in goodcountlist)
+                    if (isUpdateType2)
                     {
-                        GoodSumList.Add(new StockSumView(sum));
+                        if (TrackSumListView != null) TrackSumListView.Refresh();
+                        if (GoodSumListView != null) GoodSumListView.Refresh();
                     }
+
                 });
             }
-
         }
 
         private void ChangeGood(StockSumView sum)
@@ -234,6 +220,79 @@ namespace wcs.ViewModel
             }
         }
 
+        /// <summary>
+        /// 是否显示（区分出库/入库）
+        /// </summary>
+        /// <param name="sum"></param>
+        /// <returns></returns>
+        private bool IsShow(StockSumView sum)
+        {
+            bool IsShow = true;
+
+            switch ((TrackTypeE)filtertracktype)
+            {
+                case TrackTypeE.储砖_入:
+                    IsShow = sum.IsWorkIn();
+                    break;
+                case TrackTypeE.储砖_出:
+                    IsShow = sum.IsWorkOut();
+                    break;
+            }
+
+            return IsShow;
+        }
+
+        /// <summary>
+        /// 更新品种统计
+        /// </summary>
+        private void UpdateGoodsSum()
+        {
+            GoodSumList.Clear();
+
+            List<StockSum> sumlist = new List<StockSum>();
+
+            if (TrackSumList != null && TrackSumList.Count > 0)
+            {
+                foreach (StockSumView item in TrackSumList)
+                {
+                    bool isadd = false;
+
+                    if (filterareaid == 0)
+                    {
+                        isadd = IsShow(item);
+                    }
+                    else if (filtertracktype == 0)
+                    {
+                        isadd = item.area == filterareaid && item.line == filterlineid;
+                    }
+                    else
+                    {
+                        isadd = item.area == filterareaid && filterlineid == item.line && IsShow(item);
+                    }
+
+                    if (isadd) sumlist.Add(item.GetStockSum());
+                }
+            }
+
+            if (sumlist != null && sumlist.Count > 0)
+            {
+                var list = sumlist.GroupBy(c => new { c.goods_id }).Select(c => new StockSum
+                {
+                    goods_id = c.Key.goods_id,
+                    count = c.Sum(b => b.count),
+                    stack = c.Sum(b => b.stack),
+                    pieces = c.Sum(b => b.pieces),
+                    produce_time = c.Min(b => b.produce_time),
+                    last_produce_time = c.Min(b => b.last_produce_time),
+                });
+
+                foreach (StockSum sum in list.ToList())
+                {
+                    GoodSumList.Add(new StockSumView(sum));
+                }
+            }
+        }
+
         private void InitList()
         {
             TrackSumList.Clear();
@@ -242,9 +301,8 @@ namespace wcs.ViewModel
             {
                 TrackSumList.Add(new StockSumView(sum));
             }
-            GoodSumList.Clear();
-            PubMaster.Sums.GetGoodCountList(filterareaid, filterlineid, filtertracktype);
 
+            UpdateGoodsSum();
         }
 
         public void ShowGoodsOrTrack(RoutedEventArgs args)

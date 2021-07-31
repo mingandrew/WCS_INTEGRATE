@@ -41,6 +41,35 @@ namespace wcs.ViewModel
             CheckIsSingle();
         }
 
+        /// <summary>
+        /// 是否显示（区分出库/入库）
+        /// </summary>
+        /// <param name="sum"></param>
+        /// <returns></returns>
+        private bool IsShow(TrackView view)
+        {
+            bool IsShow = true;
+            TrackTypeE tt = (TrackTypeE)filtertracktype;
+            if (view.Type == TrackTypeE.储砖_出入)
+            {
+                switch (tt)
+                {
+                    case TrackTypeE.储砖_入:
+                        IsShow = view.IsWorkIn();
+                        break;
+                    case TrackTypeE.储砖_出:
+                        IsShow = view.IsWorkOut();
+                        break;
+                }
+            }
+            else
+            {
+                IsShow = view.Type == tt;
+            }
+
+            return IsShow;
+        }
+
         bool OnFilterMovie(object item)
         {
             if (filterareaid == 0 && filtertracktype == 0) return true;
@@ -48,7 +77,7 @@ namespace wcs.ViewModel
             {
                 if (filterareaid == 0)
                 {
-                    return view.Type == (TrackTypeE)filtertracktype;
+                    return IsShow(view);
                 }
 
                 if (filtertracktype == 0)
@@ -56,7 +85,7 @@ namespace wcs.ViewModel
                     return view.Area == filterareaid && view.LineId == filterlineid;
                 }
 
-                return filterareaid == view.Area && filterlineid == view.LineId && (TrackTypeE)filtertracktype == view.Type;
+                return filterareaid == view.Area && filterlineid == view.LineId && IsShow(view);
             }
             return true;
         }

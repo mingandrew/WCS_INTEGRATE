@@ -132,10 +132,10 @@
                 <Button Content="设置" Style="{StaticResource ButtonPrimary}" Tag="updatesetpos" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
             </Border>
             <Border Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTB}">
-                <Button Content="前进回原点" Style="{StaticResource ButtonPrimary}" Tag="leftreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+                <Button Content="前进寻点" Style="{StaticResource ButtonPrimary}" Tag="leftreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
             </Border>
             <Border Grid.Row="8" Grid.Column="2" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTRB}">
-                <Button Content="后退回原点" Style="{StaticResource ButtonPrimary}" Tag="rightreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
+                <Button Content="后退寻点" Style="{StaticResource ButtonPrimary}" Tag="rightreset" Command="{Binding BtnSelectCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" MinWidth="125" FontSize="15"  Height="35"/>
             </Border>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0" >
@@ -158,7 +158,7 @@
                         <DataTemplate DataType="mwindow:AreaRadioBtn">
                             <RadioButton Content="{Binding AreaName}"  Tag="{Binding AreaID}"  GroupName="Area"
                                          Style="{StaticResource RadioGroupItemBaseStyle}" 
-                                         Width="80" Height="35"
+                                         Width="85" Height="35"
                                          BorderBrush="{StaticResource BorderBrush}"
                                          Background="{StaticResource RegionBrush}"
                                          BorderThickness="1"  FontSize="22" hc:BorderElement.CornerRadius="{Binding BorderCorner}" />

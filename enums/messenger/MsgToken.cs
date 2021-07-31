@@ -35,7 +35,6 @@ namespace enums
 
         public const string StockSumeUpdate = nameof(StockSumeUpdate);
         public const string TrackStockQtyUpdate = nameof(TrackStockQtyUpdate);
-        public const string GoodSumUpdate = nameof(GoodSumUpdate);
         public const string SetStockSelectTrack = nameof(SetStockSelectTrack);
 
         public const string TransUpdate = nameof(TransUpdate);

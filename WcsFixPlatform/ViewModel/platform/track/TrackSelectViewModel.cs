@@ -253,28 +253,43 @@ namespace wcs.ViewModel
             });
         }
 
+        /// <summary>
+        /// 是否显示（区分出库/入库）
+        /// </summary>
+        /// <param name="sum"></param>
+        /// <returns></returns>
+        private bool IsShow(Track view)
+        {
+            bool IsShow = true;
+            TrackTypeE tt = (TrackTypeE)filtertracktype;
+            if (view.Type == TrackTypeE.储砖_出入)
+            {
+                switch (tt)
+                {
+                    case TrackTypeE.储砖_入:
+                        IsShow = view.IsWorkIn();
+                        break;
+                    case TrackTypeE.储砖_出:
+                        IsShow = view.IsWorkOut();
+                        break;
+                }
+            }
+            else
+            {
+                IsShow = view.Type == tt;
+            }
+
+            return IsShow;
+        }
+
         bool OnFilterMovie(object item)
         {
             if (filterareaid == 0 && filtertracktype == 0) return true;
             if (item is Track view)
             {
-                TrackTypeE tt = (TrackTypeE)filtertracktype;
-
                 if (filterareaid == 0)
                 {
-                    if (view.Type == TrackTypeE.储砖_出入)
-                    {
-                        switch (tt)
-                        {
-                            case TrackTypeE.储砖_入:
-                                return view.IsWorkIn();
-
-                            case TrackTypeE.储砖_出:
-                                return view.IsWorkOut();
-                        }
-                    }
-
-                    return view.Type == tt;
+                    return IsShow(view);
                 }
 
                 if (filtertracktype == 0)
@@ -282,19 +297,7 @@ namespace wcs.ViewModel
                     return view.area == filterareaid && view.line == filterlineid;
                 }
 
-                if (view.Type == TrackTypeE.储砖_出入)
-                {
-                    switch (tt)
-                    {
-                        case TrackTypeE.储砖_入:
-                            return filterareaid == view.area && filterlineid == view.line && view.IsWorkIn();
-
-                        case TrackTypeE.储砖_出:
-                            return filterareaid == view.area && filterlineid == view.line && view.IsWorkOut();
-                    }
-                }
-
-                return filterareaid == view.area && filterlineid == view.line && tt == view.Type;
+                return filterareaid == view.area && filterlineid == view.line && IsShow(view);
             }
             return true;
         }

@@ -341,6 +341,17 @@ namespace task.task
             DevTcp?.SendCmd(DevFerryCmdE.初始化, b[1], b[0], (int)md);
         }
 
+        /// <summary>
+        /// 寻点
+        /// </summary>
+        /// <param name="ID">复位序号</param>
+        internal void DoMoveToNextPoint(DevFerryResetPosE rp)
+        {
+            if (IsSendAll) return;
+
+            DevTcp?.SendCmd(DevFerryCmdE.寻点, (byte)rp, 0, 0);
+        }
+
         #endregion
 
         #region[更新轨道信息]

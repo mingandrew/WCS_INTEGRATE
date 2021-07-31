@@ -55,8 +55,6 @@ namespace resource.goods
 
         #region[库存统计]
 
-
-
         /// <summary>
         /// 获取库存统计信息
         /// 1.重新排序
@@ -115,7 +113,8 @@ namespace resource.goods
                     produce_time = PubMaster.Goods.GetEarliestTime(trackid),
                     track_id = trackid,
                     area = sums[0].area,
-                    track_type = sums[0].track_type
+                    track_type = sums[0].track_type,
+                    track_type2 = PubMaster.Track.GetTrackType2ForByte(trackid)
                 };
 
                 foreach (StockSum sum in sums)
@@ -175,54 +174,6 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="filterarea"></param>
-        /// <param name="filterline"></param>
-        /// <param name="filtertype"></param>
-        public void GetGoodCountList(uint filterarea, ushort filterline, byte filtertype)
-        {
-            List<StockSum> filterlist = new List<StockSum>();
-            if (filterarea == 0 && filtertype == 0)
-            {
-                filterlist = StockSumList;
-            }
-            else if (filterarea != 0 && filterline != 0 && filtertype == 0)
-            {
-                filterlist = StockSumList.FindAll(c => c.area == filterarea && c.line == filterline);
-            }
-            else if (filtertype != 0 && filterarea == 0)
-            {
-                filterlist = StockSumList.FindAll(c => c.track_type == filtertype);
-            }
-            else if (filterarea != 0 && filtertype != 0)
-            {
-                filterlist = StockSumList.FindAll(c => c.area == filterarea && c.line == filterline && c.track_type == filtertype);
-            }
-            if (filterlist == null) return;
-            var list = filterlist.GroupBy(c => new { c.goods_id }).Select(c => new StockSum
-            {
-                goods_id = c.Key.goods_id,
-                count = c.Sum(b => b.count),
-                stack = c.Sum(b => b.stack),
-                pieces = c.Sum(b => b.pieces),
-                produce_time = c.Min(b => b.produce_time),
-            });
-            List<StockSum> goodcountlist = list.ToList();
-            if (filterarea != 0 || filtertype != 0)
-            {
-                foreach (var item in goodcountlist)
-                {
-                    item.area = filterarea;
-                    item.line = filterline;
-                    item.track_type = filtertype;
-                }
-            }
-            goodcountlist.RemoveAll(c => c.count <= 0 || c.count > 10000);
-            Messenger.Default.Send(goodcountlist, MsgToken.GoodSumUpdate);
-        }
-
-        /// <summary>
         /// 刷新轨道的库存概况
         /// </summary>
         /// <param name="trackId"></param>
@@ -253,6 +204,7 @@ namespace resource.goods
                     sum.count = PubMaster.Goods.GetTrackStockCount(trackId, gid);
                     sum.stack = sum.count * (size?.stack ?? 1);
                     sum.pieces = PubMaster.Goods.GetTrackStockPieseSum(trackId, gid);
+                    sum.track_type2 = track.type2;
                     SendSumMsg(sum, ActionTypeE.Update);
                 }
                 SortSumList();
@@ -333,7 +285,8 @@ namespace resource.goods
                     stack = stock.stack,
                     produce_time = stock.produce_time,
                     area = track.area,
-                    track_type = track.type
+                    track_type = track.type,
+                    track_type2 = track.type2
                 };
                 StockSumList.Add(sum);
                 SendSumMsg(sum, ActionTypeE.Add);

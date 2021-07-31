@@ -668,35 +668,35 @@ UPDATE `diction_dtl` SET `id` = 79 WHERE `id` = 251;
 ## 2021.07.30 [ V2.1 ]   增加最后生产时间
 
 ```mysql
-ALTER VIEW `stock_sum` AS SELECT
-	`t`.`goods_id` AS `goods_id`,
-	`t`.`track_id` AS `track_id`,
-	min( `t`.`produce_time` ) AS `produce_time`,
-	max( `t`.`produce_time` ) AS `last_produce_time`,
-	count( `t`.`id` ) AS `count`,
-	sum( `t`.`pieces` ) AS `pieces`,
-	sum( `t`.`stack` ) AS `stack`,
-	`t`.`area` AS `area`,
-	`t`.`track_type` AS `track_type`,(
-	SELECT
-		`track`.`line` 
-	FROM
-		`track` 
-	WHERE
-	( `track`.`id` = `t`.`track_id` )) AS `line` 
-FROM
-	`stock` `t` 
-WHERE
-	(
-	`t`.`track_type` IN ( 2, 3, 4 )) 
-GROUP BY
-	`t`.`track_id`,
-	`t`.`goods_id` 
-ORDER BY
-	`t`.`area`,
-	`t`.`goods_id`,
-	`produce_time`,
-	`t`.`track_id`
+ALTER VIEW `stock_sum` AS
+SELECT s.area AS 'area', t.line AS 'line', s.goods_id AS 'goods_id',
+			 s.track_id AS 'track_id', t.type AS 'track_type', t.type2 AS 'track_type2', 
+			 COUNT(s.id) AS 'count', SUM(s.pieces) AS 'pieces', SUM(s.stack) AS 'stack',
+			 MIN(s.produce_time) AS 'produce_time', MAX(s.produce_time) AS 'last_produce_time'
+  FROM stock s
+  LEFT JOIN track t ON s.track_id = t.id
+ WHERE s.track_type IN (2,3,4)
+ GROUP BY s.track_id, s.goods_id
+ ORDER BY s.area, s.goods_id, 'produce_time', s.track_id;
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 ```
 
 ## 2021.07.30 [V2.0] 新增移车任务的轨道可用于下砖任务的开关

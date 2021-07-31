@@ -615,7 +615,7 @@ namespace resource.goods
                     Monitor.Exit(_so);
                 }
             }
-            rs = "";
+            rs = "请稍后再试";
             return false;
         }
 
@@ -3358,6 +3358,11 @@ namespace resource.goods
 
         public uint GetMaxGoodSizeId()
         {
+            if (GoodSizeList == null || GoodSizeList.Count == 0)
+            {
+                return 0;
+            }
+
             return GoodSizeList.Max(c => c.id);
         }
 

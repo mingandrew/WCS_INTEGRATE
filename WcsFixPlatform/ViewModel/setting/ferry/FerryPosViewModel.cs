@@ -275,19 +275,19 @@ namespace wcs.ViewModel
                     SetFerryPos();
                     break;
                 case "leftreset":
-                    string tip2 = "确认发送[前进复位] 给" + _selectferry.name + "吗？";
+                    string tip2 = "确认发送[前进寻点] 给" + _selectferry.name + "吗？";
                     MessageBoxResult rs2 = HandyControl.Controls.MessageBox.Show(tip2, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if(rs2 == MessageBoxResult.OK || rs2 == MessageBoxResult.Yes)
                     {
-                        ReSetFerry(DevFerryResetPosE.前进回原点);
+                        ReSetFerry(DevFerryResetPosE.前进寻点);
                     }
                     break;
                 case "rightreset":
-                    string tip3 = "确认发送[后退复位] 给" + _selectferry.name + "吗？";
+                    string tip3 = "确认发送[后退寻点] 给" + _selectferry.name + "吗？";
                     MessageBoxResult rs3 = HandyControl.Controls.MessageBox.Show(tip3, "警告", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (rs3 == MessageBoxResult.OK || rs3 == MessageBoxResult.Yes)
                     {
-                        ReSetFerry(DevFerryResetPosE.后退回原点);
+                        ReSetFerry(DevFerryResetPosE.后退寻点);
                     }
                     break;
                 case "showferry":
@@ -352,7 +352,7 @@ namespace wcs.ViewModel
 
         private void ReSetFerry(DevFerryResetPosE type)
         {
-            if (!PubTask.Ferry.ReSetFerry(_selectferry.id, type, "PC", out string result))
+            if (!PubTask.Ferry.ResetPoint(_selectferry.id, type, "PC", out string result))
             {
                 Growl.Warning(result);
                 return;

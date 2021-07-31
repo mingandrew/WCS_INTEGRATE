@@ -36,6 +36,7 @@
         查询轨道坐标 = 3,
         设置轨道坐标 = 4,
         原点复位 = 5,
+        寻点 = 6,
         自动对位 = 7,
         初始化 = 0x7E,
         终止任务 = 0x7F,
@@ -56,8 +57,8 @@
 
     public enum DevFerryResetPosE
     {
-        前进回原点 = 1,
-        后退回原点 = 2
+        前进寻点 = 1,
+        后退寻点 = 2
     }
 
     public enum DevFerryAutoPosE

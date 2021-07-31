@@ -14,6 +14,7 @@ namespace wcs.Data.View
             Area = track.area;
             LineId = track.line;
             Type = track.Type;
+            Type2 = track.Type2;
             Update(track);
         }
 
@@ -22,6 +23,7 @@ namespace wcs.Data.View
         
         private string name;
         private TrackTypeE type;
+        private TrackType2E type2;
         private TrackStockStatusE status;
         private TrackStatusE trackstatus;
         private ushort width;
@@ -63,6 +65,11 @@ namespace wcs.Data.View
         {
             get => type;
             set => Set(ref type, value);
+        }
+        public TrackType2E Type2
+        {
+            get => type2;
+            set => Set(ref type2, value);
         }
         public TrackStockStatusE Status
         {
@@ -187,5 +194,27 @@ namespace wcs.Data.View
         {
             StockQty = qty;
         }
+
+
+        /// <summary>
+        /// 是否入库作业轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsWorkIn()
+        {
+            return Type == TrackTypeE.储砖_入
+                || (Type == TrackTypeE.储砖_出入 && (Type2 == TrackType2E.通用 || Type2 == TrackType2E.入库));
+        }
+
+        /// <summary>
+        /// 是否出库作业轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsWorkOut()
+        {
+            return Type == TrackTypeE.储砖_出
+                || (Type == TrackTypeE.储砖_出入 && (Type2 == TrackType2E.通用 || Type2 == TrackType2E.出库));
+        }
+
     }
 }
