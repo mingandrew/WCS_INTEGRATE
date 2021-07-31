@@ -341,9 +341,11 @@ namespace resource.goods
             return GoodsList.FindAll(c => c.area_id == filterarea);
         }
 
-        public List<Goods> GetStockOutGoodsList(uint filterarea)
+        public List<Goods> GetStockOutGoodsList(uint filterarea,uint devid)
         {
-            List<uint> goodsids = StockList.FindAll(c => (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入) && c.PosType == StockPosE.首车).Select(t => t.goods_id).ToList();
+            List<AreaDeviceTrack> tracklist = PubMaster.Area.GetTileWorkTraList(filterarea,devid,true);
+            List<uint> tralist = tracklist.Select(c => c.track_id).ToList();
+            List<uint> goodsids = StockList.FindAll(c => (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入) && c.PosType == StockPosE.首车 && tralist.Contains(c.track_id)).Select(t => t.goods_id).ToList();
             List<Goods> glist = new List<Goods>();
             glist.AddRange(GoodsList.FindAll(c => goodsids.Contains(c.id) || c.empty));
             return glist;

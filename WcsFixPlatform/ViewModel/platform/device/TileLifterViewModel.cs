@@ -202,7 +202,7 @@ namespace wcs.ViewModel
                              vm.SetAreaFilter(area, true);
                              if (isuptilelifter)
                              {
-                                 vm.QueryStockGood();
+                                 vm.QueryStockGood(DeviceSelected.ID);
                              }
                              else
                              {

@@ -176,12 +176,12 @@ namespace wcs.ViewModel
             });
         }
 
-        public void QueryStockGood()
+        public void QueryStockGood(uint devid)
         {
             FilterName = string.Empty;
             List<Goods> list = new List<Goods>();
 
-            list.AddRange(PubMaster.Goods.GetStockOutGoodsList(filterareaid));
+            list.AddRange(PubMaster.Goods.GetStockOutGoodsList(filterareaid,devid));
             Application.Current.Dispatcher.Invoke(() =>
             {
                 GoodsList.Clear();
