@@ -1095,6 +1095,17 @@ namespace resource.goods
             return false;
         }
 
+
+        /// <summary>
+        /// 获取顶部库存品种ID
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        public uint GetTrackTopStockGoodId(uint track_id)
+        {
+            return GetTrackTopStock(track_id)?.goods_id ?? 0;
+        }
+
         /// <summary>
         /// 修改一个库存的品种（和生产时间）
         /// </summary>

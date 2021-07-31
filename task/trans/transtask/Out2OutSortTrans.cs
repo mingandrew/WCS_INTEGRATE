@@ -805,11 +805,11 @@ namespace task.trans.transtask
 
             //接力点前只有一车砖，同时有车取砖取了它
             bool onestockcarloadit = false;
+            Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
             if (infrontstockcount == 1
                 && havecarinfront
                 && stockqty > 1)
             {
-                Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
                 if (topstock != null && topstock.location > nowpoint
                     && PubMaster.DevConfig.IsCarrierBindStock(othercarid, topstock.id))
                 {
@@ -817,9 +817,15 @@ namespace task.trans.transtask
                 }
             }
 
+
             //砖机不再使用该品种
             bool nonetileusegood = false;
-            if (!PubMaster.DevConfig.IsHaveSameTileNowGood(trans.goods_id, TileWorkModeE.上砖))
+            uint gid = topstock.goods_id;
+            if(gid == 0)
+            {
+                gid = trans.goods_id;
+            }
+            if (!PubMaster.DevConfig.IsHaveSameTileNowGood(gid, TileWorkModeE.上砖))
             {
                 nonetileusegood = true;
                 _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");

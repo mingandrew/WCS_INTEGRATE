@@ -46,6 +46,7 @@ namespace tool.appconfig
         /// 是否释放上砖摆渡车
         /// </summary>
         /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
         /// <returns></returns>
         public bool IsFreeUpFerry(uint areaid, ushort lineid)
         {
@@ -56,6 +57,7 @@ namespace tool.appconfig
         /// 释放释放下砖摆渡车
         /// </summary>
         /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
         /// <returns></returns>
         public bool IsFreeDownFerry(uint areaid, ushort lineid)
         {
@@ -66,6 +68,7 @@ namespace tool.appconfig
         /// 上砖任务新分配逻辑
         /// </summary>
         /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
         /// <returns></returns>
         public bool IsUpTaskNewAllocate(uint areaid, ushort lineid)
         {
