@@ -28,6 +28,21 @@ namespace task.trans
             InitDiagnore(this);
         }
 
+        internal List<uint> GetTransTrackIds()
+        {
+            List<uint> ids = new List<uint>();
+            foreach (var item in TransList)
+            {
+                ids.Add(item.take_track_id);
+                ids.Add(item.give_track_id);
+                if (item.finish_track_id != 0)
+                {
+                    ids.Add(item.finish_track_id);
+                }
+            }
+            return ids;
+        }
+
         #endregion
 
         #region[检查满轨/添加倒库任务]

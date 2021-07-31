@@ -489,9 +489,19 @@ namespace task.trans.transtask
                         }
 
                         //需要定位的位置比出轨道最后取货点都小则用
-                        if (topoint <= track.split_point)
+                        if(track.Type == TrackTypeE.储砖_出入)
                         {
-                            topoint = track.split_point;
+                            if(topoint <= track.limit_point)
+                            {
+                                topoint = track.limit_point;
+                            }
+                        }
+                        else
+                        {
+                            if (topoint <= track.split_point)
+                            {
+                                topoint = track.split_point;
+                            }
                         }
 
                         if (Math.Abs(nowpoint - topoint) <= 100)

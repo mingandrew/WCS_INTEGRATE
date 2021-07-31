@@ -3467,7 +3467,7 @@ namespace resource.goods
         /// <param name="emptycount">空余车数</param>
         /// <param name="safe">每车距离</param>
         /// <returns></returns>
-        internal bool ExistCountEmptySpace(uint id, int emptycount, ushort safe)
+        internal bool ExistCountEmptySpace(uint id, int emptycount, ushort safe,out string result)
         {
             int space = emptycount * safe;
             List<Stock> stocks = StockList.FindAll(c => c.track_id == id);
@@ -3476,10 +3476,12 @@ namespace resource.goods
             {
                 if(Math.Abs(stocks[i].location - stocks[i+1].location) >= space)
                 {
+                    result = string.Format("[ {0} ] -> [ {1} ]", stocks[i].ToSmalString(), stocks[i + 1].ToSmalString());
                     return true;
                 }
             }
 
+            result = "";
             return false;
         }
 

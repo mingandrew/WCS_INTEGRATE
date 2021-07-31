@@ -107,8 +107,10 @@
                                 <DataTemplate>
                                     <Border Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center"
                                       CornerRadius="5">
-                                        <TextBlock Text="{Binding TrackStatus}" Padding="0,5,0,5"  Block.TextAlignment="Center"
-                                               MinWidth="100" Foreground="Black"/>
+                                        <hc:Badge Status="Dot" Style="{StaticResource BadgeWarning}" ShowBadge="{Binding SortAble}">
+                                            <TextBlock Text="{Binding TrackStatus}" Padding="0,5,0,5"  Block.TextAlignment="Center"
+                                               MinWidth="60" Foreground="Black"/>
+                                        </hc:Badge>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -201,8 +203,10 @@
                                 <DataTemplate>
                                     <Border Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center"
                                       CornerRadius="5">
-                                        <TextBlock Text="{Binding TrackStatus}" Padding="0,5,0,5"  Block.TextAlignment="Center"
-                                               MinWidth="100" Foreground="Black"/>
+                                        <hc:Badge Status="Dot" Style="{StaticResource BadgeWarning}" ShowBadge="{Binding SortAble}">
+                                            <TextBlock Text="{Binding TrackStatus}" Padding="0,5,0,5"  Block.TextAlignment="Center"
+                                               MinWidth="60" Foreground="Black"/>
+                                        </hc:Badge>
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>

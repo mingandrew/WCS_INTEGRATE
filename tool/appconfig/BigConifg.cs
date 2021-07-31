@@ -31,13 +31,16 @@ namespace tool.appconfig
         /// </summary>
         public int TrackSortMidCount { set; get; } = 5;
         /// <summary>
+        /// 执行中间位置检测和倒库
+        /// </summary>
+        public bool TrackSortMid { set; get; } = true;
+        /// <summary>
         /// 轨道后空出默认5个位置
         /// </summary>
         public int TrackSortBackCount { set; get; } = 5;
 
         public List<BigConfigItem> BigConfigList { set; get; } = new List<BigConfigItem>();
         public bool UseSortV2 { get; set; }
-        public bool UseInOutLeftRight { set; get; }
 
         /// <summary>
         /// 是否释放上砖摆渡车
