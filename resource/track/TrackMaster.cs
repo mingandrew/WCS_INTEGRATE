@@ -2257,7 +2257,7 @@ namespace resource.track
         /// <returns></returns>
         public List<CarrierPos> GetCarrierPosList(uint area_id)
         {
-            return CarrierPosList;
+            return CarrierPosList.FindAll(c=>c.area_id == area_id);
         }
 
         /// <summary>

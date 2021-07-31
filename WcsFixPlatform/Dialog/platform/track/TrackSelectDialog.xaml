@@ -70,6 +70,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding name}" Header="名称" Width="*"/>
                 <DataGridTextColumn Binding="{Binding Type}" Header="类型" Width="*"/>
+                <DataGridTextColumn Binding="{Binding Type2}" Header="出入库" Width="*"/>
                 <DataGridTextColumn Binding="{Binding TrackStatus}" Header="轨道状态" Width="*"/>
                 <DataGridTextColumn Binding="{Binding StockStatus}" Header="状态" Width="*"/>
                 <DataGridTextColumn Binding="{Binding max_store}" Header="最大存" Visibility="Collapsed"/>

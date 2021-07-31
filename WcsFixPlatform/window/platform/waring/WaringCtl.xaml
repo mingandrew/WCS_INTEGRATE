@@ -67,7 +67,7 @@
 
             </Grid>
 
-            <hc:SimplePanel Margin="0,100,0,0" VerticalAlignment="Center" Width="500"
+            <hc:SimplePanel Margin="0,100,0,0" VerticalAlignment="Center" Width="600"
                     Visibility="{Binding SHOWERRORLIST}">
                 <Border Name="BorderRootEffect" Background="{DynamicResource RegionBrush}" CornerRadius="10" Effect="{StaticResource EffectShadow4}" Margin="16" Visibility="Collapsed"/>
                 <Border Name="BorderRoot" Style="{StaticResource BorderClip}" Margin="0,16,0,0">
