@@ -33,7 +33,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -365,7 +365,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -627,7 +627,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -1009,7 +1009,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -1271,7 +1271,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -3019,7 +3019,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -3787,7 +3787,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -4093,7 +4093,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -4521,7 +4521,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -4826,7 +4826,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -5080,7 +5080,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -5636,7 +5636,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -6926,7 +6926,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -7232,7 +7232,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -7894,12 +7894,422 @@
           },
           {
             "objectType": "Table_MYSQL",
+            "name": "stock_trans_dtl",
+            "comment": "'2.1wcs.stock_sum' is not BASE TABLE",
+            "engine": "InnoDB",
+            "characterSet": "utf8mb4",
+            "collation": "utf8mb4_general_ci",
+            "autoIncrement": 0,
+            "tablespace": "",
+            "storage": "",
+            "insertMethod": "",
+            "connection": "",
+            "checksum": false,
+            "rowFormat": "Dynamic",
+            "avgRowLength": 0,
+            "maxRows": 0,
+            "minRows": 0,
+            "keyBlockSize": 0,
+            "packKeys": "",
+            "delayKeyWrite": false,
+            "dataDirectory": "",
+            "indexDirectory": "",
+            "statsAutoRecalc": "",
+            "statsPersistent": "",
+            "statsSamplePages": 0,
+            "union": "",
+            "pageCheckSum": false,
+            "transactional": false,
+            "compression": "",
+            "oldName": "stock_trans_dtl",
+            "encryption": false,
+            "createOptions": "",
+            "createTime": "2021-08-02 08:18:15",
+            "checkTime": "",
+            "dataFree": 0,
+            "dataLength": 16384,
+            "indexLength": 0,
+            "maxDataLength": 0,
+            "rows": 0,
+            "updateTime": "",
+            "DDL": "CREATE TABLE `stock_trans_dtl` (\n  `dtl_id` int(11) unsigned NOT NULL AUTO_INCREMENT,\n  `dtl_p_id` int(11) unsigned DEFAULT NULL COMMENT '父任务ID',\n  `dtl_trans_id` int(11) unsigned DEFAULT NULL COMMENT '当前执行任务ID',\n  `dtl_area_id` int(11) unsigned DEFAULT NULL COMMENT '区域ID',\n  `dtl_line_id` smallint(3) unsigned DEFAULT NULL COMMENT '线路ID',\n  `dtl_type` tinyint(3) unsigned DEFAULT NULL COMMENT '类型',\n  `dtl_good_id` int(11) unsigned DEFAULT NULL COMMENT '品种ID',\n  `dtl_take_track_id` int(11) unsigned DEFAULT NULL COMMENT '取货ID',\n  `dtl_give_track_id` int(11) unsigned DEFAULT NULL COMMENT '卸货ID',\n  `dtl_status` tinyint(3) DEFAULT NULL COMMENT '细单状态',\n  `dtl_all_qty` smallint(3) unsigned DEFAULT NULL COMMENT '全部数量',\n  `dtl_left_qty` smallint(3) unsigned DEFAULT NULL COMMENT '剩余数量',\n  `dtl_finish` bit(1) DEFAULT NULL COMMENT '完成',\n  PRIMARY KEY (`dtl_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci",
+            "partitionBy": "",
+            "partitionByExpr": "",
+            "partitions": 0,
+            "partitionKeyAlgorithm": "",
+            "subPartitionBy": "",
+            "subPartitionByExpr": "",
+            "subPartitions": 0,
+            "subPartitionKeyAlgorithm": "",
+            "fields": [
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_id",
+                "type": "int",
+                "length": 11,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": false,
+                "defaultType": "Others",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": true,
+                "comment": "",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_p_id",
+                "type": "int",
+                "length": 11,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "父任务ID",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_p_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_trans_id",
+                "type": "int",
+                "length": 11,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "当前执行任务ID",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_trans_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_area_id",
+                "type": "int",
+                "length": 11,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "区域ID",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_area_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_line_id",
+                "type": "smallint",
+                "length": 3,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "线路ID",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_line_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_type",
+                "type": "tinyint",
+                "length": 3,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "类型",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_type"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_good_id",
+                "type": "int",
+                "length": 11,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "品种ID",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_good_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_take_track_id",
+                "type": "int",
+                "length": 11,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "取货ID",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_take_track_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_give_track_id",
+                "type": "int",
+                "length": 11,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "卸货ID",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_give_track_id"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_status",
+                "type": "tinyint",
+                "length": 3,
+                "decimals": 0,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "细单状态",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_status"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_all_qty",
+                "type": "smallint",
+                "length": 3,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "全部数量",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_all_qty"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_left_qty",
+                "type": "smallint",
+                "length": 3,
+                "decimals": 0,
+                "isUnsigned": true,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "剩余数量",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_left_qty"
+              },
+              {
+                "objectType": "TableField_MYSQL",
+                "name": "dtl_finish",
+                "type": "bit",
+                "length": 1,
+                "decimals": 0,
+                "isUnsigned": false,
+                "isZeroFill": false,
+                "setEnumValues": "",
+                "isBinary": false,
+                "charset": "",
+                "collation": "",
+                "isNullable": true,
+                "defaultType": "Null",
+                "defaultValue": "",
+                "isOnUpdateCurrentTimestamp": false,
+                "isAutoInc": false,
+                "comment": "完成",
+                "columnFormat": "",
+                "storage": "",
+                "isVirtual": false,
+                "isGeneratedAlways": false,
+                "virtualExpr": "",
+                "virtualType": "",
+                "oldName": "dtl_finish"
+              }
+            ],
+            "indexes": [],
+            "primaryKey": {
+              "objectType": "PrimaryKey_MYSQL",
+              "name": "",
+              "fields": [
+                {
+                  "objectType": "IndexField_MYSQL",
+                  "name": "dtl_id",
+                  "keyLength": 0,
+                  "order": "",
+                  "oldName": "dtl_id"
+                }
+              ],
+              "oldName": "",
+              "indexMethod": "BTREE",
+              "comment": ""
+            },
+            "foreignKeys": [],
+            "triggers": [],
+            "tablePartitions": []
+          },
+          {
+            "objectType": "Table_MYSQL",
             "name": "tile_track",
             "comment": "'2.1wcs.tile_gchange_v' is not BASE TABLE",
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -9529,7 +9939,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -9809,7 +10219,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -10271,7 +10681,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_general_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -10681,7 +11091,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -10857,7 +11267,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -11137,7 +11547,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -11443,7 +11853,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -11645,7 +12055,7 @@
             "engine": "InnoDB",
             "characterSet": "utf8mb4",
             "collation": "utf8mb4_0900_ai_ci",
-            "autoIncrement": 0,
+            "autoIncrement": 1,
             "tablespace": "",
             "storage": "",
             "insertMethod": "",
@@ -11945,7 +12355,7 @@
           {
             "objectType": "View_MYSQL",
             "name": "stock_sum",
-            "selectStatement": "select `t`.`goods_id` AS `goods_id`,`t`.`track_id` AS `track_id`,min(`t`.`produce_time`) AS `produce_time`,count(`t`.`id`) AS `count`,sum(`t`.`pieces`) AS `pieces`,sum(`t`.`stack`) AS `stack`,`t`.`area` AS `area`,`t`.`track_type` AS `track_type`,(select `track`.`line` from `track` where (`track`.`id` = `t`.`track_id`)) AS `line` from `stock` `t` where (`t`.`track_type` in (2,3,4)) group by `t`.`track_id`,`t`.`goods_id` order by `t`.`area`,`t`.`goods_id`,`produce_time`,`t`.`track_id`",
+            "selectStatement": "select `s`.`area` AS `area`,`t`.`line` AS `line`,`s`.`goods_id` AS `goods_id`,`s`.`track_id` AS `track_id`,`t`.`type` AS `track_type`,`t`.`type2` AS `track_type2`,count(`s`.`id`) AS `count`,sum(`s`.`pieces`) AS `pieces`,sum(`s`.`stack`) AS `stack`,min(`s`.`produce_time`) AS `produce_time`,max(`s`.`produce_time`) AS `last_produce_time` from (`stock` `s` left join `track` `t` on((`s`.`track_id` = `t`.`id`))) where (`s`.`track_type` in (2,3,4)) group by `s`.`track_id`,`s`.`goods_id` order by `s`.`area`,`s`.`goods_id`,'produce_time',`s`.`track_id`",
             "viewAlgorithm": "UNDEFINED",
             "sqlSecurity": "DEFINER",
             "checkOption": "",
@@ -11986,8 +12396,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "area",
-          "x": 690,
-          "y": 1860,
+          "x": 610,
+          "y": 30,
           "width": 238,
           "height": 251,
           "isBold": false,
@@ -12002,8 +12412,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "area_device",
-          "x": 290,
-          "y": 1910,
+          "x": 350,
+          "y": 100,
           "width": 198,
           "height": 131,
           "isBold": false,
@@ -12018,8 +12428,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "area_device_track",
-          "x": 710,
-          "y": 1200,
+          "x": 640,
+          "y": 340,
           "width": 185,
           "height": 191,
           "isBold": false,
@@ -12034,8 +12444,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "area_track",
-          "x": 1020,
-          "y": 1910,
+          "x": 1060,
+          "y": 100,
           "width": 204,
           "height": 131,
           "isBold": false,
@@ -12050,8 +12460,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "carrier_pos",
-          "x": 780,
-          "y": 2560,
+          "x": 540,
+          "y": 2900,
           "width": 219,
           "height": 131,
           "isBold": false,
@@ -12066,8 +12476,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "config_carrier",
-          "x": 280,
-          "y": 710,
+          "x": 30,
+          "y": 1880,
           "width": 235,
           "height": 231,
           "isBold": false,
@@ -12082,8 +12492,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "config_ferry",
-          "x": 720,
-          "y": 1000,
+          "x": 700,
+          "y": 1170,
           "width": 235,
           "height": 151,
           "isBold": false,
@@ -12098,8 +12508,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "config_tilelifter",
-          "x": 990,
-          "y": 350,
+          "x": 970,
+          "y": 1370,
           "width": 249,
           "height": 611,
           "isBold": false,
@@ -12114,8 +12524,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "consume_log",
-          "x": 1150,
-          "y": 2180,
+          "x": 1440,
+          "y": 2520,
           "width": 219,
           "height": 271,
           "isBold": false,
@@ -12130,8 +12540,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "device",
-          "x": 290,
-          "y": 990,
+          "x": 370,
+          "y": 1840,
           "width": 181,
           "height": 311,
           "isBold": false,
@@ -12147,7 +12557,7 @@
           "schemaName": "2.1wcs",
           "tableName": "diction",
           "x": 270,
-          "y": 2230,
+          "y": 2570,
           "width": 226,
           "height": 211,
           "isBold": false,
@@ -12163,7 +12573,7 @@
           "schemaName": "2.1wcs",
           "tableName": "diction_dtl",
           "x": 20,
-          "y": 2190,
+          "y": 2530,
           "width": 229,
           "height": 291,
           "isBold": false,
@@ -12178,8 +12588,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "ferry_pos",
-          "x": 270,
-          "y": 2560,
+          "x": 30,
+          "y": 2900,
           "width": 217,
           "height": 191,
           "isBold": false,
@@ -12194,8 +12604,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "good_size",
-          "x": 1570,
-          "y": 560,
+          "x": 1590,
+          "y": 1580,
           "width": 217,
           "height": 191,
           "isBold": false,
@@ -12210,8 +12620,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "goods",
-          "x": 1310,
-          "y": 480,
+          "x": 1330,
+          "y": 1500,
           "width": 209,
           "height": 351,
           "isBold": false,
@@ -12227,7 +12637,7 @@
           "schemaName": "2.1wcs",
           "tableName": "line",
           "x": 560,
-          "y": 2180,
+          "y": 2520,
           "width": 244,
           "height": 311,
           "isBold": false,
@@ -12242,8 +12652,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "rf_client",
-          "x": 1440,
-          "y": 2180,
+          "x": 1730,
+          "y": 2520,
           "width": 201,
           "height": 271,
           "isBold": false,
@@ -12258,8 +12668,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "stock",
-          "x": 1310,
-          "y": 1270,
+          "x": 1320,
+          "y": 1080,
           "width": 225,
           "height": 331,
           "isBold": false,
@@ -12274,8 +12684,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "stock_log",
-          "x": 1990,
-          "y": 2180,
+          "x": 2280,
+          "y": 2520,
           "width": 196,
           "height": 231,
           "isBold": false,
@@ -12290,7 +12700,7 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "stock_trans",
-          "x": 1900,
+          "x": 1920,
           "y": 30,
           "width": 214,
           "height": 431,
@@ -12305,9 +12715,25 @@
         {
           "type": "table",
           "schemaName": "2.1wcs",
+          "tableName": "stock_trans_dtl",
+          "x": 880,
+          "y": 2520,
+          "width": 220,
+          "height": 311,
+          "isBold": false,
+          "titleColor": {
+            "r": 55,
+            "g": 131,
+            "b": 192,
+            "a": 1
+          }
+        },
+        {
+          "type": "table",
+          "schemaName": "2.1wcs",
           "tableName": "tile_track",
-          "x": 1070,
-          "y": 2560,
+          "x": 830,
+          "y": 2900,
           "width": 189,
           "height": 131,
           "isBold": false,
@@ -12322,8 +12748,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "tilelifterneed",
-          "x": 1710,
-          "y": 2180,
+          "x": 2000,
+          "y": 2520,
           "width": 210,
           "height": 251,
           "isBold": false,
@@ -12338,8 +12764,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "track",
-          "x": 990,
-          "y": 1000,
+          "x": 970,
+          "y": 450,
           "width": 253,
           "height": 871,
           "isBold": false,
@@ -12354,8 +12780,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "track_log",
-          "x": 2510,
-          "y": 2180,
+          "x": 2540,
+          "y": 2520,
           "width": 224,
           "height": 211,
           "isBold": false,
@@ -12370,7 +12796,7 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "traffic_control",
-          "x": 2180,
+          "x": 2200,
           "y": 30,
           "width": 259,
           "height": 331,
@@ -12386,8 +12812,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "warning",
-          "x": 880,
-          "y": 2180,
+          "x": 1170,
+          "y": 2520,
           "width": 202,
           "height": 291,
           "isBold": false,
@@ -12402,8 +12828,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "wcs_menu",
-          "x": 1320,
-          "y": 2560,
+          "x": 1090,
+          "y": 2900,
           "width": 156,
           "height": 131,
           "isBold": false,
@@ -12418,7 +12844,7 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "wcs_menu_dtl",
-          "x": 2510,
+          "x": 2780,
           "y": 30,
           "width": 150,
           "height": 211,
@@ -12434,8 +12860,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "wcs_module",
-          "x": 2250,
-          "y": 2180,
+          "x": 2530,
+          "y": 30,
           "width": 183,
           "height": 231,
           "isBold": false,
@@ -12450,8 +12876,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "wcs_role",
-          "x": 560,
-          "y": 2560,
+          "x": 320,
+          "y": 2900,
           "width": 150,
           "height": 151,
           "isBold": false,
@@ -12466,8 +12892,8 @@
           "type": "table",
           "schemaName": "2.1wcs",
           "tableName": "wcs_user",
-          "x": 30,
-          "y": 2560,
+          "x": 2840,
+          "y": 2520,
           "width": 169,
           "height": 211,
           "isBold": false,
@@ -12482,8 +12908,8 @@
           "type": "view",
           "schemaName": "2.1wcs",
           "viewName": "active_dev",
-          "x": 40,
-          "y": 1030,
+          "x": 370,
+          "y": 2200,
           "width": 150,
           "height": 249,
           "isBold": false,
@@ -12498,8 +12924,8 @@
           "type": "view",
           "schemaName": "2.1wcs",
           "viewName": "area_stock_sum",
-          "x": 1290,
-          "y": 1650,
+          "x": 1590,
+          "y": 1160,
           "width": 249,
           "height": 169,
           "isBold": false,
@@ -12514,10 +12940,10 @@
           "type": "view",
           "schemaName": "2.1wcs",
           "viewName": "stock_sum",
-          "x": 1580,
-          "y": 1330,
-          "width": 249,
-          "height": 229,
+          "x": 1310,
+          "y": 770,
+          "width": 280,
+          "height": 269,
           "isBold": false,
           "titleColor": {
             "r": 100,
@@ -12530,8 +12956,8 @@
           "type": "view",
           "schemaName": "2.1wcs",
           "viewName": "tile_gchange_v",
-          "x": 1030,
-          "y": 30,
+          "x": 1010,
+          "y": 2030,
           "width": 201,
           "height": 269,
           "isBold": false,
@@ -12553,17 +12979,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 503,
-              "y": 1970
+              "x": 563,
+              "y": 170
             },
             {
-              "x": 675,
-              "y": 1970
+              "x": 595,
+              "y": 170
             }
           ],
           "label": {
-            "x": 499,
-            "y": 1972,
+            "x": 559,
+            "y": 172,
             "width": 92,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12587,17 +13013,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 810,
-              "y": 1406
+              "x": 730,
+              "y": 325
             },
             {
-              "x": 810,
-              "y": 1845
+              "x": 730,
+              "y": 296
             }
           ],
           "label": {
-            "x": 818,
-            "y": 1396,
+            "x": 738,
+            "y": 335,
             "width": 100,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12621,17 +13047,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1005,
-              "y": 1970
+              "x": 1045,
+              "y": 170
             },
             {
-              "x": 943,
-              "y": 1970
+              "x": 863,
+              "y": 170
             }
           ],
           "label": {
-            "x": 1021,
-            "y": 1972,
+            "x": 1061,
+            "y": 172,
             "width": 105,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12655,17 +13081,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 390,
-              "y": 1895
+              "x": 450,
+              "y": 246
             },
             {
-              "x": 390,
-              "y": 1316
+              "x": 450,
+              "y": 1825
             }
           ],
           "label": {
-            "x": 398,
-            "y": 1905,
+            "x": 458,
+            "y": 236,
             "width": 81,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12689,17 +13115,25 @@
           "visible": true,
           "vertices": [
             {
-              "x": 695,
-              "y": 1260
+              "x": 625,
+              "y": 450
             },
             {
-              "x": 486,
-              "y": 1260
+              "x": 600,
+              "y": 450
+            },
+            {
+              "x": 600,
+              "y": 1880
+            },
+            {
+              "x": 566,
+              "y": 1880
             }
           ],
           "label": {
-            "x": 711,
-            "y": 1262,
+            "x": 641,
+            "y": 452,
             "width": 112,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12723,17 +13157,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 390,
-              "y": 956
+              "x": 280,
+              "y": 1990
             },
             {
-              "x": 390,
-              "y": 975
+              "x": 355,
+              "y": 1990
             }
           ],
           "label": {
-            "x": 398,
-            "y": 946,
+            "x": 276,
+            "y": 1992,
             "width": 85,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12757,25 +13191,25 @@
           "visible": true,
           "vertices": [
             {
-              "x": 705,
-              "y": 1110
+              "x": 685,
+              "y": 1300
             },
             {
-              "x": 670,
-              "y": 1110
+              "x": 660,
+              "y": 1300
             },
             {
-              "x": 670,
-              "y": 1180
+              "x": 660,
+              "y": 1950
             },
             {
-              "x": 486,
-              "y": 1180
+              "x": 566,
+              "y": 1950
             }
           ],
           "label": {
-            "x": 721,
-            "y": 1112,
+            "x": 701,
+            "y": 1302,
             "width": 80,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12799,25 +13233,25 @@
           "visible": true,
           "vertices": [
             {
-              "x": 975,
-              "y": 880
+              "x": 955,
+              "y": 1920
             },
             {
-              "x": 620,
-              "y": 880
+              "x": 920,
+              "y": 1920
             },
             {
-              "x": 620,
-              "y": 1110
+              "x": 920,
+              "y": 2030
             },
             {
-              "x": 486,
-              "y": 1110
+              "x": 566,
+              "y": 2030
             }
           ],
           "label": {
-            "x": 991,
-            "y": 867,
+            "x": 971,
+            "y": 1907,
             "width": 62,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12842,16 +13276,16 @@
           "vertices": [
             {
               "x": 264,
-              "y": 2340
+              "y": 2670
             },
             {
               "x": 255,
-              "y": 2340
+              "y": 2670
             }
           ],
           "label": {
             "x": 260,
-            "y": 2342,
+            "y": 2672,
             "width": 62,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12875,17 +13309,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1254,
-              "y": 660
+              "x": 1234,
+              "y": 1670
             },
             {
-              "x": 1295,
-              "y": 660
+              "x": 1315,
+              "y": 1670
             }
           ],
           "label": {
-            "x": 1250,
-            "y": 647,
+            "x": 1230,
+            "y": 1657,
             "width": 108,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12909,17 +13343,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1534,
-              "y": 660
+              "x": 1554,
+              "y": 1670
             },
             {
-              "x": 1555,
-              "y": 660
+              "x": 1575,
+              "y": 1670
             }
           ],
           "label": {
-            "x": 1530,
-            "y": 662,
+            "x": 1550,
+            "y": 1672,
             "width": 69,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12943,17 +13377,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1430,
-              "y": 1255
+              "x": 1450,
+              "y": 1426
             },
             {
-              "x": 1430,
-              "y": 846
+              "x": 1450,
+              "y": 1485
             }
           ],
           "label": {
-            "x": 1438,
-            "y": 1265,
+            "x": 1458,
+            "y": 1416,
             "width": 109,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -12977,17 +13411,21 @@
           "visible": true,
           "vertices": [
             {
-              "x": 910,
-              "y": 1300
+              "x": 840,
+              "y": 390
             },
             {
-              "x": 975,
-              "y": 1300
+              "x": 1030,
+              "y": 390
+            },
+            {
+              "x": 1030,
+              "y": 435
             }
           ],
           "label": {
-            "x": 906,
-            "y": 1302,
+            "x": 836,
+            "y": 392,
             "width": 102,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -13011,17 +13449,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1130,
-              "y": 1895
+              "x": 1160,
+              "y": 246
             },
             {
-              "x": 1130,
-              "y": 1886
+              "x": 1160,
+              "y": 435
             }
           ],
           "label": {
-            "x": 1138,
-            "y": 1905,
+            "x": 1168,
+            "y": 236,
             "width": 107,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -13045,17 +13483,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 970,
-              "y": 1070
+              "x": 950,
+              "y": 1260
             },
             {
-              "x": 975,
-              "y": 1070
+              "x": 955,
+              "y": 1260
             }
           ],
           "label": {
-            "x": 966,
-            "y": 1072,
+            "x": 946,
+            "y": 1262,
             "width": 111,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -13079,17 +13517,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1145,
-              "y": 976
+              "x": 1125,
+              "y": 1355
             },
             {
-              "x": 1145,
-              "y": 985
+              "x": 1125,
+              "y": 1336
             }
           ],
           "label": {
-            "x": 1153,
-            "y": 951,
+            "x": 1133,
+            "y": 1350,
             "width": 103,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -13113,17 +13551,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1115,
-              "y": 976
+              "x": 1095,
+              "y": 1355
             },
             {
-              "x": 1115,
-              "y": 985
+              "x": 1095,
+              "y": 1336
             }
           ],
           "label": {
-            "x": 1123,
-            "y": 951,
+            "x": 1103,
+            "y": 1350,
             "width": 105,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -13147,17 +13585,17 @@
           "visible": true,
           "vertices": [
             {
-              "x": 1295,
-              "y": 1450
+              "x": 1305,
+              "y": 1260
             },
             {
-              "x": 1258,
-              "y": 1450
+              "x": 1238,
+              "y": 1260
             }
           ],
           "label": {
-            "x": 1311,
-            "y": 1452,
+            "x": 1321,
+            "y": 1262,
             "width": 101,
             "height": 40,
             "fontName": "Arial Unicode MS",
@@ -13190,12 +13628,12 @@
           },
           "vertices": [
             {
-              "x": 206,
-              "y": 1140
+              "x": 450,
+              "y": 2184
             },
             {
-              "x": 275,
-              "y": 1140
+              "x": 450,
+              "y": 2166
             }
           ]
         },
@@ -13214,12 +13652,12 @@
           },
           "vertices": [
             {
-              "x": 1430,
-              "y": 1634
+              "x": 1574,
+              "y": 1260
             },
             {
-              "x": 1430,
-              "y": 1616
+              "x": 1560,
+              "y": 1260
             }
           ]
         },
@@ -13238,12 +13676,36 @@
           },
           "vertices": [
             {
-              "x": 1564,
-              "y": 1450
+              "x": 1450,
+              "y": 1055
             },
             {
-              "x": 1550,
-              "y": 1450
+              "x": 1450,
+              "y": 1065
+            }
+          ]
+        },
+        {
+          "name": "VR_stock_sum_track",
+          "sourceSchemaName": "2.1wcs",
+          "sourceViewName": "stock_sum",
+          "targetSchemaName": "2.1wcs",
+          "targetObjectName": "track",
+          "lineWidth": 1,
+          "lineColor": {
+            "r": 153,
+            "g": 153,
+            "b": 153,
+            "a": 1
+          },
+          "vertices": [
+            {
+              "x": 1294,
+              "y": 900
+            },
+            {
+              "x": 1238,
+              "y": 900
             }
           ]
         },
@@ -13262,12 +13724,12 @@
           },
           "vertices": [
             {
-              "x": 1130,
-              "y": 315
+              "x": 1110,
+              "y": 2014
             },
             {
-              "x": 1130,
-              "y": 335
+              "x": 1110,
+              "y": 1996
             }
           ]
         },
@@ -13286,20 +13748,12 @@
           },
           "vertices": [
             {
-              "x": 1014,
-              "y": 220
+              "x": 994,
+              "y": 2100
             },
             {
-              "x": 560,
-              "y": 220
-            },
-            {
-              "x": 560,
-              "y": 1030
-            },
-            {
-              "x": 486,
-              "y": 1030
+              "x": 566,
+              "y": 2100
             }
           ]
         }
