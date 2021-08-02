@@ -285,7 +285,7 @@ namespace task.trans.transtask
                 if (_M.HaveCarrierInTrans(carrierid))
                 {
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1000, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                    _M.SetStepLog(trans, false, 100, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
                         PubMaster.Device.GetDeviceName(carrierid),
                         PubMaster.Track.GetTrackName(trackid)));
                     #endregion
@@ -295,7 +295,7 @@ namespace task.trans.transtask
                 if (!PubTask.Carrier.IsCarrierFree(carrierid))
                 {
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1100, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                    _M.SetStepLog(trans, false, 101, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
                         PubMaster.Device.GetDeviceName(carrierid),
                         PubMaster.Track.GetTrackName(trackid)));
                     #endregion
@@ -303,7 +303,7 @@ namespace task.trans.transtask
                 }
 
                 #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1200, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
+                _M.SetStepLog(trans, false, 102, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
                     PubMaster.Device.GetDeviceName(carrierid),
                     PubMaster.Track.GetTrackName(trackid)));
                 #endregion

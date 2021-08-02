@@ -27,46 +27,13 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CheckingTrack(StockTrans trans)
         {
-            // 获取任务品种规格ID
-            uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
-            // 是否有不符规格的车在轨道
-            if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trans.give_track_id, goodssizeID, out uint carrierid))
+            //转移卸货轨道不符合的运输车
+            if (CheckTrackAndAddMoveTask(trans, trans.give_track_id))
             {
-                if (_M.HaveCarrierInTrans(carrierid))
-                {
-                    #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1000, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
-                        PubMaster.Device.GetDeviceName(carrierid),
-                        PubMaster.Track.GetTrackName(trans.give_track_id)));
-                    #endregion
-                    return;
-                }
-
-                if (!PubTask.Carrier.IsCarrierFree(carrierid))
-                {
-                    #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1100, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
-                        PubMaster.Device.GetDeviceName(carrierid),
-                        PubMaster.Track.GetTrackName(trans.give_track_id)));
-                    #endregion
-                    return;
-                }
-
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1200, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
-                    PubMaster.Device.GetDeviceName(carrierid),
-                    PubMaster.Track.GetTrackName(trans.give_track_id)));
-                #endregion
-
-                //转移到同类型轨道
-                TrackTypeE tracktype = PubMaster.Track.GetTrackType(trans.give_track_id);
-                track = PubTask.Carrier.GetCarrierTrack(carrierid);
-                _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                return;
             }
-            else
-            {
-                _M.SetStatus(trans, TransStatusE.调度设备);
-            }
+
+            _M.SetStatus(trans, TransStatusE.调度设备);
         }
 
         /// <summary>
