@@ -116,7 +116,7 @@ namespace task.trans.transtask
                 }
 
                 //是否有小车在满砖轨道
-                if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
+                if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint fullcarrierid))
                 {
                     if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
                     {
@@ -186,7 +186,7 @@ namespace task.trans.transtask
             if (track.id != trans.give_track_id
                 && trans.take_ferry_id == 0)
             {
-                string msg = _M.AllocateFerryToCarrierSort(trans, DeviceTypeE.上摆渡);
+                string msg = _M.AllocateFerryToCarrierSort(trans, DeviceTypeE.前摆渡);
 
                 #region 【任务步骤记录】
                 if (_M.LogForTakeFerry(trans, msg)) return;
@@ -254,7 +254,7 @@ namespace task.trans.transtask
                                     {
                                         ushort toempypoint = 0;
 
-                                        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                        Stock btmstock = PubMaster.Goods.GetStockForIn(trans.give_track_id);
                                         if (btmstock != null)
                                         {
                                             ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
@@ -266,7 +266,7 @@ namespace task.trans.transtask
                                             toempypoint = gtrack.split_point;
                                         }
 
-                                        ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
+                                        ushort nowpoint = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
                                         if (Math.Abs(toempypoint - nowpoint) > 200)
                                         {
                                             PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
@@ -348,7 +348,7 @@ namespace task.trans.transtask
                 #endregion
 
                 #region[小车在摆渡车]
-                case TrackTypeE.摆渡车_出:
+                case TrackTypeE.前置摆渡轨道:
                     if (isload)
                     {
                         #region 【任务步骤记录】
@@ -393,7 +393,7 @@ namespace task.trans.transtask
                                     {
                                         ushort toempypoint =0 ;
 
-                                        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                        Stock btmstock = PubMaster.Goods.GetStockForIn(trans.give_track_id);
                                         if (btmstock != null)
                                         {
                                             ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
@@ -603,9 +603,8 @@ namespace task.trans.transtask
                 return;
             }
 
-            ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
             // 任务运输车回到出库轨道头
-            if (ftask 
+            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                 && (trans.take_track_id == track.id || trans.give_track_id == track.id)
                 && !PubTask.Carrier.IsCarrierInTrackBiggerRfID2(trans.carrier_id, trans.give_track_id))
             {
@@ -625,7 +624,7 @@ namespace task.trans.transtask
             }
 
             // 完成？
-            if (ftask
+            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
                 && track.id == trans.give_track_id
                 && PubTask.Carrier.IsCarrierInTrackBiggerRfID2(trans.carrier_id, trans.give_track_id))
             {

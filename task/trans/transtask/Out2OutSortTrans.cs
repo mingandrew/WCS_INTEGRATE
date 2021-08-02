@@ -685,7 +685,6 @@ namespace task.trans.transtask
                 return;
             }
 
-            ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
             // 任务运输车回到出库轨道头
             if (isftask
                 && (trans.give_track_id == track.brother_track_id || trans.give_track_id == track.id)

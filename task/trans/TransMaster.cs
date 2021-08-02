@@ -145,14 +145,14 @@ namespace task.trans
                 if (!ExistTransWithTracks(track.id, track.brother_track_id))
                 {
                     if (!PubMaster.Track.IsTrackEmtpy(track.brother_track_id)) continue;
-                    Stock btmstock = PubMaster.Goods.GetTrackButtomStock(track.id);
+                    Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
                     if (btmstock != null
                         && track.StockStatus == TrackStockStatusE.有砖
                         && PubMaster.DevConfig.IsHaveSameTileNowGood(btmstock.goods_id, TileWorkModeE.下砖))
                     {
                         continue;
                     }
-                    Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                    Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
                     AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, track.id, track.brother_track_id, TransStatusE.检查轨道, 0, track.line);
                     return;
                 }
@@ -165,7 +165,7 @@ namespace task.trans
                 //没有其他任务使用了该轨道
                 if (!ExistTransWithTracks(track.id, track.brother_track_id))
                 {
-                    Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                    Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
                     if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
                     {
                         AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
@@ -180,7 +180,7 @@ namespace task.trans
         /// 1.检查入库满砖轨道
         /// 2.生成倒库任务
         /// </summary>
-        public override void CheckTrackSortV3()
+        private void CheckTrackSortV3()
         {
             // 获取可倒库的入库轨道
             List<Track> inTracks = PubMaster.Track.GetFullInTrackList();

@@ -263,6 +263,7 @@ namespace resource.module.modulesql
                 case TrackUpdateE.TGtype:
                     sql += string.Format("`type2` = {0} ,`is_take_forward` = {1} ,`is_give_back` = {2} ",
                         track.type2, track.is_take_forward, track.is_give_back);
+                    break;
                 case TrackUpdateE.SortAble:
                     sql += string.Format("`sort_able` = {0} ,`sort_level` = {1} ",
                         track.sort_able, track.sort_level);

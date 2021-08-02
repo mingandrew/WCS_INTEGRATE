@@ -2592,7 +2592,7 @@ namespace resource.track
             }
 
             //2.入轨道底部品种无砖机继续使用
-            Stock btmstock = PubMaster.Goods.GetTrackButtomStock(track.id);
+            Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
             if (btmstock != null)
             {
                 if (!PubMaster.DevConfig.IsHaveSameTileNowGood(btmstock.goods_id, TileWorkModeE.下砖))
@@ -2621,7 +2621,7 @@ namespace resource.track
 
             // 2.头部库存品种无砖机正在上砖
             {
-                Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
                 if (topstock != null)
                 {
                     if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
@@ -2643,7 +2643,7 @@ namespace resource.track
 
             // 3.出轨道尾部大量空位，无上砖机上砖
             {
-                Stock btmstock = PubMaster.Goods.GetTrackButtomStock(track.id);
+                Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
                 if (btmstock != null)
                 {
                     //第一车库存距离轨道头部有5个车的距离
@@ -2675,7 +2675,7 @@ namespace resource.track
 
             // 2.头部库存品种无砖机正在上砖
             {
-                Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
                 if (topstock != null)
                 {
                     if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
@@ -2683,7 +2683,7 @@ namespace resource.track
                         //如果未满，则需要判断尾部是否有砖机继续下砖
                         if(track.StockStatus == TrackStockStatusE.有砖)
                         {
-                            Stock bottomstock = PubMaster.Goods.GetTrackButtomStock(track.id);
+                            Stock bottomstock = PubMaster.Goods.GetStockForIn(track.id);
                             if (bottomstock != null)
                             {
                                 if(PubMaster.DevConfig.IsHaveSameTileNowGood(bottomstock.goods_id, TileWorkModeE.下砖))

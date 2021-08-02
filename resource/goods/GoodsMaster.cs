@@ -1097,16 +1097,6 @@ namespace resource.goods
 
 
         /// <summary>
-        /// 获取顶部库存品种ID
-        /// </summary>
-        /// <param name="track_id"></param>
-        /// <returns></returns>
-        public uint GetTrackTopStockGoodId(uint track_id)
-        {
-            return GetTrackTopStock(track_id)?.goods_id ?? 0;
-        }
-
-        /// <summary>
         /// 修改一个库存的品种（和生产时间）
         /// </summary>
         /// <param name="trackid"></param>
@@ -2811,6 +2801,11 @@ namespace resource.goods
             int distance = lefttrack.right_distance < righttrack.left_distance ? lefttrack.right_distance : righttrack.left_distance;
             return (distance - ld - rd) >= 150;
         }
+
+        public uint GetTrackStockId(uint trackid)
+        {
+            return StockList.Find(c => c.track_id == trackid)?.id ?? 0;
+        }
         #endregion
 
         #region [计算轨道存取坐标]
@@ -3252,6 +3247,27 @@ namespace resource.goods
                 if (stocks.Count > 0)
                 {
                     stocks.Sort((x, y) => y.location.CompareTo(x.location));
+                    return track.is_take_forward ? stocks[0] : stocks[stocks.Count - 1];
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 获取指定点后的库存位置(取货方向为前判断)
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public Stock GetStockBehindStockPoint(uint trackid, ushort point)
+        {
+            Track track = PubMaster.Track.GetTrack(trackid);
+            if (track != null)
+            {
+                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (track.is_take_forward ? (c.location > point) : (c.location < point)));
+                if (stocks.Count > 0)
+                {
+                    stocks.Sort((x, y) => x.location.CompareTo(y.location));
                     return track.is_take_forward ? stocks[0] : stocks[stocks.Count - 1];
                 }
             }

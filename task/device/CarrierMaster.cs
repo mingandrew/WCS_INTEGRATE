@@ -3694,21 +3694,21 @@ namespace task.device
                     switch (currenttrack.Type)
                     {
                         case TrackTypeE.下砖轨道:
-                        case TrackTypeE.摆渡车_入:
+                        case TrackTypeE.后置摆渡轨道:
                         case TrackTypeE.储砖_入:
-                            return DeviceTypeE.下摆渡;
+                            return DeviceTypeE.后摆渡;
                         case TrackTypeE.上砖轨道:
-                        case TrackTypeE.摆渡车_出:
+                        case TrackTypeE.前置摆渡轨道:
                         case TrackTypeE.储砖_出:
-                            return DeviceTypeE.上摆渡;
+                            return DeviceTypeE.前摆渡;
                         case TrackTypeE.储砖_出入:
                             int downdis = Math.Abs(task.CurrentPoint - currenttrack.limit_point);
                             int updis = Math.Abs(task.CurrentPoint - currenttrack.limit_point_up);
                             if (downdis < updis)
                             {
-                                return DeviceTypeE.下摆渡;
+                                return DeviceTypeE.后摆渡;
                             }
-                            return DeviceTypeE.上摆渡;
+                            return DeviceTypeE.前摆渡;
                     }
                 }
             }
