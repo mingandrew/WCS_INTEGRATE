@@ -717,7 +717,42 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 
 
+## 2021.08.02 [V2.1] 更新菜单平板配置
 
+请确认新加的模块module_id能对应上
+
+```mysql
+INSERT INTO `wcs_module`( `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES ( '位置初始化', 1, 'DeviceReset', 'com.keda.wcsfixplatformapp.screen.rfinitdevice.RfInitDeviceMainScreen', NULL, 'shiftcar.png', NULL, '平板-设备初始化');
+INSERT INTO `wcs_module`( `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES ( '调试模块', 1, 'DEBUGMODULE', 'com.keda.wcsfixplatformapp.screen.rfdebugmodule.RfDebugModuleScreen', NULL, 'updowndev.png', NULL, '平板-调试模块');
+INSERT INTO `wcs_module`( `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES ( '手动任务', 1, 'MANUALTASK', 'com.keda.wcsfixplatformapp.screen.rfmanualtask.RfManualTaskScreen', NULL, 'othersetting.png', NULL, '平板-手动任务');
+
+DELETE FROM `wcs_menu_dtl` WHERE `module_id` = 22 AND `menu_id` = 1 AND `rf` = 1;
+DELETE FROM `wcs_menu_dtl` WHERE `module_id` = 23 AND `menu_id` = 1 AND `rf` = 1;
+DELETE FROM `wcs_menu_dtl` WHERE `module_id` = 24 AND `menu_id` = 1 AND `rf` = 1;
+DELETE FROM `wcs_menu_dtl` WHERE `module_id` = 25 AND `menu_id` = 1 AND `rf` = 1;
+DELETE FROM `wcs_menu_dtl` WHERE `module_id` = 32 AND `menu_id` = 1 AND `rf` = 1;
+
+UPDATE `wcs_menu_dtl` SET  `order` = 1 WHERE `menu_id` = 1 and `module_id` = 27 and `rf` = b'1';
+UPDATE `wcs_menu_dtl` SET  `order` = 2 WHERE `menu_id` = 1 and `module_id` = 19 and `rf` = b'1';
+UPDATE `wcs_menu_dtl` SET  `order` = 3 WHERE `menu_id` = 1 and `module_id` = 21 and `rf` = b'1';
+UPDATE `wcs_menu_dtl` SET  `order` = 4 WHERE `menu_id` = 1 and `module_id` = 20 and `rf` = b'1';
+UPDATE `wcs_menu_dtl` SET  `order` = 5 WHERE `menu_id` = 1 and `module_id` = 26 and `rf` = b'1';
+
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (1, '位置初始化', b'0', 0, 37, 6, b'1');
+
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '任务开关', b'0', 0, 22, 1, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '任务信息', b'0', 0, 27, 2, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '品种设置', b'0', 0, 19, 3, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '砖机规格', b'0', 0, 21, 4, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '轨道设置', b'0', 0, 20, 5, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '轨道库存', b'0', 0, 26, 6, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '位置初始化', b'0', 0, 37, 7, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '调试模块', NULL, 0, 38, 8, b'1');
+INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`, `order`, `rf`) VALUES (2, '手动任务', b'0', 0, 39, 9, b'1');
+
+
+
+```
 
 
 
