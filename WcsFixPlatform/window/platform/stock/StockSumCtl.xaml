@@ -8,30 +8,21 @@
              DataContext="{Binding StockSum,Source={StaticResource Locator}}"
              MinWidth="800" MinHeight="600">
     <hc:TransitioningContentControl>
+
         <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition />
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <hc:ButtonGroup Grid.Column="0" Style="{StaticResource ButtonGroupSolid}" Margin="5,0,0,0"
-                                Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <hc:Interaction.Triggers>
-                        <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
-                            <hc:EventToCommand Command="{Binding ShowGoodsOrTrackCmd}" PassEventArgsToCommand="True"/>
-                        </hc:RoutedEventTrigger>
-                    </hc:Interaction.Triggers>
-                    <RadioButton Content="品种" Tag="goods"  Width="70" Height="40" FontSize="22"/>
-                    <RadioButton Content="轨道" Tag="track"  Width="70" Height="40" FontSize="22"/>
-                </hc:ButtonGroup>
-                <TextBlock Grid.Column="1" Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"  Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                <hc:ButtonGroup Grid.Column="2" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
+                <TextBlock Grid.Column="0" Text="区域：" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"  Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                <hc:ButtonGroup Grid.Column="1" Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Style="{StaticResource ButtonGroupSolid}" ItemsSource="{Binding AreaRadio}"
                                 ItemsPanel="{StaticResource ButtonGroupHorizontalItemsPanelTemplate}" Visibility="{Binding ShowAreaFileter,Converter={StaticResource Boolean2VisibilityConverter}}">
                     <hc:Interaction.Triggers>
@@ -52,12 +43,12 @@
                     </hc:ButtonGroup.ItemTemplate>
                 </hc:ButtonGroup>
 
-                <Button Content="导出统计数据" HorizontalAlignment="Right"  VerticalAlignment="Center"
+                <Button Grid.Column="1" Content="导出统计数据" HorizontalAlignment="Right"  VerticalAlignment="Center"
                             Style="{StaticResource ButtonDanger}"  Margin="0,0,10,0" 
                             Command="{Binding ExportSumViewCmd}" 
-                            FontSize="16" Height="35" Grid.Column="2"/>
+                            FontSize="16" Height="35"/>
 
-                <hc:ButtonGroup Grid.Column="3" Style="{StaticResource ButtonGroupSolid}" 
+                <hc:ButtonGroup Grid.Column="2" Style="{StaticResource ButtonGroupSolid}" 
                                 Orientation="Horizontal"  VerticalAlignment="Center" HorizontalAlignment="Left">
                     <hc:Interaction.Triggers>
                         <hc:RoutedEventTrigger RoutedEvent="RadioButton.Checked">
@@ -70,60 +61,150 @@
                     <!--<RadioButton Content="出入" Tag="4"  Width="60" Height="40" FontSize="17"/>-->
                 </hc:ButtonGroup>
             </Grid>
-            <DataGrid Grid.Row="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+            <hc:Divider Grid.Row="1" Orientation="Horizontal" Height="1" Margin="15"/>
+            <hc:TabControl Grid.Row="2" Style="{StaticResource TabControlCapsule}" FontSize="25" Margin="0,0,0,0">
+                <hc:Interaction.Triggers>
+                    <hc:RoutedEventTrigger RoutedEvent="TabControl.SelectionChanged">
+                        <hc:EventToCommand Command="{Binding TabSelectedCmd}" PassEventArgsToCommand="True"/>
+                    </hc:RoutedEventTrigger>
+                </hc:Interaction.Triggers>
+                <hc:TabItem Header="品种" Height="35" Tag="goods">
+                    <DataGrid Grid.Row="1" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
                       ItemsSource="{Binding GoodSumListView}"
                       SelectionUnit="FullRow" SelectionMode="Single"
                       CanUserAddRows="False" CanUserResizeColumns="False"
                       CanUserDeleteRows="False" CanUserSortColumns="False"
-                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
-                      Visibility="{Binding ShowTrack, Converter={StaticResource Boolean2VisibilityReConverter}}">
-                <DataGrid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="刷新" Tag="1" Command="{Binding StockSumActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
-                    <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
-                    <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
-                    <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
-                    <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间"/>
-                </DataGrid.Columns>
-            </DataGrid>
-            <DataGrid Grid.Row="1" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
-                      ItemsSource="{Binding TrackSumListView}" SelectedItem="{Binding TrackSelected}"
-                      SelectionUnit="FullRow" SelectionMode="Single"
-                      CanUserAddRows="False" CanUserResizeColumns="False"
-                      CanUserDeleteRows="False" CanUserSortColumns="False"
-                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True"
-                      Visibility="{Binding ShowTrack, Converter={StaticResource Boolean2VisibilityConverter}}">
-                <DataGrid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="刷新" Tag="1" Command="{Binding StockSumActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                    </ContextMenu>
-                </DataGrid.ContextMenu>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道"/>
-                    <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
-                    <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
-                    <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
-                    <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
-                    <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间"/>
-                    <DataGridTemplateColumn>
-                        <DataGridTemplateColumn.Header>
-                            <TextBlock Text="修改" Margin="5,0,0,0"/>
-                        </DataGridTemplateColumn.Header>
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="修改" HorizontalAlignment="Center" Style="{StaticResource ButtonPrimary}" Margin="5,0,0,0" FontSize="16"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="刷新" Tag="1" Command="{Binding StockSumActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
+                            <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
+                            <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
+                            <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
+                            <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                </hc:TabItem>
+
+                <hc:TabItem Header="轨道" Height="35" Tag="track">
+                    <Grid>
+                        <DataGrid FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding TrackSumListView}" SelectedItem="{Binding TrackSelected}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="刷新" Tag="1" Command="{Binding StockSumActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道"/>
+                                <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
+                                <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
+                                <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
+                                <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
+                                <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间"/>
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="修改" Margin="5,0,0,0"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="修改" HorizontalAlignment="Center" Style="{StaticResource ButtonPrimary}" Margin="5,0,0,0" FontSize="16"
                                         Command="{Binding DataContext.ChangeGoodCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
                                         CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
 
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </hc:TabItem>
+
+                <hc:TabItem Header="库存查询" Height="35" Tag="inlog">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        
+                        <WrapPanel Grid.Row="0" Margin="10">
+                            <TextBlock Text="从" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
+                            <hc:DateTimePicker Width="195" FontSize="16"  ShowClearButton="True" SelectedDateTime="{Binding STARTDATE,Mode=TwoWay}" Padding="5,0,0,0"/>
+                            <TextBlock Text="至" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
+                            <hc:DateTimePicker Width="195" FontSize="16" ShowClearButton="True" SelectedDateTime="{Binding STOPDATE,Mode=TwoWay}" Padding="5,0,0,0"/>
+                            <Button Content="查询" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="1"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            <Button Content="今天6至18" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="2"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            <Button Content="昨天18至今天6" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="3"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+
+                        </WrapPanel>
+
+                        <DataGrid Grid.Row="1" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding TrackStockSearchList}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter}}" Header="轨道"/>
+                                <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
+                                <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
+                                <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
+                                <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </hc:TabItem>
+
+                <hc:TabItem Header="出库统计" Height="35" Tag="outlog">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <WrapPanel Grid.Row="0" Margin="10">
+                            <TextBlock Text="从" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
+                            <hc:DateTimePicker Width="195" FontSize="16"  ShowClearButton="True" SelectedDateTime="{Binding STARTDATE,Mode=TwoWay}" Padding="5,0,0,0"/>
+                            <TextBlock Text="至" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
+                            <hc:DateTimePicker Width="195" FontSize="16" ShowClearButton="True" SelectedDateTime="{Binding STOPDATE,Mode=TwoWay}" Padding="5,0,0,0"/>
+                            <Button Content="查询" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="1"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            <Button Content="今天6至18" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="2"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            <Button Content="昨天18至今天6" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="3"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+
+                        </WrapPanel>
+
+                        <DataGrid Grid.Row="1" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding ConsumeStockSearchList}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
+                                <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
+                                <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
+                                <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </hc:TabItem>
+            </hc:TabControl>
+
         </Grid>
     </hc:TransitioningContentControl>
 </UserControl>
