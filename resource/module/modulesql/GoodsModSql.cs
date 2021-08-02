@@ -424,5 +424,110 @@ namespace resource.module.modulesql
             return row >= 1;
         }
         #endregion
+
+        #region[库存查询]
+
+        /// <summary>
+        /// 获取查询库存统计的记录
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <param name="starttime"></param>
+        /// <param name="endtime"></param>
+        /// <returns></returns>
+        public string GetQueryStockLogSumSql(uint areaid, ushort lineid, DateTime? starttime, DateTime? endtime)
+        {
+            string sql = "SELECT `t`.`goods_id` AS `goods_id`, " +
+                "`t`.`track_id` AS `track_id`, min( `t`.`produce_time` ) AS `produce_time`," +
+                "count( `t`.`id` ) AS `count`, sum( `t`.`pieces` ) AS `pieces`, " +
+                "sum( `t`.`stack` ) AS `stack`, `t`.`area` AS `area`, " +
+                "`t`.`track_type` AS `track_type`, (SELECT `track`.`line` FROM `track` WHERE( `track`.`id` = `t`.`track_id` )) AS `line` " +
+                "FROM `stock` `t` " +
+                "WHERE `t`.`track_type` IN(2, 3, 4) ";
+            if (areaid != 0)
+            {
+                sql += string.Format(" and t.area = {0}", areaid);
+                sql += string.Format(" and (SELECT `track`.`line` = {0} FROM `track` WHERE( `track`.`id` = `t`.`track_id` ))", lineid);
+            }
+            sql += string.Format(" AND `t`.`produce_time` > {0} AND `t`.`produce_time` < {1} ", GetTimeOrNull(starttime), GetTimeOrNull(endtime));
+            sql += "GROUP BY `t`.`track_id`, `t`.`goods_id`  ORDER BY `t`.`area`, `t`.`goods_id`, `produce_time`, `t`.`track_id`";
+
+            return sql;
+        }
+
+        /// <summary>
+        /// 查看当前库存中轨道有的库存信息
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <param name="starttime"></param>
+        /// <param name="endtime"></param>
+        /// <returns></returns>
+        public List<StockSum> QueryStockLogSumList(uint areaid, ushort lineid, DateTime? starttime, DateTime? endtime)
+        {
+            List<StockSum> list = new List<StockSum>();
+            string sql = GetQueryStockLogSumSql(areaid, lineid, starttime, endtime);
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<StockSum>();
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 获取查询上砖消耗的查询语句
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <param name="starttime"></param>
+        /// <param name="endtime"></param>
+        /// <returns></returns>
+        public string GetQueryConsumeLogSumList(uint areaid, ushort lineid, DateTime? starttime, DateTime? endtime)
+        {
+            string sql = "SELECT `t`.`goods_id` AS `goods_id`, " +
+                "`t`.`track_id` AS `track_id`, min( `t`.`produce_time` ) AS `produce_time`," +
+                "count( `t`.`id` ) AS `count`, sum( `t`.`pieces` ) AS `pieces`, " +
+                "sum( `t`.`stack` ) AS `stack`, `t`.`area` AS `area`, " +
+                "(SELECT `track`.`line` FROM `track` WHERE( `track`.`id` = `t`.`track_id` )) AS `line` " +
+                "FROM `consume_log` `t` " +
+                "WHERE 1=1 ";
+            if (areaid != 0)
+            {
+                sql += string.Format(" and t.area = {0}", areaid);
+                sql += string.Format(" and (SELECT `track`.`line` = {0} FROM `track` WHERE( `track`.`id` = `t`.`track_id` ))", lineid);
+            }
+            sql += string.Format(" AND `t`.`consume_time` > {0} AND `t`.`consume_time` < {1} ", GetTimeOrNull(starttime), GetTimeOrNull(endtime));
+            sql += "GROUP BY `t`.`area`, `t`.`goods_id`," +
+                "(SELECT `track`.`line` FROM `track` WHERE( `track`.`id` = `t`.`track_id` ))" +
+                "ORDER BY `t`.`area`, `t`.`goods_id`, `produce_time`, `t`.`track_id`";
+            return sql;
+        }
+
+        /// <summary>
+        /// 查看当前库存中轨道有的库存信息
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <param name="starttime"></param>
+        /// <param name="endtime"></param>
+        /// <returns></returns>
+        public List<StockSum> QueryConsumeLogSumList(uint areaid, ushort lineid, DateTime? starttime, DateTime? endtime)
+        {
+            List<StockSum> list = new List<StockSum>();
+
+            string sql = GetQueryConsumeLogSumList(areaid, lineid, starttime, endtime);
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<StockSum>();
+            }
+            return list;
+        }
+
+
+
+
+        #endregion
     }
 }
