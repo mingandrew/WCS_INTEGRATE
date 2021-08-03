@@ -693,7 +693,13 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 
 
+## 2021.08.3 [ V2.0 ] 添加轨道可倒库属性
 
+```mysql
+ALTER TABLE `track` 
+ADD COLUMN `sort_able` bit(1) NULL COMMENT '是否可以倒库',
+ADD COLUMN `sort_level` tinyint(3) UNSIGNED NULL COMMENT '倒库优先级';
+```
 
 
 
