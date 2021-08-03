@@ -620,6 +620,28 @@ namespace task.trans.transtask
                 return;
             }
 
+            uint toTrackid = 0;//目标轨道ID
+            Track toTrack; // 作业轨道
+            if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+            {
+                // 获取摆渡车前侧对应的轨道
+                if (!PubTask.Ferry.IsInPlaceByFerryTraid(true, track.id, out toTrackid, out mes))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                toTrackid = track.id;
+            }
+
+            toTrack = PubMaster.Track.GetTrack(toTrackid);
+            if (toTrack == null)
+            {
+                mes = "无目的轨道数据！";
+                return;
+            }
+
             // 当前位置是否异常
             ushort carloc = PubTask.Carrier.GetCurrentPoint(carrierID);
             ushort safeloc = 20; // ±20脉冲
@@ -639,7 +661,7 @@ namespace task.trans.transtask
 
             // 放砖
             mes = "执行放砖";
-            MoveToGive(track.id, carrierID, transID, stkloc);
+            MoveToGive(toTrack.id, carrierID, transID, stkloc);
             return;
         }
 
