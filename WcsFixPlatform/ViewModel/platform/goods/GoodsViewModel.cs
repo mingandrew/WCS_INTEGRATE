@@ -165,11 +165,11 @@ namespace wcs.ViewModel
 
         bool OnFilterMovie(object item)
         {
-            if (filterareaid == 0) return true;
-            if (item is GoodsView view)
-            {
-                return view.AreaId == filterareaid;
-            }
+            //if (filterareaid == 0) return true;
+            //if (item is GoodsView view)
+            //{
+            //    return view.AreaId == filterareaid;
+            //}
             return true;
         }
 
@@ -187,6 +187,7 @@ namespace wcs.ViewModel
                     if (result.p1 is bool rs && rs)
                     {
                         Growl.Success("添加成功！");
+                        InitView();
                     }
                     break;
                 #endregion
@@ -214,6 +215,7 @@ namespace wcs.ViewModel
                     if (result.p1 is bool rs2 && rs2)
                     {
                         Growl.Success("修改成功！");
+                        InitView();
                     }
                     break;
                 #endregion
@@ -241,6 +243,7 @@ namespace wcs.ViewModel
                         Growl.Warning(res);
                     }
 
+                    InitView();
                     break;
                 #endregion
 
