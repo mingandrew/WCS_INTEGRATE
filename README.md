@@ -673,5 +673,29 @@ UPDATE `diction_dtl` SET `id` = 79 WHERE `id` = 251;
 UPDATE `diction_dtl` SET `name` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作', `string_value` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作' WHERE `code` = 'WarningA3X7';
 ```
 
+## 2021.07.30 [V2.0] 新增移车任务的轨道可用于下砖任务的开关
 
+```mysql
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (80, 8, 'EnableMoveToDown', '开关-启用移车时可下砖', NULL, b'0', '开关-启用移车时可下砖', NULL, NULL, NULL, NULL, NULL);
+```
+
+
+
+## 2021.07.30 [V2.0] 谨慎更新！！！ 设置所有的任务开关打开，然后删除了电脑和平板上的任务开关界面，需要提前和现场人员沟通好
+
+```mysql
+-- UPDATE line SET onoff_up = 1, onoff_down = 1, onoff_sort = 1;
+
+-- DELETE FROM	wcs_menu_dtl WHERE	module_id IN (SELECT id FROM wcs_module WHERE `key` = "AreaSwitch");
+```
+
+
+
+## 2021.08.3 [ V2.0 ] 添加轨道可倒库属性
+
+```mysql
+ALTER TABLE `track` 
+ADD COLUMN `sort_able` bit(1) NULL COMMENT '是否可以倒库',
+ADD COLUMN `sort_level` tinyint(3) UNSIGNED NULL COMMENT '倒库优先级';
+```
 
