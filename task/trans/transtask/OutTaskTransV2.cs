@@ -592,7 +592,7 @@ namespace task.trans.transtask
                                         //}
 
                                         //判断是否需要在库存在上砖分割点后，是否需要发送倒库任务
-                                        if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id))
+                                        if (_M.CheckTopStockAndSendSortTask(trans, trans.id, trans.carrier_id, trans.take_track_id))
                                         {
                                             #region 【任务步骤记录】
                                             _M.LogForCarrierSortRelay(trans, trans.take_track_id);

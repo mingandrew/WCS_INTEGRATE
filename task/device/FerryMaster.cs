@@ -1432,7 +1432,7 @@ namespace task.device
                 List<uint> fids = PubMaster.Area.GetFerryWithTrackInOut(ferrytype, trans.area_id, trans.take_track_id, trans.give_track_id, 0, false);
 
                 //3.2摆渡车上是否有车[空闲，无货]
-               have = DevList.Exists(c => fids.Contains(c.ID) && c.IsWorking && c.IsFerryFree() && CheckFerryStatusResult(c,out string _));
+                have = DevList.Exists(c => fids.Contains(c.ID) && c.IsWorking && c.IsFerryFree(false) && CheckFerryStatusResult(c,out string _, false));
                 ferryids.AddRange(fids);
 
             }catch(Exception e)
@@ -1662,9 +1662,11 @@ namespace task.device
         /// <summary>
         /// 检查摆渡车状态
         /// </summary>
-        /// <param name="ferry"></param>
+        /// <param name="ferry">需要检测的摆渡车</param>
+        /// <param name="result">返回结果</param>
+        /// <param name="checkload">是否检测有货</param>s
         /// <returns></returns>
-        private bool CheckFerryStatusResult(FerryTask ferry, out string result)
+        private bool CheckFerryStatusResult(FerryTask ferry, out string result, bool checkload = true)
         {
             if(ferry.ConnStatus != SocketConnectStatusE.通信正常)
             {
@@ -1684,7 +1686,7 @@ namespace task.device
                 return false;
             }
 
-            if (ferry.Load != DevFerryLoadE.空)
+            if (checkload && ferry.Load != DevFerryLoadE.空)
             {
                 result = "非空";
                 return false;

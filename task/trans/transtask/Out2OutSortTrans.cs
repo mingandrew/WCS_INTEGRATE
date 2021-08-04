@@ -186,7 +186,7 @@ namespace task.trans.transtask
                                     ToPoint = tpoint,
                                     MoveCount = movecount,
                                     ToTrackId = track.id
-                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, track.up_split_point));
+                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ], 目标脉冲[ {3} ]", stockqty, movecount, track.up_split_point, tpoint));
                                 return;
                             }
                         }
@@ -239,6 +239,9 @@ namespace task.trans.transtask
                             }
                         }
                     }
+                    break;
+                case TrackTypeE.储砖_出入:
+
                     break;
                 #endregion
 
@@ -304,7 +307,7 @@ namespace task.trans.transtask
                                     ToPoint = tpoint,
                                     MoveCount = movecount,
                                     ToTrackId = gtrack.id
-                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, gtrack.up_split_point));
+                                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ], 目标脉冲[ {3} ]", stockqty, movecount, gtrack.up_split_point, tpoint));
 
                             }
                         }
@@ -342,8 +345,9 @@ namespace task.trans.transtask
                 return;
             }
 
+            #region[防止到入库轨道接力]
             //在入轨道
-            if(track.brother_track_id == trans.take_track_id)
+            if (track.Type != TrackTypeE.储砖_出入 && track.brother_track_id == trans.take_track_id)
             {
                 if(PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
                 {
@@ -381,6 +385,7 @@ namespace task.trans.transtask
                 }
                 return;
             }
+            #endregion
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
@@ -432,109 +437,220 @@ namespace task.trans.transtask
                     return;
                 }
 
-                // 无砖 - 回出库轨道头
+                // 无砖 - 回出库轨道头或接力
                 if (isnotload)
                 {
+
                     //后退等待 -> 进入接力等待
                     bool dowait = false;
 
-                    //倒库完成最后一车，同时轨道只剩一车库存
-                    ushort trackstockcount = PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
-
+                    //获取运输车当前位置和卸货位置
                     PubTask.Carrier.GetCarrierNowUnloadPoint(trans.carrier_id, out ushort nowpoint, out ushort givepoint);
 
-                    //接力脉冲后的库存数量
-                    int behindstockcount = PubMaster.Goods.GetBehindPointStockCount(trans.give_track_id, nowpoint);
+                    //轨道全部数量
+                    ushort trackallqty = PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
 
-                    //分段接力
-                    bool separesort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber) && (0 != PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line));
+                    //接力点后的库存数量
+                    int needsortcount = PubMaster.Goods.GetBehindPointStockCount(trans.give_track_id, givepoint > 0 ? givepoint : nowpoint);
 
-                    //分段接力接力完成有库存，则后退等待全部库存出完
-                    if (separesort && trackstockcount >= 1)
+                    //砖机不再使用该品种,接力点后没有库存则直接回轨
+                    if (needsortcount <= 0)
                     {
-                        dowait = true;
+                        uint gid = PubMaster.Goods.GetTrackTopStockGoodId(trans.give_track_id);
+                        if (gid == 0)
+                        {
+                            gid = trans.goods_id;
+                        }
+
+                        if (!PubMaster.DevConfig.IsHaveSameTileNowGood(gid, TileWorkModeE.上砖))
+                        {
+                            _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
+                            dowait = false;
+                        }
                     }
 
-                    //砖机不再使用该品种
-                    if (behindstockcount <= 0 && !PubMaster.DevConfig.IsHaveSameTileNowGood(trans.goods_id, TileWorkModeE.上砖))
+                    //判断是否执行单步接力指令
+                    bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
+                    ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+                    string memo = string.Empty;
+                    if (isSingle)
                     {
-                        _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
-                        dowait = false;
+                        //根据当前卸货脉冲判断是否满足放下一车
+                        if(needsortcount > 0 && givepoint > track.up_split_point &&  Math.Abs(track.up_split_point - givepoint) >= (int)(safe * 1.5))
+                        {
+                            //满足继续接力
+                            DoSingel(trans, nowpoint, givepoint, safe, trackallqty, needsortcount);
+                            return;
+                        }
+                        else
+                        {
+                            //不满足，后退等待
+                            dowait = true;
+                            memo = string.Format("单车接力后退等待: 卸货点[ {0} ], 接力点[ {1} ], 距离[ {2} ], 需要[ {3} ]不满足，后退等待", 
+                                givepoint, track.up_split_point, Math.Abs(track.up_split_point - givepoint), (safe * 1.5));
+                        }
+                    }
+                    else
+                    {
+                        //分段接力
+                        bool separesort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpSortUseMaxNumber) && (0 != PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line));
+
+                        //分段接力接力完成有库存，则后退等待全部库存出完
+                        if (separesort && trackallqty >= 1)
+                        {
+                            dowait = true;
+                            memo = "分段接力后退等待";
+                        }
                     }
 
                     if (dowait)
                     {
-                        //运输车等待的时候需要后退几个车身
-                        ushort carspace = GlobalWcsDataConfig.BigConifg.GetSortWaitNumberCarSpace(trans.area_id, trans.line);
-
-                        ushort topoint;
-                        if (nowpoint == 0 || givepoint == 0)
-                        {
-                            topoint = track.split_point;
-                            //return;
-                        }
-                        else
-                        {
-                            Stock bestock_one = null;
-
-                            //PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
-                            //if (bestock_one != null)
-                            //{
-                            //    if (Math.Abs(bestock_one.location - givepoint) <= 200)
-                            //    {
-                            //        bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, bestock_one.location);
-                            //    }
-                            //}
-                            if (bestock_one != null)
-                            {
-                                topoint = bestock_one.location;
-                                topoint += (ushort)(carspace * PubMaster.Goods.GetStackSafe(0, 0));
-                            }
-                            else
-                            {
-                                topoint = givepoint;
-                                topoint -= (ushort)(carspace * PubMaster.Goods.GetStackSafe(0, 0));
-                            }
-                        }
-
-                        //需要定位的位置比出轨道最后取货点都小则用
-                        if(track.Type == TrackTypeE.储砖_出入)
-                        {
-                            if(topoint <= track.limit_point)
-                            {
-                                topoint = track.limit_point;
-                            }
-                        }
-                        else
-                        {
-                            if (topoint <= track.split_point)
-                            {
-                                topoint = track.split_point;
-                            }
-                        }
-
-                        if (Math.Abs(nowpoint - topoint) <= 100)
-                        {
-                            _M.SetStatus(trans, TransStatusE.接力等待,
-                                string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ]",trackstockcount, behindstockcount));
-                            return;
-                        }
-
-                        //定位到当前卸货位置或当前位置往后两个车位
-                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                        {
-                            Order = DevCarrierOrderE.定位指令,
-                            CheckTra = track.ferry_down_code,
-                            ToPoint = topoint,
-                        }, string.Format("接力等待后退[ {0} ]车身的位置，轨道有库存[ {1} ], 需接力库存[ {2} ]", carspace, trackstockcount, behindstockcount));
+                        //后退到等待点等待
+                        DoWaite(trans, nowpoint, givepoint, safe, isSingle, trackallqty, needsortcount, memo);
                     }
                     else
                     {
                         _M.SetStatus(trans, TransStatusE.小车回轨, 
-                            string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ]", trackstockcount, behindstockcount));
+                            string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ]", trackallqty, needsortcount));
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 执行单步接力操作
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="nowpoint"></param>
+        /// <param name="givepoint"></param>
+        private void DoSingel(StockTrans trans, ushort nowpoint, ushort givepoint, ushort safe, ushort trackallqty, int needsortcount)
+        {
+            //如果是单步接力，完成后，判断当前位置 小于 接力点，后退到下一车接力位置或五个空位
+
+            ushort topoint;
+            Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
+            if (bestock_one != null)
+            {
+                topoint = bestock_one.location;
+                topoint += (ushort)(1.5 * safe);
+            }
+            else
+            {
+                //卸货脉冲
+                topoint = givepoint;
+                topoint -= (ushort)(2 * safe);
+            }
+
+            //后退至轨道倒库
+            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.往前倒库,
+                CheckTra = track.ferry_down_code,
+                ToPoint = topoint,//单步接力，需要发一个空位脉冲给运输车，运输车会定位到这里判断是否空位，后执行倒库任务
+                MoveCount = 1,
+                ToTrackId = track.id
+            }, string.Format("单步接力,轨道有库存[ {0} ], 待接力数量[ {1} ], 当前脉冲[ {2} ], 空位脉冲[ {3} ]", trackallqty, needsortcount, nowpoint, topoint));
+        }
+
+        /// <summary>
+        /// 后退到等待位置等待
+        /// </summary>
+        private void DoWaite(StockTrans trans, ushort nowpoint, ushort givepoint, ushort safe, bool issingle, ushort trackallqty, int needsortcount, string memo)
+        {
+
+            //运输车等待的时候需要后退几个车身
+            ushort carspace = GlobalWcsDataConfig.BigConifg.GetSortWaitNumberCarSpace(trans.area_id, trans.line);
+
+            ushort topoint = 0;
+            if (issingle)
+            {
+                //计算后退设置脉冲位置，计算下一车库存的脉冲位置， 哪个脉冲小则定位到哪个位置
+
+                ushort nextstockp = 0;
+                Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
+                if (bestock_one != null)
+                {
+                    nextstockp = bestock_one.location;
+                    nextstockp += (ushort)(1.5 * safe);
+                }
+
+                //卸货脉冲
+                topoint = givepoint;
+                topoint -= (ushort)(carspace * safe);
+
+                if(nextstockp != 0 && nextstockp < topoint)
+                {
+                    topoint = nextstockp;
+                }
+            }
+            else
+            {
+                if (nowpoint == 0 || givepoint == 0)
+                {
+                    topoint = track.split_point;
+                    //return;
+                }
+                else
+                {
+                    Stock bestock_one = null;
+
+                    //PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
+                    //if (bestock_one != null)
+                    //{
+                    //    if (Math.Abs(bestock_one.location - givepoint) <= 200)
+                    //    {
+                    //        bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, bestock_one.location);
+                    //    }
+                    //}
+                    if (bestock_one != null)
+                    {
+                        topoint = bestock_one.location;
+                        topoint += (ushort)(carspace * safe);
+                    }
+                    else
+                    {
+                        topoint = givepoint;
+                        topoint -= (ushort)(carspace * safe);
+                    }
+                }
+
+                //需要定位的位置比出轨道最后取货点都小则用
+                if (track.Type == TrackTypeE.储砖_出入)
+                {
+                    if (topoint <= track.limit_point)
+                    {
+                        topoint = track.limit_point;
+                    }
+                }
+                else
+                {
+                    if (topoint <= track.split_point)
+                    {
+                        topoint = track.split_point;
+                    }
+                }
+            }
+
+            if(topoint > nowpoint || topoint == 0)
+            {
+                _M.SetStepLog(trans, false, 2108, string.Format("需定位脉冲[ {0} ] 比当前脉冲大[ {1} ], 备注[ {2} ]", topoint, nowpoint, memo));
+                return;
+            }
+
+            if (Math.Abs(nowpoint - topoint) <= 100)
+            {
+                _M.SetStatus(trans, TransStatusE.接力等待,
+                    string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ], 备注[ {2} ]", trackallqty, needsortcount, memo));
+                return;
+            }
+
+            //定位到当前卸货位置或当前位置往后两个车位
+            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.定位指令,
+                CheckTra = track.ferry_down_code,
+                ToPoint = topoint,
+            }, string.Format("接力等待后退[ {0} ]车身的位置[ {4} ]，轨道有库存[ {1} ], 需接力库存[ {2} ], 备注[ {3} ]", carspace, trackallqty, needsortcount, memo, topoint));
         }
 
         /// <summary>
@@ -846,9 +962,10 @@ namespace task.trans.transtask
             if (!PubMaster.DevConfig.IsHaveSameTileNowGood(gid, TileWorkModeE.上砖))
             {
                 nonetileusegood = true;
-                _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
+                _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机在上该品种");
             }
 
+            //接力点后面使用还要需要接力的库存
             bool need = PubMaster.Goods.ExistInfrontUpSplitPoint(track.id, nowpoint);
 
             //前面没有库存，继续倒库
@@ -890,30 +1007,45 @@ namespace task.trans.transtask
 
                 if(need)
                 {
-                    byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, nowpoint);
-                    byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
+                    //判断是否执行单步接力指令
+                    bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
+                    
+                    //接力脉冲后的库存数量
+                    byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, givepoint > 0 ? givepoint: nowpoint);
 
-                    if (line_max_move > 0 && movecount > line_max_move)
+                    if (isSingle)
                     {
-                        movecount = line_max_move;
+                        ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+
+                        DoSingel(trans, nowpoint, givepoint, safe, stockqty, movecount);
+                        return;
                     }
-
-                    ushort tpoint = track.split_point;
-                    if(track.Type == TrackTypeE.储砖_出)
+                    else
                     {
-                        tpoint -= 50;
+                        byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
+
+                        if (line_max_move > 0 && movecount > line_max_move)
+                        {
+                            movecount = line_max_move;
+                        }
+
+                        ushort tpoint = track.split_point;
+                        if (track.Type == TrackTypeE.储砖_出)
+                        {
+                            tpoint -= 50;
+                        }
+
+                        //后退至轨道倒库
+                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                        {
+                            Order = DevCarrierOrderE.往前倒库,
+                            CheckTra = track.ferry_down_code,
+                            ToPoint = tpoint,
+                            MoveCount = movecount,
+                            ToTrackId = track.id
+                        }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 目标脉冲[ {2} ], 接力脉冲[ {3} ]", stockqty, movecount, tpoint, nowpoint));
+                        return;
                     }
-
-                    //后退至轨道倒库
-                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                    {
-                        Order = DevCarrierOrderE.往前倒库,
-                        CheckTra = track.ferry_down_code,
-                        ToPoint = tpoint,
-                        MoveCount = movecount,
-                        ToTrackId = track.id
-                    }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, nowpoint));
-                    return;
                 }
             }
 

@@ -745,8 +745,6 @@ namespace resource.goods
             return false;
         }
 
-
-
         /// <summary>
         /// 获取最早的品种库存
         /// </summary>
@@ -910,6 +908,30 @@ namespace resource.goods
         {
             uint currentqty = GetTrackStockCount(track_id);
             return PubMaster.Area.IsDownStockFullLimit(area_id, line, currentqty);
+        }
+
+        /// <summary>
+        /// 根据库存检测所在轨道的库存状态进行更新
+        /// 1.出入库轨道：倒库后，最后一车库存往前移后，轨道库存状态修改为有砖
+        /// </summary>
+        /// <param name="stock_id"></param>
+        public void UpdateTrackStockStatus(uint stock_id)
+        {
+            Stock stock = GetStock(stock_id);
+            if(stock != null)
+            {
+                if(stock.PosType == StockPosE.尾部)
+                {
+                    Track track = PubMaster.Track.GetTrack(stock.track_id);
+                    if (track != null && track.StockStatus == TrackStockStatusE.满砖)
+                    {
+                        if(CalculateNextLocation(TransTypeE.下砖任务, 0, track.id, out ushort _, out ushort _))
+                        {
+                            PubMaster.Track.SetStockStatus(track.id, TrackStockStatusE.有砖, out string _, string.Format("尾部库存[ {0} ]转移，轨道满足变有砖", stock.id));
+                        }
+                    }
+                }
+            }
         }
         #endregion
 
@@ -3559,7 +3581,6 @@ namespace resource.goods
         {
             return StockList.FindAll(c => c.track_id == trackid && c.goods_id != 0)?.Select(c => c.goods_id)?.Distinct()?.ToList() ?? new List<uint>();
         }
-
 
         /// <summary>
         /// 判断轨道库存排列中，是否存在中间空闲指定位置的库存信息

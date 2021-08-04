@@ -7,6 +7,7 @@ using resource;
 using System;
 using System.Collections.Generic;
 using task.device;
+using tool.appconfig;
 
 namespace task.trans.transtask
 {
@@ -241,48 +242,98 @@ namespace task.trans.transtask
                                 _M.LogForCarrierSort(trans, trans.give_track_id, count.ToString());
                                 #endregion
 
-                                #region[如果出库轨道有库存信息则后退到砖后再倒库]
-
-                                //出库轨道
-                                //      有砖：则先定位至无砖的地方再执行倒库任务
-                                //      无砖：则定位到定位点执行倒库
-                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id)
-                                    && track.Type == TrackTypeE.储砖_出)
+                                #region[储砖出-入的倒库，需要定位到出砖后面后，再执行倒库任务]
+                                if (track.Type == TrackTypeE.储砖_出)
                                 {
-                                    Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
-                                    if (gtrack != null)
+                                    #region[如果出库轨道有库存信息则后退到砖后再倒库]
+
+                                    //出库轨道
+                                    //      有砖：则先定位至无砖的地方再执行倒库任务
+                                    //      无砖：则定位到定位点执行倒库
+                                    if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id))
                                     {
-                                        ushort toempypoint = 0;
-
-                                        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
-                                        if (btmstock != null)
+                                        Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                                        if (gtrack != null)
                                         {
-                                            ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
-                                            toempypoint = (ushort)(btmstock.location - (3 * safe));
-                                        }
+                                            ushort toempypoint = 0;
 
-                                        if (toempypoint < gtrack.split_point)
-                                        {
-                                            toempypoint = gtrack.split_point;
-                                        }
+                                            Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                            if (btmstock != null)
+                                            {
+                                                ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
+                                                toempypoint = (ushort)(btmstock.location - (3 * safe));
+                                            }
 
+                                            if (toempypoint < gtrack.split_point)
+                                            {
+                                                toempypoint = gtrack.split_point;
+                                            }
+
+                                            ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
+                                            if (Math.Abs(toempypoint - nowpoint) > 200)
+                                            {
+                                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                                {
+                                                    Order = DevCarrierOrderE.定位指令,
+                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                                    ToPoint = toempypoint,
+                                                    ToTrackId = trans.give_track_id
+                                                }, string.Format("倒库的时候前面有砖，先定位到砖后面[ {0} -> {1} ]", nowpoint, toempypoint));
+
+                                                return;
+                                            }
+                                        }
+                                    }
+
+                                    #endregion
+                                }
+                                #endregion
+
+                                #region[储砖出入轨道的倒库，需要定位到轨道头，执行倒库任务]
+                                if (track.Type == TrackTypeE.储砖_出入)
+                                {
+                                    //判断运输车当前地标是否在上砖测
+                                    ushort nowsite = PubTask.Carrier.GetCurrentSite(trans.carrier_id);
+                                    if(nowsite != track.rfid_2)
+                                    {
+                                        Stock topstock = PubMaster.Goods.CheckGetStockTop(trans.take_track_id);
+                                        //如果运输车停止在头部库存的后面，则需要前进至点到上砖侧，然后再发倒库任务
                                         ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
-                                        if (Math.Abs(toempypoint - nowpoint) > 200)
+                                        if(topstock != null && topstock.location > nowpoint)
                                         {
+                                            // 前进至点
                                             PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                             {
                                                 Order = DevCarrierOrderE.定位指令,
                                                 CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                                ToPoint = toempypoint,
+                                                ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                                 ToTrackId = trans.give_track_id
-                                            },string.Format("倒库的时候前面有砖，先定位到砖后面[ {0} -> {1} ]", nowpoint, toempypoint));
-
+                                            });
                                             return;
                                         }
                                     }
                                 }
-
                                 #endregion
+
+                                ushort topoint = 0;
+                                //判断是否执行单步接力指令
+                                bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
+                                if (isSingle && track.Type == TrackTypeE.储砖_出入)
+                                {
+                                    ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+
+                                    Track track = PubMaster.Track.GetTrack(trans.give_track_id);
+                                    Stock stock = PubMaster.Goods.GetTrackTopStock(trans.give_track_id);
+                                    if (stock != null)
+                                    {
+                                        topoint = (ushort)(stock.location + (2 * safe));
+                                    }
+
+                                    if (topoint == 0 || topoint > track.limit_point_up)
+                                    {
+                                        topoint = track.limit_point_up;
+                                    }
+                                }
 
                                 //后退至轨道倒库
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
@@ -290,9 +341,10 @@ namespace task.trans.transtask
                                     Order = DevCarrierOrderE.往前倒库,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                     //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                    ToPoint = topoint,
                                     MoveCount = (byte)count,
                                     ToTrackId = trans.give_track_id
-                                }, string.Format("入轨道有库存[ {0} ]， 出轨道有库存[ {1} ]", count, PubMaster.Goods.GetTrackStockCount(trans.give_track_id)));
+                                }, string.Format("入轨道有库存[ {0} ]， 出轨道有库存[ {1} ], 目标脉冲[ {2} ]", count, PubMaster.Goods.GetTrackStockCount(trans.give_track_id), topoint));
                                 return;
                             }
                         }
