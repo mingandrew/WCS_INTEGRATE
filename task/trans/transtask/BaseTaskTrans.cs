@@ -545,62 +545,82 @@ namespace task.trans.transtask
         /// <param name="mes"></param>
         public void TakeInTarck(uint stockID, uint trackID, uint carrierID, uint transID, out string mes)
         {
-            // 获取库存脉冲
-            ushort stkloc = PubMaster.Goods.GetStockLocation(stockID);
+            // 获取库存
+            Stock stk = PubMaster.Goods.GetStock(stockID);
+            if (stk == null)
+            {
+                mes = string.Format("无库存[ id = {0} ]数据，无法取砖", stockID);
+                return;
+            }
+
+            // 获取目的轨道
+            Track tra = PubMaster.Track.GetTrack(trackID);
+            if (tra == null)
+            {
+                mes = string.Format("无轨道[ id = {0} ]数据，无法取砖", trackID);
+                return;
+            }
+
+            if (stk.track_id != tra.id)
+            {
+                mes = string.Format("库存[ {0} ]不在目的轨道[ {1} ]，无法取砖",
+                    PubMaster.Track.GetTrackName(stk.track_id), tra.name);
+                return;
+            }
+
+            // 获取小车当前脉冲
             ushort carloc = PubTask.Carrier.GetCurrentPoint(carrierID);
-            ushort safeloc = 10; // ±10脉冲
-            bool isforward = PubMaster.Track.IsTakeForwardTrack(trackID);
-            if (stkloc == 0)
+
+            // 取砖最小前提 ±10脉冲
+            ushort safeloc = 10;
+
+            if (stk.location == 0)
             {
                 // 先回轨道头再靠光电取
-                if (isforward && carloc < (track.limit_point + safeloc))
+                if (tra.is_take_forward && carloc > (tra.limit_point + safeloc))
                 {
                     // 前进取 - 回后侧点
                     mes = "无库存脉冲，尝试前进取砖先回轨道后侧点";
-                    MoveToPos(track.id, carrierID, transID, CarrierPosE.轨道后侧定位点);
+                    MoveToPos(tra.id, carrierID, transID, CarrierPosE.轨道后侧定位点);
                     return;
                 }
-                else if (!isforward && carloc < (track.limit_point_up - safeloc))
+
+                if (!tra.is_take_forward && carloc < (tra.limit_point_up - safeloc))
                 {
                     // 后退取 - 回前侧点
                     mes = "无库存脉冲，尝试后退取砖先回轨道前侧点";
-                    MoveToPos(track.id, carrierID, transID, CarrierPosE.轨道前侧定位点);
-                    return;
-                }
-                else
-                {
-                    // 直接靠光电取砖 前-65535；后-1
-                    mes = "无库存脉冲，尝试直接靠光电取砖";
-                    MoveToTake(track.id, carrierID, transID, (ushort)(isforward ? 65535 : 1));
+                    MoveToPos(tra.id, carrierID, transID, CarrierPosE.轨道前侧定位点);
                     return;
                 }
 
+                // 直接靠光电取砖 前-65535；后-1
+                mes = "无库存脉冲，尝试直接靠光电取砖";
+                MoveToTake(tra.id, carrierID, transID, (ushort)(tra.is_take_forward ? 65535 : 1));
+                return;
             }
             else
             {
-                ushort toloc = (ushort)(isforward ? (stkloc - safeloc) : (stkloc + safeloc));
-                if (isforward && carloc > toloc)
+                ushort toloc = (ushort)(tra.is_take_forward ? (stk.location - safeloc) : (stk.location + safeloc));
+                if (tra.is_take_forward && carloc > toloc)
                 {
                     // 前进取 -小车要在库存位后至少 10 脉冲；
                     mes = "前进取砖，小车需先到合适位置";
-                    MoveToLoc(track.id, carrierID, transID, toloc);
-                    return;
-                }
-                else if (!isforward && carloc < toloc)
-                {
-                    // 后退取 -小车要在库存位前至少 10 脉冲；
-                    mes = "后退取砖，小车需先到合适位置";
-                    MoveToLoc(track.id, carrierID, transID, toloc);
-                    return;
-                }
-                else
-                {
-                    // 取砖
-                    mes = "执行取砖";
-                    MoveToTake(track.id, carrierID, transID, stkloc);
+                    MoveToLoc(tra.id, carrierID, transID, toloc);
                     return;
                 }
 
+                if (!tra.is_take_forward && carloc < toloc)
+                {
+                    // 后退取 -小车要在库存位前至少 10 脉冲；
+                    mes = "后退取砖，小车需先到合适位置";
+                    MoveToLoc(tra.id, carrierID, transID, toloc);
+                    return;
+                }
+
+                // 取砖
+                mes = "执行取砖";
+                MoveToTake(tra.id, carrierID, transID, stk.location);
+                return;
             }
 
         }
@@ -617,52 +637,47 @@ namespace task.trans.transtask
         {
             if (stkloc == 0)
             {
-                mes = "无效库存存放位置！";
+                mes = "无效库存存放位置0！";
                 return;
             }
 
-            uint toTrackid = 0;//目标轨道ID
-            Track toTrack; // 作业轨道
-            if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+            // 获取目的轨道
+            Track tra = PubMaster.Track.GetTrack(trackID);
+            if (tra == null)
             {
-                // 获取摆渡车前侧对应的轨道
-                if (!PubTask.Ferry.IsInPlaceByFerryTraid(true, track.id, out toTrackid, out mes))
-                {
-                    return;
-                }
-            }
-            else
-            {
-                toTrackid = track.id;
-            }
-
-            toTrack = PubMaster.Track.GetTrack(toTrackid);
-            if (toTrack == null)
-            {
-                mes = "无目的轨道数据！";
+                mes = string.Format("无轨道[ id = {0} ]数据，无法取砖", trackID);
                 return;
             }
 
-            // 当前位置是否异常
+            // 获取小车当前脉冲
             ushort carloc = PubTask.Carrier.GetCurrentPoint(carrierID);
-            ushort safeloc = 20; // ±20脉冲
-            bool isback = PubMaster.Track.IsGiveBackTrack(trackID);
 
-            if (isback && carloc < (stkloc - safeloc))
+            // 放砖最小前提 ±20脉冲
+            ushort safeloc = 20;
+
+            if (tra.is_give_back && carloc < (stkloc - safeloc))
             {
-                mes = "后退放砖-小车位置再无法后退到库存存放位置！";
+                mes = string.Format("后退放砖-小车位置[ {0} ]无法后退到存放位置[ {1} ], 则原地放砖", carloc, stkloc);
+                PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
+                {
+                    Order = DevCarrierOrderE.放砖指令
+                });
                 return;
             }
 
-            if (isback && carloc > (stkloc + safeloc))
+            if (!tra.is_give_back && carloc > (stkloc + safeloc))
             {
-                mes = "前进放砖-小车位置再无法前进到库存存放位置！";
+                mes = string.Format("前进放砖-小车位置[ {0} ]无法前进到存放位置[ {1} ], 则原地放砖", carloc, stkloc);
+                PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
+                {
+                    Order = DevCarrierOrderE.放砖指令
+                });
                 return;
             }
 
             // 放砖
             mes = "执行放砖";
-            MoveToGive(toTrack.id, carrierID, transID, stkloc);
+            MoveToGive(trackID, carrierID, transID, stkloc);
             return;
         }
 

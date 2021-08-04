@@ -269,6 +269,7 @@ namespace resource.goods
             }
 
             ableqty = -1; //找不到轨道
+            result = "轨道数据异常";
             return false;
         }
 

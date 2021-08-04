@@ -150,13 +150,13 @@ namespace wcs.ViewModel
                 //检查轨道是否能够添加对应数量的库存
                 if (!PubMaster.Goods.CheckCanAddStockQty(TrackId, GoodsId, StockQty, out int ableqty, out string result))
                 {
-                    if (result != null)
+                    if (string.IsNullOrEmpty(result))
                     {
-                        Growl.Warning(result);
+                        Growl.Warning(string.Format("轨道剩余最多能添加：{0} 车", ableqty));
                     }
                     else
                     {
-                        Growl.Warning(string.Format("轨道剩余最多能添加：{0}", ableqty));
+                        Growl.Warning(result);
                     }
                     return;
                 }
