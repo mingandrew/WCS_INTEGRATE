@@ -678,7 +678,7 @@ namespace task.rf
 
                     //byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
                     if (PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
-                        pack.Pieces, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs))
+                        pack.Pieces, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs, true))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.AddTrackStock, "添加成功！");
                     }
