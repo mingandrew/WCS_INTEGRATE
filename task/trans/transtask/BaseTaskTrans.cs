@@ -282,12 +282,14 @@ namespace task.trans.transtask
             // 是否有不符规格的车在轨道
             if (PubTask.Carrier.HaveDifGoodsSizeInTrack(trackid, goodssizeID, out uint carrierid))
             {
+                string carName = PubMaster.Device.GetDeviceName(carrierid);
+                string traName = PubMaster.Track.GetTrackName(trackid);
+
                 if (_M.HaveCarrierInTrans(carrierid))
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 100, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
-                        PubMaster.Device.GetDeviceName(carrierid),
-                        PubMaster.Track.GetTrackName(trackid)));
+                        carName, traName));
                     #endregion
                     return true;
                 }
@@ -296,22 +298,21 @@ namespace task.trans.transtask
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 101, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
-                        PubMaster.Device.GetDeviceName(carrierid),
-                        PubMaster.Track.GetTrackName(trackid)));
+                        carName, traName));
                     #endregion
                     return true;
                 }
 
                 #region 【任务步骤记录】
                 _M.SetStepLog(trans, false, 102, string.Format("有不符合规格作业要求的运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
-                    PubMaster.Device.GetDeviceName(carrierid),
-                    PubMaster.Track.GetTrackName(trackid)));
+                        carName, traName));
                 #endregion
 
                 //转移到同类型轨道
                 TrackTypeE tracktype = PubMaster.Track.GetTrackType(trackid);
                 track = PubTask.Carrier.GetCarrierTrack(carrierid);
-                _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道);
+                DeviceTypeE ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(carrierid);
+                _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道, ferrytype);
                 return true;
             }
             else

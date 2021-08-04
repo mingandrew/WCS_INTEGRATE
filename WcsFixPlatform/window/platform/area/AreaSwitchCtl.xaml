@@ -64,7 +64,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="倒库开关" Width="*" Visibility="Collapsed">
+                <DataGridTemplateColumn Header="倒库开关" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ToggleButton  Style="{StaticResource ToggleButtonSwitch}"

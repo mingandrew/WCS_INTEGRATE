@@ -2531,59 +2531,7 @@ namespace task.device
 
             #endregion
 
-            #region [2.取货轨道是否有车]
-            if (carrier == null)
-            {
-                //入库任务 -> 砖机轨道
-                //出库任务 -> 储砖出，出入
-                List<CarrierTask> taketrackcarriers = DevList.FindAll(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
-                if (taketrackcarriers.Count > 0)
-                {
-                    //脉冲大的排在前面
-                    taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
-                    carrier = taketrackcarriers[0];
-
-                    if (carrier != null
-                        && !carrier.IsNotDoingTask
-                        && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
-                    {
-                        carrier = null;
-                    }
-
-                    if (carrier != null
-                        && carrier.IsNotDoingTask
-                        && PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
-                    {
-                        carrier = null;
-                    }
-
-                    //无任务，不做放砖任务
-                    if (carrier != null
-                        && !PubTask.Trans.HaveInCarrier(carrier.ID)
-                        && carrier.NotInTask(DevCarrierOrderE.放砖指令))
-                    {
-                        //取砖任务
-                        if (CheckIsConnInTask(carrier, DevCarrierOrderE.取砖指令))
-                        {
-                            carrierid = carrier.ID;
-                            return true;
-                        }
-
-                        //在出轨道头空闲
-                        if (CheckCarrierIsFree(trans, carrier, false, out carrierid, out result, out returnfalse)
-                            && carrier.CurrentPoint >= PubMaster.Track.GetCarrierPos(carrier.AreaId, CarrierPosE.轨道前侧复位点))
-                        {
-                            carrierid = carrier.ID;
-                            return true;
-                        }
-                    }
-
-                    carrier = null;
-                }
-            }
-            #endregion
-
-            #region[3.先找砖机轨道的空闲运输车]
+            #region[2.先找砖机轨道的空闲运输车]
 
             if (carrier == null)
             {
@@ -2666,6 +2614,58 @@ namespace task.device
 
             }
 
+            #endregion
+
+            #region [3.取货轨道是否有车]
+            if (carrier == null)
+            {
+                //入库任务 -> 砖机轨道
+                //出库任务 -> 储砖出，出入
+                List<CarrierTask> taketrackcarriers = DevList.FindAll(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
+                if (taketrackcarriers.Count > 0)
+                {
+                    //脉冲大的排在前面
+                    taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
+                    carrier = taketrackcarriers[0];
+
+                    if (carrier != null
+                        && !carrier.IsNotDoingTask
+                        && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                    {
+                        carrier = null;
+                    }
+
+                    if (carrier != null
+                        && carrier.IsNotDoingTask
+                        && PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
+                    {
+                        carrier = null;
+                    }
+
+                    //无任务，不做放砖任务
+                    if (carrier != null
+                        && !PubTask.Trans.HaveInCarrier(carrier.ID)
+                        && carrier.NotInTask(DevCarrierOrderE.放砖指令))
+                    {
+                        //取砖任务
+                        if (CheckIsConnInTask(carrier, DevCarrierOrderE.取砖指令))
+                        {
+                            carrierid = carrier.ID;
+                            return true;
+                        }
+
+                        //在出轨道头空闲
+                        if (CheckCarrierIsFree(trans, carrier, false, out carrierid, out result, out returnfalse)
+                            && carrier.CurrentPoint >= PubMaster.Track.GetCarrierPos(carrier.AreaId, CarrierPosE.轨道前侧复位点))
+                        {
+                            carrierid = carrier.ID;
+                            return true;
+                        }
+                    }
+
+                    carrier = null;
+                }
+            }
             #endregion
 
             #region [4.前面找到车了，如果空闲则分配，否则等待]

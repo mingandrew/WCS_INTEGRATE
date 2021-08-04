@@ -27,11 +27,7 @@ namespace task.trans.transtask
             bool havedifcaringive = true, havecarintake = true;
 
             //转移卸货轨道不符合的运输车
-            if (CheckTrackAndAddMoveTask(trans, trans.give_track_id))
-            {
-                return;
-            }
-            else
+            if (!CheckTrackAndAddMoveTask(trans, trans.give_track_id))
             {
                 havedifcaringive = false;
             }
@@ -387,7 +383,7 @@ namespace task.trans.transtask
                     _M.LogForCarrierGive(trans, trans.give_track_id);
                     #endregion
 
-                    MoveToGive(trans.give_track_id, trans.carrier_id, trans.id, PubMaster.Track.GetTrackLimitPointIn(trans.give_track_id));
+                    MoveToGive(trans.give_track_id, trans.carrier_id, trans.id, PubMaster.Track.GetTrackLimitPointOut(trans.give_track_id));
                     return;
                 }
 
@@ -490,9 +486,8 @@ namespace task.trans.transtask
 
             // 任务运输车回到出库轨道头
             if (isftask
-                && (track.id == trans.take_track_id
-                        || (track.id == trans.give_track_id
-                            && !PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))))
+                && (track.id == trans.take_track_id || (track.id == trans.give_track_id
+                && !PubTask.Carrier.IsCarrierInTrackBiggerRfID1(trans.carrier_id, trans.give_track_id))))
             {
                 #region 【任务步骤记录】
                 _M.LogForCarrierToTrack(trans, trans.give_track_id);
