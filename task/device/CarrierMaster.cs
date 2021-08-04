@@ -657,6 +657,7 @@ namespace task.device
                     }
                     catch { }
 
+                    PubMaster.Goods.UpdateTrackStockStatus(task.DevConfig.stock_id);
 
                     task.DevConfig.stock_id = 0;
 

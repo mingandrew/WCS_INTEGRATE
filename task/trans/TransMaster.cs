@@ -162,15 +162,22 @@ namespace task.trans
             List<Track> outtrack = PubMaster.Track.GetSortTrackList(line.area_id, line.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
             foreach (var track in outtrack)
             {
-                //没有其他任务使用了该轨道
-                if (!ExistTransWithTracks(track.id, track.brother_track_id))
+                if(track.Type == TrackTypeE.储砖_出入 && ExistTransWithTracks(track.id))
                 {
-                    Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
-                    if(!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
-                    {
-                        AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
-                        return;
-                    }
+                    continue;
+                }
+
+                if (track.Type == TrackTypeE.储砖_出 && ExistTransWithTracks(track.id, track.brother_track_id))
+                {
+                    continue;
+                }
+
+                //没有其他任务使用了该轨道
+                Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
+                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
+                {
+                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
+                    return;
                 }
             }
         }
@@ -1416,7 +1423,7 @@ namespace task.trans
         /// <param name="carrier_id"></param>
         /// <param name="track_id"></param>
         /// <returns></returns>
-        public bool CheckTopStockAndSendSortTask(uint tranid, uint carrier_id, uint track_id)
+        public bool CheckTopStockAndSendSortTask(StockTrans trans, uint tranid, uint carrier_id, uint track_id)
         {
             //1.打开使用-开关(使用上砖侧分割点坐标)
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return false;
@@ -1450,15 +1457,39 @@ namespace task.trans
                     }
                 }
                 ushort stockqty = PubMaster.Goods.GetTrackStockCount(track.id);
+
+                ushort topoint = 0;
+                //判断是否执行单步接力指令
+                bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
+                if (isSingle)
+                {
+                    Stock stock = PubMaster.Goods.GetTrackTopStock(track.id);
+                    if (stock != null)
+                    {
+                        ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+
+                        topoint = (ushort)(stock.location + (2 * safe));
+                    }
+                    if(topoint == 0)
+                    {
+                        topoint = track.up_split_point;//单步找空位脉冲
+                    }
+                    movecount = 1;
+                }
+                else
+                {
+                    topoint = (ushort)(track.split_point - 50);//倒库时，不能超过脉冲(出库轨道附件脉冲位置)
+                }
+
                 //后退至轨道倒库
                 PubTask.Carrier.DoOrder(carrier_id, tranid, new CarrierActionOrder()
                 {
                     Order = DevCarrierOrderE.往前倒库,
                     CheckTra = track.ferry_down_code,
-                    ToPoint = (ushort)(track.split_point + 50), //倒库时，不能超过脉冲(出库轨道附件脉冲位置)
+                    ToPoint = topoint, 
                     MoveCount = movecount,
                     ToTrackId = track.id
-                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, track.up_split_point));
+                }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ], 目标脉冲[ {3} ]", stockqty, movecount, track.up_split_point, topoint));
                 return true;
             }
             return false;

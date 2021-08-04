@@ -120,6 +120,17 @@ namespace tool.appconfig
             return GetItem(areaid, lineid)?.UserAutoBackDevVersion2 ?? false;
         }
 
+        /// <summary>
+        /// 使用使用单车每次接力执行接力任务
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public bool IsOut2OutSingleStack(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.Out2OutSinglelStack ?? false;
+        }
+
 
         /// <summary>
         /// 接力暂停，运输车停止在放货点的几个车身位置
@@ -153,6 +164,7 @@ namespace tool.appconfig
                     InMoveWhenFull = false,
                     NotNeedSortToSplitUpPlace = true,
                     UserAutoBackDevVersion2 = false,
+                    Out2OutSinglelStack = false,
                 };
                 BigConfigList.Add(item);
                 GlobalWcsDataConfig.SaveBigConifg();
@@ -192,5 +204,10 @@ namespace tool.appconfig
         /// 优先使用停在砖机轨道的运输车，即使取砖轨道有车也先找砖机轨道的运输车
         /// </summary>
         public bool UseUpTileLifterCar { set; get; }
+
+        /// <summary>
+        /// 使用单次库存进行接力任务
+        /// </summary>
+        public bool Out2OutSinglelStack { set; get; }
     }
 }

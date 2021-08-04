@@ -351,10 +351,11 @@ namespace task.task
         /// <summary>
         /// 摆渡车是否空闲
         /// </summary>
+        /// <param name="checkload">是否检测有货</param>
         /// <returns></returns>
-        public bool IsFerryFree()
+        public bool IsFerryFree(bool checkload = true)
         {
-            if (Load == DevFerryLoadE.载车)
+            if (checkload &&  Load == DevFerryLoadE.载车)
             {
                 return false;
             }
