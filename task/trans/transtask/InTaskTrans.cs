@@ -440,7 +440,7 @@ namespace task.trans.transtask
                             }
 
                             // 直接放砖
-                            GiveInTarck(loc, trans.take_track_id, trans.carrier_id, trans.id, out res);
+                            GiveInTarck(loc, trans.give_track_id, trans.carrier_id, trans.id, out res);
 
                             #region 【任务步骤记录】
                             _M.LogForCarrierGive(trans, trans.give_track_id, res);

@@ -36,9 +36,17 @@ namespace module.track
         public string memo { set; get; }
         public ushort rfid_1 { set; get; }
         public ushort rfid_2 { set; get; }
+
+        /// <summary>
+        /// 反抛点
+        /// </summary>
         public ushort rfid_3 { set; get; }
         public ushort rfid_4 { set; get; }
         public ushort rfid_5 { set; get; }
+
+        /// <summary>
+        /// 接力结束点
+        /// </summary>
         public ushort rfid_6 { set; get; }
 
         public string rfids { set; get; }

@@ -403,7 +403,6 @@ namespace task.trans.transtask
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
-            ushort carSite = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
 
             // 【不允许接力-轨道有其他小车】
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask)
@@ -435,51 +434,148 @@ namespace task.trans.transtask
                 // 小车空闲状态
                 if (isftask)
                 {
-                    // 接力点前的 最后一车
-                    Stock targetSTK = PubMaster.Goods.GetInfrontUpSplitButtonStock(track.id);
+                    // 取砖最小判断脉冲 ±10
+                    ushort mindicT = 10;
+                    // 放砖最小判断脉冲 ±20
+                    ushort mindicG = 20;
                     // 安全距离
-                    ushort safe = PubMaster.Goods.GetStackSafe(targetSTK.goods_id, trans.carrier_id);
-                    // 获取倒库放砖位置
-                    int giveSite = track.is_take_forward ? (targetSTK.location + safe) : (targetSTK.location - safe);
-                    // 判断位置是否超接力点
-                    if (track.is_take_forward ? (giveSite > track.up_split_point) : (giveSite < track.up_split_point))
-                    {
-                        _M.SetStatus(trans, TransStatusE.接力等待);
-                        return;
-                    }
+                    ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+                    // 倒库位置
+                    ushort takeSite = 0, giveSite = 0;
+                    // 小车当前脉冲
+                    ushort carSite = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
 
-                    // 接力点后的 最前一车
-                    Stock takeSTK = PubMaster.Goods.GetBehindUpSplitTopStock(track.id);
-                    ushort takeSite = takeSTK.location;
-                    // 判断当前位置是否是取砖移动范围（±10脉冲）
-                    if (track.is_take_forward ? (carSite > (takeSite - 10)) : (carSite < (takeSite + 10)))
+                    Stock targetSTK = null;
+                    if (isload)
                     {
-                        // 小车需先到合适位置 (前进取 -小车要在库存位后至少 10 脉冲；后退取 -小车要在库存位前至少 10 脉冲)
-                        MoveToLoc(track.id, trans.carrier_id, trans.id, (ushort)(track.is_take_forward ? (takeSite - 10) : (takeSite + 10)));
-
-                        #region 【任务步骤记录】
-                        _M.LogForCarrierTake(trans, track.id, "取砖前，小车需先到合适位置");
-                        #endregion
-                        return;
+                        // 小车当前位置前
+                        targetSTK = PubMaster.Goods.GetStockInfrontStockPoint(track.id, carSite);
                     }
                     else
                     {
-                        // 倒库
-                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                        {
-                            Order = DevCarrierOrderE.往前倒库,
-                            CheckTra = track.ferry_down_code,
-                            ToPoint = takeSite,
-                            OverPoint = (ushort)giveSite,
-                            ToTrackId = track.id
-                        }, string.Format("接力点[ {0} ], 取砖脉冲[ {1} ], 放砖脉冲[ {2} ]", track.up_split_point, takeSite, giveSite));
+                        // 接力点前
+                        targetSTK = PubMaster.Goods.GetInfrontUpSplitButtonStock(track.id);
+                    }
 
+                    if (targetSTK != null)
+                    {
+                        giveSite = (ushort)(track.is_take_forward ? (targetSTK.location + safe) : (targetSTK.location - safe));
+                    }
+                    else
+                    {
+                        giveSite = (ushort)(track.is_take_forward ? track.limit_point : track.limit_point_up);
+                    }
+
+                    if (giveSite == 0)
+                    {
                         #region 【任务步骤记录】
-                        _M.LogForCarrierSortRelay(trans, track.id);
+                        _M.SetStepLog(trans, false, 4008, string.Format("无放砖位置"));
                         #endregion
                         return;
                     }
-                    
+
+                    // 载砖-找地方放
+                    if (isload)
+                    {
+                        // 判断位置
+                        if (track.is_give_back ? (giveSite > (carSite - mindicG)) : (giveSite < (carSite + mindicG)))
+                        {
+                            // 原地放砖
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.放砖指令
+                            });
+                        }
+                        else
+                        {
+                            MoveToGive(track.id, trans.carrier_id, trans.id, giveSite);
+                        }
+
+                        #region 【任务步骤记录】
+                        _M.LogForCarrierGive(trans, track.id, res);
+                        #endregion
+                        return;
+                    }
+
+                    // 无砖-倒库判断
+                    if (isnotload)
+                    {
+                        // 判断位置是否超接力点
+                        if (track.is_take_forward ? (giveSite > track.up_split_point) : (giveSite < track.up_split_point))
+                        {
+                            _M.SetStatus(trans, TransStatusE.接力等待);
+                            return;
+                        }
+
+                        // 接力点后的
+                        bool isover = false;
+                        Stock takeSTK = PubMaster.Goods.GetBehindUpSplitTopStock(track.id);
+                        if (takeSTK == null)
+                        {
+                            isover = true;
+                        }
+                        else
+                        {
+                            // 接力结束点
+                            if (track.rfid_6 > 0)
+                            {
+                                // 不得倒库  入的库存
+                                if (track.is_take_forward ? (takeSTK.location > track.rfid_6) : (takeSTK.location < track.rfid_6))
+                                {
+                                    isover = true;
+                                }
+                            }
+                        }
+                        
+                        if (isover)
+                        {
+                            // 砖机使用该品种
+                            if (PubMaster.DevConfig.IsHaveSameTileNowGood(trans.goods_id, TileWorkModeE.上砖))
+                            {
+                                _M.SetStatus(trans, TransStatusE.接力等待);
+                            }
+                            else
+                            {
+                                _M.SetStatus(trans, TransStatusE.小车回轨, "当前没有砖机再上该品种");
+                            }
+
+                            return;
+                        }
+
+                        takeSite = takeSTK.location;
+
+                        // 判断当前位置是否是取砖移动范围
+                        if (track.is_take_forward ? (carSite > (takeSite - mindicT)) : (carSite < (takeSite + mindicT)))
+                        {
+                            // 小车需先到合适位置 (前进取 -小车要在库存位后至少 10 脉冲；后退取 -小车要在库存位前至少 10 脉冲)
+                            ushort toloc = (ushort)(track.is_take_forward ? (takeSite - 10) : (takeSite + 10));
+                            MoveToLoc(track.id, trans.carrier_id, trans.id, toloc);
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierTake(trans, track.id, "取砖前，小车需先到合适位置");
+                            #endregion
+                            return;
+                        }
+                        else
+                        {
+                            // 倒库
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.往前倒库,
+                                CheckTra = track.ferry_down_code,
+                                ToPoint = takeSite,
+                                OverPoint = giveSite,
+                                ToTrackId = track.id
+                            }, string.Format("接力点[ {0} ], 取砖脉冲[ {1} ], 放砖脉冲[ {2} ]", track.up_split_point, takeSite, giveSite));
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierSortRelay(trans, track.id);
+                            #endregion
+                            return;
+                        }
+
+                    }
+
                 }
 
                 return;
@@ -880,156 +976,140 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void Out2OutRelayWait(StockTrans trans)
         {
-            if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+            // 运行前提
+            if (!_M.RunPremise(trans, out track))
+            {
+                return;
+            }
+
+            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+
+            if (isload || PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
             {
                 _M.SetStatus(trans, TransStatusE.倒库中);
                 return;
             }
 
-            if (track == null || track.id != trans.give_track_id)
+            #region 通用轨道
+            if (track.Type == TrackTypeE.储砖_出入 && isftask)
             {
-                track = PubMaster.Track.GetTrack(trans.give_track_id);
-            }
-            ushort stockqty = PubMaster.Goods.GetTrackStockCount(track.id);
-
-            //当前车是否空闲
-            bool carrierfree = PubTask.Carrier.IsCarrierFree(trans.carrier_id);
-            if (!carrierfree) return;
-
-            //轨道存在其他车
-            bool havecarinfront = PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id, out uint othercarid);
-
-            //使用运输车当前所在脉冲进行计算后面需要接力的库存
-            PubTask.Carrier.GetCarrierNowUnloadPoint(trans.carrier_id, out ushort nowpoint, out ushort givepoint);
-
-            //接力点前的库存数
-            int infrontstockcount = PubMaster.Goods.GetInfrontPointStockCount(track.id, nowpoint);
-
-            #region[继续接力]
-
-            //接力点前没有库存，同时没车，则开始接力
-            bool upnonestock = false;
-            if (infrontstockcount == 0
-                && !havecarinfront
-                && stockqty > 0)
-            {
-                upnonestock = true;
-            }
-
-            //接力点前只有一车砖，同时有车取砖取了它
-            bool onestockcarloadit = false;
-            Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
-            if (infrontstockcount == 1
-                && havecarinfront
-                && stockqty > 1)
-            {
-                if (topstock != null && topstock.location > nowpoint
-                    && PubMaster.DevConfig.IsCarrierBindStock(othercarid, topstock.id))
+                // 砖机使用该品种
+                if (PubMaster.DevConfig.IsHaveSameTileNowGood(trans.goods_id, TileWorkModeE.上砖))
                 {
-                    onestockcarloadit = true;
+                    _M.SetStatus(trans, TransStatusE.小车回轨, "当前没有砖机再上该品种");
                 }
             }
+            #endregion
 
-
-            //砖机不再使用该品种
-            bool nonetileusegood = false;
-            uint gid = topstock.goods_id;
-            if (gid == 0)
+            #region 出&入轨道
+            if (track.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出))
             {
-                gid = trans.goods_id;
-            }
-            if (!PubMaster.DevConfig.IsHaveSameTileNowGood(gid, TileWorkModeE.上砖))
-            {
-                nonetileusegood = true;
-                _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
-            }
+                if (track == null || track.id != trans.give_track_id)
+                {
+                    track = PubMaster.Track.GetTrack(trans.give_track_id);
+                }
+                ushort stockqty = PubMaster.Goods.GetTrackStockCount(track.id);
 
-            bool need = PubMaster.Goods.ExistBehindUpSplitPoint(track.id, nowpoint);
+                //当前车是否空闲
+                bool carrierfree = PubTask.Carrier.IsCarrierFree(trans.carrier_id);
+                if (!carrierfree) return;
 
-            //前面没有库存，继续倒库
-            if (upnonestock || onestockcarloadit || nonetileusegood)
-            {
-                #region[前进定位然后再接力]
-                ////运输车当前脉冲
-                //ushort carrierpoint = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
-                ////大于运输车当前脉冲的库存位置【如果有：运输车需要前进至点然后再执行倒库，无则直接倒库】
-                //ushort infrontcarstockloc = PubMaster.Goods.GetInfrontPointStockMaxLocation(track.id, carrierpoint);
-                //if (upnonestock && infrontcarstockloc > 0)
-                //{
-                //    infrontcarstockloc += (ushort)(2 * PubMaster.Goods.GetStackSafe(0, 0));
+                //轨道存在其他车
+                bool havecarinfront = PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id, out uint othercarid);
 
-                //    //需要定位的位置比出轨道最后取货点都小则用
-                //    if (infrontcarstockloc >= track.limit_point_up)
-                //    {
-                //        //前进至点
-                //        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                //        {
-                //            Order = DevCarrierOrderE.定位指令,
-                //            CheckTra = track.ferry_down_code,
-                //            ToRFID = track.rfid_1,
-                //            ToTrackId = track.id
-                //        });
-                //    }
-                //    else
-                //    {
-                //        //定位到当前卸货位置或当前位置往后两个车位
-                //        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                //        {
-                //            Order = DevCarrierOrderE.定位指令,
-                //            CheckTra = track.ferry_down_code,
-                //            ToPoint = infrontcarstockloc,
-                //        });
-                //    }
-                //}else
+                //使用运输车当前所在脉冲进行计算后面需要接力的库存
+                PubTask.Carrier.GetCarrierNowUnloadPoint(trans.carrier_id, out ushort nowpoint, out ushort givepoint);
+
+                //接力点前的库存数
+                int infrontstockcount = PubMaster.Goods.GetInfrontPointStockCount(track.id, nowpoint);
+
+                #region[继续接力]
+
+                //接力点前没有库存，同时没车，则开始接力
+                bool upnonestock = false;
+                if (infrontstockcount == 0
+                    && !havecarinfront
+                    && stockqty > 0)
+                {
+                    upnonestock = true;
+                }
+
+                //接力点前只有一车砖，同时有车取砖取了它
+                bool onestockcarloadit = false;
+                Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
+                if (infrontstockcount == 1
+                    && havecarinfront
+                    && stockqty > 1)
+                {
+                    if (topstock != null && topstock.location > nowpoint
+                        && PubMaster.DevConfig.IsCarrierBindStock(othercarid, topstock.id))
+                    {
+                        onestockcarloadit = true;
+                    }
+                }
+
+
+                //砖机不再使用该品种
+                bool nonetileusegood = false;
+                uint gid = topstock.goods_id;
+                if (gid == 0)
+                {
+                    gid = trans.goods_id;
+                }
+                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(gid, TileWorkModeE.上砖))
+                {
+                    nonetileusegood = true;
+                    _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
+                }
+
+                bool need = PubMaster.Goods.ExistBehindUpSplitPoint(track.id, nowpoint);
+
+                //前面没有库存，继续倒库
+                if (upnonestock || onestockcarloadit || nonetileusegood)
+                {
+                    if (need)
+                    {
+                        byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, nowpoint);
+                        byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
+
+                        if (line_max_move > 0 && movecount > line_max_move)
+                        {
+                            movecount = line_max_move;
+                        }
+
+                        ushort tpoint = track.split_point;
+                        if (track.Type == TrackTypeE.储砖_出)
+                        {
+                            tpoint -= 50;
+                        }
+
+                        //后退至轨道倒库
+                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                        {
+                            Order = DevCarrierOrderE.往前倒库,
+                            CheckTra = track.ferry_down_code,
+                            ToPoint = tpoint,
+                            MoveCount = movecount,
+                            ToTrackId = track.id
+                        }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, nowpoint));
+                        return;
+                    }
+                }
+
                 #endregion
 
-                if (need)
+                #region[前进至点  / 替换任务执行 入库到出库的倒库]
+
+                if ((stockqty == 0 || nonetileusegood) && carrierfree && !havecarinfront)
                 {
-                    byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, nowpoint);
-                    byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
-
-                    if (line_max_move > 0 && movecount > line_max_move)
-                    {
-                        movecount = line_max_move;
-                    }
-
-                    ushort tpoint = track.split_point;
-                    if (track.Type == TrackTypeE.储砖_出)
-                    {
-                        tpoint -= 50;
-                    }
-
-                    //后退至轨道倒库
-                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                    {
-                        Order = DevCarrierOrderE.往前倒库,
-                        CheckTra = track.ferry_down_code,
-                        ToPoint = tpoint,
-                        MoveCount = movecount,
-                        ToTrackId = track.id
-                    }, string.Format("轨道有库存[ {0} ], 接力数量[ {1} ], 接力脉冲[ {2} ]", stockqty, movecount, nowpoint));
-                    return;
+                    _M.SetStatus(trans, TransStatusE.小车回轨, string.Format("轨道无库存，接力运输车回轨"));
                 }
-            }
-
-            #endregion
-
-            #region[前进至点  / 替换任务执行 入库到出库的倒库]
-
-            if ((stockqty == 0 || nonetileusegood) && carrierfree && !havecarinfront)
-            {
-                //Track btrack = PubMaster.Track.GetTrack(track.brother_track_id);
-                //if(btrack != null 
-                //    && btrack.StockStatus == TrackStockStatusE.满砖 
-                //    && btrack.TrackStatus == TrackStatusE.启用
-                //    && track.StockStatus == TrackStockStatusE.空砖
-                //    && track.TrackStatus == TrackStatusE.启用)
-                //{
-
-                //}
-                _M.SetStatus(trans, TransStatusE.小车回轨, string.Format("轨道无库存，接力运输车回轨"));
+                #endregion
             }
             #endregion
+
         }
 
         #region[其他流程]

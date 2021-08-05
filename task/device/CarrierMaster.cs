@@ -837,9 +837,7 @@ namespace task.device
                 //根据小车当前的位置更新库存对应所在的轨道
                 PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, task.CurrentOrder + "", task.ID);
 
-                if (!task.IsNotDoingTask
-                    && task.IsLoad()
-                    && (task.CurrentOrder == DevCarrierOrderE.往前倒库 || task.CurrentOrder == DevCarrierOrderE.往后倒库))
+                if (!task.IsNotDoingTask && task.IsLoad())
                 {
                     PubMaster.Goods.UpdateStockLocation(task.DevConfig.stock_id, task.DevStatus.CurrentPoint);
                 }

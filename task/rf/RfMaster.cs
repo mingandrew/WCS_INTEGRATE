@@ -1292,7 +1292,7 @@ namespace task.rf
                     {
                         type = DevFerryResetPosE.后退寻点;
                     }
-                    if (PubTask.Ferry.ReSetFerry(pack.Id, type, "平板", out string result))
+                    if (PubTask.Ferry.ResetPoint(pack.Id, type, "平板", out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.TaskFerryReset, result);
                     }
