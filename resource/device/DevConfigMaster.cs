@@ -1184,6 +1184,18 @@ namespace resource.device
                 }
             }
         }
+
+        public bool CheckBroTileLifters(uint trackid,out List<uint> devids)
+        {
+            devids = null;
+            List<ConfigTileLifter> list =  ConfigTileLifterList.FindAll(c => c.left_track_id == trackid || c.right_track_id == trackid);
+            if (list.Count > 1)
+            {
+                devids = list.Select(c => c.id).ToList();
+                return true;
+            }
+            else return false;
+        }
         
         #endregion
 

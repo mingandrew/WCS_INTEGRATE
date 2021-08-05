@@ -56,6 +56,7 @@
         public const string QueryStockSum = nameof(QueryStockSum);
         public const string AddTrackStock = nameof(AddTrackStock);
         public const string QueryTrackStock = nameof(QueryTrackStock);
+        public const string QueryStockSumStocks = nameof(QueryStockSumStocks);
         public const string ShiftTrackStock = nameof(ShiftTrackStock);
         public const string UpdateStockGood = nameof(UpdateStockGood);
         public const string DeleteTrackStock = nameof(DeleteTrackStock);
@@ -150,6 +151,11 @@
 
         public const string QueryFilterData = nameof(QueryFilterData); //查询过滤信息
         public const string SaveFilterSetting = nameof(SaveFilterSetting);//保存过滤设置
+        #endregion
+
+        #region[自定义任务]
+        public const string CheckIsBroTrack = nameof(CheckIsBroTrack);
+        public const string DoCustomTask = nameof(DoCustomTask);
         #endregion
     }
 }
