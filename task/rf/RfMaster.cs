@@ -386,6 +386,9 @@ namespace task.rf
                     case FunTag.QueryTrackStock:
                         QueryTrackStock(msg);
                         break;
+                    case FunTag.QueryStockSumStocks:
+                        GetStockSumStocks(msg);
+                        break;
                     case FunTag.ShiftTrackStock:
                         ShiftTrackStock(msg);
                         break;
@@ -599,7 +602,17 @@ namespace task.rf
                         InitCarrier(msg);
                         break;
 
+                    #endregion                    
+
+                    #region[自定义任务]
+                    case FunTag.CheckIsBroTrack:
+                        CheckBroTrack(msg);
+                        break;
+                    case FunTag.DoCustomTask:
+                        DoCustomTask(msg);
+                        break;
                     #endregion
+
                 }
 
                 _mLog?.Cmd(true, msg?.MEID + " : " + msg?.Pack?.Function);
@@ -700,6 +713,39 @@ namespace task.rf
                 pack.Stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
 
                 SendSucc2Rf(msg.MEID, FunTag.QueryTrackStock, JsonTool.Serialize(pack));
+            }
+        }
+
+        private void GetStockSumStocks(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                if (uint.TryParse(msg.Pack.Data, out uint trackid))
+                {
+                    StockSumStocksPack pack = new StockSumStocksPack();
+                    StockSumStocks sum = null;
+                    List<StockSumStocks> sumlist = new List<StockSumStocks>();
+                    List<Stock> stocklist = PubMaster.Goods.GetStocks(trackid);
+                    stocklist.Sort((x, y) => x.pos.CompareTo(y.pos));
+                    foreach (Stock stock in stocklist)
+                    {
+                        if (sum != null && !sum.AddToSum(stock))
+                        {
+                            sumlist.Add(sum);
+                            sum = null;
+                        }
+                        if (sum == null)
+                        {
+                            sum = new StockSumStocks(stock, PubMaster.Track.GetTrackType2ForByte(stock.track_id));
+                        }
+                    }
+                    if (sum != null)
+                    {
+                        sumlist.Add(sum);
+                    }
+                    pack.AddStockSumStocksList(sumlist);
+                    SendSucc2Rf(msg.MEID, FunTag.QueryStockSumStocks, JsonTool.Serialize(pack));
+                }
             }
         }
 
@@ -2516,6 +2562,49 @@ namespace task.rf
             }
         }
 
+        #endregion
+
+        #region[自定义任务]
+        /// <summary>
+        /// 检查是否有串联砖机轨道
+        /// </summary>
+        /// <param name="msg"></param>
+        private void CheckBroTrack(RfMsgMod msg)
+        {
+            CheckBroTrackPack pack = JsonTool.Deserialize<CheckBroTrackPack>(msg.Pack.Data);
+            Track track = PubMaster.Track.GetTrack(pack.trackid);
+            if(track.Type == TrackTypeE.上砖轨道 || track.Type == TrackTypeE.下砖轨道)
+            {
+                if (PubMaster.DevConfig.CheckBroTileLifters(pack.trackid,out List<uint> devids))
+                {
+                    pack.brotrack = true;
+                    foreach (uint id in devids)
+                    {
+                        TileLifterTask item = PubTask.TileLifter.GetTileLifter(id);
+                        pack.AddTileLifter(new RfDevTileLifter()
+                        {
+                            Id = item.ID,
+                            Area = item.AreaId,
+                            TileLifter = item.DevStatus,
+                            Conn = item.ConnStatus,
+                            Working = item.IsWorking,
+                            WorkType = item.WorkType
+                        });
+                    }
+                    SendSucc2Rf(msg.MEID, FunTag.CheckIsBroTrack, JsonTool.Serialize(pack));
+                }
+            }
+        }
+
+        /// <summary>
+        /// 执行自定义任务
+        /// </summary>
+        /// <param name="msg"></param>
+        private void DoCustomTask(RfMsgMod msg)
+        {
+            DoCustomTaskPack pack = JsonTool.Deserialize<DoCustomTaskPack>(msg.Pack.Data);
+            SendSucc2Rf(msg.MEID, FunTag.DoCustomTask, "ok");
+        }
         #endregion
 
         #endregion

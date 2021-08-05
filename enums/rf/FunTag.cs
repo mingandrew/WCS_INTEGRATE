@@ -58,6 +58,7 @@
         public const string QueryStockSum = nameof(QueryStockSum);
         public const string AddTrackStock = nameof(AddTrackStock);
         public const string QueryTrackStock = nameof(QueryTrackStock);
+        public const string QueryStockSumStocks = nameof(QueryStockSumStocks);
         public const string ShiftTrackStock = nameof(ShiftTrackStock);
         public const string UpdateStockGood = nameof(UpdateStockGood);
         public const string DeleteTrackStock = nameof(DeleteTrackStock);
@@ -156,6 +157,11 @@
         #region[位置初始化]
         public const string InitFerry = nameof(InitFerry);
         public const string InitCarrier = nameof(InitCarrier);
+        #endregion
+
+        #region[自定义任务]
+        public const string CheckIsBroTrack = nameof(CheckIsBroTrack);
+        public const string DoCustomTask = nameof(DoCustomTask);
         #endregion
     }
 }
