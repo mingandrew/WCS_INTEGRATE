@@ -45,6 +45,9 @@
                     </hc:ButtonGroup>
                 </Grid>
                 <StackPanel Grid.Row="1" Margin="10,5,10,10" Orientation="Horizontal">
+                    <Button Content="刷新" Margin="5,5,50,5" Style="{StaticResource ButtonSuccess}" hc:IconElement.Geometry="{StaticResource NewGeometry}" 
+                        Tag="refresh" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                    
                     <Button Content="添加" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
                         Tag="add" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                     <Button Content="修改" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
@@ -99,6 +102,9 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Margin="10,5,10,10" Orientation="Horizontal">
+                    <Button Content="刷新" Margin="5,5,50,5" Style="{StaticResource ButtonSuccess}" hc:IconElement.Geometry="{StaticResource NewGeometry}" 
+                        Tag="refreshsize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                    
                     <Button Content="添加" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource AddGeometry}" 
                         Tag="addsize" Command="{Binding GoodsEditeCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                     <Button Content="修改" Margin="5" Style="{StaticResource ButtonWarning}" hc:IconElement.Geometry="{StaticResource EditeGeometry}" 
