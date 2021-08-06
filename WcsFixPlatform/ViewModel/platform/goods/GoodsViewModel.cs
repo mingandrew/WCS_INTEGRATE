@@ -177,6 +177,13 @@ namespace wcs.ViewModel
         {
             switch (tag)
             {
+                #region[刷新品种]
+                case "refresh":
+                    InitView();
+                    GoodListView.Refresh();
+                    break;
+                #endregion
+
                 #region[添加品种]
                 case "add":
                     DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsEditDialog>()
@@ -244,6 +251,12 @@ namespace wcs.ViewModel
                     }
 
                     InitView();
+                    break;
+                #endregion
+
+                #region[刷新规格]
+                case "refreshsize":
+                    InitSizeView();
                     break;
                 #endregion
 
