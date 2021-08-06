@@ -723,7 +723,7 @@ namespace task.rf
                         }
                         if (sum == null)
                         {
-                            sum = new StockSumStocks(stock, PubMaster.Track.GetTrackType2ForByte(stock.track_id));
+                            sum = new StockSumStocks(stock);
                         }
                     }
                     if (sum != null)
