@@ -255,7 +255,25 @@ namespace task.trans.transtask
                                 _M.LogForCarrierGive(trans, trans.give_track_id);
                                 #endregion
 
-                                ushort count = 0, loc = 0;
+                                //需要定位的位置
+                                ushort loc = 0;
+
+                                //后退放砖
+                                //TODO  后退放砖，但是使用脉冲间隔放砖
+
+                                Stock topstock = PubMaster.Goods.GetTrackTopStock(trans.give_track_id);
+                                if (topstock != null)
+                                {
+                                    float movecarseperate = GlobalWcsDataConfig.BigConifg.MoveStockSeperateCarCount;
+                                    ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+                                    ushort space = (ushort)(movecarseperate * safe);
+                                    if(space < safe)
+                                    {
+                                        space = (ushort)(safe * 2);
+                                    }
+                                    loc = topstock.location;
+                                    loc += space;
+                                }
 
                                 //后退放砖
                                 CarrierActionOrder cao = new CarrierActionOrder
@@ -264,47 +282,45 @@ namespace task.trans.transtask
                                     CheckTra = PubMaster.Track.GetTrackUpCode(trans.give_track_id)
                                 };
 
-                                if (loc == 0)
+                                Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
+
+                                cao.OverRFID = givetrack.rfid_2;
+                                if (loc == 0 && givetrack.StockStatus == TrackStockStatusE.空砖)
                                 {
-                                    cao.ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id);
-                                    cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.give_track_id);
-                                }
-                                else
-                                {
-                                    Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
                                     if (givetrack.Type == TrackTypeE.储砖_出入)
                                     {
-                                        cao.ToRFID = givetrack.rfid_2;
+                                        cao.ToRFID = givetrack.rfid_1;
                                     }
 
                                     if (givetrack.Type == TrackTypeE.储砖_入)
                                     {
                                         cao.ToPoint = givetrack.split_point;
                                     }
+                                }
 
-                                    cao.OverRFID = givetrack.rfid_1;
+                                if(loc != 0)
+                                {
+                                    if(givetrack.Type == TrackTypeE.储砖_出
+                                        && givetrack.split_point != 0
+                                        && givetrack.split_point > loc)
+                                    {
+                                        loc = givetrack.split_point;
+                                    }
 
+                                    if(givetrack.Type == TrackTypeE.储砖_出入
+                                        && givetrack.limit_point != 0
+                                        && givetrack.limit_point > loc)
+                                    {
+                                        loc = givetrack.limit_point;
+                                    }
+
+                                    cao.ToPoint = loc;
                                     PubMaster.Goods.UpdateStockLocationCal(trans.stock_id, loc);
                                 }
+
                                 cao.ToTrackId = trans.give_track_id;
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao,string.Format("库存整理: 轨道[ {0} ]，放货脉冲[ {1} ], 地标[ {2} ]",givetrack.StockStatus, cao.ToPoint, cao.ToRFID));
                                 return;
-                            }
-
-
-                            //摆渡车 定位去 放货点
-                            //小车到达摆渡车后短暂等待再开始定位
-                            if (_M.LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out string _))
-                            {
-                                //后退放砖
-                                //TODO  后退放砖，但是使用脉冲间隔放砖
-
-                                Stock topstock = PubMaster.Goods.GetTrackTopStock(trans.give_track_id);
-                                if(topstock != null)
-                                {
-
-                                }
-
                             }
                         }
                     }

@@ -43,6 +43,11 @@ namespace tool.appconfig
         public bool UseSortV2 { get; set; }
 
         /// <summary>
+        /// 库存整理使用相隔多少车的距离
+        /// </summary>
+        public float MoveStockSeperateCarCount { set; get; } = 2;
+
+        /// <summary>
         /// 是否释放上砖摆渡车
         /// </summary>
         /// <param name="areaid"></param>

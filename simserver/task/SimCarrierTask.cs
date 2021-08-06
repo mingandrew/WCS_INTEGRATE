@@ -1238,15 +1238,30 @@ namespace simtask
                     && ((EndTrack.Type == TrackTypeE.储砖_入 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
                 {
                     TAKE_STOCK_POINT = 0;
-                    if (PubMaster.Goods.CalculateNextLocation(TransTypeE.下砖任务, 0, EndTrack.id, out ushort stockcount, out ushort location))
+                    if(NowTrack != null && NowTrack.Type == TrackTypeE.摆渡车_出)
                     {
-                        GIVE_STOCK_POINT = location;
+                        if(TO_POINT == 0)
+                        {
+                            TO_SITE = 0;
+                            GIVE_STOCK_POINT = TargetTrack.limit_point;
+                        }
+                        else
+                        {
+                            GIVE_STOCK_POINT = TO_POINT;
+                        }
                     }
-
-                    if(EndTrack.Type == TrackTypeE.储砖_出入 && TO_SITE != 0)
+                    else
                     {
-                        TO_SITE = 0;
-                        TO_POINT = EndTrack.limit_point_up;
+                        if (PubMaster.Goods.CalculateNextLocation(TransTypeE.下砖任务, 0, EndTrack.id, out ushort stockcount, out ushort location))
+                        {
+                            GIVE_STOCK_POINT = location;
+                        }
+
+                        if (EndTrack.Type == TrackTypeE.储砖_出入 && TO_SITE != 0)
+                        {
+                            TO_SITE = 0;
+                            TO_POINT = EndTrack.limit_point_up;
+                        }
                     }
                 }
             }

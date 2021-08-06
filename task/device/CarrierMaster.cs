@@ -1555,6 +1555,7 @@ namespace task.device
                         case TransTypeE.上砖任务:
                         case TransTypeE.手动上砖:
                         case TransTypeE.反抛任务:
+                        case TransTypeE.库存转移:
                             IsGetCarrier = GetTransInOutCarrier(trans, DeviceTypeE.上摆渡, out carrierid, out result, ferryids);
                             break;
                         case TransTypeE.上砖侧倒库:
@@ -2461,6 +2462,7 @@ namespace task.device
                     case TransTypeE.手动上砖:
                     case TransTypeE.同向上砖:
                     case TransTypeE.反抛任务:
+                    case TransTypeE.库存转移:
                         if (!carrier.IsWorking)
                         {
                             result = "运输车已停用！";
@@ -2600,6 +2602,7 @@ namespace task.device
                                     case TransTypeE.手动上砖:
                                     case TransTypeE.同向下砖:
                                     case TransTypeE.反抛任务:
+                                    case TransTypeE.库存转移:
                                         isUp = true;
                                         // 需要小车前进作业的，以最大脉冲为准
                                         if (dis == 0 || dis < item.CurrentPoint)
