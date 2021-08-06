@@ -52,10 +52,14 @@
 
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="连接通讯" Tag="1" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="中断通讯" Tag="2" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="启用" Tag="3" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="停用" Tag="4" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <MenuItem Header="设备状态" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <MenuItem Header="连接通讯" Tag="1" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="中断通讯" Tag="2" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="启用" Tag="3" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="停用" Tag="4" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </MenuItem>
+
+                        <Separator Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         <MenuItem Header="终止" Tag="5" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
                         <MenuItem Header="定位" Tag="6" Command="{Binding SendFerryTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
 

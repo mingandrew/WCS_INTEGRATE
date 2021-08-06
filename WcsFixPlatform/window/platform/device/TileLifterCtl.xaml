@@ -50,23 +50,34 @@
                       CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
                 <DataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="连接通讯" Tag="1" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="中断通讯" Tag="2" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <MenuItem Header="启用" Tag="3" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <MenuItem Header="停用" Tag="4" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" />
-                        <MenuItem Header="变更品种" Tag="5" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="介入-1" Tag="6" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="离开-1" Tag="7" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="介入-2" Tag="8" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="离开-2" Tag="9" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="修改策略" Tag="10" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="设置优先上砖轨道" Tag="11" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="忽略-1" Tag="12" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="忽略-2" Tag="13" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="转产操作" Tag="14" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
-                        <MenuItem Header="切换作业模式" Tag="15" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                        <MenuItem Header="取消切换作业模式" Tag="16" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-
+                        <MenuItem Header="设备状态" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" >
+                            <MenuItem Header="连接通讯" Tag="1" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="中断通讯" Tag="2" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="启用" Tag="3" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="停用" Tag="4" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </MenuItem>
+                        <MenuItem Header="介入操作" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <MenuItem Header="工位1-介入" Tag="6" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="工位1-离开" Tag="7" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="工位2-介入" Tag="8" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="工位2-离开" Tag="9" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </MenuItem>
+                        <Separator Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <MenuItem Header="转产操作">
+                            <MenuItem Header="变更品种" Tag="5" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            <MenuItem Header="转产操作" Tag="14" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                        </MenuItem>
+                        <MenuItem Header="切换操作" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <MenuItem Header="切换作业模式" Tag="15" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="取消切换作业模式" Tag="16" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </MenuItem>
+                        <Separator Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                        <MenuItem Header="其他" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <MenuItem Header="工位1-忽略" Tag="12" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="工位2-忽略" Tag="13" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="设置优先上砖轨道" Tag="11" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <MenuItem Header="修改策略" Tag="10" Command="{Binding SendTileLifterTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </MenuItem>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
