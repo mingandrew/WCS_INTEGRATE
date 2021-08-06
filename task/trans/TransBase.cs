@@ -923,11 +923,11 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="memo"></param>
-        internal void LogForCarrierToTrack(StockTrans trans, uint trackid)
+        internal void LogForCarrierToTrack(StockTrans trans, uint trackid, string memo = "")
         {
-            SetStepLog(trans, true, 402, string.Format("控制运输车[ {0} ]移至[ {1} ]；",
+            SetStepLog(trans, true, 402, string.Format("控制运输车[ {0} ]移至[ {1} ]；{2}",
                 PubMaster.Device.GetDeviceName(trans.carrier_id),
-                PubMaster.Track.GetTrackName(trackid)));
+                PubMaster.Track.GetTrackName(trackid), memo), true);
         }
 
         /// <summary>

@@ -54,13 +54,15 @@ namespace task.trans
         /// </summary>
         public override void CheckTrackSort()
         {
-            CheckTrackSortV3();
-
             //使用倒库版本V2
             if (GlobalWcsDataConfig.BigConifg.UseSortV2)
             {
                 CheckTrackSortV1();
                 CheckTrackSortV2();
+            }
+            else
+            {
+                CheckTrackSortV3();
             }
         }
 

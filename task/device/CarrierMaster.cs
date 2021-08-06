@@ -1544,7 +1544,7 @@ namespace task.device
                     OverPoint = overPoint,
                     MoveCount = moveCount,
                     ToTrackId = toTrackid
-                },string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo), true);
+                }, string.Format("【手动指令】[ {0} ], 备注[ {1} ]", order, memo), true);
 
                 try
                 {
@@ -3619,6 +3619,25 @@ namespace task.device
             return DevList.Exists(c => c.ID != carrier_id && (c.TargetTrackId == track_id || c.OnGoingTrackId == track_id));
         }
 
+
+        /// <summary>
+        /// 是否存在阻碍移动的小车
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <param name="point"></param>
+        /// <param name="isforward"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        internal bool ExistLocateObstruct(uint carrier_id, uint track_id, ushort point, bool isforward, out CarrierTask otherCar)
+        {
+            otherCar = DevList.Find(c => c.ID != carrier_id
+               && (c.CurrentTrackId == track_id || c.TargetTrackId == track_id || c.OnGoingTrackId == track_id)
+               && (c.CurrentPoint > 0 && (isforward ? (c.CurrentPoint < point) : (c.CurrentPoint > point)))
+                );
+            return otherCar != null;
+        }
+
         /// <summary>
         /// 判断小车是否符合目的位置
         /// </summary>
@@ -3673,7 +3692,7 @@ namespace task.device
         public bool IsCollision(uint one_car_id, uint two_car_id)
         {
             CarrierTask onecar = DevList.Find(c => c.ID == one_car_id && c.DevStatus.DeviceStatus == DevCarrierStatusE.前进);
-            return onecar != null ? DevList.Exists(c => c.ID == two_car_id && (c.DevStatus.DeviceStatus == DevCarrierStatusE.后退 || c.DevStatus.DeviceStatus == DevCarrierStatusE.停止 )) : false;
+            return onecar != null ? DevList.Exists(c => c.ID == two_car_id && (c.DevStatus.DeviceStatus == DevCarrierStatusE.后退 || c.DevStatus.DeviceStatus == DevCarrierStatusE.停止)) : false;
         }
 
         /// <summary>

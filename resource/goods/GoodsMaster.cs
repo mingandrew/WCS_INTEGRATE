@@ -3200,10 +3200,12 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="stockid"></param>
         /// <returns></returns>
-        public bool ExistBehindUpSplitPoint(uint trackid, uint point)
+        public bool ExistBehindUpSplitPoint(uint trackid, uint point, out int stkcount)
         {
             bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
-            return StockList.Exists(c => c.track_id == trackid && (isforward ? (c.location >= point) : (c.location <= point)));
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (isforward ? (c.location >= point) : (c.location <= point)));
+            stkcount = stocks.Count;
+            return stkcount > 0;
         }
 
         /// <summary>
@@ -3214,10 +3216,12 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="stockid"></param>
         /// <returns></returns>
-        public bool ExistInfrontUpSplitPoint(uint trackid, uint point)
+        public bool ExistInfrontUpSplitPoint(uint trackid, uint point, out int stkcount)
         {
             bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
-            return StockList.Exists(c => c.track_id == trackid && (isforward ? (c.location <= point) : (c.location >= point)));
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (isforward ? (c.location <= point) : (c.location >= point)));
+            stkcount = stocks.Count;
+            return stkcount > 0;
         }
 
 
