@@ -3509,15 +3509,15 @@ namespace task.device
                                 return true;
                             }
 
-                            carrier = DevList.Find(c => c.ID != carrierid
-                                                && c.CurrentTrackId == trackid
-                                                && (c.CurrentSite == track.rfid_2
-                                                    || (c.CurrentSite == track.rfid_1 && c.InTask(DevCarrierOrderE.取砖指令))));
-                            if (carrier != null)
-                            {
-                                result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
-                                return true;
-                            }
+                            //carrier = DevList.Find(c => c.ID != carrierid
+                            //                    && c.CurrentTrackId == trackid
+                            //                    && (c.CurrentSite == track.rfid_2
+                            //                        || (c.CurrentSite == track.rfid_1 && c.InTask(DevCarrierOrderE.取砖指令))));
+                            //if (carrier != null)
+                            //{
+                            //    result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
+                            //    return true;
+                            //}
                             break;
                         case TransTypeE.倒库任务:
                             break;
