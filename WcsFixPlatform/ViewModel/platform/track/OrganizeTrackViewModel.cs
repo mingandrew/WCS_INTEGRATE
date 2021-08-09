@@ -143,11 +143,41 @@ namespace wcs.ViewModel
 
         public void TrackGoodStay(OrgGoodTrackView view)
         {
-            if(!PubMaster.Goods.IsGoodAllInButton(view.Take_Track_Id, view.Good_Id))
+            int idx = List.IndexOf(view);
+            bool inlast = idx == List.Count - 1;
+            if (!inlast)
             {
-                Growl.Warning("该品种并没有集中在轨道后面！");
-                return;
+                List<uint> gids = new List<uint>();
+                for(int i=idx+1; i< List.Count; i++)
+                {
+                    OrgGoodTrackView v =  List[i];
+                    if(v != null && v.DtlType != StockTransDtlTypeE.保留品种)
+                    {
+                        Growl.Warning("该品种后面存在非保留品种");
+                        return;
+                    }
+
+                    if (v != null)
+                    {
+                        gids.Add(v.Good_Id);
+                    }
+                }
+                gids.Add(view.Good_Id);
+                if (!PubMaster.Goods.IsGoodAllInButton(view.Take_Track_Id, view.Good_Id, gids))
+                {
+                    Growl.Warning("该品种并没有集中在轨道后面！");
+                    return;
+                }
             }
+            else
+            {
+                if (!PubMaster.Goods.IsGoodAllInButton(view.Take_Track_Id, view.Good_Id))
+                {
+                    Growl.Warning("该品种并没有集中在轨道后面！");
+                    return;
+                }
+            }
+
             view.SetDtlType(StockTransDtlTypeE.保留品种);
             view.Give_Track_Id = 0;
         }
@@ -234,9 +264,20 @@ namespace wcs.ViewModel
                 Growl.Warning("当前轨道只有一个品种，不需要整理");
                 return;
             }
-
+            bool havestay = false;
             foreach (var item in List)
             {
+                if(item.DtlType == StockTransDtlTypeE.保留品种)
+                {
+                    havestay = true;
+                }
+
+                if(item.DtlType == StockTransDtlTypeE.转移品种 && havestay)
+                {
+                    Growl.Warning("转移品种前面有保留品种，请重新设置！");
+                    return;
+                }
+
                 if (item.Give_Track_Id == 0 && item.DtlType == StockTransDtlTypeE.转移品种)
                 {
                     Growl.Warning("存在转移轨道为空的整理品种类型");

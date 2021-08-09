@@ -3480,10 +3480,24 @@ namespace resource.goods
             int mingoodpos = stocks.FindAll(c => c.goods_id == goodid)?.Min(c => c.pos) ?? 0;
             return !stocks.Exists(c => c.goods_id != goodid && c.pos > mingoodpos);
         }
+
+
+        /// <summary>
+        /// 判断轨道库存是否集中处于轨道尾部
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public bool IsGoodAllInButton(uint trackid, uint goodid, List<uint> gids)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+            int mingoodpos = stocks.FindAll(c => c.goods_id == goodid)?.Min(c => c.pos) ?? 0;
+            return !stocks.Exists(c => !gids.Contains(c.goods_id) && c.pos > mingoodpos);
+        }
         #endregion
 
         #region[规格添加修改]
-        
+
         public uint GetMaxGoodSizeId()
         {
             return GoodSizeList.Max(c => c.id);

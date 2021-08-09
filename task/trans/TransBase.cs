@@ -1465,6 +1465,10 @@ namespace task.trans
             dtl.dtl_p_id = transid;
             dtl.dtl_all_qty = PubMaster.Goods.GetTrackGoodCount(dtl.dtl_take_track_id, dtl.dtl_good_id);
             dtl.dtl_left_qty = dtl.dtl_all_qty;
+            if(dtl.InDtlType(StockTransDtlTypeE.保留品种, StockTransDtlTypeE.上砖品种))
+            {
+                dtl.DtlStatus = StockTransDtlStatusE.完成;
+            }
             if (PubMaster.Mod.GoodSql.AddStockTransDtl(dtl))
             {
                 TransDtlList.Add(dtl);

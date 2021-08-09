@@ -1,4 +1,5 @@
 ﻿using enums;
+using System.Linq;
 
 namespace module.goods
 {
@@ -30,6 +31,26 @@ namespace module.goods
         {
             get => (StockTransDtlStatusE)dtl_status;
             set => dtl_status = (byte)value;
+        }
+
+        /// <summary>
+        /// 判断是否符合类型
+        /// </summary>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool InDtlType(params StockTransDtlTypeE[] types)
+        {
+            return types.Contains(DtlType);
+        }
+
+        /// <summary>
+        /// 判断是否符合状态
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public bool InDtlStatus(params StockTransDtlStatusE[] status)
+        {
+            return status.Contains(DtlStatus);
         }
     }
 }
