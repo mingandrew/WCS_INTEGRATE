@@ -930,7 +930,7 @@ namespace task.trans
         {
             int overtime = PubMaster.Dic.GetDtlIntCode(DicTag.StepOverTime);
             // 倒库中的流程超时2小时，才报警
-            if (trans.TransStaus == TransStatusE.倒库中)
+            if (trans.InStatus(TransStatusE.倒库中, TransStatusE.整理中, TransStatusE.倒库暂停, TransStatusE.接力等待))
             {
                 overtime = PubMaster.Dic.GetDtlIntCode(DicTag.SortingStockStepOverTime);
                 if (trans.IsInStatusOverTime(trans.TransStaus, overtime))
