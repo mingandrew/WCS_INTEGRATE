@@ -1568,6 +1568,11 @@ namespace task.device
                                     }
                                     continue; //当前空闲摆渡车分配不了，就分配下一辆摆渡车
                                 }
+
+                                //找不到非交叉空闲摆渡车进行分配
+
+                                result = string.Format("任务ID[{0}]找不到非交叉空闲摆渡车进行分配", trans.id);
+                                return false;
                             }
                         }
                         #endregion

@@ -1622,7 +1622,7 @@ namespace task.device
                         if (!PubTask.Trans.HaveInCarrier(car.ID))
                         {
                             //空闲,没货，没任务
-                            if (CheckCarrierIsFree(car))
+                            if (CheckCarrierIsFree(car) && car.IsNotLoad())
                             {
                                 carrierid = car.ID;
                                 return true;
@@ -1720,7 +1720,7 @@ namespace task.device
                         if (tracar == null || dis == 0) continue;
                         carNames += string.Format("[{0}]", tracar.Device.name);
                         // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
-                        if (tracar.CurrentSite % 100 > 90)
+                        if (tracar.CurrentSite % 100 >= 90)
                         {
                             if (tracar.IsNotLoad())
                             {
@@ -2052,7 +2052,8 @@ namespace task.device
                                 //在出轨道头空闲
                                 Track track = PubMaster.Track.GetTrack(trans.take_track_id);
                                 if (CheckCarrierIsFree(trans, carrier, false, out carrierid, out result, out returnfalse)
-                                    && carrier.CurrentSite >= track.rfid_2)
+                                    && carrier.CurrentTrackId == track.id
+                                    && carrier.CurrentSite % 100 >= 90)
                                 {
                                     carrierid = carrier.ID;
                                     return true;
@@ -2212,7 +2213,8 @@ namespace task.device
                                 //在出轨道头空闲
                                 Track track = PubMaster.Track.GetTrack(trans.take_track_id);
                                 if (CheckCarrierIsFree(trans, carrier, false, out carrierid, out result, out returnfalse)
-                                    && carrier.CurrentSite >= track.rfid_2)
+                                    && carrier.CurrentTrackId == track.id
+                                    && carrier.CurrentSite % 100 >= 90)
                                 {
                                     carrierid = carrier.ID;
                                     return true;
@@ -2627,7 +2629,7 @@ namespace task.device
                                 zeroth_allocate_cars.Add(tracar);
                             }
                             // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
-                            else if (tracar.CurrentSite % 100 > 90)
+                            else if (tracar.CurrentSite % 100 >= 90)
                             {
                                 if (tracar.IsNotLoad())
                                 {
@@ -2653,7 +2655,7 @@ namespace task.device
                         else
                         {
                             // 下砖侧的RFID位数 [3XX06,3XX04,3XX02,3XX00]
-                            if (tracar.CurrentSite % 100 < 10)
+                            if (tracar.CurrentSite % 100 < 50)
                             {
                                 if (tracar.IsNotLoad())
                                 {
@@ -2951,7 +2953,7 @@ namespace task.device
                     if (isUp)
                     {
                         // 上砖侧的RFID位数 [3XX99,3XX98,3XX96,3XX94]
-                        if (tracar.CurrentSite % 100 > 90)
+                        if (tracar.CurrentSite % 100 >= 90)
                         {
                             if (tracar.IsNotLoad())
                             {
@@ -2977,7 +2979,7 @@ namespace task.device
                     else
                     {
                         // 下砖侧的RFID位数 [3XX06,3XX04,3XX02,3XX00]
-                        if (tracar.CurrentSite % 100 < 10)
+                        if (tracar.CurrentSite % 100 < 50)
                         {
                             if (tracar.IsNotLoad())
                             {
