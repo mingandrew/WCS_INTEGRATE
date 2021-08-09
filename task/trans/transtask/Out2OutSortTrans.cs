@@ -258,6 +258,7 @@ namespace task.trans.transtask
 
                         return;
                     }
+                    PubMaster.Warn.RemoveTaskWarn(WarningTypeE.CarrierLoadSortTask, trans.id);
 
                     if (isnotload)
                     {

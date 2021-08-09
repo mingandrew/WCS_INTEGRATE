@@ -409,7 +409,9 @@ namespace task.trans.transtask
                         #endregion
 
                         PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.CarrierLoadSortTask, (ushort)trans.carrier_id, trans.id);
+                        return;
                     }
+                    PubMaster.Warn.RemoveTaskWarn(WarningTypeE.CarrierLoadSortTask, trans.id);
 
                     if (isnotload)
                     {
