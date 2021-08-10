@@ -138,5 +138,10 @@ namespace wcs.Data.View
             }
             ShowLabel = !ShowCount;
         }
+
+        public bool EqualGoodAndLevel(uint gid, byte lvl)
+        {
+            return GoodId == gid && Level == lvl;
+        }
     }
 }

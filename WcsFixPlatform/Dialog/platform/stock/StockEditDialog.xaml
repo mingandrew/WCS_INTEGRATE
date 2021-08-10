@@ -30,6 +30,7 @@
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition/>
+                <RowDefinition/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,0">
                 <TextBlock Text="轨道:" Style="{StaticResource TextBlockSubTitle}" FontSize="22" Padding="15"/>
@@ -45,6 +46,9 @@
             </Border>
             <Border Grid.Row="4" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
                 <TextBlock Text="层数:" Style="{StaticResource TextBlockSubTitle}" FontSize="22"/>
+            </Border>
+            <Border Grid.Row="5" Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,1,1,1">
+                <TextBlock Text="等级:" Style="{StaticResource TextBlockSubTitle}" FontSize="22"/>
             </Border>
 
             <Border Grid.Row="0" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,1,0">
@@ -63,6 +67,10 @@
             </Border>
             <Border Grid.Row="4" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,1,1">
                 <TextBox Text="{Binding Pieces,Mode=TwoWay}" BorderThickness="1" Margin="10" IsEnabled="{Binding QtyEnable}" FontSize="22"/>
+            </Border>
+            <Border Grid.Row="5" Grid.Column="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,1,1">
+                <hc:ComboBox ItemsSource="{Binding LevelList}"  SelectedItem="{Binding SelectLevel,Mode=TwoWay}" 
+                             DisplayMemberPath="name" FontSize="22" Margin="10,10,10,8"/>
             </Border>
         </Grid>
 

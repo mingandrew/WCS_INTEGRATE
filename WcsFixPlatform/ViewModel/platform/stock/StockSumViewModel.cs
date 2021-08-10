@@ -378,7 +378,7 @@ namespace wcs.ViewModel
 
             if (sumlist != null && sumlist.Count > 0)
             {
-                var list = sumlist.GroupBy(c => new { c.goods_id }).Select(c => new StockSum
+                var list = sumlist.GroupBy(c => new { c.goods_id, c.sum_level }).Select(c => new StockSum
                 {
                     goods_id = c.Key.goods_id,
                     count = c.Sum(b => b.count),
@@ -386,6 +386,7 @@ namespace wcs.ViewModel
                     pieces = c.Sum(b => b.pieces),
                     produce_time = c.Min(b => b.produce_time),
                     last_produce_time = c.Min(b => b.last_produce_time),
+                    sum_level = c.Key.sum_level,
                 });
 
                 foreach (StockSum sum in list.ToList())

@@ -5,5 +5,6 @@
         public uint TileId { set; get; }
         public uint OldGoodId { set; get; }
         public uint GoodId { set; get; }
+        public byte Level { set; get; }
     }
 }

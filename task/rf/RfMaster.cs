@@ -694,7 +694,7 @@ namespace task.rf
 
                     //byte picese = PubMaster.Goods.GetGoodsPieces(pack.GoodId);
                     if (PubMaster.Goods.AddTrackStocks(0, pack.TrackId, pack.GoodId,
-                        pack.Pieces, pack.ProduceTime, pack.AddQty, "平板添加库存", out string rs, true))
+                        pack.Pieces, pack.ProduceTime, pack.AddQty, pack.Level, "平板添加库存", out string rs, true))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.AddTrackStock, "添加成功！");
                     }
@@ -808,8 +808,8 @@ namespace task.rf
                         SendFail2Rf(msg.MEID, FunTag.UpdateStockGood, "没有原库信息，请刷新后再试！");
                         return;
                     }
-
-                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime, out string res, pack.GoodId))
+                    
+                    if (PubMaster.Goods.ChangeStockGood(pack.TrackId, pack.NewGoodId, pack.ChangeDate, pack.ProduceTime, pack.Level, out string res, pack.GoodId))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdateStockGood, res);
                     }
@@ -1436,9 +1436,9 @@ namespace task.rf
             TileGoodUpdatePack pack = JsonTool.Deserialize<TileGoodUpdatePack>(msg.Pack.Data);
             if (pack != null)
             {
-                if (PubMaster.DevConfig.SetTileLifterGoodsAllCount(pack.TileId, pack.GoodId))
+                if (PubMaster.DevConfig.SetTileLifterGoodsAllCount(pack.TileId, pack.GoodId, pack.Level))
                 {
-                    PubTask.TileLifter.UpdateTileLifterGoods(pack.TileId, pack.GoodId);
+                    PubTask.TileLifter.UpdateTileLifterGoods(pack.TileId, pack.GoodId, pack.Level);
                     SendSucc2Rf(msg.MEID, FunTag.UpdateTileGood, pack.GoodId + "");
                 }
             }
@@ -2119,7 +2119,7 @@ namespace task.rf
                 RfTileGoodPack pack = JsonTool.Deserialize<RfTileGoodPack>(msg.Pack.Data);
                 if (pack != null)
                 {
-                    if (PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, pack.pre_good_qty, out string result))
+                    if (PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pack.pregood_id, pack.pre_good_qty, pack.pre_good_level, out string result))
                     {
                         SendSucc2Rf(msg.MEID, FunTag.UpdatePreGood, "ok");
                     }
@@ -2154,6 +2154,12 @@ namespace task.rf
                 //    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "砖机在短时间(5分钟)内已执行转产,无需重复操作");
                 //    return;
                 //}
+
+                uint confgoodid = PubMaster.DevConfig.GetTileGood(pack.tile_id);
+                if (confgoodid != pack.good_id)
+                {
+                    SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "请先刷新设备信息，再执行转产操作！");
+                }
 
                 if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
                 {
@@ -2199,7 +2205,14 @@ namespace task.rf
                     else
                     {
                         GetGoodDic(msg);
-                        if (!PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pgoodid, pack.pre_good_qty, out string up_rs))
+
+                        uint confgoodid = PubMaster.DevConfig.GetTileGood(pack.tile_id);
+                        if (confgoodid != pack.good_id)
+                        {
+                            SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "请先刷新设备信息，再执行转产操作！");
+                        }
+
+                        if (!PubMaster.DevConfig.UpdateTilePreGood(pack.tile_id, pack.good_id, pgoodid, pack.pre_good_qty, 0, out string up_rs))
                         {
                             SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, up_rs);
                             return;

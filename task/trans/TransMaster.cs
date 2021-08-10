@@ -368,6 +368,7 @@ namespace task.trans
         public bool AddManualTrans(ushort area, ushort line, uint devid, TransTypeE transtype, uint goods_id, uint taketrackid, uint givetrackid, TransStatusE transtatus, out string result)
         {
             result = "";
+            byte level = PubTask.TileLifter.GetTileLevel(devid);
             if (transtype == TransTypeE.手动下砖)
             {
                 if (HaveInTileTrack(taketrackid))
@@ -377,11 +378,11 @@ namespace task.trans
                 }
 
                 //[已有库存]
-                if (!PubMaster.Goods.HaveStockInTrack(taketrackid, goods_id, out uint stockid))
+                if (!PubMaster.Goods.HaveStockInTrack(taketrackid, goods_id, out uint stockid, level))
                 {
                     byte fullqty = PubTask.TileLifter.GetTileFullQty(devid, goods_id);
                     ////[生成库存]
-                    stockid = PubMaster.Goods.AddStock(devid, taketrackid, goods_id, fullqty);
+                    stockid = PubMaster.Goods.AddStock(devid, taketrackid, goods_id, fullqty, level);
                     if (stockid > 0)
                     {
                         PubMaster.Track.UpdateStockStatus(taketrackid, TrackStockStatusE.有砖, "手动任务");
@@ -454,7 +455,7 @@ namespace task.trans
                     {
                         Stock stock = PubMaster.Goods.GetStockForOut(taketrackid);
                         //有库存但是不是砖机需要的品种
-                        if (stock != null && stock.goods_id != goods_id)
+                        if (stock != null && !PubMaster.Goods.IsStockWithGood(stock.id, goods_id, level))
                         {
                             PubMaster.Track.UpdateRecentTile(taketrackid, 0);
                             PubMaster.Track.UpdateRecentGood(taketrackid, 0);
@@ -483,7 +484,7 @@ namespace task.trans
                         {
                             Stock stock = PubMaster.Goods.GetStockForOut(taketrackid);
                             //有库存但是不是砖机需要的品种
-                            if (stock != null && stock.goods_id != goods_id)
+                            if (stock != null && !PubMaster.Goods.IsStockWithGood(stock.id, goods_id, level))
                             {
                                 PubMaster.Track.UpdateRecentTile(trackid, 0);
                                 PubMaster.Track.UpdateRecentGood(trackid, 0);

@@ -17,11 +17,18 @@ namespace wcs.Data.View
         private DevWorkTypeE worktype;
         private string goodscount;
 
+        private byte level;
         #region[逻辑字段]
 
         private SocketConnectStatusE connstatus;
         private bool isconnect;
         #endregion
+        public byte Level
+        {
+            get => level;
+            set => Set(ref level, value);
+        }
+
         public bool IsConnect
         {
             get => isconnect;
@@ -208,7 +215,7 @@ namespace wcs.Data.View
         #region[更新]
 
         internal void Update(DevTileLifter st, SocketConnectStatusE conn, uint gid,
-            StrategyInE instrategy, StrategyOutE outstrategy, bool working, string tid, DevWorkTypeE wtype, string goodscount)
+            StrategyInE instrategy, StrategyOutE outstrategy, bool working, string tid, DevWorkTypeE wtype, string goodscount, byte level)
         {
             DeviceID = st.DeviceID;
             if(LoadStatus1 != st.LoadStatus1)
@@ -270,6 +277,8 @@ namespace wcs.Data.View
             Working = working;
             LastTrackId = tid;
             WorkType = wtype;
+
+            Level = level;
         }
         #endregion
     }

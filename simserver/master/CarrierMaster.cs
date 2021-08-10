@@ -176,7 +176,12 @@ namespace simtask.master
                     #endregion
                     break;
                 case DevCarrierCmdE.复位操作:
-
+                    Console.WriteLine(11);
+                    if (cmd.CarrierOrder == DevCarrierOrderE.放砖指令)
+                    {
+                        task.DevStatus.CurrentSite = cmd.Value3_4;
+                        task.DevStatus.CurrentPoint = PubMaster.Track.GetCarrierPos(task.AreaId, (CarrierPosE)cmd.Value12);
+                    }
                     break;
                 case DevCarrierCmdE.置位指令:
                     task.DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;

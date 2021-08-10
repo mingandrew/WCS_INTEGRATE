@@ -11,5 +11,6 @@ namespace module.rf
         public DateTime? ProduceTime { set; get; }
         public bool ChangeDate { set; get; }
         public byte Pieces { set; get; }
+        public byte Level { set; get; }
     }
 }

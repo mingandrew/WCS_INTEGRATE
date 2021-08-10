@@ -20,7 +20,7 @@ namespace module.goods
             get => (CarrierTypeE)carriertype;
             set => carriertype = (byte)value;
         }
-        public byte level { set; get; }
+        //public byte level { set; get; }
         public string info { set; get; }
         public DateTime? createtime { set; get; }
         public bool top { set; get; }

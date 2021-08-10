@@ -122,11 +122,16 @@ namespace task.allocate
                     {
                         if (!IsTrackOk4InTrans(traid)) continue;
 
-                        lastgoodid = PubMaster.Goods.GetStockForIn(traid)?.goods_id ?? 0;
-                        if (lastgoodid > 0 && PubMaster.DevConfig.IsHaveSameTileNowGood(areaid, lastgoodid, TileWorkModeE.下砖, TileWorkModeE.补砖))
+                        Stock laststock = PubMaster.Goods.GetStockForIn(traid);
+                        if (laststock != null && laststock.goods_id > 0 && PubMaster.DevConfig.IsHaveSameTileNowGood(laststock.goods_id, laststock.level, TileWorkModeE.下砖, TileWorkModeE.补砖))
                         {
                             continue;
                         }
+                        //lastgoodid = PubMaster.Goods.GetStockForIn(traid)?.goods_id ?? 0;
+                        //if (lastgoodid > 0 && PubMaster.DevConfig.IsHaveSameTileNowGood(lastgoodid, TileWorkModeE.下砖, TileWorkModeE.补砖))
+                        //{
+                        //    continue;
+                        //}
 
                         givetrackid = traid;
                         islimitallocate = true;

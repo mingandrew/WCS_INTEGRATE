@@ -46,6 +46,9 @@ namespace module.rf.device
                     now_good_qty = cfg.now_good_qty,
 
                     last_shift_time = cfg.last_shift_time,
+
+                    now_good_level = cfg.level,
+                    pre_good_level = cfg.pre_level,
                 });
 
             }

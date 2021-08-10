@@ -297,6 +297,7 @@ namespace task.trans
                                         uint carrierid = 0, ushort line = 0, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
             uint newid = PubMaster.Dic.GenerateID(DicTag.NewTranId);
+            byte lvl = PubTask.TileLifter.GetTileLevel(lifterid);
             StockTrans trans = new StockTrans()
             {
                 id = newid,
@@ -311,7 +312,8 @@ namespace task.trans
                 create_time = DateTime.Now,
                 carrier_id = carrierid,
                 line = line,
-                AllocateFerryType = ferrytype
+                AllocateFerryType = ferrytype,
+                level = lvl
             };
             bool isadd = PubMaster.Mod.GoodSql.AddStockTrans(trans);
             if (!isadd)
@@ -862,7 +864,44 @@ namespace task.trans
         {
             return TransList.Exists(c => !c.finish && c.tilelifter_id == devid && c.InTrack(trackid));
         }
+        
+        /// <summary>
+        /// 判断是否任务使用了该轨道,除了反抛任务
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        //internal bool HaveInTrackButNotSecondUpTask(uint tile_id)
+        //{
+        //    try
+        //    {
+        //        if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask))
+        //        {
+        //            return TransList.Exists(c => !c.finish && c.tilelifter_id == tile_id && c.NotInType(TransTypeE.反抛任务));
+        //        }
+        //    }
+        //    catch { }
+        //    return true;
+        //}
 
+
+        ///// <summary>
+        ///// 判断是否有反抛任务使用了该轨道，且品种不一样
+        ///// </summary>
+        ///// <param name="trackid"></param>
+        ///// <returns></returns>
+        //internal bool HaveInTrackButSecondUpTask(uint tile_id, uint goodid)
+        //{
+        //    try
+        //    {
+        //        if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSecondUpTask))
+        //        {
+        //            byte level = PubTask.TileLifter.GetTileLevel(tile_id);
+        //            return TransList.Exists(c => !c.finish && c.tilelifter_id == tile_id && c.InType(TransTypeE.反抛任务) && c.goods_id != goodid && c.level == level);
+        //        }
+        //    }
+        //    catch { }
+        //    return false;
+        //}
         #endregion
 
         #region [记录步骤信息]

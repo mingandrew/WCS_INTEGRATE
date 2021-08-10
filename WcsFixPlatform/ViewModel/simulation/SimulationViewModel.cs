@@ -450,7 +450,7 @@ namespace wcs.ViewModel
                         break;
                     case TrackTypeE.后置摆渡轨道:
                         setsite = tra.rfid_1;
-                        setpoint = SimServer.Carrier.GetFerryTrackPos(tra.rfid_1);
+                        setpoint = SimServer.Carrier.GetFerryTrackPos(10);
                         isontrack = false;
                         break;
                     case TrackTypeE.前置摆渡轨道:

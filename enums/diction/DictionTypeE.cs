@@ -75,10 +75,6 @@
         #endregion
 
         #region[其他]
-        /// <summary>
-        /// 品种等级
-        /// </summary>
-        public static string GoodLevel = nameof(GoodLevel);
 
         /// <summary>
         /// 最小库存存放时间 小时数
@@ -110,6 +106,15 @@
         /// </summary>
         public static string GoodsListLimit = nameof(GoodsListLimit);
 
+        /// <summary>
+        /// 砖机等级
+        /// </summary>
+        public static string GoodLevel = nameof(GoodLevel);
+
+        /// <summary>
+        /// 砖机窑位
+        /// </summary>
+        public static string GoodSite = nameof(GoodSite);                           
         #endregion
 
         #region[任务逻辑开关]

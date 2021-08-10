@@ -179,6 +179,11 @@ namespace resource.diction
             return DicDtlList.Find(c => c.code.Equals(code) && c.int_value == int_v)?.name ?? "字典未配置";
         }
 
+        public string GetDtlStrCode(string code1, string code2, int int_v)
+        {
+            return DicDtlList.Find(c => (c.code.Equals(code1) || c.code.Equals(code2)) && c.int_value == int_v)?.name ?? "字典未配置";
+        }
+
         public uint GetDtlUIntCode(string code)
         {
             return DicDtlList.Find(c => c.code.Equals(code))?.uint_value ?? 0;

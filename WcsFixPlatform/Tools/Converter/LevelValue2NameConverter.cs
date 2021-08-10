@@ -12,10 +12,19 @@ namespace wcs.Tools.Converter
         {
             if (value is byte levelbyte )
             {
-                return PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel , levelbyte);
-            }else  if (value is int levelint)
+                if (levelbyte == 0)
+                {
+                    return "---";
+                }
+                return PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel, DicTag.GoodSite, levelbyte);
+            }
+            else  if (value is int levelint)
             {
-                return PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel , levelint);
+                if (levelint == 0)
+                {
+                    return "---";
+                }
+                return PubMaster.Dic.GetDtlStrCode(DicTag.GoodLevel, DicTag.GoodSite, levelint);
             }
             return value;
         }

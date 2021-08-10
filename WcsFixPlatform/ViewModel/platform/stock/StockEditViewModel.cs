@@ -1,13 +1,16 @@
-﻿using enums.track;
+﻿using enums;
+using enums.track;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
+using module.diction;
 using module.goods;
 using module.track;
 using module.window;
 using resource;
 using System;
+using System.Collections.Generic;
 
 namespace wcs.ViewModel
 {
@@ -32,14 +35,43 @@ namespace wcs.ViewModel
         private bool isadd, qtyenable, isinsert;
         private short pos; //插入的位置
         private bool isaddbottom = false;
+
+        private byte level;
+        private List<DictionDtl> levels;
+        private DictionDtl selectlevel;
         #endregion
 
         #region[属性]
+
+        public List<DictionDtl> LevelList
+        {
+            get => levels;
+            set => Set(ref levels, value);
+        }
+
+        public DictionDtl SelectLevel
+        {
+            get => selectlevel;
+            set
+            {
+                Set(ref selectlevel, value);
+                if (selectlevel != null)
+                {
+                    Level = (byte)selectlevel.int_value;
+                }
+            }
+        }
 
         public uint GoodsId
         {
             get => goodsid;
             set => Set(ref goodsid, value);
+        }
+
+        public byte Level
+        {
+            get => level;
+            set => Set(ref level, value);
         }
         
         public uint TrackId
@@ -129,7 +161,7 @@ namespace wcs.ViewModel
                 }
 
                 // 时间判断
-                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)producetime, out string res))
+                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, goodsid, (DateTime)producetime, Level, out string res))
                 {
                     Growl.Warning(res);
                     return;
@@ -169,7 +201,7 @@ namespace wcs.ViewModel
                 }
 
 
-                if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, Pieces, ProduceTime, StockQty, "PC添加库存", out string rs, IsAddBottom))
+                if (isadd && PubMaster.Goods.AddTrackStocks(0, TrackId, GoodsId, Pieces, ProduceTime, StockQty, Level, "PC添加库存", out string rs, IsAddBottom))
                 {
                     Result.p1 = true;
                 }
@@ -213,6 +245,9 @@ namespace wcs.ViewModel
             QtyEnable = true;
             StockQty = 1;
             ProduceTime = DateTime.Now;
+
+            LevelList = PubMaster.Dic.GetDicDtls(DicTag.GoodLevel);
+            LevelList.AddRange(PubMaster.Dic.GetDicDtls(DicTag.GoodSite));
         }
 
         public void SetEditInput(Stock stock)
@@ -225,6 +260,10 @@ namespace wcs.ViewModel
             QtyEnable = false;
             StockQty = 1;
             oldstock = stock;
+
+            LevelList = PubMaster.Dic.GetDicDtls(DicTag.GoodLevel);
+            LevelList.AddRange(PubMaster.Dic.GetDicDtls(DicTag.GoodSite));
+            SelectLevel = LevelList.Find(c => c.int_value == stock.level);
         }
 
         /// <summary>

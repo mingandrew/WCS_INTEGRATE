@@ -507,11 +507,11 @@ namespace simtask
                     #region[靠脉冲放货【储砖轨道放货】]
                     if (TO_POINT != ZERO_POINT)
                     {
-                        if(NowTrack.id != EndTrack.id
-                            && DevStatus.CurrentPoint >= EndTrack.limit_point)
-                        {
-                            SetNowTrack(EndTrack, EndTrack.rfid_1);
-                        }
+                        //if(NowTrack.id != EndTrack.id
+                        //    && DevStatus.CurrentPoint >= EndTrack.limit_point)
+                        //{
+                        //    SetNowTrack(EndTrack, EndTrack.rfid_1);
+                        //}
 
                         if (GIVE_STOCK_POINT != 0)
                         {

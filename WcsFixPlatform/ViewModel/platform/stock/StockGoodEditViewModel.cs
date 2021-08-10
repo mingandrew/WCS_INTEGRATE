@@ -26,10 +26,17 @@ namespace wcs.ViewModel
         private bool isupdatedate;
         private DateTime? newdate;
 
+        private byte level;
         #endregion
 
         #region[属性]
         
+        public byte Level
+        {
+            get => level;
+            set => Set(ref level, value);
+        }
+
         public uint TrackId
         {
             get => trackid;
@@ -103,8 +110,8 @@ namespace wcs.ViewModel
                     return;
                 }
 
-                // 时间判断
-                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, NewGoodsId, (DateTime)NewDate, out string res))
+                // 时间判断 //TODO 新增等级属性
+                if (!PubMaster.Goods.IsAllowToOperateStock(trackid, NewGoodsId, (DateTime)NewDate, Level, out string res))
                 {
                     Growl.Warning(res);
                     return;
