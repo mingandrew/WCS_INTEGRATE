@@ -665,6 +665,26 @@ UPDATE `diction_dtl` SET `id` = 78 WHERE `id` = 250;
 UPDATE `diction_dtl` SET `id` = 79 WHERE `id` = 251;
 ```
 
+
+
+## 2021.07.16 [ V2.0 ] 添加运输车报警
+
+```mysql
+UPDATE `diction_dtl` SET `name` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作', `string_value` = '任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作' WHERE `code` = 'WarningA3X7';
+```
+
+
+
+## 2021.07.26 [ V2.0 ] 添加轨道倒库属性
+
+```mysql
+ALTER TABLE `track` 
+ADD COLUMN `sort_able` bit(1) NULL COMMENT '是否可以倒库' AFTER `up_split_point`,
+ADD COLUMN `sort_level` tinyint(3) UNSIGNED NULL COMMENT '倒库优先级' AFTER `sort_able`;
+```
+
+
+
 ## 2021.07.30 [ V2.1 ]   增加最后生产时间
 
 ```mysql
@@ -680,23 +700,6 @@ SELECT s.area AS 'area', t.line AS 'line', s.goods_id AS 'goods_id',
  ORDER BY s.area, s.goods_id, 'produce_time', s.track_id;
  
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
 ```
 
 ## 2021.07.30 [V2.0] 新增移车任务的轨道可用于下砖任务的开关
