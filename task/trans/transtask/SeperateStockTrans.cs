@@ -94,10 +94,10 @@ namespace task.trans.transtask
                 return;
             }
 
-            if (top == null || dtl.dtl_left_qty == 0 || !PubMaster.Goods.HaveGoodInTrack(dtl.dtl_take_track_id, dtl.dtl_good_id))
+            if (top == null || dtl.dtl_left_qty == 0 || !PubMaster.Goods.HaveGoodInTrack(dtl.dtl_take_track_id, dtl.dtl_good_id, top.level))
             {
                 if (dtl.dtl_trans_id == 0
-                    && !PubMaster.Goods.HaveGoodInTrack(dtl.dtl_take_track_id, dtl.dtl_good_id))
+                    && !PubMaster.Goods.HaveGoodInTrack(dtl.dtl_take_track_id, dtl.dtl_good_id, top.level))
                 {
                     _M.SetDtlStatus(dtl, StockTransDtlStatusE.完成);
                 }

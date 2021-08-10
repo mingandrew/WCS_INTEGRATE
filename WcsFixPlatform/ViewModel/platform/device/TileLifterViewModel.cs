@@ -212,9 +212,9 @@ namespace wcs.ViewModel
 
                         if (result.p1 is bool rs && result.p2 is GoodsView good)
                         {
-                            if (PubMaster.DevConfig.SetTileLifterGoodsAllCount(DeviceSelected.ID, good.ID))
+                            if (PubMaster.DevConfig.SetTileLifterGoodsAllCount(DeviceSelected.ID, good.ID, good.Level))
                             {
-                                PubTask.TileLifter.UpdateTileLifterGoods(DeviceSelected.ID, good.ID);
+                                PubTask.TileLifter.UpdateTileLifterGoods(DeviceSelected.ID, good.ID, good.Level);
                                 //清除上砖数量为0的报警
                                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.Warning37, (ushort)DeviceSelected.ID);
                             }
@@ -369,6 +369,26 @@ namespace wcs.ViewModel
                             return;
                         }
                         break;
+                    case 17:
+                        //根据线的类型（窑后、包装前）
+                        LevelTypeE lte = PubMaster.DevConfig.GetConfigLevelType(DeviceSelected.ID);
+                        MsgAction leveltype = await HandyControl.Controls.Dialog.Show<ChangeLevelTypeDialog>()
+                            .Initialize<ChangeLevelTypeViewModel>((vm) =>
+                            {
+                                vm.SetLevels(lte, DeviceSelected.Level);
+                            }).GetResultAsync<MsgAction>();
+
+                        if (leveltype.o1 is bool isTrue)
+                        {
+                            if (leveltype.o2 is int level)
+                            {
+                                if (PubMaster.DevConfig.SetTileLevel(DeviceSelected.ID, level))
+                                {
+                                    PubTask.TileLifter.UpdateTileLevel(DeviceSelected.ID, level);
+                                }
+                            }
+                        }
+                        break;
                 }
             }
         }
@@ -385,7 +405,8 @@ namespace wcs.ViewModel
                 && msg.o6 is bool working
                 && msg.o7 is string tid
                 && msg.o8 is DevWorkTypeE worktype
-                && msg.o9 is string goodscount)
+                && msg.o9 is string goodscount
+                && msg.o10 is byte level)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -402,7 +423,7 @@ namespace wcs.ViewModel
                         view.LineId = lineid;
                         DeviceList.Add(view);
                     }
-                    view.Update(dev, conn, gid, instrategy, outstrategy, working, tid, worktype, goodscount);
+                    view.Update(dev, conn, gid, instrategy, outstrategy, working, tid, worktype, goodscount, level);
                 });
             }
         }

@@ -335,16 +335,16 @@ namespace wcs.ViewModel
                 }
                 if (ShowBrief)
                 {
-                    ShowStockGoodEditDialog(_selecttrack.id, SelectGood.goods_id, good.ID);
+                    ShowStockGoodEditDialog(_selecttrack.id, SelectGood.goods_id, good.ID, stock.level);
                 }
                 else
                 {
-                    ShowStockGoodEditDialog(_selecttrack.id, stock.goods_id, good.ID);
+                    ShowStockGoodEditDialog(_selecttrack.id, stock.goods_id, good.ID, stock.level);
                 }
             }
         }
 
-        private async void ShowStockGoodEditDialog(uint trackid, uint oldgoodid, uint newgoodid)
+        private async void ShowStockGoodEditDialog(uint trackid, uint oldgoodid, uint newgoodid, byte level)
         {
             DialogResult result = await HandyControl.Controls.Dialog.Show<StockGoodEditDialog>()
                 .Initialize<StockGoodEditViewModel>((vm) =>
@@ -366,7 +366,7 @@ namespace wcs.ViewModel
 
                 if (ars == MessageBoxResult.Yes)
                 {
-                    if (PubMaster.Goods.ChangeStockGood(trackid, newgoodid, changedate, nd, out string res, oldgoodid))
+                    if (PubMaster.Goods.ChangeStockGood(trackid, newgoodid, changedate, nd, level, out string res, oldgoodid))
                     {
                         Growl.Success("更改成功！");
                         ActionStock("0");
@@ -446,7 +446,7 @@ namespace wcs.ViewModel
             DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
                  .Initialize<GoodsSelectViewModel>((vm) =>
                  {
-                     vm.SetAreaFilter(_selecttrack.area, false);
+                     vm.SetAreaFilter(_selecttrack.area, false, true);
                      vm.QueryGood();
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is bool rs && result.p2 is GoodsView good)

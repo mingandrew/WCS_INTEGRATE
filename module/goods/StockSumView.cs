@@ -20,6 +20,7 @@ namespace module.goods
             area = stock.area;
             track_type = stock.track_type;
             track_type2 = tt2;
+            sum_level = stock.level;
         }
 
         public List<uint> StockIds { set; get; }
@@ -35,7 +36,7 @@ namespace module.goods
 
         public bool AddToSum(Stock stock)
         {
-            if(stock == null || stock.goods_id != goods_id)
+            if(stock == null || !stock.EqualGoodAndLevel(goods_id, sum_level))
             {
                 return false;
             }

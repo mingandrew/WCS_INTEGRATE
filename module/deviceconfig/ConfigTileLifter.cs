@@ -111,6 +111,12 @@ namespace module.deviceconfig
         /// 砖机设定等级
         /// </summary>
         public byte level { set; get; }
+        //砖机显示的类型， 0等级，1窑位
+        public byte level_type { set; get; }
+        /// <summary>
+        /// 上砖机预设品种的等级
+        /// </summary>
+        public byte pre_level { set; get; }
 
         //没有保存到数据库中
         public DateTime last_shift_time { set; get; }//最近一次转产时间
@@ -119,6 +125,32 @@ namespace module.deviceconfig
         public int pre_good_qty { set; get; }//预约品种数量
         public bool now_good_all { set; get; }//当前使用全部库存
         public bool pre_good_all { set; get; }//预约使用全部库存
+
+        public string syn_tile_list { set; get; } //同步转产的砖机id，用#隔开
+
+        //同步转产的砖机id
+        public List<ushort> SynTileList;
+        public void GetSynTileList()
+        {
+            SynTileList = new List<ushort>();
+
+            if (string.IsNullOrEmpty(syn_tile_list)) return;
+
+            string[] s = syn_tile_list.Split('#');
+            foreach (var item in s)
+            {
+                if (ushort.TryParse(item, out ushort syntile))
+                {
+                    SynTileList.Add(syntile);
+                }
+            }
+        }
+
+        public LevelTypeE LevelType
+        {
+            get => (LevelTypeE)level_type;
+            set => level_type = (byte)value;
+        }
 
         /// <summary>
         /// 入库策略

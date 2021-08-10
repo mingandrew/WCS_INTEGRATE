@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
+using module.diction;
 using module.goods;
 using module.msg;
 using module.window;
@@ -116,7 +117,7 @@ namespace wcs.ViewModel
             });
         }
 
-        public void SetAreaFilter(uint areaid, bool isshow)
+        public void SetAreaFilter(uint areaid, bool isshow, bool isshowlevel = false)
         {
             filterareaid = areaid;
             showareafilter = false;
@@ -179,14 +180,20 @@ namespace wcs.ViewModel
         public void QueryStockGood(uint devid)
         {
             FilterName = string.Empty;
-            List<Goods> list = new List<Goods>();
+            List<Stock> list = new List<Stock>();
 
             list.AddRange(PubMaster.Goods.GetStockOutGoodsList(filterareaid,devid));
+            List<GoodsView> gl = new List<GoodsView>();
             Application.Current.Dispatcher.Invoke(() =>
             {
                 GoodsList.Clear();
-                foreach (Goods mod in list)
+                foreach (Stock mod in list)
                 {
+                    if (gl.Exists(c => c.ID == mod.goods_id && c.Level == mod.level))
+                    {
+                        continue;
+                    }
+                    gl.Add(new GoodsView(mod));
                     GoodsList.Add(new GoodsView(mod));
                 }
             });

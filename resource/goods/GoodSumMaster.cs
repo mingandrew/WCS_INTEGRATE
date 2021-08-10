@@ -84,12 +84,12 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="goodid"></param>
         /// <param name="oldgoodid"></param>
-        public void StockSumChangeGood(uint trackid, uint goodid, uint oldgoodid)
+        public void StockSumChangeGood(uint trackid, uint goodid, uint oldgoodid, byte level)
         {
             List<StockSum> sums;
             if (oldgoodid > 0)
             {
-                sums = StockSumList.FindAll(c => c.track_id == trackid && c.goods_id == oldgoodid);
+                sums = StockSumList.FindAll(c => c.track_id == trackid && c.EqualGoodAndLevel(oldgoodid, level));
             }
             else
             {
@@ -114,12 +114,13 @@ namespace resource.goods
                     track_id = trackid,
                     area = sums[0].area,
                     track_type = sums[0].track_type,
-                    track_type2 = PubMaster.Track.GetTrackType2ForByte(trackid)
+                    track_type2 = PubMaster.Track.GetTrackType2ForByte(trackid),
+                    sum_level = sums[0].sum_level,
                 };
 
                 foreach (StockSum sum in sums)
                 {
-                    if (sum.goods_id == oldgoodid)
+                    if (sum.EqualGoodAndLevel(oldgoodid, level))
                     {
                         newsum.count += sum.count;
                         newsum.pieces += sum.pieces;
@@ -128,7 +129,7 @@ namespace resource.goods
                     }
 
                 }
-                StockSumList.RemoveAll(c => c.track_id == trackid && c.goods_id == oldgoodid);
+                StockSumList.RemoveAll(c => c.track_id == trackid && c.EqualGoodAndLevel(oldgoodid, level));
                 StockSumList.Add(newsum);
 
                 SendSumMsg(newsum, ActionTypeE.Add);
@@ -286,7 +287,8 @@ namespace resource.goods
                     produce_time = stock.produce_time,
                     area = track.area,
                     track_type = track.type,
-                    track_type2 = track.type2
+                    track_type2 = track.type2,
+                    sum_level = stock.level,
                 };
                 StockSumList.Add(sum);
                 SendSumMsg(sum, ActionTypeE.Add);
@@ -344,9 +346,13 @@ namespace resource.goods
             {
                 if (x.area == y.area)
                 {
-                    if (x.goods_id == y.goods_id)
+                    if (x.EqualGoodAndLevel(y.goods_id, y.sum_level))
                     {
                         return x.CompareProduceTime(y.produce_time);
+                    }
+                    else if (x.goods_id == y.goods_id)
+                    {
+                        return x.sum_level.CompareTo(y.sum_level);
                     }
                     else
                     {

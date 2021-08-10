@@ -11,6 +11,7 @@ using module.msg;
 using module.window;
 using resource;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows;
 using task;
@@ -27,6 +28,8 @@ namespace wcs.ViewModel
         public GoodShiftDialogViewModel()
         {
             _result = new MsgAction();
+            syntileids = new List<uint>();
+            syntilename = "";
             InitTimer();
         }
 
@@ -46,6 +49,14 @@ namespace wcs.ViewModel
         private bool shiftbtnenable;
 
         private bool showlevel = true;
+
+        //需要同步转产的砖机id
+        private List<uint> syntileids;
+        public List<uint> SynTileIds
+        {
+            get => syntileids;
+            set => Set(ref syntileids, value);
+        }
 
         public uint AREA
         {
@@ -124,6 +135,14 @@ namespace wcs.ViewModel
             get => _pregqty;
             set => Set(ref _pregqty, value);
         }
+
+        private string syntilename;
+        public string SynTileName
+        {
+            get => syntilename;
+            set => Set(ref syntilename, value);
+        }
+
         #region[字段]
         private MsgAction _result;
         #endregion
@@ -162,13 +181,16 @@ namespace wcs.ViewModel
                 case "clearnpregood":
                     ClearnPreGood();
                     break;
+                case "chosesyntiles":
+                    DoSelectSynroTileIds();
+                    break;
             }
 
         }
 
         private void ClearnPreGood()
         {
-            if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, 0, 0, out string msg))
+            if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, 0, 0, 0, out string msg))
             {
                 SetPreGood(0);
                 SetGQty();
@@ -193,7 +215,7 @@ namespace wcs.ViewModel
 
                 if (result.p1 is bool rs && result.p2 is GoodsView good)
                 {
-                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.ID, 0, out string msg))
+                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.ID, 0, 0, out string msg))
                     {
                         SetPreGood(good.ID);
                         SetGQty();
@@ -216,9 +238,9 @@ namespace wcs.ViewModel
                 if (result.p1 is bool rs && result.p2 is StockGoodSumView good)
                 {
                     int count = good.IsUseAll() ? 0 : good.Count;
-                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.GoodId, count, out string msg))
+                    if (PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, good.GoodId, count, good.Level, out string msg))
                     {
-                        SetPreGood(good.GoodId);
+                        SetPreGood(good.GoodId, good.Level);
                         SetGQty();
                     }
                     else
@@ -228,6 +250,33 @@ namespace wcs.ViewModel
                 }
             }
 
+        }
+
+        /// <summary>
+        /// 选择同步转产的砖机
+        /// </summary>
+        private async void DoSelectSynroTileIds()
+        {
+            DialogResult result = await HandyControl.Controls.Dialog.Show<DeviceCheckComboSelectDialog>()
+            .Initialize<DeviceCheckComboSelectViewModel>((vm) =>
+            {
+                vm.SetTileList(_devid);
+            }).GetResultAsync<DialogResult>();
+
+            if (result.p1 is bool rs && result.p2 is List<uint> ids)
+            {
+                SynTileIds = ids;
+                SynTileName = "";
+                String name = string.Empty;
+                foreach (uint item in ids)
+                {
+                    name += string.Format("[ {0} ]", PubMaster.Device.GetDeviceName(item));
+                }
+                SynTileName = name;
+
+                SynTileIds.Add(_devid);
+                PubMaster.DevConfig.SetSynchTileIds(SynTileIds);
+            }
         }
 
         private void SetGQty()
@@ -245,6 +294,7 @@ namespace wcs.ViewModel
                     NowGQty = dev.now_good_all ? "不限" : dev.now_good_qty + "";
                     PreGQty = dev.pre_good_all ? "不限" : (dev.pre_good_qty > 0 ? (dev.pre_good_qty + "") : "-");
                 }
+                NowLevel = dev.level;
             }
         }
 
@@ -255,25 +305,29 @@ namespace wcs.ViewModel
             if (goods != null)
             {
                 NowGoodName = goods.name;
-                NowLevel = goods.level;
+                //NowLevel = goods.level;
                 NowGoodColor = goods.color;
             }
         }
 
-        private void SetPreGood(uint id)
+        private void SetPreGood(uint id, int plevel = 0)
         {
             _pregoodsid = id;
             Goods goods = PubMaster.Goods.GetGoods(id);
             if (goods != null)
             {
                 PreGoodName = goods.name;
-                PreLevel = goods.level;
+                //PreLevel = goods.level;
                 PreGoodColor = goods.color;
                 ShowLevel = true;
             }
             else
             {
                 ClearPreGood();
+            }
+            if (plevel != 0)
+            {
+                PreLevel = plevel;
             }
         }
 
@@ -307,13 +361,43 @@ namespace wcs.ViewModel
         {
             if (!PubTask.TileLifter.IsOnline(_devid))
             {
-                Growl.Warning("砖机离线！不能执行转产操作！");
+                Growl.Warning(string.Format("{0}砖机离线！不能执行转产操作！", _devname));
                 return;
             }
 
-            if (!PubMaster.DevConfig.IsShiftInAllowTime(_devid))
+            if (PubMaster.Device.IsDevType(_devid, DeviceTypeE.上砖机) && _pregoodsid == 0)
             {
-                string rr = string.Format("{0}砖机在5分钟内已转产过，请确认是否需要再次转产", PubMaster.Device.GetDeviceName(_devid));
+                Growl.Info("请选择预设品种！");
+                return;
+            }
+            
+            if (!PubTask.TileLifter.IsSiteGoodSame(_devid))
+            {
+                Growl.Warning("砖机左右工位品种不一致！");
+                return;
+            }
+
+            uint confgoodid = PubMaster.DevConfig.GetTileGood(_devid);
+            if (confgoodid != _goodsid)
+            {
+                Growl.Warning("请先刷新设备信息，再执行转产操作！");
+                return;
+            }
+
+            string confirmName = "";
+            string askName = "";
+            foreach (uint tid in SynTileIds)
+            {
+                confirmName += string.Format("【{0}】", PubMaster.Device.GetDeviceName(tid));
+                if (!PubMaster.DevConfig.IsShiftInAllowTime(tid))
+                {
+                    askName += string.Format("【{0}】", PubMaster.Device.GetDeviceName(tid));
+                }
+            }
+
+            if (!askName.Equals(""))
+            {
+                string rr = string.Format("{0}砖机在5分钟内已转产过，请确认是否需要再次转产", askName);
                 MessageBoxResult box = HandyControl.Controls.MessageBox.Show(rr, "警告",
                                        MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
@@ -330,12 +414,12 @@ namespace wcs.ViewModel
                     //添加默认品种 A,B,C,D,E....
                     if (!PubMaster.Goods.AddDefaultGood(_devid, _goodsid, out string ad_rs, out uint pgoodid))
                     {
-                        Growl.Info(ad_rs);
+                        Growl.Warning(ad_rs);
                         return;
                     }
                     else
                     {
-                        if (!PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, pgoodid, 0, out string up_rs))
+                        if (!PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, pgoodid, 0, 0, out string up_rs))
                         {
                             Growl.Info(up_rs);
                             return;
@@ -351,22 +435,46 @@ namespace wcs.ViewModel
                     return;
                 }
             }
-
-            //if (!PubTask.TileLifter.IsSiteGoodSame(_devid))
-            //{
-            //    Growl.Warning("砖机左右工位品种不一致！");
-            //    return;
-            //}
-
+            
+            string warncontent = "";
+            string succcontent = "";
+            
             if (!PubMaster.DevConfig.UpdateShiftTileGood(_devid, _goodsid, out string msg))
             {
-                Growl.Warning(msg);
+                warncontent += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(_devid), msg);
                 return;
             }
+            succcontent += string.Format("【{0}】砖机开始转产 \r\n", PubMaster.Device.GetDeviceName(_devid));
+
+            foreach (uint tid in SynTileIds)
+            {
+                if (tid == _devid)
+                {
+                    continue;
+                }
+                if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, _devid, out msg))
+                {
+                    warncontent += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(tid), msg);
+                }
+                else
+                {
+                    succcontent += string.Format("【{0}】砖机开始转产 \r\n", PubMaster.Device.GetDeviceName(tid));
+                }
+            }
+
+            PubMaster.DevConfig.SetSynchTileIds(SynTileIds);
+
+            //PubMaster.DevConfig.UpdateShiftTileGood
+
             //清除上砖数量为0的报警
             PubMaster.Warn.RemoveDevWarn(WarningTypeE.Warning37, (ushort)_devid);
 
-            Growl.Success("开始转产！");
+
+            MessageBoxResult tip = HandyControl.Controls.MessageBox.Show(succcontent + warncontent, "警告",
+                                   MessageBoxButton.OK, MessageBoxImage.Warning);
+
+
+            //Growl.Success("开始转产！");
             CloseAction?.Invoke();
         }
 
@@ -411,6 +519,21 @@ namespace wcs.ViewModel
             }
 
             StartTimer();
+
+            SynTileIds.Clear();
+            SynTileName = "";
+            String name = string.Empty;
+            foreach (ushort tid in confit.SynTileList)
+            {
+                if (tid == _devid)
+                {
+                    continue;
+                }
+                SynTileIds.Add(tid);
+                name += string.Format("[ {0} ]", PubMaster.Device.GetDeviceName(tid));
+            }
+            SynTileIds.Add(_devid);
+            SynTileName = name;
         }
 
         #endregion

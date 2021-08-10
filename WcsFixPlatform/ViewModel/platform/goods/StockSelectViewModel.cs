@@ -165,7 +165,7 @@ namespace wcs.ViewModel
             List<StockGoodSumView> goodsums = new List<StockGoodSumView>();
             foreach (var item in sums)
             {
-                StockGoodSumView sum = goodsums.Find(c => c.GoodId == item.goods_id);
+                StockGoodSumView sum = goodsums.Find(c => c.EqualGoodAndLevel(item.goods_id, item.sum_level));
                 if (sum != null)
                 {
                     sum.AddToSum(item);
@@ -186,7 +186,7 @@ namespace wcs.ViewModel
                     {
                         sum.GoodName = goods.name;
                         sum.Color = goods.color;
-                        sum.Level = goods.level;
+                        sum.Level = item.sum_level;
                         sum.Width = PubMaster.Goods.GetSizeWidth(goods.size_id);
                     }
                     goodsums.Add(sum);

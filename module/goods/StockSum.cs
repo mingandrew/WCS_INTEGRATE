@@ -17,6 +17,11 @@ namespace module.goods
         public byte track_type2 { set; get; }
         public DateTime? last_produce_time { set; get; }
 
+        /// <summary>
+        /// 砖机设定等级
+        /// </summary>
+        public byte sum_level { set; get; }
+
         public int CompareProduceTime(DateTime? time)
         {
             if (produce_time is DateTime dtime && time is DateTime ctime)
@@ -30,11 +35,21 @@ namespace module.goods
         {
             get => (TrackTypeE)track_type;
         }
-
+        
         public TrackType2E TrackType2
         {
             get => (TrackType2E)track_type2;
         }
-
+        
+        /// <summary>
+        /// 判断品种和等级是否跟这个库存的信息相等
+        /// </summary>
+        /// <param name="gid"></param>
+        /// <param name="lev"></param>
+        /// <returns></returns>
+        public bool EqualGoodAndLevel(uint gid, byte lev)
+        {
+            return goods_id == gid && sum_level == lev;
+        }
     }
 }

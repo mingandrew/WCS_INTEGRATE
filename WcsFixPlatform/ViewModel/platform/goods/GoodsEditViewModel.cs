@@ -217,11 +217,11 @@ namespace wcs.ViewModel
             //    return false;
             //}
 
-            if(SelectLevel == null)
-            {
-                Growl.Warning("请选择品种等级");
-                return false;
-            }
+            //if(SelectLevel == null)
+            //{
+            //    Growl.Warning("请选择品种等级");
+            //    return false;
+            //}
             
 
             mEidtGood = new Goods()
@@ -233,8 +233,8 @@ namespace wcs.ViewModel
                 //pieces = Pieces,
                 GoodCarrierType = CarrierType,
                 size_id = size_id,
-                level = (byte)SelectLevel.int_value,
-                info = name + "/" + color + "/" + selectlevel.name
+                //level = (byte)SelectLevel.int_value,
+                info = name + "/" + color + "/"    //+ selectlevel.name
             };
 
             if (mIsAdd)

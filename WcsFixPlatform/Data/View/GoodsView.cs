@@ -123,6 +123,10 @@ namespace wcs.Data.View
             Update(goods);
         }
 
+        public GoodsView(Stock stock)
+        {
+            Update(stock);
+        }
         #region[更新]
 
         public void Update(Goods goods)
@@ -130,7 +134,7 @@ namespace wcs.Data.View
             ID = goods.id;
             Name = goods.name;
             Color = goods.color;
-            Level = goods.level;
+            //Level = goods.level;
             if(sizeid != goods.size_id)
             {
                 SizeId = goods.size_id;
@@ -150,6 +154,17 @@ namespace wcs.Data.View
             MinStack = goods.minstack;
             empty = goods.empty;
             info = goods.info;
+        }
+
+        /// <summary>
+        /// 显示登记和品种
+        /// </summary>
+        /// <param name="stock"></param>
+        public void Update(Stock stock)
+        {
+            Goods goods = PubMaster.Goods.GetGoods(stock.goods_id);
+            Update(goods);
+            Level = stock.level;
         }
 
         #endregion

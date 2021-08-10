@@ -19,6 +19,7 @@ namespace wcs.Data.View
         public ushort line { set; get; }
         public byte track_type { set; get; }
         public byte track_type2 { set; get; }
+        public byte sum_level { set; get; }
 
         public uint GoodId
         {
@@ -72,6 +73,7 @@ namespace wcs.Data.View
             area = sum.area;
             line = PubMaster.Track.GetTrackLine(track_id);
             track_type = sum.track_type;
+            sum_level = sum.sum_level;
             Update(sum);
         }
 
@@ -84,6 +86,7 @@ namespace wcs.Data.View
             ProduceTime = sum.produce_time;
             LastProduceTime = sum.last_produce_time;
             track_type2 = sum.track_type2;
+            sum_level = sum.sum_level;
         }
 
         public StockSum GetStockSum()
@@ -100,7 +103,8 @@ namespace wcs.Data.View
                 pieces = pieces,
                 stack = stack,
                 produce_time = produce_time,
-                last_produce_time = last_produce_time
+                last_produce_time = last_produce_time,
+                sum_level = sum_level,
             };
         }
 
