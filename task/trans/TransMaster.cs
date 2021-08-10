@@ -174,7 +174,7 @@ namespace task.trans
 
                 //没有其他任务使用了该轨道
                 Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
-                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
+                if (topstock != null && !PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
                 {
                     AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
                     return;

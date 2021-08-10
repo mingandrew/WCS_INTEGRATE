@@ -925,7 +925,7 @@ namespace task.trans.transtask
             PubTask.Carrier.GetCarrierNowUnloadPoint(trans.carrier_id, out ushort nowpoint, out ushort givepoint);
 
             //接力点前的库存数
-            int infrontstockcount = PubMaster.Goods.GetInfrontPointStockCount(track.id, nowpoint);
+            int infrontstockcount = PubMaster.Goods.GetInfrontPointStockCount(track.id, givepoint > 0 ? givepoint : nowpoint);
 
             #region[继续接力]
 
@@ -967,7 +967,7 @@ namespace task.trans.transtask
             }
 
             //接力点后面使用还要需要接力的库存
-            bool need = PubMaster.Goods.ExistInfrontUpSplitPoint(track.id, nowpoint);
+            bool need = PubMaster.Goods.ExistInfrontUpSplitPoint(track.id, givepoint > 0 ? givepoint : nowpoint);
 
             //前面没有库存，继续倒库
             if (upnonestock || onestockcarloadit || nonetileusegood)
