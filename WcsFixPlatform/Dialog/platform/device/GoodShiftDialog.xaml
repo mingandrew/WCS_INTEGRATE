@@ -64,7 +64,7 @@
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="预设品种："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
                 <TextBlock Grid.Row="2" Grid.Column="1" Margin="10" FontSize="22" Text="{Binding PreGoodName}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="2" Grid.Column="2" Margin="10" FontSize="22" Text="{Binding PreGoodColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBlock Grid.Row="2" Grid.Column="3" Margin="10" FontSize="22" Text="{Binding PreLevel,Converter={StaticResource LevelValue2NameConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                <TextBlock Grid.Row="2" Grid.Column="3" Margin="10" FontSize="22" Text="{Binding PreLevel, Mode=TwoWay,Converter={StaticResource LevelValue2NameConverter}}" HorizontalAlignment="Center" VerticalAlignment="Center" 
                            Visibility="{Binding ShowLevel,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"/>
                 <TextBlock Grid.Row="2" Grid.Column="4" Margin="10" FontSize="22" Text="{Binding PreGQty}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <StackPanel Grid.Row="2" Grid.Column="5" Orientation="Horizontal">
