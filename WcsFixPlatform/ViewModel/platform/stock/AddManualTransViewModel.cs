@@ -81,6 +81,38 @@ namespace wcs.ViewModel
 
         private async void TaskAction(string tag)
         {
+            switch (tag)
+            {
+                #region[移车任务]
+                case "m_car_select"://移车运输车选择
+                    break;
+                case "m_car_give_track_select"://移车放车轨道选择
+                    break;
+                case "m_car_clean"://清空信息
+                    CleanMoveCarInput();
+                    break;
+                case "m_car_add_task"://确认添加任务
+                    break;
+
+                #endregion
+
+
+                #region[移砖任务]
+                case "m_stock_take_track_select":
+                    break;
+                case "m_stock_give_track_select":
+                    break;
+                case "m_stock_car_select":
+                    break;
+                case "m_stock_clean"://清空信息
+                    CleanMoveStockInput();
+                    break;
+                case "m_stock_add_task"://确认添加任务
+
+                    break;
+                #endregion
+            }
+
             //if(int.TryParse(tag, out int type))
             //{
             //    switch (type)
@@ -216,13 +248,23 @@ namespace wcs.ViewModel
             //}
         }
 
-        private void ClearInTaskInput()
-        {
 
+
+
+        private void CleanMoveCarInput()
+        {
+            M_Car_Car_Name = "";
+            M_Car_Give_Track_Name = "";
+            m_car_car = null;
+            m_car_give_track = null;
         }
 
-        private void ClearOutTaskInput()
+        private void CleanMoveStockInput()
         {
+            M_Stock_Car_Name = "";
+            M_Stock_Give_Track_Name = "";
+            M_Stock_Take_Track_Name = "";
+            M_Stock_Tile_Name = "";
         }
 
         private void TabSelected(RoutedEventArgs orgs)

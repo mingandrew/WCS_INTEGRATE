@@ -454,8 +454,11 @@ namespace task.trans.transtask
                     //接力点后的库存数量
                     int needsortcount = PubMaster.Goods.GetBehindPointStockCount(trans.give_track_id, givepoint > 0 ? givepoint : nowpoint);
 
+                    //判断是否执行单步接力指令
+                    bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
+
                     //砖机不再使用该品种,接力点后没有库存则直接回轨
-                    if (needsortcount <= 0)
+                    if (needsortcount <= 0 || isSingle)
                     {
                         uint gid = PubMaster.Goods.GetTrackTopStockGoodId(trans.give_track_id);
                         if (gid == 0)
@@ -466,14 +469,17 @@ namespace task.trans.transtask
                         if (!PubMaster.DevConfig.IsHaveSameTileNowGood(gid, TileWorkModeE.上砖))
                         {
                             _M.LogForCarrierSort(trans, trans.give_track_id, "当前没有砖机再上该品种");
-                            dowait = false;
+
+
+                            _M.SetStatus(trans, TransStatusE.小车回轨,
+                                string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ]", trackallqty, needsortcount));
+                            return;
                         }
                     }
 
-                    //判断是否执行单步接力指令
-                    bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
                     ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
                     string memo = string.Empty;
+
                     if (isSingle)
                     {
                         //根据当前卸货脉冲判断是否满足放下一车
@@ -1016,9 +1022,15 @@ namespace task.trans.transtask
 
                     if (isSingle)
                     {
-                        ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
-
-                        DoSingel(trans, nowpoint, givepoint, safe, stockqty, movecount);
+                        if (nonetileusegood)
+                        {
+                            _M.SetStatus(trans, TransStatusE.小车回轨, string.Format("砖机不上当前品种，接力运输车回轨"));
+                        }
+                        else
+                        {
+                            ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+                            DoSingel(trans, nowpoint, givepoint, safe, stockqty, movecount);
+                        }
                         return;
                     }
                     else

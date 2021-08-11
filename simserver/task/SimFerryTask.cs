@@ -65,6 +65,8 @@ namespace simtask.task
                 DevStatus.CurrentTask = DevFerryTaskE.定位;
                 DevStatus.FinishTask = DevFerryTaskE.终止;
                 IsLocating = true;
+                DevStatus.UpLight = false;
+                DevStatus.DownLight = false;
                 TargetPos = FerryPosList.Find(c => c.ferry_code == desCode)?.sim_ferry_pos ?? 0;//目标脉冲
             }
         }

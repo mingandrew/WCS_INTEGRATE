@@ -51,7 +51,7 @@
                                     <TextBlock Text="{Binding M_Car_Car_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
                                     <Button Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
-                                            Tag="1" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_car_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
 
@@ -60,7 +60,7 @@
                                     <TextBlock Text="{Binding CarrierGiveTrackName}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
                                     <Button Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right"  Margin="0,0,20,0"
-                                            Tag="3" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_car_give_track_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
                             <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
@@ -70,9 +70,9 @@
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Content="清空" Style="{StaticResource MButton_Danger}" HorizontalAlignment="Center" 
-                                            Tag="4" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_car_clean" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                     <Button Grid.Column="1" Content="添加任务" Style="{StaticResource MButton_Success}" HorizontalAlignment="Center" 
-                                            Tag="5" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_car_add_task" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
                         </Grid>
@@ -116,7 +116,7 @@
                                 <Grid>
                                     <TextBlock Text="{Binding M_Stock_Take_Track_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
                                     <Button Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
-                                            Tag="6" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_stock_take_track_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
@@ -124,14 +124,14 @@
                                     <TextBlock Text="{Binding M_Stock_Give_Track_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
                                     <Button Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
-                                            Tag="6" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_stock_give_track_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>                            </Border>
                             <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
                                 <Grid>
                                     <TextBlock Text="{Binding M_Stock_Car_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
                                     <Button Content="选择" Style="{StaticResource MButton_Gray}" HorizontalAlignment="Right" Margin="0,0,20,0"
-                                            Tag="7" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_stock_car_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
                             <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">

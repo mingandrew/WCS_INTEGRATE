@@ -2933,6 +2933,7 @@ namespace task.device
                                     case TransTypeE.上砖任务:
                                     case TransTypeE.手动上砖:
                                     case TransTypeE.同向下砖:
+                                    case TransTypeE.库存转移:
                                         isUp = true;
                                         // 需要小车前进作业的，以最大脉冲为准
                                         if (dis == 0 || dis < item.CurrentPoint)
