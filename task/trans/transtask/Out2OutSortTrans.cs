@@ -1026,14 +1026,14 @@ namespace task.trans.transtask
                         {
                             _M.SetStatus(trans, TransStatusE.小车回轨, string.Format("砖机不上当前品种，接力运输车回轨"));
                         }
-                        else
+                        else if(movecount > 0)
                         {
                             ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
                             DoSingel(trans, nowpoint, givepoint, safe, stockqty, movecount);
                         }
                         return;
                     }
-                    else
+                    else if (movecount > 0)
                     {
                         byte line_max_move = PubMaster.Area.GetLineUpSortMaxNumber(track.area, track.line);
 
