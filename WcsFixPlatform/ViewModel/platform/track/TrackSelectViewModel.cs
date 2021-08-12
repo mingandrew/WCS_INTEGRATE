@@ -189,6 +189,24 @@ namespace wcs.ViewModel
             });
         }
 
+        /// <summary>
+        /// 过滤区域选定类型
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="types"></param>
+        public void QueryAreaTrackType(uint areaid, ushort lineid, params TrackTypeE[] types)
+        {
+            List<Track> tracks = PubMaster.Track.GetTrackList(areaid, lineid, types);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                TraList.Clear();
+                foreach (Track track in tracks)
+                {
+                    TraList.Add(track);
+                }
+            });
+        }
+
 
         public void QueryTileTrack(uint tileid)
         {

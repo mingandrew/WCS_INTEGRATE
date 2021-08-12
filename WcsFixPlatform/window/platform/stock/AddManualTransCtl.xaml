@@ -57,7 +57,7 @@
 
                             <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
                                 <Grid>
-                                    <TextBlock Text="{Binding CarrierGiveTrackName}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
+                                    <TextBlock Text="{Binding M_Car_Give_Track_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
                                     <Button Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right"  Margin="0,0,20,0"
                                             Tag="m_car_give_track_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>

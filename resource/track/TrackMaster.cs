@@ -245,6 +245,13 @@ namespace resource.track
 
             return tracks;
         }
+
+        public List<Track> GetTrackList(uint area_id, ushort line, params TrackTypeE[] types)
+        {
+            return TrackList.FindAll(c => c.area == area_id
+                                                    && c.line == line
+                                                    && c.InType(types));
+        }
         #endregion
 
         #region[获取属性]

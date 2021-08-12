@@ -435,7 +435,7 @@ namespace task.device
                            );
         }
 
-        internal Track GetCarrierTrack(uint carrier_id)
+        public Track GetCarrierTrack(uint carrier_id)
         {
             uint trackid = DevList.Find(c => c.ID == carrier_id)?.CurrentTrackId ?? 0;
             return trackid > 0 ? PubMaster.Track.GetTrack(trackid) : null;

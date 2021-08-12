@@ -320,6 +320,61 @@ namespace task.trans
                 }
             }
         }
+        
+        /// <summary>
+        /// 手动添加移车任务
+        /// </summary>
+        /// <param name="fromtrackid"></param>
+        /// <param name="totrackid"></param>
+        /// <param name="carrierid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool AddMoveCarrierTask(uint fromtrackid, uint totrackid, uint carrierid, out string result)
+        {
+            if (HaveCarrierInTrans(carrierid))
+            {
+                result = "运输车已经被分配任务中！";
+                return false;
+            }
+
+            if (IsTraInTrans(totrackid))
+            {
+                result = "卸货轨道当前被任务占用！";
+                return false;
+            }
+
+            if (IsTraInTrans(totrackid))
+            {
+                result = "卸货轨道当前被任务占用！";
+                return false;
+            }
+
+            Track fromtrack = PubMaster.Track.GetTrack(fromtrackid);
+            Track totrack = PubMaster.Track.GetTrack(totrackid);
+
+            if(fromtrack == null)
+            {
+                result = string.Format("获取不到运输车所在轨道信息[ {0} ]", fromtrackid);
+                return false;
+            }
+
+            if(totrack == null)
+            {
+                result = string.Format("获取不到运输车前往轨道信息[ {0} ]", totrackid);
+                return false;
+            }
+
+            uint transid = AddTransWithoutLock(fromtrack.area, 0, TransTypeE.移车任务, 0, 0, fromtrackid, totrackid, TransStatusE.移车中, carrierid, fromtrack.line);
+
+            if(transid > 0)
+            {
+                result = "";
+                return true;
+            }
+
+            result = "添加任务失败，请稍后重试";
+            return false;
+        }
         #endregion
 
         #region[添加手动任务]

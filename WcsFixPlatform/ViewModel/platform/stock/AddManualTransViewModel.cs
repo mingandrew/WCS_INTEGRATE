@@ -85,13 +85,16 @@ namespace wcs.ViewModel
             {
                 #region[移车任务]
                 case "m_car_select"://移车运输车选择
+                    SelectMoveCar();
                     break;
                 case "m_car_give_track_select"://移车放车轨道选择
+                    SelectMoveCarGiveTrack();
                     break;
                 case "m_car_clean"://清空信息
                     CleanMoveCarInput();
                     break;
                 case "m_car_add_task"://确认添加任务
+                    MoveCarAdd();
                     break;
 
                 #endregion
@@ -249,7 +252,7 @@ namespace wcs.ViewModel
         }
 
 
-
+        #region[移车任务]
 
         private void CleanMoveCarInput()
         {
@@ -258,6 +261,108 @@ namespace wcs.ViewModel
             m_car_car = null;
             m_car_give_track = null;
         }
+
+        private bool CheckSelectMoveCar()
+        {
+            if(m_car_car == null)
+            {
+                Growl.Warning("请先选择运输车！");
+                return false;
+            }
+
+            Track cartrack = PubTask.Carrier.GetCarrierTrack(m_car_car.id);
+            if (cartrack == null)
+            {
+                Growl.Warning("运输车当前没有轨道位置信息！");
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool CheckSelectMoveGiveTrack()
+        {
+            if(m_car_give_track == null)
+            {
+                Growl.Warning("请先选择卸货轨道点！");
+                return false;
+            }
+
+            return true;
+        }
+
+        private async void SelectMoveCar()
+        {
+            DialogResult result = await HandyControl.Controls.Dialog.Show<DeviceSelectDialog>()
+                           .Initialize<DeviceSelectViewModel>((vm) =>
+                           {
+                               vm.FilterArea = false;
+                               vm.SetSelectType(DeviceTypeE.运输车);
+                           }).GetResultAsync<DialogResult>();
+            if (result.p2 is Device dev)
+            {
+                m_car_car = dev;
+                M_Car_Car_Name = dev.name;
+
+                m_car_give_track = null;
+                M_Car_Give_Track_Name = "";
+            }
+        }
+
+        private async void SelectMoveCarGiveTrack()
+        {
+            if (!CheckSelectMoveCar()) return;
+            Track cartrack = PubTask.Carrier.GetCarrierTrack(m_car_car.id);
+            if(cartrack == null)
+            {
+                Growl.Warning("运输车当前没有轨道位置信息！");
+                return;
+            }
+
+            DialogResult ingivetrars = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
+                        .Initialize<TrackSelectViewModel>((vm) =>
+                        {
+                            vm.SetAreaFilter(0, false);
+
+                            TrackTypeE[] types;
+                            if(cartrack.InType(TrackTypeE.下砖轨道, TrackTypeE.摆渡车_入, TrackTypeE.储砖_入))
+                            {
+                                types = new TrackTypeE[] { TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入};
+                            }
+                            else
+                            {
+                                types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
+                            }
+
+                            vm.QueryAreaTrackType(cartrack.area, cartrack.line, types);
+                        }).GetResultAsync<DialogResult>();
+            if (ingivetrars.p1 is Track tra)
+            {
+                m_car_give_track = tra;
+                M_Car_Give_Track_Name = tra.name;
+            }
+        }
+
+        /// <summary>
+        /// 添加移车任务
+        /// </summary>
+        private void MoveCarAdd()
+        {
+            if (!CheckSelectMoveCar()) return;
+
+            if (!CheckSelectMoveGiveTrack()) return;
+
+            Track cartrack = PubTask.Carrier.GetCarrierTrack(m_car_car.id);
+            if(PubTask.Trans.AddMoveCarrierTask(cartrack.id, m_car_give_track.id, m_car_car.id, out string result))
+            {
+                Growl.Warning(result);
+                return;
+            }
+
+            Growl.Success("添加成功！");
+            CleanMoveCarInput();
+        }
+        #endregion
 
         private void CleanMoveStockInput()
         {
