@@ -353,7 +353,7 @@ namespace wcs.ViewModel
             if (!CheckSelectMoveGiveTrack()) return;
 
             Track cartrack = PubTask.Carrier.GetCarrierTrack(m_car_car.id);
-            if(PubTask.Trans.AddMoveCarrierTask(cartrack.id, m_car_give_track.id, m_car_car.id, out string result))
+            if(!PubTask.Trans.AddMoveCarrierTask(cartrack.id, m_car_give_track.id, m_car_car.id, out string result))
             {
                 Growl.Warning(result);
                 return;
