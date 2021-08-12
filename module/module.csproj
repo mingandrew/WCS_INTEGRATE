@@ -52,6 +52,7 @@
     <Compile Include="deviceconfig\ConfigFerry.cs" />
     <Compile Include="deviceconfig\ConfigTileLifter.cs" />
     <Compile Include="device\DevCarrier.cs" />
+    <Compile Include="device\DevCarrierAlert.cs" />
     <Compile Include="device\DevFerry.cs" />
     <Compile Include="device\Device.cs" />
     <Compile Include="device\DevTileLifter.cs" />

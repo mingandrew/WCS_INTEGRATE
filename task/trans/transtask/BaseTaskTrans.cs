@@ -323,13 +323,13 @@ namespace task.trans.transtask
         /// 释放取货摆渡车
         /// </summary>
         /// <param name="trans"></param>
-        public void RealseTakeFerry(StockTrans trans)
+        public void RealseTakeFerry(StockTrans trans, string memo = "")
         {
             if (!trans.IsReleaseTakeFerry
                 && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
             {
-                _M.FreeTakeFerry(trans);
+                _M.FreeTakeFerry(trans, memo);
 
                 trans.take_ferry_id = 0;
             }
@@ -339,13 +339,13 @@ namespace task.trans.transtask
         /// 是否送货摆渡车
         /// </summary>
         /// <param name="trans"></param>
-        public void RealseGiveFerry(StockTrans trans)
+        public void RealseGiveFerry(StockTrans trans, string memo = "")
         {
             if (!trans.IsReleaseGiveFerry
                 && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
             {
-                _M.FreeGiveFerry(trans);
+                _M.FreeGiveFerry(trans, memo);
 
                 trans.give_ferry_id = 0;
             }

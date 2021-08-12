@@ -3670,6 +3670,16 @@ namespace task.device
             carid = DevList.Find(c => c.ID != carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite >= track.rfid_1)?.ID ?? 0;
             return carid > 0;
         }
+
+        /// <summary>
+        /// WarningA3X7 任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <returns></returns>
+        internal bool IsCarrierNotLoadInDownTileAlert(uint carrierid)
+        {
+            return DevList.Find(c => c.ID == carrierid)?.DevAlert.GetWarn(2,7) ?? false;//WarningA3X7
+        }
         #endregion
     }
 

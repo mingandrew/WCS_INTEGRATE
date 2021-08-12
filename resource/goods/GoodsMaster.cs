@@ -3387,7 +3387,7 @@ namespace resource.goods
         /// <returns></returns>
         public int GetInfrontPointStockCount(uint trackid, int point)
         {
-            return StockList.Count(c => c.track_id == trackid && c.location > point);
+            return StockList.Count(c => c.track_id == trackid && c.location >= point);
         }
 
         /// <summary>

@@ -130,14 +130,19 @@ namespace task.trans.transtask
             }
 
             if (trans.take_ferry_id != 0
+                && !trans.IsReleaseTakeFerry
                 && !PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id))
             {
                 return;
             }
 
+            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+
             #region[分配摆渡车]
             //还没有分配取货过程中的摆渡车
-            if (trans.take_ferry_id == 0)
+            if (trans.take_ferry_id == 0 
+                && (track.id != trans.take_track_id || isload))
             {
                 string msg = _M.AllocateFerry(trans, DeviceTypeE.下摆渡, track, false);
 
@@ -147,8 +152,6 @@ namespace task.trans.transtask
             }
             #endregion
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             switch (track.Type)
             {
                 #region[小车在储砖轨道]
@@ -323,6 +326,26 @@ namespace task.trans.transtask
                                 return;
                             }
                             PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
+
+
+                            //任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作
+                            if (trans.HaveTakeFerry
+                                && PubTask.Carrier.IsCarrierNotLoadInDownTileAlert(trans.carrier_id))
+                            {
+                                //释放摆渡车
+                                #region[释放摆渡车]
+
+                                // 在取砖轨道，但是没货且在任务中，则释放取砖摆渡车
+                                if (!PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                                {
+                                    if (trans.HaveTakeFerry)
+                                    {
+                                        RealseTakeFerry(trans, "运输车下砖轨道任务被中断时，尚未升降到位");
+                                    }
+                                }
+
+                                #endregion
+                            }
 
                             //没有任务并且停止
                             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))

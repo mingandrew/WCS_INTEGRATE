@@ -135,6 +135,10 @@
                                                 <Button Content="初始点" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
                                                               Command="{Binding DataContext.CarrierSetInitSiteCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
                                                               CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
+
+                                                <Button Content="取货顶升失败" HorizontalAlignment="Center" Style="{StaticResource ButtonSuccess}" FontSize="16"
+                                                              Command="{Binding DataContext.CarrierSetWarningA3X7Cmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                              CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

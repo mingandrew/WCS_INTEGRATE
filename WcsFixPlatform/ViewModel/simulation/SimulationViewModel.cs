@@ -156,6 +156,8 @@ namespace wcs.ViewModel
         #region[运输车]
 
         public RelayCommand<SimDeviceView> CarrierSetInitSiteCmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(CarrierSetInitSite)).Value;
+        
+        public RelayCommand<SimDeviceView> CarrierSetWarningA3X7Cmd => new Lazy<RelayCommand<SimDeviceView>>(() => new RelayCommand<SimDeviceView>(CarrierSetWarningA3X7)).Value;
 
         #endregion
 
@@ -459,6 +461,15 @@ namespace wcs.ViewModel
                 }
                 SimServer.Carrier.SetCurrentSite(dev.dev_id, setsite, setpoint, isontrack);
             }
+        }
+
+        /// <summary>
+        /// 设置运输车取砖打断
+        /// </summary>
+        /// <param name="dev"></param>
+        private void CarrierSetWarningA3X7(SimDeviceView dev)
+        {
+            SimServer.Carrier.SwitchCarrierWarning(dev.dev_id, 2, 7);
         }
 
         #endregion

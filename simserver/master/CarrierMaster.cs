@@ -267,6 +267,16 @@ namespace simtask.master
             return (ushort)(CarrierPosList.Find(c => upferrys.Contains(c.track_point) && c.track_pos > 0)?.track_pos - 260 ?? 500);
         }
 
+        public void SwitchCarrierWarning(uint carid, int v1, int v2)
+        {
+            SimCarrierTask task = DevList.Find(c => c.ID == carid);
+            if(task != null)
+            {
+                task.DevAlert.SwitchAlert(v1, v2);
+                task.SetDeviceAlert(v1);
+            }
+        }
+
         #endregion
     }
 }

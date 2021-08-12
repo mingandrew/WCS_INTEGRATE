@@ -283,11 +283,13 @@ namespace task.device
         public CarrierTcp DevTcp { set; get; }
         public DevCarrier DevStatus { set; get; }
         public ConfigCarrier DevConfig { set; get; }
+        public DevCarrierAlert DevAlert { set; get; }
 
         public CarrierTask() : base()
         {
             DevStatus = new DevCarrier();
             DevConfig = new ConfigCarrier();
+            DevAlert = new DevCarrierAlert();
         }
 
         public void Start(string memo = "开始连接")
@@ -447,6 +449,7 @@ namespace task.device
             if (DevStatus.Aler1 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 1);
+                DevAlert.ResetAler1();
                 return;
             }
 
@@ -454,8 +457,13 @@ namespace task.device
             if (On(DevStatus.Aler1, 0))
             {
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X0, (ushort)ID, 1);
+                DevAlert.SetAlert(0, 0, true);
             }
-            else PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X0, (ushort)ID);
+            else 
+            {
+                PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X0, (ushort)ID);
+                DevAlert.SetAlert(0, 0, false);
+            }
 
             if (On(DevStatus.Aler1, 1))
             {
@@ -698,10 +706,12 @@ namespace task.device
             if (On(DevStatus.Aler3, 7))
             {
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X7, (ushort)ID, 3);
+                DevAlert.SetAlert(2, 7, true);
             }
             else
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA3X7, (ushort)ID);
+                DevAlert.SetAlert(2, 7, true);
             }
         }
 

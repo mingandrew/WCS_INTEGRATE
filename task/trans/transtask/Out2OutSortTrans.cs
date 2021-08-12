@@ -452,7 +452,7 @@ namespace task.trans.transtask
                     ushort trackallqty = PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
 
                     //接力点后的库存数量
-                    int needsortcount = PubMaster.Goods.GetBehindPointStockCount(trans.give_track_id, givepoint > 0 ? givepoint : nowpoint);
+                    int needsortcount = PubMaster.Goods.GetBehindPointStockCount(trans.give_track_id, (givepoint > 0 ? givepoint : nowpoint) - 10);
 
                     //判断是否执行单步接力指令
                     bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
@@ -535,7 +535,7 @@ namespace task.trans.transtask
             //如果是单步接力，完成后，判断当前位置 小于 接力点，后退到下一车接力位置或五个空位
 
             ushort topoint;
-            Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
+            Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, (ushort)(givepoint - 10));
             if (bestock_one != null)
             {
                 topoint = bestock_one.location;
@@ -574,7 +574,7 @@ namespace task.trans.transtask
                 //计算后退设置脉冲位置，计算下一车库存的脉冲位置， 哪个脉冲小则定位到哪个位置
 
                 ushort nextstockp = 0;
-                Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
+                Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, (ushort)(givepoint - 10));
                 if (bestock_one != null)
                 {
                     nextstockp = bestock_one.location;
@@ -599,25 +599,21 @@ namespace task.trans.transtask
                 }
                 else
                 {
-                    Stock bestock_one = null;
+                    Stock bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, (ushort)(givepoint - 10)); 
+                    ushort nextstockp = 0;
 
-                    //PubMaster.Goods.GetStockBehindStockPoint(track.id, givepoint);
-                    //if (bestock_one != null)
-                    //{
-                    //    if (Math.Abs(bestock_one.location - givepoint) <= 200)
-                    //    {
-                    //        bestock_one = PubMaster.Goods.GetStockBehindStockPoint(track.id, bestock_one.location);
-                    //    }
-                    //}
                     if (bestock_one != null)
                     {
-                        topoint = bestock_one.location;
-                        topoint += (ushort)(carspace * safe);
+                        nextstockp = bestock_one.location;
+                        nextstockp += (ushort)(2 * safe);
                     }
-                    else
+
+                    topoint = givepoint;
+                    topoint -= (ushort)(carspace * safe);
+
+                    if(nextstockp != 0 && nextstockp < topoint)
                     {
-                        topoint = givepoint;
-                        topoint -= (ushort)(carspace * safe);
+                        topoint = nextstockp;
                     }
                 }
 
@@ -931,7 +927,7 @@ namespace task.trans.transtask
             PubTask.Carrier.GetCarrierNowUnloadPoint(trans.carrier_id, out ushort nowpoint, out ushort givepoint);
 
             //接力点前的库存数
-            int infrontstockcount = PubMaster.Goods.GetInfrontPointStockCount(track.id, givepoint > 0 ? givepoint : nowpoint);
+            int infrontstockcount = PubMaster.Goods.GetInfrontPointStockCount(track.id, (givepoint > 0 ? givepoint : nowpoint) - 10);
 
             #region[继续接力]
 
@@ -973,7 +969,7 @@ namespace task.trans.transtask
             }
 
             //接力点后面使用还要需要接力的库存
-            bool need = PubMaster.Goods.ExistInfrontUpSplitPoint(track.id, givepoint > 0 ? givepoint : nowpoint);
+            bool need = PubMaster.Goods.ExistInfrontUpSplitPoint(track.id, (uint)((givepoint > 0 ? givepoint : nowpoint) - 10));
 
             //前面没有库存，继续倒库
             if (upnonestock || onestockcarloadit || nonetileusegood)
@@ -1018,7 +1014,7 @@ namespace task.trans.transtask
                     bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
                     
                     //接力脉冲后的库存数量
-                    byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, givepoint > 0 ? givepoint: nowpoint);
+                    byte movecount = (byte)PubMaster.Goods.GetBehindPointStockCount(track.id, (givepoint > 0 ? givepoint: nowpoint) -10);
 
                     if (isSingle)
                     {
