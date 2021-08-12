@@ -97,10 +97,12 @@ namespace simtask
         #region[构造/启动/停止]
         public DevCarrier DevStatus { set; get; }
         public ConfigCarrier DevConfig { set; get; }
+        public DevCarrierAlert DevAlert { set; get; }
 
         public SimCarrierTask() : base()
         {
             DevStatus = new DevCarrier();
+            DevAlert = new DevCarrierAlert();
         }
 
         public void Start()
@@ -1169,6 +1171,26 @@ namespace simtask
             //        #endregion
             //}
             #endregion
+        }
+
+        internal void SetDeviceAlert(int v1)
+        {
+            byte value = DevAlert.GetWarnByte(v1);
+            switch (v1)
+            {
+                case 0:
+                    DevStatus.Aler1 = value;
+                    break;
+                case 1:
+                    DevStatus.Aler2 = value;
+                    break;
+                case 2:
+                    DevStatus.Aler3 = value;
+                    break;
+                case 3:
+                    DevStatus.Aler4 = value;
+                    break;
+            }
         }
 
         #endregion
