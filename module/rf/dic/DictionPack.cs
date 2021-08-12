@@ -315,6 +315,28 @@ namespace module.rf
             AddDic(dic);
         }
 
+        public void AddGoodSite(List<DictionDtl> lists)
+        {
+            RfDiction dic = new RfDiction
+            {
+                DicName = "窑位字典",
+                DicCode = "GoodSite"
+            };
+
+            int order = 0;
+            foreach (DictionDtl item in lists)
+            {
+                dic.AddDtl(new RfDictionDtl()
+                {
+                    DtlOrder = order,
+                    DtlValue = (int)item.int_value,
+                    DtlName = item.name
+                });
+                order++;
+            }
+            AddDic(dic);
+        }
+
         public void AddRfClinetilter(RfClient client)
         {
             RfDiction dic = new RfDiction

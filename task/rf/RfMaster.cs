@@ -1073,6 +1073,7 @@ namespace task.rf
                 mDicPack.AddDevice(PubMaster.Device.GetDeviceList());
                 mDicPack.AddGood(PubMaster.Goods.GetGoodsList());
                 mDicPack.AddGoodLevel(PubMaster.Dic.GetDicDtls(DicTag.GoodLevel));
+                mDicPack.AddGoodSite(PubMaster.Dic.GetDicDtls(DicTag.GoodSite));
                 //mDicPack.AddFerry(PubMaster.Device.GetFerrys());
 
                 #endregion

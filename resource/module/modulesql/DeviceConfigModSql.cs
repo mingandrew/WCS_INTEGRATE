@@ -182,8 +182,8 @@ can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, 
             switch (type)
             {
                 case TileConfigUpdateE.Goods:
-                    sql += string.Format("old_goodid = {0}, goods_id = {1}, pre_goodid = {2}, do_shift = {3} , `now_good_qty` = '{4}', `pre_good_qty` = '{5}', `now_good_all` = {6}, `pre_good_all` = {7}  ",
-                        dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift, dev.now_good_qty, dev.pre_good_qty, dev.now_good_all, dev.pre_good_all);
+                    sql += string.Format("old_goodid = {0}, goods_id = {1}, pre_goodid = {2}, do_shift = {3} , `now_good_qty` = '{4}', `pre_good_qty` = '{5}', `now_good_all` = {6}, `pre_good_all` = {7} ,`pre_level` = {8}",
+                        dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift, dev.now_good_qty, dev.pre_good_qty, dev.now_good_all, dev.pre_good_all, dev.pre_level);
                     break;
                 case TileConfigUpdateE.LastTrack:
                     sql += string.Format("last_track_id = {0}", dev.last_track_id);
