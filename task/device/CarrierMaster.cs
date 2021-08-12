@@ -3959,7 +3959,16 @@ namespace task.device
         /// <returns></returns>
         internal bool IsCarrierNotLoadInDownTileAlert(uint carrierid)
         {
-            return DevList.Find(c => c.ID == carrierid)?.DevAlert.GetWarn(2,7) ?? false;//WarningA3X7
+            CarrierTask task = DevList.Find(c => c.ID == carrierid);
+            if(task != null)
+            {
+                //WarningA3X7
+                if (task.DevAlert.GetWarn(2, 7))
+                {
+                    return true;
+                }
+            }
+            return  false;
         }
         #endregion
     }
