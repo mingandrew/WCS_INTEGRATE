@@ -180,31 +180,32 @@ namespace resource.goods
         /// <param name="trackId"></param>
         public void CheckTrackSum(uint trackId)
         {
-            List<uint> goodsids = PubMaster.Goods.TrackUnionGood(trackId);
-
-            if (goodsids != null && goodsids.Count != 0)
+            List<Stock> stocklist = PubMaster.Goods.GetStocks(trackId);
+            if (stocklist != null && stocklist.Count != 0) { }
             {
                 Track track = PubMaster.Track.GetTrack(trackId);
-                foreach (uint gid in goodsids)
+                foreach (Stock stock in stocklist)
                 {
-                    Goods goods = PubMaster.Goods.GetGoods(gid);// GoodsList.Find(c => c.id == gid);
+                    Goods goods = PubMaster.Goods.GetGoods(stock.goods_id);// GoodsList.Find(c => c.id == gid);
                     GoodSize size = PubMaster.Goods.GetSize(goods.size_id);
-                    StockSum sum = StockSumList.Find(c => c.goods_id == gid && c.track_id == trackId);
+                    StockSum sum = StockSumList.Find(c => c.goods_id == stock.goods_id && c.track_id == trackId && c.sum_level == stock.level);
                     if (sum == null)
                     {
                         sum = new StockSum()
                         {
                             track_id = trackId,
-                            goods_id = gid,
-                            produce_time = PubMaster.Goods.GetEarliestTime(trackId,gid),
+                            goods_id = stock.goods_id,
+                            produce_time = PubMaster.Goods.GetEarliestTime(trackId, stock.goods_id,stock.level),
+                            last_produce_time = PubMaster.Goods.GetLatestTime(trackId, stock.goods_id, stock.level),
                             area = track.area,
-                            track_type = track.type
+                            track_type = track.type,
+                            sum_level = stock.level
                         };
                         StockSumList.Add(sum);
                     }
-                    sum.count = PubMaster.Goods.GetTrackStockCount(trackId, gid);
+                    sum.count = PubMaster.Goods.GetTrackStockCount(trackId, stock.goods_id, stock.level);
                     sum.stack = sum.count * (size?.stack ?? 1);
-                    sum.pieces = PubMaster.Goods.GetTrackStockPieseSum(trackId, gid);
+                    sum.pieces = PubMaster.Goods.GetTrackStockPieseSum(trackId, stock.goods_id, stock.level);
                     sum.track_type2 = track.type2;
                     SendSumMsg(sum, ActionTypeE.Update);
                 }
@@ -212,6 +213,7 @@ namespace resource.goods
             }
 
             SendTrackStockQtyChangeMsg(trackId);
+        
         }
 
         /// <summary>
@@ -234,7 +236,7 @@ namespace resource.goods
                     return;
                 }
 
-                sum.produce_time = PubMaster.Goods.GetEarliestTime(stock.track_id, stock.goods_id);
+                sum.produce_time = PubMaster.Goods.GetEarliestTime(stock.track_id, stock.goods_id, stock.level);
                 SendSumMsg(sum, ActionTypeE.Update);
             }
         }

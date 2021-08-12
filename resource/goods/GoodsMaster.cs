@@ -1184,10 +1184,10 @@ namespace resource.goods
             return earytime;
         }
 
-        public DateTime? GetEarliestTime(uint trackid, uint goodid)
+        public DateTime? GetEarliestTime(uint trackid, uint goodid, byte level)
         {
             DateTime? earytime = null;
-            List<Stock> list = StockList.FindAll(c => c.track_id == trackid && c.goods_id == goodid);
+            List<Stock> list = StockList.FindAll(c => c.track_id == trackid && c.goods_id == goodid && c.level == level);
             foreach (Stock item in list)
             {
                 if (earytime == null)
@@ -1205,6 +1205,29 @@ namespace resource.goods
             }
 
             return earytime;
+        }
+
+        public DateTime? GetLatestTime(uint trackid, uint goodid, byte level)
+        {
+            DateTime? latestime = null;
+            List<Stock> list = StockList.FindAll(c => c.track_id == trackid && c.goods_id == goodid && c.level == level);
+            foreach (Stock item in list)
+            {
+                if (latestime == null)
+                {
+                    latestime = item.produce_time;
+                }
+
+                if (latestime is DateTime areat && item.produce_time is DateTime stime)
+                {
+                    if (stime.CompareTo(areat) > 0)
+                    {
+                        latestime = stime;
+                    }
+                }
+            }
+
+            return latestime;
         }
 
         public bool EditGood(Goods good, out string result)
@@ -1630,14 +1653,14 @@ namespace resource.goods
             return (ushort)StockList.Count(c => c.track_id == id);
         }
         
-        public ushort GetTrackStockCount(uint id, uint goodid)
+        public ushort GetTrackStockCount(uint id, uint goodid, byte level)
         {
-            return (ushort)StockList.Count(c => c.track_id == id && c.goods_id == goodid);
+            return (ushort)StockList.Count(c => c.track_id == id && c.goods_id == goodid && c.level == level);
         }
 
-        public int GetTrackStockPieseSum(uint trackid, uint goodid)
+        public int GetTrackStockPieseSum(uint trackid, uint goodid, byte level)
         {
-            return StockList.FindAll(c => c.track_id == trackid && c.goods_id == goodid)?.Sum(c => c.pieces) ?? 0;
+            return StockList.FindAll(c => c.track_id == trackid && c.goods_id == goodid && c.level == level)?.Sum(c => c.pieces) ?? 0;
         }
 
         /// <summary>
