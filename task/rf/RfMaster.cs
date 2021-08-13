@@ -598,6 +598,9 @@ namespace task.rf
                     case FunTag.DoCustomTask:
                         DoCustomTask(msg);
                         break;
+                    case FunTag.QueryMoveCarrierGiveTrack:
+                        QueryMoveCarrierGiveTrack(msg);
+                        break;
                     #endregion
 
                 }
@@ -2448,6 +2451,35 @@ namespace task.rf
         #endregion
 
         #region[自定义任务]
+
+
+        private void QueryMoveCarrierGiveTrack(RfMsgMod msg)
+        {
+            if (uint.TryParse(msg.Pack.Data,out uint carrierid))
+            {
+                Track cartrack = PubTask.Carrier.GetCarrierTrack(carrierid);
+                if (cartrack == null)
+                {
+                    SendFail2Rf(msg.MEID, FunTag.QueryMoveCarrierGiveTrack, "运输车当前没有轨道位置信息！");
+                    return;
+                }
+                TrackTypeE[] types;
+                if (cartrack.InType(TrackTypeE.下砖轨道, TrackTypeE.摆渡车_入, TrackTypeE.储砖_入))
+                {
+                    types = new TrackTypeE[] { TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入 };
+                }
+                else
+                {
+                    types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
+                }
+                List<Track> tracks = PubMaster.Track.GetTrackList(cartrack.area, cartrack.line, types);
+                TrackPack pack = new TrackPack();
+                pack.AddTrackList(tracks);
+                SendSucc2Rf(msg.MEID, FunTag.QueryMoveCarrierGiveTrack, JsonTool.Serialize(pack));
+            }
+        }
+
+
         /// <summary>
         /// 检查是否有串联砖机轨道
         /// </summary>
@@ -2486,6 +2518,35 @@ namespace task.rf
         private void DoCustomTask(RfMsgMod msg)
         {
             DoCustomTaskPack pack = JsonTool.Deserialize<DoCustomTaskPack>(msg.Pack.Data);
+            if (pack.carrierid == 0)
+            {
+                SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "请选择运输车！");
+                return;
+            }
+            Track cartrack = PubTask.Carrier.GetCarrierTrack(pack.carrierid);
+            if (cartrack == null)
+            {
+                SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "运输车当前没有轨道位置信息！");
+                return;
+            }
+            if (pack.givetrackid == 0)
+            {
+                SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "请选择卸货轨道！");
+                return;
+            }
+            switch (pack.CustomTaskType)
+            {
+                case CustomTasktype.移车任务:
+                    if (PubTask.Trans.AddMoveCarrierTask(cartrack.id, pack.givetrackid, pack.carrierid, out string result))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoCustomTask, result);
+                        return;
+                    }
+                    break;
+                case CustomTasktype.移砖任务:
+                    break;
+            }
+
             SendSucc2Rf(msg.MEID, FunTag.DoCustomTask, "ok");
         }
         #endregion

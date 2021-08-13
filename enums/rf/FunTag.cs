@@ -154,6 +154,7 @@
         #endregion
 
         #region[自定义任务]
+        public const string QueryMoveCarrierGiveTrack = nameof(QueryMoveCarrierGiveTrack);
         public const string CheckIsBroTrack = nameof(CheckIsBroTrack);
         public const string DoCustomTask = nameof(DoCustomTask);
         #endregion
