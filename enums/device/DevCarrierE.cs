@@ -155,4 +155,9 @@
         GiveMissTrack,
     }
 
+    public enum CustomTasktype
+    {
+        移车任务,
+        移砖任务
+    }
 }

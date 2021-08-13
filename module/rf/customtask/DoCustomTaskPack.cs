@@ -1,4 +1,5 @@
-﻿using System;
+﻿using enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace module.rf
         public uint carrierid { get; set; }
         public uint taketrackid{ get; set; }
         public uint givetrackid{ get; set; }
-        public int CustomTaskType{ get; set; }
+        public CustomTasktype CustomTaskType { get; set; }
         public uint taketileid{ get; set; }
         public uint givetileid{ get; set; }
     }
