@@ -63,6 +63,8 @@ namespace task.trans.transtask
             }
         }
 
+        #region[取货流程 - 取货轨道 下砖机轨道，储砖出，储砖入轨道]
+
         /// <summary>
         /// 取货流程
         /// </summary>
@@ -82,11 +84,29 @@ namespace task.trans.transtask
                 return;
             }
 
+            Track taketrack = PubMaster.Track.GetTrack(trans.take_track_id);
+            Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
+
+            bool isuparea = false;
+            if(takeTrack.InType(TrackTypeE.储砖_入, TrackTypeE.下砖轨道)
+                || givetrack.InType(TrackTypeE.下砖轨道))
+            {
+                isuparea = false;
+            }
+            else if(takeTrack.InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出)
+                || takeTrack.InType(TrackTypeE.储砖_出入)
+                || givetrack.InType(TrackTypeE.上砖轨道))
+            {
+                isuparea = true;
+            }
+
+
             #region[分配摆渡车]
+
             //还没有分配取货过程中的摆渡车
             if (trans.take_ferry_id == 0)
             {
-                _M.AllocateFerry(trans, DeviceTypeE.上摆渡, track, false);
+                _M.AllocateFerry(trans, isuparea ? DeviceTypeE.上摆渡 : DeviceTypeE.下摆渡, track, false);
                 //调度摆渡车接运输车
             }
             #endregion
@@ -98,16 +118,26 @@ namespace task.trans.transtask
             switch (track.Type)
             {
                 #region[小车在储砖轨道]
+                case TrackTypeE.储砖_入:
+                    if(track.id == trans.take_track_id)
+                    {
+                        if (isload && ftask)
+                        {
+                            _M.SetLoadTime(trans);
+                            _M.SetStatus(trans, TransStatusE.放砖流程);
+                        }
+                    }
+                    break;
                 case TrackTypeE.储砖_出入:
                 case TrackTypeE.储砖_出:
                     if (isnotload && ftask)
-                    { 
+                    {
                         //小车在轨道上没有任务，需要在摆渡车上才能作业后退取货
                         if (PubTask.Carrier.IsStopFTask(trans.carrier_id))
                         {
                             //摆渡车接车
                             if (_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
-                            {     
+                            {
                                 //前进至摆渡车
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
@@ -127,7 +157,7 @@ namespace task.trans.transtask
                             _M.SetLoadTime(trans);
                             //摆渡车接车
                             if (_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
-                            {                                
+                            {
                                 //前进至摆渡车
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
@@ -160,32 +190,55 @@ namespace task.trans.transtask
                         if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                         {
                             //摆渡车 定位去 取货点
-                            //小车到达摆渡车后短暂等待再开始定位
-                            if (_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id,out ferryTraid, out string _))
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res))
                             {
-                                //后退取砖
-                                CarrierActionOrder cao = new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.取砖指令,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.take_track_id),
-                                };
-
-                                TrackTypeE tt = PubMaster.Track.GetTrackType(trans.take_track_id);
-                                if (tt == TrackTypeE.储砖_出入)
-                                {
-                                    // 去入库地标取，回轨道出库地标
-                                    cao.ToRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
-                                    cao.OverRFID = PubMaster.Track.GetTrackRFID2(trans.take_track_id);
-                                }
-                                else
-                                {
-                                    // 去分段点取，回轨道出库地标
-                                    cao.ToPoint = PubMaster.Track.GetTrackSplitPoint(trans.take_track_id);
-                                    cao.OverRFID = PubMaster.Track.GetTrackRFID1(trans.take_track_id);
-                                }
-                                cao.ToTrackId = trans.take_track_id;
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
+                                #region 【任务步骤记录】
+                                _M.LogForFerryMove(trans, trans.take_ferry_id, trans.take_track_id, res);
+                                #endregion
+                                return;
                             }
+
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierTake(trans, trans.take_track_id);
+                            #endregion
+
+                            //后退取砖
+                            CarrierActionOrder cao = new CarrierActionOrder()
+                            {
+                                Order = DevCarrierOrderE.取砖指令,
+                                CheckTra = taketrack.ferry_down_code,
+                            };
+
+                            switch (taketrack.Type)
+                            {
+                                case TrackTypeE.上砖轨道:
+                                case TrackTypeE.下砖轨道:
+                                    //获取砖机配置的取货点
+                                    ushort torfid = PubMaster.DevConfig.GetTileSite(trans.tilelifter_id, trans.take_track_id);
+                                    if (torfid == 0)
+                                    {
+                                        //如果配置为零则获取取货轨道的rfid1
+                                        torfid = taketrack.rfid_1;// PubMaster.Track.GetTrackRFID1(trans.take_track_id);
+                                    }
+                                    cao.ToRFID = torfid;
+                                    break;
+                                case TrackTypeE.储砖_入:
+
+                                    break;
+                                case TrackTypeE.储砖_出:
+                                    // 去分段点取，回轨道出库地标
+                                    cao.ToPoint = taketrack.split_point;// PubMaster.Track.GetTrackSplitPoint(trans.take_track_id);
+                                    cao.OverRFID = taketrack.rfid_1;// PubMaster.Track.GetTrackRFID1(trans.take_track_id);
+                                    break;
+                                case TrackTypeE.储砖_出入:
+                                    // 去入库地标取，回轨道出库地标
+                                    cao.ToRFID = taketrack.rfid_1;// PubMaster.Track.GetTrackRFID1(trans.take_track_id);
+                                    cao.OverRFID = taketrack.rfid_2;// PubMaster.Track.GetTrackRFID2(trans.take_track_id);
+                                    break;
+                            }
+                            cao.ToTrackId = trans.take_track_id;
+                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, cao);
                         }
                     }
 
@@ -198,8 +251,35 @@ namespace task.trans.transtask
 
                     break;
                     #endregion
+
+                #region[上砖轨道]
+
+
+
+                #endregion
+
+                #region[下砖轨道]
+
+
+                #endregion
             }
         }
+
+        /// <summary>
+        /// 在上砖区域
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="taketrack"></param>
+        /// <param name="givetrack"></param>
+        private void InUpAreaToTakeTrackTakeStock(StockTrans trans, Track taketrack, Track givetrack)
+        {
+        }
+
+        private void InDownAreaToTakeTrackTakeStock(StockTrans trans, Track taketrack, Track givetrack)
+        {
+
+        }
+        #endregion
 
         /// <summary>
         /// 放货流程

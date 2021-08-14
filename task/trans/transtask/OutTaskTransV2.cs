@@ -427,6 +427,7 @@ namespace task.trans.transtask
                         && PubTask.Carrier.IsCarrierFree(trans.carrier_id))
                     {
                         if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result)
+                            || PubTask.Carrier.HaveInTrack(trans.give_track_id, carrierid)
                             || PubMaster.Goods.IsTrackHaveStockInTopPosition(trans.take_track_id)
                             || PubTask.Carrier.HaveCarrierMoveTopInTrackUpTop(trans.carrier_id, trans.take_track_id)
                             || mTimer.IsTimeOutAndReset(TimerTag.TileNeedCancel, trans.id, 20))
@@ -480,16 +481,15 @@ namespace task.trans.transtask
                             if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
                                 && ftask)
                             {
-                                bool needtoemtpytrack = false;
                                 if(takeTrack.Type == TrackTypeE.储砖_出入)
                                 {
                                     if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint carrierid))
                                     {
                                         //停在出入储砖轨道，上砖侧的空闲运输车
-                                        if(PubTask.Carrier.IsCarrierInTrackBiggerSite(carrierid, trans.take_track_id, takeTrack.rfid_2))
-                                        {
-                                            needtoemtpytrack = true;
-                                        }
+                                        //if(PubTask.Carrier.IsCarrierInTrackBiggerSite(carrierid, trans.take_track_id, takeTrack.rfid_2))
+                                        //{
+
+                                        //}
 
                                         //停在出入储砖轨道，下砖侧的空闲运输车
                                         if(PubTask.Carrier.IsCarrierInTrackSmallerSite(carrierid, trans.take_track_id, takeTrack.rfid_1)
@@ -501,11 +501,12 @@ namespace task.trans.transtask
                                     }
                                 }
 
-                                #region[取砖轨道有车则找空轨道放]
+                                #region[取砖 / 卸货 轨道有车则找空轨道放]
 
                                 //1.不允许，则不可以有车
                                 //2.允许，则不可以有非倒库车
-                                if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result))
+                                if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result)
+                                    || PubTask.Carrier.HaveInTrack(trans.give_track_id, carrierid))
                                 {
                                     // 优先移动到空轨道
                                     //List<uint> trackids = PubMaster.Area.GetAreaTrackIds(trans.area_id, TrackTypeE.储砖_出);

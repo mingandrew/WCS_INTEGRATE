@@ -17,6 +17,8 @@ namespace wcs.Data.View
         public ushort line { set; get; }
         public byte track_type { set; get; }
 
+        private string duration;
+
         public uint GoodId
         {
             get => goods_id;
@@ -28,6 +30,8 @@ namespace wcs.Data.View
             get => produce_time;
             set => Set(ref produce_time, value);
         }
+
+        public DateTime? MaxProduceTime { set; get; }
 
         public int Count
         {
@@ -45,6 +49,12 @@ namespace wcs.Data.View
             set => Set(ref pieces, value);
         }
 
+        public string Duration
+        {
+            get => duration;
+            set => Set(ref duration, value);
+        }
+
         public StockSumView(StockSum sum)
         {
             track_id = sum.track_id;
@@ -60,7 +70,19 @@ namespace wcs.Data.View
             Stack = sum.stack;
             Pieces = sum.pieces;
             ProduceTime = sum.produce_time;
+            MaxProduceTime = sum.max_produce_time;
             GoodId = sum.goods_id;
+            SetDuration();
+        }
+
+        private void SetDuration()
+        {
+            if(ProduceTime is DateTime min && MaxProduceTime is DateTime max)
+            {
+                //Duration = string.Format("[ {0} - {1} ]", min.ToString("ddd HH:mm", new System.Globalization.CultureInfo("zh-cn")), 
+                //    max.ToString("ddd HH:mm", new System.Globalization.CultureInfo("zh-cn")));
+                Duration = string.Format("[ {0} - {1} ]", min.ToString("dd HH:mm"), max.ToString("dd HH:mm"));
+            }
         }
     }
 }

@@ -148,7 +148,7 @@ namespace resource.track
             return TrackList.Find(c => c.id == track_id).Type;
         }
 
-        public List<Track> GetTracksInTypes(List<TrackTypeE> types)
+        public List<Track> GetTracksInTypes(params TrackTypeE[] types)
         {
             return TrackList.FindAll(c => types.Contains(c.Type));
         }

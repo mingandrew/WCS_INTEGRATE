@@ -2557,7 +2557,6 @@ namespace task.device
             return false;
         }
 
-
         /// <summary>
         /// 判断上砖机是否可以放砖
         /// </summary>

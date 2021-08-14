@@ -375,6 +375,88 @@ namespace task.trans
             result = "添加任务失败，请稍后重试";
             return false;
         }
+
+
+        /// <summary>
+        /// 手动添加移砖任务
+        /// </summary>
+        /// <param name="fromtrackid"></param>
+        /// <param name="totrackid"></param>
+        /// <param name="carrierid"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool AddMoveStockTask(uint fromtrackid, uint totrackid, uint tileid, uint carrierid, out string result)
+        {
+            if (carrierid != 0 && HaveCarrierInTrans(carrierid))
+            {
+                result = "运输车已经被分配任务中！";
+                return false;
+            }
+
+            if (IsTraInTrans(totrackid))
+            {
+                result = "卸货轨道当前被任务占用！";
+                return false;
+            }
+
+            if (IsTraInTrans(totrackid))
+            {
+                result = "卸货轨道当前被任务占用！";
+                return false;
+            }
+
+            Track fromtrack = PubMaster.Track.GetTrack(fromtrackid);
+            Track totrack = PubMaster.Track.GetTrack(totrackid);
+
+            if (fromtrack == null)
+            {
+                result = string.Format("获取不到运输车所在轨道信息[ {0} ]", fromtrackid);
+                return false;
+            }
+
+            if (totrack == null)
+            {
+                result = string.Format("获取不到运输车前往轨道信息[ {0} ]", totrackid);
+                return false;
+            }
+
+            if(fromtrack.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道) && tileid == 0)
+            {
+                result = string.Format("请选择取货轨道对应的砖机");
+                return false;
+            }
+
+            if(totrack.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道) && tileid == 0)
+            {
+                result = string.Format("请选择卸货轨道对应的砖机");
+                return false;
+            }
+
+            TransStatusE transStatusE = TransStatusE.调度设备;
+            if(carrierid != 0)
+            {
+                transStatusE = TransStatusE.取砖流程;
+            }
+
+            Stock stock = PubMaster.Goods.GetTrackTopStock(fromtrackid);
+            uint stockid = 0, goodid = 0;
+            if(stock != null)
+            {
+                stockid = stock.id;
+                goodid = stock.goods_id;
+            }
+
+            uint transid = AddTransWithoutLock(fromtrack.area, tileid, TransTypeE.库存转移, goodid, stockid, fromtrackid, totrackid, transStatusE, carrierid, fromtrack.line);
+
+            if (transid > 0)
+            {
+                result = "";
+                return true;
+            }
+
+            result = "添加任务失败，请稍后重试";
+            return false;
+        }
         #endregion
 
         #region[添加手动任务]

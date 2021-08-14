@@ -15,6 +15,8 @@ namespace module.goods
         public ushort line { set; get; }
         public byte track_type { set; get; }
 
+        public DateTime? max_produce_time { set; get; }
+
         public int CompareProduceTime(DateTime? time)
         {
             if (produce_time is DateTime dtime && time is DateTime ctime)

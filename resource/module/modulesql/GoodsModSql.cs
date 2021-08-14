@@ -475,6 +475,39 @@ namespace resource.module.modulesql
             return list;
         }
 
+
+
+        /// <summary>
+        /// 获取查询下砖消耗的查询语句
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <param name="starttime"></param>
+        /// <param name="endtime"></param>
+        /// <returns></returns>
+        public string GetQueryProduceLogSumList(uint areaid, ushort lineid, DateTime? starttime, DateTime? endtime)
+        {
+            string sql = "SELECT `t`.`goods_id` AS `goods_id`, " +
+                "`t`.`track_id` AS `track_id`, min( `t`.`create_time` ) AS `produce_time`,max( `t`.`create_time` ) AS `max_produce_time`," +
+                "count( `t`.`id` ) AS `count`, sum( `t`.`pieces` ) AS `pieces`, " +
+                "sum( `t`.`stack` ) AS `stack`, `t`.`area_id` AS `area`, " +
+                "(SELECT `track`.`line` FROM `track` WHERE( `track`.`id` = `t`.`track_id` )) AS `line` " +
+                "FROM `stock_log` `t` " +
+                "WHERE 1=1 ";
+            if (areaid != 0)
+            {
+                sql += string.Format(" and t.area_id = {0}", areaid);
+                sql += string.Format(" and (SELECT `track`.`line` = {0} FROM `track` WHERE( `track`.`id` = `t`.`track_id` ))", lineid);
+            }
+            sql += string.Format(" AND `t`.`create_time` > {0} AND `t`.`create_time` < {1} ", GetTimeOrNull(starttime), GetTimeOrNull(endtime));
+            sql += "GROUP BY `t`.`area_id`, `t`.`goods_id`," +
+                "(SELECT `track`.`line` FROM `track` WHERE( `track`.`id` = `t`.`track_id` ))" +
+                "ORDER BY `t`.`area_id`, `t`.`goods_id`, `create_time`, `t`.`track_id`";
+            return sql;
+        }
+
+
+
         /// <summary>
         /// 获取查询上砖消耗的查询语句
         /// </summary>
@@ -486,7 +519,7 @@ namespace resource.module.modulesql
         public string GetQueryConsumeLogSumList(uint areaid, ushort lineid, DateTime? starttime, DateTime? endtime)
         {
             string sql = "SELECT `t`.`goods_id` AS `goods_id`, " +
-                "`t`.`track_id` AS `track_id`, min( `t`.`produce_time` ) AS `produce_time`," +
+                "`t`.`track_id` AS `track_id`, min( `t`.`produce_time` ) AS `produce_time`,max( `t`.`produce_time` ) AS `max_produce_time`," +
                 "count( `t`.`id` ) AS `count`, sum( `t`.`pieces` ) AS `pieces`, " +
                 "sum( `t`.`stack` ) AS `stack`, `t`.`area` AS `area`, " +
                 "(SELECT `track`.`line` FROM `track` WHERE( `track`.`id` = `t`.`track_id` )) AS `line` " +
@@ -503,6 +536,31 @@ namespace resource.module.modulesql
                 "ORDER BY `t`.`area`, `t`.`goods_id`, `produce_time`, `t`.`track_id`";
             return sql;
         }
+
+
+
+        /// <summary>
+        /// 查看当前库存中轨道有的库存信息
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <param name="starttime"></param>
+        /// <param name="endtime"></param>
+        /// <returns></returns>
+        public List<StockSum> QueryProduceLogSumList(uint areaid, ushort lineid, DateTime? starttime, DateTime? endtime)
+        {
+            List<StockSum> list = new List<StockSum>();
+
+            string sql = GetQueryProduceLogSumList(areaid, lineid, starttime, endtime);
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<StockSum>();
+            }
+            return list;
+        }
+
+
 
         /// <summary>
         /// 查看当前库存中轨道有的库存信息
@@ -524,8 +582,6 @@ namespace resource.module.modulesql
             }
             return list;
         }
-
-
 
 
         #endregion

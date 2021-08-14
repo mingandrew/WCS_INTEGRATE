@@ -114,6 +114,7 @@
     </ApplicationDefinition>
     <Compile Include="Data\AppConfig.cs" />
     <Compile Include="Data\GlobalData.cs" />
+    <Compile Include="Data\Model\WcsComboBoxItem.cs" />
     <Compile Include="Data\Model\MenuModel.cs" />
     <Compile Include="Data\Model\TabItemModel.cs" />
     <Compile Include="Data\Model\WinCtlModel.cs" />

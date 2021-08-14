@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -95,10 +96,10 @@ namespace wcs.ViewModel
         #endregion
 
         #region[方法]
-        private List<TrackTypeE> Types;
-        public bool IsTypeChange(List<TrackTypeE> types)
+        private TrackTypeE[] Types;
+        public bool IsTypeChange(params TrackTypeE[] types)
         {
-            if (Types.Count != types.Count) return true;
+            if (Types.Length != types.Length) return true;
 
             foreach (TrackTypeE typeE in types)
             {
@@ -124,7 +125,7 @@ namespace wcs.ViewModel
             });
         }
 
-        public void QueryTrack(List<TrackTypeE> types)
+        public void QueryTrack(params TrackTypeE[] types)
         {
             if (refreshtime is null 
                 || (refreshtime is DateTime time && (DateTime.Now-time).TotalSeconds > 60)

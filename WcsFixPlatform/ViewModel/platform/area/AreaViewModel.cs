@@ -580,7 +580,7 @@ namespace wcs.ViewModel
                  .Initialize<TrackSelectViewModel>((vm) =>
                  {
                      vm.SetAreaFilter(0, true);
-                     vm.QueryTrack(new List<TrackTypeE>() { tracktype1, tracktype2, tiletrtype });
+                     vm.QueryTrack(tracktype1, tracktype2, tiletrtype);
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is Track tra)
             {
@@ -707,7 +707,7 @@ namespace wcs.ViewModel
                  .Initialize<TrackSelectViewModel>((vm) =>
                  {
                      vm.SetAreaFilter(0, true);
-                     vm.QueryTrack(new List<TrackTypeE>() { tracktype1, tracktype2 });
+                     vm.QueryTrack(tracktype1, tracktype2);
                  }).GetResultAsync<DialogResult>();
             if (result.p1 is Track tra)
             {

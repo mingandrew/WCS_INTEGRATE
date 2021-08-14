@@ -529,6 +529,16 @@ namespace resource.device
         #region [串联砖机]
 
         /// <summary>
+        /// 根据轨道ID获取配置了该轨道的砖机ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public List<uint> GetTileInTrack(uint id)
+        {
+            return ConfigTileLifterList.FindAll(c => c.InTrack(id))?.Select(c => c.id).ToList() ?? new List<uint>();
+        }
+
+        /// <summary>
         /// 判断是否有兄弟砖机
         /// </summary>
         /// <param name="devid"></param>

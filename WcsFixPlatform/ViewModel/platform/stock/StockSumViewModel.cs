@@ -36,6 +36,7 @@ namespace wcs.ViewModel
             TrackSumList = new ObservableCollection<StockSumView>();
 
             TrackStockSearchList = new ObservableCollection<StockSumView>();
+            ProduceLogSearchList = new ObservableCollection<StockSumView>();
             ConsumeStockSearchList = new ObservableCollection<StockSumView>();
 
             InitAreaRadio();
@@ -101,6 +102,7 @@ namespace wcs.ViewModel
         public ICollectionView TrackSumListView { set; get; }
 
         public ObservableCollection<StockSumView> TrackStockSearchList { set; get; }
+        public ObservableCollection<StockSumView> ProduceLogSearchList { set; get; }
         public ObservableCollection<StockSumView> ConsumeStockSearchList { set; get; }
 
         #region[轨道过滤]
@@ -190,6 +192,9 @@ namespace wcs.ViewModel
 
             switch (Now_Tag_Name)
             {
+                case "trackstock":
+                    QueryTrackStockLog();
+                    break;
                 case "inlog":
                     QueryTrackInLog();
                     break;
@@ -458,7 +463,7 @@ namespace wcs.ViewModel
         /// <summary>
         /// 当前库存查询
         /// </summary>
-        private void QueryTrackInLog()
+        private void QueryTrackStockLog()
         {
             List<StockSum>  list = PubMaster.Mod.GoodSql.QueryStockLogSumList(filterareaid, filterlineid, STARTDATE, STOPDATE);
             TrackStockSearchList.Clear();
@@ -466,6 +471,22 @@ namespace wcs.ViewModel
             foreach (var item in list)
             {
                 TrackStockSearchList.Add(new StockSumView(item));
+            }
+        }
+
+
+
+        /// <summary>
+        /// 入库库存记录
+        /// </summary>
+        private void QueryTrackInLog()
+        {
+            List<StockSum> list = PubMaster.Mod.GoodSql.QueryProduceLogSumList(filterareaid, filterlineid, STARTDATE, STOPDATE);
+            ProduceLogSearchList.Clear();
+
+            foreach (var item in list)
+            {
+                ProduceLogSearchList.Add(new StockSumView(item));
             }
         }
 

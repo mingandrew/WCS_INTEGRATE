@@ -129,7 +129,7 @@
                     </Grid>
                 </hc:TabItem>
 
-                <hc:TabItem Header="库存查询" Height="35" Tag="inlog">
+                <hc:TabItem Header="库存查询" Height="35" Tag="trackstock">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -167,6 +167,44 @@
                     </Grid>
                 </hc:TabItem>
 
+                <hc:TabItem Header="入库统计" Height="35" Tag="inlog">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <WrapPanel Grid.Row="0" Margin="10">
+                            <TextBlock Text="从" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
+                            <hc:DateTimePicker Width="195" FontSize="16"  ShowClearButton="True" SelectedDateTime="{Binding STARTDATE,Mode=TwoWay}" Padding="5,0,0,0"/>
+                            <TextBlock Text="至" VerticalAlignment="Center" Style="{StaticResource TextBlockTitle}" Margin="5"/>
+                            <hc:DateTimePicker Width="195" FontSize="16" ShowClearButton="True" SelectedDateTime="{Binding STOPDATE,Mode=TwoWay}" Padding="5,0,0,0"/>
+                            <Button Content="查询" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="1"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            <Button Content="今天6至18" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="2"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+                            <Button Content="昨天18至今天6" Margin="5" Style="{StaticResource ButtonPrimary}" hc:IconElement.Geometry="{StaticResource ClockGeometry}"
+                                Tag="3"  Command="{Binding SetFilterCmd}"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
+
+                        </WrapPanel>
+
+                        <DataGrid Grid.Row="1" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
+                              ItemsSource="{Binding ProduceLogSearchList}"
+                              SelectionUnit="FullRow" SelectionMode="Single"
+                              CanUserAddRows="False" CanUserResizeColumns="False"
+                              CanUserDeleteRows="False" CanUserSortColumns="False"
+                              CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Duration}" Header="时间" />
+                                <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
+                                <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
+                                <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
+                                <DataGridTextColumn Binding="{Binding Pieces}" Header="片数"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </hc:TabItem>
+                
                 <hc:TabItem Header="出库统计" Height="35" Tag="outlog">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -195,6 +233,7 @@
                               CanUserDeleteRows="False" CanUserSortColumns="False"
                               CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
                             <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Duration}" Header="时间" />
                                 <DataGridTextColumn Binding="{Binding GoodId,Converter={StaticResource GoodId2NameConverter}}" Header="品种" />
                                 <DataGridTextColumn Binding="{Binding Count}" Header="车"/>
                                 <DataGridTextColumn Binding="{Binding Stack}" Header="垛"/>
