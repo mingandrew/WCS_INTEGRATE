@@ -14,6 +14,10 @@ namespace task.trans.transtask
 {
     public class OutTaskTrans : BaseTaskTrans
     {
+        /// <summary>
+        /// 原上砖流程 - 已停用
+        /// </summary>
+        /// <param name="trans"></param>
         public OutTaskTrans(TransMaster trans) : base(trans)
         {
 

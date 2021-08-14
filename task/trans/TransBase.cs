@@ -34,18 +34,20 @@ namespace task.trans
 
         #region[分析]
 
-        DiagnoseServer MDiagnoreServer;
+        protected DiagnoseServer MDiagnoreServer;
 
         #endregion
 
         #region[任务】
 
         private InTaskTrans _InTrans;
-        private OutTaskTrans _outTrans;
+
+        //private OutTaskTrans _outTrans;  // 停用
         private OutTaskTransV2 _outTransV2;
 
-        private In2OutSortTrans _in2outSortTrans;
+        //private In2OutSortTrans _in2outSortTrans;  // 停用
         private In2OutSortTrans_V2 _in2outSortTransV2;
+
         private Out2OutSortTrans _out2outSortTrans;
         private MoveTaskTrans _moveTrans;
         private SameSideOutTrans _sameSideOutTrans;
@@ -77,11 +79,13 @@ namespace task.trans
             MDiagnoreServer = new DiagnoseServer(trans);
 
             _InTrans = new InTaskTrans(trans);
-            _outTrans = new OutTaskTrans(trans);
+
+            //_outTrans = new OutTaskTrans(trans);  // 停用
             _outTransV2 = new OutTaskTransV2(trans);
 
-            _in2outSortTrans = new In2OutSortTrans(trans);
+            //_in2outSortTrans = new In2OutSortTrans(trans);  // 停用
             _in2outSortTransV2 = new In2OutSortTrans_V2(trans);
+
             _out2outSortTrans = new Out2OutSortTrans(trans);
             _moveTrans = new MoveTaskTrans(trans);
             _sameSideOutTrans = new SameSideOutTrans(trans);
@@ -150,24 +154,26 @@ namespace task.trans
                                         _InTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.上砖任务:
-                                        if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line))
-                                        {
-                                            _outTransV2.DoTrans(trans);
-                                        }
-                                        else
-                                        {
-                                            _outTrans.DoTrans(trans);
-                                        }
+                                        _outTransV2.DoTrans(trans);
+                                        //if (GlobalWcsDataConfig.BigConifg.IsUpTaskNewAllocate(trans.area_id, trans.line))
+                                        //{
+                                        //    _outTransV2.DoTrans(trans);
+                                        //}
+                                        //else
+                                        //{
+                                        //    _outTrans.DoTrans(trans);
+                                        //}
                                         break;
                                     case TransTypeE.倒库任务:
-                                        if (GlobalWcsDataConfig.BigConifg.UseSortV2)
-                                        {
-                                            _in2outSortTransV2.DoTrans(trans);
-                                        }
-                                        else
-                                        {
-                                            _in2outSortTrans.DoTrans(trans);
-                                        }
+                                        _in2outSortTransV2.DoTrans(trans);
+                                        //if (GlobalWcsDataConfig.BigConifg.UseSortV2)
+                                        //{
+                                        //    _in2outSortTransV2.DoTrans(trans);
+                                        //}
+                                        //else
+                                        //{
+                                        //    _in2outSortTrans.DoTrans(trans);
+                                        //}
                                         break;
                                     case TransTypeE.移车任务:
                                         _moveTrans.DoTrans(trans);
@@ -1061,6 +1067,11 @@ namespace task.trans
             return TransList.Exists(c => !c.finish && c.area_id == area && c.InType(types));
         }
 
+        /// <summary>
+        /// 是否存在任务使用轨道
+        /// </summary>
+        /// <param name="trackids"></param>
+        /// <returns></returns>
         public bool ExistTransWithTracks(params uint[] trackids)
         {
             return TransList.Exists(c => !c.finish && c.InTrack(trackids) || ExistTrackInDtlUnFinish(trackids));

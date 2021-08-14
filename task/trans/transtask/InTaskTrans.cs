@@ -284,11 +284,11 @@ namespace task.trans.transtask
                                 #region[释放摆渡车]
 
                                 // 在取砖轨道，但是没货且在任务中，则释放取砖摆渡车
-                                if (!PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                                if (!isftask)
                                 {
                                     if (trans.HaveTakeFerry)
                                     {
-                                        RealseTakeFerry(trans, "运输车下砖轨道任务被中断时，尚未升降到位");
+                                        RealseTakeFerry(trans, true, "运输车下砖轨道任务被中断时，尚未升降到位");
                                     }
                                 }
 

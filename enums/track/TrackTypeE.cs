@@ -16,6 +16,7 @@
 
     /// <summary>
     /// 轨道出入类型
+    /// （常规-通用；中转方案时-区分出入）
     /// </summary>
     public enum TrackType2E
     {

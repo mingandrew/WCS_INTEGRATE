@@ -12,6 +12,10 @@ namespace task.trans.transtask
 {
     public class In2OutSortTrans : BaseTaskTrans
     {
+        /// <summary>
+        /// 原倒库流程 - 已停用
+        /// </summary>
+        /// <param name="trans"></param>
         public In2OutSortTrans(TransMaster trans) : base(trans)
         {
 
@@ -32,19 +36,8 @@ namespace task.trans.transtask
                 havedifcaringive = false;
             }
 
-            //是否有小车在满砖轨道
-            if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint fullcarrierid))
-            {
-                if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
-                {
-                    _M.AddMoveCarrierTask(trans.take_track_id, fullcarrierid, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
-                }
-                else if (PubTask.Carrier.IsCarrierInTask(fullcarrierid, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
-                {
-                    havecarintake = false;
-                }
-            }
-            else
+            //是否有小车在入库侧轨道
+            if (CheckCarAndAddMoveTask(trans, trans.take_track_id, true))
             {
                 havecarintake = false;
             }

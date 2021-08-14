@@ -1071,6 +1071,19 @@ namespace task.device
                         // 改用靠光电取砖（ 1 -后退，65535 -前进 ）
                         toPoint = 1;
 
+                        // 砖机轨道靠配置脉冲
+                        if (toTrack.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
+                        {
+                            if (srfid == 0)
+                            {
+                                toPoint = toTrack.limit_point;
+                            }
+                            else
+                            {
+                                toPoint = srfid;
+                            }
+                        }
+
                         checkTra = toTrack.ferry_up_code;
                         overPoint = toTrack.limit_point_up;
                         order = DevCarrierOrderE.取砖指令;
@@ -1195,6 +1208,19 @@ namespace task.device
 
                         // 改用靠光电取砖（ 1 -后退，65535 -前进 ）
                         toPoint = 65535;
+
+                        // 砖机轨道靠配置脉冲
+                        if (toTrack.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
+                        {
+                            if (srfid == 0)
+                            {
+                                toPoint = toTrack.limit_point_up;
+                            }
+                            else
+                            {
+                                toPoint = srfid;
+                            }
+                        }
 
                         checkTra = toTrack.ferry_down_code;
                         overPoint = toTrack.limit_point;
@@ -1522,7 +1548,7 @@ namespace task.device
                         break;
 
                     case DevCarrierTaskE.测试下降:
-                        order = DevCarrierOrderE.测试上升;
+                        order = DevCarrierOrderE.测试下降;
                         break;
 
                 }
@@ -3626,14 +3652,14 @@ namespace task.device
         /// <param name="carrier_id"></param>
         /// <param name="track_id"></param>
         /// <param name="point"></param>
-        /// <param name="isforward"></param>
+        /// <param name="isforwardTake"></param>
         /// <param name="target"></param>
         /// <returns></returns>
-        internal bool ExistLocateObstruct(uint carrier_id, uint track_id, ushort point, bool isforward, out CarrierTask otherCar)
+        internal bool ExistLocateObstruct(uint carrier_id, uint track_id, ushort point, bool isforwardTake, out CarrierTask otherCar)
         {
             otherCar = DevList.Find(c => c.ID != carrier_id
                && (c.CurrentTrackId == track_id || c.TargetTrackId == track_id || c.OnGoingTrackId == track_id)
-               && (c.CurrentPoint > 0 && (isforward ? (c.CurrentPoint < point) : (c.CurrentPoint > point)))
+               && (c.CurrentPoint > 0 && (isforwardTake ? (c.CurrentPoint < point) : (c.CurrentPoint > point)))
                 );
             return otherCar != null;
         }
@@ -3711,13 +3737,22 @@ namespace task.device
                     switch (currenttrack.Type)
                     {
                         case TrackTypeE.下砖轨道:
+                        case TrackTypeE.上砖轨道:
+                            // 后摆渡复位脉冲默认是 1000，暂定义 0~2000 内属 后摆渡
+                            if (currenttrack.limit_point_up <= 2000)
+                            {
+                                return DeviceTypeE.后摆渡;
+                            }
+                            return DeviceTypeE.前摆渡;
+
                         case TrackTypeE.后置摆渡轨道:
                         case TrackTypeE.储砖_入:
                             return DeviceTypeE.后摆渡;
-                        case TrackTypeE.上砖轨道:
+
                         case TrackTypeE.前置摆渡轨道:
                         case TrackTypeE.储砖_出:
                             return DeviceTypeE.前摆渡;
+
                         case TrackTypeE.储砖_出入:
                             int downdis = Math.Abs(task.CurrentPoint - currenttrack.limit_point);
                             int updis = Math.Abs(task.CurrentPoint - currenttrack.limit_point_up);
@@ -3792,18 +3827,28 @@ namespace task.device
                                 return true;
                             }
 
+                            //carrier = DevList.Find(c => c.ID != carrierid
+                            //                    && c.CurrentTrackId == trackid
+                            //                        //&& (c.CurrentSite == track.rfid_2
+                            //                        //    || (c.CurrentSite == track.rfid_1 && c.InTask(DevCarrierOrderE.取砖指令)))
+                            //                        );
+                            //if (carrier != null)
+                            //{
+                            //    result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
+                            //    return true;
+                            //}
+                            break;
+                        case TransTypeE.倒库任务:
+                        case TransTypeE.上砖侧倒库:
                             carrier = DevList.Find(c => c.ID != carrierid
-                                                && c.CurrentTrackId == trackid
-                                                    //&& (c.CurrentSite == track.rfid_2
-                                                    //    || (c.CurrentSite == track.rfid_1 && c.InTask(DevCarrierOrderE.取砖指令)))
-                                                    );
+                                                && (c.CurrentTrackId == track.id || c.OnGoingTrackId == track.id)
+                                                && (c.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                                         || PubTask.Trans.IsCarrierInTrans(c.ID, track.id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务, TransTypeE.中转倒库)));
                             if (carrier != null)
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
                                 return true;
                             }
-                            break;
-                        case TransTypeE.倒库任务:
                             break;
                         case TransTypeE.移车任务:
                             break;

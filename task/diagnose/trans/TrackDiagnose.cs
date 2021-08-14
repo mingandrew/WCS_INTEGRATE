@@ -19,8 +19,8 @@ namespace task.diagnose.trans
         bool dodiagnose;
         public override void Diagnose()
         {
-            dodiagnose = !dodiagnose;
-            if (dodiagnose) return;
+            //dodiagnose = !dodiagnose;
+            //if (dodiagnose) return;
             List<uint> transtrack = _M.GetTransTrackIds();
             PubMaster.Track.DoSortTrackDiagnose(transtrack);
         }

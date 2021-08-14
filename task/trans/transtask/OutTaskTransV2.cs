@@ -343,7 +343,7 @@ namespace task.trans.transtask
                                         if (PubTask.Carrier.IsCarrierInTrackSmallerSite(carrierid, trans.take_track_id, takeTrack.rfid_1)
                                             && !_M.HaveInCarrier(carrierid))
                                         {
-                                            CheckTrackAndAddMoveTask(trans, trans.take_track_id, DeviceTypeE.后摆渡);
+                                            CheckTrackAndAddMoveTask(trans, trans.take_track_id);
                                             return;
                                         }
                                     }

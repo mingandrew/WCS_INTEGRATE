@@ -2855,13 +2855,46 @@ namespace resource.goods
                         return true;
                     }
                     safe = GetStackSafe(stk.goods_id, carrierid);
-                    location = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
-                    location = (ushort)(stk.location - safe);
+                    limit = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
+                    location = (ushort)(stk.location + safe);
                     if (location > limit)
                     {
                         location = 0;
                         return false;
                     }
+                    return true;
+
+                default:
+                    location = 0;
+                    return false;
+            }
+
+        }
+
+        /// <summary>
+        /// 获取指定库存 前/后 下一车位坐标
+        /// </summary>
+        /// <param name="md"></param>
+        /// <param name="stk"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public bool CalculateNextLocByStock(DevMoveDirectionE md, Stock stk, out ushort location, uint carrierid = 0)
+        {
+            location = 0;
+            if (stk == null)
+            {
+                return false;
+            }
+
+            ushort safe = GetStackSafe(stk.goods_id, carrierid); // 安全间隔
+            switch (md)
+            {
+                case DevMoveDirectionE.前进:
+                    location = (ushort)(stk.location + safe);
+                    return true;
+
+                case DevMoveDirectionE.后退:
+                    location = (ushort)(stk.location - safe);
                     return true;
 
                 default:
@@ -3200,10 +3233,10 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="stockid"></param>
         /// <returns></returns>
-        public bool ExistBehindUpSplitPoint(uint trackid, uint point, out int stkcount)
+        public bool ExistBehindUpSplitPoint(uint trackid, int point, out int stkcount)
         {
             bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
-            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (isforward ? (c.location >= point) : (c.location <= point)));
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (isforward ? (c.location > point) : (c.location < point)));
             stkcount = stocks.Count;
             return stkcount > 0;
         }
@@ -3216,57 +3249,12 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="stockid"></param>
         /// <returns></returns>
-        public bool ExistInfrontUpSplitPoint(uint trackid, uint point, out int stkcount)
+        public bool ExistInfrontUpSplitPoint(uint trackid, int point, out int stkcount)
         {
             bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
-            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (isforward ? (c.location <= point) : (c.location >= point)));
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (isforward ? (c.location < point) : (c.location > point)));
             stkcount = stocks.Count;
             return stkcount > 0;
-        }
-
-
-        /// <summary>
-        /// 取上砖接力点后的 最前一车库存(取后返回方向为前判断)
-        /// 后退取：表示后的库存脉冲越来越小，即最前则脉冲最大
-        /// 前进取：表示后的库存脉冲越来越大，即最前则脉冲最小
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        public Stock GetBehindUpSplitTopStock(uint trackid)
-        {
-            Track track = PubMaster.Track.GetTrack(trackid);
-            if (track != null)
-            {
-                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (track.is_take_forward ? (c.location > track.up_split_point) : (c.location < track.up_split_point)));
-                if (stocks.Count > 0)
-                {
-                    stocks.Sort((x, y) => y.location.CompareTo(x.location));
-                    return track.is_take_forward ? stocks[stocks.Count - 1] : stocks[0];
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// 获取上砖接力点前的 最后一车库存(取后返回方向为前判断)
-        /// 后退取：表示前的库存脉冲越来越大，即最后则脉冲最小
-        /// 前进取：表示前的库存脉冲越来越小，即最后则脉冲最大
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        public Stock GetInfrontUpSplitButtonStock(uint trackid)
-        {
-            Track track = PubMaster.Track.GetTrack(trackid);
-            if (track != null)
-            {
-                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && (track.is_take_forward ? (c.location <= track.up_split_point) : (c.location >= track.up_split_point)));
-                if (stocks.Count > 0)
-                {
-                    stocks.Sort((x, y) => y.location.CompareTo(x.location));
-                    return track.is_take_forward ? stocks[0] : stocks[stocks.Count - 1];
-                }
-            }
-            return null;
         }
 
 
@@ -3278,7 +3266,7 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public Stock GetStockBehindStockPoint(uint trackid, ushort point)
+        public Stock GetStockBehindStockPoint(uint trackid, int point)
         {
             Track track = PubMaster.Track.GetTrack(trackid);
             if (track != null)
@@ -3301,7 +3289,7 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="point"></param>
         /// <returns></returns>
-        public Stock GetStockInfrontStockPoint(uint trackid, ushort point)
+        public Stock GetStockInfrontStockPoint(uint trackid, int point)
         {
             Track track = PubMaster.Track.GetTrack(trackid);
             if (track != null)

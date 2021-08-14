@@ -5,6 +5,7 @@ using module.track;
 using resource;
 using System;
 using task.device;
+using tool.appconfig;
 using tool.timer;
 
 namespace task.trans.transtask
@@ -270,12 +271,12 @@ namespace task.trans.transtask
         #region[检测轨道并添加移车任务]
 
         /// <summary>
-        /// 判断是否有其他车在需要作业的轨道
+        /// 判断是否有不符规格的车在作业的轨道
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid, DeviceTypeE ferytype = DeviceTypeE.其他)
+        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid)
         {
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
@@ -319,6 +320,79 @@ namespace task.trans.transtask
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// 检查轨道内运输车是否需要移走
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="isdown">是否移走下砖侧</param>
+        /// <param name="res"></param>
+        /// <returns></returns>
+        internal bool CheckCarAndAddMoveTask(StockTrans trans, uint trackid, bool isdown)
+        {
+            res = "";
+            if (PubTask.Carrier.HaveInTrackAndGet(trackid, out uint carrierid))
+            {
+                Track track = PubMaster.Track.GetTrack(trackid);
+                CarrierTask carrier = PubTask.Carrier.GetDevCarrier(carrierid);
+
+                if (!PubTask.Carrier.IsCarrierFree(carrierid))
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 103, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                        carrier.Device.name, track.name));
+                    #endregion
+                    return true;
+                }
+
+                if (_M.HaveCarrierInTrans(carrierid))
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 104, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                        carrier.Device.name, track.name));
+                    #endregion
+                    return true;
+                }
+
+                bool ismove = false;
+                if (isdown)
+                {
+                    // 入库侧的移走
+                    if (track.Type == TrackTypeE.储砖_入
+                        || (track.Type == TrackTypeE.储砖_出入
+                            && (track.is_give_back ? (carrier.CurrentPoint >= track.split_point) : (carrier.CurrentPoint <= track.split_point)))
+                        )
+                    {
+                        ismove = true;
+                    }
+                }
+                else
+                {
+                    // 出库侧的移走
+                    if (track.Type == TrackTypeE.储砖_出
+                        || (track.Type == TrackTypeE.储砖_出入
+                            && (track.is_take_forward ? (carrier.CurrentPoint <= track.split_point) : (carrier.CurrentPoint >= track.split_point)))
+                        )
+                    {
+                        ismove = true;
+                    }
+                }
+
+                if (ismove)
+                {
+                    _M.AddMoveCarrierTask(track.id, carrierid, track.Type, MoveTypeE.转移占用轨道);
+
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 105, string.Format("有运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
+                        carrier.Device.name, track.name));
+                    #endregion
+                    return true;
+                }
+
+            }
+
+            return false;
         }
 
         #endregion
@@ -384,7 +458,7 @@ namespace task.trans.transtask
         /// 释放取货摆渡车
         /// </summary>
         /// <param name="trans"></param>
-        public void RealseTakeFerry(StockTrans trans, string memo = "")
+        public void RealseTakeFerry(StockTrans trans, bool isclear = true, string memo = "")
         {
             if (!trans.IsReleaseTakeFerry
                 && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
@@ -392,15 +466,15 @@ namespace task.trans.transtask
             {
                 _M.FreeTakeFerry(trans, memo);
 
-                trans.take_ferry_id = 0;
+                if (isclear) trans.take_ferry_id = 0;
             }
         }
 
         /// <summary>
-        /// 是否送货摆渡车
+        /// 释放送货摆渡车
         /// </summary>
         /// <param name="trans"></param>
-        public void RealseGiveFerry(StockTrans trans, string memo = "")
+        public void RealseGiveFerry(StockTrans trans, bool isclear = true, string memo = "")
         {
             if (!trans.IsReleaseGiveFerry
                 && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
@@ -408,7 +482,7 @@ namespace task.trans.transtask
             {
                 _M.FreeGiveFerry(trans, memo);
 
-                trans.give_ferry_id = 0;
+                if (isclear) trans.give_ferry_id = 0;
             }
         }
         #endregion
@@ -528,6 +602,29 @@ namespace task.trans.transtask
                 CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
                 ToPoint = loc,
                 OverPoint = toTrack.is_give_back ? toTrack.limit_point_up : toTrack.limit_point, // 后退存则前侧停，前进存则后侧停
+                ToTrackId = toTrack.id
+            }, mes);
+        }
+
+        /// <summary>
+        /// 指定脉冲倒库
+        /// </summary>
+        /// <param name="trackID"></param>
+        /// <param name="carrierID"></param>
+        /// <param name="transID"></param>
+        /// <param name="loc"></param>
+        public void MoveToSort(uint trackID, uint carrierID, uint transID, ushort locTake, ushort locGive, string mes = "")
+        {
+            // 目的轨道
+            Track toTrack = PubMaster.Track.GetTrack(trackID);
+
+            // 至指定脉冲倒库
+            PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.往前倒库,
+                CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
+                ToPoint = locTake,
+                OverPoint = locGive,
                 ToTrackId = toTrack.id
             }, mes);
         }
@@ -679,6 +776,183 @@ namespace task.trans.transtask
             mes = "执行放砖";
             MoveToGive(trackID, carrierID, transID, stkloc);
             return;
+        }
+
+        #endregion
+
+        #region [库存转移 - 轨道内倒库]
+
+        /// <summary>
+        /// 获取倒库取砖位置
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="overPoint"></param>
+        /// <param name="splitPoint"></param>
+        /// <param name="loc"></param>
+        /// <returns></returns>
+        public bool GetTransferTakePoint(uint trackid, int overPoint, int splitPoint, out ushort loc)
+        {
+            loc = 0;
+            // 获取分界点后 最前的库存
+            Stock stk = PubMaster.Goods.GetStockBehindStockPoint(trackid, splitPoint);
+            if (stk == null) return false;
+
+            loc = stk.location;
+            ushort limit = 50; // 误差范围
+            bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
+            // 判断是否超过结束点
+            if (isforward ? (loc > (overPoint + limit)) : (loc < (overPoint - limit)))
+            {
+                return false;
+            }
+
+            return loc > 0;
+        }
+
+        /// <summary>
+        /// 获取倒库放砖位置
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="limitPoint"></param>
+        /// <param name="splitPoint"></param>
+        /// <param name="loc"></param>
+        /// <returns></returns>
+        public bool GetTransferGivePoint(uint trackid, uint carrierid, int limitPoint, int splitPoint, out ushort loc)
+        {
+            // 获取分界点前 最后的库存
+            bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
+            Stock stk = PubMaster.Goods.GetStockInfrontStockPoint(trackid, splitPoint);
+            // 计算下一车位置
+            if (PubMaster.Goods.CalculateNextLocByStock(isforward ? DevMoveDirectionE.前进 : DevMoveDirectionE.后退, stk, out loc, carrierid))
+            {
+                // 判断是否超过分界点
+                if (isforward ? (loc > splitPoint) : (loc < splitPoint))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                loc = (ushort)limitPoint;
+            }
+
+            return loc > 0;
+        }
+
+        /// <summary>
+        /// 获取倒库待命位置
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="overPoint"></param>
+        /// <param name="splitPoint"></param>
+        /// <returns></returns>
+        public ushort GetTransferWaitPoint(uint trackid, uint carrierid, int overPoint, int splitPoint)
+        {
+            // 获取轨道数据
+            Track track = PubMaster.Track.GetTrack(trackid);
+            // 待命点
+            int loc = 0;
+
+            // 获取分界点前 最后的库存
+            Stock stk = PubMaster.Goods.GetStockInfrontStockPoint(trackid, splitPoint);
+            if (stk != null)
+            {
+                // 安全距离
+                ushort safe = PubMaster.Goods.GetStackSafe(stk.goods_id, carrierid);
+                // 运输车等待的时候需要后退几个车身
+                ushort carspace = GlobalWcsDataConfig.BigConifg.GetSortWaitNumberCarSpace(track.area, track.line);
+                carspace = (ushort)(carspace * safe);
+
+                loc = track.is_take_forward ? (stk.location + carspace) : (stk.location - carspace);
+            }
+
+            // 获取分界点后 最前的库存
+            Stock nextstk = PubMaster.Goods.GetStockBehindStockPoint(trackid, splitPoint);
+            if (nextstk != null)
+            {
+                // 定最远的
+                if (loc == 0 || track.is_take_forward ? (nextstk.location > loc) : (nextstk.location < loc))
+                {
+                    loc = nextstk.location;
+                }
+            }
+
+            // 判断是否超过结束点
+            if (loc == 0 || track.is_take_forward ? (loc > overPoint) : (loc < overPoint))
+            {
+                return (ushort)overPoint;
+            }
+
+            return (ushort)loc;
+        }
+
+
+
+        /// <summary>
+        /// 是否倒库转移结束
+        /// </summary>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="overPoint">结束点</param>
+        /// <param name="splitPoint">分界点</param>
+        /// <returns></returns>
+        public bool IsTransferOver(uint trackid, int overPoint, int splitPoint)
+        {
+            // 结束点前是否有库存
+            if (!PubMaster.Goods.ExistInfrontUpSplitPoint(trackid, overPoint, out int stkcount))
+            {
+                return true;
+            }
+
+            // 分界点后是否有库存
+            if (!PubMaster.Goods.ExistBehindUpSplitPoint(trackid, splitPoint, out stkcount))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 获取倒库取放位置
+        /// </summary>
+        /// <param name="transid"></param>
+        /// <param name="trackid"></param>
+        /// <param name="carrierid"></param>
+        /// <param name="overPoint"></param>
+        /// <param name="splitPoint"></param>
+        /// <param name="limitPoint"></param>
+        /// <param name="mes"></param>
+        /// <param name="locTake"></param>
+        /// <param name="locGive"></param>
+        /// <returns></returns>
+        public bool GetTransferTGpoint(uint transid, uint trackid, uint carrierid, int overPoint, int splitPoint, int limitPoint, 
+            out string mes, out ushort locTake, out ushort locGive)
+        {
+            locTake = 0;
+            locGive = 0;
+
+            if (!GetTransferTakePoint(trackid, overPoint, splitPoint, out locTake))
+            {
+                mes = "无合适取货位置";
+                return false;
+            }
+
+            if (!GetTransferGivePoint(trackid, carrierid, limitPoint, splitPoint, out locGive))
+            {
+                mes = "无合适卸货位置";
+                return false;
+            }
+
+            // 取放位置间距
+            ushort dis = 100;
+            if (Math.Abs(locTake - locGive) <= dis)
+            {
+                mes = "取放位置相隔过小，无倒库必要";
+                return false;
+            }
+
+            mes = "";
+            return true;
         }
 
         #endregion

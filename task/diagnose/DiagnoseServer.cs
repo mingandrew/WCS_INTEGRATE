@@ -54,10 +54,14 @@ namespace task.diagnose
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableSortDiagnose)) SortDiagnose?.Diagnose();
                 //分析分配运输车：移车任务
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.EnableMoveCarDiagnose))  MoveDiagnose?.Diagnose();
-
-                TrackDiagnose?.Diagnose();
             }
             catch { }
+        }
+
+        public void DoTrackDiagnose()
+        {
+            // 分析轨道：更新倒库状态
+            TrackDiagnose?.Diagnose();
         }
     }
 }
