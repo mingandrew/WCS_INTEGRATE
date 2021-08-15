@@ -28,6 +28,8 @@ namespace resource.area
             LineList = new List<Line>();
 
             mLog = (Log)new LogFactory().GetLog("线路信息", false);
+            mConfig = (Log)new LogFactory().GetLog("区域配置", false);
+            
         }
 
         public void Start()
@@ -190,7 +192,7 @@ namespace resource.area
         private List<AreaDeviceTrack> AreaDevTraList { set; get; }
         private List<Line> LineList { set; get; }
 
-        private Log mLog;
+        private Log mLog, mConfig;
         #endregion
 
         #region[获取对象]
@@ -568,6 +570,10 @@ namespace resource.area
             {
                 AreaDevTraList.Remove(track);
                 PubMaster.Mod.AreaSql.DeleteAreaDeviceTrack(track);
+
+                mConfig.Status(true, string.Format("[删除轨道], 设备[ {0} ], 轨道[ {1} ], 优先级[ {2} ]", PubMaster.Device.GetDeviceName(track.device_id),
+                    PubMaster.Track.GetTrackName(track.track_id), track.prior));
+
                 return true;
             }
             return false;
@@ -686,6 +692,8 @@ namespace resource.area
 
             PubMaster.Mod.AreaSql.AddAreaDeviceTrack(areatradev);
             Refresh(false, false, false, true, false);
+
+            mConfig.Status(true, string.Format("[添加轨道], 设备[ {0} ], 轨道[ {1} ], 优先级[ {2} ]", dev.name, PubMaster.Track.GetTrackName(trackid), prior - 1));
         }
 
         public bool IsFerrySetTrack(uint ferryid, uint trackid)

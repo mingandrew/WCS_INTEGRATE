@@ -519,7 +519,7 @@ namespace task.device
             if (DevStatus.Aler1 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 1);
-                DevAlert.ResetAler1();
+                DevAlert.RetEmptyWarn(0);
                 return;
             }
 
@@ -600,6 +600,7 @@ namespace task.device
             if (DevStatus.Aler2 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 2);
+                DevAlert.RetEmptyWarn(1);
                 return;
             }
 
@@ -714,6 +715,7 @@ namespace task.device
             if (DevStatus.Aler3 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 3);
+                DevAlert.RetEmptyWarn(2);
                 return;
             }
 
@@ -790,6 +792,7 @@ namespace task.device
             if (DevStatus.Aler4 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 4);
+                DevAlert.RetEmptyWarn(3);
                 return;
             }
 
@@ -864,6 +867,7 @@ namespace task.device
             if (DevStatus.Aler5 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 5);
+                DevAlert.RetEmptyWarn(4);
                 return;
             }
 
@@ -938,6 +942,7 @@ namespace task.device
             if (DevStatus.Aler6 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 6);
+                DevAlert.RetEmptyWarn(5);
                 return;
             }
 
@@ -1012,6 +1017,7 @@ namespace task.device
             if (DevStatus.Aler7 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 7);
+                DevAlert.RetEmptyWarn(6);
                 return;
             }
 
@@ -1086,6 +1092,7 @@ namespace task.device
             if (DevStatus.Aler8 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 8);
+                DevAlert.RetEmptyWarn(7);
                 return;
             }
 
@@ -1160,6 +1167,7 @@ namespace task.device
             if (DevStatus.Aler9 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 9);
+                DevAlert.RetEmptyWarn(8);
                 return;
             }
 
@@ -1234,6 +1242,7 @@ namespace task.device
             if (DevStatus.Aler10 == 0)
             {
                 PubMaster.Warn.RemoveCarrierWarn((ushort)ID, 10);
+                DevAlert.RetEmptyWarn(9);
                 return;
             }
 
