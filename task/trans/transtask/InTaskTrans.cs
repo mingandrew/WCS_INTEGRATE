@@ -330,7 +330,8 @@ namespace task.trans.transtask
 
                             //任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作
                             if (trans.HaveTakeFerry
-                                && PubTask.Carrier.IsCarrierNotLoadInDownTileAlert(trans.carrier_id))
+                                && PubTask.Carrier.IsCarrierNotLoadInDownTileAlert(trans.carrier_id)
+                                && mTimer.IsTimeUp(trans.carrier_id+"LoadError", 20))
                             {
                                 //释放摆渡车
                                 #region[释放摆渡车]

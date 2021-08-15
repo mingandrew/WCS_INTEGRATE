@@ -17,6 +17,19 @@ namespace module.device
             Warning = new bool[10,8];
         }
 
+        public void RetEmptyWarn(int v1)
+        {
+            if (v1 < 0 || v1 > 9) return;
+            Warning[v1, 0] = false ;
+            Warning[v1, 1] = false ;
+            Warning[v1, 2] = false ;
+            Warning[v1, 3] = false ;
+            Warning[v1, 4] = false ;
+            Warning[v1, 5] = false ;
+            Warning[v1, 6] = false ;
+            Warning[v1, 7] = false ;
+        }
+
         public bool GetWarn(int v1, int v2)
         {
             if (v1 < 0 || v1 > 9 || v2 < 0 || v2 > 7) return false;
@@ -34,39 +47,6 @@ namespace module.device
         {
             if (v1 < 0 || v1 > 9 || v2 < 0 || v2 > 7) return;
             Warning[v1, v2] = value;
-        }
-
-        public void ResetAler1()
-        {
-            Warning[0, 0] = false;
-            Warning[0, 1] = false;
-            Warning[0, 2] = false;
-            Warning[0, 3] = false;
-            Warning[0, 4] = false;
-            Warning[0, 5] = false;
-            Warning[0, 6] = false;
-        }
-
-        public void ResetAler2()
-        {
-            Warning[1, 0] = false;
-            Warning[1, 1] = false;
-            Warning[1, 2] = false;
-            Warning[1, 3] = false;
-            Warning[1, 4] = false;
-            Warning[1, 5] = false;
-            Warning[1, 6] = false;
-        }
-
-        public void ResetAler3()
-        {
-            Warning[1, 0] = false;
-            Warning[1, 1] = false;
-            Warning[1, 2] = false;
-            Warning[1, 3] = false;
-            Warning[1, 4] = false;
-            Warning[1, 5] = false;
-            Warning[1, 6] = false;
         }
 
         /// <summary>
