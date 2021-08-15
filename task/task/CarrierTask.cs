@@ -711,7 +711,7 @@ namespace task.device
             else
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA3X7, (ushort)ID);
-                DevAlert.SetAlert(2, 7, true);
+                DevAlert.SetAlert(2, 7, false);
             }
         }
 
