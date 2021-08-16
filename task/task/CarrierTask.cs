@@ -374,7 +374,7 @@ namespace task.device
             OnGoingTrackId = cao.ToTrackId;
             SetOnGoingOrderWithMemo(cao.Order, transid, memo);
 
-            if (cao.Order == DevCarrierOrderE.往前倒库 || cao.Order == DevCarrierOrderE.往后倒库)
+            if (cao.Order == DevCarrierOrderE.倒库指令)
             {
                 if (cao.MoveCount == 0)
                 {
@@ -484,7 +484,7 @@ namespace task.device
                 OnGoingTrackId = 0;
             }
             else if (OnGoingTrackId != 0
-                && InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                && InTask(DevCarrierOrderE.倒库指令)
                 && PubMaster.Track.IsBrotherTrack(CurrentTrackId, OnGoingTrackId))
             {
                 OnGoingTrackId = 0;

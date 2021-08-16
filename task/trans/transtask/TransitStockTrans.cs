@@ -33,27 +33,24 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void Organizing(StockTrans trans)
         {
-            Stock stk = PubMaster.Goods.GetStockForOut(trans.take_track_id);
-            List<StockTransDtl> dtl = _M.GetTransDtls(trans.id);
-            foreach (var item in dtl)
+            if (_M.HaveTaskUsedTakeTrackId(trans))
             {
-                CheckTransDtlAndAddMoveStockTrans(trans, item, stk);
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 1012, string.Format("存在子任务进行中"));
+                #endregion
+                return;
             }
 
-            //判断所有细单都完成了
-            CheckAllDtlFinish(trans, dtl);
-        }
+            Stock stk = PubMaster.Goods.GetStockForOut(trans.take_track_id);
 
-        /// <summary>
-        /// 检测细单
-        /// </summary>
-        /// <param name="trans"></param>
-        /// <param name="dtl"></param>
-        private void CheckTransDtlAndAddMoveStockTrans(StockTrans trans, StockTransDtl dtl, Stock top)
-        {
-            if (dtl.DtlType == StockTransDtlTypeE.中转库存)
+            if (stk == null)
             {
-                DoMoveStock(trans, dtl, top);
+                _M.SetStatus(trans, TransStatusE.完成);
+                return;
+            }
+            else
+            {
+                DoMoveStock(trans, stk);
             }
         }
 
@@ -63,32 +60,40 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         /// <param name="dtl"></param>
         /// <param name="top"></param>
-        private void DoMoveStock(StockTrans trans, StockTransDtl dtl, Stock top)
+        private void DoMoveStock(StockTrans trans, Stock top)
         {
-            if (dtl.DtlStatus == StockTransDtlStatusE.完成) return;
-
-            if (dtl.dtl_trans_id != 0 && dtl.DtlStatus != StockTransDtlStatusE.完成 && !_M.IsTransFinish(dtl.dtl_trans_id))
-            {
-                return;
-            }
-
-            if (top == null || dtl.dtl_left_qty == 0)
-            {
-                if (dtl.dtl_trans_id == 0)
-                {
-                    _M.SetDtlStatus(dtl, StockTransDtlStatusE.完成);
-                }
-            }
-
             if (top != null)
             {
-                if (dtl.dtl_trans_id == 0
-                    && !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.库存转移)
+                if ( !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.库存转移)
                     && !_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.中转倒库))
                 {
-                    uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.id, trans.take_track_id, dtl.dtl_give_track_id, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
+                    List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, top.goods_id);
+                    uint trackid = 0;
+                    foreach (uint traid in trackids)
+                    {
+                        if (!_M.ExistTransWithTracks(traid))
+                        {
+                            trackid = traid;
+                            break;
+                        }
+                    }
 
-                    _M.SetDtlTransId(dtl, transid);
+                    if (trackid > 0)
+                    {
+                        uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.id,
+                            trans.take_track_id, trackid, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
+
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 1112, string.Format("生成库存转移任务 [ID：{0}]", transid));
+                        #endregion
+                    }
+                    else
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 1212, string.Format("找不到合适轨道中转存砖"));
+                        #endregion
+                    }
+
                 }
             }
         }
@@ -99,23 +104,8 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void FinishStockTrans(StockTrans trans)
         {
-            if (_M.SetAllTransDtlFinish(trans.id))
-            {
-                _M.SetFinish(trans);
-            }
-        }
-
-        /// <summary>
-        /// 检测所有细单任务是否完成<br/>
-        /// 如果全部完成则完成整理任务
-        /// </summary>
-        private void CheckAllDtlFinish(StockTrans trans, List<StockTransDtl> dtl)
-        {
-            //全部都已经完成
-            if (!dtl.Exists(c => c.DtlStatus != StockTransDtlStatusE.完成))
-            {
-                _M.SetStatus(trans, TransStatusE.完成);
-            }
+            PubMaster.Warn.RemoveTaskAllWarn(trans.id);
+            _M.SetFinish(trans);
         }
 
         /// <summary>
@@ -124,7 +114,15 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CancelStockTrans(StockTrans trans)
         {
+            if (_M.HaveTaskUsedTakeTrackId(trans))
+            {
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 1312, string.Format("等待子任务完成"));
+                #endregion
+                return;
+            }
 
+            _M.SetStatus(trans, TransStatusE.完成);
         }
 
 
@@ -137,9 +135,7 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CheckingTrack(StockTrans trans)
         {
-
         }
-
 
         /// <summary>
         /// 调度设备

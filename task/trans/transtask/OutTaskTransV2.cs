@@ -158,15 +158,6 @@ namespace task.trans.transtask
                 #region[储砖_出]
                 case TrackTypeE.储砖_出:
                 case TrackTypeE.储砖_出入:
-
-                    //判断小车是否做了倒库接力任务，并生成任务且完成上砖任务
-                    if (_M.CheckCarrierInSortTaskAndAddTask(trans, trans.carrier_id, trans.take_track_id))
-                    {
-                        _M.SetStatus(trans, TransStatusE.完成,
-                            string.Format("小车【{0}】执行接力倒库，完成上砖任务", PubMaster.Device.GetDeviceName(trans.carrier_id)));
-                        return;
-                    }
-
                     if (!tileemptyneed
                         && isftask
                         && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 10, 5))
@@ -190,6 +181,15 @@ namespace task.trans.transtask
                                 || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
                             {
                                 _M.SetStatus(trans, TransStatusE.完成, string.Format("轨道不满足状态[ {0} ]", PubMaster.Track.GetTrackStatusLogInfo(trans.take_track_id)));
+                                return;
+                            }
+
+                            //判断是否需要在库存在上砖分割点后，是否需要接力
+                            if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id, trans.goods_id))
+                            {
+                                _M.SetTakeFerry(trans, 0, "清空分配的信息");
+                                _M.SetCarrier(trans, 0, "清空分配的信息");
+                                _M.SetStatus(trans, TransStatusE.调度设备, "需要先接力，解锁所有设备");
                                 return;
                             }
 
@@ -433,7 +433,7 @@ namespace task.trans.transtask
                                         //}
 
                                         //判断是否需要在库存在上砖分割点后，是否需要发送倒库任务
-                                        if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id))
+                                        if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id, trans.goods_id))
                                         {
                                             #region 【任务步骤记录】
                                             _M.LogForCarrierSortRelay(trans, trans.take_track_id);

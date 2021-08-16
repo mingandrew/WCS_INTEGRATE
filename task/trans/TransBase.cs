@@ -56,6 +56,7 @@ namespace task.trans
         private SeperateStockTrans _seperatestocktrans;
         private MoveStockTrans _movestocktrans;
         private SecondUpTaskTrans _backUpTrans;
+        private TransitStockTrans _transitstocktrans;
 
         #endregion
 
@@ -94,6 +95,7 @@ namespace task.trans
             _backUpTrans = new SecondUpTaskTrans(trans);
             _seperatestocktrans = new SeperateStockTrans(trans);
             _movestocktrans = new MoveStockTrans(trans);
+            _transitstocktrans = new TransitStockTrans(trans);
         }
 
         private void InitTrans()
@@ -215,7 +217,15 @@ namespace task.trans
                         #region[库存整理] 因为在检测的过程中会生成库存转移任务所以不能放在大循环里面
                         foreach (var item in organizelist)
                         {
-                            _seperatestocktrans.DoTrans(item);
+                            switch (item.TransType)
+                            {
+                                case TransTypeE.库存整理:
+                                    _seperatestocktrans.DoTrans(item);
+                                    break;
+                                case TransTypeE.中转倒库:
+                                    _transitstocktrans.DoTrans(item);
+                                    break;
+                            }
                         }
                         #endregion
                     }
@@ -381,7 +391,7 @@ namespace task.trans
                 }
                 mLog.Status(true, log);
 
-                if (type == TransTypeE.库存整理 || type == TransTypeE.库存转移)
+                if (type == TransTypeE.库存整理 || type == TransTypeE.中转倒库 || type == TransTypeE.库存转移)
                 {
                     mDtlLog.Status(true, log);
                 }
@@ -1427,7 +1437,7 @@ namespace task.trans
             return true;
         }
 
-        private bool AddStockTransDtl(uint transid, StockTransDtl dtl)
+        public bool AddStockTransDtl(uint transid, StockTransDtl dtl)
         {
             uint dtlid = PubMaster.Dic.GenerateID(DicTag.NewTranDtlId);
             dtl.dtl_id = dtlid;

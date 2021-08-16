@@ -1027,7 +1027,7 @@ namespace task.trans.transtask
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
-            if (isload || PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+            if (isload || PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.倒库指令))
             {
                 _M.SetStatus(trans, TransStatusE.倒库中);
                 return;

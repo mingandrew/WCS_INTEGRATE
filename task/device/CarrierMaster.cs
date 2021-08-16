@@ -882,7 +882,7 @@ namespace task.device
                                     //&& c.CurrentOrder != c.FinishOrder
                                     && (c.Status != DevCarrierStatusE.停止 || c.Position != DevCarrierPositionE.在摆渡上
                                             || c.InTask(DevCarrierOrderE.定位指令, DevCarrierOrderE.取砖指令,
-                                                        DevCarrierOrderE.放砖指令, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                                                        DevCarrierOrderE.放砖指令, DevCarrierOrderE.倒库指令))
                                     );
         }
 
@@ -1481,7 +1481,7 @@ namespace task.device
                             return false;
                         }
 
-                        order = DevCarrierOrderE.往前倒库;
+                        order = DevCarrierOrderE.倒库指令;
                         checkTra = track.ferry_down_code;
                         moveCount = (byte)PubMaster.Goods.GetTrackStockCount(track.brother_track_id);
 
@@ -2067,13 +2067,13 @@ namespace task.device
             if (carrier == null)
             {
                 List<uint> trackids;
-                bool isup = trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
 
                 // 总计
                 List<CarrierTask> totalList = new List<CarrierTask>();
 
                 if (trans.tilelifter_id > 0)
                 {
+                    bool isup = trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
                     // 存在任务砖机则获取相关轨道
                     if (trans.AllocateFerryType == DeviceTypeE.前摆渡)
                     {
@@ -2217,7 +2217,7 @@ namespace task.device
 
                 if (inCar.ConnStatus == SocketConnectStatusE.通信正常
                     && inCar.OperateMode == DevOperateModeE.自动
-                    && inCar.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                    && inCar.InTask(DevCarrierOrderE.倒库指令))
                 {
                     carrierid = inCar.ID;
                     return true;
@@ -2654,7 +2654,7 @@ namespace task.device
 
                     if (carrier != null
                         && !carrier.IsNotDoingTask
-                        && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                        && carrier.InTask(DevCarrierOrderE.倒库指令))
                     {
                         carrier = null;
                     }
@@ -2857,7 +2857,7 @@ namespace task.device
                         if (trans.TransType == TransTypeE.上砖任务)
                         {
                             if (!carrier.IsNotDoingTask
-                                && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                                && carrier.InTask(DevCarrierOrderE.倒库指令))
                             {
                                 carrier = null;
                             }
@@ -3819,7 +3819,7 @@ namespace task.device
                             //除了倒库任务的运输车
                             carrier = DevList.Find(c => c.ID != carrierid
                                && c.CurrentTrackId == track.id
-                               && c.NotInTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                               && c.NotInTask(DevCarrierOrderE.倒库指令)
                                && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid, TransTypeE.上砖侧倒库, TransTypeE.倒库任务, TransTypeE.中转倒库));
                             if (carrier != null)
                             {
@@ -3840,9 +3840,10 @@ namespace task.device
                             break;
                         case TransTypeE.倒库任务:
                         case TransTypeE.上砖侧倒库:
+                        case TransTypeE.中转倒库:
                             carrier = DevList.Find(c => c.ID != carrierid
                                                 && (c.CurrentTrackId == track.id || c.OnGoingTrackId == track.id)
-                                                && (c.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                                && (c.InTask(DevCarrierOrderE.倒库指令)
                                                          || PubTask.Trans.IsCarrierInTrans(c.ID, track.id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务, TransTypeE.中转倒库)));
                             if (carrier != null)
                             {
@@ -3862,7 +3863,7 @@ namespace task.device
                         case TransTypeE.上砖侧倒库:
                             carrier = DevList.Find(c => c.ID != carrierid
                                                 && (c.CurrentTrackId == track.id || c.CurrentTrackId == track.brother_track_id)
-                                                && (c.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                                && (c.InTask(DevCarrierOrderE.倒库指令)
                                                          || PubTask.Trans.IsCarrierInTrans(c.ID, track.id, TransTypeE.上砖侧倒库, TransTypeE.倒库任务)));
                             if (carrier != null)
                             {
@@ -3873,7 +3874,7 @@ namespace task.device
                         case TransTypeE.上砖任务://除了倒库任务的运输车
                             carrier = DevList.Find(c => c.ID != carrierid
                                && c.CurrentTrackId == track.id
-                               && c.NotInTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                               && c.NotInTask(DevCarrierOrderE.倒库指令)
                                && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid, TransTypeE.上砖侧倒库, TransTypeE.倒库任务));
                             if (carrier != null)
                             {
@@ -3919,7 +3920,7 @@ namespace task.device
         internal bool IsCarrierUnLoadAndBackWard(uint carrier_id)
         {
             return DevList.Exists(c => c.ID == carrier_id
-                                        && c.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库)
+                                        && c.InTask(DevCarrierOrderE.倒库指令)
                                         && c.Status == DevCarrierStatusE.后退
                                         && c.IsNotLoad());
         }

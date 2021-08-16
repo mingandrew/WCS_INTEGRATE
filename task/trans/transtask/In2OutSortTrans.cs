@@ -114,7 +114,7 @@ namespace task.trans.transtask
                 case TrackTypeE.储砖_出:
                     if (trans.give_track_id == track.id || trans.take_track_id == track.id)
                     {
-                        if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+                        if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.倒库指令))
                         {
                             if (!trans.IsReleaseTakeFerry
                                  && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
@@ -193,7 +193,7 @@ namespace task.trans.transtask
                                 //后退至轨道倒库
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
-                                    Order = DevCarrierOrderE.往前倒库,
+                                    Order = DevCarrierOrderE.倒库指令,
                                     CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
                                     //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
                                     MoveCount = (byte)count,
@@ -409,7 +409,7 @@ namespace task.trans.transtask
                 return;
             }
 
-            if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库))
+            if (PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.倒库指令))
             {
                 _M.SetStatus(trans, TransStatusE.倒库中);
                 PubMaster.Warn.RemoveTaskWarn(WarningTypeE.SortFinishButDownExistStock, trans.id);

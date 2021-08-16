@@ -621,7 +621,7 @@ namespace task.trans.transtask
             // 至指定脉冲倒库
             PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
             {
-                Order = DevCarrierOrderE.往前倒库,
+                Order = DevCarrierOrderE.倒库指令,
                 CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
                 ToPoint = locTake,
                 OverPoint = locGive,

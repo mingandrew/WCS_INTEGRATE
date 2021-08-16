@@ -596,7 +596,7 @@ namespace simtask
                 #endregion
 
                 #region[前进倒库]
-                case DevCarrierOrderE.往前倒库:
+                case DevCarrierOrderE.倒库指令:
                     //return;
                     //从摆渡车进入轨道的过程
                     if (EndTrack != null && NowTrack != null
@@ -620,7 +620,7 @@ namespace simtask
                                 }
                                 else
                                 {
-                                    FinishAndStop(DevCarrierOrderE.往前倒库);
+                                    FinishAndStop(DevCarrierOrderE.倒库指令);
                                 }
                                 break;
                             case SimCarrierSortStepE.前往取货库存位置:
@@ -700,7 +700,7 @@ namespace simtask
                                 }
                                 else
                                 {
-                                    FinishAndStop(DevCarrierOrderE.往前倒库);
+                                    FinishAndStop(DevCarrierOrderE.倒库指令);
                                 }
                                 break;
                         }
@@ -818,18 +818,13 @@ namespace simtask
                                 }
                                 else
                                 {
-                                    FinishAndStop(DevCarrierOrderE.往前倒库);
+                                    FinishAndStop(DevCarrierOrderE.倒库指令);
                                 }
                                 break;
                         }
                     }
                     #endregion
 
-                    break;
-                #endregion
-
-                #region[后退倒库]
-                case DevCarrierOrderE.往后倒库:
                     break;
                 #endregion
 
@@ -1273,8 +1268,7 @@ namespace simtask
                 }
             }
 
-            if (cmd.CarrierOrder == DevCarrierOrderE.往前倒库
-                || cmd.CarrierOrder == DevCarrierOrderE.往后倒库)
+            if (cmd.CarrierOrder == DevCarrierOrderE.倒库指令)
             {
                 EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出,TrackTypeE.储砖_出入 }, cmd.CheckTrackCode);
                 if (TO_POINT != ZERO_POINT)

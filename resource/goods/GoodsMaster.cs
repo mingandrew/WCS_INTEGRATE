@@ -3185,18 +3185,16 @@ namespace resource.goods
         /// </summary>
         /// <param name="track_id">检查轨道</param>
         /// <returns></returns>
-        public bool IsTopStockBehindUpSplitPoint(uint track_id, out uint stockid)
+        public bool IsTopStockBehindUpSplitPoint(uint track_id, uint point, out uint stockid)
         {
-            Track track = PubMaster.Track.GetTrack(track_id);
-            if (track != null)
+            Stock topstock = GetStockForOut(track_id);
+            if (topstock != null)
             {
-                Stock topstock = GetStockForOut(track_id);
-                if (topstock != null)
-                {
-                    stockid = topstock.id;
-                    return track.is_take_forward ? (topstock.location > track.up_split_point) : (topstock.location < track.up_split_point);
-                }
+                bool isforward = PubMaster.Track.IsTakeForwardTrack(track_id);
+                stockid = topstock.id;
+                return isforward ? (topstock.location > point) : (topstock.location < point);
             }
+
             stockid = 0;
             return false;
         }
@@ -3343,7 +3341,7 @@ namespace resource.goods
         /// <returns></returns>
         public bool IsOnlyOneWithStock(uint stockid)
         {
-            Stock stock = GetStock(stockid);
+            Stock stock = GetStockForOut(stockid);
             if (stock != null)
             {
                 bool isforward = PubMaster.Track.IsTakeForwardTrack(stock.track_id);

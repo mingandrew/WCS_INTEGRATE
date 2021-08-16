@@ -306,6 +306,80 @@ namespace resource.track
 
             return tracks;
         }
+
+        /// <summary>
+        /// 获取中转作业类型轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="line"></param>
+        /// <param name="type2"></param>
+        /// <returns></returns>
+        public List<Track> GetTracksInType2(uint areaid, uint line, TrackType2E type2)
+        {
+            return TrackList.FindAll(c => c.area == areaid && c.line == line && c.Type2 == type2 && c.Type == TrackTypeE.储砖_出入);
+        }
+
+        /// <summary>
+        /// 根据入库轨道获取合适的出库轨道（中转倒库）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="goodsid"></param>
+        /// <returns></returns>
+        public List<uint> GetOutTrackIDByInTrack(uint trackid, uint goodsid)
+        {
+            List<uint> trackids = new List<uint>();
+            Track traFrom = GetTrack(trackid);
+            // 获取同区域内轨道
+            List<Track> tracksTo = GetTracksInType2(traFrom.area, traFrom.line, TrackType2E.出库);
+
+            // 获取合适出库轨道 - 按位置相对顺序排序
+            tracksTo.Sort((x, y) =>
+            {
+                int xorder = Math.Abs(x.order - traFrom.order);
+                int yorder = Math.Abs(y.order - traFrom.order);
+                return xorder.CompareTo(yorder);
+            });
+
+            // 优先有砖轨道
+            List<Track> tracks1 = tracksTo.FindAll(c => c.StockStatus != TrackStockStatusE.空砖);
+            if (tracks1 != null && tracks1.Count > 0)
+            {
+                foreach (Track traTo in tracks1)
+                {
+                    // 状态
+                    if (traTo.TrackStatus == TrackStatusE.停用) continue;
+                    // 品种不可存
+                    if (!PubMaster.Goods.IsTrackOkForGoods(traTo.id, goodsid)) continue;
+
+                    // 有砖时确认尾部库存品种一致
+                    Stock stockTo = PubMaster.Goods.GetStockForIn(traTo.id);
+                    if (stockTo == null || (stockTo != null && stockTo.goods_id != goodsid))
+                    {
+                        continue;
+                    }
+
+                    trackids.Add(traTo.id);
+                }
+            }
+
+            // 再者无砖
+            List<Track> tracks2 = tracksTo.FindAll(c => c.StockStatus == TrackStockStatusE.空砖);
+            if (tracks2 != null && tracks2.Count > 0)
+            {
+                foreach (Track traTo in tracks2)
+                {
+                    // 状态
+                    if (traTo.TrackStatus == TrackStatusE.停用) continue;
+                    // 品种不可存
+                    if (!PubMaster.Goods.IsTrackOkForGoods(traTo.id, goodsid)) continue;
+
+                    trackids.Add(traTo.id);
+                }
+            }
+
+            return trackids;
+        }
+
         #endregion
 
         #region[获取属性]

@@ -390,7 +390,7 @@ namespace task.device
                 // 指令中解锁
                 if (!PubTask.Carrier.IsStopFTask(ctl.control_id)
                     && carrier.Position == DevCarrierPositionE.在轨道上
-                    && carrier.InTask(DevCarrierOrderE.往前倒库, DevCarrierOrderE.往后倒库, DevCarrierOrderE.取砖指令, DevCarrierOrderE.放砖指令, DevCarrierOrderE.定位指令)
+                    && carrier.InTask(DevCarrierOrderE.倒库指令, DevCarrierOrderE.取砖指令, DevCarrierOrderE.放砖指令, DevCarrierOrderE.定位指令)
                     && carrier.NotInTrack(ferry.DevConfig.track_id))
                 {
                     res = string.Format("[ ✔ ]满足条件]: 运输车[ {0} ], 位置状态[ {1} ], 当前轨道[ {2} ], 执行指令[ {3} ] - 允许解锁摆渡车[ {4} ]",
