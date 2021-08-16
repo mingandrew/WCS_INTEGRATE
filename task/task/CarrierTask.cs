@@ -236,9 +236,9 @@ namespace task.device
         public bool IsLoad()
         {
             return Load == DevCarrierLoadE.有货;
-                //|| (Load == DevCarrierLoadE.异常
-                //    && TakeSite > 0
-                //    && TakePoint > 0);
+            //|| (Load == DevCarrierLoadE.异常
+            //    && TakeSite > 0
+            //    && TakePoint > 0);
         }
 
         /// <summary>
@@ -248,9 +248,9 @@ namespace task.device
         public bool IsNotLoad()
         {
             return Load == DevCarrierLoadE.无货;
-                //|| (Load == DevCarrierLoadE.异常
-                //    && GiveSite > 0
-                //    && GivePoint > 0);
+            //|| (Load == DevCarrierLoadE.异常
+            //    && GiveSite > 0
+            //    && GivePoint > 0);
         }
 
         /// <summary>
@@ -529,7 +529,7 @@ namespace task.device
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X0, (ushort)ID, 1);
                 DevAlert.SetAlert(0, 0, true);
             }
-            else 
+            else
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X0, (ushort)ID);
                 DevAlert.SetAlert(0, 0, false);
@@ -551,10 +551,12 @@ namespace task.device
             if (On(DevStatus.Aler1, 3))
             {
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X3, (ushort)ID, 1);
+                DevAlert.SetAlert(0, 3, true);
             }
             else
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X3, (ushort)ID);
+                DevAlert.SetAlert(0, 3, false);
             }
 
             if (On(DevStatus.Aler1, 4))
@@ -588,10 +590,12 @@ namespace task.device
             if (On(DevStatus.Aler1, 7))
             {
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA1X7, (ushort)ID, 1);
+                DevAlert.SetAlert(0, 7, true);
             }
             else
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA1X7, (ushort)ID);
+                DevAlert.SetAlert(0, 7, false);
             }
         }
 
@@ -778,12 +782,10 @@ namespace task.device
             if (On(DevStatus.Aler3, 7))
             {
                 PubMaster.Warn.AddCarrierWarn(AreaId, Line, CarrierWarnE.WarningA3X7, (ushort)ID, 3);
-                DevAlert.SetAlert(2, 7, true);
             }
             else
             {
                 PubMaster.Warn.RemoveCarrierWarn(CarrierWarnE.WarningA3X7, (ushort)ID);
-                DevAlert.SetAlert(2, 7, false);
             }
         }
 
@@ -1438,8 +1440,8 @@ namespace task.device
         {
             return string.Format("运输车[ {0} ], 设备状态[ {1} ], 位置状态[ {2} ], 正执行指令[ {3} ], 已完成指令[ {4} ], 记录指令[ {5} ], 当前轨道[ {6} ], 目的轨道[ {7} ], 记录轨道[ {8} ]",
                 Device.name, Status, Position, CurrentOrder, FinishOrder, OnGoingOrder,
-                PubMaster.Track.GetTrackName(CurrentTrackId), 
-                PubMaster.Track.GetTrackName(TargetTrackId), 
+                PubMaster.Track.GetTrackName(CurrentTrackId),
+                PubMaster.Track.GetTrackName(TargetTrackId),
                 PubMaster.Track.GetTrackName(OnGoingTrackId));
         }
 

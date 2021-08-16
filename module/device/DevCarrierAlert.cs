@@ -74,6 +74,7 @@ namespace module.device
         /// <returns></returns>
         public bool CanNotActionForTaking()
         {
+            // PS: 要到小车报警检测内Set值
             // WarningA1X3 小车取砖过程中有砖光电无触发
             // WarningA1X7 上升超时，上升到位接近开关异常，检查上位接近开关
             return Warning[0, 3] || Warning[0, 7];
