@@ -281,7 +281,6 @@ namespace task.trans.transtask
                                 && PubTask.Carrier.IsCarrierNotLoadInDownTileAlert(trans.carrier_id)
                                 && mTimer.IsTimeUp(trans.carrier_id+"LoadError", 20))
                             {
-                                //释放摆渡车
                                 #region[释放摆渡车]
 
                                 // 在取砖轨道，但是没货且在任务中，则释放取砖摆渡车

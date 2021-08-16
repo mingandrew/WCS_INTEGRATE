@@ -272,6 +272,25 @@ namespace task.trans.transtask
                             }
                             PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
 
+                            //任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作
+                            if (trans.HaveTakeFerry
+                                && PubTask.Carrier.IsCarrierNotLoadInDownTileAlert(trans.carrier_id)
+                                && mTimer.IsTimeUp(trans.carrier_id + "LoadError", 20))
+                            {
+                                #region[释放摆渡车]
+
+                                // 在取砖轨道，但是没货且在任务中，则释放取砖摆渡车
+                                if (!isftask)
+                                {
+                                    if (trans.HaveTakeFerry)
+                                    {
+                                        RealseTakeFerry(trans, true, "运输车下砖轨道任务被中断时，尚未升降到位");
+                                    }
+                                }
+
+                                #endregion
+                            }
+
                             //没有任务并且停止
                             if (isftask)
                             {

@@ -3998,7 +3998,7 @@ namespace task.device
         }
 
         /// <summary>
-        /// WarningA3X7 任务被中断时，尚未升降到位，运输车将不再接受新任务。请先手动将运输车升降到位，再进行其它操作
+        /// 下砖工位中取砖时无法继续作业
         /// </summary>
         /// <param name="carrierid"></param>
         /// <returns></returns>
@@ -4007,11 +4007,7 @@ namespace task.device
             CarrierTask task = DevList.Find(c => c.ID == carrierid);
             if(task != null)
             {
-                //WarningA3X7
-                if (task.DevAlert.GetWarn(2, 7))
-                {
-                    return true;
-                }
+                return task.DevAlert.CanNotActionForTaking();
             }
             return  false;
         }

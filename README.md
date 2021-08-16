@@ -759,7 +759,13 @@ INSERT INTO `wcs_menu_dtl`(`menu_id`, `name`, `folder`, `folder_id`, `module_id`
 
 
 
+## 2021.08.16 [V2.1] 更新小车新报警信息
 
+```mysql
+UPDATE `diction_dtl` SET `name` = '当前位置不能靠光电前进取砖', `string_value` = '未在3xx轨道内，不能执行前进取砖位置值65535（靠光电取砖），请先将小车移至3xx储砖轨道' WHERE `id` = 128;
+
+UPDATE `diction_dtl` SET `name` = '当前位置不能靠光电后退取砖', `string_value` = '未在3xx轨道内，不能执行后退取砖位置值1（靠光电取砖），请先将小车移至3xx储砖轨道' WHERE `id` = 129;
+```
 
 
 
