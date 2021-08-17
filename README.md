@@ -769,36 +769,37 @@ UPDATE `diction_dtl` SET `name` = '当前位置不能靠光电后退取砖', `st
 ```
 
 ​	
-## 2021.08.03 [2.1] 新增库存等级字段
-​```mysql
+
+## 2021.08.17 [2.1] 新增库存等级字段
+```mysql
 ALTER TABLE `stock` ADD COLUMN `level` tinyint unsigned NULL COMMENT '砖机等级/窑位' AFTER `last_track_id`;	
+
 ALTER TABLE `stock_trans` ADD COLUMN `level` int unsigned NULL COMMENT '砖机等级/窑位' AFTER `cancel`;
+
 ALTER TABLE `goods` DROP COLUMN `level`;
+
 ALTER TABLE `config_tilelifter` ADD COLUMN `level_type` tinyint unsigned NULL COMMENT '等级类型：0等级，1窑位' AFTER `pre_good_all`;
-
 ALTER TABLE `config_tilelifter` ADD COLUMN `syn_tile_list` varchar(10) NULL COMMENT '同步转产砖机id（用#隔开）' AFTER `level_type`;
+ALTER TABLE `config_tilelifter` ADD COLUMN `pre_level` tinyint(0) UNSIGNED NULL DEFAULT NULL COMMENT '上砖机专用--预设的品种等级' AFTER `level`;
 
 
-ALTER TABLE `config_tilelifter` 
-ADD COLUMN `pre_level` tinyint(0) UNSIGNED NULL DEFAULT NULL COMMENT '上砖机专用--预设的品种等级' AFTER `level`;
+UPDATE `diction_dtl` SET `int_value` = 1 WHERE `code` = 'GoodLevel' AND `name` = '全捡混砖';
+UPDATE `diction_dtl` SET `int_value` = 2 WHERE `code` = 'GoodLevel' AND `name` = '优等品';
+UPDATE `diction_dtl` SET `int_value` = 3 WHERE `code` = 'GoodLevel' AND `name` = '一级品';
+UPDATE `diction_dtl` SET `int_value` = 4 WHERE `code` = 'GoodLevel' AND `name` = '二级品';
+UPDATE `diction_dtl` SET `int_value` = 5 WHERE `code` = 'GoodLevel' AND `name` = '合格品';
 
 
--- UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '全捡混砖', `int_value` = 0, `bool_value` = NULL, `string_value` = '全捡混砖', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = '2021-07-07 16:18:51', `level` = NULL WHERE `id` = 40;
--- UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '优等品', `int_value` = 1, `bool_value` = NULL, `string_value` = '优等品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 41;
--- UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '一级品', `int_value` = 2, `bool_value` = NULL, `string_value` = '一级品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 42;
--- UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '二级品', `int_value` = 3, `bool_value` = NULL, `string_value` = '二级品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 43;
--- UPDATE `diction_dtl` SET `diction_id` = 9, `code` = 'TileLevel', `name` = '合格品', `int_value` = 4, `bool_value` = NULL, `string_value` = '合格品', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 44;
-
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (45, 9, 'TileSite', '窑位1', 5, NULL, '窑位1', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (46, 9, 'TileSite', '窑位2', 6, NULL, '窑位2', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (47, 9, 'TileSite', '窑位3', 7, NULL, '窑位3', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (48, 9, 'TileSite', '窑位4', 8, NULL, '窑位4', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (49, 9, 'TileSite', '窑位5', 9, NULL, '窑位5', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (45, 9, 'TileSite', '窑位1', 6, NULL, '窑位1', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (46, 9, 'TileSite', '窑位2', 7, NULL, '窑位2', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (47, 9, 'TileSite', '窑位3', 8, NULL, '窑位3', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (48, 9, 'TileSite', '窑位4', 9, NULL, '窑位4', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (49, 9, 'TileSite', '窑位5', 10, NULL, '窑位5', NULL, NULL, NULL, NULL, NULL);
 ```
 
 
-## 2021.08.03 [2.1] 更新统计视图-使用等级来区分库存信息
-```mysql
+## 2021.08.17 [2.1] 更新统计视图-使用等级来区分库存信息
+​```mysql
 
 ALTER VIEW `stock_sum` AS
 SELECT s.area AS 'area', t.line AS 'line', s.goods_id AS 'goods_id',
