@@ -3,6 +3,7 @@ using module.area;
 using module.device;
 using module.diction;
 using module.goods;
+using module.line;
 using module.track;
 using System;
 using System.Collections.Generic;
@@ -76,6 +77,29 @@ namespace module.rf
                     DtlOrder = order,
                     DtlValue = (int)item.id,
                     DtlName = item.name
+                });
+                order++;
+            }
+            AddDic(dic);
+        }
+
+        public void AddLine(List<Line> lists)
+        {
+            RfDiction dic = new RfDiction
+            {
+                DicName = "线字典",
+                DicCode = "LineDic"
+            };
+
+            int order = 0;
+            foreach (Line item in lists)
+            {
+                dic.AddDtl(new RfDictionDtl()
+                {
+                    DtlOrder = order,
+                    DtlValue = (int)item.id,
+                    DtlName = item.name,
+                    DtlArea = (int)item.area_id
                 });
                 order++;
             }

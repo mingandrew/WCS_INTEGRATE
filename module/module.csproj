@@ -71,6 +71,7 @@
     <Compile Include="rf\customtask\CheckBroTrackPack.cs" />
     <Compile Include="rf\customtask\DoCustomTaskPack.cs" />
     <Compile Include="rf\stock\AddOrganizePack.cs" />
+    <Compile Include="rf\stock\QueryProductionReportPack.cs" />
     <Compile Include="rf\stock\StockSumStocksPack.cs" />
     <Compile Include="rf\stock\StockTransDtlPack.cs" />
     <Compile Include="rf\stock\RfStockTransDtl.cs" />

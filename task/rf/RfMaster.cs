@@ -396,6 +396,9 @@ namespace task.rf
                     case FunTag.DeleteTrackStock:
                         DeleteTrackStock(msg);
                         break;
+                    case FunTag.QueryProductionReport:
+                        GetProductionReport(msg);
+                        break;
                     #endregion
 
                     #region[轨道]
@@ -826,6 +829,29 @@ namespace task.rf
             }
         }
 
+        private void GetProductionReport(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                QueryProductionReportPack querypack = JsonTool.Deserialize<QueryProductionReportPack>(msg.Pack.Data);
+                DateTime starttime = convertJavaLongtimeToDatetime(querypack.starttime);
+                DateTime stoptime = convertJavaLongtimeToDatetime(querypack.stoptime);
+                List<StockSum> list = new List<StockSum>();
+                switch (querypack.querytype)
+                {
+                    case 0://下砖
+                        list = PubMaster.Mod.GoodSql.QueryProduceLogSumList(querypack.areaid, querypack.lineid, starttime, stoptime);
+                        break;
+                    case 1://上砖
+                        list = PubMaster.Mod.GoodSql.QueryConsumeLogSumList(querypack.areaid, querypack.lineid, starttime, stoptime);
+                        break;
+                }
+                StockSumPack pack = new StockSumPack();
+                pack.AddSumList(list);
+                SendSucc2Rf(msg.MEID, FunTag.QueryProductionReport, JsonTool.Serialize(pack));
+            }
+        }
+
 
         #endregion
 
@@ -1063,10 +1089,12 @@ namespace task.rf
             if (IsClientFilterArea(msg.MEID, out List<uint> areaids))
             {
                 mDicPack.AddArea(PubMaster.Area.GetAreaList(areaids));
+                mDicPack.AddLine(PubMaster.Area.GetLineList(areaids));
             }
             else
             {
                 mDicPack.AddArea(PubMaster.Area.GetAreaList());
+                mDicPack.AddLine(PubMaster.Area.GetLineList());
             }
 
             mDicPack.AddVersion(DicTag.PDA_INIT_VERSION, PubMaster.Dic.GetDtlIntCode(DicTag.PDA_INIT_VERSION));
@@ -2578,5 +2606,19 @@ namespace task.rf
         }
 
         #endregion
+
+        /// <summary>
+        /// 时间转换
+        /// </summary>
+        /// <param name="time_JAVA_Long"></param>
+        /// <returns></returns>
+        public DateTime convertJavaLongtimeToDatetime(long time_JAVA_Long)
+        {
+            DateTime dt_1970 = new DateTime(1970, 1, 1, 0, 0, 0);        //年月日时分秒
+            long tricks_1970 = dt_1970.Ticks;                           //1970年1月1日刻度                         
+            long time_tricks = tricks_1970 + time_JAVA_Long * 10000;    //日志日期刻度                         
+            DateTime dt = new DateTime(time_tricks).AddHours(8);        //+8小时,转化为DateTime
+            return dt;
+        }
     }
 }

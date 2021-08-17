@@ -24,5 +24,6 @@ namespace module.rf
         public int DtlOrder { set; get; }
         public int DtlValue { set; get; }
         public string DtlName { set; get; }
+        public int DtlArea { get; set; }
     }
 }

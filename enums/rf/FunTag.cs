@@ -60,6 +60,7 @@
         public const string ShiftTrackStock = nameof(ShiftTrackStock);
         public const string UpdateStockGood = nameof(UpdateStockGood);
         public const string DeleteTrackStock = nameof(DeleteTrackStock);
+        public const string QueryProductionReport = nameof(QueryProductionReport);
         #endregion
 
         #region[操作]
