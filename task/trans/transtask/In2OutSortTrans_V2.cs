@@ -11,6 +11,11 @@ using tool.appconfig;
 
 namespace task.trans.transtask
 {
+    /// <summary>
+    /// 启用第二种倒库类型<br/>
+    /// 条件1：运输车需支持，给目标脉冲找空位<br/>
+    /// 条件2：运输车需支持，给结束脉冲方第一车位置<br/>
+    /// </summary>
     public class In2OutSortTrans_V2 : BaseTaskTrans
     {
         public In2OutSortTrans_V2(TransMaster trans) : base(trans)
@@ -236,115 +241,7 @@ namespace task.trans.transtask
 
                             if (isnotload)
                             {
-                                int count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
-
-                                #region 【任务步骤记录】
-                                _M.LogForCarrierSort(trans, trans.give_track_id, count.ToString());
-                                #endregion
-
-                                #region[储砖出-入的倒库，需要定位到出砖后面后，再执行倒库任务]
-                                if (track.Type == TrackTypeE.储砖_出)
-                                {
-                                    #region[如果出库轨道有库存信息则后退到砖后再倒库]
-
-                                    //出库轨道
-                                    //      有砖：则先定位至无砖的地方再执行倒库任务
-                                    //      无砖：则定位到定位点执行倒库
-                                    if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id))
-                                    {
-                                        Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
-                                        if (gtrack != null)
-                                        {
-                                            ushort toempypoint = 0;
-
-                                            Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
-                                            if (btmstock != null)
-                                            {
-                                                ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
-                                                toempypoint = (ushort)(btmstock.location - (3 * safe));
-                                            }
-
-                                            if (toempypoint < gtrack.split_point)
-                                            {
-                                                toempypoint = gtrack.split_point;
-                                            }
-
-                                            ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
-                                            if (Math.Abs(toempypoint - nowpoint) > 200)
-                                            {
-                                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                                {
-                                                    Order = DevCarrierOrderE.定位指令,
-                                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                                    ToPoint = toempypoint,
-                                                    ToTrackId = trans.give_track_id
-                                                }, string.Format("倒库的时候前面有砖，先定位到砖后面[ {0} -> {1} ]", nowpoint, toempypoint));
-
-                                                return;
-                                            }
-                                        }
-                                    }
-
-                                    #endregion
-                                }
-                                #endregion
-
-                                #region[储砖出入轨道的倒库，需要定位到轨道头，执行倒库任务]
-                                if (track.Type == TrackTypeE.储砖_出入)
-                                {
-                                    //判断运输车当前地标是否在上砖测
-                                    ushort nowsite = PubTask.Carrier.GetCurrentSite(trans.carrier_id);
-                                    if(nowsite != track.rfid_2)
-                                    {
-                                        Stock topstock = PubMaster.Goods.CheckGetStockTop(trans.take_track_id);
-                                        //如果运输车停止在头部库存的后面，则需要前进至点到上砖侧，然后再发倒库任务
-                                        ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
-                                        if(topstock != null && topstock.location > nowpoint)
-                                        {
-                                            // 前进至点
-                                            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                            {
-                                                Order = DevCarrierOrderE.定位指令,
-                                                CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                                ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                                ToTrackId = trans.give_track_id
-                                            });
-                                            return;
-                                        }
-                                    }
-                                }
-                                #endregion
-
-                                ushort topoint = 0;
-                                //判断是否执行单步接力指令
-                                bool isSingle = GlobalWcsDataConfig.BigConifg.IsOut2OutSingleStack(trans.area_id, trans.line);
-                                if (isSingle && track.Type == TrackTypeE.储砖_出入)
-                                {
-                                    ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
-
-                                    Track track = PubMaster.Track.GetTrack(trans.give_track_id);
-                                    Stock stock = PubMaster.Goods.GetTrackTopStock(trans.give_track_id);
-                                    if (stock != null)
-                                    {
-                                        topoint = (ushort)(stock.location + (2 * safe));
-                                    }
-
-                                    if (topoint == 0 || topoint > track.limit_point_up)
-                                    {
-                                        topoint = track.limit_point_up;
-                                    }
-                                }
-
-                                //后退至轨道倒库
-                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                {
-                                    Order = DevCarrierOrderE.往前倒库,
-                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                    //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                    ToPoint = topoint,
-                                    MoveCount = (byte)count,
-                                    ToTrackId = trans.give_track_id
-                                }, string.Format("入轨道有库存[ {0} ]， 出轨道有库存[ {1} ], 目标脉冲[ {2} ]", count, PubMaster.Goods.GetTrackStockCount(trans.give_track_id), topoint));
+                                CheckAndSendSortTask(trans);
                                 return;
                             }
                         }
@@ -427,57 +324,65 @@ namespace task.trans.transtask
                                     return;
                                 }
 
-
                                 #region 【任务步骤记录】
 
                                 _M.LogForCarrierToTrack(trans, trans.give_track_id);
 
                                 #endregion
 
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                {
+                                    Order = DevCarrierOrderE.定位指令,
+                                    CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                    ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                    ToTrackId = trans.give_track_id
+                                });
+
                                 #region[先后退至点，在轨道后再执行倒库任务]
 
-                                //出库轨道
-                                //      有砖：则先定位至无砖的地方再执行倒库任务
-                                //      无砖：则定位到定位点执行倒库
-                                if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id)
-                                    && PubMaster.Track.IsTrackType(trans.give_track_id, TrackTypeE.储砖_出))
-                                {
-                                    Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
-                                    if (gtrack != null)
-                                    {
-                                        ushort toempypoint =0 ;
+                                //Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                                ////出库轨道
+                                ////      有砖：则先定位至无砖的地方再执行倒库任务(头部没有空余位置)
+                                ////      无砖：则定位到定位点执行倒库
+                                //if (PubMaster.Goods.ExistStockInTrack(trans.give_track_id)
+                                //    && gtrack.Type == TrackTypeE.储砖_出
+                                //    && !PubMaster.Track.IsTrackHeadEmpty(gtrack))
+                                //{
+                                //    if (gtrack != null)
+                                //    {
+                                //        ushort toempypoint =0 ;
 
-                                        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
-                                        if (btmstock != null)
-                                        {
-                                            ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
-                                            toempypoint = (ushort)(btmstock.location - (3 * safe));
-                                        }
+                                //        Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                                //        if (btmstock != null)
+                                //        {
+                                //            ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 217);//统计出来的(实际库存位置差平均值)
+                                //            toempypoint = (ushort)(btmstock.location - (3 * safe));
+                                //        }
 
-                                        if (toempypoint < gtrack.split_point)
-                                        {
-                                            toempypoint = gtrack.split_point;
-                                        }
+                                //        if (toempypoint < gtrack.split_point)
+                                //        {
+                                //            toempypoint = gtrack.split_point;
+                                //        }
 
-                                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                        {
-                                            Order = DevCarrierOrderE.定位指令,
-                                            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                            ToPoint = toempypoint,
-                                            ToTrackId = trans.give_track_id
-                                        });
-                                    }
-                                }
-                                else
-                                {
-                                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
-                                    {
-                                        Order = DevCarrierOrderE.定位指令,
-                                        CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
-                                        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
-                                        ToTrackId = trans.give_track_id
-                                    });
-                                }
+                                //        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //        {
+                                //            Order = DevCarrierOrderE.定位指令,
+                                //            CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                //            ToPoint = toempypoint,
+                                //            ToTrackId = trans.give_track_id
+                                //        });
+                                //    }
+                                //}
+                                //else
+                                //{
+                                //    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                //    {
+                                //        Order = DevCarrierOrderE.定位指令,
+                                //        CheckTra = PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                //        ToRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                                //        ToTrackId = trans.give_track_id
+                                //    });
+                                //}
                                 #endregion
                             }
                         }
@@ -491,6 +396,166 @@ namespace task.trans.transtask
                     break;
                 #endregion
             }
+        }
+
+        /// <summary>
+        /// 运输车停止在倒库轨道
+        /// </summary>
+        /// <param name="trans"></param>
+        private void CheckAndSendSortTask(StockTrans trans)
+        {
+            Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+            takeTrack = PubMaster.Track.GetTrack(trans.take_track_id);
+
+            ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);//统计出来的(实际库存位置差平均值)
+
+            bool isheadempty = PubMaster.Track.IsTrackHeadEmpty(gtrack);
+            bool ismidempty = PubMaster.Track.IsTrackMidEmpty(gtrack, out uint stockid, out string midres);
+            bool isbackempty = PubMaster.Track.IsTrackBackEmpty(gtrack, out int emptycount);
+
+            int count = 0;//倒库数量
+
+            //      空位脉冲        结束脉冲
+            ushort toempypoint = 0, togivepoint = 0;
+            ushort nowpoint = PubTask.Carrier.GetCarrierNowPoint(trans.carrier_id);
+            string sortmemo = string.Empty;//倒库备注
+
+            if (gtrack.Type == TrackTypeE.储砖_出入)
+            {
+                if (isheadempty)
+                {
+                    Stock topstock = PubMaster.Goods.CheckGetStockTop(trans.take_track_id);
+                    if (topstock != null && topstock.location > nowpoint)
+                    {
+                        toempypoint = (ushort)(topstock.location + (2 * safe));
+                    }
+
+                    count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
+
+                    sortmemo = string.Format("倒库[ 前面空 ]");
+                }
+                else if (ismidempty)
+                {
+                    Stock midstock = PubMaster.Goods.GetStock(stockid);
+                    if (midstock != null)
+                    {
+                        count = PubMaster.Goods.GetBehindPointStockCount(gtrack.id, midstock.location + 50);
+                        toempypoint = (ushort)(midstock.location + (2 * safe));
+                    }
+
+                    sortmemo = string.Format("倒库[ 中间空 ]");
+                }
+
+                if (toempypoint > gtrack.limit_point_up)
+                {
+                    toempypoint = (ushort)(gtrack.limit_point_up - 50);
+                }
+
+                sortmemo += string.Format(", 空砖位置[ {0} ], 倒库数量[ {1} ]", toempypoint, count);
+            }
+            else //出轨道，入轨道
+            {
+                //出轨道 头部空 或者 出轨道 空
+                if (isheadempty)
+                {
+                    Stock topstock;
+                    if (gtrack.StockStatus == TrackStockStatusE.空砖)//出轨道空砖
+                    {
+                        topstock = PubMaster.Goods.GetTrackTopStock(trans.take_track_id);
+                        count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
+                    }
+                    else
+                    {
+                        topstock = PubMaster.Goods.GetTrackTopStock(trans.give_track_id);
+                        count = PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
+                    }
+
+                    if (topstock != null)
+                    {
+                        toempypoint = (ushort)(topstock.location + (2 * safe));
+                    }
+
+                    if (toempypoint > gtrack.limit_point_up)
+                    {
+                        toempypoint = (ushort)(gtrack.limit_point_up - 50);
+                    }
+
+                    sortmemo = string.Format("倒库[ 前面空 ]");
+                }
+                else if (ismidempty)
+                {
+                    Stock midstock = PubMaster.Goods.GetStock(stockid);
+                    if (midstock != null)
+                    {
+                        count = PubMaster.Goods.GetBehindPointStockCount(gtrack.id, midstock.location + 50);
+                        toempypoint = (ushort)(midstock.location + (2 * safe));
+                    }
+
+                    sortmemo = string.Format("倒库[ 中间空 ]");
+
+                }
+                else if (isbackempty)
+                {
+                    if (takeTrack.Type == TrackTypeE.储砖_入)
+                    {
+                        if (takeTrack.sort_able)
+                        {
+                            int intrackcount = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
+                            if (emptycount < intrackcount)
+                            {
+                                count = emptycount;
+                                count--;
+                            }
+
+                            toempypoint = gtrack.split_point;
+
+                            sortmemo = string.Format("倒库[ 出尾部空 ], 入轨库存[ {0} ], 出轨有空位[ {1} ]", intrackcount, emptycount);
+                        }
+                    }
+                }
+
+                //出库轨道满，入库轨道头部空
+                if(!isheadempty && !ismidempty && !isbackempty 
+                    && takeTrack.Type == TrackTypeE.储砖_入 
+                    && takeTrack.sort_able 
+                    && takeTrack.TrackStatus == TrackStatusE.启用
+                    && takeTrack.StockStatus != TrackStockStatusE.空砖)
+                {
+                    bool istakeheadempty = PubMaster.Track.IsTrackHeadEmpty(takeTrack);
+                    if (istakeheadempty)
+                    {
+                        count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
+                        toempypoint = (ushort)(takeTrack.split_point - 1);
+                        togivepoint = takeTrack.split_point;
+
+                        sortmemo = string.Format("倒库[ 入轨道头部空 ], 结束脉冲[ {0} ]", togivepoint);
+                    }
+                }
+
+                sortmemo += string.Format(", 空砖位置[ {0} ], 倒库数量[ {1} ]", toempypoint, count);
+            }
+
+            if(count <= 0)
+            {
+                _M.SetStatus(trans, TransStatusE.小车回轨, string.Format("倒库数量为0,备注[ {0} ]", sortmemo));
+                return;
+            }
+
+            #region 【任务步骤记录】
+            _M.LogForCarrierSort(trans, trans.give_track_id, count.ToString());
+            #endregion
+
+            //后退至轨道倒库
+            PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+            {
+                Order = DevCarrierOrderE.往前倒库,
+                CheckTra = gtrack.ferry_down_code,// PubMaster.Track.GetTrackDownCode(trans.give_track_id),
+                                                  //OverRFID = PubMaster.Track.GetTrackRFID2(trans.give_track_id),
+                ToPoint = toempypoint,
+                OverPoint = togivepoint,
+                MoveCount = (byte)count,
+                ToTrackId = trans.give_track_id
+            }, sortmemo);
         }
 
         /// <summary>
@@ -541,7 +606,7 @@ namespace task.trans.transtask
             // 小车空闲状态
             if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
             {
-                // 有砖-前进放砖
+                // 运输车有货 - 前进放砖
                 if (isload)
                 {
                     #region 【任务步骤记录】
@@ -560,10 +625,19 @@ namespace task.trans.transtask
                     return;
                 }
 
-                // 无砖 - 回出库轨道头
+                // 运输车无货 - 回出库轨道头
                 if (isnotload)
                 {
-                    _M.SetStatus(trans, TransStatusE.小车回轨);
+                    //1.出轨道空砖 或 头部是否满足空位
+
+                    //2.出轨道尾部是否满足空位
+
+                    //3.入轨道是否需要往入轨道第一车位置挪砖
+
+                    //4.小车回轨
+                    CheckAndSendSortTask(trans);
+                   
+                    //_M.SetStatus(trans, TransStatusE.小车回轨);
                     return;
                 }
             }
@@ -684,14 +758,14 @@ namespace task.trans.transtask
                 && PubTask.Carrier.IsCarrierInTrackBiggerRfID2(trans.carrier_id, trans.give_track_id))
             {
                 // 入库侧仍还有库存
-                if (PubMaster.Track.IsTrackType(trans.take_track_id,TrackTypeE.储砖_入)
-                    && PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
-                {
-                    //_M.SetStatus(trans, TransStatusE.移车中, "入库侧还有库存没倒完，重新发起倒库指令");
-                    //报警运输车倒库后入库轨道还有库存，请在核实并修改入库轨道的库存后，1.如果需要继续倒库，请手动给运输车发倒库任务，2.如果不需要继续倒库，请取消当前轨道的倒库任务并修改轨道状态为空砖/有砖
-                    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.SortFinishButDownExistStock, (ushort)trans.carrier_id, trans.id);
-                    return;
-                }
+                //if (PubMaster.Track.IsTrackType(trans.take_track_id,TrackTypeE.储砖_入)
+                //    && PubMaster.Goods.ExistStockInTrack(trans.take_track_id))
+                //{
+                //    //_M.SetStatus(trans, TransStatusE.移车中, "入库侧还有库存没倒完，重新发起倒库指令");
+                //    //报警运输车倒库后入库轨道还有库存，请在核实并修改入库轨道的库存后，1.如果需要继续倒库，请手动给运输车发倒库任务，2.如果不需要继续倒库，请取消当前轨道的倒库任务并修改轨道状态为空砖/有砖
+                //    PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.SortFinishButDownExistStock, (ushort)trans.carrier_id, trans.id);
+                //    return;
+                //}
 
                 _M.SetStatus(trans, TransStatusE.完成);
             }

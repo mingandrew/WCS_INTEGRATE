@@ -3155,7 +3155,6 @@ namespace resource.goods
             List<AreaDeviceTrack> list = PubMaster.Area.GetAreaDevTraList(areaid, devid);
             traids = new List<uint>();
 
-            uint storecount = 0;
             List<TrackStoreCount> trackstores = new List<TrackStoreCount>();
             foreach (AreaDeviceTrack adt in list)
             {
@@ -3177,18 +3176,39 @@ namespace resource.goods
                 }
                 else if (IsTrackOkForGoods(adt.track_id, goodsid))//未满能放
                 {
-                    storecount = (uint)StockList.Count(c => c.track_id == adt.track_id);
-                    trackstores.Add(new TrackStoreCount()
+                    #region[按尾部时间最早]
+
+                    Stock btmstock = GetTrackButtomStock(adt.track_id);
+                    if(btmstock != null)
                     {
-                        trackid = adt.track_id,
-                        storecount = storecount
-                    });
+                        trackstores.Add(new TrackStoreCount()
+                        {
+                            trackid = adt.track_id,
+                            storetime = btmstock.produce_time
+                        }) ;
+                    }
+
+                    #endregion
+
+                    #region[按最少空位]
+                    //storecount = (uint)StockList.Count(c => c.track_id == adt.track_id);
+                    //trackstores.Add(new TrackStoreCount()
+                    //{
+                    //    trackid = adt.track_id,
+                    //    storecount = storecount
+                    //});
+                    #endregion
                 }
             }
 
             if (trackstores.Count > 0)
             {
-                trackstores.Sort((x, y) => y.storecount.CompareTo(x.storecount));
+                //[按最少空位]
+                //trackstores.Sort((x, y) => y.storecount.CompareTo(x.storecount));
+
+                //[按尾部时间最早]
+                trackstores.Sort((x, y) => ((DateTime)x.storetime).CompareTo((DateTime)y.storetime));
+
                 foreach (TrackStoreCount item in trackstores)
                 {
                     traids.Add(item.trackid);
@@ -3603,7 +3623,7 @@ namespace resource.goods
         /// <param name="emptycount">空余车数</param>
         /// <param name="safe">每车距离</param>
         /// <returns></returns>
-        internal bool ExistCountEmptySpace(uint id, int emptycount, ushort safe,out string result)
+        internal bool ExistCountEmptySpace(uint id, int emptycount, ushort safe,out uint stockid, out string result)
         {
             int space = emptycount * safe;
             List<Stock> stocks = StockList.FindAll(c => c.track_id == id);
@@ -3613,11 +3633,13 @@ namespace resource.goods
                 if(Math.Abs(stocks[i].location - stocks[i+1].location) >= space)
                 {
                     result = string.Format("[ {0} ] -> [ {1} ]", stocks[i].ToSmalString(), stocks[i + 1].ToSmalString());
+                    stockid = stocks[i + 1].id;
                     return true;
                 }
             }
 
             result = "";
+            stockid = 0;
             return false;
         }
 

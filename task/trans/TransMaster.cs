@@ -7,6 +7,7 @@ using module.line;
 using module.tiletrack;
 using module.track;
 using resource;
+using resource.track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -176,7 +177,30 @@ namespace task.trans
                 Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
                 if (topstock != null && !PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
                 {
-                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
+                    uint taketrackid;
+                    if(track.Type == TrackTypeE.储砖_出入)
+                    {
+                        taketrackid = track.id;
+                    }
+                    else
+                    {
+                        Track taketrack = PubMaster.Track.GetTrack(track.brother_track_id);
+                        if (taketrack.TrackStatus == TrackStatusE.启用
+                            && taketrack.sort_able
+                            && taketrack.StockStatus != TrackStockStatusE.空砖)
+                        {
+                            taketrackid = track.brother_track_id;
+                        }else if (track.sort_level == TrackMaster.SORT_LEVEL_3)
+                        {
+                            //只是出轨道尾部空，入轨道没有任务，则不生成倒库任务
+                            continue;
+                        }
+                        else 
+                        {
+                            taketrackid = track.id;
+                        }
+                    }
+                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, taketrackid, track.id, TransStatusE.检查轨道, 0, track.line);
                     return;
                 }
             }
@@ -1171,7 +1195,7 @@ namespace task.trans
                                         Track nowtrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                                         if (PubTask.Carrier.IsNotLoad(trans.carrier_id)
                                             && !PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.取砖指令)
-                                            && nowtrack.Type != TrackTypeE.下砖轨道)
+                                            && (nowtrack == null || nowtrack.Type != TrackTypeE.下砖轨道))
                                         {
                                             SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;
@@ -1203,7 +1227,7 @@ namespace task.trans
                                         Track nowtrack = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
                                         if (PubTask.Carrier.IsNotLoad(trans.carrier_id)
                                             && !PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.放砖指令)
-                                            && nowtrack.Type != TrackTypeE.上砖轨道)
+                                            &&(nowtrack == null || nowtrack.Type != TrackTypeE.上砖轨道))
                                         {
                                             SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                             return true;

@@ -204,6 +204,7 @@ namespace task.trans
                         {
                             _seperatestocktrans.DoTrans(item);
                         }
+                        organizelist.Clear();
                         #endregion
                     }
                     catch (Exception e)
