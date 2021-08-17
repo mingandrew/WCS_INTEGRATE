@@ -103,7 +103,8 @@ namespace task.trans.transtask
 
             #region[分配摆渡车]
             //还没有分配取货过程中的摆渡车
-            if (trans.take_ferry_id == 0)
+            if (trans.take_ferry_id == 0
+                && (track.id != trans.take_track_id || isload))
             {
                 string msg = _M.AllocateFerry(trans, DeviceTypeE.前摆渡, track, false);
 

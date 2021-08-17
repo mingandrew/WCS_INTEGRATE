@@ -159,35 +159,15 @@ namespace resource.device
         /// <param name="goodid">判断是否相同的品种</param>
         /// <param name="type">进行判断的砖机类型</param>
         /// <returns></returns>
-        public bool IsHaveSameTileNowGood(uint area_id, uint goodid, params TileWorkModeE[] types)
+        public bool IsHaveSameTileNowGood(uint area_id, uint goodid, byte level, params TileWorkModeE[] types)
         {
             List<uint> devs = PubMaster.Device.GetDevIds(area_id, DeviceTypeE.下砖机, DeviceTypeE.上砖机, DeviceTypeE.砖机);
-            return ConfigTileLifterList.Exists(c => devs.Contains(c.id) && types.Contains(c.WorkMode) && (c.goods_id == goodid || c.old_goodid == goodid));
+            return ConfigTileLifterList.Exists(c => devs.Contains(c.id) 
+                 && types.Contains(c.WorkMode) 
+                 && (c.goods_id == goodid || c.old_goodid == goodid)
+                 && c.level == level);
         }
         
-        /// <summary>
-        /// 判断品种是否与砖机当前品种相同
-        /// </summary>
-        /// <param name="goodid">判断是否相同的品种</param>
-        /// <param name="type">进行判断的砖机类型</param>
-        /// <returns></returns>
-        public bool IsHaveSameTileNowGood(uint goodid, byte level, params TileWorkModeE[] types)
-        {
-            return ConfigTileLifterList.Exists(c => types.Contains(c.WorkMode) && (c.goods_id == goodid || c.old_goodid == goodid) && c.level == level);
-        }
-
-        /// <summary>
-        /// 判断区域上砖机品种都是一样的
-        /// </summary>
-        /// <param name="area_id"></param>
-        /// <returns></returns>
-        public bool IsAreaUpTileGoodNotSame(uint area_id, uint tileid)
-        {
-            ConfigTileLifter conf = GetTileLifter(tileid);
-           List<Device> devs = PubMaster.Device.GetTileLifters(area_id, DeviceTypeE.上砖机);
-            return ConfigTileLifterList.Exists(c => devs.Exists(d => d.id == c.id) && conf.goods_id != c.goods_id);
-        }
-
         #endregion
 
         #endregion

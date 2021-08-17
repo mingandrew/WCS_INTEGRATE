@@ -373,7 +373,7 @@ namespace task.trans.transtask
                     if (!GetTransferTakePoint(track.id, track.rfid_6, track.up_split_point, out takeSite))
                     {
                         // 砖机使用该品种
-                        if (PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, trans.goods_id, TileWorkModeE.上砖))
+                        if (PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, trans.goods_id, trans.level, TileWorkModeE.上砖))
                         {
                             _M.SetStatus(trans, TransStatusE.接力等待, "无库存接力");
                         }
@@ -1080,7 +1080,7 @@ namespace task.trans.transtask
                         return;
                     }
 
-                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, trans.goods_id, TileWorkModeE.上砖))
+                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, trans.goods_id, trans.level, TileWorkModeE.上砖))
                     {
                         _M.SetStatus(trans, TransStatusE.小车回轨, "当前没有砖机再上该品种");
                         return;

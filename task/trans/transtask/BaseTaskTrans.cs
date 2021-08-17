@@ -460,10 +460,13 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public void RealseTakeFerry(StockTrans trans, bool isclear = true, string memo = "")
         {
-            if (!trans.IsReleaseTakeFerry
+            if (trans.take_ferry_id > 0
+                && !trans.IsReleaseTakeFerry
                 && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
             {
+                trans.IsReleaseTakeFerry = true;
+
                 _M.FreeTakeFerry(trans, memo);
 
                 if (isclear) trans.take_ferry_id = 0;
@@ -476,10 +479,13 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public void RealseGiveFerry(StockTrans trans, bool isclear = true, string memo = "")
         {
-            if (!trans.IsReleaseGiveFerry
+            if (trans.give_ferry_id > 0
+                && !trans.IsReleaseGiveFerry
                 && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
             {
+                trans.IsReleaseGiveFerry = true;
+
                 _M.FreeGiveFerry(trans, memo);
 
                 if (isclear) trans.give_ferry_id = 0;

@@ -133,18 +133,20 @@ namespace task.trans
                 if (traFrom.StockStatus == TrackStockStatusE.空砖) continue;
                 // 已被任务使用
                 if (ExistTransWithTracks(traFrom.id)) continue;
+
+                Stock btmstock = PubMaster.Goods.GetStockForIn(traFrom.id);
+                // 已存在同品种中转则跳过
+                if(ExistTaskSameGoods(traFrom.area, traFrom.line, 0, btmstock.goods_id, btmstock.level, TransTypeE.中转倒库)) continue;
+
                 // 当前轨道有砖-判断非下砖品种则倒库
-                if (traFrom.StockStatus == TrackStockStatusE.有砖)
+                if (btmstock != null && traFrom.StockStatus == TrackStockStatusE.有砖
+                    && PubMaster.DevConfig.IsHaveSameTileNowGood(traFrom.area, btmstock.goods_id, btmstock.level, TileWorkModeE.下砖))
                 {
-                    Stock btmstock = PubMaster.Goods.GetStockForIn(traFrom.id);
-                    if (PubMaster.DevConfig.IsHaveSameTileNowGood(traFrom.area, btmstock.goods_id, TileWorkModeE.下砖))
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 // 生成倒库任务
-                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, 0, 0, traFrom.id, 0
+                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, btmstock?.goods_id ?? 0, 0, traFrom.id, 0
                     , TransStatusE.整理中, 0, traFrom.line, (traFrom.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                 return;
 
@@ -238,7 +240,7 @@ namespace task.trans
                     Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
                     if (btmstock != null
                         && track.StockStatus == TrackStockStatusE.有砖
-                        && PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, btmstock.goods_id, TileWorkModeE.下砖))
+                        && PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, btmstock.goods_id, btmstock.level, TileWorkModeE.下砖))
                     {
                         continue;
                     }
@@ -256,7 +258,7 @@ namespace task.trans
                 if (!ExistTransWithTracks(track.id, track.brother_track_id))
                 {
                     Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
-                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, TileWorkModeE.上砖))
+                    if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, topstock.level, TileWorkModeE.上砖))
                     {
                         AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
                         return;
@@ -990,6 +992,26 @@ namespace task.trans
             }
             PubMaster.Warn.RemoveTaskWarn(WarningTypeE.Warning36, trans.id);
         }
+
+        /// <summary>
+        /// 是否存在相同品种的指定任务
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <param name="goodsid"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool ExistTaskSameGoods(uint area, uint line, uint transid, uint goodsid, byte level, params TransTypeE[] types)
+        {
+            return TransList.Exists(c => !c.finish 
+            && (transid == 0 || (transid > 0 && c.id != transid)) 
+            && c.area_id == area 
+            && c.line == line 
+            && c.goods_id == goodsid 
+            && c.level == level
+            && c.InType(types));
+        }
+
         #endregion
 
         #region[更新界面数据]

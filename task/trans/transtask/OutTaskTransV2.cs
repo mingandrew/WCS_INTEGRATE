@@ -187,8 +187,6 @@ namespace task.trans.transtask
                             //判断是否需要在库存在上砖分割点后，是否需要接力
                             if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id, trans.goods_id))
                             {
-                                _M.SetTakeFerry(trans, 0, "清空分配的信息");
-                                _M.SetCarrier(trans, 0, "清空分配的信息");
                                 _M.SetStatus(trans, TransStatusE.调度设备, "需要先接力，解锁所有设备");
                                 return;
                             }
@@ -328,17 +326,10 @@ namespace task.trans.transtask
                         {
                             if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                             {
-                                bool needtoemtpytrack = false;
                                 if (takeTrack.Type == TrackTypeE.储砖_出入)
                                 {
                                     if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint carrierid))
                                     {
-                                        //停在出入储砖轨道，上砖侧的空闲运输车
-                                        if (PubTask.Carrier.IsCarrierInTrackBiggerSite(carrierid, trans.take_track_id, takeTrack.rfid_2))
-                                        {
-                                            needtoemtpytrack = true;
-                                        }
-
                                         //停在出入储砖轨道，下砖侧的空闲运输车
                                         if (PubTask.Carrier.IsCarrierInTrackSmallerSite(carrierid, trans.take_track_id, takeTrack.rfid_1)
                                             && !_M.HaveInCarrier(carrierid))
@@ -548,13 +539,6 @@ namespace task.trans.transtask
                             && PubTask.Carrier.IsCarrierStockInTileSite(trans.carrier_id, trans.tilelifter_id, trans.give_track_id))
                         {
                             RealseGiveFerry(trans);
-                            if (!trans.IsReleaseGiveFerry
-                                  && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
-                                  && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
-                            {
-                                trans.IsReleaseGiveFerry = true;
-                                _M.FreeGiveFerry(trans);
-                            }
                         }
                     }
 

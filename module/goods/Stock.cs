@@ -64,9 +64,9 @@ namespace module.goods
 
         public override string ToString()
         {
-            return string.Format("标识[ {0} ]，品种[ {1} ]，轨道[ {2}^{3} ]，生产[ {4} ]，" +
+            return string.Format("标识[ {0} ]，品种[ {1}^{9} ]，轨道[ {2}^{3} ]，生产[ {4} ]，" +
                 "位置[ {5}^{6} ]，实际[ {7} ]，计算[ {8} ]", id, goods_id, TrackType, track_id, produce_time,
-                PosType, pos, location, location_cal);
+                PosType, pos, location, location_cal, level);
         }
 
         public string ToSmalString()

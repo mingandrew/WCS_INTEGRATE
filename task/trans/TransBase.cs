@@ -227,6 +227,7 @@ namespace task.trans
                                     break;
                             }
                         }
+                        organizelist.Clear();
                         #endregion
                     }
                     catch (Exception e)
@@ -667,6 +668,8 @@ namespace task.trans
                 string traname = PubMaster.Track.GetTrackName(traid);
                 mLog.Status(true, string.Format("任务[ {0} ], 完成轨道[ {1} ], 备注[ {2} ]", trans.id, traname, memo));
                 trans.finish_track_id = traid;
+                PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.FinsihSite);
+                //SendMsg(trans);
                 SetStepLog(trans, true, 209, string.Format("重新分配结束回轨轨道[ {0} ]；{1}；", traname, memo));
                 return true;
             }
@@ -708,6 +711,16 @@ namespace task.trans
             {
                 trans.line = line;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Line);
+            }
+        }
+
+        public void SetGoods(StockTrans trans, uint goodsid)
+        {
+            if (trans.goods_id != goodsid)
+            {
+                mLog.Status(true, string.Format("任务[ {0} ], 更改品种[ {1} -> {2} ]]", trans.id, trans.goods_id, goodsid));
+                trans.goods_id = goodsid;
+                PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Goods);
             }
         }
 

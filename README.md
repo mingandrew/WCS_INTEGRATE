@@ -779,7 +779,9 @@ ALTER TABLE `stock_trans` ADD COLUMN `level` int unsigned NULL COMMENT '砖机�
 ALTER TABLE `goods` DROP COLUMN `level`;
 
 ALTER TABLE `config_tilelifter` ADD COLUMN `level_type` tinyint unsigned NULL COMMENT '等级类型：0等级，1窑位' AFTER `pre_good_all`;
+
 ALTER TABLE `config_tilelifter` ADD COLUMN `syn_tile_list` varchar(10) NULL COMMENT '同步转产砖机id（用#隔开）' AFTER `level_type`;
+
 ALTER TABLE `config_tilelifter` ADD COLUMN `pre_level` tinyint(0) UNSIGNED NULL DEFAULT NULL COMMENT '上砖机专用--预设的品种等级' AFTER `level`;
 
 
@@ -799,8 +801,7 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 
 
 ## 2021.08.17 [2.1] 更新统计视图-使用等级来区分库存信息
-​```mysql
-
+```mysql
 ALTER VIEW `stock_sum` AS
 SELECT s.area AS 'area', t.line AS 'line', s.goods_id AS 'goods_id',
 			 s.track_id AS 'track_id', t.type AS 'track_type', t.type2 AS 'track_type2', 
@@ -813,3 +814,14 @@ SELECT s.area AS 'area', t.line AS 'line', s.goods_id AS 'goods_id',
  GROUP BY s.track_id, s.goods_id, s.`level` 
  ORDER BY s.area, s.goods_id, s.`level`, 'produce_time', s.track_id;
 ```
+
+
+
+## 2021.08.17[2.1] 新增任务字段（结束轨道ID，分配摆渡类型）
+
+```mysql
+ALTER TABLE `stock_trans` ADD COLUMN `finish_track_id` int(10) UNSIGNED NULL DEFAULT NULL COMMENT '结束轨道ID' AFTER `give_track_id`;
+
+ALTER TABLE `stock_trans` ADD COLUMN `allocate_ferry_type` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '分配摆渡类型' AFTER `tilelifter_id`;
+```
+

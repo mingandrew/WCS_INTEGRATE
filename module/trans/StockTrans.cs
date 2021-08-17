@@ -32,6 +32,8 @@ namespace module.goods
         public ushort line { set; get; }//线
         public byte level { set; get; } //砖机等级/窑位
 
+        public byte allocate_ferry_type { set; get; }
+
         public TransTypeE TransType
         {
             get => (TransTypeE)trans_type;
@@ -77,7 +79,11 @@ namespace module.goods
         /// <summary>
         /// 指定分配摆渡类型
         /// </summary>
-        public DeviceTypeE AllocateFerryType { set; get; } = DeviceTypeE.其他;
+        public DeviceTypeE AllocateFerryType
+        {
+            get => (DeviceTypeE)allocate_ferry_type;
+            set => allocate_ferry_type = (byte)value;
+        }
 
         /// <summary>
         /// 是否记录步骤信息

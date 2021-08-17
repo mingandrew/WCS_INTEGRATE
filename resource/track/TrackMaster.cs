@@ -2680,7 +2680,7 @@ namespace resource.track
             Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
             if (btmstock != null)
             {
-                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, btmstock.goods_id, TileWorkModeE.下砖))
+                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, btmstock.goods_id, btmstock.level, TileWorkModeE.下砖))
                 {
                     SetTrackSortable(track, true, SORT_LEVEL_2, "无砖机正在下该品种");
                     return;
@@ -2709,7 +2709,7 @@ namespace resource.track
             Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
             if (topstock != null)
             {
-                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, TileWorkModeE.上砖))
+                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, topstock.level, TileWorkModeE.上砖))
                 {
                     //第一车库存距离轨道头部有5个车的距离
                     int discount = GetPointCompareCount((track.is_take_forward ? track.limit_point : track.limit_point_up), topstock.location, safe);
@@ -2773,7 +2773,7 @@ namespace resource.track
             Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
             if (topstock != null)
             {
-                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, TileWorkModeE.上砖))
+                if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, topstock.level, TileWorkModeE.上砖))
                 {
                     //如果未满，则需要判断尾部是否有砖机继续下砖
                     if (track.StockStatus == TrackStockStatusE.有砖)
@@ -2781,7 +2781,7 @@ namespace resource.track
                         Stock bottomstock = PubMaster.Goods.GetStockForIn(track.id);
                         if (bottomstock != null)
                         {
-                            if (PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, bottomstock.goods_id, TileWorkModeE.下砖))
+                            if (PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, bottomstock.goods_id, bottomstock.level, TileWorkModeE.下砖))
                             {
                                 SetTrackSortable(track, false, SORT_LEVEL_NO, "有砖机正在下该品种");
                                 return;

@@ -123,7 +123,7 @@ namespace task.allocate
                         if (!IsTrackOk4InTrans(traid)) continue;
 
                         Stock laststock = PubMaster.Goods.GetStockForIn(traid);
-                        if (laststock != null && laststock.goods_id > 0 && PubMaster.DevConfig.IsHaveSameTileNowGood(laststock.goods_id, laststock.level, TileWorkModeE.下砖, TileWorkModeE.补砖))
+                        if (laststock != null && laststock.goods_id > 0 && PubMaster.DevConfig.IsHaveSameTileNowGood(laststock.area, laststock.goods_id, laststock.level, TileWorkModeE.下砖, TileWorkModeE.补砖))
                         {
                             continue;
                         }

@@ -112,7 +112,7 @@ namespace task.diagnose.trans
             {
                 foreach (var item in outoutsort)
                 {
-                    if (item.carrier_id != 0 && !PubMaster.DevConfig.IsHaveSameTileNowGood(areaid, item.goods_id, TileWorkModeE.上砖))
+                    if (item.carrier_id != 0 && !PubMaster.DevConfig.IsHaveSameTileNowGood(areaid, item.goods_id, item.level, TileWorkModeE.上砖))
                     {
                         Track track = PubTask.Carrier.GetCarrierTrack(item.carrier_id);
                         List<uint> ferrys = PubMaster.Area.GetFerryWithTrackInOut(DeviceTypeE.前摆渡, areaid, track.id, item.give_track_id, 0, false);

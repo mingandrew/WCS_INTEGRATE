@@ -1948,52 +1948,75 @@ namespace resource.goods
         /// </summary>
         /// <param name="stock">库存信息</param>
         /// <param name="track">库存所在轨道</param>
-        /// <param name="addinbottom">默认添加在尾部</param>
-        public void UpdateTrackPos(Stock stock, Track track, bool addinbottom = true)
+        /// <param name="addinback">默认添加在后侧</param>
+        public void UpdateTrackPos(Stock stock, Track track, bool addinback = true)
         {
             //轨道当前库存信息
             short storecount = (short)StockList.Count(c => c.track_id == stock.track_id && c.id != stock.id);
 
-            if (addinbottom)
+            if (addinback)
             {
-                if (storecount == 0)
+                stock.PosType = StockPosE.首车;
+                stock.pos = 1;
+
+                if (storecount > 0)
                 {
-                    stock.PosType = StockPosE.首车;
-                    stock.pos = 1;
-                }
-                else
-                {
-                    List<Stock> Bottomstock = StockList.FindAll(c => c.track_id == stock.track_id && c.PosType == StockPosE.尾车);
-                    if (Bottomstock != null && Bottomstock.Count > 0)
+                    if (track.is_take_forward)
                     {
-                        foreach (var item in Bottomstock)
+                        Stock outS = GetStockForOut(track.id);
+                        if (outS != null && outS.id != stock.id)
                         {
-                            SetStockPosType(item, StockPosE.中部);
+                            stock.PosType = StockPosE.首车;
+                            stock.pos = (short)(outS.pos - 1);
+
+                            SetStockPosType(outS, StockPosE.中部);
                         }
                     }
+                    else
+                    {
+                        Stock inS = GetStockForIn(track.id);
+                        if (inS != null && inS.id != stock.id)
+                        {
+                            stock.PosType = StockPosE.尾车;
+                            stock.pos = (short)(inS.pos + 1);
 
-                    short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id)?.Max(c => c.pos) ?? 0;
-                    stock.pos = (short)(FinalStockPos + 1);
-                    stock.PosType = StockPosE.尾车;
+                            SetStockPosType(inS, StockPosE.中部);
+                        }
+                    }
                 }
+
             }
             else
             {
-                //加在头部
-                Stock top = StockList.Find(c => c.track_id == stock.track_id && c.PosType == StockPosE.首车 && c.id != stock.id);
-
                 stock.PosType = StockPosE.首车;
-                if (top != null && top.id != stock.id)
-                {
-                    stock.pos = (short)(top.pos - 1);
+                stock.pos = 1;
 
-                    top.PosType = StockPosE.中部;
-                    PubMaster.Mod.GoodSql.EditStock(top, StockUpE.PosType);
-                }
-                else
+                if (storecount > 0)
                 {
-                    stock.pos = 1;
+                    if (track.is_take_forward)
+                    {
+                        Stock inS = GetStockForIn(track.id);
+                        if (inS != null && inS.id != stock.id)
+                        {
+                            stock.PosType = StockPosE.尾车;
+                            stock.pos = (short)(inS.pos + 1);
+
+                            SetStockPosType(inS, StockPosE.中部);
+                        }
+                    }
+                    else
+                    {
+                        Stock outS = GetStockForOut(track.id);
+                        if (outS != null && outS.id != stock.id)
+                        {
+                            stock.PosType = StockPosE.首车;
+                            stock.pos = (short)(outS.pos - 1);
+
+                            SetStockPosType(outS, StockPosE.中部);
+                        }
+                    }
                 }
+
             }
         }
 

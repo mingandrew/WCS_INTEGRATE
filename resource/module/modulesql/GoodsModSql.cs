@@ -142,12 +142,12 @@ namespace resource.module.modulesql
         public bool AddStockTrans(StockTrans stotran)
         {
             string str = "INSERT INTO `stock_trans`(`id`, `trans_type`, `trans_status`, `area_id`, `goods_id`, `stock_id`," +
-                " `tilelifter_id`, `take_track_id`, `give_track_id`, `create_time`,`carrier_id`)" +
-                " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', {9}, {10})";
+                " `tilelifter_id`, `take_track_id`, `give_track_id`, `create_time`,`carrier_id`,`finish_track_id`,`allocate_ferry_type`,`level`)" +
+                " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', {9}, {10}, {11}, {12})";
             string sql = string.Format(@str, stotran.id, stotran.trans_type, stotran.trans_status,  
                 stotran.area_id, stotran.goods_id,  stotran.stock_id,
                 stotran.tilelifter_id, stotran.take_track_id, stotran.give_track_id, GetTimeOrNull(stotran.create_time),
-                stotran.carrier_id);
+                stotran.carrier_id, stotran.finish_track_id, stotran.allocate_ferry_type, stotran.level);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -237,8 +237,8 @@ namespace resource.module.modulesql
             switch (type)
             {
                 case StockUpE.Goods:
-                    sql += string.Format("`goods_id` = {0}, `stack` = {1}, `pieces` = {2}, `produce_time` = {3}",
-                        stock.goods_id, stock.stack, stock.pieces, GetTimeOrNull(stock.produce_time));
+                    sql += string.Format("`goods_id` = {0}, `stack` = {1}, `pieces` = {2}, `produce_time` = {3}, `level` = {4}",
+                        stock.goods_id, stock.stack, stock.pieces, GetTimeOrNull(stock.produce_time), stock.level);
                     break;
                 case StockUpE.Track:
                     sql += string.Format("`track_id` = {0}, `area` = {1}, `track_type`={2}, `last_track_id`={3}", stock.track_id, stock.area, stock.track_type, stock.last_track_id);
@@ -311,8 +311,14 @@ namespace resource.module.modulesql
                 case TransUpdateE.GiveSite:
                     sql += string.Format("`give_track_id` = {0}", trans.give_track_id);
                     break;
+                case TransUpdateE.FinsihSite:
+                    sql += string.Format("`finish_track_id` = {0}", trans.finish_track_id);
+                    break;
                 case TransUpdateE.Stock:
                     sql += string.Format("`stock_id` = {0}", trans.stock_id);
+                    break;
+                case TransUpdateE.Goods:
+                    sql += string.Format("`goods_id` = {0}, `level` = {1}", trans.goods_id, trans.level);
                     break;
                 case TransUpdateE.Cancel:
                     sql += string.Format("`cancel` = {0}", trans.cancel);
@@ -326,6 +332,9 @@ namespace resource.module.modulesql
                     break;
                 case TransUpdateE.Line:
                     sql += string.Format("`line` = {0}", trans.line);
+                    break;
+                case TransUpdateE.FerryType:
+                    sql += string.Format("`allocate_ferry_type` = {0}", trans.allocate_ferry_type);
                     break;
             }
             sql += string.Format(" WHERE `id` = {0}", trans.id);

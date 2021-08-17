@@ -10,12 +10,15 @@
         UnLoadTime,
         TakeSite,
         GiveSite,
+        FinsihSite,
         Stock,
+        Goods,
         Finish,
         Cancel,
         ReTake,
         TileId,
-        Line
+        Line,
+        FerryType
     }
 
     public enum TransTypeE
