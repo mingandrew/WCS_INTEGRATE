@@ -54,9 +54,7 @@ namespace resource.goods
 
 
         #region[库存统计]
-
-
-
+        
         /// <summary>
         /// 获取库存统计信息
         /// 1.重新排序
@@ -402,6 +400,33 @@ namespace resource.goods
                 }
                 return x.area.CompareTo(y.area);
             });
+        }
+
+        /// <summary>
+        /// 根据砖机id，来获取对应区域和线的时间最早的需要预设的品种
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetFirstPreGood(uint devid)
+        {
+            uint area = PubMaster.Device.GetDeviceArea(devid);
+            //uint line = PubMaster.Device.GetDeviceLIne(devid);
+            uint nowgoodid = PubMaster.DevConfig.GetDeviceNowId(devid);
+            //List<StockSum> temp = StockSumList.FindAll(c => c.area == area && c.line == line);
+            List<StockSum> temp = StockSumList.FindAll(c => c.area == area);
+            if (temp != null)
+            {
+                temp.Sort((x, y) =>
+                {
+                    return x.CompareProduceTime(y.produce_time);
+                }); 
+                //if (nowgoodid == temp[0].goods_id && temp.Count > 0)
+                //{
+                //    return temp[1].goods_id;
+                //}
+                return temp[0].goods_id;
+            }
+            return 0;
         }
 
         #endregion

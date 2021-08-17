@@ -92,10 +92,12 @@
 
         #endregion
 
-        #region[流程超时]
+        #region[时间间隔字典]
 
         public static string StepOverTime = nameof(StepOverTime);               //除【倒库中】，其他流程的超时时间（秒）
         public static string SortingStockStepOverTime = nameof(SortingStockStepOverTime);               //倒库中流程的超时时间（秒）
+
+        public static string UpTileNoStockWaitTime = nameof(UpTileNoStockWaitTime);               //上砖机自动转产无砖等待时间（秒）
 
         #endregion
     }

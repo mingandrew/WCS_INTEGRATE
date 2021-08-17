@@ -105,6 +105,26 @@
         LastTrack,
         WorkMode,
         Strategey,
+        PreGood,
 
+    }
+
+    /// <summary>
+    /// 预设品种列表的使用类型
+    /// </summary>
+    public enum TilePreGoodType
+    {
+        /// <summary>
+        /// 根据预设列表来转产
+        /// </summary>
+        根据预设列表, 
+        /// <summary>
+        /// 循环预设列表
+        /// </summary>
+        循环预设列表,
+        /// <summary>
+        /// 根据库存时间来上砖
+        /// </summary>
+        自动先进先出,
     }
 }

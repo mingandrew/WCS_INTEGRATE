@@ -347,8 +347,25 @@ namespace wcs.ViewModel
             {
                 if (_pregoodsid == 0)
                 {
-                    Growl.Info("请选择预设品种！");
-                    return;
+                    bool iswarn = true;
+                    // 没有预设品种，则检查是否有预设品种列表数据，有则用列表数据，无则警告
+                    if (PubMaster.Goods.IsHavePreStockGood(_devid))
+                    {
+                        PreStockGood firstgood = PubMaster.Goods.GetNextPreStockGood(_devid, _goodsid);
+                        if (firstgood == null)
+                        {
+                            iswarn = true;
+                        }
+                        else
+                        {
+                            iswarn = !PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, firstgood.good_id, (firstgood.pre_good_all ? 0 : firstgood.pre_good_qty), out string mes);
+                        }
+                    }
+                    if (iswarn)
+                    {
+                        Growl.Info("请选择预设品种！");
+                        return;
+                    }
                 }
             }
 

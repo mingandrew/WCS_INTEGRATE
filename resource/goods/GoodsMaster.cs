@@ -3,6 +3,7 @@ using enums.track;
 using enums.warning;
 using GalaSoft.MvvmLight.Messaging;
 using module.area;
+using module.device;
 using module.deviceconfig;
 using module.goods;
 using module.msg;
@@ -27,9 +28,11 @@ namespace resource.goods
             _go = new object();
             _so = new object();
             _sm = new object();
+            _pg = new object();
             GoodsList = new List<Goods>();
             StockList = new List<Stock>();
             GoodSizeList = new List<GoodSize>();
+            PreStockGoodList = new List<PreStockGood>();
             mMsg = new MsgAction();
             _mlog = (Log)new LogFactory().GetLog("库存信息", false);
         }
@@ -40,7 +43,7 @@ namespace resource.goods
             DelectOverLimitGoods();
         }
 
-        public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true, bool refr_4 = true)
+        public void Refresh(bool refr_1 = true, bool refr_2 = true, bool refr_3 = true, bool refr_4 = true, bool refr_5 = true)
         {
 
             if (refr_1)
@@ -60,6 +63,12 @@ namespace resource.goods
                 GoodSizeList.Clear();
                 GoodSizeList.AddRange(PubMaster.Mod.GoodSql.QueryGoodSize());
             }
+
+            if (refr_5)
+            {
+                PreStockGoodList.Clear();
+                PreStockGoodList.AddRange(PubMaster.Mod.GoodSql.QueryPreStockGood());
+            }
         }
 
         public void Stop()
@@ -69,10 +78,11 @@ namespace resource.goods
         #endregion
 
         #region[字段]
-        private readonly object _go, _so,_sm;
+        private readonly object _go, _so,_sm, _pg;
         private List<Goods> GoodsList { set; get; }
         private List<Stock> StockList { set; get; }
         private List<GoodSize> GoodSizeList { set; get; }
+        private List<PreStockGood> PreStockGoodList { set; get; }
         private MsgAction mMsg;
         private Log _mlog;
         protected readonly string timeformat = "yyyy-MM-dd HH:mm:ss";
@@ -292,6 +302,96 @@ namespace resource.goods
         }
 
         #endregion
+
+        #region[预设品种列表]
+
+        /// <summary>
+        /// 获取全部设备的预设品种列表
+        /// </summary>
+        /// <returns></returns>
+        public List<PreStockGood> GetAllPreStockGoodList()
+        {
+            return PreStockGoodList;
+        }
+
+        /// 获取指定设备的预设品种列表
+        /// </summary>
+        /// <returns></returns>
+        public List<PreStockGood> GetPreStockGoodList(uint tileid)
+        {
+            return PreStockGoodList.FindAll(c => c.tile_id == tileid)?.OrderBy(c => c.order).ToList() ?? new List<PreStockGood>();
+        }
+
+        public void SortPreStockGoodList()
+        {
+            PreStockGoodList.Sort((x, y) =>
+            {
+                if (x.tile_id == y.tile_id)
+                {
+                    return x.order.CompareTo(y.order);
+                }
+                return x.tile_id.CompareTo(y.tile_id);
+            });
+        }
+
+        /// <summary>
+        /// 获取下一个预设品种
+        /// 1.当前品种不是最后一个，所以直接拿下一个预设品种
+        /// 2.如果预设列表是循环的，且当前品种是最后一个，所以拿序号最小的预设品种
+        /// 3.如果预设列表不循环，则拿当前库存品种列表的第一个
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public PreStockGood GetNextPreStockGood(uint tileid, uint goodid)
+        {
+            List<PreStockGood> plist = PreStockGoodList.FindAll(c => c.tile_id == tileid);
+            TilePreGoodType tilePre = PubMaster.DevConfig.GetTilePreGoodType(tileid);
+            if (plist != null && plist.Count != 0)
+            {
+                switch (tilePre)
+                {
+                    case TilePreGoodType.自动先进先出:
+                    case TilePreGoodType.根据预设列表:
+                        return plist[0];
+                    case TilePreGoodType.循环预设列表:
+                        int order = plist.Find(c => c.good_id == goodid)?.order ?? 0;
+                        if (order != 0 && plist.Exists(c => c.order == order + 1))
+                        {
+                            return plist.Find(c => c.order == order + 1);
+                        }
+                        if (tilePre == TilePreGoodType.循环预设列表)
+                        {
+                            int minorder = plist.Min(c => c.order);
+                            return plist.Find(c => c.order == minorder);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return null;
+            }
+
+            if (tilePre == TilePreGoodType.自动先进先出)
+            {
+                uint nextgid = PubMaster.Sums.GetFirstPreGood(tileid);
+                if (nextgid == 0 || nextgid == goodid)
+                {
+                    return null;
+                }
+                return new PreStockGood()
+                {
+                    tile_id = tileid,
+                    good_id = nextgid,
+                    order = 1,
+                    pre_good_all = true,
+                    pre_good_qty = 0,
+                };
+            }
+            return null;
+        }
+        #endregion
+
         #endregion
 
         #region[获取/判断属性]
@@ -932,6 +1032,39 @@ namespace resource.goods
                     }
                 }
             }
+        }
+        #endregion
+
+        #region[预设品种列表]
+        /// <summary>
+        /// 判断砖机是否有预设品种列表
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <returns></returns>
+        public bool IsHavePreStockGood(uint tileid)
+        {
+            List<PreStockGood> plist = PreStockGoodList.FindAll(c => c.tile_id == tileid);
+            if (plist != null && plist.Count != 0)
+            {
+                return true;
+            }
+            TilePreGoodType tilePre = PubMaster.DevConfig.GetTilePreGoodType(tileid);
+            if (tilePre == TilePreGoodType.自动先进先出)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 判断砖机的预设列表是否含有该品种
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="goodid"></param>
+        /// <returns></returns>
+        public bool IsInPreStockGoodList(uint tileid, uint goodid)
+        {
+            return PreStockGoodList.Exists(c => c.tile_id == tileid && c.good_id == goodid);
         }
         #endregion
 
@@ -2421,6 +2554,88 @@ namespace resource.goods
         }
         #endregion
 
+        #region[预设品种列表]
+
+        /// <summary>
+        /// 新增预设品种列表里的预设品种
+        /// </summary>
+        /// <param name="preStock"></param>
+        public void AddPreStockGood(PreStockGood preStock)
+        {
+            if (Monitor.TryEnter(_pg, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    PreStockGoodList.Add(preStock);
+                    PubMaster.Mod.GoodSql.AddPreStockGood(preStock);
+                    return;
+                }
+                finally
+                {
+                    Monitor.Exit(_pg);
+                }
+            }
+            return;
+        }
+
+        /// <summary>
+        /// 删除砖机配置的预设品种列表
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="goods"></param>
+        /// <returns></returns>
+        public void DeleteTilePreStockGoods(uint tileid)
+        {
+            if (Monitor.TryEnter(_pg, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    PubMaster.Mod.GoodSql.DeletePreStockGood(tileid);
+                    PreStockGoodList.RemoveAll(c => c.tile_id == tileid);
+                }
+                catch (Exception e)
+                {
+                    _mlog.Error(true, string.Format("删除{0}砖机预设品种列表, {1}", PubMaster.Device.GetDeviceName(tileid), e.Message));
+                }
+                finally
+                {
+                    Monitor.Exit(_pg);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 删除砖机配置的预设品种
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <param name="goods"></param>
+        /// <returns></returns>
+        public void DeletePreStockGood(uint tileid, uint goodid)
+        {
+            if (Monitor.TryEnter(_pg, TimeSpan.FromSeconds(2)))
+            {
+                try
+                {
+                    TilePreGoodType tilePre = PubMaster.DevConfig.GetTilePreGoodType(tileid);
+                    if (tilePre == TilePreGoodType.循环预设列表)
+                    {
+                        return;
+                    }
+                    PubMaster.Mod.GoodSql.DeletePreStockGood(tileid, goodid);
+                    PreStockGoodList.RemoveAll(c => c.tile_id == tileid && c.good_id == goodid);
+                }
+                catch (Exception e)
+                {
+                    _mlog.Error(true, string.Format("删除{0}砖机预设品种, {1}", PubMaster.Device.GetDeviceName(tileid), e.Message));
+                }
+                finally
+                {
+                    Monitor.Exit(_pg);
+                }
+            }
+        }
+        #endregion
+
         #endregion
 
         #region[任务逻辑]
@@ -3517,7 +3732,7 @@ namespace resource.goods
             }
             size.id = GetMaxGoodSizeId() + 1;
             PubMaster.Mod.GoodSql.AddGoodSize(size);
-            Refresh(false, false, false, true);
+            Refresh(false, false, false, true, false);
             result = "";
             return true;
         }
@@ -3531,7 +3746,7 @@ namespace resource.goods
             }
 
             PubMaster.Mod.GoodSql.EditGoodSize(size);
-            Refresh(false, false, false, true);
+            Refresh(false, false, false, true, false);
             result = "";
             return true;
         }

@@ -1923,6 +1923,26 @@ namespace task.device
             else
             {
                 PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.UpTileHaveNotStockToOut, (ushort)tileid);
+                //判断上砖机没找到库存满足60s，且是自动转产，是则自动预设品种，且转产
+                if (mTimer.IsOver(TimerTag.UpTileHaveNotStockToOut, tileid, Site_1, PubMaster.Dic.GetDtlIntCode(DicTag.UpTileNoStockWaitTime), 10) && PubMaster.DevConfig.GetTileAutoShiftGood(tileid))
+                {
+                    uint _pregoodsid = PubMaster.DevConfig.GetDevicePreId(tileid);
+                    //自动预设品种，且转产
+                    if (_pregoodsid == 0 && PubMaster.Goods.IsHavePreStockGood(tileid))
+                    {
+                        // 没有预设品种，则检查是否有预设品种列表数据
+                        PreStockGood firstgood = PubMaster.Goods.GetNextPreStockGood(tileid, goodid);
+                        if (firstgood != null)
+                        {
+                            PubMaster.DevConfig.UpdateTilePreGood(tileid, goodid, firstgood.good_id, (firstgood.pre_good_all ? 0 : firstgood.pre_good_qty), out string mes);
+                            _pregoodsid = PubMaster.DevConfig.GetDevicePreId(tileid);
+                        }
+                    }
+                    if (_pregoodsid != 0)
+                    {
+                        PubMaster.DevConfig.UpdateShiftTileGood(tileid, goodid, out string msg, string.Format("上砖机找不到库存可上满{0}秒，自动转产", PubMaster.Dic.GetDtlIntCode(DicTag.UpTileNoStockWaitTime)));
+                    }
+                }
             }
 
         }

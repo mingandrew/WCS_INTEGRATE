@@ -20,6 +20,7 @@ namespace wcs.Data.View
         public string Color { set; get; }
         public int Level { set; get; }
         public int Width { set; get; }
+        public int Order { set; get; }
 
         public DateTime? ProduceTime
         {
@@ -71,6 +72,13 @@ namespace wcs.Data.View
             }
         }
 
+        public StockGoodSumView(PreStockGood pg)
+        {
+            Count = pg.pre_good_qty;
+            GoodId = pg.good_id;
+            orgcount = count;
+        }
+
         public StockGoodSumView(StockSum sum)
         {
             AreaId = sum.area;
@@ -80,6 +88,22 @@ namespace wcs.Data.View
             ProduceTime = sum.produce_time;
             GoodId = sum.goods_id;
             orgcount = count;
+        }
+
+        public StockGoodSumView(StockGoodSumView sv)
+        {
+            AreaId = sv.AreaId;
+            Count = sv.count;
+            Stack = sv.Stack;
+            Pieces = sv.Pieces;
+            ProduceTime = sv.ProduceTime;
+            GoodId = sv.GoodId;
+            orgcount = sv.orgcount;
+            ShowCount = sv.ShowCount;
+            ShowLabel = sv.ShowLabel;
+            Level = sv.Level;
+            Color = sv.Color;
+            GoodName = sv.GoodName;
         }
 
         public void AddToSum(StockSum sum)
@@ -114,7 +138,9 @@ namespace wcs.Data.View
             Selected = v;
             if (!v)
             {
-                Count = orgcount + 1;
+                //Count = orgcount + 1;
+                //ShowLabel = true;
+                //ShowCount = false;
             }
         }
 

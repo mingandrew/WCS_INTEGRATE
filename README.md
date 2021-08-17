@@ -713,3 +713,26 @@ ADD COLUMN `sort_level` tinyint(3) UNSIGNED NULL COMMENT '倒库优先级';
 UPDATE `diction_dtl` SET `string_value` = '小车倒库中但是小车有货，恢复方法：首先让运输车在储砖轨道放下砖，再给运输车发终止指令' WHERE `code` = 'CarrierLoadSortTask';
 ```
 
+
+
+
+
+## 2021.08.13 [2.0] 新增预设品种列表
+
+```mysql
+CREATE TABLE `pre_stock_goods` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `tile_id` int unsigned NOT NULL COMMENT '砖机ID',
+  `good_id` int unsigned NOT NULL COMMENT '品种ID',
+  `order` smallint unsigned DEFAULT NULL COMMENT '优先级',
+  `pre_good_qty` int unsigned DEFAULT NULL COMMENT '预约品种数量',
+  `pre_good_all` bit(1) DEFAULT NULL COMMENT '预约使用全部库存-不限制库存数量',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+
+ALTER TABLE `config_tilelifter` 
+ADD COLUMN `pre_type` tinyint(0) NULL DEFAULT NULL COMMENT '预设类型：0按预设列表不循环，1按预设列表循环，2全自动按时间预设' AFTER `pre_good_all`,
+ADD COLUMN `auto_shift_good` bit(1) NULL DEFAULT NULL COMMENT '自动转品种---上砖机预设品种列表' AFTER `pre_type`;
+```
+

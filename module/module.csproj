@@ -65,6 +65,7 @@
     <Compile Include="diction\VersionDic.cs" />
     <Compile Include="goods\Goods.cs" />
     <Compile Include="goods\GoodSize.cs" />
+    <Compile Include="goods\PreStockGood.cs" />
     <Compile Include="goods\Stock.cs" />
     <Compile Include="goods\StockSum.cs" />
     <Compile Include="goods\StockSumView.cs" />

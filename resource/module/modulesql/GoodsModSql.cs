@@ -111,6 +111,22 @@ namespace resource.module.modulesql
             }
             return list;
         }
+
+        /// <summary>
+        /// 查询预设品种列表
+        /// </summary>
+        /// <returns></returns>
+        public List<PreStockGood> QueryPreStockGood()
+        {
+            List<PreStockGood> list = new List<PreStockGood>();
+            string sql = string.Format("SELECT t.* FROM `pre_stock_goods` AS t");
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<PreStockGood>();
+            }
+            return list;
+        }
         #endregion
 
         #region[添加]
@@ -215,6 +231,18 @@ namespace resource.module.modulesql
             return row >= 1;
         }
 
+        /// <summary>
+        /// 添加规格信息
+        /// </summary>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        internal bool AddPreStockGood(PreStockGood preStock)
+        {
+            string str = "INSERT INTO `pre_stock_goods`(`tile_id`, `good_id`, `order`, `pre_good_qty`, `pre_good_all`) VALUES ({0}, {1}, {2}, {3}, {4})";
+            string sql = string.Format(@str, preStock.tile_id, preStock.good_id, preStock.order, preStock.pre_good_qty, preStock.pre_good_all);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
         #endregion
 
         #region[修改]
@@ -385,7 +413,6 @@ namespace resource.module.modulesql
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
-
         #endregion
 
         #region[删除]
@@ -420,6 +447,18 @@ namespace resource.module.modulesql
         internal bool DeleteGoodSize(uint sizeid)
         {
             string sql = string.Format("DELETE FROM `good_size` WHERE `id` = '{0}'", sizeid);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+        internal bool DeletePreStockGood(uint tileid)
+        {
+            string sql = string.Format("DELETE FROM `pre_stock_goods` WHERE `tile_id` = '{0}'", tileid);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+        internal bool DeletePreStockGood(uint tileid, uint goodid)
+        {
+            string sql = string.Format("DELETE FROM `pre_stock_goods` WHERE `tile_id` = '{0}' AND `good_id` = '{1}'", tileid, goodid);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
