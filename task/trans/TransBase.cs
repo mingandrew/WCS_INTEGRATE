@@ -34,7 +34,7 @@ namespace task.trans
 
         #region[分析]
 
-        DiagnoseServer MDiagnoreServer;
+        protected DiagnoseServer MDiagnoreServer;
 
         #endregion
 

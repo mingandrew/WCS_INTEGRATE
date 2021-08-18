@@ -35,6 +35,7 @@ namespace task.trans
             List<uint> ids = new List<uint>();
             foreach (var item in TransList)
             {
+                if (item.InStatus(TransStatusE.完成)) continue;
                 ids.Add(item.take_track_id);
                 ids.Add(item.give_track_id);
                 if (item.finish_track_id != 0)
@@ -49,6 +50,7 @@ namespace task.trans
 
         #region[检查满轨/添加倒库任务]
 
+        private int DoCheckTrackSort = 0;
         /// <summary>
         /// 检查满砖轨道进行倒库
         /// 1.检查入库满砖轨道
@@ -56,11 +58,20 @@ namespace task.trans
         /// </summary>
         public override void CheckTrackSort()
         {
+            if (DoCheckTrackSort < 3)
+            {
+                DoCheckTrackSort++;
+                return;
+            }
+            DoCheckTrackSort = 1;
+
             CheckTrackSortV1();
 
             //使用倒库版本V2
             if (GlobalWcsDataConfig.BigConifg.UseSortV2)
             {
+                MDiagnoreServer?.DoTrackDiagnose();
+
                 CheckTrackSortV2();
             }
         }
