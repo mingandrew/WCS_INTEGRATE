@@ -87,29 +87,7 @@ namespace task.trans.transtask
         public override void ToTakeTrackTakeStock(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
-            {
-                return;
-            }
-
-            #region[分配摆渡车]
-            if (trans.take_ferry_id != 0
-                && !trans.IsReleaseTakeFerry
-                && !PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id))
-            {
-                return;
-            }
-
-            //还没有分配取货过程中的摆渡车
-            if (trans.take_ferry_id == 0 && !trans.IsReleaseTakeFerry)
-            {
-                string msg = _M.AllocateFerry(trans, trans.AllocateFerryType, track, false);
-
-                #region 【任务步骤记录】
-                if (_M.LogForTakeFerry(trans, msg)) return;
-                #endregion
-            }
-            #endregion
+            if (!_M.RunPremise(trans, out track)) return;
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
@@ -125,7 +103,7 @@ namespace task.trans.transtask
                     {
                         if (trans.take_track_id == track.id)
                         {
-                            // 先解锁摆渡车
+                            // 解锁摆渡车
                             RealseTakeFerry(trans);
 
                             if (isftask)
@@ -141,13 +119,8 @@ namespace task.trans.transtask
                         }
                         else
                         {
-                            // 重锁摆渡
-                            if (trans.IsReleaseTakeFerry || trans.take_ferry_id == 0)
-                            {
-                                trans.IsReleaseTakeFerry = false;
-                                trans.take_ferry_id = 0;
-                                return;
-                            }
+                            // 锁定摆渡车
+                            if (!AllocateTakeFerry(trans, trans.AllocateFerryType, track)) return;
 
                             //摆渡车 定位去 取货点
                             if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out string _, true))
@@ -199,6 +172,8 @@ namespace task.trans.transtask
                 #region[小车在摆渡车]
                 case TrackTypeE.前置摆渡轨道:
                 case TrackTypeE.后置摆渡轨道:
+                    // 锁定摆渡车
+                    if (!AllocateTakeFerry(trans, trans.AllocateFerryType, track)) return;
 
                     if (isnotload && isftask)
                     {
@@ -235,28 +210,7 @@ namespace task.trans.transtask
         public override void ToGiveTrackGiveStock(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
-            {
-                return;
-            }
-
-            #region[分配摆渡车/锁定摆渡车]
-            if (trans.give_ferry_id != 0
-                && !trans.IsReleaseGiveFerry
-                && !PubTask.Ferry.TryLock(trans, trans.give_ferry_id, track.id))
-            {
-                return;
-            }
-
-            if (trans.give_ferry_id == 0 && !trans.IsReleaseGiveFerry)
-            {
-                string msg = _M.AllocateFerry(trans, trans.AllocateFerryType, track, true);
-
-                #region 【任务步骤记录】
-                if (_M.LogForGiveFerry(trans, msg)) return;
-                #endregion
-            }
-            #endregion
+            if (!_M.RunPremise(trans, out track)) return;
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
@@ -267,6 +221,9 @@ namespace task.trans.transtask
                 #region[小车在摆渡车上]
                 case TrackTypeE.前置摆渡轨道:
                 case TrackTypeE.后置摆渡轨道:
+                    // 锁定摆渡车
+                    if (!AllocateGiveFerry(trans, trans.AllocateFerryType, track)) return;
+
                     if (isload && isftask)
                     {
                         //1.计算轨道下一车坐标
@@ -342,7 +299,7 @@ namespace task.trans.transtask
                     #region[放货轨道]
                     if (track.id == trans.give_track_id)
                     {
-                        // 先解锁摆渡车
+                        // 解锁摆渡车
                         RealseGiveFerry(trans);
 
                         if (PubTask.Carrier.IsCarrierFinishUnLoad(trans.carrier_id))
@@ -356,13 +313,8 @@ namespace task.trans.transtask
                     }
                     else
                     {
-                        // 重锁摆渡
-                        if (trans.IsReleaseGiveFerry || trans.give_ferry_id == 0)
-                        {
-                            trans.IsReleaseGiveFerry = false;
-                            trans.give_ferry_id = 0;
-                            return;
-                        }
+                        // 锁定摆渡车
+                        if (!AllocateGiveFerry(trans, trans.AllocateFerryType, track)) return;
 
                         if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, track.id, track.id, out ferryTraid, out res))
                         {
@@ -414,10 +366,7 @@ namespace task.trans.transtask
             }
 
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
-            {
-                return;
-            }
+            if (!_M.RunPremise(trans, out track)) return;
 
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
@@ -432,26 +381,6 @@ namespace task.trans.transtask
                     return;
                 }
             }
-
-            #region[分配摆渡车/锁定摆渡车]
-
-            if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
-            {
-                if (trans.take_ferry_id == 0)
-                {
-                    string msg = _M.AllocateFerry(trans, trans.AllocateFerryType, track, false);
-
-                    #region 【任务步骤记录】
-                    if (_M.LogForTakeFerry(trans, msg)) return;
-                    #endregion
-                }
-                else if (!PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id))
-                {
-                    return;
-                }
-            }
-
-            #endregion
 
             switch (track.Type)
             {
@@ -472,6 +401,9 @@ namespace task.trans.transtask
                 #region[小车在摆渡车]
                 case TrackTypeE.后置摆渡轨道:
                 case TrackTypeE.前置摆渡轨道:
+                    // 锁定摆渡车
+                    if (!AllocateTakeFerry(trans, trans.AllocateFerryType, track)) return;
+
                     if (isnotload && isftask)
                     {
                         if (PubTask.Ferry.IsLoad(trans.take_ferry_id))

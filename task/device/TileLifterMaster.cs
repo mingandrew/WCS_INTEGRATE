@@ -1666,12 +1666,12 @@ namespace task.device
                 if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.上砖轨道))
                 {
                     //生成入库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向下砖, goodid, stockid, tiletrackid, lasttrack, 0, line);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向下砖, goodid, level, stockid, tiletrackid, lasttrack, 0, line);
                 }
                 else
                 {
                     //生成入库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, lasttrack, 0, line);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, level, stockid, tiletrackid, lasttrack, 0, line);
                 }
             }
             else
@@ -1796,15 +1796,16 @@ namespace task.device
                     PubMaster.Track.UpdateRecentTile(givetrackid, tileid);
 
                     uint transid = 0;
+                    byte level = GetTileLevel(tileid);
                     if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.上砖轨道))
                     {
                         //生成入库交易
-                        transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向下砖, goodid, stockid, tiletrackid, givetrackid, 0, line);
+                        transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向下砖, goodid, level, stockid, tiletrackid, givetrackid, 0, line);
                     }
                     else
                     {
                         //生成入库交易
-                        transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, stockid, tiletrackid, givetrackid, 0, line);
+                        transid = PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.下砖任务, goodid, level, stockid, tiletrackid, givetrackid, 0, line);
                     }
 
                     PubMaster.Warn.RemoveDevWarn(WarningTypeE.DownTileHaveNotTrackToStore, (ushort)tileid);
@@ -1871,12 +1872,12 @@ namespace task.device
                     if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, trackid, tiletrackid, 0, line);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, level, stock.id, trackid, tiletrackid, 0, line);
                     }
                     else
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, trackid, tiletrackid, 0, line);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, level, stock.id, trackid, tiletrackid, 0, line);
                     }
                     //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);
                     isallocate = true;
@@ -1935,12 +1936,12 @@ namespace task.device
                     if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, level, stock.id, stock.track_id, tiletrackid, 0, line);
                     }
                     else
                     {
                         //生成出库交易
-                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stock.id, stock.track_id, tiletrackid, 0, line);
+                        PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, level, stock.id, stock.track_id, tiletrackid, 0, line);
                     }
 
                     //PubMaster.Goods.AddStockOutLog(stock.id, tiletrackid, tileid);
@@ -2001,15 +2002,16 @@ namespace task.device
                     }
                 }
 
+                byte level = GetTileLevel(tileid);
                 if (PubMaster.Track.IsTrackType(tiletrackid, TrackTypeE.下砖轨道))
                 {
                     //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, stockid, tt.track_id, tiletrackid, 0, line);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.同向上砖, goodid, level, stockid, tt.track_id, tiletrackid, 0, line);
                 }
                 else
                 {
                     //生成出库交易
-                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, stockid, tt.track_id, tiletrackid, 0, line);
+                    PubTask.Trans.AddTrans(areaid, tileid, TransTypeE.上砖任务, goodid, level, stockid, tt.track_id, tiletrackid, 0, line);
                 }
 
                 //PubMaster.Goods.AddStockOutLog(stockid, tiletrackid, tileid);

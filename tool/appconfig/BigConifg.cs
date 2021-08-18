@@ -160,6 +160,17 @@ namespace tool.appconfig
             return item;
         }
 
+        /// <summary>
+        /// 上砖流程中是否执行 还车回轨 流程
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public bool IsReturnDevBackToTrack(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.ReturnDevBackToTrack ?? false;
+        }
+
     }
 
     public class BigConfigItem
@@ -192,5 +203,10 @@ namespace tool.appconfig
         /// 优先使用停在砖机轨道的运输车，即使取砖轨道有车也先找砖机轨道的运输车
         /// </summary>
         public bool UseUpTileLifterCar { set; get; }
+
+        /// <summary>
+        /// 上砖流程中是否执行 还车回轨 流程
+        /// </summary>
+        public bool ReturnDevBackToTrack { set; get; } = true;
     }
 }

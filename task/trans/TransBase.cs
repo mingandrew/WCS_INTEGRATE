@@ -258,7 +258,7 @@ namespace task.trans
 
         #region[增删改]
 
-        public uint AddTrans(uint areaid, uint lifterid, TransTypeE type, uint goodsid, uint stocksid, uint taketrackid, uint givetrackid, uint carrierid = 0, ushort line = 0)
+        public uint AddTrans(uint areaid, uint lifterid, TransTypeE type, uint goodsid, byte level, uint stocksid, uint taketrackid, uint givetrackid, uint carrierid = 0, ushort line = 0)
         {
             uint transid = 0;
             if (Monitor.TryEnter(_for, TimeSpan.FromSeconds(10)))
@@ -281,7 +281,7 @@ namespace task.trans
                             //}
                             break;
                     }
-                    transid = AddTransWithoutLock(areaid, lifterid, type, goodsid, stocksid, taketrackid, givetrackid, initstatus, carrierid, line);
+                    transid = AddTransWithoutLock(areaid, lifterid, type, goodsid, level, stocksid, taketrackid, givetrackid, initstatus, carrierid, line);
                 }
                 finally
                 {
@@ -292,13 +292,12 @@ namespace task.trans
         }
 
         public uint AddTransWithoutLock(uint areaid, uint lifterid, TransTypeE type,
-                                        uint goodsid, uint stocksid,
+                                        uint goodsid, byte level, uint stocksid,
                                         uint taketrackid, uint givetrackid,
                                         TransStatusE initstatus = TransStatusE.调度设备,
                                         uint carrierid = 0, ushort line = 0, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
             uint newid = PubMaster.Dic.GenerateID(DicTag.NewTranId);
-            byte lvl = PubTask.TileLifter.GetTileLevel(lifterid);
             StockTrans trans = new StockTrans()
             {
                 id = newid,
@@ -314,7 +313,7 @@ namespace task.trans
                 carrier_id = carrierid,
                 line = line,
                 AllocateFerryType = ferrytype,
-                level = lvl
+                level = level
             };
             bool isadd = PubMaster.Mod.GoodSql.AddStockTrans(trans);
             if (!isadd)
@@ -469,7 +468,7 @@ namespace task.trans
         {
             if (trans.TransStaus != status)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ], 持续[ {4} ]", 
+                mLog.Status(true, string.Format("任务[ {0} ], 状态[ {1} -> {2} ], 备注[ {3} ], 持续[ {4} ]",
                     trans.id, trans.TransStaus, status, memo, trans.GetStatusTimeStr()));
                 trans.TransStaus = status;
                 trans.TransStausStayTime = DateTime.Now;
@@ -714,12 +713,14 @@ namespace task.trans
             }
         }
 
-        public void SetGoods(StockTrans trans, uint goodsid)
+        public void SetGoods(StockTrans trans, uint goodsid, byte level)
         {
             if (trans.goods_id != goodsid)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 更改品种[ {1} -> {2} ]]", trans.id, trans.goods_id, goodsid));
+                mLog.Status(true, string.Format("任务[ {0} ], 更改品种[ {1}^{2} -> {3}^{4} ]]",
+                    trans.id, trans.goods_id, trans.level, goodsid, level));
                 trans.goods_id = goodsid;
+                trans.level = level;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Goods);
             }
         }
@@ -877,7 +878,7 @@ namespace task.trans
         {
             return TransList.Exists(c => !c.finish && c.tilelifter_id == devid && c.InTrack(trackid));
         }
-        
+
         /// <summary>
         /// 判断是否任务使用了该轨道,除了反抛任务
         /// </summary>
@@ -1406,7 +1407,7 @@ namespace task.trans
             }
 
             Track track = PubMaster.Track.GetTrack(id);
-            uint transid = AddTransWithoutLock(track.area, 0, TransTypeE.库存整理, 0, 0, track.id, track.id, TransStatusE.调度设备, 0, track.line);
+            uint transid = AddTransWithoutLock(track.area, 0, TransTypeE.库存整理, 0, 0, 0, track.id, track.id, TransStatusE.调度设备, 0, track.line);
 
             foreach (var item in dtl)
             {

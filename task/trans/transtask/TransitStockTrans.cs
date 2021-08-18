@@ -59,7 +59,7 @@ namespace task.trans.transtask
                     return;
                 }
 
-                _M.SetGoods(trans, stk.goods_id);
+                _M.SetGoods(trans, stk.goods_id, stk.level);
                 
                 DoMoveStock(trans, stk);
             }
@@ -91,7 +91,7 @@ namespace task.trans.transtask
 
                     if (trackid > 0)
                     {
-                        uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.id,
+                        uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.level, top.id,
                             trans.take_track_id, trackid, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
 
                         #region 【任务步骤记录】

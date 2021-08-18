@@ -1728,7 +1728,7 @@ namespace resource.goods
                 if (isnotuseupsplitstock && !PubMaster.Track.CheckStocksTrack(track.id)) continue;
 
                 Stock stk = GetStockForOut(track.id);
-                if (stk != null && stk.goods_id == goodsid)
+                if (stk != null && stk.EqualGoodAndLevel(goodsid, level))
                 {
                     stocks.Add(stk);
                     isSameSide = track.same_side_inout;
@@ -1787,11 +1787,13 @@ namespace resource.goods
         /// <returns></returns>
         public List<Stock> GetStock(uint areaid, uint tilelifterid, uint goodsid)
         {
+            byte level = PubMaster.DevConfig.GetConfTileLevel(tilelifterid);
+
             //1.找到上砖机配置的轨道
             List<AreaDeviceTrack> devtrack = PubMaster.Area.GetTileWorkTraList(areaid, tilelifterid, true);
 
             //2.根据优先级查看非空且是需求的品种的轨道
-            List<Stock> stocks = StockList.FindAll(c => c.goods_id == goodsid
+            List<Stock> stocks = StockList.FindAll(c => c.EqualGoodAndLevel(goodsid, level)
                                                     && c.PosType == StockPosE.首车
                                                     && devtrack.Exists(d => d.track_id == c.track_id));
 
@@ -1858,11 +1860,11 @@ namespace resource.goods
                 {
                     if (fromtrack.InType(TrackTypeE.前置摆渡轨道))
                     {
-                        UpdateTrackPos(stock, totrack, false);
+                        UpdateTrackPosByCar(stock, totrack, false);
                     }
                     else
                     {
-                        UpdateTrackPos(stock, totrack);
+                        UpdateTrackPosByCar(stock, totrack);
                     }
                     PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Pos);
 
@@ -1948,8 +1950,61 @@ namespace resource.goods
         /// </summary>
         /// <param name="stock">库存信息</param>
         /// <param name="track">库存所在轨道</param>
+        /// <param name="addinbottom">默认添加在尾部</param>
+        public void UpdateTrackPos(Stock stock, Track track, bool addinbottom = true)
+        {
+            //轨道当前库存信息
+            short storecount = (short)StockList.Count(c => c.track_id == stock.track_id && c.id != stock.id);
+
+            if (addinbottom)
+            {
+                if (storecount == 0)
+                {
+                    stock.PosType = StockPosE.首车;
+                    stock.pos = 1;
+                }
+                else
+                {
+                    List<Stock> Bottomstock = StockList.FindAll(c => c.track_id == stock.track_id && c.PosType == StockPosE.尾车);
+                    if (Bottomstock != null && Bottomstock.Count > 0)
+                    {
+                        foreach (var item in Bottomstock)
+                        {
+                            SetStockPosType(item, StockPosE.中部);
+                        }
+                    }
+
+                    short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id)?.Max(c => c.pos) ?? 0;
+                    stock.pos = (short)(FinalStockPos + 1);
+                    stock.PosType = StockPosE.尾车;
+                }
+            }
+            else
+            {
+                //加在头部
+                Stock top = StockList.Find(c => c.track_id == stock.track_id && c.PosType == StockPosE.首车 && c.id != stock.id);
+
+                stock.PosType = StockPosE.首车;
+                if (top != null && top.id != stock.id)
+                {
+                    stock.pos = (short)(top.pos - 1);
+
+                    SetStockPosType(top, StockPosE.中部);
+                }
+                else
+                {
+                    stock.pos = 1;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 更新库存的位置信息(pos) By 运输车
+        /// </summary>
+        /// <param name="stock">库存信息</param>
+        /// <param name="track">库存所在轨道</param>
         /// <param name="addinback">默认添加在后侧</param>
-        public void UpdateTrackPos(Stock stock, Track track, bool addinback = true)
+        public void UpdateTrackPosByCar(Stock stock, Track track, bool addinback = true)
         {
             //轨道当前库存信息
             short storecount = (short)StockList.Count(c => c.track_id == stock.track_id && c.id != stock.id);

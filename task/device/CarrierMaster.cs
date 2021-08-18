@@ -3986,15 +3986,34 @@ namespace task.device
 
 
         /// <summary>
-        /// 判断小车是否处于轨道地标位置
+        /// 判断小车是否处于入库侧轨道
         /// </summary>
         /// <param name="carrier_id"></param>
         /// <param name="track_id"></param>
         /// <returns></returns>
-        internal bool IsFreeCarrierInTrack(uint carrier_id, uint track_id, out uint carid)
+        internal bool IsFreeCarrierInTrackIn(uint carrier_id, uint track_id, out uint carid)
         {
             Track track = PubMaster.Track.GetTrack(track_id);
-            carid = DevList.Find(c => c.ID != carrier_id && c.CurrentTrackId == track_id && c.IsNotDoingTask && c.CurrentSite >= track.rfid_1)?.ID ?? 0;
+            carid = DevList.Find(c => c.ID != carrier_id && c.CurrentTrackId == track_id
+                    && c.IsNotDoingTask
+                    && (track.is_take_forward ? (c.CurrentPoint > track.split_point) : (c.CurrentPoint < track.split_point))
+                    )?.ID ?? 0;
+            return carid > 0;
+        }
+
+        /// <summary>
+        /// 判断小车是否处于出库侧轨道
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
+        internal bool IsFreeCarrierInTrackOut(uint carrier_id, uint track_id, out uint carid)
+        {
+            Track track = PubMaster.Track.GetTrack(track_id);
+            carid = DevList.Find(c => c.ID != carrier_id && c.CurrentTrackId == track_id 
+                    && c.IsNotDoingTask 
+                    && (track.is_take_forward ? (c.CurrentPoint < track.split_point) : (c.CurrentPoint > track.split_point))
+                    )?.ID ?? 0;
             return carid > 0;
         }
 

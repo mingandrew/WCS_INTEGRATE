@@ -22,7 +22,7 @@ namespace task.trans.transtask
         internal uint ferryTraid;
         internal string res = "", result = "";
         internal uint carrierid;
-        internal bool allocatakeferry, allocagiveferry, isfalsereturn;
+        internal bool allocatakeferry, allocagiveferry;
 
         public BaseTaskTrans(TransMaster trans)
         {
@@ -400,54 +400,53 @@ namespace task.trans.transtask
         #region[分配摆渡车]
 
         /// <summary>
-        /// 分配取货摆渡车
+        /// 是否成功分配取货摆渡车
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="ferrytype"></param>
         /// <param name="track"></param>
         /// <param name="isfalsereturn"></param>
-        public void AllocateTakeFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, out bool isfalsereturn)
+        public bool AllocateTakeFerry(StockTrans trans, DeviceTypeE ferrytype, Track track)
         {
-            if (trans.take_ferry_id == 0
-               && !trans.IsReleaseTakeFerry)
+            if (trans.HaveTakeFerry)
+            {
+                return PubTask.Ferry.TryLock(trans, trans.take_ferry_id, track.id);
+            }
+            else
             {
                 string msg = _M.AllocateFerry(trans, ferrytype, track, false);
+                // 失败
+                if (_M.LogForTakeFerry(trans, msg)) return false;
+                // 再锁
+                trans.IsReleaseTakeFerry = false;
 
-                #region 【任务步骤记录】
-                if (_M.LogForTakeFerry(trans, msg))
-                {
-                    isfalsereturn = true;
-                    return;
-                }
-                #endregion
+                return true;
             }
-            isfalsereturn = false;
         }
 
-
         /// <summary>
-        /// 分配放货摆渡车
+        /// 是否成功分配放货摆渡车
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="ferrytype"></param>
         /// <param name="track"></param>
         /// <param name="isfalsereturn"></param>
-        public void AllocateGiveFerry(StockTrans trans, DeviceTypeE ferrytype, Track track, out bool isfalsereturn)
+        public bool AllocateGiveFerry(StockTrans trans, DeviceTypeE ferrytype, Track track)
         {
-            if (trans.give_ferry_id == 0
-               && !trans.IsReleaseGiveFerry)
+            if (trans.HaveGiveFerry)
+            {
+                return PubTask.Ferry.TryLock(trans, trans.give_ferry_id, track.id);
+            }
+            else
             {
                 string msg = _M.AllocateFerry(trans, ferrytype, track, true);
+                // 失败
+                if (_M.LogForTakeFerry(trans, msg)) return false;
+                // 再锁
+                trans.IsReleaseTakeFerry = false;
 
-                #region 【任务步骤记录】
-                if (_M.LogForGiveFerry(trans, msg))
-                {
-                    isfalsereturn = true;
-                    return;
-                }
-                #endregion
+                return true;
             }
-            isfalsereturn = false;
         }
 
         #endregion
@@ -458,18 +457,16 @@ namespace task.trans.transtask
         /// 释放取货摆渡车
         /// </summary>
         /// <param name="trans"></param>
-        public void RealseTakeFerry(StockTrans trans, bool isclear = true, string memo = "")
+        public void RealseTakeFerry(StockTrans trans, string memo = "")
         {
-            if (trans.take_ferry_id > 0
-                && !trans.IsReleaseTakeFerry
+            if (trans.HaveTakeFerry
                 && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
             {
+                trans.take_ferry_id = 0;
                 trans.IsReleaseTakeFerry = true;
 
                 _M.FreeTakeFerry(trans, memo);
-
-                if (isclear) trans.take_ferry_id = 0;
             }
         }
 
@@ -477,18 +474,16 @@ namespace task.trans.transtask
         /// 释放送货摆渡车
         /// </summary>
         /// <param name="trans"></param>
-        public void RealseGiveFerry(StockTrans trans, bool isclear = true, string memo = "")
+        public void RealseGiveFerry(StockTrans trans, string memo = "")
         {
-            if (trans.give_ferry_id > 0
-                && !trans.IsReleaseGiveFerry
+            if (trans.HaveGiveFerry
                 && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
             {
+                trans.give_ferry_id = 0;
                 trans.IsReleaseGiveFerry = true;
 
                 _M.FreeGiveFerry(trans, memo);
-
-                if (isclear) trans.give_ferry_id = 0;
             }
         }
         #endregion

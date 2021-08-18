@@ -119,7 +119,7 @@ namespace task.diagnose.trans
                     if (PubMaster.Area.ExistFerryWithTrack(ferryid, traid)
                         && PubMaster.Area.GetWithTracksFerryIds(ferrytype, cartrackid, traid).Count > 0)
                     {
-                        uint sortaskid =_M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.移车任务, 0, 0, cartrackid, traid, TransStatusE.移车中, car.ID, trans.line);
+                        uint sortaskid =_M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.移车任务, 0, 0, 0, cartrackid, traid, TransStatusE.移车中, car.ID, trans.line);
                         if(sortaskid != 0)
                         {
                             _mLog.Status(true, string.Format("标识[ {0} ], [ {1} ]超时, 取[ {2} ] -> 卸[ {3} ], 找不到空闲的运输车,[同侧移车]", trans.id, trans.TransType,
@@ -181,7 +181,7 @@ namespace task.diagnose.trans
                     return;
                 }
 
-                uint sortaskid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.移车任务, 0, 0, freeCarrier.CurrentTrackId, brotrackid, TransStatusE.移车中, freeCarrier.ID, trans.line);
+                uint sortaskid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.移车任务, 0, 0, 0, freeCarrier.CurrentTrackId, brotrackid, TransStatusE.移车中, freeCarrier.ID, trans.line);
                 if (sortaskid != 0)
                 {
                     _mLog.Status(true, string.Format("标识[ {0} ], [ {1} ]超时, 取[ {2} ] -> 卸[ {3} ], 找不到空闲的运输车,[出<->入]", trans.id, trans.TransType,

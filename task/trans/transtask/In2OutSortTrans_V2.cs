@@ -116,7 +116,7 @@ namespace task.trans.transtask
                     {
                         if (isftask)
                         {
-                            RealseTakeFerry(trans, false);
+                            RealseTakeFerry(trans);
                             _M.SetStatus(trans, TransStatusE.倒库中);
                         }
                     }

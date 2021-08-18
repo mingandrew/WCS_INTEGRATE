@@ -110,7 +110,7 @@ namespace task.trans
                     if (ExistTransWithTracks(track.id)) continue;
 
                     // 生成倒库任务
-                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, 0, 0, track.id, track.id
+                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, 0, 0, 0, track.id, track.id
                         , TransStatusE.检查轨道, 0, track.line, (track.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                     return;
                 }
@@ -146,7 +146,7 @@ namespace task.trans
                 }
 
                 // 生成倒库任务
-                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, btmstock?.goods_id ?? 0, 0, traFrom.id, 0
+                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, btmstock?.goods_id ?? 0, btmstock?.level ?? 0, 0, traFrom.id, 0
                     , TransStatusE.整理中, 0, traFrom.line, (traFrom.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                 return;
 
@@ -188,9 +188,9 @@ namespace task.trans
                         continue;
                     }
 
-                    uint stockid = PubMaster.Goods.GetTrackStockId(track.id);
-                    if (stockid == 0) continue;
-                    uint tileid = PubMaster.Goods.GetStockTileId(stockid);
+                    Stock stock = PubMaster.Goods.GetStockForOut(track.id);
+                    if (stock == null) continue;
+                    uint tileid = stock.tilelifter_id;
 
                     uint tileareaid = PubMaster.Area.GetAreaDevAreaId(tileid);
 
@@ -201,7 +201,8 @@ namespace task.trans
 
                     PubMaster.Track.SetTrackEaryFull(track.id, false, null);
 
-                    AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, stockid, track.id, track.brother_track_id
+                    byte lvl = PubTask.TileLifter.GetTileLevel(tileid);
+                    AddTransWithoutLock(tileareaid > 0 ? tileareaid : track.area, 0, TransTypeE.倒库任务, goodsid, lvl, stock.level, track.id, track.brother_track_id
                         , TransStatusE.检查轨道, 0, track.line);
                 }
             }
@@ -245,7 +246,7 @@ namespace task.trans
                         continue;
                     }
                     Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
-                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, track.id, track.brother_track_id, TransStatusE.检查轨道, 0, track.line);
+                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.level ?? 0, topstock?.id ?? 0, track.id, track.brother_track_id, TransStatusE.检查轨道, 0, track.line);
                     return;
                 }
             }
@@ -260,7 +261,7 @@ namespace task.trans
                     Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
                     if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, topstock.level, TileWorkModeE.上砖))
                     {
-                        AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
+                        AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.level ?? 0, topstock?.id ?? 0, (track.brother_track_id != 0 ? track.brother_track_id : track.id), track.id, TransStatusE.检查轨道, 0, track.line);
                         return;
                     }
                 }
@@ -359,7 +360,7 @@ namespace task.trans
 
                 if (givetrackid != 0)
                 {
-                    AddTransWithoutLock(track.area, 0, TransTypeE.移车任务, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid, track.line, ferrytype);
+                    AddTransWithoutLock(track.area, 0, TransTypeE.移车任务, 0, 0, 0, trackid, givetrackid, TransStatusE.移车中, carrierid, track.line, ferrytype);
                 }
             }
         }
@@ -430,7 +431,7 @@ namespace task.trans
                         PubMaster.Track.UpdateRecentGood(givetrackid, goods_id);
                         PubMaster.Track.UpdateRecentTile(givetrackid, devid);
                         //生成手动入库任务
-                        AddTrans(area, devid, transtype, goods_id, stockid, taketrackid, givetrackid);
+                        AddTrans(area, devid, transtype, goods_id, level, stockid, taketrackid, givetrackid);
                         return true;
                     }
                 }
@@ -465,7 +466,7 @@ namespace task.trans
                             return false;
                         }
                         //生成出库交易
-                        AddTrans(area, devid, transtype, goods_id, stock.id, taketrackid, givetrackid);
+                        AddTrans(area, devid, transtype, goods_id, level, stock.id, taketrackid, givetrackid);
                         //PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
 
                         return true;
@@ -494,7 +495,7 @@ namespace task.trans
                                 return false;
                             }
                             //生成出库交易
-                            AddTrans(area, devid, transtype, goods_id, stock.id, trackid, givetrackid);
+                            AddTrans(area, devid, transtype, goods_id, stock.level, stock.id, trackid, givetrackid);
                             //PubMaster.Goods.AddStockOutLog(stockid, givetrackid, devid);
                             return true;
                         }
@@ -511,7 +512,7 @@ namespace task.trans
                             PubMaster.Track.UpdateRecentGood(stock.track_id, goods_id);
                             PubMaster.Track.UpdateRecentTile(stock.track_id, devid);
                             //生成出库交易
-                            AddTrans(area, devid, transtype, goods_id, stock.id, stock.track_id, givetrackid);
+                            AddTrans(area, devid, transtype, goods_id, stock.level, stock.id, stock.track_id, givetrackid);
 
                             //PubMaster.Goods.AddStockOutLog(stock.id, givetrackid, devid);
                             break;
@@ -1491,12 +1492,12 @@ namespace task.trans
         }
 
         /// <summary>
-        /// 判断是否需要在库存在上砖分割点后，是否需要发送倒库任务
+        /// 判断是否需要在库存在上砖分割点后，是否生成倒库任务
         /// </summary>
         /// <param name="carrier_id"></param>
         /// <param name="track_id"></param>
         /// <returns></returns>
-        public bool CheckTopStockAndSendSortTask(uint tranid, uint carrier_id, uint track_id, uint goods_id)
+        public bool CheckTopStockAndSendSortTask(uint tranid, uint carrier_id, uint track_id, uint goods_id, byte level, bool isAddTrans = true)
         {
             //1.打开使用-开关(使用上砖侧分割点坐标)
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return false;
@@ -1519,7 +1520,7 @@ namespace task.trans
             if (PubMaster.Goods.IsTopStockBehindUpSplitPoint(track.id, track.up_split_point, out uint stockid)
                 && !PubMaster.Goods.IsOnlyOneWithStock(stockid))
             {
-                AddTransWithoutLock(track.area, 0, TransTypeE.上砖侧倒库, goods_id, 0, track_id, track_id, TransStatusE.移车中, carrier_id, track.line);
+                if(isAddTrans) AddTransWithoutLock(track.area, 0, TransTypeE.上砖侧倒库, goods_id, level, 0, track_id, track_id, TransStatusE.移车中, carrier_id, track.line);
                 return true;
             }
             return false;
@@ -1540,7 +1541,7 @@ namespace task.trans
                 Track track = PubMaster.Track.GetTrack(track_id);
                 if (PubMaster.Goods.ExistStockInTrack(track_id))
                 {
-                    AddTransWithoutLock(trans.area_id, 0, TransTypeE.上砖侧倒库, trans.goods_id, 0, track_id, track_id, TransStatusE.倒库中, trans.carrier_id, track.line > 0 ? track.line : trans.line);
+                    AddTransWithoutLock(trans.area_id, 0, TransTypeE.上砖侧倒库, trans.goods_id, trans.level, 0, track_id, track_id, TransStatusE.倒库中, trans.carrier_id, track.line > 0 ? track.line : trans.line);
                     return true;
                 }
             }
@@ -1731,7 +1732,7 @@ namespace task.trans
 
                 //5.存在空闲小车停在轨道头
                 if (carrierid != 0
-                    && PubTask.Carrier.IsFreeCarrierInTrack(carrierid, trackid, out uint carid)
+                    && PubTask.Carrier.IsFreeCarrierInTrackOut(carrierid, trackid, out uint carid)
                     && !IsCarrierInTrans(carid, trackid, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
                 {
                     return false;

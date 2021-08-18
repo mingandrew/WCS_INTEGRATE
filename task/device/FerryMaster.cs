@@ -538,7 +538,13 @@ namespace task.device
 
         #region[执行任务]
 
-
+        /// <summary>
+        /// 是否成功锁定摆渡车
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="ferryid"></param>
+        /// <param name="carriertrackid"></param>
+        /// <returns></returns>
         internal bool TryLock(StockTrans trans, uint ferryid, uint carriertrackid)
         {
             if (!Monitor.TryEnter(_obj, TimeSpan.FromSeconds(2)))

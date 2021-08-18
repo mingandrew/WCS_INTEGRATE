@@ -610,6 +610,16 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 获取轨道上砖接力点脉冲
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public ushort GetTrackUpSplitPoint(uint trackid)
+        {
+            return TrackList.Find(c => c.id == trackid)?.up_split_point ?? 0;
+        }
+
+        /// <summary>
         /// 获取轨道下砖极限点脉冲（后侧）
         /// </summary>
         /// <param name="trackid"></param>

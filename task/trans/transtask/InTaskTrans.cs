@@ -288,7 +288,7 @@ namespace task.trans.transtask
                                 {
                                     if (trans.HaveTakeFerry)
                                     {
-                                        RealseTakeFerry(trans, true, "运输车下砖轨道任务被中断时，尚未升降到位");
+                                        RealseTakeFerry(trans, "运输车下砖轨道任务被中断时，尚未升降到位");
                                     }
                                 }
 
