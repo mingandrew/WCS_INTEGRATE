@@ -703,13 +703,16 @@ ADD COLUMN `sort_level` tinyint(3) UNSIGNED NULL COMMENT '倒库优先级';
 
 
 
-
-
-
-
 ## 2021.08.09 [2.0] 更新报警信息
 
 ```mysql
 UPDATE `diction_dtl` SET `string_value` = '小车倒库中但是小车有货，恢复方法：首先让运输车在储砖轨道放下砖，再给运输车发终止指令' WHERE `code` = 'CarrierLoadSortTask';
+```
+
+
+## 2021.08.18 [2.0] 更新报警信息
+
+```mysql
+UPDATE `diction_dtl` SET `name` = '取砖任务被中断，有砖光电未触发。请先检查有砖光电，确保取砖时能触发', `string_value` = '取砖任务被中断，有砖光电未触发。请先检查有砖光电，确保取砖时能触发' WHERE `code` = 'WarningA4X0';
 ```
 
