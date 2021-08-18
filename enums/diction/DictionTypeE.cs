@@ -226,7 +226,7 @@
 
         #endregion
 
-        #region[流程超时]
+        #region[时间间隔字典]
 
         /// <summary>
         /// 除【倒库中】，其他流程的超时时间（秒）
@@ -237,6 +237,8 @@
         /// 倒库中流程的超时时间（秒）
         /// </summary>
         public static string SortingStockStepOverTime = nameof(SortingStockStepOverTime);
+
+        public static string UpTileNoStockWaitTime = nameof(UpTileNoStockWaitTime);               //上砖机自动转产无砖等待时间（秒）
 
         #endregion
     }

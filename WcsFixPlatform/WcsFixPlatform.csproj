@@ -164,6 +164,9 @@
     <Compile Include="Dialog\platform\goods\GoodSizeEditDialog.xaml.cs">
       <DependentUpon>GoodSizeEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialog\platform\goods\PreStockGoodDialog.xaml.cs">
+      <DependentUpon>PreStockGoodDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\stock\DeleteQtyDiaolog.xaml.cs">
       <DependentUpon>DeleteQtyDiaolog.xaml</DependentUpon>
     </Compile>
@@ -300,6 +303,7 @@
     <Compile Include="ViewModel\platform\stock\StockGoodEditViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\StockSumViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\StockViewModel.cs" />
+    <Compile Include="ViewModel\platform\stock\PreStockGoodViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\TileTrackViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\TrackAllocateViewModel.cs" />
     <Compile Include="ViewModel\platform\stock\TransViewModel.cs" />
@@ -366,6 +370,9 @@
     </Compile>
     <Compile Include="window\platform\stock\StockSumCtl.xaml.cs">
       <DependentUpon>StockSumCtl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="window\platform\stock\PreStockGoodCtl.xaml.cs">
+      <DependentUpon>PreStockGoodCtl.xaml</DependentUpon>
     </Compile>
     <Compile Include="window\platform\stock\TileTrackCtl.xaml.cs">
       <DependentUpon>TileTrackCtl.xaml</DependentUpon>
@@ -452,6 +459,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\platform\goods\GoodSizeEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\goods\PreStockGoodDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -652,6 +663,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="window\platform\stock\StockSumCtl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="window\platform\stock\PreStockGoodCtl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

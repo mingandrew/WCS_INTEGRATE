@@ -343,7 +343,7 @@ namespace wcs.ViewModel
                         await HandyControl.Controls.Dialog.Show<GoodShiftDialog>()
                             .Initialize<GoodShiftDialogViewModel>((vm) =>
                             {
-                                vm.SetArea(area, DeviceSelected.ID, DeviceSelected.Name, DeviceSelected.GoodsId);
+                                vm.SetArea(area, DeviceSelected.ID, DeviceSelected.Name, DeviceSelected.GoodsId, DeviceSelected.Level);
                             }).GetResultAsync<MsgAction>();
                         break;
                     case 15:  //切换作业模式

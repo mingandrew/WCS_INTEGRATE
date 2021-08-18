@@ -40,7 +40,7 @@ namespace wcs.ViewModel
         }
         public Action CloseAction { get; set; }
 
-        private uint _devid, _area, _goodsid, _pregoodsid;
+        private uint _devid, _area, _goodsid, _pregoodsid, _level;
         private string _nowgname, _pregname, _nowcolor, _precolor;
         private int _nowlevel, _prelevel;
         private string _nowgqty, _pregqty;//全部 或确切数字
@@ -228,12 +228,14 @@ namespace wcs.ViewModel
             }
             else
             {
-                DialogResult result = await HandyControl.Controls.Dialog.Show<StocksSelectDialog>()
-             .Initialize<StockSelectViewModel>((vm) =>
+                DialogResult result = await HandyControl.Controls.Dialog.Show<PreStockGoodDialog>()
+             .Initialize<PreStockGoodViewModel>((vm) =>
              {
-                 vm.SetAreaFilter(area, false);
-                 vm.QueryStockGood(true);
+                 vm.SelectTile(_devid);
+                 //vm.SetAreaFilter(area, false);
+                 //vm.QueryStockGood(true);
              }).GetResultAsync<DialogResult>();
+
 
                 if (result.p1 is bool rs && result.p2 is StockGoodSumView good)
                 {
@@ -431,8 +433,25 @@ namespace wcs.ViewModel
             {
                 if (_pregoodsid == 0)
                 {
-                    Growl.Info("请选择预设品种！");
-                    return;
+                    bool iswarn = true;
+                    // 没有预设品种，则检查是否有预设品种列表数据，有则用列表数据，无则警告
+                    if (PubMaster.Goods.IsHavePreStockGood(_devid))
+                    {
+                        PreStockGood firstgood = PubMaster.Goods.GetNextPreStockGood(_devid, _goodsid, (byte)_level);
+                        if (firstgood == null)
+                        {
+                            iswarn = true;
+                        }
+                        else
+                        {
+                            iswarn = !PubMaster.DevConfig.UpdateTilePreGood(_devid, _goodsid, firstgood.good_id, (firstgood.pre_good_all ? 0 : firstgood.pre_good_qty), firstgood.level, out string mes);
+                        }
+                    }
+                    if (iswarn)
+                    {
+                        Growl.Info("请选择预设品种！");
+                        return;
+                    }
                 }
             }
             
@@ -492,10 +511,11 @@ namespace wcs.ViewModel
         /// </summary>
         /// <param name="area"></param>
         /// <param name="devname"></param>
-        public void SetArea(uint area, uint devid, string devname, uint goodid)
+        public void SetArea(uint area, uint devid, string devname, uint goodid, uint level)
         {
             AREA = area;
             _devid = devid;
+            _level = level;
             ConfigTileLifter confit = PubMaster.DevConfig.GetTileLifter(devid);
             if (confit == null)
             {

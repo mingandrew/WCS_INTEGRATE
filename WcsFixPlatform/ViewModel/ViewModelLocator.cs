@@ -83,9 +83,11 @@ namespace wcs.ViewModel
             
             SimpleIoc.Default.Register<LocationDialogViewModel>();
             SimpleIoc.Default.Register<CarrierPosSelectViewModel>();
-
+            
             SimpleIoc.Default.Register<ChangeLevelTypeViewModel>();
             SimpleIoc.Default.Register<DeviceCheckComboSelectViewModel>();
+
+            SimpleIoc.Default.Register<PreStockGoodViewModel>();
 
             GlobalWcsDataConfig.Init();
             PubMaster.Init();
@@ -158,6 +160,7 @@ namespace wcs.ViewModel
         public TrackAllocateViewModel StockAllocate => ServiceLocator.Current.GetInstance<TrackAllocateViewModel>();
         public TileTrackViewModel TileTrack => ServiceLocator.Current.GetInstance<TileTrackViewModel>();
         public DeleteQtyViewModel DelectQty => ServiceLocator.Current.GetInstance<DeleteQtyViewModel>();
+        public PreStockGoodViewModel PreStockGood => ServiceLocator.Current.GetInstance<PreStockGoodViewModel>();
         #endregion
 
         #region[菜单-角色-用户]

@@ -18,7 +18,7 @@ namespace module.goods
         public DateTime? last_produce_time { set; get; }
 
         /// <summary>
-        /// 砖机设定等级
+        /// 等级
         /// </summary>
         public byte sum_level { set; get; }
 

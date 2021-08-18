@@ -56,6 +56,7 @@
         public const string UpTileDonotHaveEmtpyAndNeed = nameof(UpTileDonotHaveEmtpyAndNeed);
         public const string CarrierGiveMissTrack = nameof(CarrierGiveMissTrack);
         public const string CarrierSortTakeGive = nameof(CarrierSortTakeGive);
-        public const string TileNeedCancel = nameof(TileNeedCancel);
+        public const string TileNeedCancel = nameof(TileNeedCancel); 
+        public const string UpTileHaveNotStockToOut = nameof(UpTileHaveNotStockToOut);
     }
 }

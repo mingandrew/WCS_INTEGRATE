@@ -1,6 +1,7 @@
 ﻿using enums;
 using module.device;
 using module.deviceconfig;
+using module.goods;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -254,6 +255,16 @@ namespace resource.device
         public uint GetDevicePreId(uint devid)
         {
             return ConfigTileLifterList.Find(c => c.id == devid)?.pre_goodid ?? 0;
+        }
+
+        /// <summary>
+        /// 获取砖机当前品种
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public uint GetDeviceNowId(uint devid)
+        {
+            return ConfigTileLifterList.Find(c => c.id == devid)?.goods_id ?? 0;
         }
 
         /// <summary>
@@ -806,6 +817,7 @@ namespace resource.device
                 }
 
                 dev.old_goodid = dev.goods_id;
+                uint old = dev.old_goodid;
                 dev.goods_id = dev.pre_goodid;
                 dev.pre_goodid = 0;
 
@@ -823,13 +835,28 @@ namespace resource.device
                 
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
+
+                //转产后的品种是预设列表的一种，则自动将预设品种为循环的下一个
+                if (dev.WorkMode == TileWorkModeE.上砖 && PubMaster.Goods.IsInPreStockGoodList(dev.id, dev.goods_id))
+                {
+                    PubMaster.Goods.DeletePreStockGood(dev.id, dev.goods_id);
+                    PreStockGood p = PubMaster.Goods.GetNextPreStockGood(dev.id, dev.goods_id, dev.level);
+                    if (p != null)
+                    {
+                        dev.pre_goodid = p.good_id;
+                        dev.pre_good_qty = p.pre_good_qty;
+                        dev.pre_good_all = p.pre_good_all;
+                        dev.pre_level = p.level;
+                    }
+                }
+
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
                 try
                 {
                     mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
-                        PubMaster.Goods.GetGoodsName(dev.old_goodid),
-                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
+                        PubMaster.Goods.GetGoodsName(old),
+                        PubMaster.Goods.GetGoodsName(dev.goods_id), old, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
                 }
                 catch { }
                 result = "";
@@ -1337,7 +1364,7 @@ namespace resource.device
         {
             return ConfigTileLifterList.Find(c => c.id == tileid)?.LevelType ?? LevelTypeE.TileLevel;
     }
-        
+
         public void SetSynchTileIds(List<uint> tileids)
         {
             string a = string.Join("#", tileids);
@@ -1350,6 +1377,61 @@ namespace resource.device
                     PubMaster.Mod.DevConfigSql.EditConfigTileLifter(conf);
                 }
             }
+        }
+
+        /// <summary>
+        /// 获取上砖机的预设类型
+        /// </summary>
+        /// <param name="tile_id"></param>
+        /// <returns></returns>
+        public TilePreGoodType GetTilePreGoodType(uint tile_id)
+        {
+            ConfigTileLifter dev = GetTileLifter(tile_id);
+            if (dev != null)
+            {
+                return dev.PreGoodType;
+            }
+            return TilePreGoodType.根据预设列表;
+        }
+
+        /// <summary>
+        /// 获取上砖机是否自动转产
+        /// </summary>
+        /// <param name="tile_id"></param>
+        /// <returns></returns>
+        public bool GetTileAutoShiftGood(uint tile_id)
+        {
+            ConfigTileLifter dev = GetTileLifter(tile_id);
+            if (dev != null)
+            {
+                return dev.auto_shift_good;
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// 设置上砖机的预设品种列表设置
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool SetPreGoodSetting(uint devid, TilePreGoodType tilePre, bool isAutoShift)
+        {
+            ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
+            if (dev != null && (dev.PreGoodType != tilePre || dev.auto_shift_good != isAutoShift))
+            {
+                try
+                {
+                    mLog.Status(true, string.Format("【更新上砖机的预设品种列表设置】砖机[ {0} ], 设置类型[ {1} - > {2} ], 自动转产[{3} -> {4}]",
+                        PubMaster.Device.GetDeviceName(dev.id), dev.PreGoodType, tilePre, dev.auto_shift_good, isAutoShift));
+                }
+                catch { }
+                dev.PreGoodType = tilePre;
+                dev.auto_shift_good = isAutoShift;
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.PreGood);
+                return true;
+            }
+            return false;
         }
 
         #endregion

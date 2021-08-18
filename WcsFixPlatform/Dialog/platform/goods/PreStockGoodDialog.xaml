@@ -1,0 +1,195 @@
+﻿<Border x:Class="wcs.Dialog.PreStockGoodDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.Dialog"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" DataContext="{Binding PreStockGood,Source={StaticResource Locator}}"
+             MinHeight="600" MinWidth="800" MaxWidth="900" MaxHeight="600"
+            Background="{DynamicResource RegionBrush}" CornerRadius="20">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Margin="10">
+            <StackPanel  Orientation="Horizontal">
+                <TextBlock Text="上下砖机：" Width="100" Style="{StaticResource TextBlockTitle}"/>
+                <TextBlock Text="{Binding TileName}" Width="200" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+                <Button Content="选择" Style="{StaticResource ButtonPrimary}" Tag="TileSelect" Visibility="Collapsed"
+                        Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" FontSize="16" Height="35"/>
+            </StackPanel>
+            <StackPanel>
+                <Button Content="保存" Style="{StaticResource ButtonDanger}" 
+                    Tag="SavePreStockGood"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="100,0,0,0"/>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button Content="刷新" Style="{StaticResource ButtonPrimary}" 
+                    Tag="RefreshPreStockGood"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="0,0,15,0"/>
+                <Button Content="关闭" HorizontalAlignment="Right" Style="{StaticResource ButtonPrimary}" 
+                    Tag="CloseStockGood"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35"/>
+            </StackPanel>
+
+        </Grid>
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="预设品种列表" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="上移" Style="{StaticResource ButtonPrimary}" HorizontalAlignment="Right" Tag="TrackGoUp"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,5,5,5"/>
+                    <Button Content="下移" Style="{StaticResource ButtonPrimary}"  HorizontalAlignment="Right" Tag="TrackGoDown"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,5,5,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="2"  Style="{StaticResource MBorder_LTRB}">
+            <Grid HorizontalAlignment="Left">
+                <TextBlock Text="当前轨道库存品种列表（早->晚）" Style="{StaticResource TextBlockTitle}" Margin="10,0,0,0"/>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
+        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LR}"/>
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource MBorder_LTR}"/>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+
+            <Button Content="加" Style="{StaticResource ButtonPrimary}" Tag="Track2Left"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,5,5,15"/>
+            <Button Content="删" Style="{StaticResource ButtonPrimary}" Tag="Track2Right"
+                    Command="{Binding ButtonCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" 
+                    FontSize="16" Height="35" Margin="5,15,5,5"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2" Grid.Column="0" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="0"  
+                      hc:DataGridAttach.ShowRowNumber="True"
+                      ItemsSource="{Binding LeftStockGoodList}" SelectedItem="{Binding LeftStockGood}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding GoodName}" Header="名称" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Color}" Header="色号" IsReadOnly="True"/>
+
+                <DataGridTemplateColumn Header="车数" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" hc:IconElement.Geometry="{StaticResource SubGeometry}" hc:IconElement.Width="15" Visibility="{Binding Selected,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"
+                                        Command="{Binding DataContext.QtySubCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}" Margin="5,0,5,0" />
+                                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBox x:Name="tb" Text="{Binding Count,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" MaxLength="3"  MinWidth="50" HorizontalAlignment="Center"   
+                                             Visibility="{Binding ShowCount,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                         TextAlignment="Center" ForceCursor="True" PreviewTextInput="tb_PreviewTextInput" InputMethod.IsInputMethodEnabled="False"/>
+                                    <Button Content="不限" MinWidth="50" MinHeight="39" HorizontalAlignment="Center"  Visibility="{Binding ShowLabel,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                               Panel.ZIndex="100"/>
+                                </WrapPanel>
+                                <Button Grid.Column="2" hc:IconElement.Geometry="{StaticResource AddGeometry}" hc:IconElement.Width="15" Visibility="{Binding Selected,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"
+                                        Command="{Binding DataContext.QtyAddCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}" Margin="5,0,5,0" />
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <!--<DataGridTextColumn Binding="{Binding Pieces}" Header="片数" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间" IsReadOnly="True"/>-->
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DataGrid Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="0,0,0,0" FontSize="20" RowHeaderWidth="60" 
+                      hc:DataGridAttach.ShowRowNumber="True"
+                      SelectedItem="{Binding RightStockGood}" ItemsSource="{Binding RightStockGoodList}"
+                      SelectionUnit="FullRow" SelectionMode="Single"
+                      CanUserAddRows="False" CanUserResizeColumns="False"
+                      CanUserDeleteRows="False" CanUserSortColumns="False"
+                      CanUserReorderColumns="False" AutoGenerateColumns="False" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding GoodName}" Header="名称" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="等级" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Color}" Header="色号" IsReadOnly="True"/>
+
+                <DataGridTemplateColumn Header="车数" >
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" hc:IconElement.Geometry="{StaticResource SubGeometry}" hc:IconElement.Width="15" Visibility="{Binding Selected,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"
+                                        Command="{Binding DataContext.QtySubCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}" Margin="5,0,5,0" />
+                                <WrapPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBox x:Name="tb" Text="{Binding Count,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" MaxLength="3"  MinWidth="50" HorizontalAlignment="Center"   
+                                             Visibility="{Binding ShowCount,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                         TextAlignment="Center" ForceCursor="True" PreviewTextInput="tb_PreviewTextInput" InputMethod.IsInputMethodEnabled="False"/>
+                                    <Button Content="不限" MinWidth="50" MinHeight="39" HorizontalAlignment="Center"  Visibility="{Binding ShowLabel,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                               Panel.ZIndex="100"/>
+                                </WrapPanel>
+                                <Button Grid.Column="2" hc:IconElement.Geometry="{StaticResource AddGeometry}" hc:IconElement.Width="15" Visibility="{Binding Selected,Converter={StaticResource BooleanToSpaceVisibilityConverter}}"
+                                        Command="{Binding DataContext.QtyAddCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}, Path=SelectedItem}" Margin="5,0,5,0" />
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <!--<DataGridTextColumn Binding="{Binding Pieces}" Header="片数" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding ProduceTime,Converter={StaticResource Date2StringLongConverter}}" Header="最早生产时间" IsReadOnly="True"/>-->
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <CheckBox Content="循环预设列表" IsChecked="{Binding IsLoop}"  HorizontalAlignment="Right" FontSize="16" Height="35" Margin="5,5,5,5"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <CheckBox Content="按时间顺序自动预设品种" IsChecked="{Binding AutoShiftGoodByTime}"  HorizontalAlignment="Right" FontSize="16" Height="35" Margin="5,5,5,5"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LB}">
+        </Border>
+
+        <Border Grid.Row="3" Grid.Column="2" Style="{StaticResource MBorder_LTB}">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                <CheckBox Content="自动转产" IsChecked="{Binding AutoShiftGood}"  HorizontalAlignment="Right" FontSize="16" Height="35" Margin="50,5,5,5"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Border>

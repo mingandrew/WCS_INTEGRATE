@@ -206,6 +206,9 @@ can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, 
                 case TileConfigUpdateE.Level:
                     sql += string.Format("level = {0}", dev.level);
                     break;
+                case TileConfigUpdateE.PreGood:
+                    sql += string.Format("pre_good_type = {0}, auto_shift_good = {1} ", dev.pre_good_type, dev.auto_shift_good);
+                    break;
                 default:
                     sql += string.Format("brother_dev_id = {0}", dev.brother_dev_id);
                     break;

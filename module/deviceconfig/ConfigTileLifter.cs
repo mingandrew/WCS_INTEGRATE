@@ -125,7 +125,7 @@ namespace module.deviceconfig
         public int pre_good_qty { set; get; }//预约品种数量
         public bool now_good_all { set; get; }//当前使用全部库存
         public bool pre_good_all { set; get; }//预约使用全部库存
-
+        
         public string syn_tile_list { set; get; } //同步转产的砖机id，用#隔开
 
         //同步转产的砖机id
@@ -151,6 +151,10 @@ namespace module.deviceconfig
             get => (LevelTypeE)level_type;
             set => level_type = (byte)value;
         }
+
+        public byte pre_good_type { set; get; }//预设类型：0按预设列表不循环，1按预设列表循环，2全自动按时间预设
+        public bool auto_shift_good { set; get; }//自动转品种---上砖机预设品种列表
+
 
         /// <summary>
         /// 入库策略
@@ -195,6 +199,15 @@ namespace module.deviceconfig
         {
             get => (TileWorkModeE)work_mode_next;
             set => work_mode_next = (byte)value;
+        }
+
+        /// <summary>
+        /// 预设类型：0按预设列表不循环，1按预设列表循环，2全自动按时间预设
+        /// </summary>
+        public TilePreGoodType PreGoodType
+        {
+            get => (TilePreGoodType)pre_good_type;
+            set => pre_good_type = (byte)value;
         }
 
         /// <summary>
