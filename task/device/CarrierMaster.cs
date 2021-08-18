@@ -637,8 +637,37 @@ namespace task.device
                 //判断放下砖的时候轨道是否是能否放砖的轨道
                 if (track.NotInType(TrackTypeE.摆渡车_入, TrackTypeE.摆渡车_出))
                 {
+                    string giveinfo = string.Empty;
+                    uint unloadtrackid = track.id;
+                    if(track.Type == TrackTypeE.储砖_入
+                        && task.DevStatus.GivePoint > 0
+                        && task.DevStatus.GivePoint > track.split_point)
+                    {
+                        Track gtrack = PubMaster.Track.GetTrack(track.brother_track_id);
+                        if (gtrack != null && gtrack.split_point < task.DevStatus.GivePoint)
+                        {
+                            unloadtrackid = gtrack.id;
+                            giveinfo = gtrack?.name ?? task.GivePoint + "";
+                        }
+                    }else if(track.Type == TrackTypeE.储砖_出
+                        && task.DevStatus.GivePoint > 0
+                        && task.DevStatus.GivePoint < track.split_point)
+                    {
+                        Track gtrack = PubMaster.Track.GetTrack(track.brother_track_id);
+                        if (gtrack != null && gtrack.split_point > task.DevStatus.GivePoint)
+                        {
+                            unloadtrackid = gtrack.id;
+                            giveinfo = gtrack?.name ?? task.GivePoint + "";
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(giveinfo))
+                    {
+                        giveinfo = track?.name ?? task.GivePoint + "";
+                    }
+
                     //将库存转移到轨道的位置
-                    PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.id, false, "", task.ID);
+                    PubMaster.Goods.MoveStock(task.DevConfig.stock_id, unloadtrackid, false, "", task.ID);
 
                     if (task.IsUnloadInFerry)
                     {
@@ -651,7 +680,7 @@ namespace task.device
                     {
                         PubMaster.Goods.AddStockLog(string.Format("【解绑】设备[ {0} ], 轨道[ {1} ], 库存[ {2} ], 运输车[ {3} ]",
                             task.Device.name,
-                            track?.name ?? task.GivePoint + "",
+                            giveinfo,
                             PubMaster.Goods.GetStockInfo(task.DevConfig.stock_id),
                             task.DevStatus.GetGiveString()));
                     }
