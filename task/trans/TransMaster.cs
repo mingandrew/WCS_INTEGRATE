@@ -1662,7 +1662,7 @@ namespace task.trans
                 }
                 else
                 {
-                    topoint = (ushort)(track.split_point - 50);//倒库时，不能超过脉冲(出库轨道附件脉冲位置)
+                    //topoint = (ushort)(track.split_point - 50);//倒库时，不能超过脉冲(出库轨道附件脉冲位置)
                 }
 
                 //后退至轨道倒库

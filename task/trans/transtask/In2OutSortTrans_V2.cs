@@ -496,39 +496,64 @@ namespace task.trans.transtask
                 }
                 else if (isbackempty)
                 {
-                    if (takeTrack.Type == TrackTypeE.储砖_入)
+                    //出轨道尾部有空位，但是小于检测的数量
+                    if(takeTrack.Type == TrackTypeE.储砖_出 
+                        && PubMaster.Track.IsSortAble(gtrack.brother_track_id))
                     {
-                        if (takeTrack.sort_able)
+                        Track brotrack = PubMaster.Track.GetTrack(gtrack.brother_track_id);
+                        if(brotrack != null
+                            && brotrack.Type == TrackTypeE.储砖_入
+                            && brotrack.sort_able
+                            && brotrack.TrackStatus == TrackStatusE.启用
+                            && brotrack.StockStatus != TrackStockStatusE.空砖)
                         {
-                            int intrackcount = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
-                            if (emptycount < intrackcount)
-                            {
-                                count = emptycount;
-                                count--;
-                            }
-
-                            toempypoint = gtrack.split_point;
-
-                            sortmemo = string.Format("倒库[ 出尾部空 ], 入轨库存[ {0} ], 出轨有空位[ {1} ]", intrackcount, emptycount);
+                            _M.SetTakeSite(trans, brotrack.id, "出轨道尾部空，入库轨道可倒库");
+                            return;
                         }
                     }
                 }
 
                 //出库轨道满，入库轨道头部空
-                if(!isheadempty && !ismidempty && !isbackempty 
+                if(!isheadempty && !ismidempty
                     && takeTrack.Type == TrackTypeE.储砖_入 
                     && takeTrack.sort_able 
                     && takeTrack.TrackStatus == TrackStatusE.启用
-                    && takeTrack.StockStatus != TrackStockStatusE.空砖)
+                    && takeTrack.StockStatus != TrackStockStatusE.空砖
+                    && count == 0)
                 {
-                    bool istakeheadempty = PubMaster.Track.IsTrackHeadEmpty(takeTrack);
+                    //入轨道 头部空（至少2两个位置）
+                    bool istakeheadempty = PubMaster.Track.IsTrackHeadEmpty(takeTrack, 2);
+
+                    //入轨道库存数量
+                    int intrackcount = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
+
+                    //入轨道头部空，才需要继续补出轨道尾部
                     if (istakeheadempty)
                     {
-                        count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
-                        toempypoint = (ushort)(takeTrack.split_point - 1);
-                        togivepoint = takeTrack.split_point;
+                        Stock givetrackbtmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                        if (givetrackbtmstock != null)
+                        {
+                            double rate = GlobalWcsDataConfig.BigConifg.GetIn2OutCheckButtomSafeRate(trans.area_id, trans.line);
 
-                        sortmemo = string.Format("倒库[ 入轨道头部空 ], 结束脉冲[ {0} ]", togivepoint);
+                            //出轨道尾部距离出轨道尾部还能继续放砖
+                            if (givetrackbtmstock.location > gtrack.split_point
+                                && Math.Abs(givetrackbtmstock.location - gtrack.split_point) >= safe * rate)
+                            {
+                                toempypoint = takeTrack.split_point;
+                                count = 1;
+
+                                sortmemo = string.Format("倒库[ 出尾部空补入到出 ], 入轨库存[ {0} ], 出轨有空位[ {1} ]", intrackcount, emptycount);
+                            }
+                            else
+                            {
+
+                                count = intrackcount;
+                                toempypoint = (ushort)(takeTrack.split_point - 1);
+                                togivepoint = takeTrack.split_point;
+
+                                sortmemo = string.Format("倒库[ 入往前挪倒第一个位置 ], 结束脉冲[ {0} ]", togivepoint);
+                            }
+                        }
                     }
                 }
 

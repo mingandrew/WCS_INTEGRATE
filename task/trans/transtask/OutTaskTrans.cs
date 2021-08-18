@@ -94,10 +94,10 @@ namespace task.trans.transtask
                 return;
             }
 
-
             isload = PubTask.Carrier.IsLoad(trans.carrier_id);
             isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
             tileemptyneed = PubTask.TileLifter.IsHaveEmptyNeed(trans.tilelifter_id, trans.give_track_id);
+            ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             if (GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line))
             {
@@ -157,7 +157,7 @@ namespace task.trans.transtask
                     }
 
                     if (!tileemptyneed
-                        && PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                        && ftask
                         && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 10, 5))
                     {
                         _M.SetStatus(trans, TransStatusE.完成, "工位非无货需求，直接完成任务");
@@ -177,7 +177,7 @@ namespace task.trans.transtask
                                 #endregion
 
                                 // 摆渡车不到位则到出库轨道头等待
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                                if (ftask
                                     && PubTask.Carrier.GetCurrentSite(trans.carrier_id) < track.rfid_2)
                                 {
                                     #region 【任务步骤记录】
@@ -197,9 +197,8 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            if ((PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
-                            && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                            if ((ftask || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
+                                    && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -219,12 +218,12 @@ namespace task.trans.transtask
 
                         if (isnotload)
                         {
-
                             #region[释放摆渡车]
 
                             // 在取砖轨道，但是没货且在任务中，则释放取砖摆渡车
                             if (GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line)
-                                && !ftask)
+                                && !ftask
+                                && PubTask.Carrier.IsCarrierInTask(trans.carrier_id, DevCarrierOrderE.取砖指令))
                             {
                                 if (trans.HaveTakeFerry
                                     && PubTask.Carrier.IsCarrierSmallerSite(trans.carrier_id, trans.take_track_id, track.rfid_2))
@@ -265,8 +264,7 @@ namespace task.trans.transtask
                                 PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
 
 
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                    && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                                if (ftask && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                 {
                                     #region 【任务步骤记录】
                                     _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -293,7 +291,7 @@ namespace task.trans.transtask
                             _M.LogForCarrierGiving(trans);
                             #endregion
 
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            if (ftask)
                             {
                                 //下降放货
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
@@ -315,8 +313,7 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                            if (ftask && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -338,7 +335,7 @@ namespace task.trans.transtask
 
                 case TrackTypeE.储砖_出入:
                     if (!tileemptyneed
-                        && PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
+                        && ftask
                         && mTimer.IsOver(TimerTag.UpTileDonotHaveEmtpyAndNeed, trans.tilelifter_id, 10, 5))
                     {
                         _M.SetStatus(trans, TransStatusE.完成, "工位非无货需求，直接完成任务");
@@ -358,8 +355,7 @@ namespace task.trans.transtask
                                 #endregion
 
                                 // 摆渡车不到位则到出库轨道头等待
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                    && PubTask.Carrier.GetCurrentSite(trans.carrier_id) < track.rfid_2)
+                                if (ftask && PubTask.Carrier.GetCurrentSite(trans.carrier_id) < track.rfid_2)
                                 {
                                     #region 【任务步骤记录】
                                     _M.LogForCarrierToTrack(trans, track.id);
@@ -378,8 +374,7 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            if ((PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
+                            if ((ftask || PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, track.rfid_2))
                             && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                             {
                                 #region 【任务步骤记录】
@@ -456,8 +451,7 @@ namespace task.trans.transtask
                                 PubMaster.Warn.RemoveTaskWarn(WarningTypeE.GetStockButNull, trans.id);
 
 
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                    && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                                if (ftask && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                                 {
                                     #region 【任务步骤记录】
                                     _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -485,7 +479,7 @@ namespace task.trans.transtask
                             _M.LogForCarrierGiving(trans);
                             #endregion
 
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            if (ftask)
                             {
                                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
@@ -506,8 +500,7 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track)
-                                && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
+                            if (ftask && !PubTask.Carrier.ExistCarInFront(trans.carrier_id, track.id))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -582,8 +575,7 @@ namespace task.trans.transtask
                     {
                         if (isload)
                         {
-                            if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
-                                && PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            if (PubTask.Ferry.IsLoad(trans.take_ferry_id) && ftask)
                             {
                                 PubMaster.Goods.MoveStock(trans.stock_id, track.id);
 
@@ -604,7 +596,7 @@ namespace task.trans.transtask
 
                                 #endregion
 
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                                if (ftask)
                                 {
                                     //摆渡车 定位去 卸货点
                                     //小车到达摆渡车后短暂等待再开始定位
@@ -667,8 +659,7 @@ namespace task.trans.transtask
 
                         if (isnotload)
                         {
-                            if (PubTask.Ferry.IsLoad(trans.take_ferry_id)
-                                   && PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            if (PubTask.Ferry.IsLoad(trans.take_ferry_id) && ftask)
                             {
                                 //1.不允许，则不可以有车
                                 //2.允许，则不可以有非倒库车
@@ -704,7 +695,7 @@ namespace task.trans.transtask
                                     return;
                                 }
 
-                                if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                                if (ftask)
                                 {
                                     //摆渡车 定位去 取货点
                                     //小车到达摆渡车后短暂等待再开始定位
@@ -833,7 +824,7 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            if (ftask)
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierToFerry(trans, track.id, trans.take_ferry_id);
@@ -857,7 +848,7 @@ namespace task.trans.transtask
                         if (track.id == trans.give_track_id)
                         {
                             //没有任务并且停止
-                            if (PubTask.Carrier.IsStopFTask(trans.carrier_id, track))
+                            if (ftask)
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierGive(trans, trans.give_track_id);

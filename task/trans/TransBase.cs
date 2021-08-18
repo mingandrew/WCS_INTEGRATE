@@ -606,16 +606,16 @@ namespace task.trans
             }
         }
 
-        public bool SetTakeSite(StockTrans trans, uint traid)
+        public bool SetTakeSite(StockTrans trans, uint traid, string memo = null)
         {
             if (trans.take_track_id != traid)
             {
                 string traname = PubMaster.Track.GetTrackName(traid);
-                mLog.Status(true, string.Format("任务[ {0} ], 取货轨道[ {1} ]", trans.id, traname));
+                mLog.Status(true, string.Format("任务[ {0} ], 取货轨道[ {1} ], 备注[ {2} ]", trans.id, traname, memo));
                 trans.take_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeSite);
                 //SendMsg(trans);
-                SetStepLog(trans, true, 207, string.Format("重新分配取货轨道[ {0} ]；", traname));
+                SetStepLog(trans, true, 207, string.Format("重新分配取货轨道[ {0} ], 备注[ {1} ];", traname, memo));
                 return true;
             }
             return false;

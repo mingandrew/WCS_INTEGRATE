@@ -2311,12 +2311,13 @@ namespace resource.track
         /// <summary>
         /// 判断轨道头部是否满足空闲
         /// </summary>
-        /// <param name="track"></param>
+        /// <param name="track">判断轨道</param>
+        /// <param name="count">判断空位位置</param>
         /// <returns>
         /// true : 轨道空砖，轨道头空余5个位置<br/>
         /// false : 轨道头部没有足够的空位
         /// </returns>
-        public bool IsTrackHeadEmpty(Track track)
+        public bool IsTrackHeadEmpty(Track track, int count = 0)
         {
             ushort safe = PubMaster.Goods.GetStackSafe(0,0);//217
             Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
@@ -2335,7 +2336,7 @@ namespace resource.track
                     discount = GetPointCompareCount(track.split_point, topstock.location, safe);
                 }
 
-                return discount >= TrackSortFrontCount;
+                return discount >= (count == 0 ? TrackSortFrontCount : count);
             }
             //无库存，轨道空砖
             return true;
@@ -2348,7 +2349,7 @@ namespace resource.track
         /// <param name="track"></param>
         /// <param name="rs"></param>
         /// <returns></returns>
-        public bool IsTrackMidEmpty(Track track,out uint stockid, out string rs)
+        public bool IsTrackMidEmpty(Track track, out uint stockid, out string rs)
         {
             ushort safe = PubMaster.Goods.GetStackSafe(0, 0);//217
             return PubMaster.Goods.ExistCountEmptySpace(track.id, TrackSortMidCount, safe, out stockid, out rs);

@@ -149,6 +149,17 @@ namespace tool.appconfig
         }
 
         /// <summary>
+        /// 检测出轨道尾部库存脉冲 距离 最后一车脉冲 需要多少倍的 安全距离，默认1.5
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public double GetIn2OutCheckButtomSafeRate(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.In2OutCheckButtomSafeRate ?? 1.5;
+        }
+
+        /// <summary>
         /// 不需要接力运输车把库存放下才取
         /// </summary>
         /// <param name="areaid"></param>
@@ -214,5 +225,10 @@ namespace tool.appconfig
         /// 使用单次库存进行接力任务
         /// </summary>
         public bool Out2OutSinglelStack { set; get; }
+
+        /// <summary>
+        /// 检测出轨道尾部库存脉冲 距离 最后一车脉冲 需要多少倍的 安全距离，默认1.5，必须大于1
+        /// </summary>
+        public double In2OutCheckButtomSafeRate { set; get; } = 1.5;
     }
 }
