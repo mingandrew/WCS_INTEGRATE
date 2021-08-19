@@ -120,9 +120,10 @@ namespace task.trans.transtask
                 {
                     havedifcaringive = false;
                 }
-
-                //是否有小车在满砖轨道
-                if (PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
+                
+                //是否有小车在满砖轨道(入库轨道)
+                if (trans.take_track_id != trans.give_track_id
+                    && PubTask.Carrier.HaveInTrack(trans.take_track_id, out uint fullcarrierid))
                 {
                     if (PubTask.Carrier.IsCarrierFree(fullcarrierid))
                     {
@@ -507,6 +508,40 @@ namespace task.trans.transtask
                             && brotrack.TrackStatus == TrackStatusE.启用
                             && brotrack.StockStatus != TrackStockStatusE.空砖)
                         {
+                            // 任务运输车前面有车
+                            if (PubTask.Carrier.ExistCarBehind(trans.carrier_id, brotrack.id, out uint othercarrier))
+                            {
+                                string othername = PubMaster.Device.GetDeviceName(othercarrier);
+                               
+                                if (_M.HaveCarrierInTrans(othercarrier))
+                                {
+                                    #region 【任务步骤记录】
+                                    _M.SetStepLog(trans, false, 1802, string.Format("入库轨道检测到有运输车[ {0} ]绑定有任务，等待其任务完成；",
+                                        othername));
+                                    #endregion
+                                    return;
+                                }
+
+                                if (!PubTask.Carrier.IsCarrierFree(othercarrier))
+                                {
+                                    #region 【任务步骤记录】
+                                    _M.SetStepLog(trans, false, 1902, string.Format("入库轨道检测到有运输车[ {0} ]状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                                        othername));
+                                    #endregion
+                                    return;
+                                }
+
+                                #region 【任务步骤记录】
+                                _M.SetStepLog(trans, false, 2002, string.Format("入库轨道检测到有运输车[ {0} ]，尝试对其生成移车任务；",
+                                        othername));
+                                #endregion
+
+                                //转移到同类型轨道
+                                track = PubTask.Carrier.GetCarrierTrack(othercarrier);
+                                _M.AddMoveCarrierTask(track.id, othercarrier, TrackTypeE.储砖_入, MoveTypeE.转移占用轨道);
+                                return;
+                            }
+
                             _M.SetTakeSite(trans, brotrack.id, "出轨道尾部空，入库轨道可倒库");
                             return;
                         }
@@ -514,45 +549,43 @@ namespace task.trans.transtask
                 }
 
                 //出库轨道满，入库轨道头部空
-                if(!isheadempty && !ismidempty
+                if(count == 0
                     && takeTrack.Type == TrackTypeE.储砖_入 
                     && takeTrack.sort_able 
                     && takeTrack.TrackStatus == TrackStatusE.启用
-                    && takeTrack.StockStatus != TrackStockStatusE.空砖
-                    && count == 0)
+                    && takeTrack.StockStatus != TrackStockStatusE.空砖)
                 {
-                    //入轨道 头部空（至少2两个位置）
-                    bool istakeheadempty = PubMaster.Track.IsTrackHeadEmpty(takeTrack, 2);
-
                     //入轨道库存数量
                     int intrackcount = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
 
-                    //入轨道头部空，才需要继续补出轨道尾部
-                    if (istakeheadempty)
+                    Stock givetrackbtmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                    if (givetrackbtmstock != null)
                     {
-                        Stock givetrackbtmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
-                        if (givetrackbtmstock != null)
+                        double rate = GlobalWcsDataConfig.BigConifg.GetIn2OutCheckButtomSafeRate(trans.area_id, trans.line);
+
+                        //出轨道尾部距离出轨道尾部还能继续放砖
+                        if (givetrackbtmstock.location > gtrack.split_point
+                            && Math.Abs(givetrackbtmstock.location - gtrack.split_point) >= safe * rate)
                         {
-                            double rate = GlobalWcsDataConfig.BigConifg.GetIn2OutCheckButtomSafeRate(trans.area_id, trans.line);
+                            toempypoint = gtrack.split_point;
+                            count = 1;
 
-                            //出轨道尾部距离出轨道尾部还能继续放砖
-                            if (givetrackbtmstock.location > gtrack.split_point
-                                && Math.Abs(givetrackbtmstock.location - gtrack.split_point) >= safe * rate)
+                            sortmemo = string.Format("倒库[ 出尾部空补入到出 ], 入轨库存[ {0} ], 出轨有空位[ {1} ]", intrackcount, emptycount);
+                        }
+                        else
+                        {
+                            //入轨道 头部空（至少2两个位置）
+                            bool istakeheadempty = PubMaster.Track.IsTrackHeadEmpty(takeTrack, 2);
+                            //入轨道头部空，才需要继续补出轨道尾部
+                            if (istakeheadempty)
                             {
-                                toempypoint = takeTrack.split_point;
-                                count = 1;
-
-                                sortmemo = string.Format("倒库[ 出尾部空补入到出 ], 入轨库存[ {0} ], 出轨有空位[ {1} ]", intrackcount, emptycount);
-                            }
-                            else
-                            {
-
                                 count = intrackcount;
                                 toempypoint = (ushort)(takeTrack.split_point - 1);
                                 togivepoint = takeTrack.split_point;
 
                                 sortmemo = string.Format("倒库[ 入往前挪倒第一个位置 ], 结束脉冲[ {0} ]", togivepoint);
                             }
+                            
                         }
                     }
                 }
@@ -959,7 +992,7 @@ namespace task.trans.transtask
                 }, "倒库任务取消流程中");
 
                 #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 2002, string.Format("终止运输车[ {0} ]，准备回到出库侧轨道取消倒库任务；",
+                _M.SetStepLog(trans, false, 2102, string.Format("终止运输车[ {0} ]，准备回到出库侧轨道取消倒库任务；",
                         PubMaster.Device.GetDeviceName(trans.carrier_id)));
                 #endregion
             }

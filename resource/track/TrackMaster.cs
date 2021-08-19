@@ -2088,6 +2088,8 @@ namespace resource.track
         /// 轨道后空出默认5个位置
         /// </summary>
         public int TrackSortBackCount { set; get; }
+        private bool headnotempty, midnotempty, backnotempty;
+        
         /// <summary>
         /// 更新轨道倒库状态和等级
         /// </summary>
@@ -2128,6 +2130,11 @@ namespace resource.track
                     //SetTrackSortable(item, false, SORT_LEVEL_NO, "任务中");
                     continue;
                 }
+
+                headnotempty = false;
+                midnotempty = false;
+                backnotempty = false;
+
                 switch (item.Type)
                 {
                     case TrackTypeE.储砖_入:
@@ -2197,7 +2204,7 @@ namespace resource.track
                 SetTrackSortable(track, true, SORT_LEVEL_1, string.Format("空砖"));
                 return;
             }
-
+            
             // 2.头部库存品种无砖机正在上砖
             {
                 Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
@@ -2211,6 +2218,10 @@ namespace resource.track
                         {
                             SetTrackSortable(track, true, SORT_LEVEL_2, string.Format("头部[ {0} ]", discount));
                             return;
+                        }
+                        else
+                        {
+                            headnotempty = true;
                         }
                     }
                     else
@@ -2231,6 +2242,7 @@ namespace resource.track
                     if (discount >= TrackSortBackCount)
                     {
                         SetTrackSortable(track, true, SORT_LEVEL_3,string.Format("尾部[ {0} ]", discount));
+                        return;
                     }
                     else
                     {
@@ -2238,6 +2250,11 @@ namespace resource.track
                         return;
                     }
                 }
+            }
+
+            if(track.sort_able && headnotempty)
+            {
+                SetTrackSortable(track, false, SORT_LEVEL_NO, string.Format("头部无空位"));
             }
         }
 

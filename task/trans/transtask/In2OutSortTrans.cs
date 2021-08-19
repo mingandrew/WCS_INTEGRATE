@@ -774,7 +774,7 @@ namespace task.trans.transtask
                 }, "倒库任务取消流程中");
 
                 #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 2002, string.Format("终止运输车[ {0} ]，准备回到出库侧轨道取消倒库任务；",
+                _M.SetStepLog(trans, false, 2102, string.Format("终止运输车[ {0} ]，准备回到出库侧轨道取消倒库任务；",
                         PubMaster.Device.GetDeviceName(trans.carrier_id)));
                 #endregion
             }
