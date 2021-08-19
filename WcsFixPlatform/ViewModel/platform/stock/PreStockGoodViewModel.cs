@@ -552,7 +552,7 @@ namespace wcs.ViewModel
                     return;
                 }
             }
-            if (LeftStockGoodList != null && LeftStockGood.Count != 0)
+            if (LeftStockGoodList != null && LeftStockGoodList.Count != 0)
             {
                 Result.p1 = true;
                 Result.p2 = LeftStockGoodList[0];
