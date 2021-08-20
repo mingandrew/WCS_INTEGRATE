@@ -825,3 +825,23 @@ ALTER TABLE `stock_trans` ADD COLUMN `finish_track_id` int(10) UNSIGNED NULL DEF
 ALTER TABLE `stock_trans` ADD COLUMN `allocate_ferry_type` tinyint(3) UNSIGNED NULL DEFAULT NULL COMMENT '分配摆渡类型' AFTER `tilelifter_id`;
 ```
 
+
+
+## 2021.08.20 [2.1] 更新平板图标
+
+```mysql
+UPDATE `wcs_module` SET  `geometry` = 'goodstype.png' WHERE `type` = 1 and `key` = 'RFGOODTYPESETTING';
+UPDATE `wcs_module` SET  `geometry` = 'assignment.png' WHERE `type` = 1 and `key` = 'RFTRACK';
+UPDATE `wcs_module` SET  `geometry` = 'updowndev.png' WHERE `type` = 1 and `key` = 'RFTILEGOOD';
+UPDATE `wcs_module` SET  `geometry` = 'task_switch.png' WHERE `type` = 1 and `key` = 'RFTASKSWITCH';
+UPDATE `wcs_module` SET  `geometry` = 'othersetting.png'WHERE `type` = 1 and `key` = 'RFDEVFERRY';
+UPDATE `wcs_module` SET  `geometry` = 'shiftcar.png'WHERE `type` = 1 and `key` = 'RFDEVCARRIER';
+UPDATE `wcs_module` SET  `geometry` = 'assignment.png' WHERE `type` = 1 and `key` = 'RFDEVTILELIFTER';
+UPDATE `wcs_module` SET  `geometry` = 'trackstock.png'WHERE`type` = 1 and `key` = 'RFTRACKSTOCK'; 
+UPDATE `wcs_module` SET  `geometry` = 'tasklist.png' WHERE `type` = 1 and `key` = 'RFSTOCKTRANS';
+UPDATE `wcs_module` SET  `geometry` = 'updowndev.png' WHERE `type` = 1 and `key` = 'RFTILETRACK';
+UPDATE `wcs_module` SET  `geometry` = 'shiftcar.png' WHERE `type` = 1 and `key` = 'DeviceReset';
+UPDATE `wcs_module` SET  `geometry` = 'debug.png' WHERE `type` = 1 and `key` = 'DEBUGMODULE';
+UPDATE `wcs_module` SET  `geometry` = 'manual_task.png' WHERE `type` = 1 and `key` = 'MANUALTASK';
+```
+
