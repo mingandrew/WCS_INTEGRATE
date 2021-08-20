@@ -834,6 +834,32 @@ namespace task.device
                                     );
         }
 
+        /// <summary>
+        /// 获取运输车目标脉冲和目标地标
+        /// </summary>
+        /// <param name="carrier_id"></param>
+        /// <param name="topoint"></param>
+        /// <param name="torfid"></param>
+        internal CarrierPointRFID GetCarrierToRfIdOrPoint(uint carrier_id)
+        {
+            CarrierTask task = DevList.Find(c => c.ID == carrier_id);
+            if (task != null)
+            {
+                return new CarrierPointRFID()
+                {
+                    CurrentPoint = task.CurrentPoint,
+                    CurrentSite = task.CurrentSite,
+                    TargetPoint = task.TargetPoint,
+                    TargetSite = task.TargetSite,
+                    TakePoint =task.TakePoint,
+                    TakeSite = task.TakeSite,
+                    GivePoint = task.GivePoint,
+                    GiveSite = task.GiveSite
+                };
+            }
+            return new CarrierPointRFID();
+        }
+
         internal bool IsCarrierInTrack(StockTrans trans)
         {
             //当前任务的运输车是否是否站点在摆渡车上，但所在位置是在轨道上
@@ -3766,5 +3792,20 @@ namespace task.device
         /// 前往作业轨道
         /// </summary>
         public uint ToTrackId { set; get; } = 0;
+    }
+
+    /// <summary>
+    /// 运输车当前脉冲地标信息
+    /// </summary>
+    public class CarrierPointRFID
+    {
+        public ushort CurrentSite { set; get; }  //当前RFID
+        public ushort CurrentPoint { set; get; }  //当前坐标
+        public ushort TargetSite { set; get; }  //目的RFID
+        public ushort TargetPoint { set; get; }  //目的坐标
+        public ushort TakeSite { set; get; }  //取货RFID
+        public ushort TakePoint { set; get; }  //取货坐标
+        public ushort GiveSite { set; get; }  //卸货RFID
+        public ushort GivePoint { set; get; }  //卸货坐标
     }
 }

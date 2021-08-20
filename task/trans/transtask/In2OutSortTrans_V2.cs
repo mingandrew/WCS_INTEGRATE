@@ -730,6 +730,15 @@ namespace task.trans.transtask
             // 任务运输车前面即将有车
             if (PubTask.Carrier.ExistLocateTrack(trans.carrier_id, trans.give_track_id))
             {
+                CheckNeedLocateBack(trans, out bool isfalsereutn);
+                if (isfalsereutn)
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 2202, string.Format("运输车前面即将有车，库存小于4，运输车后退3个位置"));
+                    #endregion
+                    return;
+                }
+
                 //终止
                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                 {
@@ -749,6 +758,20 @@ namespace task.trans.transtask
             {
                 string othername = PubMaster.Device.GetDeviceName(othercarrier);
                 string carname = PubMaster.Device.GetDeviceName(trans.carrier_id);
+                bool oftask = PubTask.Carrier.IsCarrierFree(othercarrier);
+
+                //非空闲其他运输车，取砖，定位，有需要则先后退空位
+                if (!oftask)
+                {
+                    CheckNeedLocateBack(trans, out bool isfalsereutn);
+                    if (isfalsereutn)
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 2202, string.Format("运输车前面有车，库存小于4，运输车后退3个位置"));
+                        #endregion
+                        return;
+                    }
+                }
 
                 //终止
                 PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
@@ -766,7 +789,7 @@ namespace task.trans.transtask
                     return;
                 }
 
-                if (!PubTask.Carrier.IsCarrierFree(othercarrier))
+                if (!oftask)
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 1902, string.Format("终止运输车[ {0} ]，检测到前方有运输车[ {1} ]状态不满足(需通讯正常且启用，停止且无执行指令)；",
@@ -828,6 +851,58 @@ namespace task.trans.transtask
                 _M.SetStatus(trans, TransStatusE.完成);
             }
         }
+
+        /// <summary>
+        /// 检测是否需要定位运输车后退3个位置，给前面的车进行取砖
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="isfalsereturn"></param>
+        private void CheckNeedLocateBack(StockTrans trans, out bool isfalsereturn)
+        {
+            //如果前面有车准备进来，或者有车在里面库存小于4的时候后退等待运输车空闲
+            int stockcount = PubMaster.Goods.GetTrackStockCount(trans.give_track_id);
+            if (stockcount <= 4)
+            {
+                CarrierPointRFID carpoint = PubTask.Carrier.GetCarrierToRfIdOrPoint(trans.carrier_id);
+                Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+                ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+
+                //定位脉冲说明正在后退
+                if (!ftask && carpoint.TargetPoint > 0 && carpoint.TargetSite == 0)
+                {
+                    isfalsereturn = true;
+                    return;
+                }
+
+                //小于库存并且运输车空闲
+                if (ftask)
+                {
+                    Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
+                    ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+                    if (btmstock != null && carpoint.CurrentPoint >= (btmstock.location - (ushort)(safe * 3)))
+                    {
+                        ushort tpoint = (ushort)(btmstock.location - safe * 3);
+                        if (tpoint <= gtrack.split_point)
+                        {
+                            tpoint = gtrack.split_point;
+                        }
+
+                        //定位到当前卸货位置或当前位置往后两个车位
+                        PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                        {
+                            Order = DevCarrierOrderE.定位指令,
+                            CheckTra = gtrack.ferry_down_code,
+                            ToPoint = tpoint,
+                        }, string.Format("还车回轨但前面有车进来取砖，库存小于4，运输车后退3个位置[ {0} ]", tpoint));
+                        isfalsereturn = true;
+                        return;
+                    }
+                }
+            }
+
+            isfalsereturn = false;
+        }
+
 
         /// <summary>
         /// 完成任务

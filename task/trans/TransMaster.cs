@@ -188,28 +188,42 @@ namespace task.trans
                 Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
                 if (topstock != null && !PubMaster.DevConfig.IsHaveSameTileNowGood(topstock.goods_id, TileWorkModeE.上砖))
                 {
-                    uint taketrackid;
+                    uint taketrackid = 0;
                     if(track.Type == TrackTypeE.储砖_出入)
                     {
                         taketrackid = track.id;
                     }
                     else
                     {
+                        /**
+                         * 1.出可倒库
+                         *      a.头部空
+                         *      b.尾部空
+                         *      
+                         * 2.入可倒库
+                         */
+
+                        //入库启用有砖可倒库
                         Track taketrack = PubMaster.Track.GetTrack(track.brother_track_id);
                         if (taketrack.TrackStatus == TrackStatusE.启用
                             && taketrack.sort_able
                             && taketrack.StockStatus != TrackStockStatusE.空砖)
                         {
                             taketrackid = track.brother_track_id;
-                        }else if (track.sort_level == TrackMaster.SORT_LEVEL_3)
-                        {
-                            //只是出轨道尾部空，入轨道没有任务，则不生成倒库任务
-                            continue;
                         }
-                        else 
+                        
+                        //入不可倒库
+                        if (taketrackid == 0)
                         {
-
-                            taketrackid = track.id;
+                            //头部空
+                            if (PubMaster.Track.IsTrackHeadEmpty(track))
+                            {
+                                taketrackid = track.id;
+                            }
+                            else
+                            {
+                                continue;
+                            }
                         }
                     }
                     AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, topstock?.goods_id ?? 0, topstock?.id ?? 0, taketrackid, track.id, TransStatusE.检查轨道, 0, track.line);
