@@ -675,6 +675,35 @@ namespace task.trans.transtask
                 return;
             }
 
+            ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+
+            if (isload)
+            {
+                if (ftask)
+                {
+                    // 原地放砖
+                    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                    {
+                        Order = DevCarrierOrderE.放砖指令
+                    });
+
+                    #region 【任务步骤记录】
+                    _M.LogForCarrierGiving(trans);
+                    #endregion
+                }
+                //else
+                //{
+                //    //终止
+                //    PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                //    {
+                //        Order = DevCarrierOrderE.终止指令
+                //    }, "倒库回轨流程保证小车无砖，终止载砖小车所有动作");
+                //}
+
+                return;
+            }
+
             #region【接力倒库完成后，如果前面有车有任务，则先定位到后一个位置】
             ushort _topoint = 0;
             PubTask.Carrier.GetCarrierNowUnloadPoint(trans.carrier_id, out ushort _nowpoint, out ushort _givepoint);
@@ -810,7 +839,6 @@ namespace task.trans.transtask
                 return;
             }
 
-            ftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
             // 任务运输车回到出库轨道头
             if (ftask
                 && (trans.give_track_id == track.brother_track_id || trans.give_track_id == track.id)
