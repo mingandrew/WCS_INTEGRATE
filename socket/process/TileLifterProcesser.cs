@@ -81,8 +81,8 @@ namespace socket.process
             mDev.FullQty = st.FullQty;
             mDev.Site1Qty = st.Site1Qty;
             mDev.Site2Qty = st.Site2Qty;
-            mDev.Involve1 = st.Involve1 == 1;
-            mDev.Involve2 = st.Involve2 == 1;
+            mDev.Involve1 = st.Involve1 != 0;
+            mDev.Involve2 = st.Involve2 != 0;
             mDev.OperateMode = (DevOperateModeE)st.OperateMode;
             mDev.Goods1 = ShiftBytes(st.Goods1);
             mDev.Goods2 = ShiftBytes(st.Goods2);
