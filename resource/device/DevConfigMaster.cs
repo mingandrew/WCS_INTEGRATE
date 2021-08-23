@@ -154,7 +154,7 @@ namespace resource.device
         /// <returns>找到砖机返回：true, 反之则返回：false</returns>
         public bool IsHaveSameTileNowGood(uint goodid, TileWorkModeE type)
         {
-            return ConfigTileLifterList.Exists(c => c.WorkMode == type && c.goods_id == goodid);
+            return ConfigTileLifterList.Exists(c => c.WorkMode == type && (c.goods_id == goodid || c.old_goodid == goodid));
         }
 
 
