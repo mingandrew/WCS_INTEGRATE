@@ -637,6 +637,11 @@ namespace task.trans.transtask
             if(topoint > nowpoint || topoint == 0)
             {
                 _M.SetStepLog(trans, false, 2108, string.Format("需定位脉冲[ {0} ] 比当前脉冲大[ {1} ], 备注[ {2} ]", topoint, nowpoint, memo));
+                if(trans.TransStaus == TransStatusE.倒库中)
+                {
+                    _M.SetStatus(trans, TransStatusE.接力等待,
+                    string.Format("轨道有库存[ {0} ], 需接力库存[ {1} ], 备注[ {2} ]", trackallqty, needsortcount, memo));
+                }
                 return;
             }
 
