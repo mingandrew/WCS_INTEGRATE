@@ -147,7 +147,7 @@ namespace simtask
             NowTrack = track;
         }
 
-        private void SetNowTrack(Track track, ushort site)
+        internal void SetNowTrack(Track track, ushort site)
         {
             DevStatus.CurrentSite = site;
             NowTrack = track;
@@ -221,8 +221,8 @@ namespace simtask
             DevStatus.OperateMode = DevOperateModeE.自动;
             DevStatus.LoadStatus = DevCarrierLoadE.无货;
             DevStatus.DeviceStatus = DevCarrierStatusE.停止;
-            DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;
-            DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
+            DevStatus.CurrentOrder = DevCarrierOrderE.无;
+            DevStatus.FinishOrder = DevCarrierOrderE.无;
             DevStatus.Position = DevCarrierPositionE.在轨道上;
         }
 
@@ -233,612 +233,729 @@ namespace simtask
         internal void CheckTask()
         {
             if (NowTrack == null) return;
-            if (DevStatus.CurrentOrder == DevStatus.FinishOrder) return;
+            //if (DevStatus.CurrentOrder == DevStatus.FinishOrder) return;
+            if (DevStatus.CurrentOrder == DevCarrierOrderE.无) return;
 
             UpdateTrackSite();
             UpdateTrackPoint();
+
+            #region V2.1
+            if (DevStatus.DeviceStatus != DevCarrierStatusE.停止) return;
             switch (DevStatus.CurrentOrder)
             {
-                #region[无]
-                case DevCarrierOrderE.无:
-                    break;
-                #endregion
-
-                #region[定位指令]
                 case DevCarrierOrderE.定位指令:
-                    if(TargetTrack != null)
-                    {
-                        switch (TargetTrack.Type)
-                        {
-                            case TrackTypeE.上砖轨道:
-                                SetNowTrack(TargetTrack, TO_SITE);
-                                DevStatus.CurrentPoint = TO_SITE;
-                                break;
-                            case TrackTypeE.下砖轨道:
-
-                                break;
-                            case TrackTypeE.储砖_入:
-                                if (TO_SITE == TargetTrack.rfid_1)
-                                {
-                                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                    DevStatus.CurrentPoint = TargetTrack.limit_point;
-                                }
-                                else if (TO_SITE == TargetTrack.rfid_2)
-                                {
-                                    SetNowTrack(TargetTrack, TargetTrack.rfid_2);
-                                    DevStatus.CurrentPoint = TargetTrack.limit_point_up;
-                                }
-                                break;
-                            case TrackTypeE.储砖_出:
-
-                                if (TO_SITE == TargetTrack.rfid_1)
-                                {
-                                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                    DevStatus.CurrentPoint = TargetTrack.limit_point_up;
-                                }
-                                break;
-                            case TrackTypeE.储砖_出入:
-                                if (TO_SITE == TargetTrack.rfid_1)
-                                {
-                                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                    DevStatus.CurrentPoint = TargetTrack.limit_point;
-                                }
-                                else if (TO_SITE == TargetTrack.rfid_2)
-                                {
-                                    SetNowTrack(TargetTrack, TargetTrack.rfid_2);
-                                    DevStatus.CurrentPoint = TargetTrack.limit_point_up;
-                                }
-                                break;
-                            case TrackTypeE.后置摆渡轨道:
-                                DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
-                                SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                break;
-                            case TrackTypeE.前置摆渡轨道:
-                                DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
-                                SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                                break;
-                        }
-                    }
-
-                    if(DevStatus.CurrentSite == DevStatus.TargetSite)
-                    {
-                        DevStatus.TargetSite = ZERO_SITE;
-                        FinishAndStop(DevCarrierOrderE.定位指令);
-                    }
-
-                    if(TargetTrack == null && TO_POINT == DevStatus.CurrentPoint)
+                    if (DevStatus.CurrentSite == END_SITE && DevStatus.CurrentPoint == END_POINT)
                     {
                         FinishAndStop(DevCarrierOrderE.定位指令);
+                        break;
                     }
-
                     break;
-                #endregion
 
-                #region[取砖指令]
                 case DevCarrierOrderE.取砖指令:
-
-                    #region[顶升取货]
-                    if (TO_SITE == ZERO_SITE
-                        && TO_POINT == ZERO_POINT)
+                    #region 原地顶升取砖
+                    if (TO_POINT == ZERO_POINT)
                     {
                         DevStatus.LoadStatus = DevCarrierLoadE.有货;
                         SetLoadSitePoint();
                         FinishAndStop(DevCarrierOrderE.取砖指令);
+                        break;
                     }
                     #endregion
 
-                    #region[靠地标取货【下砖轨道取砖】]
-                    if (TO_SITE != ZERO_SITE)
+                    #region 指定脉冲取砖
+                    if (DevStatus.LoadStatus == DevCarrierLoadE.无货)
                     {
-                        if(DevStatus.CurrentSite == TO_SITE)
+                        if (DevStatus.CurrentSite == TO_SITE && DevStatus.CurrentPoint == TO_POINT)
                         {
-                            DevStatus.TargetSite = 0;
-                            OnLoading = true;
-                        }
+                            DevStatus.LoadStatus = DevCarrierLoadE.有货;
+                            SetLoadSitePoint();
 
-                        if(TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.储砖_出入)
-                        {
-                            DevStatus.CurrentPoint = TargetTrack.limit_point;
-                            SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                            OnLoading = true;
+                            DevStatus.TargetPoint = END_POINT;
                         }
-
-                        if (TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.下砖轨道)
-                        {
-                            int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
-                            DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
-                            SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                            OnLoading = true;
-                        }
-
-                        if (TO_SITE == TargetTrack.rfid_2 && TargetTrack.Type == TrackTypeE.下砖轨道)
-                        {
-                            int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -540 : 540;
-                            DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_2) + dif);
-                            SetNowTrack(TargetTrack, TargetTrack.rfid_2);
-                            OnLoading = true;
-                        }
-
-                        if (TO_SITE == TargetTrack.rfid_3 && TargetTrack.Type == TrackTypeE.上砖轨道)
-                        {
-                            int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -270 : 270;
-                            DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
-                            SetNowTrack(TargetTrack, TargetTrack.rfid_3);
-                            OnLoading = true;
-                        }
+                        break;
                     }
-                    #endregion
 
-                    #region[靠脉冲取货【储砖轨道取砖】]
-                    if (TO_POINT != ZERO_POINT)
+                    if (DevStatus.LoadStatus == DevCarrierLoadE.有货)
                     {
-                        //从摆渡车进入轨道的过程
-                        if(NowTrack != null && EndTrack != null
-                            && NowTrack.id != EndTrack.id
-                            && (DevStatus.CurrentPoint < EndTrack.limit_point_up || Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20))
-                        {
-                            SetNowTrack(EndTrack, EndTrack.rfid_1);
-                        }
-
-                        if (!OnLoading && !LoadFinish)
-                        {
-                            if (TAKE_STOCK_POINT != 0)
-                            {
-                                if (DevStatus.CurrentPoint == TAKE_STOCK_POINT)
-                                {
-                                    DevStatus.TargetPoint = 0;
-                                    OnLoading = true;
-                                }
-                            }
-                            else if(DevStatus.CurrentPoint == TO_POINT)
-                            {
-                                DevStatus.TargetSite = 0;
-                                OnLoading = true;
-                            }
-                        }
-                    }
-                    #endregion
-
-                    #region[执行取货]
-
-                    if (OnLoading && !LoadFinish)
-                    {
-                        switch (DevStatus.LoadStatus)
-                        {
-                            case DevCarrierLoadE.异常:
-                                if (mTimer.IsTimeUp("ToLoad", 2))
-                                {
-                                    SetLoadSitePoint();
-                                    DevStatus.LoadStatus = DevCarrierLoadE.有货;
-                                }
-                                break;
-                            case DevCarrierLoadE.无货:
-                                if (mTimer.IsTimeUp("ToErrorLoad", 30))
-                                {
-                                    DevStatus.LoadStatus = DevCarrierLoadE.异常;
-                                }
-                                break;
-                            case DevCarrierLoadE.有货:
-                                OnLoading = false;
-                                if (END_SITE == ZERO_SITE)
-                                {
-                                    FinishAndStop(DevCarrierOrderE.取砖指令);
-                                }
-                                else
-                                {
-                                    LoadFinish = true;
-                                }
-                                break;
-                        }
-                    }
-                    #endregion
-
-                    #region[卸货完成,回到结束地标]
-                    if (EndTrack != null && LoadFinish && !OnLoading)
-                    {
-                        if (EndTrack.Type == TrackTypeE.储砖_出 || EndTrack.Type == TrackTypeE.储砖_出入)
-                        {
-                            if (DevStatus.CurrentPoint == EndTrack.limit_point_up)
-                            {
-                                FinishAndStop(DevCarrierOrderE.取砖指令);
-                            }
-                        }
-                    }
-                    #endregion
-
-                    #region[取完回轨]
-
-                    if (LoadFinish)
-                    {
-                        if (EndTrack != null
-                            && EndTrack.rfid_1 == DevStatus.CurrentSite
-                            && TO_POINT != ZERO_POINT
-                            && TAKE_STOCK_POINT != ZERO_POINT
-                            && END_SITE != ZERO_SITE)
-                        {
-                            TAKE_STOCK_POINT = ZERO_POINT;
-                            TO_POINT = EndTrack.limit_point_up;
-                            DevStatus.TargetSite = EndTrack.rfid_1;
-                        }
-
-                        if (DevStatus.CurrentPoint == TO_POINT)
+                        if (DevStatus.CurrentSite == END_SITE && DevStatus.CurrentPoint == END_POINT)
                         {
                             FinishAndStop(DevCarrierOrderE.取砖指令);
-                            OnLoading = false;
                         }
+                        break;
                     }
-
                     #endregion
                     break;
-                #endregion
 
-                #region[放砖指令]
                 case DevCarrierOrderE.放砖指令:
-
-                    #region[下降放货]
-                    if (TO_SITE == ZERO_SITE
-                        && TO_POINT == ZERO_POINT)
+                    #region 原地下降放砖
+                    if (TO_POINT == ZERO_POINT)
                     {
                         DevStatus.LoadStatus = DevCarrierLoadE.无货;
                         SetUnLoadSitePoint();
-                        DevStatus.FinishOrder = DevCarrierOrderE.放砖指令;
+                        FinishAndStop(DevCarrierOrderE.放砖指令);
+                        break;
                     }
                     #endregion
 
-                    #region[靠地标放货【上砖轨道放砖】]
-                    if (TO_SITE != ZERO_SITE)
+                    #region 指定脉冲放砖
+                    if (DevStatus.LoadStatus == DevCarrierLoadE.有货)
                     {
-                        if (DevStatus.CurrentSite == TO_SITE)
+                        if (DevStatus.CurrentSite == TO_SITE && DevStatus.CurrentPoint == TO_POINT)
                         {
-                            DevStatus.TargetSite = 0;
-                            OnUnloading = true;
-                        }
+                            DevStatus.LoadStatus = DevCarrierLoadE.无货;
+                            SetUnLoadSitePoint();
 
-                        if (TO_SITE == TargetTrack.rfid_1 || TO_SITE == TargetTrack.rfid_2)
-                        {
-                            int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
-                            DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
-                            SetNowTrack(TargetTrack, TargetTrack.rfid_1);
-                            OnUnloading = true;
+                            DevStatus.TargetPoint = END_POINT;
                         }
+                        break;
                     }
-                    #endregion
 
-                    #region[靠脉冲放货【储砖轨道放货】]
-                    if (TO_POINT != ZERO_POINT)
+                    if (DevStatus.LoadStatus == DevCarrierLoadE.无货)
                     {
-                        //if(NowTrack.id != EndTrack.id
-                        //    && DevStatus.CurrentPoint >= EndTrack.limit_point)
-                        //{
-                        //    SetNowTrack(EndTrack, EndTrack.rfid_1);
-                        //}
-
-                        if (GIVE_STOCK_POINT != 0)
-                        {
-                            if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
-                            {
-                                DevStatus.TargetPoint = 0;
-                                OnUnloading = true;
-                            }
-                        }
-                        else
-                        {
-                            if(DevStatus.CurrentPoint == TO_POINT)
-                            {
-                                DevStatus.TargetPoint = 0;
-                                OnUnloading = true;
-                            }
-
-                            if(EndTrack != null && DevStatus.CurrentPoint >= EndTrack.limit_point)
-                            {
-                                DevStatus.CurrentSite = EndTrack.rfid_1;
-                                SetNowTrack(EndTrack);
-                            }
-                        }
-                    }
-                    #endregion
-
-                    #region[执行卸货]
-                    if (OnUnloading && !UnloadFinish)
-                    {
-                        switch (DevStatus.LoadStatus)
-                        {
-                            case DevCarrierLoadE.异常:
-                                if (mTimer.IsTimeUp("ToUnLoad", 2))
-                                {
-                                    SetUnLoadSitePoint();
-                                    DevStatus.LoadStatus = DevCarrierLoadE.无货;
-                                }
-                                break;
-                            case DevCarrierLoadE.无货:
-                                if(END_SITE == ZERO_SITE)
-                                {
-                                    FinishAndStop(DevCarrierOrderE.放砖指令);
-                                }
-                                else
-                                {
-                                    UnloadFinish = true;
-                                }
-                                break;
-                            case DevCarrierLoadE.有货:
-                                if (mTimer.IsTimeUp("ToErrorUnload", 1))
-                                {
-                                    DevStatus.LoadStatus = DevCarrierLoadE.异常;
-                                }
-                                break;
-                        }
-                    }
-                    #endregion
-
-                    #region[卸完回轨]
-
-                    if (UnloadFinish)
-                    {
-                        if (EndTrack.rfid_1 == DevStatus.CurrentSite
-                            && TO_POINT != ZERO_POINT
-                            && GIVE_STOCK_POINT != ZERO_POINT
-                            && END_SITE != ZERO_SITE)
-                        {
-                            GIVE_STOCK_POINT = ZERO_POINT;
-                            TO_POINT = EndTrack.limit_point;
-                        }
-
-                        if(DevStatus.CurrentPoint == TO_POINT)
+                        if (DevStatus.CurrentSite == END_SITE && DevStatus.CurrentPoint == END_POINT)
                         {
                             FinishAndStop(DevCarrierOrderE.放砖指令);
-                            OnUnloading = false;
                         }
+                        break;
                     }
-
                     #endregion
-
                     break;
-                #endregion
 
-                #region[前进倒库]
                 case DevCarrierOrderE.倒库指令:
-                    //return;
-                    //从摆渡车进入轨道的过程
-                    if (EndTrack != null && NowTrack != null
-                        && NowTrack.id != EndTrack.id
-                        && (DevStatus.CurrentPoint < EndTrack.limit_point_up || Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20))
+                    // 先取砖
+                    if (DevStatus.LoadStatus == DevCarrierLoadE.无货)
                     {
-                        SetNowTrack(EndTrack, EndTrack.rfid_1);
-                    }
-
-                    #region[上砖侧倒库]
-                    if (SORT_TYPE == OUT_2_OUT_SORT)
-                    {
-                        switch (SORT_STEP)
+                        if (DevStatus.CurrentSite == TO_SITE && DevStatus.CurrentPoint == TO_POINT)
                         {
-                            case SimCarrierSortStepE.获取取货库存位置:
-                                Stock behindstock = PubMaster.Goods.GetStockBehindStockPoint(EndTrack.id, (DevStatus.CurrentPoint-50));
-                                if (behindstock != null)
-                                {
-                                    TAKE_STOCK_POINT = behindstock.location;
-                                    SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
-                                }
-                                else
-                                {
-                                    FinishAndStop(DevCarrierOrderE.倒库指令);
-                                }
-                                break;
-                            case SimCarrierSortStepE.前往取货库存位置:
-                                if (DevStatus.CurrentPoint == TAKE_STOCK_POINT)
-                                {
-                                    SORT_STEP = SimCarrierSortStepE.取货中;
-                                }
-                                break;
-                            case SimCarrierSortStepE.取货中:
-                                switch (DevStatus.LoadStatus)
-                                {
-                                    case DevCarrierLoadE.异常:
-                                        if (mTimer.IsTimeUp("ToLoad", 2))
-                                        {
-                                            SetLoadSitePoint();
-                                            DevStatus.LoadStatus = DevCarrierLoadE.有货;
-                                        }
-                                        break;
-                                    case DevCarrierLoadE.无货:
-                                        if (mTimer.IsTimeUp("ToErrorLoad", 1))
-                                        {
-                                            DevStatus.LoadStatus = DevCarrierLoadE.异常;
-                                        }
-                                        break;
-                                    case DevCarrierLoadE.有货:
-                                        TAKE_STOCK_POINT = ZERO_POINT;
-                                        SORT_STEP = SimCarrierSortStepE.取货完成获取卸货位置;
-                                        break;
-                                }
-                                break;
-                            case SimCarrierSortStepE.取货完成获取卸货位置:
-                                Stock infrontstock = PubMaster.Goods.GetStockInfrontStockPoint(EndTrack.id, (DevStatus.CurrentPoint + 50));
-                                if (infrontstock != null)
-                                {
-                                    ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
-                                    GIVE_STOCK_POINT = (ushort)(infrontstock.location - safe);
-                                }
-                                else
-                                {
-                                    GIVE_STOCK_POINT = EndTrack.limit_point_up;
-                                }
-                                SORT_STEP = SimCarrierSortStepE.前往卸货位置;
-                                break;
-                            case SimCarrierSortStepE.前往卸货位置:
-                                if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
-                                {
-                                    SORT_STEP = SimCarrierSortStepE.卸货中;
-                                }
-                                break;
-                            case SimCarrierSortStepE.卸货中:
-                                switch (DevStatus.LoadStatus)
-                                {
-                                    case DevCarrierLoadE.异常:
-                                        if (mTimer.IsTimeUp("ToUnLoad", 2))
-                                        {
-                                            SetUnLoadSitePoint();
-                                            DevStatus.LoadStatus = DevCarrierLoadE.无货;
-                                        }
-                                        break;
-                                    case DevCarrierLoadE.无货:
-                                        GIVE_STOCK_POINT = ZERO_POINT;
-                                        SORT_STEP = SimCarrierSortStepE.卸货完成;
-                                        break;
-                                    case DevCarrierLoadE.有货:
-                                        if (mTimer.IsTimeUp("ToErrorUnload", 1))
-                                        {
-                                            DevStatus.LoadStatus = DevCarrierLoadE.异常;
-                                        }
-                                        break;
-                                }
-                                break;
-                            case SimCarrierSortStepE.卸货完成:
-                                DevStatus.MoveCount++;
-                                if(DevStatus.MoveCount < SORT_QTY)
-                                {
-                                    SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
-                                }
-                                else
-                                {
-                                    FinishAndStop(DevCarrierOrderE.倒库指令);
-                                }
-                                break;
-                        }
-                    }
-                    #endregion
+                            DevStatus.LoadStatus = DevCarrierLoadE.有货;
+                            SetLoadSitePoint();
 
-                    #region[倒库]
-                    if (SORT_TYPE == IN_2_OUT_SORT)
+                            DevStatus.TargetPoint = END_POINT;
+                        }
+                        break;
+                    }
+
+                    // 再放砖
+                    if (DevStatus.LoadStatus == DevCarrierLoadE.有货)
                     {
-                        switch (SORT_STEP)
+                        if (DevStatus.CurrentSite == END_SITE && DevStatus.CurrentPoint == END_POINT)
                         {
-                            case SimCarrierSortStepE.获取取货库存位置:
-                                if (TargetTrack != null)
-                                {
-                                    Stock intopstock = PubMaster.Goods.GetStockBehindStockPoint(TargetTrack.id, DevStatus.CurrentPoint);
-                                    if (intopstock != null)
-                                    {
-                                        TAKE_STOCK_POINT = intopstock.location;
-                                        SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
-                                    }
-                                }
-                                break;
-                            case SimCarrierSortStepE.前往取货库存位置:
-                                if (DevStatus.CurrentPoint == TAKE_STOCK_POINT)
-                                {
-                                    SORT_STEP = SimCarrierSortStepE.取货中;
-                                }
-                                break;
-                            case SimCarrierSortStepE.取货中:
-                                switch (DevStatus.LoadStatus)
-                                {
-                                    case DevCarrierLoadE.异常:
-                                        if (mTimer.IsTimeUp("ToLoad", 2))
-                                        {
-                                            SetLoadSitePoint();
-                                            DevStatus.LoadStatus = DevCarrierLoadE.有货;
-                                        }
-                                        break;
-                                    case DevCarrierLoadE.无货:
-                                        if (mTimer.IsTimeUp("ToErrorLoad", 1))
-                                        {
-                                            DevStatus.LoadStatus = DevCarrierLoadE.异常;
-                                        }
-                                        break;
-                                    case DevCarrierLoadE.有货:
-                                        TAKE_STOCK_POINT = ZERO_POINT;
-                                        SORT_STEP = SimCarrierSortStepE.取货完成获取卸货位置;
-                                        break;
-                                }
-                                break;
-                            case SimCarrierSortStepE.取货完成获取卸货位置:
-                                if(EndTrack.Type == TrackTypeE.储砖_出入)
-                                {
-                                    Stock outbuttomstock = PubMaster.Goods.GetStockInfrontStockPoint(EndTrack.id, DevStatus.CurrentPoint);
-                                    if (outbuttomstock != null && outbuttomstock.location != 0)
-                                    {
-                                        ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
-                                        GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
-                                    }
-                                    else
-                                    {
-                                        GIVE_STOCK_POINT = EndTrack.limit_point_up;
-                                    }
-                                    SORT_STEP = SimCarrierSortStepE.前往卸货位置;
-                                }
-                                else
-                                {
-                                    Stock outbuttomstock = PubMaster.Goods.GetStockForIn(EndTrack.id);
-                                    if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
-                                    {
-                                        ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
-                                        GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
-                                    }
-                                    else
-                                    {
-                                        GIVE_STOCK_POINT = EndTrack.limit_point_up;
-                                    }
-                                    SORT_STEP = SimCarrierSortStepE.前往卸货位置;
-                                }
-                                
-                                break;
-                            case SimCarrierSortStepE.前往卸货位置:
-                                if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
-                                {
-                                    SORT_STEP = SimCarrierSortStepE.卸货中;
-                                }
-                                break;
-                            case SimCarrierSortStepE.卸货中:
-                                switch (DevStatus.LoadStatus)
-                                {
-                                    case DevCarrierLoadE.异常:
-                                        if (mTimer.IsTimeUp("ToUnLoad", 2))
-                                        {
-                                            SetUnLoadSitePoint();
-                                            DevStatus.LoadStatus = DevCarrierLoadE.无货;
-                                        }
-                                        break;
-                                    case DevCarrierLoadE.无货:
-                                        GIVE_STOCK_POINT = ZERO_POINT;
-                                        SORT_STEP = SimCarrierSortStepE.卸货完成;
-                                        break;
-                                    case DevCarrierLoadE.有货:
-                                        if (mTimer.IsTimeUp("ToErrorUnload", 1))
-                                        {
-                                            DevStatus.LoadStatus = DevCarrierLoadE.异常;
-                                        }
-                                        break;
-                                }
-                                break;
-                            case SimCarrierSortStepE.卸货完成:
-                                DevStatus.MoveCount++;
-                                if (DevStatus.MoveCount < SORT_QTY)
-                                {
-                                    SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
-                                }
-                                else
-                                {
-                                    FinishAndStop(DevCarrierOrderE.倒库指令);
-                                }
-                                break;
+                            DevStatus.LoadStatus = DevCarrierLoadE.无货;
+                            SetUnLoadSitePoint();
+
+                            FinishAndStop(DevCarrierOrderE.倒库指令);
                         }
+                        break;
                     }
-                    #endregion
-
                     break;
-                #endregion
-
-                #region[终止指令]
-                case DevCarrierOrderE.终止指令:
-                    break;
-                #endregion
-
-                #region[异常]
-                case DevCarrierOrderE.异常:
-                    break;
-                #endregion
-
             }
+            #endregion
+
+            #region V2.0
+
+            //switch (DevStatus.CurrentOrder)
+            //{
+            //    #region[无]
+            //    case DevCarrierOrderE.无:
+            //        break;
+            //    #endregion
+
+            //    #region[定位指令]
+            //    case DevCarrierOrderE.定位指令:
+            //        if(TargetTrack != null)
+            //        {
+            //            switch (TargetTrack.Type)
+            //            {
+            //                case TrackTypeE.上砖轨道:
+            //                    SetNowTrack(TargetTrack, TO_SITE);
+            //                    DevStatus.CurrentPoint = TO_SITE;
+            //                    break;
+            //                case TrackTypeE.下砖轨道:
+
+            //                    break;
+            //                case TrackTypeE.储砖_入:
+            //                    if (TO_SITE == TargetTrack.rfid_1)
+            //                    {
+            //                        SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                        DevStatus.CurrentPoint = TargetTrack.limit_point;
+            //                    }
+            //                    else if (TO_SITE == TargetTrack.rfid_2)
+            //                    {
+            //                        SetNowTrack(TargetTrack, TargetTrack.rfid_2);
+            //                        DevStatus.CurrentPoint = TargetTrack.limit_point_up;
+            //                    }
+            //                    break;
+            //                case TrackTypeE.储砖_出:
+
+            //                    if (TO_SITE == TargetTrack.rfid_1)
+            //                    {
+            //                        SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                        DevStatus.CurrentPoint = TargetTrack.limit_point_up;
+            //                    }
+            //                    break;
+            //                case TrackTypeE.储砖_出入:
+            //                    if (TO_SITE == TargetTrack.rfid_1)
+            //                    {
+            //                        SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                        DevStatus.CurrentPoint = TargetTrack.limit_point;
+            //                    }
+            //                    else if (TO_SITE == TargetTrack.rfid_2)
+            //                    {
+            //                        SetNowTrack(TargetTrack, TargetTrack.rfid_2);
+            //                        DevStatus.CurrentPoint = TargetTrack.limit_point_up;
+            //                    }
+            //                    break;
+            //                case TrackTypeE.后置摆渡轨道:
+            //                    DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
+            //                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                    break;
+            //                case TrackTypeE.前置摆渡轨道:
+            //                    DevStatus.CurrentPoint = SimServer.Carrier.GetFerryTrackPos(TargetTrack.rfid_1);
+            //                    SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                    break;
+            //            }
+            //        }
+
+            //        if(DevStatus.CurrentSite == DevStatus.TargetSite)
+            //        {
+            //            DevStatus.TargetSite = ZERO_SITE;
+            //            FinishAndStop(DevCarrierOrderE.定位指令);
+            //        }
+
+            //        if(TargetTrack == null && TO_POINT == DevStatus.CurrentPoint)
+            //        {
+            //            FinishAndStop(DevCarrierOrderE.定位指令);
+            //        }
+
+            //        break;
+            //    #endregion
+
+            //    #region[取砖指令]
+            //    case DevCarrierOrderE.取砖指令:
+
+            //        #region[顶升取货]
+            //        if (TO_SITE == ZERO_SITE
+            //            && TO_POINT == ZERO_POINT)
+            //        {
+            //            DevStatus.LoadStatus = DevCarrierLoadE.有货;
+            //            SetLoadSitePoint();
+            //            FinishAndStop(DevCarrierOrderE.取砖指令);
+            //        }
+            //        #endregion
+
+            //        #region[靠地标取货【下砖轨道取砖】]
+            //        if (TO_SITE != ZERO_SITE)
+            //        {
+            //            if(DevStatus.CurrentSite == TO_SITE)
+            //            {
+            //                DevStatus.TargetSite = 0;
+            //                OnLoading = true;
+            //            }
+
+            //            if(TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.储砖_出入)
+            //            {
+            //                DevStatus.CurrentPoint = TargetTrack.limit_point;
+            //                SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                OnLoading = true;
+            //            }
+
+            //            if (TO_SITE == TargetTrack.rfid_1 && TargetTrack.Type == TrackTypeE.下砖轨道)
+            //            {
+            //                int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
+            //                DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
+            //                SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                OnLoading = true;
+            //            }
+
+            //            if (TO_SITE == TargetTrack.rfid_2 && TargetTrack.Type == TrackTypeE.下砖轨道)
+            //            {
+            //                int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -540 : 540;
+            //                DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_2) + dif);
+            //                SetNowTrack(TargetTrack, TargetTrack.rfid_2);
+            //                OnLoading = true;
+            //            }
+
+            //            if (TO_SITE == TargetTrack.rfid_3 && TargetTrack.Type == TrackTypeE.上砖轨道)
+            //            {
+            //                int dif = NowTrack.Type == TrackTypeE.前置摆渡轨道 ? -270 : 270;
+            //                DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
+            //                SetNowTrack(TargetTrack, TargetTrack.rfid_3);
+            //                OnLoading = true;
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[靠脉冲取货【储砖轨道取砖】]
+            //        if (TO_POINT != ZERO_POINT)
+            //        {
+            //            //从摆渡车进入轨道的过程
+            //            if(NowTrack != null && EndTrack != null
+            //                && NowTrack.id != EndTrack.id
+            //                && (DevStatus.CurrentPoint < EndTrack.limit_point_up || Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20))
+            //            {
+            //                SetNowTrack(EndTrack, EndTrack.rfid_1);
+            //            }
+
+            //            if (!OnLoading && !LoadFinish)
+            //            {
+            //                if (TAKE_STOCK_POINT != 0)
+            //                {
+            //                    if (DevStatus.CurrentPoint == TAKE_STOCK_POINT)
+            //                    {
+            //                        DevStatus.TargetPoint = 0;
+            //                        OnLoading = true;
+            //                    }
+            //                }
+            //                else if(DevStatus.CurrentPoint == TO_POINT)
+            //                {
+            //                    DevStatus.TargetSite = 0;
+            //                    OnLoading = true;
+            //                }
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[执行取货]
+
+            //        if (OnLoading && !LoadFinish)
+            //        {
+            //            switch (DevStatus.LoadStatus)
+            //            {
+            //                case DevCarrierLoadE.异常:
+            //                    if (mTimer.IsTimeUp("ToLoad", 2))
+            //                    {
+            //                        SetLoadSitePoint();
+            //                        DevStatus.LoadStatus = DevCarrierLoadE.有货;
+            //                    }
+            //                    break;
+            //                case DevCarrierLoadE.无货:
+            //                    if (mTimer.IsTimeUp("ToErrorLoad", 30))
+            //                    {
+            //                        DevStatus.LoadStatus = DevCarrierLoadE.异常;
+            //                    }
+            //                    break;
+            //                case DevCarrierLoadE.有货:
+            //                    OnLoading = false;
+            //                    if (END_SITE == ZERO_SITE)
+            //                    {
+            //                        FinishAndStop(DevCarrierOrderE.取砖指令);
+            //                    }
+            //                    else
+            //                    {
+            //                        LoadFinish = true;
+            //                    }
+            //                    break;
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[卸货完成,回到结束地标]
+            //        if (EndTrack != null && LoadFinish && !OnLoading)
+            //        {
+            //            if (EndTrack.Type == TrackTypeE.储砖_出 || EndTrack.Type == TrackTypeE.储砖_出入)
+            //            {
+            //                if (DevStatus.CurrentPoint == EndTrack.limit_point_up)
+            //                {
+            //                    FinishAndStop(DevCarrierOrderE.取砖指令);
+            //                }
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[取完回轨]
+
+            //        if (LoadFinish)
+            //        {
+            //            if (EndTrack != null
+            //                && EndTrack.rfid_1 == DevStatus.CurrentSite
+            //                && TO_POINT != ZERO_POINT
+            //                && TAKE_STOCK_POINT != ZERO_POINT
+            //                && END_SITE != ZERO_SITE)
+            //            {
+            //                TAKE_STOCK_POINT = ZERO_POINT;
+            //                TO_POINT = EndTrack.limit_point_up;
+            //                DevStatus.TargetSite = EndTrack.rfid_1;
+            //            }
+
+            //            if (DevStatus.CurrentPoint == TO_POINT)
+            //            {
+            //                FinishAndStop(DevCarrierOrderE.取砖指令);
+            //                OnLoading = false;
+            //            }
+            //        }
+
+            //        #endregion
+            //        break;
+            //    #endregion
+
+            //    #region[放砖指令]
+            //    case DevCarrierOrderE.放砖指令:
+
+            //        #region[下降放货]
+            //        if (TO_SITE == ZERO_SITE
+            //            && TO_POINT == ZERO_POINT)
+            //        {
+            //            DevStatus.LoadStatus = DevCarrierLoadE.无货;
+            //            SetUnLoadSitePoint();
+            //            DevStatus.FinishOrder = DevCarrierOrderE.放砖指令;
+            //        }
+            //        #endregion
+
+            //        #region[靠地标放货【上砖轨道放砖】]
+            //        if (TO_SITE != ZERO_SITE)
+            //        {
+            //            if (DevStatus.CurrentSite == TO_SITE)
+            //            {
+            //                DevStatus.TargetSite = 0;
+            //                OnUnloading = true;
+            //            }
+
+            //            if (TO_SITE == TargetTrack.rfid_1 || TO_SITE == TargetTrack.rfid_2)
+            //            {
+            //                int dif = NowTrack.Type == TrackTypeE.后置摆渡轨道 ? -270 : 270;
+            //                DevStatus.CurrentPoint = (ushort)(SimServer.Carrier.GetFerryTrackPos(NowTrack.rfid_1) + dif);
+            //                SetNowTrack(TargetTrack, TargetTrack.rfid_1);
+            //                OnUnloading = true;
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[靠脉冲放货【储砖轨道放货】]
+            //        if (TO_POINT != ZERO_POINT)
+            //        {
+            //            //if(NowTrack.id != EndTrack.id
+            //            //    && DevStatus.CurrentPoint >= EndTrack.limit_point)
+            //            //{
+            //            //    SetNowTrack(EndTrack, EndTrack.rfid_1);
+            //            //}
+
+            //            if (GIVE_STOCK_POINT != 0)
+            //            {
+            //                if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
+            //                {
+            //                    DevStatus.TargetPoint = 0;
+            //                    OnUnloading = true;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                if(DevStatus.CurrentPoint == TO_POINT)
+            //                {
+            //                    DevStatus.TargetPoint = 0;
+            //                    OnUnloading = true;
+            //                }
+
+            //                if(EndTrack != null && DevStatus.CurrentPoint >= EndTrack.limit_point)
+            //                {
+            //                    DevStatus.CurrentSite = EndTrack.rfid_1;
+            //                    SetNowTrack(EndTrack);
+            //                }
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[执行卸货]
+            //        if (OnUnloading && !UnloadFinish)
+            //        {
+            //            switch (DevStatus.LoadStatus)
+            //            {
+            //                case DevCarrierLoadE.异常:
+            //                    if (mTimer.IsTimeUp("ToUnLoad", 2))
+            //                    {
+            //                        SetUnLoadSitePoint();
+            //                        DevStatus.LoadStatus = DevCarrierLoadE.无货;
+            //                    }
+            //                    break;
+            //                case DevCarrierLoadE.无货:
+            //                    if(END_SITE == ZERO_SITE)
+            //                    {
+            //                        FinishAndStop(DevCarrierOrderE.放砖指令);
+            //                    }
+            //                    else
+            //                    {
+            //                        UnloadFinish = true;
+            //                    }
+            //                    break;
+            //                case DevCarrierLoadE.有货:
+            //                    if (mTimer.IsTimeUp("ToErrorUnload", 1))
+            //                    {
+            //                        DevStatus.LoadStatus = DevCarrierLoadE.异常;
+            //                    }
+            //                    break;
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[卸完回轨]
+
+            //        if (UnloadFinish)
+            //        {
+            //            if (EndTrack.rfid_1 == DevStatus.CurrentSite
+            //                && TO_POINT != ZERO_POINT
+            //                && GIVE_STOCK_POINT != ZERO_POINT
+            //                && END_SITE != ZERO_SITE)
+            //            {
+            //                GIVE_STOCK_POINT = ZERO_POINT;
+            //                TO_POINT = EndTrack.limit_point;
+            //            }
+
+            //            if(DevStatus.CurrentPoint == TO_POINT)
+            //            {
+            //                FinishAndStop(DevCarrierOrderE.放砖指令);
+            //                OnUnloading = false;
+            //            }
+            //        }
+
+            //        #endregion
+
+            //        break;
+            //    #endregion
+
+            //    #region[前进倒库]
+            //    case DevCarrierOrderE.倒库指令:
+            //        //return;
+            //        //从摆渡车进入轨道的过程
+            //        if (EndTrack != null && NowTrack != null
+            //            && NowTrack.id != EndTrack.id
+            //            && (DevStatus.CurrentPoint < EndTrack.limit_point_up || Math.Abs(DevStatus.CurrentPoint - EndTrack.limit_point_up) < 20))
+            //        {
+            //            SetNowTrack(EndTrack, EndTrack.rfid_1);
+            //        }
+
+            //        #region[上砖侧倒库]
+            //        if (SORT_TYPE == OUT_2_OUT_SORT)
+            //        {
+            //            switch (SORT_STEP)
+            //            {
+            //                case SimCarrierSortStepE.获取取货库存位置:
+            //                    Stock behindstock = PubMaster.Goods.GetStockBehindStockPoint(EndTrack.id, (DevStatus.CurrentPoint-50));
+            //                    if (behindstock != null)
+            //                    {
+            //                        TAKE_STOCK_POINT = behindstock.location;
+            //                        SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+            //                    }
+            //                    else
+            //                    {
+            //                        FinishAndStop(DevCarrierOrderE.倒库指令);
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.前往取货库存位置:
+            //                    if (DevStatus.CurrentPoint == TAKE_STOCK_POINT)
+            //                    {
+            //                        SORT_STEP = SimCarrierSortStepE.取货中;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.取货中:
+            //                    switch (DevStatus.LoadStatus)
+            //                    {
+            //                        case DevCarrierLoadE.异常:
+            //                            if (mTimer.IsTimeUp("ToLoad", 2))
+            //                            {
+            //                                SetLoadSitePoint();
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.有货;
+            //                            }
+            //                            break;
+            //                        case DevCarrierLoadE.无货:
+            //                            if (mTimer.IsTimeUp("ToErrorLoad", 1))
+            //                            {
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.异常;
+            //                            }
+            //                            break;
+            //                        case DevCarrierLoadE.有货:
+            //                            TAKE_STOCK_POINT = ZERO_POINT;
+            //                            SORT_STEP = SimCarrierSortStepE.取货完成获取卸货位置;
+            //                            break;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.取货完成获取卸货位置:
+            //                    Stock infrontstock = PubMaster.Goods.GetStockInfrontStockPoint(EndTrack.id, (DevStatus.CurrentPoint + 50));
+            //                    if (infrontstock != null)
+            //                    {
+            //                        ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+            //                        GIVE_STOCK_POINT = (ushort)(infrontstock.location - safe);
+            //                    }
+            //                    else
+            //                    {
+            //                        GIVE_STOCK_POINT = EndTrack.limit_point_up;
+            //                    }
+            //                    SORT_STEP = SimCarrierSortStepE.前往卸货位置;
+            //                    break;
+            //                case SimCarrierSortStepE.前往卸货位置:
+            //                    if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
+            //                    {
+            //                        SORT_STEP = SimCarrierSortStepE.卸货中;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.卸货中:
+            //                    switch (DevStatus.LoadStatus)
+            //                    {
+            //                        case DevCarrierLoadE.异常:
+            //                            if (mTimer.IsTimeUp("ToUnLoad", 2))
+            //                            {
+            //                                SetUnLoadSitePoint();
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.无货;
+            //                            }
+            //                            break;
+            //                        case DevCarrierLoadE.无货:
+            //                            GIVE_STOCK_POINT = ZERO_POINT;
+            //                            SORT_STEP = SimCarrierSortStepE.卸货完成;
+            //                            break;
+            //                        case DevCarrierLoadE.有货:
+            //                            if (mTimer.IsTimeUp("ToErrorUnload", 1))
+            //                            {
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.异常;
+            //                            }
+            //                            break;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.卸货完成:
+            //                    DevStatus.MoveCount++;
+            //                    if(DevStatus.MoveCount < SORT_QTY)
+            //                    {
+            //                        SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
+            //                    }
+            //                    else
+            //                    {
+            //                        FinishAndStop(DevCarrierOrderE.倒库指令);
+            //                    }
+            //                    break;
+            //            }
+            //        }
+            //        #endregion
+
+            //        #region[倒库]
+            //        if (SORT_TYPE == IN_2_OUT_SORT)
+            //        {
+            //            switch (SORT_STEP)
+            //            {
+            //                case SimCarrierSortStepE.获取取货库存位置:
+            //                    if (TargetTrack != null)
+            //                    {
+            //                        Stock intopstock = PubMaster.Goods.GetStockBehindStockPoint(TargetTrack.id, DevStatus.CurrentPoint);
+            //                        if (intopstock != null)
+            //                        {
+            //                            TAKE_STOCK_POINT = intopstock.location;
+            //                            SORT_STEP = SimCarrierSortStepE.前往取货库存位置;
+            //                        }
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.前往取货库存位置:
+            //                    if (DevStatus.CurrentPoint == TAKE_STOCK_POINT)
+            //                    {
+            //                        SORT_STEP = SimCarrierSortStepE.取货中;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.取货中:
+            //                    switch (DevStatus.LoadStatus)
+            //                    {
+            //                        case DevCarrierLoadE.异常:
+            //                            if (mTimer.IsTimeUp("ToLoad", 2))
+            //                            {
+            //                                SetLoadSitePoint();
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.有货;
+            //                            }
+            //                            break;
+            //                        case DevCarrierLoadE.无货:
+            //                            if (mTimer.IsTimeUp("ToErrorLoad", 1))
+            //                            {
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.异常;
+            //                            }
+            //                            break;
+            //                        case DevCarrierLoadE.有货:
+            //                            TAKE_STOCK_POINT = ZERO_POINT;
+            //                            SORT_STEP = SimCarrierSortStepE.取货完成获取卸货位置;
+            //                            break;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.取货完成获取卸货位置:
+            //                    if(EndTrack.Type == TrackTypeE.储砖_出入)
+            //                    {
+            //                        Stock outbuttomstock = PubMaster.Goods.GetStockInfrontStockPoint(EndTrack.id, DevStatus.CurrentPoint);
+            //                        if (outbuttomstock != null && outbuttomstock.location != 0)
+            //                        {
+            //                            ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+            //                            GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+            //                        }
+            //                        else
+            //                        {
+            //                            GIVE_STOCK_POINT = EndTrack.limit_point_up;
+            //                        }
+            //                        SORT_STEP = SimCarrierSortStepE.前往卸货位置;
+            //                    }
+            //                    else
+            //                    {
+            //                        Stock outbuttomstock = PubMaster.Goods.GetStockForIn(EndTrack.id);
+            //                        if (outbuttomstock != null && outbuttomstock.location != 0 && outbuttomstock.location <= EndTrack.limit_point_up)
+            //                        {
+            //                            ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
+            //                            GIVE_STOCK_POINT = (ushort)(outbuttomstock.location - safe);
+            //                        }
+            //                        else
+            //                        {
+            //                            GIVE_STOCK_POINT = EndTrack.limit_point_up;
+            //                        }
+            //                        SORT_STEP = SimCarrierSortStepE.前往卸货位置;
+            //                    }
+
+            //                    break;
+            //                case SimCarrierSortStepE.前往卸货位置:
+            //                    if (DevStatus.CurrentPoint == GIVE_STOCK_POINT)
+            //                    {
+            //                        SORT_STEP = SimCarrierSortStepE.卸货中;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.卸货中:
+            //                    switch (DevStatus.LoadStatus)
+            //                    {
+            //                        case DevCarrierLoadE.异常:
+            //                            if (mTimer.IsTimeUp("ToUnLoad", 2))
+            //                            {
+            //                                SetUnLoadSitePoint();
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.无货;
+            //                            }
+            //                            break;
+            //                        case DevCarrierLoadE.无货:
+            //                            GIVE_STOCK_POINT = ZERO_POINT;
+            //                            SORT_STEP = SimCarrierSortStepE.卸货完成;
+            //                            break;
+            //                        case DevCarrierLoadE.有货:
+            //                            if (mTimer.IsTimeUp("ToErrorUnload", 1))
+            //                            {
+            //                                DevStatus.LoadStatus = DevCarrierLoadE.异常;
+            //                            }
+            //                            break;
+            //                    }
+            //                    break;
+            //                case SimCarrierSortStepE.卸货完成:
+            //                    DevStatus.MoveCount++;
+            //                    if (DevStatus.MoveCount < SORT_QTY)
+            //                    {
+            //                        SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
+            //                    }
+            //                    else
+            //                    {
+            //                        FinishAndStop(DevCarrierOrderE.倒库指令);
+            //                    }
+            //                    break;
+            //            }
+            //        }
+            //        #endregion
+
+            //        break;
+            //    #endregion
+
+            //    #region[终止指令]
+            //    case DevCarrierOrderE.终止指令:
+            //        break;
+            //    #endregion
+
+            //    #region[异常]
+            //    case DevCarrierOrderE.异常:
+            //        break;
+            //    #endregion
+
+            //}
+            #endregion
 
             #region
             //switch (DevStatus.CurrentTask)
@@ -1198,20 +1315,29 @@ namespace simtask
         /// <param name="cmd"></param>
         internal void SetTaskInfo(CarrierCmd cmd)
         {
-            DevStatus.TargetSite = cmd.TargetSite;
-            DevStatus.TargetPoint = cmd.TargetPoint;
+            if (cmd.CarrierOrder == DevCarrierOrderE.定位指令)
+            {
+                DevStatus.TargetSite = cmd.CheckTrackCode;
+                DevStatus.TargetPoint = cmd.FinishPoint;
+            }
+            else
+            {
+                DevStatus.TargetSite = cmd.CheckTrackCode;
+                DevStatus.TargetPoint = cmd.TargetPoint;
+            }
 
             OnLoading = false;
             OnUnloading = false;
             LoadFinish = false;
             UnloadFinish = false;
 
-            TO_SITE = cmd.TargetSite;
+            TO_SITE = cmd.CheckTrackCode;
             TO_POINT = cmd.TargetPoint;
-            END_SITE = cmd.FinishSite;
+            END_SITE = cmd.CheckTrackCode;
             END_POINT = cmd.FinishPoint;
 
             SORT_QTY = cmd.SortQty;
+
             //目标站点
             if (TO_SITE > 0)
             {
@@ -1229,72 +1355,28 @@ namespace simtask
                 {
                     EndTrack = PubMaster.Track.GetTrackBySite(Device.area, END_SITE);
                 }
-
-                //在摆渡车出上执行取货指令
-                if (cmd.CarrierOrder == DevCarrierOrderE.取砖指令
-                    && EndTrack != null
-                    &&((EndTrack.Type == TrackTypeE.储砖_出 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
-                {
-                    GIVE_STOCK_POINT = 0;
-                    Stock stock = PubMaster.Goods.GetStockForOut(EndTrack.id);
-                    if (stock != null)
-                    {
-                        TAKE_STOCK_POINT = stock.location;
-                    }
-
-                    if (EndTrack.Type == TrackTypeE.储砖_出入 && TO_SITE != 0)
-                    {
-                        TO_SITE = 0;
-                        TO_POINT = EndTrack.limit_point;
-                    }
-                }
-
-                //在摆渡入上执行放砖指令
-                if (cmd.CarrierOrder == DevCarrierOrderE.放砖指令
-                    && EndTrack != null
-                    && ((EndTrack.Type == TrackTypeE.储砖_入 && TO_POINT != 0) || EndTrack.Type == TrackTypeE.储砖_出入))
-                {
-                    TAKE_STOCK_POINT = 0;
-                    if (PubMaster.Goods.CalculateNextLocByDir(EndTrack.is_give_back ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, DevId, EndTrack.id, DevConfig.stock_id, out ushort location))
-                    {
-                        GIVE_STOCK_POINT = location;
-                    }
-
-                    if(EndTrack.Type == TrackTypeE.储砖_出入 && TO_SITE != 0)
-                    {
-                        TO_SITE = 0;
-                        TO_POINT = EndTrack.limit_point_up;
-                    }
-                }
             }
 
-            if (cmd.CarrierOrder == DevCarrierOrderE.倒库指令)
+            // 光电取砖指令 - 获取库存
+            if (cmd.CarrierOrder == DevCarrierOrderE.取砖指令)
             {
-                EndTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_出,TrackTypeE.储砖_出入 }, cmd.CheckTrackCode);
-                if (TO_POINT != ZERO_POINT)
+                if (TO_POINT == 1)
                 {
-                    SORT_TYPE = OUT_2_OUT_SORT;
+                    // 后退取砖
+                    Stock stk = TargetTrack.is_take_forward ? PubMaster.Goods.GetStockForIn(TargetTrack.id) : PubMaster.Goods.GetStockForOut(TargetTrack.id);
+                    TO_POINT = stk?.location ?? 1;
                 }
-                else
+                else if (TO_POINT == 65535)
                 {
-                    SORT_TYPE = IN_2_OUT_SORT;
-                    if(EndTrack.Type == TrackTypeE.储砖_出入)
-                    {
-                        TargetTrack = EndTrack;
-
-                    }
-                    else
-                    {
-                        TargetTrack = PubMaster.Track.GetTrackBySite((ushort)AreaId, new List<TrackTypeE> { TrackTypeE.储砖_入 }, cmd.CheckTrackCode);
-                    }
+                    // 前进取砖
+                    Stock stk = TargetTrack.is_take_forward ? PubMaster.Goods.GetStockForOut(TargetTrack.id) : PubMaster.Goods.GetStockForIn(TargetTrack.id);
+                    TO_POINT = stk?.location ?? 65535;
                 }
-                
-                SORT_STEP = SimCarrierSortStepE.获取取货库存位置;
             }
-            DevStatus.MoveCount = 0;
+
             DevStatus.CurrentOrder = cmd.CarrierOrder;
-            DevStatus.FinishOrder = DevCarrierOrderE.无;
         }
+
         #endregion
 
         #region[取货卸货站点设置]
@@ -1331,7 +1413,8 @@ namespace simtask
         private void UpdateTrackSite()
         {
             if (TO_SITE == ZERO_SITE) return;
-            switch (DevStatus.CurrentSite.CompareTo(TO_SITE))
+            int rs = DevStatus.CurrentSite.CompareTo(TO_SITE);
+            switch (rs)
             {
                 case -1:
                     DevStatus.DeviceStatus = DevCarrierStatusE.前进;
@@ -1343,6 +1426,14 @@ namespace simtask
                     DevStatus.DeviceStatus = DevCarrierStatusE.后退;
                     break;
             }
+
+            if (rs != 0 
+                && TargetTrack != null 
+                && TargetTrack.limit_point <= DevStatus.CurrentPoint && DevStatus.CurrentPoint <= TargetTrack.limit_point_up)
+            {
+                SetNowTrack(TargetTrack, TO_SITE);
+            }
+
         }
 
         /// <summary>
@@ -1350,21 +1441,8 @@ namespace simtask
         /// </summary>
         private void UpdateTrackPoint()
         {
-            if (TO_POINT == ZERO_POINT
-                && TAKE_STOCK_POINT == ZERO_POINT
-                && GIVE_STOCK_POINT == ZERO_POINT) return;
-            int rs = 0;
-            if(TAKE_STOCK_POINT != ZERO_POINT)
-            {
-                rs = DevStatus.CurrentPoint.CompareTo(TAKE_STOCK_POINT);
-            }else if(GIVE_STOCK_POINT != ZERO_POINT)
-            {
-                rs = DevStatus.CurrentPoint.CompareTo(GIVE_STOCK_POINT);
-            }else if(TO_POINT != ZERO_POINT && TO_POINT != 50)
-            {
-                rs = DevStatus.CurrentPoint.CompareTo(TO_POINT);
-            }
-
+            if (DevStatus.TargetPoint == ZERO_POINT) return;
+            int rs = DevStatus.CurrentPoint.CompareTo(DevStatus.TargetPoint);
             ushort dif = (ushort)Math.Abs(rs);
             if (rs > 0)
             {
@@ -1396,6 +1474,7 @@ namespace simtask
             TO_SITE = ZERO_SITE;
             END_POINT = ZERO_POINT;
             END_SITE = ZERO_SITE;
+            DevStatus.CurrentOrder =  DevCarrierOrderE.无;
             DevStatus.FinishOrder = finishorder;
             DevStatus.TargetSite = ZERO_SITE;
             DevStatus.TargetPoint = ZERO_POINT;

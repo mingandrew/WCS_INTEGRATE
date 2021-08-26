@@ -1,4 +1,5 @@
 ﻿using enums;
+using enums.track;
 using module.device;
 
 namespace simserver.simsocket
@@ -65,6 +66,14 @@ namespace simserver.simsocket
         public byte SortQty
         {
             get => Value12;
+        }
+
+        /// <summary>
+        /// 值12：复位点序号
+        /// </summary>
+        public CarrierPosE CarrierPos
+        {
+            get => (CarrierPosE)Value12;
         }
 
         /// <summary>

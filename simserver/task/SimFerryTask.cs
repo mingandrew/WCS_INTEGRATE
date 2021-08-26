@@ -154,6 +154,36 @@ namespace simtask.task
         }
         #endregion
 
+        #region 初始化
+        internal void ResetLocate(ushort desCode)
+        {
+            IsLocating = false;
+            DevStatus.CurrentTask = DevFerryTaskE.初始化;
+            DevStatus.FinishTask = DevFerryTaskE.初始化;
+            DevStatus.DeviceStatus = DevFerryStatusE.停止;
+
+            NowPos = FerryPosList.Find(c => c.ferry_code == desCode)?.sim_ferry_pos ?? 0;
+
+            Track ferryTra = PubMaster.Track.GetTrack(FerryTrackId);
+            if (desCode > ferryTra.ferry_up_code)
+            {
+                DevStatus.UpLight = true;
+                DevStatus.UpSite = desCode;
+
+                DevStatus.DownLight = false;
+                DevStatus.DownSite = 0;
+            }
+            else
+            {
+                DevStatus.UpLight = false;
+                DevStatus.UpSite = 0;
+
+                DevStatus.DownLight = true;
+                DevStatus.DownSite = desCode;
+            }
+        }
+        #endregion
+
         #region[模拟摆渡车定位]
 
         /// <summary>

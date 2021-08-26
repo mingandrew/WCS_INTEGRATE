@@ -337,6 +337,9 @@ namespace simtask.master
                 case DevFerryCmdE.定位:
                     task.StartLocate(cmd.DesCode);
                     break;
+                case DevFerryCmdE.初始化:
+                    task.ResetLocate(cmd.DesCode);
+                    break;
                 #region[无操作]
                 case DevFerryCmdE.速度操作:
                     break;
@@ -349,6 +352,7 @@ namespace simtask.master
                 case DevFerryCmdE.自动对位:
                     break;
                 case DevFerryCmdE.终止任务:
+                case DevFerryCmdE.寻点:
                     task.IsLocating = false;
                     task.DevStatus.CurrentTask = DevFerryTaskE.终止;
                     task.DevStatus.FinishTask = DevFerryTaskE.终止;

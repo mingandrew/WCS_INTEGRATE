@@ -169,19 +169,37 @@ namespace simtask.master
                     break;
                 case DevCarrierCmdE.执行指令:
                     #region[执行任务]
-                    if(task.DevStatus.CurrentOrder != cmd.CarrierOrder)
+                    if (cmd.CarrierOrder == DevCarrierOrderE.终止指令 
+                        || cmd.CarrierOrder == DevCarrierOrderE.寻点
+                        || cmd.CarrierOrder == DevCarrierOrderE.测试上升
+                        || cmd.CarrierOrder == DevCarrierOrderE.测试下降
+                        )
                     {
-                        task.SetTaskInfo(cmd);
+                        task.DevStatus.CurrentOrder = DevCarrierOrderE.无;
+                        task.DevStatus.FinishOrder = DevCarrierOrderE.终止指令;
+                        task.DevStatus.DeviceStatus = DevCarrierStatusE.停止;
+
+                        task.DevStatus.TargetSite = 0;
+                        task.DevStatus.TargetPoint = 0;
+                        break;
                     }
+
+                    if (cmd.CarrierOrder == DevCarrierOrderE.初始化)
+                    {
+                        task.DevStatus.CurrentOrder = DevCarrierOrderE.初始化;
+                        task.DevStatus.FinishOrder = DevCarrierOrderE.无;
+                        task.DevStatus.DeviceStatus = DevCarrierStatusE.停止;
+
+                        task.DevStatus.CurrentPoint = PubMaster.Track.GetCarrierPos(task.AreaId, cmd.CarrierPos);
+                        task.SetNowTrack(PubMaster.Track.GetTrackBySite((ushort)task.AreaId, cmd.TargetSite), cmd.TargetSite);
+                        break;
+                    }
+
+                    task.SetTaskInfo(cmd);
                     #endregion
                     break;
                 case DevCarrierCmdE.复位操作:
-                    Console.WriteLine(11);
-                    if (cmd.CarrierOrder == DevCarrierOrderE.放砖指令)
-                    {
-                        task.DevStatus.CurrentSite = cmd.Value3_4;
-                        task.DevStatus.CurrentPoint = PubMaster.Track.GetCarrierPos(task.AreaId, (CarrierPosE)cmd.Value12);
-                    }
+
                     break;
                 case DevCarrierCmdE.置位指令:
                     task.DevStatus.CurrentOrder = DevCarrierOrderE.终止指令;
