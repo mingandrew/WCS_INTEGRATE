@@ -2018,9 +2018,9 @@ namespace resource.track
         /// </summary>
         /// <param name="area_id"></param>
         /// <returns></returns>
-        public List<uint> GetUpTileTracks(uint area_id)
+        public List<uint> GetUpTileTracks(uint area_id, ushort line)
         {
-            return TrackList.FindAll(c => c.area == area_id && c.Type == TrackTypeE.上砖轨道)?.Select(c => c.id).ToList();
+            return TrackList.FindAll(c => c.area == area_id && c.line == line && c.Type == TrackTypeE.上砖轨道)?.Select(c => c.id).ToList();
         }
         #endregion
 

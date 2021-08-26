@@ -2131,7 +2131,7 @@ namespace task.device
                 uint neartileferrytrackid = GetNearTileFerryOnTrack(ferryintrack, trans.give_track_id, trans.take_track_id);
 
                 //所有上砖轨道
-                List<uint> uptiletraids = PubMaster.Track.GetUpTileTracks(trans.area_id);
+                List<uint> uptiletraids = PubMaster.Track.GetUpTileTracks(trans.area_id, trans.line);
 
                 // 按靠近砖机的摆渡车所对轨道进行排序
                 List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(uptiletraids, 0, PubMaster.Track.GetTrackOrder(neartileferrytrackid));
