@@ -539,7 +539,7 @@ namespace task.trans.transtask
             if (bestock_one != null)
             {
                 topoint = bestock_one.location;
-                topoint += (ushort)(1.5 * safe);
+                topoint += (ushort)(3 * safe);
             }
             else
             {

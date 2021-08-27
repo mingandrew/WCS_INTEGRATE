@@ -3633,7 +3633,7 @@ namespace resource.goods
                 if(Math.Abs(stocks[i].location - stocks[i+1].location) >= space)
                 {
                     result = string.Format("[ {0} ] -> [ {1} ]", stocks[i].ToSmalString(), stocks[i + 1].ToSmalString());
-                    stockid = stocks[i + 1].id;
+                    stockid = stocks[i].id;//脉冲小的库存
                     return true;
                 }
             }

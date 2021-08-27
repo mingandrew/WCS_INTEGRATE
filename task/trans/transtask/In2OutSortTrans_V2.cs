@@ -426,9 +426,9 @@ namespace task.trans.transtask
                 if (isheadempty)
                 {
                     Stock topstock = PubMaster.Goods.CheckGetStockTop(trans.take_track_id);
-                    if (topstock != null && topstock.location > nowpoint)
+                    if (topstock != null)
                     {
-                        toempypoint = (ushort)(topstock.location + (2 * safe));
+                        toempypoint = (ushort)(topstock.location + (3 * safe));
                     }
 
                     count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
@@ -441,10 +441,10 @@ namespace task.trans.transtask
                     if (midstock != null)
                     {
                         count = PubMaster.Goods.GetBehindPointStockCount(gtrack.id, midstock.location + 50);
-                        toempypoint = (ushort)(midstock.location + (2 * safe));
+                        toempypoint = (ushort)(midstock.location + (3 * safe));
                     }
 
-                    sortmemo = string.Format("倒库[ 中间空 ]");
+                    sortmemo = string.Format("倒库[ 中间空 ]，库存[ {0} ]", midres);
                 }
 
                 if (toempypoint > gtrack.limit_point_up)
@@ -489,10 +489,10 @@ namespace task.trans.transtask
                     if (midstock != null)
                     {
                         count = PubMaster.Goods.GetBehindPointStockCount(gtrack.id, midstock.location + 50);
-                        toempypoint = (ushort)(midstock.location + (2 * safe));
+                        toempypoint = (ushort)(midstock.location + (3 * safe));
                     }
 
-                    sortmemo = string.Format("倒库[ 中间空 ]");
+                    sortmemo = string.Format("倒库[ 中间空 ]，库存[ {0} ]", midres);
 
                 }
                 else if (isbackempty)
