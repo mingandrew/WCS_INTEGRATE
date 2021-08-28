@@ -910,6 +910,25 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void FinishStockTrans(StockTrans trans)
         {
+            ushort safe = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.StackPluse, 0);//217
+
+            Track ttrack = PubMaster.Track.GetTrack(trans.take_track_id);
+            Track gtrack = PubMaster.Track.GetTrack(trans.give_track_id);
+
+            if (ttrack != null && ttrack.Type == TrackTypeE.储砖_入)
+            {
+                PubMaster.Track.CheckInTrackStatus(ttrack);
+            }
+
+            if (gtrack != null && gtrack.InType(TrackTypeE.储砖_出))
+            {
+                PubMaster.Track.CheckOutTrackStatus(ttrack, safe);
+            }
+
+            if (gtrack != null && gtrack.InType(TrackTypeE.储砖_出入))
+            {
+                PubMaster.Track.CheckInOutTrackStatus(ttrack, safe);
+            }
 
             PubMaster.Warn.RemoveDevWarn(WarningTypeE.HaveOtherCarrierInSortTrack, (ushort)trans.carrier_id);
             //PubMaster.Track.GetAndRefreshUpCount(trans.give_track_id);

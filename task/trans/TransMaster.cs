@@ -35,7 +35,7 @@ namespace task.trans
             List<uint> ids = new List<uint>();
             foreach (var item in TransList)
             {
-                if (item.InStatus(TransStatusE.完成)) continue;
+                if (item.InStatus(TransStatusE.完成, TransStatusE.小车回轨)) continue;
                 ids.Add(item.take_track_id);
                 ids.Add(item.give_track_id);
                 if (item.finish_track_id != 0)

@@ -2124,7 +2124,15 @@ namespace resource.track
 
             foreach (var item in TrackList)
             {
-                if (item.TrackStatus == TrackStatusE.停用) continue;
+                if (item.TrackStatus == TrackStatusE.停用)
+                {
+                    if (item.sort_able)
+                    {
+                        SetTrackSortable(item, false, SORT_LEVEL_NO, "停用");
+                        continue;
+                    }
+                }
+
                 if (tracids.Contains(item.id))
                 {
                     //SetTrackSortable(item, false, SORT_LEVEL_NO, "任务中");
@@ -2157,7 +2165,7 @@ namespace resource.track
         ///  [等级2] 2.入轨道底部品种无砖机继续使用
         /// </summary>
         /// <param name="track"></param>
-        private void CheckInTrackStatus(Track track)
+        public void CheckInTrackStatus(Track track)
         {
             //空砖->跳出
             if (track.StockStatus == TrackStockStatusE.空砖)
@@ -2196,7 +2204,7 @@ namespace resource.track
         /// [等级3] 3.出轨道尾部大量空位，无上砖机上砖
         /// </summary>
         /// <param name="track"></param>
-        private void CheckOutTrackStatus(Track track, ushort safe)
+        public void CheckOutTrackStatus(Track track, ushort safe)
         {
             // 1.出轨道空
             if (track.StockStatus == TrackStockStatusE.空砖)
@@ -2204,7 +2212,9 @@ namespace resource.track
                 SetTrackSortable(track, true, SORT_LEVEL_1, string.Format("空砖"));
                 return;
             }
-            
+
+            headnotempty = false;
+
             // 2.头部库存品种无砖机正在上砖
             {
                 Stock topstock = PubMaster.Goods.GetTrackTopStock(track.id);
@@ -2266,7 +2276,7 @@ namespace resource.track
         /// [等级3] 3.出轨道尾部大量空位，无上砖机上砖
         /// </summary>
         /// <param name="track"></param>
-        private void CheckInOutTrackStatus(Track track, ushort safe)
+        public void CheckInOutTrackStatus(Track track, ushort safe)
         {
             // 1.出轨道空
             if (track.StockStatus == TrackStockStatusE.空砖)
