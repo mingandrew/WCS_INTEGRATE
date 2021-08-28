@@ -37,6 +37,12 @@ namespace task.task
         /// </summary>
         public uint RecordTraId { set; get; }
 
+
+        /// <summary>
+        /// 最近锁定任务刷新时间
+        /// </summary>
+        public DateTime? LockTaskRefreshTime { set; get; }
+
         #endregion
 
         #region[属性]
@@ -240,6 +246,22 @@ namespace task.task
         {
             // 记录点未清零，不发其他定位
             if (RecordTraId > 0 && RecordTraId != recodeTraid) return;
+
+            if(RecordTraId == 0 && recodeTraid != 0)
+            {
+                LockTaskRefreshTime = DateTime.Now;
+            }
+
+            //摆渡车有定位任务，但是保持停止不动15秒，则自动终止
+            if(RecordTraId > 0
+                && recodeTraid > 0 
+                && DevStatus.DeviceStatus == DevFerryStatusE.停止 
+                && LockTaskRefreshTime is DateTime time 
+                && DateTime.Now.Subtract(time).TotalSeconds > 15)
+            {
+                DoStop(transid, "定位指令不执行超15秒，自动终止", "重新定位");
+                return;
+            }
 
             // 记录目标点
             RecordTraId = recodeTraid;
