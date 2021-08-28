@@ -88,13 +88,12 @@ namespace task.trans.transtask
             Track givetrack = PubMaster.Track.GetTrack(trans.give_track_id);
 
             bool isuparea = false;
-            if(takeTrack.InType(TrackTypeE.储砖_入, TrackTypeE.下砖轨道)
+            if(taketrack.InType(TrackTypeE.储砖_入, TrackTypeE.下砖轨道)
                 || givetrack.InType(TrackTypeE.下砖轨道))
             {
                 isuparea = false;
             }
-            else if(takeTrack.InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出)
-                || takeTrack.InType(TrackTypeE.储砖_出入)
+            else if(taketrack.InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入)
                 || givetrack.InType(TrackTypeE.上砖轨道))
             {
                 isuparea = true;
