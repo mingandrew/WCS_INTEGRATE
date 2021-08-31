@@ -177,12 +177,10 @@ namespace task.task
         public bool IsNotDoingTask
         {
             get => Status == DevFerryStatusE.停止 
-                && (DevStatus.CurrentTask == DevStatus.FinishTask // 当前&完成 一致
+                && ((DevStatus.CurrentTask == DevStatus.FinishTask && DevStatus.CurrentTask != DevFerryTaskE.终止) // 当前&完成 一致
                     || DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
-                    || DevStatus.CurrentTask == DevFerryTaskE.终止// 当前终止就当它没作业
-                    || (DevStatus.CurrentTask == DevFerryTaskE.定位
-                        && DevStatus.FinishTask == DevFerryTaskE.无
-                        && DevStatus.TargetSite == 0)// 手动后可能出现【目标-0，当前-定位，完成-无】
+                    || (DevStatus.CurrentTask == DevFerryTaskE.终止 && DevStatus.TargetSite == 0)// 当前终止就当它没作业
+                    || (DevStatus.CurrentTask == DevFerryTaskE.定位 && DevStatus.FinishTask == DevFerryTaskE.无 && DevStatus.TargetSite == 0)// 手动后可能出现【目标-0，当前-定位，完成-无】
                     );
         }
 

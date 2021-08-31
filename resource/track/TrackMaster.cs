@@ -2129,8 +2129,8 @@ namespace resource.track
                     if (item.sort_able)
                     {
                         SetTrackSortable(item, false, SORT_LEVEL_NO, "停用");
-                        continue;
                     }
+                    continue;
                 }
 
                 if (tracids.Contains(item.id))
