@@ -258,16 +258,31 @@ namespace wcs.ViewModel
                 TrackView view = new TrackView(track);
                 view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(track.id));
                 if (track.Type == TrackTypeE.储砖_入
-                    || (track.Type == TrackTypeE.储砖_出入 && (track.id <= UseInOutLeftViewMaxId)))
+                    || (track.Type == TrackTypeE.储砖_出入 && IsInAreaLine(track)))
                 {
                     TrackList.Add(view);
                 }
                 else if (track.Type == TrackTypeE.储砖_出
-                    || (track.Type == TrackTypeE.储砖_出入 && (track.id > UseInOutLeftViewMaxId)))
+                    || track.Type == TrackTypeE.储砖_出入)
                 {
                     OutTrackList.Add(view);
                 }
             }
+        }
+
+        private Dictionary<int, int> AreaLineMIdId = new Dictionary<int, int>();
+        private bool IsInAreaLine(Track track)
+        {
+            KeyValuePair<int, int> arealine = AreaLineMIdId.FirstOrDefault(c => c.Key == (track.area + track.line));
+            if (arealine.Key == 0)
+            {
+                uint midmaxid = PubMaster.Track.GetMidId(track.area, track.line);
+                AreaLineMIdId.Add((track.area + track.line), (int)midmaxid);
+
+                return track.id <= midmaxid;
+            }
+
+            return track.id <= arealine.Value;
         }
 
         private void TrackStatusUpdate(MsgAction msg)
@@ -275,7 +290,7 @@ namespace wcs.ViewModel
             if (msg.o1 is Track track)
             {
                 if (track.Type == TrackTypeE.储砖_入
-                    || (track.Type == TrackTypeE.储砖_出入 && (track.id <= UseInOutLeftViewMaxId)))
+                    || (track.Type == TrackTypeE.储砖_出入 && IsInAreaLine(track)))
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -289,9 +304,7 @@ namespace wcs.ViewModel
                         view.UpdateStockQty(PubMaster.Goods.GetTrackStockCount(track.id));
                     });
                 }
-
-                if (track.Type == TrackTypeE.储砖_出
-                    || (track.Type == TrackTypeE.储砖_出入 && (track.id > UseInOutLeftViewMaxId)))
+                else if(track.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
