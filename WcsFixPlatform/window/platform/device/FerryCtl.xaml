@@ -107,8 +107,8 @@
                     <DataGridTextColumn Binding="{Binding DeviceStatus}" Header="状态"/>
                     <DataGridTextColumn Binding="{Binding LoadStatus}" Header="载车"/>
                     <DataGridTextColumn Binding="{Binding TargetSite,Converter={StaticResource TrackCode2NameConverter}}" Header="目标点" />
-                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="指令"/>
-                    <DataGridTextColumn Binding="{Binding FinishTask}" Header="完成"/>
+                    <DataGridTextColumn Binding="{Binding CurrentTask}" Header="执行中指令"/>
+                    <DataGridTextColumn Binding="{Binding FinishTask}" Header="已完成指令"/>
                     <DataGridTextColumn Binding="{Binding UpTrackId,Converter={StaticResource TrackId2NameConverter}}" Header="前侧站点"/>
                     <DataGridTemplateColumn>
                         <DataGridTemplateColumn.Header>

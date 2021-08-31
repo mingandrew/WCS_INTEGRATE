@@ -92,6 +92,7 @@ namespace simtask.task
                 {
                     IsLocating = false;
                     DevStatus.DeviceStatus = DevFerryStatusE.停止;
+                    DevStatus.CurrentTask = DevFerryTaskE.无;
                     DevStatus.FinishTask = DevFerryTaskE.定位;
                 }
             }
@@ -114,7 +115,7 @@ namespace simtask.task
             DevStatus.DeviceStatus = DevFerryStatusE.停止;
             DevStatus.WorkMode = DevOperateModeE.自动;
             DevStatus.LoadStatus = DevFerryLoadE.空;
-            DevStatus.CurrentTask = DevFerryTaskE.终止;
+            DevStatus.CurrentTask = DevFerryTaskE.无;
             DevStatus.FinishTask = DevFerryTaskE.终止;
 
             FerryPosList = new List<FerryPos>();
@@ -147,7 +148,7 @@ namespace simtask.task
                 DevStatus.UpLight = false;
             }
 
-            DevStatus.CurrentTask = DevFerryTaskE.定位;
+            DevStatus.CurrentTask = DevFerryTaskE.无;
             DevStatus.FinishTask = DevFerryTaskE.定位;
             DevStatus.DeviceStatus = DevFerryStatusE.停止;
             DevStatus.TargetSite = 0;
@@ -158,7 +159,7 @@ namespace simtask.task
         internal void ResetLocate(ushort desCode)
         {
             IsLocating = false;
-            DevStatus.CurrentTask = DevFerryTaskE.初始化;
+            DevStatus.CurrentTask = DevFerryTaskE.无;
             DevStatus.FinishTask = DevFerryTaskE.初始化;
             DevStatus.DeviceStatus = DevFerryStatusE.停止;
 

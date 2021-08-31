@@ -508,7 +508,6 @@ namespace task.device
         internal bool IsLoad(uint carrier_id)
         {
             return DevList.Exists(c => c.ID == carrier_id
-                        && c.ConnStatus == SocketConnectStatusE.通信正常
                         && c.IsLoad());
         }
 
@@ -520,7 +519,6 @@ namespace task.device
         internal bool IsLoadInFerry(uint ltrack)
         {
             return DevList.Exists(c => c.CurrentTrackId == ltrack
-                         && c.ConnStatus == SocketConnectStatusE.通信正常
                          && c.IsLoad()
                          && c.Position == DevCarrierPositionE.在摆渡上);
         }
@@ -533,7 +531,6 @@ namespace task.device
         internal bool IsNotLoad(uint carrier_id)
         {
             return DevList.Exists(c => c.ID == carrier_id
-                        && c.ConnStatus == SocketConnectStatusE.通信正常
                         && c.IsNotLoad());
         }
 
@@ -1835,7 +1832,6 @@ namespace task.device
                 return false;
             }
 
-            task.IsResetWriting = true;
             List<CarrierPos> posList = PubMaster.Track.GetCarrierPosList(task.AreaId);
             if (posList == null || posList.Count == 0 || posList.Exists(c => c.track_point == point && c.track_pos == 0))
             {
@@ -1845,6 +1841,7 @@ namespace task.device
 
             try
             {
+                task.IsResetWriting = true;
                 foreach (CarrierPos item in posList)
                 {
                     try

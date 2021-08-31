@@ -171,12 +171,10 @@ namespace task.task
         public bool IsNotDoingTask
         {
             get => Status == DevFerryStatusE.停止
-                && (DevStatus.CurrentTask == DevStatus.FinishTask // 当前&完成 一致
-                    || DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
-                    || DevStatus.CurrentTask == DevFerryTaskE.终止// 当前终止就当它没作业
-                    || (DevStatus.CurrentTask == DevFerryTaskE.定位
-                        && DevStatus.FinishTask == DevFerryTaskE.无
-                        && DevStatus.TargetSite == 0)// 手动后可能出现【目标-0，当前-定位，完成-无】
+                && (DevStatus.CurrentTask == DevFerryTaskE.无 // 当前无指令就当它没作业
+                    || (DevStatus.CurrentTask != DevFerryTaskE.终止 && DevStatus.CurrentTask == DevStatus.FinishTask) // 当前&完成 一致
+                    || (DevStatus.CurrentTask == DevFerryTaskE.终止 && DevStatus.TargetSite == 0)// 当前终止就当它没作业
+                    || (DevStatus.CurrentTask == DevFerryTaskE.定位 && DevStatus.FinishTask == DevFerryTaskE.无 && DevStatus.TargetSite == 0)// 手动后可能出现【目标-0，当前-定位，完成-无】
                     );
         }
 
@@ -291,7 +289,10 @@ namespace task.task
             if (IsSendAll) return;
 
             DevTcp?.SendCmd(DevFerryCmdE.原点复位, (byte)resetpos, 0, 0);
+
+            // 清除 记录目标点
             RecordTraId = 0;
+
             DevTcp.AddStatusLog(string.Format("复位-清除记录目标"));
 
             //发送原点指令同时重新写入已经对位的数据
@@ -317,6 +318,9 @@ namespace task.task
         {
             if (IsSendAll) return;
 
+            // 清除 记录目标点
+            RecordTraId = 0;
+
             DevTcp?.SendAutoPosCmd(DevFerryCmdE.自动对位, starttrack, (byte)posside, tracknumber);
             DevTcp.AddStatusLog(string.Format("摆渡车[ {0} ], 开始自动对位, 对位测[ {1} ], 开始轨道[ {2} ], 对位数量[ {3} ], 备注[ {4} ]",
                 Device.name, posside, starttrack, tracknumber, memo));
@@ -337,6 +341,9 @@ namespace task.task
         {
             if (CanRenew) CanRenew = false;
 
+            // 清除 记录目标点
+            RecordTraId = 0;
+
             byte[] b = BitConverter.GetBytes(trackcode);
             DevTcp?.SendCmd(DevFerryCmdE.初始化, b[1], b[0], (int)md);
         }
@@ -348,6 +355,9 @@ namespace task.task
         internal void DoMoveToNextPoint(DevFerryResetPosE rp)
         {
             if (IsSendAll) return;
+
+            // 清除 记录目标点
+            RecordTraId = 0;
 
             DevTcp?.SendCmd(DevFerryCmdE.寻点, (byte)rp, 0, 0);
         }

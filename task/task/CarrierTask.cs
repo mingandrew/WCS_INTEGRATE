@@ -235,7 +235,7 @@ namespace task.device
         /// <returns></returns>
         public bool IsLoad()
         {
-            return Load == DevCarrierLoadE.有货;
+            return ConnStatus == SocketConnectStatusE.通信正常 && Load == DevCarrierLoadE.有货;
             //|| (Load == DevCarrierLoadE.异常
             //    && TakeSite > 0
             //    && TakePoint > 0);
@@ -247,7 +247,7 @@ namespace task.device
         /// <returns></returns>
         public bool IsNotLoad()
         {
-            return Load == DevCarrierLoadE.无货;
+            return ConnStatus == SocketConnectStatusE.通信正常 && Load == DevCarrierLoadE.无货;
             //|| (Load == DevCarrierLoadE.异常
             //    && GiveSite > 0
             //    && GivePoint > 0);
@@ -1450,35 +1450,21 @@ namespace task.device
         #region [条件判断]
 
         /// <summary>
-        /// 检查运输车是否可分配使用
+        /// 运输车基础信息判断
         /// </summary>
-        /// <param name="carrier"></param>
-        /// <param name="gsize"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool CheckCarrierIsUsable(uint gsize, out string result)
+        private bool CheckBaseInfo(out string result)
         {
-            if (PubTask.Trans.HaveInCarrier(ID))
-            {
-                result = string.Format("{0}已被任务锁定-等待空闲解锁；", Device.name);
-                return false;
-            }
-
             if (ConnStatus != SocketConnectStatusE.通信正常)
             {
                 result = string.Format("{0}通信不正常-等待恢复通讯；", Device.name);
                 return false;
             }
 
-            if (OperateMode == DevOperateModeE.手动)
+            if (OperateMode != DevOperateModeE.自动)
             {
-                result = string.Format("{0}被手动操作中-等待恢复自动；", Device.name);
-                return false;
-            }
-
-            if (!DevConfig.IsUseGoodsSize(gsize))
-            {
-                result = string.Format("{0}无法作业{1}的砖；", Device.name, PubMaster.Goods.GetSizeName(gsize));
+                result = string.Format("{0}非自动模式-等待恢复自动；", Device.name);
                 return false;
             }
 
@@ -1490,7 +1476,86 @@ namespace task.device
 
             if (!IsWorking)
             {
-                result = string.Format("{0}已被停用-等待恢复启用；", Device.name);
+                result = string.Format("{0}已被停用-请操作启用；", Device.name);
+                return false;
+            }
+
+            if (Position == DevCarrierPositionE.异常)
+            {
+                result = string.Format("{0}反馈位置异常-请检查；", Device.name);
+                return false;
+            }
+
+            if (CurrentTrackId == 0)
+            {
+                result = string.Format("{0}无当前轨道数据-请检查；", Device.name);
+                return false;
+            }
+            
+            result = "";
+            return true;
+        }
+
+        /// <summary>
+        /// 检查运输车是否可分配使用
+        /// </summary>
+        /// <param name="carrier"></param>
+        /// <param name="gsize"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool CheckCarrierIsUsable(uint gsize, out string result)
+        {
+            if (!CheckBaseInfo(out result))
+            {
+                return false;
+            }
+
+            if (PubTask.Trans.HaveInCarrier(ID))
+            {
+                result = string.Format("{0}已被任务锁定-等待空闲解锁；", Device.name);
+                return false;
+            }
+
+            if (!DevConfig.IsUseGoodsSize(gsize))
+            {
+                result = string.Format("{0}无法作业{1}的砖；", Device.name, PubMaster.Goods.GetSizeName(gsize));
+                return false;
+            }
+
+            result = "";
+            return true;
+        }
+
+        /// <summary>
+        /// 运输车无执行指令并停止
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool IsStopNoOrder(out string result)
+        {
+            if (!CheckBaseInfo(out result))
+            {
+                return false;
+            }
+
+            if (Status != DevCarrierStatusE.停止)
+            {
+                result = string.Format("{0}非停止状态；", Device.name);
+                return false;
+            }
+
+            if (!IsNotDoingTask)
+            {
+                result = string.Format("{0}执行指令中-[当前指令: {1}], [记录指令: {2}]；", Device.name, CurrentOrder, OnGoingOrder);
+                return false;
+            }
+
+            Track track = PubMaster.Track.GetTrack(CurrentTrackId);
+            if (track != null 
+                && track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道) 
+                && Position != DevCarrierPositionE.在摆渡上)
+            {
+                result = string.Format("{0}当前位于摆渡轨道，但设备没有反馈-在摆渡上；", Device.name);
                 return false;
             }
 

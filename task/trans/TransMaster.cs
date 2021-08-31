@@ -963,6 +963,44 @@ namespace task.trans
 
             return true;
         }
+        public bool RunPremise(StockTrans trans, out Track track, out CarrierTask carrier)
+        {
+            carrier = null;
+            track = null;
+
+            // 小车数据
+            carrier = PubTask.Carrier.GetDevCarrier(trans.carrier_id);
+            if (carrier == null)
+            {
+                #region 【任务步骤记录】
+                SetStepLog(trans, false, 50, string.Format("运输车ID[ {0} ]无相关数据，请检查相关信息；", trans.carrier_id));
+                #endregion
+                return false;
+            }
+
+            //小车当前所在的轨道数据
+            track = PubMaster.Track.GetTrack(carrier.CurrentTrackId);
+            if (track == null)
+            {
+                #region 【任务步骤记录】
+                SetStepLog(trans, false, 51, string.Format("运输车[ {0} ]当前位置信息异常，等待[ {0} ]恢复；",
+                    PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                #endregion
+                return false;
+            }
+
+            //小车没有被其他任务占用
+            if (HaveCarrierInTrans(trans))
+            {
+                #region 【任务步骤记录】
+                SetStepLog(trans, false, 52, string.Format("有其他任务锁定了运输车[ {0} ]，等待[ {0} ]空闲；",
+                    PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                #endregion
+                return false;
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// 判断是否需要加入流程超时报警
@@ -974,7 +1012,7 @@ namespace task.trans
         {
             int overtime = PubMaster.Dic.GetDtlIntCode(DicTag.StepOverTime);
             // 倒库中的流程超时2小时，才报警
-            if (trans.TransStaus == TransStatusE.倒库中)
+            if (trans.InStatus(TransStatusE.倒库中, TransStatusE.整理中))
             {
                 overtime = PubMaster.Dic.GetDtlIntCode(DicTag.SortingStockStepOverTime);
                 if (trans.IsInStatusOverTime(trans.TransStaus, overtime))
@@ -1142,7 +1180,7 @@ namespace task.trans
                                         }
                                         break;
                                     case TransStatusE.放砖流程:
-                                        SetStatus(trans, TransStatusE.取消, "手动取消任务");
+                                        result = "进入放砖流程，不能取消！";
                                         break;
                                     case TransStatusE.还车回轨:
                                         result = "正在调度小车回轨道";

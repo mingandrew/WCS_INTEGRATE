@@ -926,7 +926,7 @@ namespace task.trans.transtask
         /// <param name="locTake"></param>
         /// <param name="locGive"></param>
         /// <returns></returns>
-        public bool GetTransferTGpoint(uint transid, uint trackid, uint carrierid, int overPoint, int splitPoint, int limitPoint, 
+        public bool GetTransferTGpoint(uint transid, uint trackid, uint carrierid, int overPoint, int splitPoint, int limitPoint,
             out string mes, out ushort locTake, out ushort locGive)
         {
             locTake = 0;
@@ -954,6 +954,125 @@ namespace task.trans.transtask
 
             mes = "";
             return true;
+        }
+
+        #endregion
+
+        #region [无缝上摆渡]
+
+        /// <summary>
+        /// 无缝上摆渡
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="istake"></param>
+        public void MoveToFerrySeamless(StockTrans trans, bool istake)
+        {
+            CarrierTask car = PubTask.Carrier.GetDevCarrier(trans.carrier_id);
+            if (car == null) return;
+
+            Track carTrack = PubMaster.Track.GetTrack(car.CurrentTrackId);
+            if (carTrack == null) return;
+            if (carTrack.InType(TrackTypeE.前置摆渡轨道, TrackTypeE.后置摆渡轨道)) return;
+
+            // 小车根据摆渡类型需要先定位到轨道头
+            ushort tosite = 0;
+            switch (trans.AllocateFerryType)
+            {
+                case DeviceTypeE.前摆渡:
+                    tosite = carTrack.limit_point_up;
+                    break;
+                case DeviceTypeE.后摆渡:
+                    tosite = carTrack.limit_point;
+                    break;
+            }
+            if (tosite == 0) return;
+
+            // 离轨道头范围 ≈20M
+            if (Math.Abs(tosite - car.CurrentPoint) <= 1153)
+            {
+                // 范围内
+                // 锁定摆渡  
+                bool isFerryOK = false;  // 是否摆渡到位
+                uint ferryID = istake ? trans.take_ferry_id : trans.give_ferry_id;
+                if (istake ? AllocateTakeFerry(trans, trans.AllocateFerryType, carTrack) : AllocateGiveFerry(trans, trans.AllocateFerryType, carTrack))
+                {
+                    // 定位摆渡  
+                    if (_M.LockFerryAndAction(trans, ferryID, carTrack.id, carTrack.id, out ferryTraid, out result, true))
+                    {
+                        isFerryOK = true;
+                    }
+                    else
+                    {
+                        #region 【任务步骤记录】
+                        _M.LogForFerryMove(trans, ferryID, carTrack.id, result);
+                        #endregion
+                    }
+                }
+
+                // 无缝上摆渡
+                if (car.IsStopNoOrder(out result))
+                {
+                    // 停止：直接定位摆渡
+                    if (isFerryOK)
+                    {
+                        //至摆渡车
+                        MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
+
+                        #region 【任务步骤记录】
+                        _M.LogForCarrierToFerry(trans, carTrack.id, ferryID);
+                        #endregion
+                        return;
+                    }
+
+                    // 停止：摆渡到位前先到轨道头
+                    if (!isFerryOK && Math.Abs(tosite - car.CurrentPoint) > 10)
+                    {
+                        // 移至轨道定位点
+                        MoveToLoc(carTrack.id, trans.carrier_id, trans.id, tosite);
+
+                        #region 【任务步骤记录】
+                        _M.LogForCarrierToTrack(trans, carTrack.id);
+                        #endregion
+                        return;
+                    }
+                }
+                else
+                {
+                    // 运动：目的点轨道头则改为摆渡
+                    if (isFerryOK && PubTask.Carrier.IsCarrierTargetMatches(trans.carrier_id, 0, tosite))
+                    {
+                        //至摆渡车
+                        MoveToPos(ferryTraid, trans.carrier_id, trans.id, CarrierPosE.前置摆渡复位点);
+
+                        #region 【任务步骤记录】
+                        _M.LogForCarrierToFerry(trans, carTrack.id, ferryID);
+                        #endregion
+                        return;
+                    }
+                }
+
+            }
+            else
+            {
+                // 范围外
+                if (car.IsStopNoOrder(out result))
+                {
+                    // 停止：定位到轨道头
+                    MoveToLoc(carTrack.id, trans.carrier_id, trans.id, tosite);
+
+                    #region 【任务步骤记录】
+                    _M.LogForCarrierToTrack(trans, carTrack.id);
+                    #endregion
+                    return;
+                }
+                else
+                {
+                    // 运动：查询最新状态
+                    car.DoQuery();
+                    return;
+                }
+            }
+
         }
 
         #endregion

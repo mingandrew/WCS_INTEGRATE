@@ -1365,12 +1365,14 @@ namespace simtask
                     // 后退取砖
                     Stock stk = TargetTrack.is_take_forward ? PubMaster.Goods.GetStockForIn(TargetTrack.id) : PubMaster.Goods.GetStockForOut(TargetTrack.id);
                     TO_POINT = stk?.location ?? 1;
+                    DevStatus.TargetPoint = TO_POINT;
                 }
                 else if (TO_POINT == 65535)
                 {
                     // 前进取砖
                     Stock stk = TargetTrack.is_take_forward ? PubMaster.Goods.GetStockForOut(TargetTrack.id) : PubMaster.Goods.GetStockForIn(TargetTrack.id);
                     TO_POINT = stk?.location ?? 65535;
+                    DevStatus.TargetPoint = TO_POINT;
                 }
             }
 

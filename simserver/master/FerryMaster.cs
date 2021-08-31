@@ -354,7 +354,7 @@ namespace simtask.master
                 case DevFerryCmdE.终止任务:
                 case DevFerryCmdE.寻点:
                     task.IsLocating = false;
-                    task.DevStatus.CurrentTask = DevFerryTaskE.终止;
+                    task.DevStatus.CurrentTask = DevFerryTaskE.无;
                     task.DevStatus.FinishTask = DevFerryTaskE.终止;
                     task.DevStatus.TargetSite = 0;
                     task.DevStatus.DeviceStatus = DevFerryStatusE.停止;

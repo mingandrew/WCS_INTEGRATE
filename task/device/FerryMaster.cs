@@ -191,26 +191,37 @@ namespace task.device
 
                             #region 到位完成
 
-                            if (task.IsConnect && task.Status == DevFerryStatusE.停止 && task.DevStatus.CurrentTask == DevFerryTaskE.定位)
+                            if (task.IsConnect && task.Status == DevFerryStatusE.停止)
                             {
-                                //上砖测轨道ID 或 下砖测轨道ID
-                                if (task.IsUpLight && task.UpTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
+                                if (task.DevStatus.CurrentTask == DevFerryTaskE.定位)
                                 {
-                                    task.DoStop(0, "上定位到位", "到位锁定");
-                                    Thread.Sleep(1000);
+                                    // 上砖测轨道ID
+                                    if (task.IsUpLight && task.UpTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
+                                    {
+                                        task.DoStop(0, "上定位到位", "到位锁定");
+                                        Thread.Sleep(1000);
+                                    }
+
+                                    // 下砖测轨道ID
+                                    if (task.IsDownLight && task.DownTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
+                                    {
+                                        task.DoStop(0, "下定位到位", "到位锁定");
+                                        Thread.Sleep(1000);
+                                    }
+
+                                    if (task.DevStatus.FinishTask == DevFerryTaskE.定位 && task.DevStatus.TargetSite == 0 && task.RecordTraId > 0)
+                                    {
+                                        task.DoStop(0, "摆渡车定位任务已完成", "摆渡车定位任务完成后，清除目标点");
+                                        Thread.Sleep(1000);
+                                    }
                                 }
 
-                                if (task.IsDownLight && task.DownTrackId == PubMaster.Track.GetAreaTrack(task.AreaId, (ushort)task.AreaId, task.Type, task.DevStatus.TargetSite))
-                                {
-                                    task.DoStop(0, "下定位到位", "到位锁定");
-                                    Thread.Sleep(1000);
-                                }
-
-                                if (task.DevStatus.CurrentTask == task.DevStatus.FinishTask && task.DevStatus.TargetSite == 0)
+                                if (task.DevStatus.CurrentTask == DevFerryTaskE.无 && task.DevStatus.FinishTask == DevFerryTaskE.定位 && task.DevStatus.TargetSite == 0 && task.RecordTraId > 0)
                                 {
                                     task.DoStop(0, "摆渡车定位任务已完成", "摆渡车定位任务完成后，清除目标点");
                                     Thread.Sleep(1000);
                                 }
+
                             }
 
                             #endregion
@@ -869,7 +880,7 @@ namespace task.device
                     // 上砖测轨道ID 前侧
                     if (task.UpTrackId == to_track_id && task.IsUpLight)
                     {
-                        if (task.DevStatus.CurrentTask == DevFerryTaskE.终止)
+                        if ((task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.CurrentTask == DevFerryTaskE.无) && task.RecordTraId == 0)
                         {
                             result = string.Format("[ {0} ]: 上定位完成", task.Device.name);
                             return true;
@@ -887,7 +898,7 @@ namespace task.device
                     // 下砖测轨道ID 后侧
                     if (task.DownTrackId == to_track_id && task.IsDownLight)
                     {
-                        if (task.DevStatus.CurrentTask == DevFerryTaskE.终止)
+                        if ((task.DevStatus.CurrentTask == DevFerryTaskE.终止 || task.DevStatus.CurrentTask == DevFerryTaskE.无) && task.RecordTraId == 0)
                         {
                             result = string.Format("[ {0} ]: 下定位完成", task.Device.name);
                             return true;

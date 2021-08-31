@@ -76,6 +76,7 @@ namespace task.trans.transtask
             if (top != null)
             {
                 if ( !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.库存转移)
+                    && !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.倒库任务)
                     && !_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.中转倒库))
                 {
                     List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, top.goods_id);
@@ -100,9 +101,12 @@ namespace task.trans.transtask
                     }
                     else
                     {
-                        #region 【任务步骤记录】
-                        _M.SetStepLog(trans, false, 1212, string.Format("找不到合适轨道中转存砖"));
-                        #endregion
+                        // 无轨道转移，则来源轨道执行轨道内的倒库
+                        uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.倒库任务, top.goods_id, top.level, top.id,
+                            trans.take_track_id, trans.take_track_id, TransStatusE.检查轨道, 0, track.line, trans.AllocateFerryType);
+
+                        _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖，生成轨道倒库任务 [ID：{0}]", transid));
+                        return;
                     }
 
                 }
