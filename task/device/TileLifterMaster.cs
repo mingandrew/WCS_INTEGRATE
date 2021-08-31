@@ -1089,9 +1089,35 @@ namespace task.device
             #endregion
 
             #region[自动离开]
+            AutoSendTileInvo(task, true, true);
+            #endregion
 
+            #region[设满砖信号自动复位]
+
+            if (task.DevStatus.IsReceiveSetFull 
+                && task.DevConfig.WorkMode == TileWorkModeE.下砖 
+                && mTimer.IsOver("reveivesetfull"+task.ID, 60, 20))
+            {
+                Thread.Sleep(TileOtherTime);
+                task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
+            }
+
+            #endregion
+        }
+
+        /// <summary>
+        /// 自动离开<br/>
+        /// 下砖机：有介入，没货<br/>
+        /// 非串联砖机：
+        /// </summary>
+        private void AutoSendTileInvo(TileLifterTask task, bool checkleft, bool checkright)
+        {
             //工位1
-            if(!task.IsNeed_1 && task.IsInvo_1)
+            if (checkleft
+                //&& !task.IsNeed_1 
+                && task.IsInvo_1
+                && ((task.DevConfig.WorkMode == TileWorkModeE.下砖 && task.IsEmpty_1) 
+                    || (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.IsLoad_1)))
             {
                 bool isOK = false;
                 switch (task.DevConfig.WorkMode)
@@ -1105,6 +1131,7 @@ namespace task.device
                     default:
                         break;
                 }
+
                 //没有需求但是介入状态 同时:轨道没有车/有车无货
                 if (task.IsInvo_1 && isOK
                     && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_1, 15, 10))
@@ -1127,7 +1154,12 @@ namespace task.device
             }
 
             //工位2
-            if (!task.IsNeed_2 && task.IsTwoTrack && task.IsInvo_2)
+            if (checkright 
+                //&& !task.IsNeed_2 
+                && task.IsTwoTrack 
+                && task.IsInvo_2
+                && ((task.DevConfig.WorkMode == TileWorkModeE.下砖 && task.IsEmpty_2)
+                    || (task.DevConfig.WorkMode == TileWorkModeE.上砖 && task.IsLoad_2)))
             {
                 bool isOK = false;
                 if (task.DevConfig.right_track_id == 0)
@@ -1169,19 +1201,6 @@ namespace task.device
                 }
             }
 
-            #endregion
-
-            #region[设满砖信号自动复位]
-            
-            if(task.DevStatus.IsReceiveSetFull 
-                && task.DevConfig.WorkMode == TileWorkModeE.下砖 
-                && mTimer.IsOver("reveivesetfull"+task.ID, 60, 20))
-            {
-                Thread.Sleep(TileOtherTime);
-                task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
-            }
-
-            #endregion
         }
 
         /// <summary>
@@ -1203,8 +1222,9 @@ namespace task.device
                 {
                     if (task.IsEmpty_1 && task.IsInvo_1 && !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id))
                     {
-                        Thread.Sleep(TileLiveTime);
-                        task.Do1Invo(DevLifterInvolE.离开);
+                        AutoSendTileInvo(task, true, false);
+                        //Thread.Sleep(TileLiveTime);
+                        //task.Do1Invo(DevLifterInvolE.离开);
                         return;
                     }
 
@@ -1221,9 +1241,9 @@ namespace task.device
 
                     #endregion
 
-                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
-
                     if (!CheckBrotherIsReady(task, false, true)) return;
+
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.left_track_id)) return;
 
                     #region[生成入库交易]
 
@@ -1343,37 +1363,7 @@ namespace task.device
             }
             else
             {
-                bool isOK = false;
-                switch (task.DevConfig.WorkMode)
-                {
-                    case TileWorkModeE.上砖:
-                        isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.left_track_id);
-                        break;
-                    case TileWorkModeE.下砖:
-                        isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id);
-                        break;
-                    default:
-                        break;
-                }
-                //没有需求但是介入状态 同时:轨道没有车/有车无货
-                if (task.IsInvo_1 && isOK && need.left
-                    && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_1, 15, 10))
-                {
-                    if (task.HaveBrother)
-                    {
-                        Thread.Sleep(TileLiveTime);
-                        task.Do1Invo(DevLifterInvolE.离开);
-                    }
-                    else
-                    {
-                        TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
-                        if (bro == null || (bro != null && !bro.IsNeed_1))
-                        {
-                            Thread.Sleep(TileLiveTime);
-                            task.Do1Invo(DevLifterInvolE.离开);
-                        }
-                    }
-                }
+                AutoSendTileInvo(task, true, false);
             }
             #endregion
 
@@ -1389,14 +1379,14 @@ namespace task.device
                 {
                     if (task.IsEmpty_2 && task.IsInvo_2 && !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id))
                     {
-                        Thread.Sleep(TileLiveTime);
-                        task.Do2Invo(DevLifterInvolE.离开);
+                        AutoSendTileInvo(task, false, true);
+                        //Thread.Sleep(TileLiveTime);
+                        //task.Do2Invo(DevLifterInvolE.离开);
                         return;
                     }
 
                     //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
                     if (!PubMaster.Area.IsLineDownOnoff(task.AreaId, task.Device.line)) return;
-
 
                     #region[介入]
 
@@ -1409,9 +1399,9 @@ namespace task.device
 
                     #endregion
 
-                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
-
                     if (!CheckBrotherIsReady(task, false, false)) return;
+
+                    if (PubTask.Trans.HaveInTileTrack(task.DevConfig.right_track_id)) return;
 
                     #region[生成入库交易]
 
@@ -1528,44 +1518,7 @@ namespace task.device
             }
             else if (task.IsInvo_2 && !need.left)
             {
-                bool isOK = false;
-                if (task.DevConfig.right_track_id == 0)
-                {
-                    isOK = true;
-                }
-                else
-                {
-                    switch (task.DevConfig.WorkMode)
-                    {
-                        case TileWorkModeE.上砖:
-                            isOK = !PubTask.Carrier.HaveInTrackAndLoad(task.DevConfig.right_track_id);
-                            break;
-                        case TileWorkModeE.下砖:
-                            isOK = !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                //没有需求但是介入状态 同时:轨道没有车/有车无货
-                if (task.DevConfig.right_track_id == 0
-                    || (isOK && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_2, 15, 10)))
-                {
-                    if (task.HaveBrother)
-                    {
-                        Thread.Sleep(TileLiveTime);
-                        task.Do2Invo(DevLifterInvolE.离开);
-                    }
-                    else
-                    {
-                        TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
-                        if (bro == null || (bro != null && !bro.IsNeed_2))
-                        {
-                            Thread.Sleep(TileLiveTime);
-                            task.Do2Invo(DevLifterInvolE.离开);
-                        }
-                    }
-                }
+                AutoSendTileInvo(task, false, true);
             }
 
             #endregion
