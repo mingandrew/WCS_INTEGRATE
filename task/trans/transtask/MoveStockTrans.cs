@@ -29,18 +29,18 @@ namespace task.trans.transtask
         public override void CheckingTrack(StockTrans trans)
         {
             //转移取货轨道不符合的运输车
-            if (CheckTrackAndAddMoveTask(trans, trans.take_track_id))
+            if (CheckGoodsAndAddMoveTask(trans, trans.take_track_id))
             {
                 return;
             }
 
             //转移卸货轨道不符合的运输车
-            if (CheckTrackAndAddMoveTask(trans, trans.give_track_id))
+            if (CheckGoodsAndAddMoveTask(trans, trans.give_track_id))
             {
                 return;
             }
 
-            //是否有小车在入库侧轨道
+            //是否有小车在取货轨道入库侧
             if (CheckCarAndAddMoveTask(trans, trans.take_track_id, true))
             {
                 return;
@@ -169,6 +169,12 @@ namespace task.trans.transtask
                                 return;
                             }
 
+                            //是否有小车在取货轨道
+                            if (CheckTrackAndAddMoveTask(trans, trans.take_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡))
+                            {
+                                return;
+                            }
+
                             // 直接取砖
                             TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
 
@@ -257,6 +263,12 @@ namespace task.trans.transtask
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.give_ferry_id, trans.give_track_id, res);
                                 #endregion
+                                return;
+                            }
+
+                            //是否有小车在取货轨道
+                            if (CheckTrackAndAddMoveTask(trans, trans.give_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡))
+                            {
                                 return;
                             }
 

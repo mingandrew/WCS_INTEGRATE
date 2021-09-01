@@ -276,7 +276,7 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid)
+        internal bool CheckGoodsAndAddMoveTask(StockTrans trans, uint trackid)
         {
             // 获取任务品种规格ID
             uint goodssizeID = PubMaster.Goods.GetGoodsSizeID(trans.goods_id);
@@ -323,13 +323,13 @@ namespace task.trans.transtask
         }
 
         /// <summary>
-        /// 检查轨道内运输车是否需要移走
+        /// 检查轨道一侧内运输车是否需要移走
         /// </summary>
         /// <param name="trackid"></param>
         /// <param name="isdown">是否移走下砖侧</param>
         /// <param name="res"></param>
         /// <returns></returns>
-        internal bool CheckCarAndAddMoveTask(StockTrans trans, uint trackid, bool isdown)
+        internal bool CheckCarAndAddMoveTask(StockTrans trans, uint trackid, bool isdown, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
             res = "";
             if (PubTask.Carrier.HaveInTrackAndGet(trackid, out uint carrierid))
@@ -381,7 +381,9 @@ namespace task.trans.transtask
 
                 if (ismove)
                 {
-                    _M.AddMoveCarrierTask(track.id, carrierid, track.Type, MoveTypeE.转移占用轨道);
+                    if (ferrytype == DeviceTypeE.其他) ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(carrierid);
+
+                    _M.AddMoveCarrierTask(track.id, carrierid, track.Type, MoveTypeE.转移占用轨道, ferrytype);
 
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 105, string.Format("有运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
@@ -389,6 +391,53 @@ namespace task.trans.transtask
                     #endregion
                     return true;
                 }
+
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 检查轨道内是否存在其他运输车需要移走
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid, DeviceTypeE ferrytype = DeviceTypeE.其他)
+        {
+            res = "";
+            if (PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id, out uint othercarrierid))
+            {
+                Track track = PubMaster.Track.GetTrack(trackid);
+                CarrierTask carrier = PubTask.Carrier.GetDevCarrier(othercarrierid);
+
+                if (!PubTask.Carrier.IsCarrierFree(othercarrierid))
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 106, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                        carrier.Device.name, track.name));
+                    #endregion
+                    return true;
+                }
+
+                if (_M.HaveCarrierInTrans(othercarrierid))
+                {
+                    #region 【任务步骤记录】
+                    _M.SetStepLog(trans, false, 107, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                        carrier.Device.name, track.name));
+                    #endregion
+                    return true;
+                }
+
+                if (ferrytype == DeviceTypeE.其他) ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(othercarrierid);
+
+                _M.AddMoveCarrierTask(track.id, othercarrierid, track.Type, MoveTypeE.转移占用轨道, ferrytype);
+
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 108, string.Format("有运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
+                    carrier.Device.name, track.name));
+                #endregion
+                return true;
 
             }
 

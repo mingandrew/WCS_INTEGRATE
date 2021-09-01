@@ -1113,7 +1113,7 @@ namespace task.device
                 && task.DevConfig.WorkMode == TileWorkModeE.下砖
                 && mTimer.IsOver("reveivesetfull" + task.ID, 60, 20))
             {
-                Thread.Sleep(TileOtherTime);
+                Thread.Sleep(500);
                 task.DoCutover(TileWorkModeE.下砖, TileFullE.忽略);
             }
 
@@ -1153,7 +1153,6 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(TileLiveTime);
                         task.Do1Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1161,7 +1160,6 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_1))
                         {
-                            Thread.Sleep(TileLiveTime);
                             task.Do1Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1201,7 +1199,6 @@ namespace task.device
                 {
                     if (task.HaveBrother)
                     {
-                        Thread.Sleep(TileLiveTime);
                         task.Do2Invo(DevLifterInvolE.离开);
                     }
                     else
@@ -1209,7 +1206,6 @@ namespace task.device
                         TileLifterTask bro = DevList.Find(c => c.BrotherId == task.ID);
                         if (bro == null || (bro != null && !bro.IsNeed_2))
                         {
-                            Thread.Sleep(TileLiveTime);
                             task.Do2Invo(DevLifterInvolE.离开);
                         }
                     }
@@ -1238,12 +1234,9 @@ namespace task.device
                     if (task.IsEmpty_1 && task.IsInvo_1 && !PubTask.Carrier.HaveInTrack(task.DevConfig.left_track_id))
                     {
                         AutoSendTileInvo(task, true, false);
-                        //Thread.Sleep(TileLiveTime);
-                        //task.Do1Invo(DevLifterInvolE.离开);
                         return;
                     }
 
-                    //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
                     if (!PubMaster.Area.IsLineDownOnoff(task.AreaId, task.Device.line)) return;
 
                     #region[介入]
@@ -1396,12 +1389,9 @@ namespace task.device
                     if (task.IsEmpty_2 && task.IsInvo_2 && !PubTask.Carrier.HaveInTrack(task.DevConfig.right_track_id))
                     {
                         AutoSendTileInvo(task, false, true);
-                        //Thread.Sleep(TileLiveTime);
-                        //task.Do2Invo(DevLifterInvolE.离开);
                         return;
                     }
 
-                    //if (!PubMaster.Dic.IsAreaTaskOnoff(task.AreaId, DicAreaTaskE.下砖)) return;
                     if (!PubMaster.Area.IsLineDownOnoff(task.AreaId, task.Device.line)) return;
 
                     #region[介入]

@@ -28,7 +28,7 @@ namespace task.trans.transtask
         public override void CheckingTrack(StockTrans trans)
         {
             //转移卸货轨道不符合的运输车
-            if (CheckTrackAndAddMoveTask(trans, trans.give_track_id))
+            if (CheckGoodsAndAddMoveTask(trans, trans.give_track_id))
             {
                 return;
             }
