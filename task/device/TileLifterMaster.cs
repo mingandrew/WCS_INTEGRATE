@@ -939,7 +939,7 @@ namespace task.device
 
                         if (task.DevConfig.pre_goodid > 0)
                         {
-                            if (!PubMaster.DevConfig.UpdateShiftTileGood(task.ID, task.DevConfig.goods_id, out string rs))
+                            if (!PubMaster.DevConfig.UpdateShiftTileGood(task.ID, task.DevConfig.goods_id, task.DevConfig.prior_empty_track, out string rs))
                             {
 
                             }

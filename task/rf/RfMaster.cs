@@ -2103,7 +2103,7 @@ namespace task.rf
                 //    return;
                 //}
 
-                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
+                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, pack.prior_empty_track, out string result))
                 {
                     //发送砖机转产信号
                     SendSucc2Rf(msg.MEID, FunTag.ShiftTileGood, "ok");
@@ -2155,7 +2155,7 @@ namespace task.rf
                     }
                 }
 
-                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
+                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, pack.prior_empty_track, out string result))
                 {
                     //发送砖机转产信号
                     SendSucc2Rf(msg.MEID, FunTag.ShiftTileGood, "ok");

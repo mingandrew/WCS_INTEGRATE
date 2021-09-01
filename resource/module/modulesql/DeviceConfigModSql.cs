@@ -203,6 +203,9 @@ can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, 
                 case TileConfigUpdateE.Strategey:
                     sql += string.Format("strategy_in = {0}, strategy_out = {1}, work_type = {2}", dev.strategy_in, dev.strategy_out, dev.work_type);
                     break;
+                case TileConfigUpdateE.PriorEmptyTrack:
+                    sql += string.Format("prior_empty_track = {0}", dev.prior_empty_track);
+                    break;
                 default:
                     sql += string.Format("brother_dev_id = {0}", dev.brother_dev_id);
                     break;

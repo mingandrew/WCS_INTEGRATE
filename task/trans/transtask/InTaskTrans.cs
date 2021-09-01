@@ -104,7 +104,8 @@ namespace task.trans.transtask
             //分配运输车
             if (PubTask.Carrier.AllocateCarrier(trans, out carrierid, out string result)
                 && !_M.HaveInCarrier(carrierid)
-                && mTimer.IsOver(TimerTag.CarrierAllocate, trans.take_track_id, 2, 5))
+                //&& mTimer.IsOver(TimerTag.CarrierAllocate, trans.take_track_id, 2, 5)
+                )
             {
                 _M.SetCarrier(trans, carrierid);
                 _M.SetStatus(trans, TransStatusE.取砖流程);

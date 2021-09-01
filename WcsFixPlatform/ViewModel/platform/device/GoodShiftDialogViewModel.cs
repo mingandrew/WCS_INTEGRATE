@@ -46,6 +46,8 @@ namespace wcs.ViewModel
         private bool shiftbtnenable;
 
         private bool showlevel = true;
+        private bool showprioremptytrack = false;
+        private bool prioremptytrack;
 
         public uint AREA
         {
@@ -111,6 +113,18 @@ namespace wcs.ViewModel
         {
             get => showlevel;
             set => Set(ref showlevel, value);
+        }
+
+        public bool ShowPriorEmptyTrack
+        {
+            get => showprioremptytrack;
+            set => Set(ref showprioremptytrack, value);
+        }
+
+        public bool PriorEmptyTrack 
+        {
+            get => prioremptytrack;
+            set => Set(ref prioremptytrack, value);
         }
 
         public string NowGQty
@@ -358,7 +372,7 @@ namespace wcs.ViewModel
             //    return;
             //}
 
-            if (!PubMaster.DevConfig.UpdateShiftTileGood(_devid, _goodsid, out string msg))
+            if (!PubMaster.DevConfig.UpdateShiftTileGood(_devid, _goodsid, prioremptytrack, out string msg))
             {
                 Growl.Warning(msg);
                 return;
@@ -395,6 +409,9 @@ namespace wcs.ViewModel
                 CancelChange();
                 return;
             }
+
+            ShowPriorEmptyTrack = confit.WorkMode == TileWorkModeE.下砖 && confit.WorkType == DevWorkTypeE.混砖作业;
+
             DEVNAME = devname;
             SetNowGood(goodid);
             SetGQty();

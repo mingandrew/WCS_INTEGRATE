@@ -742,7 +742,7 @@ namespace resource.device
         /// <param name="nowgoodid"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, out string result)
+        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, bool prioremptytrack, out string result)
         {
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
@@ -777,12 +777,22 @@ namespace resource.device
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
+
+                if(dev.prior_empty_track != prioremptytrack)
+                {
+                    dev.prior_empty_track = prioremptytrack;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.PriorEmptyTrack);
+                }
                 try
                 {
-                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ]",
+                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ], 优先空[ {6} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.old_goodid),
-                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
+                        PubMaster.Goods.GetGoodsName(dev.goods_id),
+                        dev.old_goodid, 
+                        dev.goods_id, 
+                        dev.now_good_all ? "不限" : (dev.now_good_qty + ""), 
+                        dev.prior_empty_track));
                 }
                 catch { }
                 result = "";
