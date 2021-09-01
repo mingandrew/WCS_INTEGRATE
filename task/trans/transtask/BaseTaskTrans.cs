@@ -337,19 +337,19 @@ namespace task.trans.transtask
                 Track track = PubMaster.Track.GetTrack(trackid);
                 CarrierTask carrier = PubTask.Carrier.GetDevCarrier(carrierid);
 
-                if (!PubTask.Carrier.IsCarrierFree(carrierid))
+                if (_M.HaveCarrierInTrans(carrierid))
                 {
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 103, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                    _M.SetStepLog(trans, false, 103, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
                         carrier.Device.name, track.name));
                     #endregion
                     return true;
                 }
 
-                if (_M.HaveCarrierInTrans(carrierid))
+                if (!PubTask.Carrier.IsCarrierFree(carrierid))
                 {
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 104, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                    _M.SetStepLog(trans, false, 104, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
                         carrier.Device.name, track.name));
                     #endregion
                     return true;
@@ -411,19 +411,19 @@ namespace task.trans.transtask
                 Track track = PubMaster.Track.GetTrack(trackid);
                 CarrierTask carrier = PubTask.Carrier.GetDevCarrier(othercarrierid);
 
-                if (!PubTask.Carrier.IsCarrierFree(othercarrierid))
+                if (_M.HaveCarrierInTrans(othercarrierid))
                 {
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 106, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                    _M.SetStepLog(trans, false, 106, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
                         carrier.Device.name, track.name));
                     #endregion
                     return true;
                 }
 
-                if (_M.HaveCarrierInTrans(othercarrierid))
+                if (!PubTask.Carrier.IsCarrierFree(othercarrierid))
                 {
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 107, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                    _M.SetStepLog(trans, false, 107, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
                         carrier.Device.name, track.name));
                     #endregion
                     return true;
@@ -466,8 +466,6 @@ namespace task.trans.transtask
                 string msg = _M.AllocateFerry(trans, ferrytype, track, false);
                 // 失败
                 if (_M.LogForTakeFerry(trans, msg)) return false;
-                // 再锁
-                trans.IsReleaseTakeFerry = false;
 
                 return true;
             }
@@ -490,9 +488,7 @@ namespace task.trans.transtask
             {
                 string msg = _M.AllocateFerry(trans, ferrytype, track, true);
                 // 失败
-                if (_M.LogForTakeFerry(trans, msg)) return false;
-                // 再锁
-                trans.IsReleaseTakeFerry = false;
+                if (_M.LogForGiveFerry(trans, msg)) return false;
 
                 return true;
             }
@@ -512,9 +508,6 @@ namespace task.trans.transtask
                 && PubTask.Ferry.IsUnLoad(trans.take_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id))
             {
-                trans.take_ferry_id = 0;
-                trans.IsReleaseTakeFerry = true;
-
                 _M.FreeTakeFerry(trans, memo);
             }
         }
@@ -529,9 +522,6 @@ namespace task.trans.transtask
                 && PubTask.Ferry.IsUnLoad(trans.give_ferry_id)
                 && PubTask.Ferry.UnlockFerry(trans, trans.give_ferry_id))
             {
-                trans.give_ferry_id = 0;
-                trans.IsReleaseGiveFerry = true;
-
                 _M.FreeGiveFerry(trans, memo);
             }
         }
@@ -1045,6 +1035,7 @@ namespace task.trans.transtask
                 uint ferryID = istake ? trans.take_ferry_id : trans.give_ferry_id;
                 if (istake ? AllocateTakeFerry(trans, trans.AllocateFerryType, carTrack) : AllocateGiveFerry(trans, trans.AllocateFerryType, carTrack))
                 {
+                    if(ferryID == 0) ferryID = istake ? trans.take_ferry_id : trans.give_ferry_id;
                     // 定位摆渡  
                     if (_M.LockFerryAndAction(trans, ferryID, carTrack.id, carTrack.id, out ferryTraid, out result, true))
                     {

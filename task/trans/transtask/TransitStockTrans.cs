@@ -73,44 +73,40 @@ namespace task.trans.transtask
         /// <param name="top"></param>
         private void DoMoveStock(StockTrans trans, Stock top)
         {
-            if (top != null)
+            if (top == null) return;
+
+            if (_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.中转倒库)) return;
+
+            List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, top.goods_id);
+            uint trackid = 0;
+            foreach (uint traid in trackids)
             {
-                if ( !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.库存转移)
-                    && !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.倒库任务)
-                    && !_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.中转倒库))
+                if (!_M.ExistTransWithTrackButType(traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
                 {
-                    List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, top.goods_id);
-                    uint trackid = 0;
-                    foreach (uint traid in trackids)
-                    {
-                        if (!_M.ExistTransWithTracks(traid))
-                        {
-                            trackid = traid;
-                            break;
-                        }
-                    }
-
-                    if (trackid > 0)
-                    {
-                        uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.level, top.id,
-                            trans.take_track_id, trackid, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
-
-                        #region 【任务步骤记录】
-                        _M.SetStepLog(trans, false, 1112, string.Format("生成库存转移任务 [ID：{0}]", transid));
-                        #endregion
-                    }
-                    else
-                    {
-                        // 无轨道转移，则来源轨道执行轨道内的倒库
-                        uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.倒库任务, top.goods_id, top.level, top.id,
-                            trans.take_track_id, trans.take_track_id, TransStatusE.检查轨道, 0, track.line, trans.AllocateFerryType);
-
-                        _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖，生成轨道倒库任务 [ID：{0}]", transid));
-                        return;
-                    }
-
+                    trackid = traid;
+                    break;
                 }
             }
+
+            if (trackid > 0)
+            {
+                uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.level, top.id,
+                    trans.take_track_id, trackid, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
+
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, true, 1112, string.Format("生成库存转移任务 [ID：{0}]", transid));
+                #endregion
+            }
+            else
+            {
+                // 无轨道转移，则来源轨道执行轨道内的倒库
+                uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.倒库任务, top.goods_id, top.level, top.id,
+                    trans.take_track_id, trans.take_track_id, TransStatusE.检查轨道, 0, track.line, trans.AllocateFerryType);
+
+                _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖，生成轨道倒库任务 [ID：{0}]", transid));
+                return;
+            }
+
         }
 
         /// <summary>

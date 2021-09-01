@@ -536,6 +536,8 @@ namespace task.trans
 
         internal void SetTakeFerry(StockTrans trans, uint ferryid, string memo = "")
         {
+            if (ferryid > 0 && trans.IsReleaseTakeFerry) trans.IsReleaseTakeFerry = false;
+
             if (trans.take_ferry_id != ferryid)
             {
                 string devname = PubMaster.Device.GetDeviceName(ferryid);
@@ -549,6 +551,8 @@ namespace task.trans
 
         internal void SetGiveFerry(StockTrans trans, uint ferryid, string memo = "")
         {
+            if (ferryid > 0 && trans.IsReleaseGiveFerry) trans.IsReleaseGiveFerry = false;
+
             if (trans.give_ferry_id != ferryid)
             {
                 string devname = PubMaster.Device.GetDeviceName(ferryid);
@@ -562,6 +566,8 @@ namespace task.trans
 
         internal void FreeTakeFerry(StockTrans trans, string memo = "")
         {
+            if (!trans.IsReleaseTakeFerry) trans.IsReleaseTakeFerry = true;
+
             string devname = PubMaster.Device.GetDeviceName(trans.take_ferry_id);
             mLog.Status(true, string.Format("任务[ {0} ], 解锁T摆渡车[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
             SetStepLog(trans, true, 210, string.Format("解锁接车摆渡车[ {0} ]；{1}；", devname, memo));
@@ -569,6 +575,8 @@ namespace task.trans
 
         internal void FreeGiveFerry(StockTrans trans, string memo = "")
         {
+            if (!trans.IsReleaseGiveFerry) trans.IsReleaseGiveFerry = true;
+
             string devname = PubMaster.Device.GetDeviceName(trans.give_ferry_id);
             mLog.Status(true, string.Format("任务[ {0} ], 解锁G摆渡车[ {1} ], 备注[ {2} ]", trans.id, devname, memo));
             SetStepLog(trans, true, 211, string.Format("解锁送车摆渡车[ {0} ]；{1}；", devname, memo));
@@ -929,7 +937,7 @@ namespace task.trans
         /// <param name="memo"></param>
         internal bool LogForTakeFerry(StockTrans trans, string memo = "")
         {
-            if (trans.take_ferry_id > 0) return false;
+            if (trans.HaveTakeFerry) return false;
 
             SetStepLog(trans, false, 300, string.Format("分配接车摆渡车失败，尝试继续分配；{0}；", memo), true);
             return true;
@@ -942,7 +950,7 @@ namespace task.trans
         /// <param name="memo"></param>
         internal bool LogForGiveFerry(StockTrans trans, string memo = "")
         {
-            if (trans.give_ferry_id > 0) return false;
+            if (trans.HaveGiveFerry) return false;
 
             SetStepLog(trans, false, 301, string.Format("分配送车摆渡车失败，尝试继续分配；{0}；", memo), true);
             return true;
@@ -1140,7 +1148,6 @@ namespace task.trans
             return TransList.Exists(c => !c.finish && c.InTrack(trackids) || ExistTrackInDtlUnFinish(trackids));
         }
 
-
         #endregion
 
         #region[细单操作]
@@ -1312,21 +1319,35 @@ namespace task.trans
 
 
         /// <summary>
-        /// 判断是否存在任务使用了该轨道同时不属于给定的类型内
+        /// 判断是否存在未完成的任务 (指定轨道, 同属类型)
+        /// </summary>
+        /// <param name="area_id"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal bool ExistTransWithTrackAndType(uint trackid, params TransTypeE[] types)
+        {
+            return TransList.Exists(c => !c.finish && c.InTrack(trackid) && c.InType(types))
+                || ExistTrackInDtlUnFinish(trackid);
+        }
+
+        /// <summary>
+        /// 判断是否存在未完成的任务 (指定轨道, 不属类型)
         /// </summary>
         /// <param name="trackid"></param>
         /// <param name="types"></param>
         /// <returns></returns>
         public bool ExistTransWithTrackButType(uint trackid, params TransTypeE[] types)
         {
-            return TransList.Exists(c => !c.finish
-                                                    && c.InTrack(trackid)
-                                                    && c.NotInType(types)) || ExistTrackInDtlUnFinish(trackid);
+            return TransList.Exists(c => !c.finish && c.InTrack(trackid) && c.NotInType(types)) 
+                || ExistTrackInDtlUnFinish(trackid);
         }
 
+        #endregion
+
+        #region[判断细单状态]
 
         /// <summary>
-        /// 判断轨道是否被库存整理任务【卸货轨道】占用
+        /// 判断轨道是否被库存整理任务细单【卸货轨道】占用
         /// </summary>
         /// <param name="trackids"></param>
         /// <returns></returns>
@@ -1336,20 +1357,6 @@ namespace task.trans
                                                         c.DtlStatus == StockTransDtlStatusE.整理中
                                                         && c.DtlType == StockTransDtlTypeE.转移品种
                                                         && trackids.Contains(c.dtl_give_track_id));
-        }
-        #endregion
-
-        #region[判断细单状态]
-
-        /// <summary>
-        /// 判断是否存在同区域未完成的指定类型任务
-        /// </summary>
-        /// <param name="area_id"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        internal bool ExistUnFinishTrans(uint area_id, uint trackid, TransTypeE type)
-        {
-            return TransList.Exists(c => !c.finish && c.area_id == area_id && c.InTrack(trackid) && c.InType(type));
         }
 
         /// <summary>

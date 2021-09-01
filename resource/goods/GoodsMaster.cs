@@ -1954,7 +1954,7 @@ namespace resource.goods
         public void UpdateTrackPos(Stock stock, Track track, bool addinbottom = true)
         {
             //轨道当前库存信息
-            short storecount = (short)StockList.Count(c => c.track_id == stock.track_id && c.id != stock.id);
+            short storecount = (short)StockList.Count(c => c.track_id == track.id && c.id != stock.id);
 
             if (addinbottom)
             {
@@ -1965,7 +1965,7 @@ namespace resource.goods
                 }
                 else
                 {
-                    List<Stock> Bottomstock = StockList.FindAll(c => c.track_id == stock.track_id && c.PosType == StockPosE.尾车);
+                    List<Stock> Bottomstock = StockList.FindAll(c => c.track_id == track.id && c.PosType == StockPosE.尾车);
                     if (Bottomstock != null && Bottomstock.Count > 0)
                     {
                         foreach (var item in Bottomstock)
@@ -1974,7 +1974,7 @@ namespace resource.goods
                         }
                     }
 
-                    short FinalStockPos = StockList.FindAll(c => c.track_id == stock.track_id && c.id != stock.id)?.Max(c => c.pos) ?? 0;
+                    short FinalStockPos = StockList.FindAll(c => c.track_id == track.id && c.id != stock.id)?.Max(c => c.pos) ?? 0;
                     stock.pos = (short)(FinalStockPos + 1);
                     stock.PosType = StockPosE.尾车;
                 }
@@ -1982,7 +1982,7 @@ namespace resource.goods
             else
             {
                 //加在头部
-                Stock top = StockList.Find(c => c.track_id == stock.track_id && c.PosType == StockPosE.首车 && c.id != stock.id);
+                Stock top = StockList.Find(c => c.track_id == track.id && c.PosType == StockPosE.首车 && c.id != stock.id);
 
                 stock.PosType = StockPosE.首车;
                 if (top != null && top.id != stock.id)
@@ -2007,7 +2007,7 @@ namespace resource.goods
         public void UpdateTrackPosByCar(Stock stock, Track track, bool addinback = true)
         {
             //轨道当前库存信息
-            short storecount = (short)StockList.Count(c => c.track_id == stock.track_id && c.id != stock.id);
+            short storecount = (short)StockList.Count(c => c.track_id == track.id && c.id != stock.id);
 
             if (addinback)
             {
@@ -2016,28 +2016,24 @@ namespace resource.goods
 
                 if (storecount > 0)
                 {
-                    if (track.is_take_forward)
+                    // 最后侧的库存 - 最小脉冲库存
+                    Stock stk = GetStockInLocMin(track.id, stock.id);
+                    if (stk == null) return;
+                    if (track.is_give_back)
                     {
-                        Stock outS = GetStockForOut(track.id);
-                        if (outS != null && outS.id != stock.id)
-                        {
-                            stock.PosType = StockPosE.首车;
-                            stock.pos = (short)(outS.pos - 1);
+                        stock.PosType = StockPosE.首车;
+                        stock.pos = (short)(stk.pos - 1);
 
-                            SetStockPosType(outS, StockPosE.中部);
-                        }
+                        SetStockPosType(stk, StockPosE.中部);
                     }
                     else
                     {
-                        Stock inS = GetStockForIn(track.id);
-                        if (inS != null && inS.id != stock.id)
-                        {
-                            stock.PosType = StockPosE.尾车;
-                            stock.pos = (short)(inS.pos + 1);
+                        stock.PosType = StockPosE.尾车;
+                        stock.pos = (short)(stk.pos + 1);
 
-                            SetStockPosType(inS, StockPosE.中部);
-                        }
+                        SetStockPosType(stk, StockPosE.中部);
                     }
+
                 }
 
             }
@@ -2048,28 +2044,24 @@ namespace resource.goods
 
                 if (storecount > 0)
                 {
-                    if (track.is_take_forward)
+                    // 最前侧的库存 - 最大脉冲库存
+                    Stock stk = GetStockInLocMax(track.id, stock.id);
+                    if (stk == null) return;
+                    if (track.is_give_back)
                     {
-                        Stock inS = GetStockForIn(track.id);
-                        if (inS != null && inS.id != stock.id)
-                        {
-                            stock.PosType = StockPosE.尾车;
-                            stock.pos = (short)(inS.pos + 1);
+                        stock.PosType = StockPosE.尾车;
+                        stock.pos = (short)(stk.pos + 1);
 
-                            SetStockPosType(inS, StockPosE.中部);
-                        }
+                        SetStockPosType(stk, StockPosE.中部);
                     }
                     else
                     {
-                        Stock outS = GetStockForOut(track.id);
-                        if (outS != null && outS.id != stock.id)
-                        {
-                            stock.PosType = StockPosE.首车;
-                            stock.pos = (short)(outS.pos - 1);
+                        stock.PosType = StockPosE.首车;
+                        stock.pos = (short)(stk.pos - 1);
 
-                            SetStockPosType(outS, StockPosE.中部);
-                        }
+                        SetStockPosType(stk, StockPosE.中部);
                     }
+
                 }
 
             }

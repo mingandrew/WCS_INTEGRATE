@@ -107,7 +107,7 @@ namespace task.trans.transtask
             {
                 if (dtl.dtl_good_id == top.goods_id
                     && dtl.dtl_trans_id == 0
-                    && !_M.ExistUnFinishTrans(trans.area_id, trans.take_track_id, TransTypeE.库存转移)
+                    && !_M.ExistTransWithTrackAndType(trans.take_track_id, TransTypeE.库存转移)
                     && !_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.库存整理))
                 {
                     uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.库存转移, top.goods_id, top.level, top.id, trans.take_track_id, dtl.dtl_give_track_id, TransStatusE.检查轨道, 0, trans.line, DeviceTypeE.前摆渡);

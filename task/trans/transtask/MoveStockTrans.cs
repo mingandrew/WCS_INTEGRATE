@@ -66,8 +66,7 @@ namespace task.trans.transtask
 
             //分配运输车
             if (PubTask.Carrier.AllocateCarrier(trans, out carrierid, out string result)
-                && !_M.HaveInCarrier(carrierid)
-                && mTimer.IsOver(TimerTag.CarrierAllocate, trans.take_track_id, 2, 5))
+                && !_M.HaveInCarrier(carrierid))
             {
                 _M.SetCarrier(trans, carrierid);
                 _M.SetStatus(trans, TransStatusE.取砖流程);
@@ -156,6 +155,9 @@ namespace task.trans.transtask
                     // 锁定摆渡车
                     if (!AllocateTakeFerry(trans, trans.AllocateFerryType, track)) return;
 
+                    //是否有小车在取货轨道
+                    bool CheckOtherCar = CheckTrackAndAddMoveTask(trans, trans.take_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡);
+
                     if (isNotLoad && isStopNoOrder)
                     {
                         if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
@@ -170,10 +172,7 @@ namespace task.trans.transtask
                             }
 
                             //是否有小车在取货轨道
-                            if (CheckTrackAndAddMoveTask(trans, trans.take_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡))
-                            {
-                                return;
-                            }
+                            if (CheckOtherCar) return;
 
                             // 直接取砖
                             TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
@@ -211,14 +210,15 @@ namespace task.trans.transtask
                     // 锁定摆渡车
                     if (!AllocateGiveFerry(trans, trans.AllocateFerryType, track)) return;
 
+                    //是否有小车在放货轨道
+                    bool CheckOtherCar = CheckTrackAndAddMoveTask(trans, trans.give_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡);
+
                     if (isLoad && isStopNoOrder)
                     {
-                        //1.计算轨道下一车坐标
-                        //2.卸货轨道状态是否运行放货                                    
-                        //3.是否有其他车在同轨道上
-                        if (CheckTrackFull(trans, trans.give_track_id, out ushort loc)
-                            || !PubMaster.Track.IsStatusOkToGive(trans.give_track_id)
-                            || PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
+                        if (CheckTrackFull(trans, trans.give_track_id, out ushort loc)  //1.计算轨道下一车坐标
+                            || !PubMaster.Track.IsStatusOkToGive(trans.give_track_id)  //2.卸货轨道状态是否运行放货
+                            //|| PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id)  //3.是否有其他车在同轨道上
+                            )
                         {
                             bool isWarn = false;
 
@@ -266,11 +266,8 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            //是否有小车在取货轨道
-                            if (CheckTrackAndAddMoveTask(trans, trans.give_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡))
-                            {
-                                return;
-                            }
+                            //是否有小车在放货轨道
+                            if (CheckOtherCar) return;
 
                             // 直接放砖
                             GiveInTarck(loc, trans.give_track_id, trans.carrier_id, trans.id, out res);

@@ -2631,11 +2631,8 @@ namespace resource.track
             foreach (var item in TrackList)
             {
                 if (item.TrackStatus == TrackStatusE.停用) continue;
-                if (tracids.Contains(item.id))
-                {
-                    SetTrackSortable(item, false, SORT_LEVEL_NO, "任务中");
-                    continue;
-                }
+                if (tracids.Contains(item.id)) continue;
+
                 switch (item.Type)
                 {
                     case TrackTypeE.储砖_入:
@@ -2695,7 +2692,15 @@ namespace resource.track
                     SetTrackSortable(track, true, SORT_LEVEL_2, "无砖机正在下该品种");
                     return;
                 }
+                else
+                {
+                    SetTrackSortable(track, false, SORT_LEVEL_NO, "有砖机正在下该品种");
+                    return;
+                }
             }
+
+            SetTrackSortable(track, false, SORT_LEVEL_NO);
+            return;
         }
 
         /// <summary>
@@ -2761,6 +2766,8 @@ namespace resource.track
                 }
             }
 
+            SetTrackSortable(track, false, SORT_LEVEL_NO);
+            return;
         }
 
         /// <summary>
@@ -2824,6 +2831,9 @@ namespace resource.track
                     return;
                 }
             }
+
+            SetTrackSortable(track, false, SORT_LEVEL_NO);
+            return;
         }
 
         /// <summary>

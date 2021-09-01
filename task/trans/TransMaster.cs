@@ -134,19 +134,14 @@ namespace task.trans
                 // 已被任务使用
                 if (ExistTransWithTracks(traFrom.id)) continue;
 
-                Stock btmstock = PubMaster.Goods.GetStockForIn(traFrom.id);
-                // 已存在同品种中转则跳过
-                if(ExistTaskSameGoods(traFrom.area, traFrom.line, 0, btmstock.goods_id, btmstock.level, TransTypeE.中转倒库)) continue;
+                Stock stock = PubMaster.Goods.GetStockForOut(traFrom.id);
+                if(stock == null) continue;
 
-                // 当前轨道有砖-判断非下砖品种则倒库
-                if (btmstock != null && traFrom.StockStatus == TrackStockStatusE.有砖
-                    && PubMaster.DevConfig.IsHaveSameTileNowGood(traFrom.area, btmstock.goods_id, btmstock.level, TileWorkModeE.下砖))
-                {
-                    continue;
-                }
+                // 已存在同品种中转则跳过
+                if (ExistTaskSameGoods(traFrom.area, traFrom.line, 0, stock.goods_id, stock.level, TransTypeE.中转倒库)) continue;
 
                 // 生成倒库任务
-                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, btmstock?.goods_id ?? 0, btmstock?.level ?? 0, 0, traFrom.id, 0
+                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traFrom.id, 0
                     , TransStatusE.整理中, 0, traFrom.line, (traFrom.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                 return;
 
@@ -801,7 +796,7 @@ namespace task.trans
         {
             return TransList.Exists(c => c.id != trans.id
                                     && c.TransStaus != TransStatusE.完成
-                                    && (c.take_track_id == trans.take_track_id || c.give_track_id == trans.take_track_id));
+                                    && c.InTrack(trans.take_track_id));
         }
 
         /// <summary>
@@ -813,7 +808,7 @@ namespace task.trans
         {
             return TransList.Exists(c => c.id != trans.id
                                     && c.TransStaus != TransStatusE.完成
-                                    && (c.take_track_id == trans.give_track_id || c.give_track_id == trans.give_track_id));
+                                    && c.InTrack(trans.give_track_id));
         }
 
         /// <summary>
