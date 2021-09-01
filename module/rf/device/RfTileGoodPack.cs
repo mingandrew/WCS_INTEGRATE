@@ -16,7 +16,7 @@ namespace module.rf.device
         public int pre_good_qty { set; get; }//预约品种数量
         public bool now_good_all { set; get; }//当前使用全部库存
         public bool pre_good_all { set; get; }//预约使用全部库存
-        
+        public bool prior_empty_track { get; set; }//优先分配空轨道
         public DateTime last_shift_time { set; get; }//上一次转产时间
 
         public TileShiftStatusE shiftstatus { set; get; }
