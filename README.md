@@ -792,11 +792,11 @@ UPDATE `diction_dtl` SET `int_value` = 4 WHERE `code` = 'GoodLevel' AND `name` =
 UPDATE `diction_dtl` SET `int_value` = 5 WHERE `code` = 'GoodLevel' AND `name` = '合格品';
 
 
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (45, 9, 'TileSite', '窑位1', 6, NULL, '窑位1', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (46, 9, 'TileSite', '窑位2', 7, NULL, '窑位2', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (47, 9, 'TileSite', '窑位3', 8, NULL, '窑位3', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (48, 9, 'TileSite', '窑位4', 9, NULL, '窑位4', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (49, 9, 'TileSite', '窑位5', 10, NULL, '窑位5', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (45, 9, 'GoodSite', '窑位1', 6, NULL, '窑位1', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (46, 9, 'GoodSite', '窑位2', 7, NULL, '窑位2', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (47, 9, 'GoodSite', '窑位3', 8, NULL, '窑位3', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (48, 9, 'GoodSite', '窑位4', 9, NULL, '窑位4', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (49, 9, 'GoodSite', '窑位5', 10, NULL, '窑位5', NULL, NULL, NULL, NULL, NULL);
 ```
 
 
