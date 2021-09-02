@@ -142,12 +142,12 @@ namespace resource.module.modulesql
         public bool AddStockTrans(StockTrans stotran)
         {
             string str = "INSERT INTO `stock_trans`(`id`, `trans_type`, `trans_status`, `area_id`, `goods_id`, `stock_id`," +
-                " `tilelifter_id`, `take_track_id`, `give_track_id`, `create_time`,`carrier_id`,`finish_track_id`,`allocate_ferry_type`,`level`)" +
-                " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', {9}, {10}, {11}, {12}, {13})";
+                " `tilelifter_id`, `take_track_id`, `give_track_id`, `create_time`,`carrier_id`,`finish_track_id`,`allocate_ferry_type`,`level`,`line`)" +
+                " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', {9}, {10}, {11}, {12}, {13}, {14})";
             string sql = string.Format(@str, stotran.id, stotran.trans_type, stotran.trans_status,  
                 stotran.area_id, stotran.goods_id,  stotran.stock_id,
                 stotran.tilelifter_id, stotran.take_track_id, stotran.give_track_id, GetTimeOrNull(stotran.create_time),
-                stotran.carrier_id, stotran.finish_track_id, stotran.allocate_ferry_type, stotran.level);
+                stotran.carrier_id, stotran.finish_track_id, stotran.allocate_ferry_type, stotran.level, stotran.line);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

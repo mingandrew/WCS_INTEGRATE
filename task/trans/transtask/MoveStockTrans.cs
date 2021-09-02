@@ -103,7 +103,26 @@ namespace task.trans.transtask
                         if (trans.take_track_id == track.id)
                         {
                             // 解锁摆渡车
-                            RealseTakeFerry(trans);
+                            ushort limit = 1153; // ≈20M
+                            switch (trans.AllocateFerryType)
+                            {
+                                case DeviceTypeE.前摆渡:
+                                    int disBack = (track.limit_point_up - limit);
+                                    if ((carrier.CurrentPoint > 0 && carrier.CurrentPoint <= disBack) ||
+                                        (carrier.TargetPoint > 0 && carrier.TargetPoint <= disBack))
+                                    {
+                                        RealseTakeFerry(trans);
+                                    }
+                                    break;
+                                case DeviceTypeE.后摆渡:
+                                    int disFront = (track.limit_point + limit);
+                                    if ((carrier.CurrentPoint > 0 && carrier.CurrentPoint >= disFront) ||
+                                        (carrier.TargetPoint > 0 && carrier.TargetPoint >= disFront))
+                                    {
+                                        RealseTakeFerry(trans);
+                                    }
+                                    break;
+                            }
 
                             if (isStopNoOrder)
                             {
@@ -124,7 +143,7 @@ namespace task.trans.transtask
                         }
                     }
 
-                    if (isLoad && isStopNoOrder)
+                    if (isLoad)
                     {
                         if (trans.take_track_id == track.id)
                         {
@@ -133,17 +152,20 @@ namespace task.trans.transtask
                         }
                         else
                         {
-                            // 下降放货
-                            PubTask.Carrier.DoOrder(carrierid, trans.id, new CarrierActionOrder()
+                            if (isStopNoOrder)
                             {
-                                Order = DevCarrierOrderE.放砖指令
-                            }, "库存转移下降放货");
-
+                                // 下降放货
+                                PubTask.Carrier.DoOrder(carrierid, trans.id, new CarrierActionOrder()
+                                {
+                                    Order = DevCarrierOrderE.放砖指令
+                                }, "库存转移下降放货");
+                            }
                             #region 【任务步骤记录】
                             _M.LogForCarrierGiving(trans);
                             #endregion
                             return;
                         }
+
                     }
 
                     break;
@@ -292,7 +314,7 @@ namespace task.trans.transtask
                         // 解锁摆渡车
                         RealseGiveFerry(trans);
 
-                        if (isStopNoOrder && isNotLoad)
+                        if (isNotLoad)
                         {
                             _M.SetUnLoadTime(trans);
 

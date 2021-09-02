@@ -319,7 +319,7 @@ namespace task.trans
                         //List<uint> trackids = PubMaster.Area.GetAreaTrackIds(track.area, totracktype);
                         List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(track.area, track.line, totracktype);
 
-                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid, track.order);
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trackid);
 
                         //能去这个取货/卸货轨道的所有配置的摆渡车信息
                         List<uint> ferryids;
@@ -1599,9 +1599,9 @@ namespace task.trans
 
             //1.不允许，则不可以有车
             //2.允许，则不可以有非倒库车
-            if (!isignoresorttask && !inoutignoresort && PubTask.Carrier.HaveInTrack(trackid, carrierid, out uint othercarid))
+            if (!isignoresorttask && !inoutignoresort && PubTask.Carrier.HaveInTrackAndGetSingle(trackid, out CarrierTask othercarid, carrierid))
             {
-                result = string.Format("存在运输车[ {0} ]", PubMaster.Device.GetDeviceName(othercarid));
+                result = string.Format("存在运输车[ {0} ]", othercarid.Device.name);
                 return true;
             }
 

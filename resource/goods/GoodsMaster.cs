@@ -2024,14 +2024,28 @@ namespace resource.goods
                         stock.PosType = StockPosE.首车;
                         stock.pos = (short)(stk.pos - 1);
 
-                        SetStockPosType(stk, StockPosE.中部);
+                        if(storecount == 1)
+                        {
+                            SetStockPosType(stk, StockPosE.尾车);
+                        }
+                        else
+                        {
+                            SetStockPosType(stk, StockPosE.中部);
+                        }
                     }
                     else
                     {
                         stock.PosType = StockPosE.尾车;
                         stock.pos = (short)(stk.pos + 1);
 
-                        SetStockPosType(stk, StockPosE.中部);
+                        if (storecount == 1)
+                        {
+                            SetStockPosType(stk, StockPosE.首车);
+                        }
+                        else
+                        {
+                            SetStockPosType(stk, StockPosE.中部);
+                        }
                     }
 
                 }
@@ -2052,14 +2066,28 @@ namespace resource.goods
                         stock.PosType = StockPosE.尾车;
                         stock.pos = (short)(stk.pos + 1);
 
-                        SetStockPosType(stk, StockPosE.中部);
+                        if (storecount == 1)
+                        {
+                            SetStockPosType(stk, StockPosE.首车);
+                        }
+                        else
+                        {
+                            SetStockPosType(stk, StockPosE.中部);
+                        }
                     }
                     else
                     {
                         stock.PosType = StockPosE.首车;
                         stock.pos = (short)(stk.pos - 1);
 
-                        SetStockPosType(stk, StockPosE.中部);
+                        if (storecount == 1)
+                        {
+                            SetStockPosType(stk, StockPosE.尾车);
+                        }
+                        else
+                        {
+                            SetStockPosType(stk, StockPosE.中部);
+                        }
                     }
 
                 }

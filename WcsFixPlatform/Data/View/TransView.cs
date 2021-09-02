@@ -29,6 +29,7 @@ namespace wcs.Data.View
         private DateTime? unload_time;
         private bool finish;
         private DateTime? finish_time;
+        private byte level;
 
         private string tcmsg;//交管信息
 
@@ -126,6 +127,12 @@ namespace wcs.Data.View
             set => Set(ref finish_time, value);
         }
 
+        public byte Level
+        {
+            get => level;
+            set => Set(ref level, value);
+        }
+
         public string TCmsg
         {
             get => tcmsg;
@@ -145,14 +152,15 @@ namespace wcs.Data.View
             Area_id = trans.area_id;
             Line_id = trans.line;
             TransType = trans.TransType;
-            Goods_id = trans.goods_id;
-            Stock_id = trans.stock_id;
             Create_time = trans.create_time;
             Update(trans);
         }
 
         public void Update(StockTrans trans)
         {
+            Goods_id = trans.goods_id;
+            Level = trans.level;
+            Stock_id = trans.stock_id;
             TransStaus = trans.TransStaus;
             Take_ferry_id = trans.take_ferry_id;
             Give_ferry_id = trans.give_ferry_id;

@@ -4,6 +4,7 @@ using module.goods;
 using module.track;
 using resource;
 using System;
+using System.Collections.Generic;
 using task.device;
 using tool.appconfig;
 using tool.timer;
@@ -332,12 +333,11 @@ namespace task.trans.transtask
         internal bool CheckCarAndAddMoveTask(StockTrans trans, uint trackid, bool isdown, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
             res = "";
-            if (PubTask.Carrier.HaveInTrackAndGet(trackid, out uint carrierid))
+            if (PubTask.Carrier.HaveInTrackAndGetSingle(trackid, out CarrierTask carrier))
             {
                 Track track = PubMaster.Track.GetTrack(trackid);
-                CarrierTask carrier = PubTask.Carrier.GetDevCarrier(carrierid);
 
-                if (_M.HaveCarrierInTrans(carrierid))
+                if (_M.HaveCarrierInTrans(carrier.ID))
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 103, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
@@ -346,7 +346,7 @@ namespace task.trans.transtask
                     return true;
                 }
 
-                if (!PubTask.Carrier.IsCarrierFree(carrierid))
+                if (!PubTask.Carrier.IsCarrierFree(carrier.ID))
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 104, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
@@ -381,9 +381,9 @@ namespace task.trans.transtask
 
                 if (ismove)
                 {
-                    if (ferrytype == DeviceTypeE.其他) ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(carrierid);
+                    if (ferrytype == DeviceTypeE.其他) ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(carrier.ID);
 
-                    _M.AddMoveCarrierTask(track.id, carrierid, track.Type, MoveTypeE.转移占用轨道, ferrytype);
+                    _M.AddMoveCarrierTask(track.id, carrier.ID, track.Type, MoveTypeE.转移占用轨道, ferrytype);
 
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 105, string.Format("有运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
@@ -403,41 +403,58 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid, DeviceTypeE ferrytype = DeviceTypeE.其他)
+        internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid, DeviceTypeE ferrytype)
         {
             res = "";
-            if (PubTask.Carrier.HaveInTrack(trackid, trans.carrier_id, out uint othercarrierid))
+            if (PubTask.Carrier.HaveInTrackAndGetAll(trackid, out List<CarrierTask> cars, trans.carrier_id))
             {
                 Track track = PubMaster.Track.GetTrack(trackid);
-                CarrierTask carrier = PubTask.Carrier.GetDevCarrier(othercarrierid);
 
-                if (_M.HaveCarrierInTrans(othercarrierid))
+                // 根据摆渡类型排序
+                if (cars.Count > 1)
                 {
+                    cars.Sort((x, y) =>
+                    {
+                        switch (ferrytype)
+                        {
+                            case DeviceTypeE.前摆渡:
+                                return y.CurrentPoint.CompareTo(x.CurrentPoint);
+
+                            case DeviceTypeE.后摆渡:
+                                return x.CurrentPoint.CompareTo(y.CurrentPoint);
+                        }
+                        return 0;
+                    });
+                }
+
+                foreach (CarrierTask item in cars)
+                {
+                    if (_M.HaveCarrierInTrans(item.ID))
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 106, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
+                            item.Device.name, track.name));
+                        #endregion
+                        return true;
+                    }
+
+                    if (!PubTask.Carrier.IsCarrierFree(item.ID))
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 107, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
+                            item.Device.name, track.name));
+                        #endregion
+                        return true;
+                    }
+
+                    _M.AddMoveCarrierTask(track.id, item.ID, track.Type, MoveTypeE.转移占用轨道, ferrytype);
+
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 106, string.Format("有运输车[ {0} ]停在[ {1} ]，绑定有任务，等待其任务完成；",
-                        carrier.Device.name, track.name));
+                    _M.SetStepLog(trans, false, 108, string.Format("有运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
+                        item.Device.name, track.name));
                     #endregion
                     return true;
                 }
-
-                if (!PubTask.Carrier.IsCarrierFree(othercarrierid))
-                {
-                    #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 107, string.Format("有运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
-                        carrier.Device.name, track.name));
-                    #endregion
-                    return true;
-                }
-
-                if (ferrytype == DeviceTypeE.其他) ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(othercarrierid);
-
-                _M.AddMoveCarrierTask(track.id, othercarrierid, track.Type, MoveTypeE.转移占用轨道, ferrytype);
-
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 108, string.Format("有运输车[ {0} ]停在[ {1} ]，尝试对其生成移车任务；",
-                    carrier.Device.name, track.name));
-                #endregion
-                return true;
 
             }
 

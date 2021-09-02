@@ -92,6 +92,7 @@
                                 <DataGridTextColumn Binding="{Binding Take_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(接)"/>
                                 <DataGridTextColumn Binding="{Binding Give_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(送)"/>
                                 <DataGridTextColumn Binding="{Binding Goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="任务品种"/>
+                                <DataGridTextColumn Binding="{Binding Level,Converter={StaticResource LevelValue2NameConverter}}" Header="等级/窑位"/>
                                 <DataGridTextColumn Binding="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Header="创建时间"/>
                                 <DataGridTextColumn Binding="{Binding Load_time,Converter={StaticResource Date2StringConverter}}" Header="取货时间"/>
                                 <DataGridTextColumn Binding="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Header="放货时间"/>
@@ -127,6 +128,7 @@
                                 <DataGridTextColumn Binding="{Binding Take_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(接)"/>
                                 <DataGridTextColumn Binding="{Binding Give_ferry_id,Converter={StaticResource DevId2NameConverter}}" Header="摆渡车(送)"/>
                                 <DataGridTextColumn Binding="{Binding Goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="任务品种"/>
+                                <DataGridTextColumn Binding="{Binding Level,Converter={StaticResource LevelValue2NameConverter}}" Header="等级/窑位"/>
                                 <DataGridTextColumn Binding="{Binding Create_time,Converter={StaticResource Date2StringConverter}}" Header="创建时间"/>
                                 <DataGridTextColumn Binding="{Binding Load_time,Converter={StaticResource Date2StringConverter}}" Header="取货时间"/>
                                 <DataGridTextColumn Binding="{Binding Unload_time,Converter={StaticResource Date2StringConverter}}" Header="放货时间"/>

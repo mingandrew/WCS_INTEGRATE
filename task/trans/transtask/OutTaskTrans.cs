@@ -282,7 +282,7 @@ namespace task.trans.transtask
 
                         // 再者到空轨道
                         List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
-                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id);
 
                         foreach (uint t in tids)
                         {
@@ -382,7 +382,7 @@ namespace task.trans.transtask
                                     // 优先移动到空轨道
                                     List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
 
-                                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+                                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id);
 
                                     foreach (uint t in tids)
                                     {
@@ -716,7 +716,7 @@ namespace task.trans.transtask
                                             {
                                                 // 优先移动到空轨道
                                                 List<uint> emptytras = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
-                                                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(emptytras, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+                                                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(emptytras, trans.take_track_id);
 
                                                 foreach (uint t in tids)
                                                 {

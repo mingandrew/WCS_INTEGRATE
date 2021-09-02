@@ -209,25 +209,13 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取区域线所有的指定类型轨道
-        /// </summary>
-        /// <param name="areaid"></param>
-        /// <param name="line"></param>
-        /// <param name="type"></param>
-        /// <returns></returns>
-        public List<uint> GetAreaLineTracks(uint areaid, uint lineid, TrackTypeE type)
-        {
-            return TrackList.FindAll(c => c.area == areaid && c.line == lineid && c.Type == type)?.Select(c => c.id).ToList() ?? new List<uint>();
-        }
-
-        /// <summary>
-        /// 获取同区域内所有轨道
+        /// 获取同区域线内所有轨道
         /// </summary>
         /// <param name="area"></param>
         /// <returns></returns>
-        public List<uint> GetAreaAllTrackIdList(uint area)
+        public List<uint> GetAreaAllTrackIdList(uint areaid, uint lineid)
         {
-            return TrackList.FindAll(c => c.area == area)?.Select(c => c.id).ToList() ?? new List<uint>();
+            return TrackList.FindAll(c => c.area == areaid && c.line == lineid)?.Select(c => c.id).ToList() ?? new List<uint>();
         }
 
         /// <summary>
@@ -746,123 +734,89 @@ namespace resource.track
         }
 
         /// <summary>
+        /// 获取参考轨道排序后的轨道集
+        /// </summary>
+        /// <param name="trackids"></param>
+        /// <param name="tid"></param>
+        /// <param name="checkType"></param>
+        /// <returns></returns>
+        public List<Track> GetSortTracks(List<uint> trackids, uint tid, bool checkType = true)
+        {
+            List<Track> tracks = TrackList.FindAll(c => c.id != tid && trackids.Contains(c.id));
+            if (tracks == null || tracks.Count == 0) return null;
+
+            // 参考轨道
+            Track tra = GetTrack(tid);
+            if (tra == null) return null;
+
+            // -1: x在前； 0:同序； 1: y在前；
+            tracks.Sort((x, y) =>
+            {
+                // 按类型排序
+                if (checkType)
+                {
+                    #region 其一砖机轨道后置
+                    if (x.IsTileTrack() && !y.IsTileTrack()) return 1;
+                    if (!x.IsTileTrack() && y.IsTileTrack()) return -1;
+                    #endregion
+
+                    #region 其一摆渡轨道后置
+                    if (x.IsFerryTrack() && !y.IsFerryTrack()) return 1;
+                    if (!x.IsFerryTrack() && y.IsFerryTrack()) return -1;
+                    #endregion
+
+                    #region 都是储砖轨道 - 判断
+                    if (x.IsStoreTrack() && y.IsStoreTrack())
+                    {
+                        // 与参考轨道同 Type 前置
+                        if (x.Type == tra.Type && y.Type != tra.Type) return -1;
+                        if (x.Type != tra.Type && y.Type == tra.Type) return 1;
+
+                        // 与参考轨道同 Type2 前置
+                        if (x.Type == tra.Type && y.Type == tra.Type && tra.Type == TrackTypeE.储砖_出入)
+                        {
+                            switch (tra.Type2)
+                            {
+                                case TrackType2E.通用:
+                                    if (x.Type2 == tra.Type2 && y.Type2 != tra.Type2) return -1;
+                                    if (x.Type2 != tra.Type2 && y.Type2 == tra.Type2) return 1;
+                                    break;
+
+                                case TrackType2E.入库:
+                                    if (x.IsWorkIn() && !y.IsWorkIn()) return -1;
+                                    if (!x.IsWorkIn() && y.IsWorkIn()) return 1;
+                                    break;
+
+                                case TrackType2E.出库:
+                                    if (x.IsWorkOut() && !y.IsWorkOut()) return -1;
+                                    if (!x.IsWorkOut() && y.IsWorkOut()) return 1;
+                                    break;
+                            }
+                        }
+
+                    }
+                    #endregion
+                }
+
+                // 按位置相对顺序排序
+                int xorder = Math.Abs(x.order - tra.order);
+                int yorder = Math.Abs(y.order - tra.order);
+                return xorder.CompareTo(yorder);
+            });
+
+            return tracks;
+        }
+
+        /// <summary>
         /// 将轨道按照order进行排序
         /// </summary>
         /// <param name="trackids">需要排序的轨道ID列表</param>
         /// <param name="tid">排序参照轨道</param>
         /// <param name="order">排序参照轨道order</param>
         /// <returns>返回一个以参考轨道为起点轨道id列表【越靠近参考轨道越前的】</returns>
-        public List<uint> SortTrackIdsWithOrder(List<uint> trackids, uint tid, short order, bool checkType = true)
+        public List<uint> SortTrackIdsWithOrder(List<uint> trackids, uint tid, bool checkType = true)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.id != tid && trackids.Contains(c.id));
-            if (tracks.Count > 0)
-            {
-                // 按位置相对顺序排序
-                tracks.Sort((x, y) =>
-                {
-                    int xorder = Math.Abs(x.order - order);
-                    int yorder = Math.Abs(y.order - order);
-                    return xorder.CompareTo(yorder);
-                });
-
-                // 再按轨道类型排序 ？
-                if (checkType)
-                {
-                    TrackTypeE tt = GetTrackType(tid);
-                    TrackType2E tt2 = GetTrackType2(tid);
-                    // -1: x在前； 0:同序； 1: y在前；
-                    tracks.Sort((x, y) =>
-                    {
-                        if (x.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
-                        {
-                            if (y.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
-                            {
-                                return 0;
-                            }
-                            return -1;
-                        }
-
-                        if (x.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
-                        {
-                            if (y.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
-                            {
-                                return 0;
-                            }
-                            return 1;
-                        }
-
-                        if (x.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
-                        {
-                            if (y.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
-                            {
-                                return 1;
-                            }
-
-                            if (y.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
-                            {
-                                return -1;
-                            }
-
-                            if (x.Type == tt && y.Type != tt)
-                            {
-                                return -1;
-                            }
-
-                            if (x.Type != tt && y.Type == tt)
-                            {
-                                return 1;
-                            }
-
-                            if (tt == TrackTypeE.储砖_出入 && x.Type == tt && y.Type == tt)
-                            {
-                                switch (tt2)
-                                {
-                                    case TrackType2E.通用:
-                                        if (x.Type2 == tt2 && y.Type2 != tt2)
-                                        {
-                                            return -1;
-                                        }
-
-                                        if (x.Type2 != tt2 && y.Type2 == tt2)
-                                        {
-                                            return 1;
-                                        }
-                                        break;
-
-                                    case TrackType2E.入库:
-                                        if (x.IsWorkIn() && !y.IsWorkIn())
-                                        {
-                                            return -1;
-                                        }
-
-                                        if (!x.IsWorkIn() && y.IsWorkIn())
-                                        {
-                                            return 1;
-                                        }
-                                        break;
-
-                                    case TrackType2E.出库:
-                                        if (x.IsWorkOut() && !y.IsWorkOut())
-                                        {
-                                            return -1;
-                                        }
-
-                                        if (!x.IsWorkOut() && y.IsWorkOut())
-                                        {
-                                            return 1;
-                                        }
-                                        break;
-                                }
-                            }
-
-                        }
-
-                        return 0;
-                    });
-                }
-
-            }
-            return tracks.Select(c => c.id).ToList();
+            return GetSortTracks(trackids, tid, checkType)?.Select(c => c.id).ToList() ?? new List<uint>();
         }
 
         /// <summary>
@@ -1500,12 +1454,12 @@ namespace resource.track
 
                 if (trackferrycode != 0)
                 {
-                    result = "执行指令定位到[ " + track?.name ?? "" + " ]";
+                    result = "执行指令定位到[ " + (track?.name ?? "") + " ]";
                     return true;
                 }
             }
 
-            result = "找不到轨道信息[ " + track?.name ?? "" + " ]";
+            result = "找不到轨道信息[ " + (track?.name ?? "") + " ]";
             return false;
         }
 

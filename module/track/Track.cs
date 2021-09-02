@@ -103,6 +103,8 @@ namespace module.track
         public byte sort_level { set; get; }//倒库等级
         #endregion
 
+        #region [获取属性]
+
         /// <summary>
         /// 轨道类型
         /// </summary>
@@ -156,28 +158,18 @@ namespace module.track
             }
         }
 
-        /// <summary>
-        /// 是否是轨道内地标
-        /// </summary>
-        /// <param name="rfid"></param>
-        /// <returns></returns>
-        public bool IsInTrack(ushort rfid)
-        {
-            if (rfid == 0) return false;
-            //return rfid == rfid_1 || rfid == rfid_2 || rfid == rfid_3 || rfid == rfid_4 || rfid == rfid_5 || rfid == rfid_6;
-
-            if (RFIDs == null || RFIDs.Count == 0) return false;
-            return RFIDs.Contains(rfid);
-        }
-
         public TrackAlertE AlertStatus
         {
             get => (TrackAlertE)alert_status;
             set => alert_status = (ushort)value;
         }
 
+        #endregion
+
+        #region [数据信息]
+
         /// <summary>
-        /// 获取轨道状态信息
+        /// 获取轨道点位信息
         /// </summary>
         /// <returns></returns>
         public string GetLog()
@@ -186,7 +178,7 @@ namespace module.track
             log += string.Format("名称[ {0} ]", name);
             if (split_point > 0)
             {
-                log+= string.Format("，分割[ {0} ]", split_point);
+                log += string.Format("，分割[ {0} ]", split_point);
             }
 
             if (limit_point_up > 0)
@@ -202,9 +194,31 @@ namespace module.track
             return log;
         }
 
+        /// <summary>
+        /// 获取轨道状态信息
+        /// </summary>
+        /// <returns></returns>
         public string GetStatusLog()
         {
             return string.Format("名称[ {0} ], 状态[ {1} ], 货物[ {2} ]", name, TrackStatus, StockStatus);
+        }
+
+        #endregion
+
+        #region [条件判断]
+
+        /// <summary>
+        /// 是否是轨道内地标
+        /// </summary>
+        /// <param name="rfid"></param>
+        /// <returns></returns>
+        public bool IsInTrack(ushort rfid)
+        {
+            if (rfid == 0) return false;
+            //return rfid == rfid_1 || rfid == rfid_2 || rfid == rfid_3 || rfid == rfid_4 || rfid == rfid_5 || rfid == rfid_6;
+
+            if (RFIDs == null || RFIDs.Count == 0) return false;
+            return RFIDs.Contains(rfid);
         }
 
         /// <summary>
@@ -226,15 +240,33 @@ namespace module.track
         }
 
 
+        /// <summary>
+        /// 是否储砖类型轨道
+        /// </summary>
+        /// <returns></returns>
         public bool IsStoreTrack()
         {
             return InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
         }
 
+        /// <summary>
+        /// 是否摆渡类型轨道
+        /// </summary>
+        /// <returns></returns>
         public bool IsFerryTrack()
         {
             return InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道);
         }
+
+        /// <summary>
+        /// 是否砖机类型轨道
+        /// </summary>
+        /// <returns></returns>
+        public bool IsTileTrack()
+        {
+            return InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道);
+        }
+
 
         /// <summary>
         /// 检查是否符合类型
@@ -298,6 +330,7 @@ namespace module.track
             return !status.Contains(StockStatus);
         }
 
+
         /// <summary>
         /// 是否入库作业轨道
         /// </summary>
@@ -317,6 +350,8 @@ namespace module.track
             return Type == TrackTypeE.储砖_出
                 || (Type == TrackTypeE.储砖_出入 && (Type2 == TrackType2E.通用 || Type2 == TrackType2E.出库));
         }
+
+        #endregion
 
     }
 }

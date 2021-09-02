@@ -27,19 +27,17 @@ namespace task.trans.transtask
         public override void CheckingTrack(StockTrans trans)
         {
             //是否有小车在满砖轨道
-            if (PubTask.Carrier.HaveInTrackAndGet(trans.take_track_id, out uint carrierid))
+            if (PubTask.Carrier.HaveInTrackAndGetSingle(trans.take_track_id, out CarrierTask carrier))
             {
-                if (PubTask.Carrier.IsCarrierFree(carrierid))
+                if (PubTask.Carrier.IsCarrierFree(carrier.ID))
                 {
-                    _M.SetStatus(trans, TransStatusE.调度设备, string.Format("轨道内有运输车[ {0} ]可直接使用",
-                        PubMaster.Device.GetDeviceName(carrierid)));
+                    _M.SetStatus(trans, TransStatusE.调度设备, string.Format("轨道内有运输车[ {0} ]可直接使用", carrier.Device.name));
                 }
                 else
                 {
                     #region 【任务步骤记录】
                     _M.SetStepLog(trans, false, 1008, string.Format("运输车[ {0} ]停在[ {1} ]，状态不满足(需通讯正常且启用，停止且无执行指令)；",
-                        PubMaster.Device.GetDeviceName(carrierid),
-                        PubMaster.Track.GetTrackName(trans.give_track_id)));
+                        carrier.Device.name, PubMaster.Track.GetTrackName(trans.give_track_id)));
                     #endregion
                     return;
                 }

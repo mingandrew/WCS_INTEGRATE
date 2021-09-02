@@ -503,7 +503,7 @@ namespace task.trans.transtask
                                 // 优先移动到空轨道
                                 List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, track.Type);
 
-                                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, track.id, track.order);
+                                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, track.id);
 
                                 foreach (uint t in tids)
                                 {

@@ -481,7 +481,7 @@ namespace task.trans.transtask
                                 //获取所有的出库轨道
                                 List<uint> cantras = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
                                 //按距离近的排序
-                                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(cantras, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+                                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(cantras, trans.take_track_id);
 
                                 foreach (uint t in tids)
                                 {
@@ -681,7 +681,7 @@ namespace task.trans.transtask
                             //获取所有的出库轨道
                             List<uint> cantras = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
                             //按距离近的排序
-                            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(cantras, trans.take_track_id, PubMaster.Track.GetTrackOrder(trans.take_track_id));
+                            List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(cantras, trans.take_track_id);
 
                             foreach (uint t in tids)
                             {
