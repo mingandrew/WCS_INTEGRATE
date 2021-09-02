@@ -350,16 +350,26 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("【品种修改2】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ 不限 ]",
+                    mLog.Status(true, string.Format("【品种修改2】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ 不限 ], 优先空轨[ {5} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.goods_id),
-                        PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid));
+                        PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid, false));
                 }
                 catch { }
+
+                //手动设置品种，则重置砖机品种优先找空的属性
+                if (dev.prior_empty_track)
+                {
+                    dev.prior_empty_track = false;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.PriorEmptyTrack);
+                }
+
                 dev.goods_id = goodid;
                 dev.now_good_all = true;
                 dev.now_good_qty = 0;
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
+
+
                 return true;
             }
             return false;

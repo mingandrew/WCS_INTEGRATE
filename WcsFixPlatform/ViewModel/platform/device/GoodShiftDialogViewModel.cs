@@ -409,7 +409,7 @@ namespace wcs.ViewModel
                 CancelChange();
                 return;
             }
-
+            PriorEmptyTrack = false;
             ShowPriorEmptyTrack = confit.WorkMode == TileWorkModeE.下砖 && confit.WorkType == DevWorkTypeE.混砖作业;
 
             DEVNAME = devname;

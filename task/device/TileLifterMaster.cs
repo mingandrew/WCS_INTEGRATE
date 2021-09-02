@@ -1263,7 +1263,17 @@ namespace task.device
 
                     if (!iseffect)
                     {
-                        switch (task.WorkType)
+                        DevWorkTypeE type;
+                        if (task.DevConfig.prior_empty_track 
+                            && task.WorkType == DevWorkTypeE.混砖作业)
+                        {
+                            type = DevWorkTypeE.品种作业;
+                        }
+                        else
+                        {
+                            type = task.WorkType;
+                        }
+                        switch (type)
                         {
                             case DevWorkTypeE.品种作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out uint stockid);
@@ -1421,7 +1431,17 @@ namespace task.device
 
                     if (!iseffect)
                     {
-                        switch (task.WorkType)
+                        DevWorkTypeE type;
+                        if (task.DevConfig.prior_empty_track
+                            && task.WorkType == DevWorkTypeE.混砖作业)
+                        {
+                            type = DevWorkTypeE.品种作业;
+                        }
+                        else
+                        {
+                            type = task.WorkType;
+                        }
+                        switch (type)
                         {
                             case DevWorkTypeE.品种作业:
                                 AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out uint stockid);
