@@ -105,6 +105,7 @@
         LastTrack,
         WorkMode,
         Strategey,
-        PriorEmptyTrack,
+        Prior,
+        PriorNum,
     }
 }

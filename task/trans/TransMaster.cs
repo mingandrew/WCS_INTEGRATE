@@ -553,11 +553,15 @@ namespace task.trans
                         }
                     }
                 }
-
+                byte priornum = 0;
+                if(stockid != 0)
+                {
+                    priornum = PubMaster.Goods.GetStockPriorNum(stockid);
+                }
                 //分配放货点
                 if (stockid != 0
                     && givetrackid == 0
-                    && PubMaster.Goods.AllocateGiveTrack(area, line, devid, goods_id, out List<uint> traids))
+                    && PubMaster.Goods.AllocateGiveTrack(area, line, devid, goods_id, out List<uint> traids, priornum))
                 {
                     foreach (uint traid in traids)
                     {

@@ -716,10 +716,16 @@ UPDATE `diction_dtl` SET `string_value` = '小车倒库中但是小车有货，�
 UPDATE `diction_dtl` SET `name` = '取砖任务被中断，有砖光电未触发。请先检查有砖光电，确保取砖时能触发', `string_value` = '取砖任务被中断，有砖光电未触发。请先检查有砖光电，确保取砖时能触发' WHERE `code` = 'WarningA4X0';
 ```
 
-## 2021.09.1 [2.0] 砖机混砖作业时需要优先找空位
+## 2021.09.2 [2.0] 砖机混砖作业时需要优先找空位
 
 ```mysql
 ALTER TABLE `config_tilelifter` 
-ADD COLUMN `prior_empty_track` bit(1) NULL COMMENT '混砖作业优先使用空轨道' ;
+ADD COLUMN `prior` bit(1) NULL COMMENT '急单' ;
+
+ALTER TABLE `config_tilelifter` 
+ADD COLUMN `prior_num` tinyint(3) UNSIGNED NULL COMMENT '砖机急单类型【不同急单数字分开即可】';
+
+ALTER TABLE `stock` 
+ADD COLUMN `prior_num` tinyint(3) UNSIGNED NULL COMMENT '砖机急单类型【不同急单数字分开即可】';
 ```
 

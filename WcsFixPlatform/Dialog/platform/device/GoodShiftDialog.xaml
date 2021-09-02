@@ -73,13 +73,12 @@
                         CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}"
                         Content="刷新" FontSize="15" Visibility="Collapsed"/>
 
-                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LB}" Visibility="{Binding ShowPriorEmptyTrack,Converter={StaticResource Boolean2VisibilityConverter}}">
-                    <Grid>
-                        <TextBlock  Text="优先空轨："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
-                    </Grid>
+                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LB}" >
+                    <TextBlock  Text="急单："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20" HorizontalAlignment="Right"/>
+
                 </Border>
-                <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LRB}" Visibility="{Binding ShowPriorEmptyTrack,Converter={StaticResource Boolean2VisibilityConverter}}">
-                    <CheckBox IsChecked="{Binding PriorEmptyTrack, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Content="混砖模式优先找空轨道" FontSize="22"/>
+                <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LRB}">
+                    <CheckBox IsChecked="{Binding Prior, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Content="是否急单" FontSize="22"/>
                 </Border>
 
             </Grid>

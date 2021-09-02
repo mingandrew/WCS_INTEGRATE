@@ -28,6 +28,7 @@ namespace module.goods
         /// 库存计算坐标（脉冲）
         /// </summary>
         public ushort location_cal { set; get; }
+        public byte prior_num { set; get; }//急单类型
 
         public StockPosE PosType
         {

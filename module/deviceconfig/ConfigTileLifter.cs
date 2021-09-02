@@ -119,7 +119,8 @@ namespace module.deviceconfig
         public bool now_good_all { set; get; }//当前使用全部库存
         public bool pre_good_all { set; get; }//预约使用全部库存
 
-        public bool prior_empty_track { set; get; }//砖机混砖作业优先使用空轨道
+        public bool prior { set; get; }//当前品种是否急单
+        public byte prior_num { set; get; }//砖机急单类型
 
         /// <summary>
         /// 入库策略
