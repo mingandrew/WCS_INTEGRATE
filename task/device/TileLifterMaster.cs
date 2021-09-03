@@ -797,7 +797,7 @@ namespace task.device
                                 CheckDev(task);
 
                                 if (tilelifter.IsUpdate
-                                    || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, tilelifter.ID, 10))
+                                    || mTimer.IsTimeOutAndReset(TimerTag.DevRefreshTimeOut, tilelifter.ID, 5))
                                     MsgSend(task, tilelifter);
                                 if (task.Ignore_1 || task.Ignore_2)
                                 {
@@ -1265,6 +1265,10 @@ namespace task.device
                     {
                         // 砖机回馈品种有问题，直接报警 沿用当前设定品种进行作业
                         if (task.DevConfig.goods_id == 0) return;
+
+                        // 等待 5 秒再使用
+                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_1, 5, 1)) return;
+
                         gid = task.DevConfig.goods_id;
                     }
 
@@ -1420,6 +1424,10 @@ namespace task.device
                     {
                         // 砖机回馈品种有问题，直接报警 沿用当前设定品种进行作业
                         if (task.DevConfig.goods_id == 0) return;
+
+                        // 等待 5 秒再使用
+                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_2, 5, 1)) return;
+
                         gid = task.DevConfig.goods_id;
                     }
 

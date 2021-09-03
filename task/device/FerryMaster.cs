@@ -1296,7 +1296,7 @@ namespace task.device
         private void RfPosMsgSend(FerryPosSet set, DevFerry ferry)
         {
             if (!PubTask.Rf.SendFerryLightPos(set.MEID, ferry.UpSite, ferry.DownSite, ferry.UpLight, ferry.DownLight)
-                && mTimer.IsOver(TimerTag.RfFerrySiteUpdateSendOffline, ferry.DeviceID, 60))
+                && mTimer.IsOver(TimerTag.RfFerrySiteUpdateSendOffline, ferry.DeviceID, 60, 10))
             {
                 StopRfPosSet(set.MEID);
             }

@@ -497,6 +497,12 @@ namespace resource.goods
                         // (默认)前进存砖 下一车脉冲变小；后退存砖 下一车脉冲变大；
                         if (buttomStock != null)
                         {
+                            if (PubMaster.DevConfig.GetCarrierByStockid(buttomStock.id, out string carname))
+                            {
+                                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来添加库存！", buttomStock.pos, carname);
+                                return false;
+                            }
+
                             int loc = 0;
                             if (track.InType(TrackTypeE.储砖_出))
                             {
@@ -632,7 +638,7 @@ namespace resource.goods
         /// <param name="trackid">轨道ID</param>
         /// <param name="uselessStkid">排除库存ID</param>
         /// <returns></returns>
-        private Stock GetStockInLocMin(uint trackid, uint uselessStkid = 0)
+        public Stock GetStockInLocMin(uint trackid, uint uselessStkid = 0)
         {
             List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.id != uselessStkid);
             if (stocks == null || stocks.Count == 0)
@@ -652,7 +658,7 @@ namespace resource.goods
         /// <param name="trackid">轨道ID</param>
         /// <param name="uselessStkid">排除库存ID</param>
         /// <returns></returns>
-        private Stock GetStockInLocMax(uint trackid, uint uselessStkid = 0)
+        public Stock GetStockInLocMax(uint trackid, uint uselessStkid = 0)
         {
             List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid && c.id != uselessStkid);
             if (stocks == null || stocks.Count == 0)

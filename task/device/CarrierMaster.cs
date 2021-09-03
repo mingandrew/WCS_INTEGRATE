@@ -987,7 +987,7 @@ namespace task.device
                     return false;
                 }
 
-                //小车当前所在RF点
+                // 小车当前所在RF点
                 //ushort site = GetCurrentSite(devid);
                 ushort site = GetCurrentPoint(devid); // 改用脉冲
 
@@ -1001,7 +1001,6 @@ namespace task.device
                 uint toTrackid = 0;//目标轨道ID
 
                 Track toTrack; // 作业轨道
-                bool isInFerry = false; // 是否在摆渡车上
 
                 uint carstkid = 0; //车上库存ID
                 ushort stkloc = 0; // 库存脉冲
@@ -1016,7 +1015,7 @@ namespace task.device
                             return false;
                         }
 
-                        if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             // 获取摆渡车后侧对应的轨道
                             if (!PubTask.Ferry.IsInPlaceByFerryTraid(false, track.id, out toTrackid, out result))
@@ -1043,40 +1042,31 @@ namespace task.device
                             return false;
                         }
 
-                        toPoint = (srfid != 0 ? srfid : toTrack.limit_point);
+                        if (track.IsFerryTrack() && toTrack.IsStoreTrack())
+                        {
+                            // 在摆渡车上，取储砖轨道  则获取库存脉冲
+                            toPoint = PubMaster.Goods.GetStockInLocMax(toTrackid)?.location ?? 0;
+                            if (toPoint == 0)
+                            {
+                                result = "无合适取砖库存坐标，请尝试定位到轨道内再发取砖指令";
+                                return false;
+                            }
+                        }
+                        else if (toTrack.IsTileTrack())
+                        {
+                            // 砖机轨道靠配置脉冲
+                            toPoint = (srfid == 0 ? toTrack.limit_point : srfid);
+                        }
+                        else
+                        {
+                            // 轨道内改用靠光电取砖（ 1 -后退，65535 -前进 ）
+                            toPoint = 1;
+                        }
+
                         if (site <= toPoint)
                         {
                             result = "不能再后退了！";
                             return false;
-                        }
-
-                        // 获取库存脉冲 - 停用
-                        //if (toTrack.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
-                        //{
-                        //    stkloc = PubMaster.Goods.GetStockLocByDir(DevMoveDirectionE.后退, toTrackid);
-                        //    if (stkloc == 0)
-                        //    {
-                        //        result = "无合适取砖坐标！";
-                        //        return false;
-                        //    }
-
-                        //    toPoint = stkloc;
-                        //}
-
-                        // 改用靠光电取砖（ 1 -后退，65535 -前进 ）
-                        toPoint = 1;
-
-                        // 砖机轨道靠配置脉冲
-                        if (toTrack.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
-                        {
-                            if (srfid == 0)
-                            {
-                                toPoint = toTrack.limit_point;
-                            }
-                            else
-                            {
-                                toPoint = srfid;
-                            }
                         }
 
                         checkTra = toTrack.ferry_up_code;
@@ -1093,7 +1083,7 @@ namespace task.device
                             return false;
                         }
 
-                        if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             // 获取摆渡车后侧对应的轨道
                             if (!PubTask.Ferry.IsInPlaceByFerryTraid(false, track.id, out toTrackid, out result))
@@ -1121,7 +1111,7 @@ namespace task.device
                         }
 
                         toPoint = (srfid != 0 ? srfid : toTrack.limit_point);
-                        if (toTrack.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                        if (toTrack.IsStoreTrack())
                         {
                             carstkid = PubMaster.DevConfig.GetCarrierStockId(devid);
                             if (!PubMaster.Goods.CalculateNextLocByDir(DevMoveDirectionE.后退, devid, toTrackid, carstkid, out stkloc))
@@ -1153,14 +1143,13 @@ namespace task.device
                             return false;
                         }
 
-                        if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             // 获取摆渡车前侧对应的轨道
                             if (!PubTask.Ferry.IsInPlaceByFerryTraid(true, track.id, out toTrackid, out result))
                             {
                                 return false;
                             }
-
                         }
                         else
                         {
@@ -1181,40 +1170,31 @@ namespace task.device
                             return false;
                         }
 
-                        toPoint = (srfid != 0 ? srfid : toTrack.limit_point_up);
+                        if (track.IsFerryTrack() && toTrack.IsStoreTrack())
+                        {
+                            // 在摆渡车上，取储砖轨道  则获取库存脉冲
+                            toPoint = PubMaster.Goods.GetStockInLocMin(toTrackid)?.location ?? 0;
+                            if (toPoint == 0)
+                            {
+                                result = "无合适取砖库存坐标，请尝试定位到轨道内再发取砖指令";
+                                return false;
+                            }
+                        }
+                        else if (toTrack.IsTileTrack())
+                        {
+                            // 砖机轨道靠配置脉冲
+                            toPoint = (srfid != 0 ? srfid : toTrack.limit_point_up);
+                        }
+                        else
+                        {
+                            // 改用靠光电取砖（ 1 -后退，65535 -前进 ）
+                            toPoint = 65535;
+                        }
+
                         if (site >= toPoint)
                         {
                             result = "不能再前进了！";
                             return false;
-                        }
-
-                        // 获取库存脉冲 - 停用
-                        //if (toTrack.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
-                        //{
-                        //    stkloc = PubMaster.Goods.GetStockLocByDir(DevMoveDirectionE.前进, toTrackid);
-                        //    if (stkloc == 0)
-                        //    {
-                        //        result = "无合适取砖坐标！";
-                        //        return false;
-                        //    }
-
-                        //    toPoint = stkloc;
-                        //}
-
-                        // 改用靠光电取砖（ 1 -后退，65535 -前进 ）
-                        toPoint = 65535;
-
-                        // 砖机轨道靠配置脉冲
-                        if (toTrack.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
-                        {
-                            if (srfid == 0)
-                            {
-                                toPoint = toTrack.limit_point_up;
-                            }
-                            else
-                            {
-                                toPoint = srfid;
-                            }
                         }
 
                         checkTra = toTrack.ferry_down_code;
@@ -1231,7 +1211,7 @@ namespace task.device
                             return false;
                         }
 
-                        if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             // 获取摆渡车前侧对应的轨道
                             if (!PubTask.Ferry.IsInPlaceByFerryTraid(true, track.id, out toTrackid, out result))
@@ -1259,7 +1239,7 @@ namespace task.device
                         }
 
                         toPoint = (srfid != 0 ? srfid : toTrack.limit_point_up);
-                        if (toTrack.InType(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                        if (toTrack.IsStoreTrack())
                         {
                             carstkid = PubMaster.DevConfig.GetCarrierStockId(devid);
                             if (!PubMaster.Goods.CalculateNextLocByDir(DevMoveDirectionE.前进, devid, toTrackid, carstkid, out stkloc))
@@ -1285,7 +1265,7 @@ namespace task.device
 
                     case DevCarrierTaskE.后退至摆渡车:
                         #region 后退至摆渡车
-                        if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             result = "小车已经在摆渡车上了";
                             return false;
@@ -1323,7 +1303,7 @@ namespace task.device
 
                     case DevCarrierTaskE.前进至摆渡车:
                         #region 前进至摆渡车
-                        if (track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             result = "小车已经在摆渡车上了";
                             return false;
@@ -1381,7 +1361,6 @@ namespace task.device
 
                             case TrackTypeE.后置摆渡轨道:
                             case TrackTypeE.前置摆渡轨道:
-                                isInFerry = true;
                                 // 获取摆渡车前侧对应的轨道
                                 if (!PubTask.Ferry.IsInPlaceByFerryTraid(true, track.id, out toTrackid, out result))
                                 {
@@ -1399,8 +1378,8 @@ namespace task.device
                             return false;
                         }
 
-                        checkTra = isInFerry ? toTrack.ferry_up_code : toTrack.ferry_down_code;
-                        overPoint = isInFerry ? toTrack.limit_point : toTrack.limit_point_up;
+                        checkTra = track.IsFerryTrack() ? toTrack.ferry_up_code : toTrack.ferry_down_code;
+                        overPoint = track.IsFerryTrack() ? toTrack.limit_point : toTrack.limit_point_up;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
                         break;
@@ -1427,7 +1406,6 @@ namespace task.device
 
                             case TrackTypeE.后置摆渡轨道:
                             case TrackTypeE.前置摆渡轨道:
-                                isInFerry = true;
                                 // 获取摆渡车后侧对应的轨道
                                 if (!PubTask.Ferry.IsInPlaceByFerryTraid(false, track.id, out toTrackid, out result))
                                 {
@@ -1445,48 +1423,48 @@ namespace task.device
                             return false;
                         }
 
-                        checkTra = isInFerry ? toTrack.ferry_down_code : toTrack.ferry_up_code;
-                        overPoint = isInFerry ? toTrack.limit_point_up : toTrack.limit_point;
+                        checkTra = track.IsFerryTrack() ? toTrack.ferry_down_code : toTrack.ferry_up_code;
+                        overPoint = track.IsFerryTrack() ? toTrack.limit_point_up : toTrack.limit_point;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
                         break;
 
                     case DevCarrierTaskE.倒库:
-                        #region 倒库
-                        if (track.NotInType(TrackTypeE.储砖_出)) //最大定位RFID
-                        {
-                            result = "须在出库轨道上执行！";
-                            return false;
-                        }
+                        #region 倒库 - 暂停用
+                        //if (track.NotInType(TrackTypeE.储砖_出)) //最大定位RFID
+                        //{
+                        //    result = "须在出库轨道上执行！";
+                        //    return false;
+                        //}
 
-                        if (!PubMaster.Goods.ExistStockInTrack(track.brother_track_id))
-                        {
-                            result = "对应的入库轨道并没有库存信息！";
-                            return false;
-                        }
+                        //if (!PubMaster.Goods.ExistStockInTrack(track.brother_track_id))
+                        //{
+                        //    result = "对应的入库轨道并没有库存信息！";
+                        //    return false;
+                        //}
 
-                        if (!PubMaster.Track.IsTrackFull(track.brother_track_id))
-                        {
-                            result = "对应的入库轨道还没有满砖！";
-                            return false;
-                        }
+                        //if (!PubMaster.Track.IsTrackFull(track.brother_track_id))
+                        //{
+                        //    result = "对应的入库轨道还没有满砖！";
+                        //    return false;
+                        //}
 
-                        if (!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
-                        {
-                            return false;
-                        }
+                        //if (!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
+                        //{
+                        //    return false;
+                        //}
 
-                        order = DevCarrierOrderE.倒库指令;
-                        checkTra = track.ferry_down_code;
-                        moveCount = (byte)PubMaster.Goods.GetTrackStockCount(track.brother_track_id);
+                        //order = DevCarrierOrderE.倒库指令;
+                        //checkTra = track.ferry_down_code;
+                        //moveCount = (byte)PubMaster.Goods.GetTrackStockCount(track.brother_track_id);
 
-                        if (PubMaster.Goods.ExistStockInTrack(track.id))
-                        {
-                            byte UpSortCount = (byte)PubMaster.Goods.GetTrackStockCount(track.id);
-                            moveCount += UpSortCount;
-                        }
+                        //if (PubMaster.Goods.ExistStockInTrack(track.id))
+                        //{
+                        //    byte UpSortCount = (byte)PubMaster.Goods.GetTrackStockCount(track.id);
+                        //    moveCount += UpSortCount;
+                        //}
 
-                        memo = string.Format("[ {0} ], 倒库数量[ {1} ]", memo, moveCount);
+                        //memo = string.Format("[ {0} ], 倒库数量[ {1} ]", memo, moveCount);
                         #endregion
                         break;
 
@@ -1497,7 +1475,7 @@ namespace task.device
                             result = "运输车有货不能取砖！";
                             return false;
                         }
-                        if (track.InType(TrackTypeE.前置摆渡轨道, TrackTypeE.后置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             result = "不能在摆渡车上执行！";
                             return false;
@@ -1514,7 +1492,7 @@ namespace task.device
                             result = "运输车无货不能放砖！";
                             return false;
                         }
-                        if (track.InType(TrackTypeE.前置摆渡轨道, TrackTypeE.后置摆渡轨道))
+                        if (track.IsFerryTrack())
                         {
                             result = "不能在摆渡车上执行！";
                             return false;
@@ -1539,10 +1517,20 @@ namespace task.device
                         break;
 
                     case DevCarrierTaskE.测试上升:
+                        if (PubMaster.DevConfig.GetCarrierStockId(devid) > 0)
+                        {
+                            result = "运输车已绑定库存！";
+                            return false;
+                        }
                         order = DevCarrierOrderE.测试上升;
                         break;
 
                     case DevCarrierTaskE.测试下降:
+                        if (PubMaster.DevConfig.GetCarrierStockId(devid) > 0)
+                        {
+                            result = "运输车已绑定库存！";
+                            return false;
+                        }
                         order = DevCarrierOrderE.测试下降;
                         break;
 
