@@ -199,7 +199,7 @@ namespace wcs.ViewModel
                         DialogResult result = await HandyControl.Controls.Dialog.Show<GoodsSelectDialog>()
                          .Initialize<GoodsSelectViewModel>((vm) =>
                          {
-                             vm.SetAreaFilter(area, true);
+                             vm.SetAreaFilter(area, false);
                              if (isuptilelifter)
                              {
                                  vm.QueryStockGood();

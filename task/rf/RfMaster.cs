@@ -1375,7 +1375,7 @@ namespace task.rf
             {
                 if (pack.AddGood)
                 {
-                    if (!PubMaster.Goods.AddGoods(pack.EditGood, out string result, out uint goodid))
+                    if (!PubMaster.Goods.AddGoods(pack.EditGood, out string result, out uint goodid, "平板"))
                     {
                         SendFail2Rf(msg.MEID, FunTag.UpdateGood, result);
                     }

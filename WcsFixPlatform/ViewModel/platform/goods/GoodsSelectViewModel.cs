@@ -118,7 +118,9 @@ namespace wcs.ViewModel
 
         public void SetAreaFilter(uint areaid, bool isshow)
         {
-            filterareaid = areaid; 
+            filterareaid = 0;// areaid; 
+            isshow = false;
+            return;
             if (PubMaster.Area.IsSingleArea(out uint aid))
             {
                 showareafilter = false;

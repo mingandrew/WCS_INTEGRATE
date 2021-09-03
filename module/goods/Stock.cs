@@ -70,5 +70,10 @@ namespace module.goods
             return string.Format("标识[ {0} ]，轨道[ {1}^{2} ]，位置[ {3}^{4} ]", id, TrackType, track_id,
                 PosType, pos);
         }
+
+        public string ToLocString()
+        {
+            return string.Format("标识[ {0} ]，脉冲[ {1} ]", id, location);
+        }
     }
 }

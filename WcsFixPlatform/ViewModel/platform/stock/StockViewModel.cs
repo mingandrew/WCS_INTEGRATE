@@ -299,7 +299,7 @@ namespace wcs.ViewModel
         {
             if (!CheckSelectTrack()) return;
 
-            uint area = _selecttrack.area;
+            uint area = 0;// _selecttrack.area;
             if (!PubMaster.Goods.ExistStockInTrack(_selecttrack.id))
             {
                 Growl.Warning("当前轨道没有库存！");
@@ -328,11 +328,11 @@ namespace wcs.ViewModel
             if (result.p1 is bool rs && result.p2 is GoodsView good)
             {
                 Stock stock = List[0];
-                if (stock.goods_id == good.ID)
-                {
-                    Growl.Warning("库存品种相同，不用修改！");
-                    return;
-                }
+                //if (stock.goods_id == good.ID)
+                //{
+                //    Growl.Warning("库存品种相同，不用修改！");
+                //    return;
+                //}
                 if (ShowBrief)
                 {
                     ShowStockGoodEditDialog(_selecttrack.id, SelectGood.goods_id, good.ID);

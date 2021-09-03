@@ -950,7 +950,7 @@ namespace resource.goods
         #region[增删改]
 
         #region[品种]
-        public bool AddGoods(Goods good, out string result, out uint gid)
+        public bool AddGoods(Goods good, out string result, out uint gid, string memo)
         {
             gid = 0;
             if (GoodsList.Exists(c =>  c.size_id == good.size_id
@@ -975,6 +975,12 @@ namespace resource.goods
                 good.GoodCarrierType = PubMaster.Area.GetCarrierType(good.area_id);
                 good.createtime = DateTime.Now;
                 good.updatetime = DateTime.Now;
+                good.memo = memo;
+
+                if(good.area_id == 0 && PubMaster.Area.IsSingleArea(out uint areaid))
+                {
+                    good.area_id = areaid;
+                }
                 PubMaster.Mod.GoodSql.AddGoods(good);
                 GoodsList.Add(good);
                 GoodsList = GoodsList.OrderByDescending(c => c.updatetime).ToList();
@@ -3109,7 +3115,7 @@ namespace resource.goods
                 info = naddgname + "/" + naddgname + PubMaster.Goods.GetGoodSizeSimpleName(ngood.size_id, "/") + "/" + levelname
             };
 
-            return AddGoods(pgood, out ad_rs, out pgoodid);
+            return AddGoods(pgood, out ad_rs, out pgoodid, "转产生成");
         }
 
 
@@ -3664,7 +3670,7 @@ namespace resource.goods
             {
                 if(Math.Abs(stocks[i].location - stocks[i+1].location) >= space)
                 {
-                    result = string.Format("[ {0} ] -> [ {1} ]", stocks[i].ToSmalString(), stocks[i + 1].ToSmalString());
+                    result = string.Format("[ {0} ] -> [ {1} ]", stocks[i].ToLocString(), stocks[i + 1].ToLocString());
                     stockid = stocks[i].id;//脉冲小的库存
                     return true;
                 }

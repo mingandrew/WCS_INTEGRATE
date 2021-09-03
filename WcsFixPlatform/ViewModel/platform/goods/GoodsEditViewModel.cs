@@ -240,7 +240,7 @@ namespace wcs.ViewModel
             if (mIsAdd)
             {
                 mEidtGood.GoodCarrierType = PubMaster.Area.GetCarrierType(mEidtGood.area_id);
-                if (!PubMaster.Goods.AddGoods(mEidtGood, out string result, out uint pgoodid))
+                if (!PubMaster.Goods.AddGoods(mEidtGood, out string result, out uint pgoodid, "PC"))
                 {
                     Growl.Warning(result);
                     return false;
