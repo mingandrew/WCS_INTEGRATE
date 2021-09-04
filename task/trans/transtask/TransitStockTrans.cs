@@ -1,11 +1,13 @@
 ﻿using enums;
 using module.goods;
+using module.track;
 using resource;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using tool.appconfig;
 
 namespace task.trans.transtask
 {
@@ -60,7 +62,7 @@ namespace task.trans.transtask
                 }
 
                 _M.SetGoods(trans, stk.goods_id, stk.level);
-                
+
                 DoMoveStock(trans, stk);
             }
         }
@@ -77,7 +79,7 @@ namespace task.trans.transtask
 
             if (_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.中转倒库)) return;
 
-            List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, top.goods_id);
+            List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, top.goods_id, top.level);
             uint trackid = 0;
             foreach (uint traid in trackids)
             {
@@ -100,10 +102,19 @@ namespace task.trans.transtask
             else
             {
                 // 无轨道转移，则来源轨道执行轨道内的倒库
-                uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.倒库任务, top.goods_id, top.level, top.id,
-                    trans.take_track_id, trans.take_track_id, TransStatusE.检查轨道, 0, track.line, trans.AllocateFerryType);
+                Track track = PubMaster.Track.GetTrack(trans.take_track_id);
+                ushort safe = PubMaster.Goods.GetStackSafe(top.goods_id);
+                if (PubMaster.Track.ExistSpaceAwayFromOut(track, top, safe, out int discountTop)
+                    || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(track, safe, out string result)))
+                {
+                    uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.倒库任务, top.goods_id, top.level, top.id,
+                        trans.take_track_id, trans.take_track_id, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
 
-                _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖，生成轨道倒库任务 [ID：{0}]", transid));
+                    _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖，生成轨道倒库任务 [ID：{0}]", transid));
+                    return;
+                }
+
+                _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖"));
                 return;
             }
 

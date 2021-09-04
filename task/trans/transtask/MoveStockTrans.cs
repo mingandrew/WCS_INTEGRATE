@@ -245,7 +245,7 @@ namespace task.trans.transtask
                             bool isWarn = false;
 
                             // 换轨道?
-                            List<uint> newTraIDs = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, trans.goods_id);
+                            List<uint> newTraIDs = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, trans.goods_id, trans.level);
                             if (newTraIDs != null && newTraIDs.Count > 0)
                             {
                                 foreach (uint traid in newTraIDs)

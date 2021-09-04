@@ -1624,6 +1624,15 @@ namespace task.device
                             cao.Order = DevCarrierOrderE.无;
                         }
 
+                        // 取放砖指令 定位与结束脉冲相近时 无需再移动
+                        if (cao.Order == DevCarrierOrderE.取砖指令 || cao.Order == DevCarrierOrderE.放砖指令)
+                        {
+                            if (Math.Abs(cao.ToPoint - cao.OverPoint) <= 30) // ≈50CM
+                            {
+                                cao.OverPoint = cao.ToPoint;
+                            }
+                        }
+
                         // 无轨道编号就以当前为准
                         if (cao.CheckTra == 0) cao.CheckTra = task.CurrentSite;
 

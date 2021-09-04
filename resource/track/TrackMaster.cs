@@ -313,7 +313,7 @@ namespace resource.track
         /// <param name="trackid"></param>
         /// <param name="goodsid"></param>
         /// <returns></returns>
-        public List<uint> GetOutTrackIDByInTrack(uint trackid, uint goodsid)
+        public List<uint> GetOutTrackIDByInTrack(uint trackid, uint goodsid, byte level)
         {
             List<uint> trackids = new List<uint>();
             Track traFrom = GetTrack(trackid);
@@ -341,7 +341,7 @@ namespace resource.track
 
                     // 有砖时确认尾部库存品种一致
                     Stock stockTo = PubMaster.Goods.GetStockForIn(traTo.id);
-                    if (stockTo == null || (stockTo != null && stockTo.goods_id != goodsid))
+                    if (stockTo == null || (stockTo != null && (stockTo.goods_id != goodsid || stockTo.level != level)))
                     {
                         continue;
                     }
@@ -2584,8 +2584,12 @@ namespace resource.track
 
             foreach (var item in TrackList)
             {
-                if (item.TrackStatus == TrackStatusE.停用) continue;
                 if (tracids.Contains(item.id)) continue;
+                if (item.TrackStatus == TrackStatusE.停用)
+                {
+                    SetTrackSortable(item, false, SORT_LEVEL_NO, "已被停用");
+                    continue;
+                }
 
                 switch (item.Type)
                 {
@@ -2680,38 +2684,27 @@ namespace resource.track
             {
                 if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, topstock.goods_id, topstock.level, TileWorkModeE.上砖))
                 {
-                    //第一车库存距离轨道头部有5个车的距离
-                    int discount = GetPointCompareCount((track.is_take_forward ? track.limit_point : track.limit_point_up), topstock.location, safe);
-                    if (discount >= TrackSortFrontCount)
+                    // 第一车库存距离轨道头部有5个车的距离
+                    if (ExistSpaceAwayFromOut(track, topstock, safe, out int discountTop))
                     {
                         SetTrackSortable(track, true, SORT_LEVEL_2, "轨道头部有空间");
                         return;
                     }
 
                     // 3.出轨道尾部大量空位，无上砖机上砖
+                    int discountBtm = 0;
                     Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
-                    if (btmstock != null)
+                    if (btmstock != null && ExistSpaceAwayFromIn(track, btmstock, safe, out discountBtm))
                     {
-                        // 结束点
-                        uint overPoint = 0;
-                        if (track.Type == TrackTypeE.储砖_出入)
-                        {
-                            overPoint = track.is_give_back ? track.limit_point_up : track.limit_point;
-                        }
-                        else
-                        {
-                            overPoint = track.split_point;
-                        }
-
-                        //第一车库存距离轨道尾部有5个车的距离
-                        discount = GetPointCompareCount(overPoint, btmstock.location, safe);
-                        if (discount >= TrackSortBackCount)
-                        {
-                            SetTrackSortable(track, true, SORT_LEVEL_3, "轨道尾部有空间");
-                            return;
-                        }
+                        SetTrackSortable(track, true, SORT_LEVEL_3, "轨道尾部有空间");
+                        return;
                     }
 
+                    // 不满足倒库条件
+                    SetTrackSortable(track, false, SORT_LEVEL_NO, 
+                        string.Format("不满足倒库: 头部设置空位[ {0} ], 当前空位[ {1} ]; 尾部设置空位[ {2} ], 当前空位[ {3} ]", 
+                        TrackSortFrontCount, discountTop, TrackSortBackCount, discountBtm));
+                    return;
                 }
                 else
                 {
@@ -2760,24 +2753,23 @@ namespace resource.track
                         }
                     }
 
-                    //第一车库存距离轨道头部有5个车的距离
-                    int discount = GetPointCompareCount((track.is_take_forward ? track.limit_point : track.limit_point_up), topstock.location, safe);
-                    if (discount >= TrackSortFrontCount)
+                    // 第一车库存距离轨道头部有5个车的距离
+                    if (ExistSpaceAwayFromOut(track, topstock, safe, out int discount))
                     {
                         SetTrackSortable(track, true, SORT_LEVEL_2, "轨道头部有空间");
                         return;
                     }
-                    else if (GlobalWcsDataConfig.BigConifg.TrackSortMid
-                        && PubMaster.Goods.ExistCountEmptySpace(track.id, TrackSortMidCount, safe, out string rs))
+
+                    // 中间有空间
+                    if (GlobalWcsDataConfig.BigConifg.TrackSortMid && ExistSpaceBetween(track, safe, out string result))
                     {
-                        SetTrackSortable(track, true, SORT_LEVEL_2, string.Format("中间存在[ {0} ]车的空位,备注[ {1} ]", TrackSortMidCount, rs));
+                        SetTrackSortable(track, true, SORT_LEVEL_2, string.Format("中间存在[ {0} ]车的空位,备注[ {1} ]", TrackSortMidCount, result));
                         return;
                     }
-                    else
-                    {
-                        SetTrackSortable(track, false, SORT_LEVEL_NO, string.Format("不满足倒库, 头部空位[ {0} ], 头部设置空位[ {1} ]", discount, TrackSortFrontCount));
-                        return;
-                    }
+
+                    // 不满足倒库条件
+                    SetTrackSortable(track, false, SORT_LEVEL_NO, string.Format("不满足倒库: 头部设置空位[ {0} ], 当前空位[ {1} ]", TrackSortFrontCount, discount));
+                    return;
                 }
                 else
                 {
@@ -2797,10 +2789,105 @@ namespace resource.track
         /// <param name="loc2"></param>
         /// <param name="carspace"></param>
         /// <returns></returns>
-        public int GetPointCompareCount(uint loc1, uint loc2, ushort carspace)
+        public int GetPointCompareCount(int loc1, int loc2, ushort carspace)
         {
-            return (int)Math.Abs(loc1 - loc2) / carspace;
+            int limit = Math.Abs(loc1 - loc2);
+            return limit / carspace;
         }
+
+        /// <summary>
+        /// 库存距离出库口是否存在作业空间
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="btmstock"></param>
+        /// <param name="safe"></param>
+        /// <returns></returns>
+        public bool ExistSpaceAwayFromOut(Track track, Stock topstock, ushort safe, out int discount)
+        {
+            if(topstock != null)
+            {
+                // 确定出库口脉冲
+                uint limit = track.is_take_forward ? track.limit_point : track.limit_point_up;
+
+                // 该库存脉冲 与 轨道出库口脉冲  之间的库存数
+                discount = GetPointCompareCount((int)limit, topstock.location, safe);
+
+                // 默认库存空间
+                if (discount >= TrackSortFrontCount) return true;
+            }
+
+            discount = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// 库存距离入库口是否存在作业空间
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="btmstock"></param>
+        /// <param name="safe"></param>
+        /// <returns></returns>
+        public bool ExistSpaceAwayFromIn(Track track, Stock btmstock, ushort safe, out int discount)
+        {
+            if (btmstock != null)
+            {
+                // 确定入库口脉冲
+                uint limit = 0;
+                if (track.Type == TrackTypeE.储砖_出入)
+                {
+                    limit = track.is_give_back ? track.limit_point_up : track.limit_point;
+                }
+                else
+                {
+                    limit = track.split_point;
+                }
+
+                // 该库存脉冲 与 轨道入库口脉冲  之间的库存数
+                discount = GetPointCompareCount((int)limit, btmstock.location, safe);
+
+                // 默认库存空间
+                if (discount >= TrackSortBackCount) return true;
+            }
+
+            discount = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// 轨道内相邻库存之间是否存在作业空间
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="safe"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public bool ExistSpaceBetween(Track track, ushort safe, out string result)
+        {
+            if (track != null)
+            {
+                List<Stock> stocks = PubMaster.Goods.GetStocks(track.id);
+                if (stocks != null && stocks.Count > 0)
+                {
+                    stocks.Sort((x, y) => x.location.CompareTo(y.location));
+
+                    for (int i = 1; i < stocks.Count; i++)
+                    {
+                        // 前后库存脉冲  之间的库存数
+                        int discount = GetPointCompareCount(stocks[i - 1].location, stocks[i].location, safe);
+                        // 默认库存空间
+                        if (discount >= TrackSortMidCount)
+                        {
+                            result = string.Format("[ {0} ] -- [ {1} ]", stocks[i - 1].ToSmalString(), stocks[i].ToSmalString());
+                            return true;
+                        }
+                    }
+
+                }
+            }
+
+            result = "";
+            return false;
+        }
+
         #endregion
     }
 

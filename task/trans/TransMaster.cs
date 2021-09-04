@@ -122,8 +122,8 @@ namespace task.trans
             List<Track> tracksFrom = tracks.FindAll(c => c.Type2 == TrackType2E.入库);
             if (tracksFrom == null || tracksFrom.Count == 0) return;
 
-            List<Track> tracksTo = tracks.FindAll(c => c.Type2 == TrackType2E.出库);
-            if (tracksTo == null || tracksTo.Count == 0) return;
+            //List<Track> tracksTo = tracks.FindAll(c => c.Type2 == TrackType2E.出库);
+            //if (tracksTo == null || tracksTo.Count == 0) return;
 
             // 中转倒库
             foreach (Track traFrom in tracksFrom)
@@ -135,14 +135,38 @@ namespace task.trans
                 if (ExistTransWithTracks(traFrom.id)) continue;
 
                 Stock stock = PubMaster.Goods.GetStockForOut(traFrom.id);
-                if(stock == null) continue;
+                if (stock == null) continue;
 
                 // 已存在同品种中转则跳过
                 if (ExistTaskSameGoods(traFrom.area, traFrom.line, 0, stock.goods_id, stock.level, TransTypeE.中转倒库)) continue;
 
+                // 不存在合适的目的轨道
+                List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(traFrom.id, stock.goods_id, stock.level);
+                uint trackid = 0;
+                foreach (uint traid in trackids)
+                {
+                    if (!ExistTransWithTrackButType(traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                    {
+                        trackid = traid;
+                        break;
+                    }
+                }
+                if (trackid == 0)
+                {
+                    // 检查本身是否需要倒库
+                    ushort safe = PubMaster.Goods.GetStackSafe(stock.goods_id);
+                    if (PubMaster.Track.ExistSpaceAwayFromOut(traFrom, stock, safe, out int discountTop)
+                        || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(traFrom, safe, out string result)))
+                    {
+                        AddTransWithoutLock(traFrom.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traFrom.id, traFrom.id,
+                            TransStatusE.检查轨道, 0, traFrom.line, (traFrom.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
+                    }
+                    continue;
+                }
+
                 // 生成倒库任务
-                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traFrom.id, 0
-                    , TransStatusE.整理中, 0, traFrom.line, (traFrom.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
+                AddTransWithoutLock(traFrom.area, 0, TransTypeE.中转倒库, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traFrom.id, 0,
+                    TransStatusE.整理中, 0, traFrom.line, (traFrom.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                 return;
 
             }
@@ -1037,11 +1061,11 @@ namespace task.trans
         /// <returns></returns>
         public bool ExistTaskSameGoods(uint area, uint line, uint transid, uint goodsid, byte level, params TransTypeE[] types)
         {
-            return TransList.Exists(c => !c.finish 
-            && (transid == 0 || (transid > 0 && c.id != transid)) 
-            && c.area_id == area 
-            && c.line == line 
-            && c.goods_id == goodsid 
+            return TransList.Exists(c => !c.finish
+            && (transid == 0 || (transid > 0 && c.id != transid))
+            && c.area_id == area
+            && c.line == line
+            && c.goods_id == goodsid
             && c.level == level
             && c.InType(types));
         }
@@ -1553,7 +1577,7 @@ namespace task.trans
             if (PubMaster.Goods.IsTopStockBehindUpSplitPoint(track.id, track.up_split_point, out uint stockid)
                 && !PubMaster.Goods.IsOnlyOneWithStock(stockid))
             {
-                if(isAddTrans) AddTransWithoutLock(track.area, 0, TransTypeE.上砖侧倒库, goods_id, level, 0, track_id, track_id, TransStatusE.移车中, carrier_id, track.line);
+                if (isAddTrans) AddTransWithoutLock(track.area, 0, TransTypeE.上砖侧倒库, goods_id, level, 0, track_id, track_id, TransStatusE.移车中, carrier_id, track.line);
                 return true;
             }
             return false;

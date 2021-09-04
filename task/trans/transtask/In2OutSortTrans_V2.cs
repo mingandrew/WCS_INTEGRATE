@@ -25,24 +25,22 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CheckingTrack(StockTrans trans)
         {
-            bool havedifcaringive = true, havecarintake = true;
-
             //转移卸货轨道不符合的运输车
-            if (!CheckGoodsAndAddMoveTask(trans, trans.give_track_id))
+            if (CheckGoodsAndAddMoveTask(trans, trans.give_track_id))
             {
-                havedifcaringive = false;
+                return;
             }
-            
-            //是否有小车在入库侧轨道
+
+            //转移在轨道入库侧的运输车
             if (CheckCarAndAddMoveTask(trans, trans.take_track_id, true))
             {
-                havecarintake = false;
+                return;
             }
 
-            if (!havecarintake && !havedifcaringive)
-            {
-                _M.SetStatus(trans, TransStatusE.调度设备);
-            }
+            // 确定作业库存
+            SetStockForSort(trans);
+
+            _M.SetStatus(trans, TransStatusE.调度设备);
         }
 
         /// <summary>
@@ -300,7 +298,9 @@ namespace task.trans.transtask
             #region 通用轨道
             if (track.Type == TrackTypeE.储砖_出入 && isftask)
             {
-                #region 基础判断
+                #region 基础脉冲
+                // 小车当前脉冲
+                ushort carPoint = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
                 // 安全距离
                 ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
                 // 极限/结束 位置
@@ -316,48 +316,27 @@ namespace task.trans.transtask
                     overP = track.limit_point;
                 }
 
-                // 倒库位置
-                ushort takeSite = 0, giveSite = 0;
-                // 小车当前脉冲
-                ushort carSite = PubTask.Carrier.GetCurrentPoint(trans.carrier_id);
-                // 目标库存
-                Stock targetSTK = null;
-                if (isload)
-                {
-                    // 小车当前位置前
-                    targetSTK = PubMaster.Goods.GetStockInfrontStockPoint(track.id, carSite);
-                }
-                else
-                {
-                    // 分界点前
-                    targetSTK = PubMaster.Goods.GetStockInfrontStockPoint(track.id, track.split_point);
-                }
-
-                if (targetSTK != null)
-                {
-                    giveSite = (ushort)(track.is_take_forward ? (targetSTK.location + safe) : (targetSTK.location - safe));
-                }
-                else
-                {
-                    giveSite = limitP;
-                }
-
-                if (giveSite == 0)
-                {
-                    #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 4008, string.Format("无放砖位置"));
-                    #endregion
-                    return;
-                }
                 #endregion
 
-                #region 载砖-找地方放
+                #region 载砖
                 if (isload)
                 {
+                    // 更新库存为小车绑定库存ID
+                    _M.SetStock(trans, PubMaster.DevConfig.GetCarrierStockId(trans.carrier_id));
+
+                    // 获取放砖位置
+                    if (!GetTransferGivePoint(track.id, carrierid, limitP, carPoint, out ushort givePoint))
+                    {
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 4008, string.Format("无合适放砖位置"));
+                        #endregion
+                        return;
+                    }
+
                     // 放砖最小判断脉冲 ±20
                     ushort mindicG = 20;
                     // 判断位置
-                    if (track.is_give_back ? (giveSite > (carSite - mindicG)) : (giveSite < (carSite + mindicG)))
+                    if (track.is_give_back ? (givePoint > (carPoint - mindicG)) : (givePoint < (carPoint + mindicG)))
                     {
                         // 原地放砖
                         PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
@@ -367,7 +346,7 @@ namespace task.trans.transtask
                     }
                     else
                     {
-                        MoveToGive(track.id, trans.carrier_id, trans.id, giveSite);
+                        MoveToGive(track.id, trans.carrier_id, trans.id, givePoint);
                     }
 
                     #region 【任务步骤记录】
@@ -377,42 +356,64 @@ namespace task.trans.transtask
                 }
                 #endregion
 
-                #region 无砖-倒库判断
+                #region 无砖
                 if (isnotload)
                 {
-                    // 无取砖位置 判断是否结束
-                    if (!GetTransferTakePoint(track.id, overP, track.up_split_point, out takeSite))
+                    // 判断作业库存
+                    if (trans.stock_id == 0)
                     {
+                        // 无作业库存  结束
                         _M.SetStatus(trans, TransStatusE.小车回轨);
-                        return;
-                    }
-
-                    // 取砖最小判断脉冲 ±10
-                    ushort mindicT = 10;
-                    // 判断当前位置是否是取砖移动范围
-                    if (track.is_take_forward ? (carSite > (takeSite - mindicT)) : (carSite < (takeSite + mindicT)))
-                    {
-                        // 小车需先到合适位置 (前进取 -小车要在库存位后至少 10 脉冲；后退取 -小车要在库存位前至少 10 脉冲)
-                        ushort toloc = (ushort)(track.is_take_forward ? (takeSite - mindicT) : (takeSite + mindicT));
-                        MoveToLoc(track.id, trans.carrier_id, trans.id, toloc);
-
-                        #region 【任务步骤记录】
-                        _M.LogForCarrierTake(trans, track.id, "取砖前，让小车先到合适位置");
-                        #endregion
                         return;
                     }
                     else
                     {
-                        // 倒库
-                        MoveToSort(track.id, carrierid, trans.id, takeSite, giveSite,
-                            string.Format("分界点[ {0} ], 取砖点[ {1} ], 放砖点[ {2} ]", track.split_point, takeSite, giveSite));
+                        // 作业库存 取砖脉冲
+                        ushort takePoint = PubMaster.Goods.GetStock(trans.stock_id)?.location ?? 0;
+                        // 作业库存 放砖脉冲
+                        if (!GetTransferGivePoint(track.id, carrierid, limitP, takePoint, out ushort givePoint))
+                        {
+                            #region 【任务步骤记录】
+                            _M.SetStepLog(trans, false, 4008, string.Format("无合适放砖位置"));
+                            #endregion
+                            return;
+                        }
+                        // 取放位置间距  ≈173CM
+                        ushort dis = 100;
+                        // 取放位置间距过小则重新设定作业库存
+                        if (Math.Abs(takePoint - givePoint) <= dis)
+                        {
+                            SetStockForSort(trans);
+                            return;
+                        }
 
-                        #region 【任务步骤记录】
-                        _M.LogForCarrierSortRelay(trans, track.id);
-                        #endregion
-                        return;
+                        // 取砖最小判断脉冲 ±10
+                        ushort mindicT = 10;
+                        // 判断当前位置是否是取砖移动范围
+                        if (track.is_take_forward ? (carPoint > (takePoint - mindicT)) : (carPoint < (takePoint + mindicT)))
+                        {
+                            // 小车需先到合适位置 (前进取 -小车要在库存位后至少 10 脉冲；后退取 -小车要在库存位前至少 10 脉冲)
+                            ushort toloc = (ushort)(track.is_take_forward ? (takePoint - mindicT) : (takePoint + mindicT));
+                            MoveToLoc(track.id, trans.carrier_id, trans.id, toloc);
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierTake(trans, track.id, "取砖前，让小车先到合适位置");
+                            #endregion
+                            return;
+                        }
+                        else
+                        {
+                            // 倒库
+                            MoveToSort(track.id, trans.carrier_id, trans.id, takePoint, givePoint,
+                                string.Format("分界点[ {0} ], 取砖点[ {1} ], 放砖点[ {2} ]", track.split_point, takePoint, givePoint));
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierSortRelay(trans, track.id);
+                            #endregion
+                            return;
+                        }
+
                     }
-
                 }
                 #endregion
 

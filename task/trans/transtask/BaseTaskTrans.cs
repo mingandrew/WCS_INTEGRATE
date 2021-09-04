@@ -840,6 +840,66 @@ namespace task.trans.transtask
         #region [库存转移 - 轨道内倒库]
 
         /// <summary>
+        /// 更新倒库作业库存
+        /// </summary>
+        /// <param name="trans"></param>
+        public void SetStockForSort(StockTrans trans)
+        {
+            List<Stock> stocks = PubMaster.Goods.GetStocks(trans.give_track_id);
+            if (stocks == null || stocks.Count == 0)
+            {
+                _M.SetStock(trans, 0);
+                return;
+            }
+
+            if (PubMaster.Track.IsTakeForwardTrack(trans.give_track_id))
+            {
+                // 前进取砖，库存脉冲按从小到大
+                stocks.Sort((x, y) => x.location.CompareTo(y.location));
+            }
+            else
+            {
+                // 后退取砖，库存脉冲按从大到小
+                stocks.Sort((x, y) => y.location.CompareTo(x.location));
+            }
+
+            // 先看第一车
+            if (trans.stock_id == 0)
+            {
+                _M.SetStock(trans, stocks[0].id);
+                return;
+            }
+
+            // 开始计算index
+            int next = (stocks.FindIndex(c => c.id == trans.stock_id) + 1);
+            // 超范围 - 结束
+            if (next == 0 || next == stocks.Count)
+            {
+                _M.SetStock(trans, 0);
+                return;
+            }
+
+            // 安全距离
+            ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+            for (int i = next; i < stocks.Count; i++)
+            {
+                // 取放位置间距过小则跳过
+                if (Math.Abs(stocks[i].location - stocks[i - 1].location) <= safe)
+                {
+                    continue;
+                }
+
+                // 设定作业库存
+                _M.SetStock(trans, stocks[i].id);
+                return;
+            }
+
+            // 结束
+            _M.SetStock(trans, 0);
+            return;
+        }
+
+        /// <summary>
         /// 获取倒库取砖位置
         /// </summary>
         /// <param name="trackid"></param>
