@@ -718,7 +718,7 @@ namespace task.device
                 if (track.NotInType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道))
                 {
                     //将库存转移到轨道的位置
-                    PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.id, false, "", task.ID);
+                    PubMaster.Goods.MoveStock(task.DevConfig.stock_id, track.id, "", task.ID);
 
                     if (task.IsUnloadInFerry)
                     {
@@ -830,7 +830,7 @@ namespace task.device
             if (task.DevConfig.stock_id != 0)
             {
                 //根据小车当前的位置更新库存对应所在的轨道
-                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, false, task.CurrentOrder + "", task.ID);
+                PubMaster.Goods.MoveStock(task.DevConfig.stock_id, task.CurrentTrackId, task.CurrentOrder + "", task.ID);
 
                 if (!task.IsNotDoingTask && task.IsLoad())
                 {
@@ -1627,7 +1627,7 @@ namespace task.device
                         // 取放砖指令 定位与结束脉冲相近时 无需再移动
                         if (cao.Order == DevCarrierOrderE.取砖指令 || cao.Order == DevCarrierOrderE.放砖指令)
                         {
-                            if (Math.Abs(cao.ToPoint - cao.OverPoint) <= 30) // ≈50CM
+                            if (Math.Abs(cao.ToPoint - cao.OverPoint) <= 15) // ≈26CM
                             {
                                 cao.OverPoint = cao.ToPoint;
                             }

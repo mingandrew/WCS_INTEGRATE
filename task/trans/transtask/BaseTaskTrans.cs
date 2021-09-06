@@ -236,11 +236,10 @@ namespace task.trans.transtask
             bool isback = PubMaster.Track.IsGiveBackTrack(trackID);
 
             // 判断下一车库存脉冲
-            if (!PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, trans.carrier_id, trackID, trans.stock_id, out stkLoc)
-                || PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.line, trackID))
+            if (!PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, trans.carrier_id, trackID, trans.stock_id, out stkLoc))
             {
                 // 设满砖
-                PubMaster.Track.UpdateStockStatus(trackID, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
+                PubMaster.Track.SetStockStatusAuto(trackID, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
                 PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trackID, TrackLogE.满轨道, "计算坐标值无法存入下一车");
 
                 #region 【任务步骤记录】
@@ -254,7 +253,7 @@ namespace task.trans.transtask
             if (PubMaster.Goods.IsMoreThanFullQty(trans.area_id, trans.line, trackID))
             {
                 // 设满砖
-                PubMaster.Track.UpdateStockStatus(trackID, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
+                PubMaster.Track.SetStockStatusAuto(trackID, TrackStockStatusE.满砖, "当前库存数已达上限，无法存入下一车");
                 PubMaster.Track.AddTrackLog((ushort)trans.area_id, trans.carrier_id, trackID, TrackLogE.满轨道, "当前库存数已达上限，无法存入下一车");
 
                 #region 【任务步骤记录】
@@ -881,6 +880,8 @@ namespace task.trans.transtask
 
             // 安全距离
             ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+            // 再加个 ≈173CM 判断好了
+            safe += 100;
             for (int i = next; i < stocks.Count; i++)
             {
                 // 取放位置间距过小则跳过

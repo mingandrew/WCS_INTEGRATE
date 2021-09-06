@@ -562,7 +562,7 @@ namespace wcs.ViewModel
                     if (top != null)
                     {
                         List<uint> tras = PubMaster.Track.GetFerryTrackId(1, TransTypeE.上砖任务);
-                        PubMaster.Goods.MoveStock(top.id, tras[0], false, "测试转移");
+                        PubMaster.Goods.MoveStock(top.id, tras[0], "测试转移");
                         Growl.Success("转移成功！");
                     }
 

@@ -613,11 +613,11 @@ namespace resource.goods
                     //判断是否能继续放砖
                     if (IsTrackFull(trackid, (track.is_give_back ? track.limit_point_up : track.limit_point), safe, track.is_give_back))
                     {
-                        PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.满砖, memo);
+                        PubMaster.Track.SetStockStatusAuto(trackid, TrackStockStatusE.满砖, memo);
                     }
                     else
                     {
-                        PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.有砖, memo);
+                        PubMaster.Track.SetStockStatusAuto(trackid, TrackStockStatusE.有砖, memo);
                     }
                     _mlog.Status(true, builder.ToString());
                     rs = "";
@@ -1527,7 +1527,7 @@ namespace resource.goods
 
             if (!ExistStockInTrack(stock.track_id))
             {
-                PubMaster.Track.UpdateStockStatus(stock.track_id, TrackStockStatusE.空砖, memo);
+                PubMaster.Track.SetStockStatusAuto(stock.track_id, TrackStockStatusE.空砖, memo);
             }
 
             rs = "";
@@ -1829,11 +1829,8 @@ namespace resource.goods
         /// <param name="stock_id">库存ID</param>
         /// <param name="to_track_id">被转移到的轨道ID</param>
         /// <param name="fromtrans">调用方法来自任务逻辑</param>
-        public void MoveStock(uint stock_id, uint to_track_id, bool fromtrans = true, string memo = "", uint devid = 0)
+        public void MoveStock(uint stock_id, uint to_track_id, string memo = "", uint devid = 0)
         {
-            //屏蔽任务逻辑里面的调用
-            if (fromtrans) return;
-
             Stock stock = StockList.Find(c => c.id == stock_id);
             if (stock != null && stock.track_id != to_track_id && to_track_id > 0)
             {
@@ -1876,7 +1873,7 @@ namespace resource.goods
 
                     if (totrack.StockStatus == TrackStockStatusE.空砖)
                     {
-                        PubMaster.Track.UpdateStockStatus(to_track_id, TrackStockStatusE.有砖, memo);
+                        PubMaster.Track.SetStockStatusAuto(to_track_id, TrackStockStatusE.有砖, memo);
                     }
 
                     //if (!CheckCanAddStockQty(totrack.id, stock.goods_id, 1, out int _, out string _))
@@ -1894,12 +1891,12 @@ namespace resource.goods
                     if (fromtrack.StockStatus == TrackStockStatusE.满砖
                         && fromtrack.Type == TrackTypeE.储砖_出)
                     {
-                        PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.有砖, memo);
+                        PubMaster.Track.SetStockStatusAuto(from_track_id, TrackStockStatusE.有砖, memo);
                     }
 
                     if (!ExistStockInTrack(from_track_id))
                     {
-                        PubMaster.Track.UpdateStockStatus(from_track_id, TrackStockStatusE.空砖, memo);
+                        PubMaster.Track.SetStockStatusAuto(from_track_id, TrackStockStatusE.空砖, memo);
                     }
                 }
                 #endregion
@@ -2180,7 +2177,7 @@ namespace resource.goods
                     CheckStockTop(trackid);
                     CheckStockBottom(trackid);
                     PubMaster.Sums.CheckTrackSum(trackid);
-                    PubMaster.Track.UpdateStockStatus(trackid, TrackStockStatusE.有砖, memo);
+                    PubMaster.Track.SetStockStatusAuto(trackid, TrackStockStatusE.有砖, memo);
                     rs = "";
                     return true;
                 }

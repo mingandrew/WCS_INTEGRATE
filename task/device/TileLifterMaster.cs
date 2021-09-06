@@ -1722,7 +1722,7 @@ namespace task.device
                 stockid = PubMaster.Goods.AddStock(tileid, tiletrackid, goodid, fullqty, level);
                 if (stockid > 0)
                 {
-                    PubMaster.Track.UpdateStockStatus(tiletrackid, TrackStockStatusE.有砖, "下砖");
+                    PubMaster.Track.SetStockStatusAuto(tiletrackid, TrackStockStatusE.有砖, "下砖");
                     PubMaster.Goods.AddStockInLog(stockid);
                 }
 

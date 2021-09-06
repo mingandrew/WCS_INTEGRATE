@@ -1013,47 +1013,6 @@ namespace resource.track
             return TrackList.FindAll(c => c.Type == type && deviceTrack.Exists(d => d.track_id == c.id));
         }
 
-        /// <summary>
-        /// 更新轨道库存状态
-        /// </summary>
-        /// <param name="trackid">轨道ID</param>
-        /// <param name="goodstatus">轨道库存状态</param>
-        /// <param name="result">需改结果</param>
-        /// <param name="memo">备注</param>
-        /// <returns></returns>
-        public bool SetStockStatus(uint trackid, TrackStockStatusE goodstatus, out string result, string memo = "")
-        {
-            Track track = TrackList.Find(c => c.id == trackid);
-            if (track == null)
-            {
-                result = "找不到轨道的信息";
-                return false;
-            }
-
-            if (track.StockStatus == goodstatus)
-            {
-                result = "不用修改";
-                return false;
-            }
-
-            if (goodstatus == TrackStockStatusE.空砖 && PubMaster.Goods.ExistStockInTrack(trackid))
-            {
-                result = "轨道有库存记录";
-                return false;
-            }
-
-            if (goodstatus == TrackStockStatusE.满砖 && !PubMaster.Goods.ExistStockInTrack(trackid))
-            {
-                result = "轨道没有库存记录";
-                return false;
-            }
-
-            UpdateStockStatus(track, goodstatus, memo, true);
-
-            result = "";
-            return true;
-        }
-
         public void ResetTrackRecent(uint id)
         {
             Track track = TrackList.Find(c => c.id == id);
@@ -1101,37 +1060,66 @@ namespace resource.track
         {
             if (PubMaster.Goods.IsTrackStockEmpty(taketrackid))
             {
-                UpdateStockStatus(taketrackid, TrackStockStatusE.空砖, "倒库");
+                SetStockStatusAuto(taketrackid, TrackStockStatusE.空砖, "倒库");
             }
 
             if (PubMaster.Goods.ExistStockInTrack(givetrackid))
             {
-                UpdateStockStatus(givetrackid, TrackStockStatusE.满砖, "倒库");
+                SetStockStatusAuto(givetrackid, TrackStockStatusE.满砖, "倒库");
             }
-        }
-
-        public void UpdateStockStatus(uint trackid, TrackStockStatusE status, string memo)
-        {
-            Track track = TrackList.Find(c => c.id == trackid);
-            UpdateStockStatus(track, status, memo, false);
         }
 
         /// <summary>
-        /// 计算摆渡车自动对位，选中轨道后 剩余对位数据
+        /// 更新轨道库存状态（手动）
         /// </summary>
-        /// <param name="devid"></param>
-        /// <param name="pos"></param>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="goodstatus">轨道库存状态</param>
+        /// <param name="result">需改结果</param>
+        /// <param name="memo">备注</param>
         /// <returns></returns>
-        public int GetFerryAutoPosLen(ushort area, uint devid, ushort poscode)
+        public bool SetStockStatus(uint trackid, TrackStockStatusE goodstatus, out string result, string memo = "")
         {
-            Track selectrack = GetTrackByFerryCocde(area, devid, poscode);
-            if (selectrack != null)
+            Track track = TrackList.Find(c => c.id == trackid);
+            if (track == null)
             {
-                List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
-                tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
-                return tracks.Count - tracks.IndexOf(selectrack);
+                result = "找不到轨道的信息";
+                return false;
             }
-            return 1;
+
+            if (track.StockStatus == goodstatus)
+            {
+                result = "不用修改";
+                return false;
+            }
+
+            if (goodstatus == TrackStockStatusE.空砖 && PubMaster.Goods.ExistStockInTrack(trackid))
+            {
+                result = "轨道有库存记录";
+                return false;
+            }
+
+            if (goodstatus == TrackStockStatusE.满砖 && !PubMaster.Goods.ExistStockInTrack(trackid))
+            {
+                result = "轨道没有库存记录";
+                return false;
+            }
+
+            UpdateStockStatus(track, goodstatus, memo, true);
+
+            result = "";
+            return true;
+        }
+
+        /// <summary>
+        /// 更新轨道库存状态（自动）
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="status"></param>
+        /// <param name="memo"></param>
+        public void SetStockStatusAuto(uint trackid, TrackStockStatusE status, string memo)
+        {
+            Track track = TrackList.Find(c => c.id == trackid);
+            UpdateStockStatus(track, status, memo, false);
         }
 
         /// <summary>
@@ -1226,54 +1214,21 @@ namespace resource.track
 
 
         /// <summary>
-        /// 空砖/满砖/一般的取货卸货
+        /// 计算摆渡车自动对位，选中轨道后 剩余对位数据
         /// </summary>
-        /// <param name="signal"></param>
-        /// <param name="signalTime"></param>
-        /// <param name="takeTrackCode"></param>
-        /// <param name="giveTrackCode"></param>
-        /// <returns>处理结果</returns>
-        public bool SetTrack(DevCarrierSignalE signal, ushort signalTime, ushort takeTrackCode, ushort giveTrackCode)
-        {
-            bool result = false;
-            switch (signal)
-            {
-                #region[空砖信息]
-                //小车取卸货后: 取砖轨道 -> 空
-                case DevCarrierSignalE.空轨道:
-
-                    break;
-                #endregion
-                case DevCarrierSignalE.满轨道:
-
-                    break;
-                case DevCarrierSignalE.非空非满:
-                    break;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 空砖信息
-        /// </summary>
-        /// <param name="taketrackcode"></param>
+        /// <param name="devid"></param>
+        /// <param name="pos"></param>
         /// <returns></returns>
-        public bool SetTrackEmtpy(ushort area, ushort taketrackcode)
+        public int GetFerryAutoPosLen(ushort area, uint devid, ushort poscode)
         {
-            Track track = GetTrackBySite(area, taketrackcode);
-            if (track != null)
+            Track selectrack = GetTrackByFerryCocde(area, devid, poscode);
+            if (selectrack != null)
             {
-                if (track.StockStatus != TrackStockStatusE.空砖)
-                {
-                    track.StockStatus = TrackStockStatusE.空砖;
-                    PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.StockStatus);
-                    PubMaster.Goods.RemoveStock(track.id);
-                    SendMsg(track);
-                }
-                return true;
+                List<Track> tracks = GetFerryTracksInType(devid, selectrack.Type);
+                tracks.Sort((x, y) => x.rfid_1.CompareTo(y.rfid_1));
+                return tracks.Count - tracks.IndexOf(selectrack);
             }
-            return false;
+            return 1;
         }
 
         public List<FerryPos> AddFerryPos(uint areaid, uint devid)
@@ -1330,27 +1285,6 @@ namespace resource.track
         public List<FerryPos> GetFerryPos(uint devid)
         {
             return PubMaster.Mod.TraSql.QueryFerryPosList(devid);
-        }
-
-        /// <summary>
-        /// 满足信息
-        /// </summary>
-        /// <param name="givetrackcode"></param>
-        /// <returns></returns>
-        public bool SetTrackFull(ushort area, ushort givetrackcode)
-        {
-            Track track = GetTrackBySite(area, givetrackcode);
-            if (track != null)
-            {
-                if (track.StockStatus != TrackStockStatusE.满砖)
-                {
-                    track.StockStatus = TrackStockStatusE.满砖;
-                    PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.StockStatus);
-                    SendMsg(track);
-                }
-                return true;
-            }
-            return false;
         }
 
         public void UpdateFerryPos(uint id, int ferrypos)
@@ -1845,6 +1779,12 @@ namespace resource.track
 
         #region[更新轨道状态]
 
+        /// <summary>
+        /// 更新轨道状态（平板）
+        /// </summary>
+        /// <param name="pack"></param>
+        /// <param name="result"></param>
+        /// <returns></returns>
         public bool CheckAndUpateTrackStatus(TrackUpdatePack pack, out string result)
         {
             if (pack == null)
@@ -1884,6 +1824,63 @@ namespace resource.track
 
             result = "";
             return true;
+        }
+
+        /// <summary>
+        /// 检测并更新轨道状态
+        /// </summary>
+        /// <param name="trackid"></param>
+        public void CheckTrackStockStatus(uint trackid)
+        {
+            // 获取轨道
+            Track track = TrackList.Find(c => c.id == trackid);
+            if (track == null) return;
+
+            // 获取轨道最后入库库存
+            Stock stock = PubMaster.Goods.GetStockForIn(trackid);
+
+            // 无库存 - 空砖
+            if (stock == null)
+            {
+                if (track.StockStatus != TrackStockStatusE.空砖)
+                {
+                    UpdateStockStatus(track, TrackStockStatusE.空砖, "无库存", true);
+                }
+
+                return;
+            }
+
+            // 是否已到设定的库存数上限
+            bool isLimit = PubMaster.Goods.IsMoreThanFullQty(track.area, track.line, track.id);
+            // 是否可存下一车
+            bool isNext = PubMaster.Goods.CalculateNextLocByDir(track.is_give_back ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, 0, track.id, 0, out ushort stkLoc);
+
+            // 有砖判断
+            if (track.StockStatus != TrackStockStatusE.有砖)
+            {
+                if (!isLimit && isNext)
+                {
+                    UpdateStockStatus(track, TrackStockStatusE.有砖, "存在空间可以继续入库", true);
+                    return;
+                }
+            }
+
+            // 满砖判断
+            if (track.StockStatus != TrackStockStatusE.满砖)
+            {
+                if (isLimit)
+                {
+                    UpdateStockStatus(track, TrackStockStatusE.满砖, "当前库存数已达设定上限", true);
+                    return;
+                }
+
+                if (!isNext)
+                {
+                    UpdateStockStatus(track, TrackStockStatusE.满砖, "计算坐标值无法存入下一车", true);
+                    return;
+                }
+            }
+
         }
 
         #endregion
