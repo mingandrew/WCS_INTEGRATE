@@ -65,7 +65,7 @@ namespace task.trans.transtask
             }
 
             //分配运输车
-            if (PubTask.Carrier.AllocateCarrier(trans, out carrierid, out string result)
+            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result)
                 && !_M.HaveInCarrier(carrierid))
             {
                 _M.SetCarrier(trans, carrierid);
@@ -127,7 +127,7 @@ namespace task.trans.transtask
                             if (isStopNoOrder)
                             {
                                 // 轨道内直接取砖
-                                TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
+                                TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out string res);
 
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierTake(trans, trans.take_track_id, res);
@@ -155,7 +155,7 @@ namespace task.trans.transtask
                             if (isStopNoOrder)
                             {
                                 // 下降放货
-                                PubTask.Carrier.DoOrder(carrierid, trans.id, new CarrierActionOrder()
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
                                 {
                                     Order = DevCarrierOrderE.放砖指令
                                 }, "库存转移下降放货");
@@ -185,7 +185,7 @@ namespace task.trans.transtask
                         if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                         {
                             //摆渡车 定位去 取货点
-                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res))
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out uint ferryTraid, out string res))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.take_ferry_id, trans.take_track_id, res);
@@ -280,7 +280,7 @@ namespace task.trans.transtask
                         //小车在摆渡车上
                         if (PubTask.Ferry.IsLoad(trans.give_ferry_id))
                         {
-                            if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                            if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, trans.give_track_id, track.id, out uint ferryTraid, out string res))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.give_ferry_id, trans.give_track_id, res);
@@ -313,6 +313,39 @@ namespace task.trans.transtask
                     {
                         // 解锁摆渡车
                         RealseGiveFerry(trans);
+
+                        if (isLoad && isStopNoOrder)
+                        {
+                            // 更新库存为小车绑定库存ID
+                            _M.SetStock(trans, PubMaster.DevConfig.GetCarrierStockId(trans.carrier_id));
+
+                            // 获取放砖位置
+                            ushort limitP = track.is_give_back ? track.limit_point : track.limit_point_up;
+                            if (GetTransferGivePoint(track.id, carrier.ID, limitP, carrier.CurrentPoint, out ushort givePoint))
+                            {
+                                // 直接放砖
+                                GiveInTarck(givePoint, track.id, trans.carrier_id, trans.id, out string res);
+
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierGive(trans, track.id, res);
+                                #endregion
+                                return;
+                            }
+                            else
+                            {
+                                // 原地放砖
+                                PubTask.Carrier.DoOrder(trans.carrier_id, trans.id, new CarrierActionOrder()
+                                {
+                                    Order = DevCarrierOrderE.放砖指令
+                                });
+
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierGiving(trans);
+                                #endregion
+                                return;
+                            }
+
+                        }
 
                         if (isNotLoad)
                         {
@@ -399,7 +432,7 @@ namespace task.trans.transtask
                     {
                         if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                         {
-                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res))
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out uint ferryTraid, out string res))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.take_ferry_id, trans.take_track_id, res);

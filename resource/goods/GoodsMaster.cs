@@ -343,9 +343,9 @@ namespace resource.goods
             return GoodsList.FindAll(c => c.area_id == filterarea);
         }
 
-        public List<Stock> GetStockOutGoodsList(uint filterarea,uint devid)
+        public List<Stock> GetStockOutGoodsList(uint filterarea, uint devid)
         {
-            List<AreaDeviceTrack> tracklist = PubMaster.Area.GetTileWorkTraList(filterarea,devid,true);
+            List<AreaDeviceTrack> tracklist = PubMaster.Area.GetTileWorkTraList(filterarea, devid, true);
             List<uint> tralist = tracklist.Select(c => c.track_id).ToList();
             //List<uint> goodsids = StockList.FindAll(c => (c.TrackType == TrackTypeE.储砖_出 || c.TrackType == TrackTypeE.储砖_出入) && c.PosType == StockPosE.首车 && tralist.Contains(c.track_id)).Select(t => t.goods_id).ToList();
             //List<Goods> glist = new List<Goods>();
@@ -497,9 +497,10 @@ namespace resource.goods
                         // (默认)前进存砖 下一车脉冲变小；后退存砖 下一车脉冲变大；
                         if (buttomStock != null)
                         {
-                            if (PubMaster.DevConfig.GetCarrierByStockid(buttomStock.id, out string carname))
+                            if (PubMaster.DevConfig.GetCarrierByStockid(buttomStock.id, out uint carid))
                             {
-                                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来添加库存！", buttomStock.pos, carname);
+                                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来添加库存！",
+                                    buttomStock.pos, PubMaster.Device.GetDeviceName(carid));
                                 return false;
                             }
 
@@ -711,7 +712,7 @@ namespace resource.goods
                 return PubMaster.Goods.GetStockInLocMax(trackid);
             }
         }
-        
+
         /// <summary>
         /// 获取指定轨道内所有 靠近出库口的库存
         /// </summary>
@@ -1114,7 +1115,7 @@ namespace resource.goods
                         stock.goods_id = goodid;
                         PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Goods);
                     }
-                    
+
                     PubMaster.Sums.StockSumChangeGood(trackid, goodid, oldgoodid, level);
                     PubMaster.Sums.SortSumList();
                     PubMaster.Sums.SendTrackStockQtyChangeMsg(trackid);
@@ -1161,7 +1162,7 @@ namespace resource.goods
             }
             return false;
         }
-        
+
         public DateTime? GetEarliestTime(uint trackid)
         {
             Stock stock = StockList.Find(c => c.track_id == trackid && c.PosType == StockPosE.首车);
@@ -1412,9 +1413,10 @@ namespace resource.goods
                 return false;
             }
 
-            if (PubMaster.DevConfig.GetCarrierByStockid(stock.id, out string carname))
+            if (PubMaster.DevConfig.GetCarrierByStockid(stock.id, out uint carid))
             {
-                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来删除库存！", stock.pos, carname);
+                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来删除库存！",
+                    stock.pos, PubMaster.Device.GetDeviceName(carid));
                 return false;
             }
 
@@ -1497,9 +1499,10 @@ namespace resource.goods
                 return false;
             }
 
-            if (PubMaster.DevConfig.GetCarrierByStockid(stock.id, out string carname))
+            if (PubMaster.DevConfig.GetCarrierByStockid(stock.id, out uint carid))
             {
-                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来删除库存！", stock.pos, carname);
+                rs = string.Format("序号{0}的库存绑定在{1}运输车上，请让运输车放下砖后，再来删除库存！",
+                    stock.pos, PubMaster.Device.GetDeviceName(carid));
                 return false;
             }
 
@@ -1580,13 +1583,15 @@ namespace resource.goods
                     }
                 }
 
-                if (PubMaster.DevConfig.GetCarrierByStockid(s.id, out string carname))
+                if (PubMaster.DevConfig.GetCarrierByStockid(s.id, out uint carid))
                 {
                     try
                     {
-                        AddStockLog(string.Format("【删除库存】【删除失败，库存已绑定{3}运输车】- 库存[ {0} ], 轨道[ {1} ], 备注[ {2} ]", s.ToString()
-                            , PubMaster.Track.GetTrackName(s.track_id)
-                            , memo, carname));
+                        AddStockLog(string.Format("【删除库存】【删除失败，库存已绑定{3}运输车】- 库存[ {0} ], 轨道[ {1} ], 备注[ {2} ]",
+                            s.ToString(), 
+                            PubMaster.Track.GetTrackName(s.track_id), 
+                            memo, 
+                            PubMaster.Device.GetDeviceName(carid)));
                     }
                     catch { }
                     continue;
@@ -1658,7 +1663,7 @@ namespace resource.goods
         {
             return (ushort)StockList.Count(c => c.track_id == id);
         }
-        
+
         public ushort GetTrackStockCount(uint id, uint goodid, byte level)
         {
             return (ushort)StockList.Count(c => c.track_id == id && c.goods_id == goodid && c.level == level);
@@ -2027,7 +2032,7 @@ namespace resource.goods
                         stock.PosType = StockPosE.首车;
                         stock.pos = (short)(stk.pos - 1);
 
-                        if(storecount == 1)
+                        if (storecount == 1)
                         {
                             SetStockPosType(stk, StockPosE.尾车);
                         }
@@ -2590,7 +2595,7 @@ namespace resource.goods
         {
             return StockList.Find(c => c.id == id)?.location ?? 0;
         }
-        
+
         #endregion
 
         #endregion
@@ -2635,7 +2640,7 @@ namespace resource.goods
 
                 //轨道满否
                 if (track.StockStatus == TrackStockStatusE.满砖) continue;
-                
+
                 //[可以放任何品种] 空轨道，轨道没有库存
                 if (track.StockStatus == TrackStockStatusE.空砖
                     && IsTrackStockEmpty(adt.track_id)

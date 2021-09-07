@@ -18,32 +18,11 @@ namespace task.trans.transtask
     {
         internal TransMaster _M { private set; get; }
         internal MTimer mTimer;
-        internal Track track, takeTrack;
-        internal bool isload, isnotload, tileemptyneed, isftask;
-        internal uint ferryTraid;
-        internal string res = "", result = "";
-        internal uint carrierid;
-        internal bool allocatakeferry, allocagiveferry;
 
         public BaseTaskTrans(TransMaster trans)
         {
             _M = trans;
             mTimer = new MTimer();
-        }
-
-        internal void Clearn()
-        {
-            track = null;
-            takeTrack = null;
-            isload = false;
-            isnotload = false;
-            tileemptyneed = false;
-            isftask = false;
-            ferryTraid = 0;
-            carrierid = 0;
-            allocatakeferry = false;
-            allocagiveferry = false;
-            res = "";
         }
 
         /// <summary>
@@ -54,8 +33,6 @@ namespace task.trans.transtask
         {
             try
             {
-                Clearn();
-
                 #region[流程超时报警 - 默认超时10分钟则报警，倒库中流程则要2小时才报警]
 
                 PubTask.Trans.CheckAndAddTransStatusOverTimeWarn(trans);
@@ -204,8 +181,8 @@ namespace task.trans.transtask
         private void FinishAndReleaseFerry(StockTrans trans)
         {
             if (trans.carrier_id == 0) return;
-            track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
-            if (track == null || track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道)) return;
+            Track track = PubTask.Carrier.GetCarrierTrack(trans.carrier_id);
+            if (track == null || track.IsFerryTrack()) return;
             if (trans.take_ferry_id != 0)
             {
                 PubTask.Ferry.UnlockFerry(trans, trans.take_ferry_id);
@@ -311,7 +288,7 @@ namespace task.trans.transtask
 
                 //转移到同类型轨道
                 TrackTypeE tracktype = PubMaster.Track.GetTrackType(trackid);
-                track = PubTask.Carrier.GetCarrierTrack(carrierid);
+                Track track = PubTask.Carrier.GetCarrierTrack(carrierid);
                 DeviceTypeE ferrytype = PubTask.Carrier.GetCarrierNeedFerryType(carrierid);
                 _M.AddMoveCarrierTask(track.id, carrierid, tracktype, MoveTypeE.转移占用轨道, ferrytype);
                 return true;
@@ -331,7 +308,6 @@ namespace task.trans.transtask
         /// <returns></returns>
         internal bool CheckCarAndAddMoveTask(StockTrans trans, uint trackid, bool isdown, DeviceTypeE ferrytype = DeviceTypeE.其他)
         {
-            res = "";
             if (PubTask.Carrier.HaveInTrackAndGetSingle(trackid, out CarrierTask carrier))
             {
                 Track track = PubMaster.Track.GetTrack(trackid);
@@ -404,7 +380,6 @@ namespace task.trans.transtask
         /// <returns></returns>
         internal bool CheckTrackAndAddMoveTask(StockTrans trans, uint trackid, DeviceTypeE ferrytype)
         {
-            res = "";
             if (PubTask.Carrier.HaveInTrackAndGetAll(trackid, out List<CarrierTask> cars, trans.carrier_id))
             {
                 Track track = PubMaster.Track.GetTrack(trackid);
@@ -901,33 +876,6 @@ namespace task.trans.transtask
         }
 
         /// <summary>
-        /// 获取倒库取砖位置
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <param name="overPoint"></param>
-        /// <param name="splitPoint"></param>
-        /// <param name="loc"></param>
-        /// <returns></returns>
-        public bool GetTransferTakePoint(uint trackid, int overPoint, int splitPoint, out ushort loc)
-        {
-            loc = 0;
-            // 获取分界点后 最前的库存
-            Stock stk = PubMaster.Goods.GetStockBehindStockPoint(trackid, splitPoint);
-            if (stk == null) return false;
-
-            loc = stk.location;
-            ushort limit = 50; // 误差范围
-            bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
-            // 判断是否超过结束点
-            if (isforward ? (loc > (overPoint + limit)) : (loc < (overPoint - limit)))
-            {
-                return false;
-            }
-
-            return loc > 0;
-        }
-
-        /// <summary>
         /// 获取倒库放砖位置
         /// </summary>
         /// <param name="trackid"></param>
@@ -1004,8 +952,6 @@ namespace task.trans.transtask
             return (ushort)loc;
         }
 
-
-
         /// <summary>
         /// 是否倒库转移结束
         /// </summary>
@@ -1030,49 +976,6 @@ namespace task.trans.transtask
             return false;
         }
 
-        /// <summary>
-        /// 获取倒库取放位置
-        /// </summary>
-        /// <param name="transid"></param>
-        /// <param name="trackid"></param>
-        /// <param name="carrierid"></param>
-        /// <param name="overPoint"></param>
-        /// <param name="splitPoint"></param>
-        /// <param name="limitPoint"></param>
-        /// <param name="mes"></param>
-        /// <param name="locTake"></param>
-        /// <param name="locGive"></param>
-        /// <returns></returns>
-        public bool GetTransferTGpoint(uint transid, uint trackid, uint carrierid, int overPoint, int splitPoint, int limitPoint,
-            out string mes, out ushort locTake, out ushort locGive)
-        {
-            locTake = 0;
-            locGive = 0;
-
-            if (!GetTransferTakePoint(trackid, overPoint, splitPoint, out locTake))
-            {
-                mes = "无合适取货位置";
-                return false;
-            }
-
-            if (!GetTransferGivePoint(trackid, carrierid, limitPoint, splitPoint, out locGive))
-            {
-                mes = "无合适卸货位置";
-                return false;
-            }
-
-            // 取放位置间距
-            ushort dis = 100;
-            if (Math.Abs(locTake - locGive) <= dis)
-            {
-                mes = "取放位置相隔过小，无倒库必要";
-                return false;
-            }
-
-            mes = "";
-            return true;
-        }
-
         #endregion
 
         #region [无缝上摆渡]
@@ -1089,31 +992,47 @@ namespace task.trans.transtask
 
             Track carTrack = PubMaster.Track.GetTrack(car.CurrentTrackId);
             if (carTrack == null) return;
-            if (carTrack.InType(TrackTypeE.前置摆渡轨道, TrackTypeE.后置摆渡轨道)) return;
+            if (carTrack.IsFerryTrack()) return;
 
             // 小车根据摆渡类型需要先定位到轨道头
             ushort tosite = 0;
             switch (trans.AllocateFerryType)
             {
                 case DeviceTypeE.前摆渡:
-                    tosite = carTrack.limit_point_up;
+                    if (carTrack.ferry_down_code > 400) // 前摆渡 401~499
+                    {
+                        tosite = carTrack.limit_point;
+                    }
+                    else
+                    {
+                        tosite = carTrack.limit_point_up;
+                    }
                     break;
                 case DeviceTypeE.后摆渡:
-                    tosite = carTrack.limit_point;
+                    if (carTrack.ferry_down_code < 200) // 后摆渡 201~299
+                    {
+                        tosite = carTrack.limit_point_up;
+                    }
+                    else
+                    {
+                        tosite = carTrack.limit_point;
+                    }
                     break;
             }
             if (tosite == 0) return;
 
+            string result = "";
             // 离轨道头范围 ≈20M
             if (Math.Abs(tosite - car.CurrentPoint) <= 1153)
             {
                 // 范围内
                 // 锁定摆渡  
+                uint ferryTraid = 0;
                 bool isFerryOK = false;  // 是否摆渡到位
                 uint ferryID = istake ? trans.take_ferry_id : trans.give_ferry_id;
                 if (istake ? AllocateTakeFerry(trans, trans.AllocateFerryType, carTrack) : AllocateGiveFerry(trans, trans.AllocateFerryType, carTrack))
                 {
-                    if(ferryID == 0) ferryID = istake ? trans.take_ferry_id : trans.give_ferry_id;
+                    if (ferryID == 0) ferryID = istake ? trans.take_ferry_id : trans.give_ferry_id;
                     // 定位摆渡  
                     if (_M.LockFerryAndAction(trans, ferryID, carTrack.id, carTrack.id, out ferryTraid, out result, true))
                     {

@@ -109,8 +109,11 @@ namespace task.trans
                     // 已被任务使用
                     if (ExistTransWithTracks(track.id)) continue;
 
+                    Stock stock = PubMaster.Goods.GetStockForOut(track.id);
+                    if (stock == null) continue;
+
                     // 生成倒库任务
-                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, 0, 0, 0, track.id, track.id
+                    AddTransWithoutLock(track.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, track.id, track.id
                         , TransStatusE.检查轨道, 0, track.line, (track.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                     return;
                 }
@@ -131,8 +134,11 @@ namespace task.trans
                     // 已被任务使用
                     if (ExistTransWithTracks(traTo.id)) continue;
 
+                    Stock stock = PubMaster.Goods.GetStockForOut(traTo.id);
+                    if (stock == null) continue;
+
                     // 生成倒库任务
-                    AddTransWithoutLock(traTo.area, 0, TransTypeE.倒库任务, 0, 0, 0, traTo.id, traTo.id
+                    AddTransWithoutLock(traTo.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traTo.id, traTo.id
                         , TransStatusE.检查轨道, 0, traTo.line, (traTo.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                     return;
                 }
@@ -175,7 +181,7 @@ namespace task.trans
                         if (PubMaster.Track.ExistSpaceAwayFromOut(traFrom, stock, safe, out int discountTop)
                             || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(traFrom, safe, out string result)))
                         {
-                            AddTransWithoutLock(traFrom.area, 0, TransTypeE.倒库任务, 0, 0, 0, traFrom.id, traFrom.id,
+                            AddTransWithoutLock(traFrom.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traFrom.id, traFrom.id,
                                 TransStatusE.检查轨道, 0, traFrom.line, (traFrom.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
                         }
 

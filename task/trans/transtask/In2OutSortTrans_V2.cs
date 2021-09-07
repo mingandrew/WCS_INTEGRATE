@@ -37,9 +37,6 @@ namespace task.trans.transtask
                 return;
             }
 
-            // 确定作业库存
-            SetStockForSort(trans);
-
             _M.SetStatus(trans, TransStatusE.调度设备);
         }
 
@@ -59,7 +56,7 @@ namespace task.trans.transtask
             }
 
             //分配运输车
-            if (PubTask.Carrier.AllocateCarrier(trans, out carrierid, out string result)
+            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result)
                 && !_M.HaveInCarrier(carrierid))
             {
                 _M.SetCarrier(trans, carrierid);
@@ -80,7 +77,7 @@ namespace task.trans.transtask
         public override void MovingCarrier(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
+            if (!_M.RunPremise(trans, out Track track))
             {
                 return;
             }
@@ -98,9 +95,9 @@ namespace task.trans.transtask
             }
             #endregion
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            bool isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            bool isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -115,6 +112,9 @@ namespace task.trans.transtask
                         if (isftask)
                         {
                             RealseTakeFerry(trans);
+
+                            // 倒库前确定作业库存
+                            SetStockForSort(trans);
                             _M.SetStatus(trans, TransStatusE.倒库中);
                         }
                     }
@@ -136,7 +136,7 @@ namespace task.trans.transtask
                         if (isnotload)
                         {
                             //摆渡车接车
-                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true))
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out uint ferryTraid, out string res, true))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.take_ferry_id, track.id, res);
@@ -177,7 +177,7 @@ namespace task.trans.transtask
                     {
                         if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                         {
-                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out ferryTraid, out res))
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.give_track_id, track.id, out uint ferryTraid, out string res))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.take_ferry_id, trans.give_track_id, res);
@@ -208,7 +208,7 @@ namespace task.trans.transtask
         public override void SortingStock(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
+            if (!_M.RunPremise(trans, out Track track))
             {
                 return;
             }
@@ -220,13 +220,13 @@ namespace task.trans.transtask
                 return;
             }
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            bool isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            bool isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             // 【不允许接力 && 轨道有其他小车】
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask)
-                && PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out carrierid))
+                && PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out uint carrierid))
             {
                 // 不接力 - 终止且报警
                 #region 【任务步骤记录】
@@ -280,7 +280,7 @@ namespace task.trans.transtask
                     _M.SetStock(trans, PubMaster.DevConfig.GetCarrierStockId(trans.carrier_id));
 
                     // 获取放砖位置
-                    if (!GetTransferGivePoint(track.id, carrierid, limitP, carPoint, out ushort givePoint))
+                    if (!GetTransferGivePoint(track.id, trans.carrier_id, limitP, carPoint, out ushort givePoint))
                     {
                         #region 【任务步骤记录】
                         _M.SetStepLog(trans, false, 1502, string.Format("无合适放砖位置"));
@@ -326,8 +326,25 @@ namespace task.trans.transtask
                     }
                     else
                     {
-                        // 作业库存 取砖脉冲
-                        ushort takePoint = PubMaster.Goods.GetStock(trans.stock_id)?.location ?? 0;
+                        // 作业库存 
+                        Stock workStock = PubMaster.Goods.GetStock(trans.stock_id);
+                        // 库存轨道已经改变
+                        if (workStock.track_id != track.id)
+                        {
+                            // 倒库前确定作业库存
+                            SetStockForSort(trans);
+                            return;
+                        }
+                        // 库存已被其他运输车绑定
+                        if (PubMaster.DevConfig.GetCarrierByStockid(workStock.id, out uint carid) && carid != trans.carrier_id)
+                        {
+                            // 倒库前确定作业库存
+                            SetStockForSort(trans);
+                            return;
+                        }
+
+                        // 取砖脉冲
+                        ushort takePoint = workStock?.location ?? 0;
 
                         // 判断取砖位置是否超接力结束点
                         if (track.is_take_forward ? (takePoint > overP) : (takePoint < overP))
@@ -338,7 +355,7 @@ namespace task.trans.transtask
                         }
 
                         // 作业库存 放砖脉冲
-                        if (!GetTransferGivePoint(track.id, carrierid, limitP, takePoint, out ushort givePoint))
+                        if (!GetTransferGivePoint(track.id, trans.carrier_id, limitP, takePoint, out ushort givePoint))
                         {
                             #region 【任务步骤记录】
                             _M.SetStepLog(trans, false, 1602, string.Format("无合适放砖位置"));
@@ -359,6 +376,7 @@ namespace task.trans.transtask
                         // 取放位置间距过小则重新设定作业库存
                         if (Math.Abs(takePoint - givePoint) <= dis)
                         {
+                            // 倒库前确定作业库存
                             SetStockForSort(trans);
                             return;
                         }
@@ -429,7 +447,7 @@ namespace task.trans.transtask
         public override void ReturnCarrrier(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
+            if (!_M.RunPremise(trans, out Track track))
             {
                 return;
             }
@@ -441,9 +459,9 @@ namespace task.trans.transtask
                 return;
             }
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            bool isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            bool isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             #region 通用轨道
             if (track.Type == TrackTypeE.储砖_出入)
@@ -738,7 +756,7 @@ namespace task.trans.transtask
             if (trans.carrier_id != 0)
             {
                 // 运行前提
-                if (!_M.RunPremise(trans, out track))
+                if (!_M.RunPremise(trans, out Track track))
                 {
                     return;
                 }

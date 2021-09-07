@@ -266,22 +266,27 @@ namespace task.trans
                 try
                 {
                     TransStatusE initstatus = TransStatusE.调度设备;
+                    DeviceTypeE ferrytype = DeviceTypeE.其他;
                     switch (type)
                     {
                         case TransTypeE.下砖任务:
                         case TransTypeE.手动下砖:
+                            initstatus = TransStatusE.检查轨道;
+                            ferrytype = DeviceTypeE.后摆渡;
+                            break;
                         case TransTypeE.同向下砖:
                             initstatus = TransStatusE.检查轨道;
+                            ferrytype = DeviceTypeE.前摆渡;
                             break;
                         case TransTypeE.上砖任务:
+                        case TransTypeE.手动上砖:
+                            ferrytype = DeviceTypeE.前摆渡;
+                            break;
                         case TransTypeE.同向上砖:
-                            //if (PubMaster.Track.IsUpSplit(taketrackid))
-                            //{
-                            //    PubMaster.DevConfig.SetLastTrackId(lifterid, taketrackid);
-                            //}
+                            ferrytype = DeviceTypeE.后摆渡;
                             break;
                     }
-                    transid = AddTransWithoutLock(areaid, lifterid, type, goodsid, level, stocksid, taketrackid, givetrackid, initstatus, carrierid, line);
+                    transid = AddTransWithoutLock(areaid, lifterid, type, goodsid, level, stocksid, taketrackid, givetrackid, initstatus, carrierid, line, ferrytype);
                 }
                 finally
                 {

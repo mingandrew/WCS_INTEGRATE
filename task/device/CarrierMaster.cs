@@ -2701,8 +2701,17 @@ namespace task.device
                 List<CarrierTask> taketrackcarriers = DevList.FindAll(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
                 if (taketrackcarriers.Count > 0)
                 {
-                    //脉冲大的排在前面
-                    taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
+                    switch (ferrytype)
+                    {
+                        case DeviceTypeE.前摆渡:
+                            //脉冲大的排在前面
+                            taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
+                            break;
+                        case DeviceTypeE.后摆渡:
+                            //脉冲小的排在前面
+                            taketrackcarriers.Sort((x, y) => x.CurrentPoint.CompareTo(y.CurrentPoint));
+                            break;
+                    }
                     carrier = taketrackcarriers[0];
 
                     if (carrier != null
@@ -2904,10 +2913,19 @@ namespace task.device
                     List<CarrierTask> taketrackcarriers = DevList.FindAll(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
                     if (taketrackcarriers.Count > 0)
                     {
-                        //脉冲大的排在前面
-                        taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
+                        switch (ferrytype)
+                        {
+                            case DeviceTypeE.前摆渡:
+                                //脉冲大的排在前面
+                                taketrackcarriers.Sort((x, y) => y.CurrentPoint.CompareTo(x.CurrentPoint));
+                                break;
+                            case DeviceTypeE.后摆渡:
+                                //脉冲小的排在前面
+                                taketrackcarriers.Sort((x, y) => x.CurrentPoint.CompareTo(y.CurrentPoint));
+                                break;
+                        }
                         carrier = taketrackcarriers[0];
-                        if (trans.TransType == TransTypeE.上砖任务)
+                        if (trans.InType(TransTypeE.上砖任务, TransTypeE.同向上砖))
                         {
                             if (!carrier.IsNotDoingTask
                                 && carrier.InTask(DevCarrierOrderE.倒库指令))
@@ -2958,6 +2976,7 @@ namespace task.device
                         return true;
                     }
                 }
+
                 switch (trans.TransType)
                 {
                     case TransTypeE.下砖任务:

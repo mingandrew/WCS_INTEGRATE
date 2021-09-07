@@ -11,7 +11,9 @@ using tool.appconfig;
 
 namespace task.trans.transtask
 {
-    //反抛
+    /// <summary>
+    /// 反抛
+    /// </summary>
     public class SecondUpTaskTrans : BaseTaskTrans
     {
         public SecondUpTaskTrans(TransMaster trans) : base(trans)
@@ -100,7 +102,7 @@ namespace task.trans.transtask
         public override void ToTakeTrackTakeStock(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
+            if (!_M.RunPremise(trans, out Track track))
             {
                 return;
             }
@@ -124,9 +126,9 @@ namespace task.trans.transtask
             }
             #endregion
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            bool isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            bool isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -152,7 +154,7 @@ namespace task.trans.transtask
                     if (isnotload)
                     {
                         //摆渡车接车
-                        if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out ferryTraid, out res, true))
+                        if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, track.id, track.id, out uint ferryTraid, out string res, true))
                         {
                             #region 【任务步骤记录】
                             _M.LogForFerryMove(trans, trans.take_ferry_id, track.id, res);
@@ -184,7 +186,7 @@ namespace task.trans.transtask
                         {
                             //摆渡车 定位去 取货点
                             //小车到达摆渡车后短暂等待再开始定位
-                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out ferryTraid, out res))
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out uint ferryTraid, out string res))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.take_ferry_id, trans.take_track_id, res);
@@ -242,7 +244,7 @@ namespace task.trans.transtask
                         /**
                          * 介入了才能进去砖机轨道
                          */
-                        if (!PubTask.TileLifter.IsGiveReadyWithBackUp(trans.tilelifter_id, trans.take_track_id, out res, true))
+                        if (!PubTask.TileLifter.IsGiveReadyWithBackUp(trans.tilelifter_id, trans.take_track_id, out string res, true))
                         {
 
                             PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.Warning34, (ushort)trans.tilelifter_id, trans.id);
@@ -296,14 +298,14 @@ namespace task.trans.transtask
         public override void ToGiveTrackGiveStock(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
+            if (!_M.RunPremise(trans, out Track track))
             {
                 return;
             }
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            bool isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            bool isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -364,7 +366,7 @@ namespace task.trans.transtask
         public override void ReturnDevBackToTrack(StockTrans trans)
         {
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
+            if (!_M.RunPremise(trans, out Track track))
             {
                 return;
             }
@@ -389,9 +391,9 @@ namespace task.trans.transtask
 
             #endregion
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            bool isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            bool isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             switch (track.Type)
             {
@@ -501,7 +503,7 @@ namespace task.trans.transtask
                                 {
                                     //摆渡车 定位去 取货点继续取砖
                                     //小车到达摆渡车后短暂等待再开始定位
-                                    if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, trans.finish_track_id, track.id, out ferryTraid, out res))
+                                    if (!_M.LockFerryAndAction(trans, trans.give_ferry_id, trans.finish_track_id, track.id, out uint ferryTraid, out string res))
                                     {
                                         #region 【任务步骤记录】
                                         _M.LogForFerryMove(trans, trans.give_ferry_id, trans.finish_track_id, res);
@@ -562,14 +564,14 @@ namespace task.trans.transtask
             }
 
             // 运行前提
-            if (!_M.RunPremise(trans, out track))
+            if (!_M.RunPremise(trans, out Track track))
             {
                 return;
             }
 
-            isload = PubTask.Carrier.IsLoad(trans.carrier_id);
-            isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
-            isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
+            bool isload = PubTask.Carrier.IsLoad(trans.carrier_id);
+            bool isnotload = PubTask.Carrier.IsNotLoad(trans.carrier_id);
+            bool isftask = PubTask.Carrier.IsStopFTask(trans.carrier_id, track);
 
             #region[分配摆渡车/锁定摆渡车]
 
@@ -700,7 +702,7 @@ namespace task.trans.transtask
                         {
                             //摆渡车 定位去 取货点继续取砖
                             //小车到达摆渡车后短暂等待再开始定位
-                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.finish_track_id, track.id, out ferryTraid, out res))
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.finish_track_id, track.id, out uint ferryTraid, out string res))
                             {
                                 #region 【任务步骤记录】
                                 _M.LogForFerryMove(trans, trans.take_ferry_id, trans.finish_track_id, res);

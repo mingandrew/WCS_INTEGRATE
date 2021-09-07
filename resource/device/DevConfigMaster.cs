@@ -162,12 +162,12 @@ namespace resource.device
         public bool IsHaveSameTileNowGood(uint area_id, uint goodid, byte level, params TileWorkModeE[] types)
         {
             List<uint> devs = PubMaster.Device.GetDevIds(area_id, DeviceTypeE.下砖机, DeviceTypeE.上砖机, DeviceTypeE.砖机);
-            return ConfigTileLifterList.Exists(c => devs.Contains(c.id) 
-                 && types.Contains(c.WorkMode) 
+            return ConfigTileLifterList.Exists(c => devs.Contains(c.id)
+                 && types.Contains(c.WorkMode)
                  && (c.goods_id == goodid || c.old_goodid == goodid)
                  && c.level == level);
         }
-        
+
         #endregion
 
         #endregion
@@ -183,7 +183,7 @@ namespace resource.device
         /// <returns></returns>
         public ushort GetCarrierLenght(uint devid)
         {
-            if(devid == 0)
+            if (devid == 0)
             {
                 return ConfigCarrierList.Find(c => c.length > 0)?.length ?? 0;
             }
@@ -197,25 +197,20 @@ namespace resource.device
         /// <returns></returns>
         public ushort GetCarrierLenghtByArea(uint areaid)
         {
-            List<Device> list = PubMaster.Device.GetDevices(areaid,DeviceTypeE.运输车);
-            return ConfigCarrierList.Find(c => c.length > 0 && list.Exists(d=>d.id == c.id))?.length ?? 0;
+            List<Device> list = PubMaster.Device.GetDevices(areaid, DeviceTypeE.运输车);
+            return ConfigCarrierList.Find(c => c.length > 0 && list.Exists(d => d.id == c.id))?.length ?? 0;
         }
 
         /// <summary>
-        /// 获取绑定的库存id的运输车名字
+        /// 获取绑定的库存ID 的 运输车ID
         /// </summary>
-        /// <param name="devid"></param>
+        /// <param name="stockid"></param>
+        /// <param name="carid"></param>
         /// <returns></returns>
-        public bool GetCarrierByStockid(uint stockid, out string name)
+        public bool GetCarrierByStockid(uint stockid, out uint carid)
         {
-            ConfigCarrier car = ConfigCarrierList.Find(c => c.stock_id == stockid);
-            if (car != null)
-            {
-                name = PubMaster.Device.GetDeviceName(car.id);
-                return true;
-            }
-            name = "";
-            return false;
+            carid = ConfigCarrierList.Find(c => c.stock_id == stockid)?.id ?? 0;
+            return carid > 0;
         }
 
         #endregion
@@ -343,7 +338,7 @@ namespace resource.device
             }
             return false;
         }
-        
+
 
         /// <summary>
         /// 转产完成后，下砖机设置砖机作业品种
@@ -391,7 +386,7 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("【入库逻辑】砖机[ {0} ], 策略[ {1} -> {2} ], 作业类型[ {3} -> {4} ]", 
+                    mLog.Status(true, string.Format("【入库逻辑】砖机[ {0} ], 策略[ {1} -> {2} ], 作业类型[ {3} -> {4} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         dev.InStrategey, instrategy,
                         dev.WorkType, worktype));
@@ -468,12 +463,12 @@ namespace resource.device
             ConfigTileLifter dev = GetTileLifter(tilelifter_id);
             if (dev != null)
             {
-                if(dev.left_track_id == take_track_id)
+                if (dev.left_track_id == take_track_id)
                 {
                     return dev.left_track_point;
                 }
 
-                if(dev.right_track_id == take_track_id)
+                if (dev.right_track_id == take_track_id)
                 {
                     return dev.right_track_point;
                 }
@@ -495,7 +490,7 @@ namespace resource.device
                 try
                 {
                     mLog.Status(true, string.Format("【最后作业轨道】砖机[ {0} ], 轨道[ {1} ]",
-                        PubMaster.Device.GetDeviceName(dev.id), PubMaster.Track.GetTrackName(trackid, trackid+"")));
+                        PubMaster.Device.GetDeviceName(dev.id), PubMaster.Track.GetTrackName(trackid, trackid + "")));
                 }
                 catch { }
                 dev.last_track_id = trackid;
@@ -529,7 +524,7 @@ namespace resource.device
         public void SetDownTileNonWorkTrack(uint tarckid)
         {
             // 根据当前作业轨道获取所有下砖机
-            List<ConfigTileLifter> ctls = ConfigTileLifterList.FindAll(c => c.last_track_id == tarckid 
+            List<ConfigTileLifter> ctls = ConfigTileLifterList.FindAll(c => c.last_track_id == tarckid
                     && (c.WorkMode == TileWorkModeE.下砖 || c.WorkMode == TileWorkModeE.补砖));
 
             if (ctls != null && ctls.Count > 0)
@@ -549,8 +544,8 @@ namespace resource.device
         /// <param name="newtrackid"></param>
         private void SetNonWorkTrackId(uint goodsid, uint oldtarckid, uint newtrackid)
         {
-            foreach (ConfigTileLifter ctl in ConfigTileLifterList.FindAll(c => c.goods_id == goodsid 
-                    && c.non_work_track_id == oldtarckid 
+            foreach (ConfigTileLifter ctl in ConfigTileLifterList.FindAll(c => c.goods_id == goodsid
+                    && c.non_work_track_id == oldtarckid
                     && (c.WorkMode == TileWorkModeE.下砖 || c.WorkMode == TileWorkModeE.补砖)))
             {
                 if (ctl.non_work_track_id != newtrackid)
@@ -602,7 +597,7 @@ namespace resource.device
         public uint GetTileInPoint(uint trackid, ushort site)
         {
             return ConfigTileLifterList.Find(c => (c.left_track_id == trackid && c.left_track_point == site)
-                    || (c.right_track_id == trackid && c.right_track_point == site))?.id ?? 0 ;
+                    || (c.right_track_id == trackid && c.right_track_point == site))?.id ?? 0;
         }
 
         /// <summary>
@@ -750,7 +745,7 @@ namespace resource.device
                 try
                 {
                     mLog.Status(true, string.Format("【预设品种】砖机[ {0} ], 预设品种[ {1} ], 标识[ {2} ]",
-                        PubMaster.Device.GetDeviceName(dev.id), 
+                        PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(pregoodid), pregoodid));
                 }
                 catch { }
@@ -820,7 +815,7 @@ namespace resource.device
                     dev.level = dev.pre_level;
                     dev.pre_level = 0;
                 }
-                
+
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
@@ -829,7 +824,7 @@ namespace resource.device
                     mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.old_goodid),
-                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
+                        PubMaster.Goods.GetGoodsName(dev.goods_id), dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
                 }
                 catch { }
                 result = "";
@@ -879,7 +874,7 @@ namespace resource.device
                     dev.level = same_dev.level;
                     dev.pre_level = 0;
                 }
-                
+
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
@@ -888,7 +883,7 @@ namespace resource.device
                     mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ], 备注[同步转产-主砖机{6}]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.old_goodid),
-                        PubMaster.Goods.GetGoodsName(dev.goods_id),dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + "")),
+                        PubMaster.Goods.GetGoodsName(dev.goods_id), dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + "")),
                         PubMaster.Device.GetDeviceName(same_dev_id)));
                 }
                 catch { }
@@ -922,7 +917,7 @@ namespace resource.device
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
             {
-                if(dev.goods_id != goodid)
+                if (dev.goods_id != goodid)
                 {
                     result = "请刷新后再试！";
                     return false;
@@ -963,8 +958,8 @@ namespace resource.device
                 dev.WorkModeNext = nextmode;
                 dev.pre_goodid = newgoodid;
                 dev.do_cutover = true;
-                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.WorkMode); 
-                
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.WorkMode);
+
                 result = "";
                 return true;
             }
@@ -1071,10 +1066,10 @@ namespace resource.device
             ConfigTileLifter need_dev = ConfigTileLifterList.Find(c => c.id == need_id);
             //备用砖机
             ConfigTileLifter backup_dev = ConfigTileLifterList.Find(c => c.id == backup_id);
-            if (need_dev != null && backup_dev != null 
+            if (need_dev != null && backup_dev != null
                 && backup_dev.can_alter
                 // 直接转备用    自动转备用，由普通砖机转，需要结束后才能继续转备用
-                && (frombacktile || backup_dev.alter_dev_id ==0))
+                && (frombacktile || backup_dev.alter_dev_id == 0))
             {
                 try
                 {
@@ -1160,7 +1155,7 @@ namespace resource.device
         public void SetBackupTileLifterCode(uint backup_id, byte devcode)
         {
             uint need_id = PubMaster.Device.GetDevIdByMemo(devcode + "");
-            if(need_id != 0)
+            if (need_id != 0)
             {
                 SetBackupTileLifter(need_id, backup_id);
             }
@@ -1172,7 +1167,7 @@ namespace resource.device
         /// </summary>
         /// <param name="backup_id">备用砖机ID</param>
         /// <param name="doshift">是否设置满砖</param>
-        public bool StopBackupTileLifter(uint backup_id, bool doshift =false)
+        public bool StopBackupTileLifter(uint backup_id, bool doshift = false)
         {
             //备用砖机
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == backup_id);
@@ -1234,7 +1229,7 @@ namespace resource.device
             {
                 try
                 {
-                    if(backuptileid == 0)
+                    if (backuptileid == 0)
                     {
                         mLog.Status(true, string.Format("【普通砖机转备用-结束更新】普通砖机[ {0} ], 备用砖机[ {1} ]",
                             PubMaster.Device.GetDeviceName(normaltileid, normaltileid + ""),
@@ -1262,7 +1257,7 @@ namespace resource.device
         /// <returns></returns>
         public List<uint> GetUpTileGood(List<uint> ids)
         {
-            return ConfigTileLifterList.FindAll(c => ids.Contains(c.id) && c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.goods_id)?.ToList() ?? new List<uint>() ;
+            return ConfigTileLifterList.FindAll(c => ids.Contains(c.id) && c.WorkMode == TileWorkModeE.上砖)?.Select(c => c.goods_id)?.ToList() ?? new List<uint>();
         }
 
         /// <summary>
@@ -1319,11 +1314,11 @@ namespace resource.device
                 }
             }
         }
-        
-        public bool CheckBroTileLifters(uint trackid,out List<uint> devids)
+
+        public bool CheckBroTileLifters(uint trackid, out List<uint> devids)
         {
             devids = null;
-            List<ConfigTileLifter> list =  ConfigTileLifterList.FindAll(c => c.left_track_id == trackid || c.right_track_id == trackid);
+            List<ConfigTileLifter> list = ConfigTileLifterList.FindAll(c => c.left_track_id == trackid || c.right_track_id == trackid);
             if (list.Count > 1)
             {
                 devids = list.Select(c => c.id).ToList();
@@ -1336,8 +1331,8 @@ namespace resource.device
         public LevelTypeE GetConfigLevelType(uint tileid)
         {
             return ConfigTileLifterList.Find(c => c.id == tileid)?.LevelType ?? LevelTypeE.TileLevel;
-    }
-        
+        }
+
         public void SetSynchTileIds(List<uint> tileids)
         {
             string a = string.Join("#", tileids);
