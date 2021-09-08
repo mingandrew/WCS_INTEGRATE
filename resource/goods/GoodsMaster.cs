@@ -274,13 +274,6 @@ namespace resource.goods
         }
 
 
-        public int GetUpStocks(uint trackid)
-        {
-            int uppoint = PubMaster.Track.GetUpPoint(trackid);
-            return StockList.Count(c => c.track_id == trackid && c.location >= uppoint);
-        }
-
-
         /// <summary>
         /// 获取轨道中指定品种的数量
         /// </summary>

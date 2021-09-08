@@ -63,7 +63,7 @@ namespace resource.track
 
             if (refr_2)
             {
-                List<Track> list = TrackList.FindAll(c => c.InType(TrackTypeE.储砖_出) && c.up_split_point > 0);
+                List<Track> list = TrackList.FindAll(c => c.InType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入) && c.up_split_point > 0);
                 foreach (Track track in list)
                 {
                     GetAndRefreshUpCount(track.id);
@@ -1402,6 +1402,11 @@ namespace resource.track
             return TrackList.Exists(c => c.id == track_id && c.StockStatus == TrackStockStatusE.有砖);
         }
 
+        /// <summary>
+        /// 轨道是否空砖
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <returns></returns>
         public bool IsEmtpy(uint track_id)
         {
             return TrackList.Exists(c => c.id == track_id && c.StockStatus == TrackStockStatusE.空砖);
@@ -1447,6 +1452,12 @@ namespace resource.track
             return TrackList.Exists(c => c.id == trackid && c.InStatus(TrackStatusE.仅下砖, TrackStatusE.启用) && c.NotInStockStatus(TrackStockStatusE.空砖) && c.AlertStatus == TrackAlertE.正常);
         }
 
+        /// <summary>
+        /// 轨道是否停止使用
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <param name="transType"></param>
+        /// <returns></returns>
         public bool IsStopUsing(uint track_id, TransTypeE transType)
         {
             switch (transType)
@@ -1760,21 +1771,7 @@ namespace resource.track
                 SendMsg(track);
             }
         }
-
-        /// <summary>
-        /// 获取上砖侧半满轨道
-        /// </summary>
-        public List<Track> GetUpSortTrack()
-        {
-            return TrackList.FindAll(c => c.TrackStatus == TrackStatusE.启用
-                                                        && c.InType(TrackTypeE.储砖_出)
-                                                        && c.InStockStatus(TrackStockStatusE.有砖)
-                                                        && c.up_split_point != 0
-                                                        && GetAndRefreshUpCount(c.id) == 0
-                                                        && PubMaster.Goods.GetStocks(c.id).Count > 1);
-        }
-
-
+        
         #endregion
 
         #region[更新轨道状态]
@@ -2007,11 +2004,12 @@ namespace resource.track
         public int GetAndRefreshUpCount(uint trackid)
         {
             Track track = GetTrack(trackid);
-            int count = -1;
+            int count = 0;
             if (track != null)
             {
                 if (track.up_split_point == 0) return count;
-                count = PubMaster.Goods.GetUpStocks(trackid);
+
+                count = PubMaster.Goods.GetInfrontPointStockCount(track.id, track.up_split_point);
                 if (count != track.upcount)
                 {
                     PubMaster.Track.UpdateUpCount(trackid, count);
@@ -2690,17 +2688,20 @@ namespace resource.track
 
                     // 3.出轨道尾部大量空位，无上砖机上砖
                     int discountBtm = 0;
-                    Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
-                    if (btmstock != null && ExistSpaceAwayFromIn(track, btmstock, safe, out discountBtm))
+                    if (track.StockStatus == TrackStockStatusE.有砖)
                     {
-                        SetTrackSortable(track, true, SORT_LEVEL_3, "轨道尾部有空间");
-                        return;
+                        Stock btmstock = PubMaster.Goods.GetStockForIn(track.id);
+                        if (btmstock != null && ExistSpaceAwayFromIn(track, btmstock, safe, out discountBtm))
+                        {
+                            SetTrackSortable(track, true, SORT_LEVEL_3, "轨道尾部有空间");
+                            return;
+                        }
                     }
 
                     // 不满足倒库条件
                     SetTrackSortable(track, false, SORT_LEVEL_NO, 
-                        string.Format("不满足倒库: 头部设置空位[ {0} ], 当前空位[ {1} ]; 尾部设置空位[ {2} ], 当前空位[ {3} ]", 
-                        TrackSortFrontCount, discountTop, TrackSortBackCount, discountBtm));
+                        string.Format("不满足倒库: 头部设置空位[ {0} ], 当前空位[ {1} ]; 尾部设置空位[ {2} ], 当前空位[ {3} ]; 状态[ {4} ]", 
+                        TrackSortFrontCount, discountTop, TrackSortBackCount, discountBtm, track.StockStatus));
                     return;
                 }
                 else

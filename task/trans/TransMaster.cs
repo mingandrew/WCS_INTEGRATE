@@ -137,10 +137,17 @@ namespace task.trans
                     Stock stock = PubMaster.Goods.GetStockForOut(traTo.id);
                     if (stock == null) continue;
 
-                    // 生成倒库任务
-                    AddTransWithoutLock(traTo.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traTo.id, traTo.id
-                        , TransStatusE.检查轨道, 0, traTo.line, (traTo.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
-                    return;
+                    // 检查本身是否需要倒库
+                    ushort safe = PubMaster.Goods.GetStackSafe(stock.goods_id);
+                    if (PubMaster.Track.ExistSpaceAwayFromOut(traTo, stock, safe, out int discountTop)
+                        || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(traTo, safe, out string result)))
+                    {
+                        // 生成倒库任务
+                        AddTransWithoutLock(traTo.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traTo.id, traTo.id
+                            , TransStatusE.检查轨道, 0, traTo.line, (traTo.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
+                        return;
+                    }
+
                 }
             }
 
@@ -1585,9 +1592,11 @@ namespace task.trans
             //1.打开使用-开关(使用上砖侧分割点坐标)
             if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UseUpSplitPoint)) return false;
 
-            //2.判断是否是出轨道,出入轨道
+            //2.轨道判断
             Track track = PubMaster.Track.GetTrack(track_id);
             if (track == null || track.NotInType(TrackTypeE.储砖_出, TrackTypeE.储砖_出入)) return false;
+            if (track.InStatus(TrackStatusE.停用, TrackStatusE.仅下砖)) return false;
+            if (track.up_split_point == 0) return false;
 
             //3.如果已经有倒库任务则不发了
             if (TransList.Exists(c => !c.finish && c.take_track_id == track_id

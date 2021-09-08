@@ -63,7 +63,7 @@
         public const string FailAllocateCarrier = nameof(FailAllocateCarrier);
 
         /// <summary>
-        /// 运输车载货-取货砖机轨道空砖
+        /// 运输车载货-砖机轨道空砖
         /// </summary>
         public const string CarrierLoadNotInTileTrack = nameof(CarrierLoadNotInTileTrack);
         #endregion

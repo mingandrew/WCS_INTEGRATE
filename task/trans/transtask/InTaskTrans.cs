@@ -67,8 +67,17 @@ namespace task.trans.transtask
                 return;
             }
 
+            //是否有空闲的摆渡车
+            if (!PubTask.Ferry.HaveFreeFerryInTrans(trans, DeviceTypeE.后摆渡, out List<uint> ferryids))
+            {
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 1500, string.Format("当前没有空闲的摆渡车"));
+                #endregion
+                return;
+            }
+
             //分配运输车
-            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result)
+            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result, ferryids)
                 && !_M.HaveInCarrier(carrierid))
             {
                 _M.SetCarrier(trans, carrierid);
@@ -88,6 +97,14 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void ToTakeTrackTakeStock(StockTrans trans)
         {
+            //取消任务
+            if (!PubTask.TileLifter.IsHaveLoadNeed(trans.tilelifter_id, trans.take_track_id)
+                && mTimer.IsOver(TimerTag.DownTileHaveLoadNoNeed, trans.tilelifter_id, 10, 5))
+            {
+                _M.SetStatus(trans, TransStatusE.取消, "砖机非有货需求");
+                return;
+            }
+
             // 运行前提
             if (!_M.RunPremise(trans, out Track track, out CarrierTask carrier)) return;
 
@@ -147,7 +164,7 @@ namespace task.trans.transtask
                         if (!PubTask.TileLifter.IsTakeReady(trans.tilelifter_id, trans.take_track_id, out string res))
                         {
                             #region 【任务步骤记录】
-                            _M.SetStepLog(trans, false, 1500, string.Format("砖机[ {0} ]的工位轨道[ {1} ]不满足取砖条件；{2}；",
+                            _M.SetStepLog(trans, false, 1600, string.Format("砖机[ {0} ]的工位轨道[ {1} ]不满足取砖条件；{2}；",
                                 PubMaster.Device.GetDeviceName(trans.tilelifter_id),
                                 PubMaster.Track.GetTrackName(trans.take_track_id), res), true);
                             #endregion
@@ -238,7 +255,7 @@ namespace task.trans.transtask
                                 return;
                             }
 
-                            // 长时间无法取到砖，先解锁摆渡
+                            // 长时间无法取到砖
                             if (!isStopNoOrder && carrier.InTask(DevCarrierOrderE.取砖指令))
                             {
                                 // 取砖相关报警超20s
@@ -257,7 +274,7 @@ namespace task.trans.transtask
                                         carrier.DoStop(trans.id, "取砖指令超时");
 
                                         #region 【任务步骤记录】
-                                        _M.SetStepLog(trans, false, 1501, string.Format("[ {0} ]取砖指令超时, 尝试终止",carrier.Device.name));
+                                        _M.SetStepLog(trans, false, 1700, string.Format("[ {0} ]取砖指令超时, 尝试终止",carrier.Device.name));
                                         #endregion
                                         return;
                                     }
@@ -294,13 +311,18 @@ namespace task.trans.transtask
             {
                 #region[小车在下砖轨道]
                 case TrackTypeE.下砖轨道:
-                    if (isLoad)
+                    if (isLoad && trans.take_track_id == track.id)
                     {
                         //至摆渡车
                         MoveToFerrySeamless(trans, false);
                         return;
                     }
-                    break;
+                    else
+                    {
+                        _M.SetStatus(trans, TransStatusE.取砖流程, "小车不在取砖轨道及有货状态，重新取砖");
+                        return;
+                    }
+
                 #endregion
 
                 #region[小车在摆渡车上]
@@ -356,7 +378,7 @@ namespace task.trans.transtask
                                     PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.TransHaveNotTheGiveTrack, (ushort)trans.carrier_id, trans.id);
 
                                     #region 【任务步骤记录】
-                                    _M.SetStepLog(trans, false, 1600, string.Format("没有找到合适的轨道卸砖，继续尝试寻找其他轨道；"));
+                                    _M.SetStepLog(trans, false, 1800, string.Format("没有找到合适的轨道卸砖，继续尝试寻找其他轨道；"));
                                     #endregion
                                 }
 
@@ -549,12 +571,9 @@ namespace task.trans.transtask
                 case TrackTypeE.下砖轨道:
                     if (isStopNoOrder)
                     {
-                        if (track.id == trans.take_track_id)
-                        {
-                            //至摆渡车
-                            MoveToFerrySeamless(trans, true);
-                            return;
-                        }
+                        //至摆渡车
+                        MoveToFerrySeamless(trans, true);
+                        return;
                     }
                     break;
                     #endregion

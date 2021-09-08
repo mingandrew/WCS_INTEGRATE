@@ -59,13 +59,22 @@ namespace task.trans.transtask
             if (_M.HaveGiveInTrackId(trans))
             {
                 #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1211, string.Format("存在相同作业轨道的任务，等待任务完成；"));
+                _M.SetStepLog(trans, false, 1111, string.Format("存在相同作业轨道的任务，等待任务完成；"));
+                #endregion
+                return;
+            }
+
+            //是否有空闲的摆渡车
+            if (!PubTask.Ferry.HaveFreeFerryInTrans(trans, trans.AllocateFerryType, out List<uint> ferryids))
+            {
+                #region 【任务步骤记录】
+                _M.SetStepLog(trans, false, 1211, string.Format("当前没有空闲的摆渡车"));
                 #endregion
                 return;
             }
 
             //分配运输车
-            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result)
+            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result, ferryids)
                 && !_M.HaveInCarrier(carrierid))
             {
                 _M.SetCarrier(trans, carrierid);

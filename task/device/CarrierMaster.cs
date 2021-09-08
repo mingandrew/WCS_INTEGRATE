@@ -906,20 +906,6 @@ namespace task.device
             return isWrongStatus;
         }
 
-        /// <summary>
-        /// 判断砖机是否停在在砖机轨道对应的地标上<br/>
-        /// 1.用于上砖停在在砖机位置时，可以释放摆渡车
-        /// </summary>
-        /// <param name="carrierid"></param>
-        /// <param name="tilelifterid"></param>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        internal bool IsCarrierStockInTileSite(uint carrierid, uint tilelifterid, uint trackid)
-        {
-            ushort site = PubMaster.DevConfig.GetTileSite(tilelifterid, trackid);
-            return DevList.Exists(c => c.ID == carrierid && c.Status == DevCarrierStatusE.停止 && c.CurrentSite == site);
-        }
-
         #endregion
 
         #region[发送信息]
