@@ -20,6 +20,7 @@ namespace module.rf.device
         public int now_good_level { set; get; }//当前品种的等级
         public int pre_good_level { set; get; }//预设品种的等级
 
+        public bool prior { get; set; }//急单
         public DateTime last_shift_time { set; get; }//上一次转产时间
 
         public TileShiftStatusE shiftstatus { set; get; }
