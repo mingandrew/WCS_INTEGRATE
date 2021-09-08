@@ -743,7 +743,7 @@ namespace task.device
                         case TrackTypeE.储砖_入:
                         case TrackTypeE.储砖_出:
                         case TrackTypeE.储砖_出入:
-                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInStoreTrack(track, task.DevStatus.TakePoint);
+                            task.DevConfig.stock_id = PubMaster.Goods.GetStockInStoreTrack(track, task.DevStatus.TakePoint > 0 ? task.DevStatus.TakePoint : task.DevStatus.CurrentPoint);
                             break;
                         case TrackTypeE.摆渡车_入:
                         case TrackTypeE.摆渡车_出:

@@ -1924,7 +1924,7 @@ namespace task.device
             foreach (TileTrack tt in tracks)
             {
                 Track track = PubMaster.Track.GetTrack(tt.track_id);
-                if (track.StockStatus == TrackStockStatusE.空砖 || track.AlertStatus != TrackAlertE.正常 ||
+                 if (track.StockStatus == TrackStockStatusE.空砖 || track.AlertStatus != TrackAlertE.正常 ||
                     (track.TrackStatus != TrackStatusE.启用 && track.TrackStatus != TrackStatusE.仅上砖))
                 {
                     PubMaster.TileTrack.DeleteTileTrack(tt);

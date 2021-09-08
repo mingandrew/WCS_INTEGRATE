@@ -173,6 +173,9 @@ namespace wcs.ViewModel
                     case 5://往后 + 库存
                         InsertStock(false);
                         break;
+                    case 6://重新计算位置
+                        ResetTrackStockPosType();
+                        break;
                 }
             }
         }
@@ -663,6 +666,12 @@ namespace wcs.ViewModel
             ActionStock("0");
         }
 
+        private async void ResetTrackStockPosType()
+        {
+            if (!CheckSelectTrack()) return;
+
+            PubMaster.Goods.ResetTrackStockPosType(_selecttrack.id);
+        }
         protected override void TabActivate()
         {
         }

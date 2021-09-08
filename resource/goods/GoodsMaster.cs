@@ -634,6 +634,39 @@ namespace resource.goods
             return stock;
         }
 
+        /// <summary>
+        /// 检查库存位置信息，重新更新位置信息
+        /// </summary>
+        /// <param name="id"></param>
+        public void ResetTrackStockPosType(uint id)
+        {
+            List<Stock> stocks = StockList.FindAll(c => c.track_id == id);
+            if (stocks.Count >= 2)
+            {
+                stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
+
+                for(int i = 0; i < stocks.Count; i++)
+                {
+                    if(i == 0 && stocks[i].PosType != StockPosE.头部)
+                    {
+                        SetStockPosType(stocks[i], StockPosE.头部);
+                        continue;
+                    }
+
+                    if (i > 0 && i < stocks.Count - 1 && stocks[i].PosType != StockPosE.中部)
+                    {
+                        SetStockPosType(stocks[i], StockPosE.中部);
+                        continue;
+                    }
+
+                    if(i == stocks.Count - 1 && stocks[i].PosType != StockPosE.尾部)
+                    {
+                        SetStockPosType(stocks[i], StockPosE.尾部);
+                    }
+                }
+            }
+        }
+
         public bool HaveStockInTrack(uint trackid, uint goodsid, out uint stockid)
         {
             stockid = StockList.Find(c => c.track_id == trackid && c.goods_id == goodsid)?.id ?? 0;
@@ -2163,13 +2196,36 @@ namespace resource.goods
             return 0;
         }
 
+
+        public void CheckResetTrackTopStock(uint trackid)
+        {
+            Stock stock = GetTrackTopStock(trackid);
+            if(stock != null)
+            {
+                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
+                if (stocks.Count > 0)
+                {
+                    stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
+
+                    if(stocks[0].id != stock.id)
+                    {
+                        SetStockPosType(stock, StockPosE.中部);
+                        SetStockPosType(stocks[0], StockPosE.头部);
+                    }
+                }
+            }
+        }
+
         public Stock CheckGetStockTop(uint trackid)
         {
+            CheckResetTrackTopStock(trackid);
+
             if (!StockList.Exists(c => c.track_id == trackid && c.PosType == StockPosE.头部))
             {
                 List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
                 if (stocks.Count > 0)
                 {
+                    //脉冲降序
                     stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
                     SetStockPosType(stocks[0], StockPosE.头部);
                     return stocks[0];
@@ -2300,6 +2356,7 @@ namespace resource.goods
             List<CalData> callist = new List<CalData>();
             foreach (var item in stocks)
             {
+                if (item.PosType == StockPosE.头部) return item.id;
                 callist.Add(new CalData() { id = item.id, s_location = item.location, s_data = (ushort)Math.Abs(item.location - point) });
             }
             callist.Sort((x, y) =>
