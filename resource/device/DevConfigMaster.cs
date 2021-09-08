@@ -1342,6 +1342,7 @@ namespace resource.device
                 if (conf != null)
                 {
                     conf.syn_tile_list = a;
+                    conf.GetSynTileList();
                     PubMaster.Mod.DevConfigSql.EditConfigTileLifter(conf);
                 }
             }

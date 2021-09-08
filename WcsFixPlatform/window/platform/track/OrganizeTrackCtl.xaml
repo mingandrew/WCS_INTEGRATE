@@ -64,6 +64,7 @@
                               CanUserReorderColumns="False" AutoGenerateColumns="False">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding Good_Id,Converter={StaticResource GoodId2NameConverter}}" Header="品种" IsReadOnly="True"/>
+                            <DataGridTextColumn Binding="{Binding Level, Converter={StaticResource LevelValue2NameConverter}}" Header="品种等级"/>
                             <DataGridTextColumn Binding="{Binding All_Qty}" Header="数量" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding Give_Track_Id,Converter={StaticResource TrackId2NameConverter}}" Header="转移轨道" IsReadOnly="True"/>
                             <DataGridTextColumn Binding="{Binding DtlType}" Header="整理类型" IsReadOnly="True"/>

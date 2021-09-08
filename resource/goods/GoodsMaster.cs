@@ -3536,12 +3536,13 @@ namespace resource.goods
 
             foreach (var item in stocks)
             {
-                StockTransDtl dtl = dtls.Find(c => c.dtl_good_id == item.goods_id);
+                StockTransDtl dtl = dtls.Find(c => c.EqualGoodAndLevel(item.goods_id, item.level));
                 if (dtl == null)
                 {
                     dtl = new StockTransDtl()
                     {
                         dtl_good_id = item.goods_id,
+                        dtl_level = item.level,
                         dtl_all_qty = 1,
                         dtl_area_id = item.area,
                         dtl_take_track_id = item.track_id,

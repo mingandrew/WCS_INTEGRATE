@@ -845,3 +845,13 @@ UPDATE `wcs_module` SET  `geometry` = 'debug.png' WHERE `type` = 1 and `key` = '
 UPDATE `wcs_module` SET  `geometry` = 'manual_task.png' WHERE `type` = 1 and `key` = 'MANUALTASK';
 ```
 
+
+
+## 2021.08.24 [2.1] 库存整理添加字段
+
+```mysql
+ALTER TABLE `stock_trans_dtl` ADD COLUMN `level` tinyint(0) UNSIGNED NULL DEFAULT NULL COMMENT '砖机等级/窑位' AFTER `dtl_finish`;
+```
+
+
+

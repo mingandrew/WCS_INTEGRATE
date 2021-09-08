@@ -57,7 +57,8 @@ namespace wcs.ViewModel
                 Set(ref select_syntiles, value);
                 if (value != null)
                 {
-                    value.IsSelected = !value.IsSelected;
+                    //synchro_tilelifter_list.Add(value);
+                    select_syntiles.IsSelected = !select_syntiles.IsSelected;
                 }
             }
         }
@@ -138,6 +139,7 @@ namespace wcs.ViewModel
                     temp.IsSelected = true;
                 }
                 synchro_tilelifter_list.Add(temp);
+                SynTileIds.Add(temp.ID);
             }
         }
 
@@ -187,14 +189,7 @@ namespace wcs.ViewModel
                     SynTileIds.Add(tileView.ID);
                 }
             }
-            if (SynTileIds.Count > 0)
-            {
-                Result.p2 = SynTileIds;
-            }
-            else
-            {
-                Result.p2 = null;
-            }
+            Result.p2 = SynTileIds;
             CloseAction?.Invoke();
         }
 

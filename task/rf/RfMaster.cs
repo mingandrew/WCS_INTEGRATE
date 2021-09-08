@@ -2164,8 +2164,27 @@ namespace task.rf
 
                 if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
                 {
+                    if (pack.syn_tile_ids != null && pack.syn_tile_ids.Count != 0)
+                    {
+                        foreach (uint tid in pack.syn_tile_ids)
+                        {
+                            if (tid == pack.tile_id)
+                            {
+                                continue;
+                            }
+                            if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, pack.tile_id, out result))
+                            {
+                                result += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(tid), msg);
+                            }
+                            else
+                            {
+                                result += string.Format("【{0}】砖机开始转产 \r\n", PubMaster.Device.GetDeviceName(tid));
+                            }
+                        }
+                    }
+
                     //发送砖机转产信号
-                    SendSucc2Rf(msg.MEID, FunTag.ShiftTileGood, "ok");
+                    SendSucc2Rf(msg.MEID, FunTag.ShiftTileGood, "result");
                 }
                 else
                 {
@@ -2223,6 +2242,25 @@ namespace task.rf
 
                 if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
                 {
+                    if (pack.syn_tile_ids != null && pack.syn_tile_ids.Count != 0)
+                    {
+                        foreach (uint tid in pack.syn_tile_ids)
+                        {
+                            if (tid == pack.tile_id)
+                            {
+                                continue;
+                            }
+                            if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, pack.tile_id, out result))
+                            {
+                                result += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(tid), msg);
+                            }
+                            else
+                            {
+                                result += string.Format("【{0}】砖机开始转产 \r\n", PubMaster.Device.GetDeviceName(tid));
+                            }
+                        }
+                    }
+
                     //发送砖机转产信号
                     SendSucc2Rf(msg.MEID, FunTag.ShiftTileGood, "ok");
                 }

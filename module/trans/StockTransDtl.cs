@@ -27,6 +27,11 @@ namespace module.goods
         public uint dtl_good_id { set; get; }
 
         /// <summary>
+        /// 库存等级
+        /// </summary>
+        public uint dtl_level { set; get; }
+
+        /// <summary>
         ///  取货轨道
         /// </summary>
         public uint dtl_take_track_id { set; get; }
@@ -69,6 +74,17 @@ namespace module.goods
         {
             get => (StockTransDtlStatusE)dtl_status;
             set => dtl_status = (byte)value;
+        }
+
+        /// <summary>
+        /// 判断品种/等级是否一致
+        /// </summary>
+        /// <param name="goodid"></param>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public bool EqualGoodAndLevel(uint goodid, uint level)
+        {
+            return dtl_good_id == goodid && dtl_level == level;
         }
     }
 }

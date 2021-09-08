@@ -1,5 +1,6 @@
 ﻿using enums;
 using System;
+using System.Collections.Generic;
 
 namespace module.rf.device
 {
@@ -25,5 +26,6 @@ namespace module.rf.device
 
         public TileShiftStatusE shiftstatus { set; get; }
 
+        public List<uint> syn_tile_ids { set; get; } //同步 转产的砖机id
     }
 }
