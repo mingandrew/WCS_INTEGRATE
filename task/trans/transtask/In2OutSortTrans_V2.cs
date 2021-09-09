@@ -425,7 +425,7 @@ namespace task.trans.transtask
             {
                 if (isheadempty)
                 {
-                    Stock topstock = PubMaster.Goods.CheckGetStockTop(trans.take_track_id);
+                    Stock topstock = PubMaster.Goods.GetTrackTopStock(trans.take_track_id);
                     if (topstock != null)
                     {
                         toempypoint = (ushort)(topstock.location + (3 * safe));

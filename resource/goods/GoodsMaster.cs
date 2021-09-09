@@ -592,6 +592,8 @@ namespace resource.goods
             Stock stock = StockList.Find(c => c.track_id == trackid && c.PosType == StockPosE.头部);
             if (stock == null)
             {
+                CheckResetTrackTopStock(trackid);
+
                 stock = CheckGetStockTop(trackid);
             }
             return stock;
@@ -2218,8 +2220,6 @@ namespace resource.goods
 
         public Stock CheckGetStockTop(uint trackid)
         {
-            CheckResetTrackTopStock(trackid);
-
             if (!StockList.Exists(c => c.track_id == trackid && c.PosType == StockPosE.头部))
             {
                 List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
