@@ -388,6 +388,7 @@ namespace simtask.master
                             task.DevStatus.ShiftStatus = TileShiftStatusE.复位;
                             task.DevStatus.ShiftAccept = false;
 
+                            task.DevStatus.ShiftAccept = false;
                             break;
                         case TileShiftCmdE.变更品种:
                             task.DevStatus.SetGoods = cmd.GoodId;

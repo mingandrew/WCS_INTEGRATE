@@ -26,6 +26,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}"/>
                 <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LT}"/>
@@ -48,6 +49,10 @@
                 <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}"/>
                 <Border Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LTRB}"/>
 
+                <Border Grid.Row="5" Grid.Column="0" Style="{StaticResource MBorder_LTB}"/>
+                <Border Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="4" Style="{StaticResource MBorder_LTRB}">
+                    
+                </Border>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text=""  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
                 <TextBlock Grid.Row="0" Grid.Column="1" Margin="10" FontSize="22" Text="名称" Style="{StaticResource TextBlockTitleBold}"/>
@@ -72,9 +77,9 @@
                     <Button Tag="clearnpregood" Command="{Binding BtnCmd}"  Margin="10,0,10,0"  CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonDanger}" Content="清空" FontSize="15"/>
 
                 </StackPanel>
-                
+
                 <TextBlock Grid.Row="3" Grid.Column="0" Text="转产状态："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="10" FontSize="22" Text="{Binding SHIFTSTATUS}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="4" Margin="10" FontSize="22" Text="{Binding SHIFTSTATUS}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 <Button Grid.Row="3" Grid.Column="2" Margin="10"  Tag="refreshstatus" Command="{Binding BtnCmd}" 
                         CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}"
                         Content="刷新" FontSize="15" Visibility="Collapsed"/>
@@ -85,6 +90,8 @@
                         CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}" Style="{StaticResource ButtonPrimary}" Content="设置同步砖机" FontSize="15" Width="120"/>
 
 
+                <TextBlock Grid.Row="5" Grid.Column="0"  Text="急单："  Style="{StaticResource TextBlockTitleBold}" Margin="10,20" HorizontalAlignment="Right"/>
+                <CheckBox Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="4" Margin="15" VerticalAlignment="Bottom" HorizontalAlignment="Center"  IsChecked="{Binding Prior, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="是否急单" FontSize="22"/>
                 <!--<hc:CheckComboBox Name="shifttilecombo"  Grid.Row="4" Grid.Column="1" MaxWidth="980" ShowClearButton="False" ItemsSource="{Binding SynchroTileLifterList,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CheckComboBoxPlus}"
                                    Margin="12,18,10,17" ShowSelectAllButton="True" VerticalAlignment="Center" HorizontalAlignment="Center" 
                                    SelectedItem="{Binding SelectSynTiles,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"

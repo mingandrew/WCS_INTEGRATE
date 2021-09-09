@@ -125,7 +125,8 @@ namespace module.deviceconfig
         public int pre_good_qty { set; get; }//预约品种数量
         public bool now_good_all { set; get; }//当前使用全部库存
         public bool pre_good_all { set; get; }//预约使用全部库存
-
+        public bool prior { set; get; }//当前品种是否急单
+        public byte prior_num { set; get; }//砖机急单类型
         public string syn_tile_list { set; get; } //同步转产的砖机id，用#隔开
 
         //同步转产的砖机id

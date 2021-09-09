@@ -255,6 +255,9 @@ namespace resource.module.modulesql
                 case StockUpE.Location:
                     sql += string.Format("`location` = {0}, `location_cal` = {1}",  stock.location, stock.location_cal);
                     break;
+                case StockUpE.PriorNum:
+                    sql += string.Format("`prior_num` = {0}", stock.prior_num);
+                    break;
                 default:
                     sql += "1=1";
                     break;

@@ -111,6 +111,8 @@
         WorkMode,
         Strategey,
         Level,
+        Prior,
+        PriorNum,
 
     }
 }

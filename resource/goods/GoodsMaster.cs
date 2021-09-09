@@ -625,6 +625,15 @@ namespace resource.goods
             rs = "请稍后再试";
             return false;
         }
+        /// <summary>
+        /// 获取库存急单类型
+        /// </summary>
+        /// <param name="stock_id"></param>
+        /// <returns></returns>
+        public byte GetStockPriorNum(uint stock_id)
+        {
+            return GetStock(stock_id)?.prior_num ?? 0;
+        }
 
         /// <summary>
         /// 获取轨道最小脉冲库存
@@ -1352,7 +1361,7 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="goodid"></param>
         /// <param name="transid"></param>
-        public uint AddStock(uint tile_id, uint trackid, uint goodid, byte fullqty, byte level, DateTime? producetime = null)
+        public uint AddStock(uint tile_id, uint trackid, uint goodid, byte fullqty, byte level, DateTime? producetime = null,byte priornum = 0)
         {
             if (Monitor.TryEnter(_go, TimeSpan.FromSeconds(2)))
             {
@@ -1373,12 +1382,17 @@ namespace resource.goods
                         tilelifter_id = tile_id,
                         area = track.area,
                         track_type = track.type,
-                        level = level
+                        level = level,
+                        prior_num = priornum
                     };
 
                     UpdateTrackPos(stock, track);
                     StockList.Add(stock);
                     PubMaster.Mod.GoodSql.AddStock(stock);
+                    if (priornum > 0)
+                    {
+                        PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.PriorNum);
+                    }
                     return newid;
                 }
                 finally
@@ -2596,7 +2610,7 @@ namespace resource.goods
         #region[任务逻辑]
 
         #region[分配轨道]
-
+        
         /// <summary>
         /// 分配储砖轨道：根据区域/下砖设备/品种        
         /// 1、找同品种未满入轨道
@@ -2608,8 +2622,9 @@ namespace resource.goods
         /// <param name="devid">分配设备</param>
         /// <param name="goodsid">品种</param>
         /// <param name="traids">符合的轨道列表</param>
+        /// <param name="priornum">砖机急单类别</param>
         /// <returns></returns>
-        public bool AllocateGiveTrack(uint areaid, ushort lineid, uint devid, uint goodsid, out List<uint> traids)
+        public bool AllocateGiveTrack(uint areaid, ushort lineid, uint devid, uint goodsid, out List<uint> traids, byte priornum)
         {
             List<AreaDeviceTrack> list = PubMaster.Area.GetTileWorkTraList(areaid, devid, false);
             byte level = PubMaster.DevConfig.GetConfTileLevel(devid);
@@ -2621,7 +2636,7 @@ namespace resource.goods
             List<uint> empty_in = new List<uint>();                 //[有] 出 - [空] 入
 
             List<uint> emptylist = new List<uint>();//所有空轨道列表
-
+          
             foreach (AreaDeviceTrack adt in list)
             {
                 Track track = PubMaster.Track.GetTrack(adt.track_id);
@@ -2633,7 +2648,7 @@ namespace resource.goods
 
                 //轨道满否
                 if (track.StockStatus == TrackStockStatusE.满砖) continue;
-
+                
                 //[可以放任何品种] 空轨道，轨道没有库存
                 if (track.StockStatus == TrackStockStatusE.空砖
                     && IsTrackStockEmpty(adt.track_id)
@@ -2669,7 +2684,7 @@ namespace resource.goods
 
                 //是否已存同品种并且未满
                 Stock lastStk = GetStockForIn(adt.track_id);
-                if (lastStk != null && lastStk.EqualGoodAndLevel(goodsid, level))
+                if (lastStk != null && lastStk.EqualGoodAndLevel(goodsid, level)||lastStk.prior_num==priornum)
                 {
                     // 1、找同品种未满入轨道
                     trackstores.Add(new TrackStoreCount()

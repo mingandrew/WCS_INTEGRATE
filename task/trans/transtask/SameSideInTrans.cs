@@ -352,7 +352,8 @@ namespace task.trans.transtask
                                 || PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
                             {
                                 bool isWarn = false;
-                                if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.line, trans.tilelifter_id, trans.goods_id, out List<uint> traids))
+                                byte priornum = PubMaster.Goods.GetStockPriorNum(trans.stock_id);
+                                if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.line, trans.tilelifter_id, trans.goods_id, out List<uint> traids, priornum))
                                 {
                                     foreach (uint traid in traids)
                                     {

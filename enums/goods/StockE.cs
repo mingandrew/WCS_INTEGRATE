@@ -82,7 +82,8 @@
         Pos,
         PosType,
         ProduceTime,
-        Location
+        Location,
+        PriorNum
     }
 
 

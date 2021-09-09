@@ -2162,7 +2162,7 @@ namespace task.rf
                     SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, "请先刷新设备信息，再执行转产操作！");
                 }
 
-                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
+                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, pack.prior,out string result))
                 {
                     if (pack.syn_tile_ids != null && pack.syn_tile_ids.Count != 0)
                     {
@@ -2172,7 +2172,7 @@ namespace task.rf
                             {
                                 continue;
                             }
-                            if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, pack.tile_id, out result))
+                            if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, pack.tile_id, pack.prior, out result))
                             {
                                 result += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(tid), msg);
                             }
@@ -2240,7 +2240,7 @@ namespace task.rf
                     }
                 }
 
-                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id, out string result))
+                if (PubMaster.DevConfig.UpdateShiftTileGood(pack.tile_id, pack.good_id,pack.prior, out string result))
                 {
                     if (pack.syn_tile_ids != null && pack.syn_tile_ids.Count != 0)
                     {
@@ -2250,7 +2250,7 @@ namespace task.rf
                             {
                                 continue;
                             }
-                            if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, pack.tile_id, out result))
+                            if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, pack.tile_id, pack.prior, out result))
                             {
                                 result += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(tid), msg);
                             }
@@ -2266,6 +2266,7 @@ namespace task.rf
                 }
                 else
                 {
+
                     SendFail2Rf(msg.MEID, FunTag.ShiftTileGood, result);
                 }
             }

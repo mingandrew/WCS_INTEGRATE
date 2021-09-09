@@ -853,5 +853,16 @@ UPDATE `wcs_module` SET  `geometry` = 'manual_task.png' WHERE `type` = 1 and `ke
 ALTER TABLE `stock_trans_dtl` ADD COLUMN `level` tinyint(0) UNSIGNED NULL DEFAULT NULL COMMENT '砖机等级/窑位' AFTER `dtl_finish`;
 ```
 
+## 2021.09.09 [2.1] 急单字段
 
+```mysql
+ALTER TABLE `config_tilelifter` 
+ADD COLUMN `prior` bit(1) NULL COMMENT '急单' ;
+
+ALTER TABLE `config_tilelifter` 
+ADD COLUMN `prior_num` tinyint(3) UNSIGNED NULL COMMENT '砖机急单类型【不同急单数字分开即可】';
+
+ALTER TABLE `stock` 
+ADD COLUMN `prior_num` tinyint(3) UNSIGNED NULL COMMENT '砖机急单类型【不同急单数字分开即可】';
+```
 

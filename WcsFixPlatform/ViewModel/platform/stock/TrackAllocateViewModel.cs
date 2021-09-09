@@ -126,7 +126,7 @@ namespace wcs.ViewModel
             TrackIdsList.Clear();
             if (device.Type == DeviceTypeE.下砖机 || device.Type == DeviceTypeE.砖机)
             {
-                if (PubMaster.Goods.AllocateGiveTrack(device.area, device.line, device.id, GoodsId, out List<uint> traids))
+                if (PubMaster.Goods.AllocateGiveTrack(device.area, device.line, device.id, GoodsId, out List<uint> traids,0))
                 {
                     TrackIdsList.Clear();
                     foreach (uint id in traids)

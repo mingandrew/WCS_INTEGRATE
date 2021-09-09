@@ -954,7 +954,7 @@ namespace task.device
 
                         if (task.DevConfig.pre_goodid > 0)
                         {
-                            if (!PubMaster.DevConfig.UpdateShiftTileGood(task.ID, task.DevConfig.goods_id, out string rs))
+                            if (!PubMaster.DevConfig.UpdateShiftTileGood(task.ID, task.DevConfig.goods_id, task.DevConfig.prior, out string rs))
                             {
 
                             }
@@ -1280,19 +1280,31 @@ namespace task.device
 
                     if (!iseffect)
                     {
-                        switch (task.WorkType)
+                        DevWorkTypeE type;
+                        byte priornum = 0;
+                        if (task.DevConfig.prior
+                            && task.DevConfig.goods_id == gid)
+                        {
+                            type = DevWorkTypeE.品种作业;
+                            priornum = task.DevConfig.prior_num;
+                        }
+                        else
+                        {
+                            type = task.WorkType;
+                        }
+                        switch (type)
                         {
                             case DevWorkTypeE.品种作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out uint stockid);
-                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line);
-                                return;
+                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out uint stockid, priornum);
+                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line, priornum);
+                                break;
                             case DevWorkTypeE.轨道作业:
 
-                                return;
+                                break;
                             case DevWorkTypeE.混砖作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out stockid);
-                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line);
-                                return;
+                                AddAndGetStockId(task.ID, task.DevConfig.left_track_id, gid, task.Site1Qty, out stockid, priornum);
+                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.left_track_id, gid, stockid, task.Line, priornum);
+                                break;
                         }
                     }
 
@@ -1439,19 +1451,31 @@ namespace task.device
 
                     if (!iseffect)
                     {
-                        switch (task.WorkType)
+                        DevWorkTypeE type;
+                        byte priornum = 0;
+                        if (task.DevConfig.prior
+                            && task.DevConfig.goods_id == gid)
+                        {
+                            type = DevWorkTypeE.品种作业;
+                            priornum = task.DevConfig.prior_num;
+                        }
+                        else
+                        {
+                            type = task.WorkType;
+                        }
+                        switch (type)
                         {
                             case DevWorkTypeE.品种作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out uint stockid);
-                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line);
-                                return;
+                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out uint stockid, priornum);
+                                TileAddInTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line, priornum);
+                                break;
                             case DevWorkTypeE.轨道作业:
 
-                                return;
+                                break;
                             case DevWorkTypeE.混砖作业:
-                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out stockid);
-                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line);
-                                return;
+                                AddAndGetStockId(task.ID, task.DevConfig.right_track_id, gid, task.Site2Qty, out stockid, priornum);
+                                AddMixTrackTransTask(task.AreaId, task.ID, task.DevConfig.right_track_id, gid, stockid, task.Line, priornum);
+                                break;
                         }
                     }
 
@@ -1601,7 +1625,7 @@ namespace task.device
         /// <param name="tiletrackid"></param>
         /// <param name="goodid"></param>
         /// <param name="stockid"></param>
-        private void AddMixTrackTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line)
+        private void AddMixTrackTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line, byte priornum)
         {
             byte level = GetTileLevel(tileid);
             if (stockid == 0) return;
@@ -1633,7 +1657,7 @@ namespace task.device
             }
             else
             {
-                TileAddInTransTask(areaid, tileid, tiletrackid, goodid, stockid, line);
+                TileAddInTransTask(areaid, tileid, tiletrackid, goodid, stockid, line, priornum);
 
                 PubMaster.Warn.RemoveDevWarn(WarningTypeE.TileMixLastTrackInTrans, (ushort)tileid);
             }
@@ -1698,8 +1722,14 @@ namespace task.device
                     gid = tile.DevStatus.Goods2 != 0 ? tile.DevStatus.Goods2 : tile.DevConfig.goods_id;
                     qty = tile.DevStatus.Site2Qty > 0 ? tile.DevStatus.Site2Qty : tile.DevStatus.FullQty;
                 }
-
-                AddAndGetStockId(tile.ID, trackid, gid, qty, out stockid);
+                byte priornum = 0;
+                if (tile.DevConfig.prior
+                    && tile.DevConfig.goods_id == gid
+                    && tile.WorkType == DevWorkTypeE.混砖作业)
+                {
+                    priornum = tile.DevConfig.prior_num;
+                }
+                AddAndGetStockId(tile.ID, trackid, gid, qty, out stockid, priornum);
             }
             return stockid != 0;
         }
@@ -1712,7 +1742,7 @@ namespace task.device
         /// <param name="goodid"></param>
         /// <param name="fullqty"></param>
         /// <param name="stockid"></param>
-        private void AddAndGetStockId(uint tileid, uint tiletrackid, uint goodid, byte fullqty, out uint stockid)
+        private void AddAndGetStockId(uint tileid, uint tiletrackid, uint goodid, byte fullqty, out uint stockid, byte priornum)
         {
             byte level = GetTileLevel(tileid);
             //[已有库存]
@@ -1738,13 +1768,13 @@ namespace task.device
         /// <param name="tiletrackid">砖机轨道ID</param>
         /// <param name="goodid">砖机品种</param>
         /// <param name="fullqty">砖机满砖数量</param>
-        private void TileAddInTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line)
+        private void TileAddInTransTask(uint areaid, uint tileid, uint tiletrackid, uint goodid, uint stockid, ushort line, byte priornum)
         {
             //分配放货点
             if (stockid != 0)
             {
                 PubTask.Allocate.AllocateInGiveTrack(areaid, line, tileid, goodid,
-                    out uint givetrackid, out uint lastgoodid, out bool islimitallocate);
+                    out uint givetrackid, out uint lastgoodid, out bool islimitallocate, priornum);
 
                 if (givetrackid != 0)
                 {

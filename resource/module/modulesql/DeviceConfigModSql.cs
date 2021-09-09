@@ -206,6 +206,12 @@ can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, 
                 case TileConfigUpdateE.Level:
                     sql += string.Format("level = {0}", dev.level);
                     break;
+                case TileConfigUpdateE.Prior:
+                    sql += string.Format("prior = {0}", dev.prior);
+                    break;
+                case TileConfigUpdateE.PriorNum:
+                    sql += string.Format("prior_num = {0}", dev.prior_num);
+                    break;
                 default:
                     sql += string.Format("brother_dev_id = {0}", dev.brother_dev_id);
                     break;

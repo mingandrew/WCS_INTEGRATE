@@ -50,6 +50,22 @@ namespace wcs.ViewModel
 
         private bool showlevel = true;
 
+
+         private bool showprior = false;
+        private bool prior;
+
+         public bool ShowPrior
+        {
+        get => showprior;
+            set => Set(ref showprior, value);
+        }
+
+          public bool Prior
+        {
+         get => prior;
+            set => Set(ref prior, value);
+        }
+
         //需要同步转产的砖机id
         private List<uint> syntileids;
         public List<uint> SynTileIds
@@ -439,7 +455,7 @@ namespace wcs.ViewModel
             string warncontent = "";
             string succcontent = "";
             
-            if (!PubMaster.DevConfig.UpdateShiftTileGood(_devid, _goodsid, out string msg))
+            if (!PubMaster.DevConfig.UpdateShiftTileGood(_devid, _goodsid,prior, out string msg))
             {
                 warncontent += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(_devid), msg);
                 return;
@@ -452,7 +468,7 @@ namespace wcs.ViewModel
                 {
                     continue;
                 }
-                if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, _devid, out msg))
+                if (!PubMaster.DevConfig.UpdateShiftTileGoodWithOtherTile(tid, _devid, prior, out msg))
                 {
                     warncontent += string.Format("【{0}】砖机{1} \r\n", PubMaster.Device.GetDeviceName(tid), msg);
                 }
@@ -503,6 +519,7 @@ namespace wcs.ViewModel
                 CancelChange();
                 return;
             }
+              Prior = false;  
             DEVNAME = devname;
             SetNowGood(goodid);
             SetGQty();

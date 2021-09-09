@@ -359,6 +359,17 @@ namespace resource.device
                         PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid));
                 }
                 catch { }
+                //手动设置品种，则重置砖机品种优先找空的属性
+                if (dev.prior)
+                {
+                    dev.prior = false;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Prior);
+
+                    dev.last_track_id = 0;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.LastTrack);
+                    mLog.Status(true, string.Format("【急单结束】砖机[ {0} ], 最近作业轨道重置", PubMaster.Device.GetDeviceName(dev.id)));
+                }
+
                 dev.goods_id = goodid;
                 dev.now_good_all = true;
                 dev.now_good_qty = 0;
@@ -777,7 +788,7 @@ namespace resource.device
         /// <param name="nowgoodid"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, out string result, bool ischeck = true)
+        public bool UpdateShiftTileGood(uint devid, uint nowgoodid, bool prior, out string result)
         {
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             if (dev != null)
@@ -788,7 +799,7 @@ namespace resource.device
                     return false;
                 }
 
-                if (ischeck && dev.goods_id != nowgoodid)
+                if (dev.goods_id != nowgoodid)
                 {
                     result = "请刷新设备信息！";
                     return false;
@@ -819,12 +830,28 @@ namespace resource.device
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
+                if (dev.prior != prior)
+                {
+                    dev.prior = prior;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Prior);
+
+                    if (!prior)
+                    {
+                        dev.last_track_id = 0;
+                        PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.LastTrack);
+                        mLog.Status(true, string.Format("【急单结束】砖机[ {0} ], 最近作业轨道重置", PubMaster.Device.GetDeviceName(dev.id)));
+                    }
+                }
                 try
                 {
-                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ]",
-                        PubMaster.Device.GetDeviceName(dev.id),
-                        PubMaster.Goods.GetGoodsName(dev.old_goodid),
-                        PubMaster.Goods.GetGoodsName(dev.goods_id), dev.old_goodid, dev.goods_id, (dev.now_good_all ? "不限" : (dev.now_good_qty + ""))));
+                    mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ], 急单[ {6} ]",
+                         PubMaster.Device.GetDeviceName(dev.id),
+                         PubMaster.Goods.GetGoodsName(dev.old_goodid),
+                         PubMaster.Goods.GetGoodsName(dev.goods_id),
+                         dev.old_goodid,
+                         dev.goods_id,
+                         dev.now_good_all ? "不限" : (dev.now_good_qty + ""),
+                         dev.prior));
                 }
                 catch { }
                 result = "";
@@ -841,7 +868,7 @@ namespace resource.device
         /// <param name="nowgoodid"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public bool UpdateShiftTileGoodWithOtherTile(uint devid, uint same_dev_id, out string result)
+        public bool UpdateShiftTileGoodWithOtherTile(uint devid, uint same_dev_id, bool prior, out string result)
         {
             ConfigTileLifter dev = ConfigTileLifterList.Find(c => c.id == devid);
             ConfigTileLifter same_dev = ConfigTileLifterList.Find(c => c.id == same_dev_id);
@@ -878,6 +905,18 @@ namespace resource.device
                 dev.do_shift = true;
                 dev.last_shift_time = DateTime.Now;//更新转产时间
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
+                if (dev.prior != prior)
+                {
+                    dev.prior = prior;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Prior);
+
+                    if (!prior)
+                    {
+                        dev.last_track_id = 0;
+                        PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.LastTrack);
+                        mLog.Status(true, string.Format("【急单结束】砖机[ {0} ], 最近作业轨道重置", PubMaster.Device.GetDeviceName(dev.id)));
+                    }
+                }
                 try
                 {
                     mLog.Status(true, string.Format("【开始转产】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ {5} ], 备注[同步转产-主砖机{6}]",
