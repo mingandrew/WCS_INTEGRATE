@@ -2587,8 +2587,7 @@ namespace resource.goods
                 if (track.StockStatus == TrackStockStatusE.满砖) continue;
 
                 //是否已存同品种并且未满
-                if (track.StockStatus == TrackStockStatusE.有砖  //有砖
-                    && IsTrackFineToStore(adt.track_id, goodsid, out storecount) //是否已存同品种并且未满
+                if (IsTrackFineToStore(adt.track_id, goodsid, out storecount) //是否已存同品种并且未满
                         || IsTrackBtmStockEqualPriorNum(adt.track_id, priornum)) //尾部库存同急单等级
                 {
                     /// 1、找同品种未满入轨道
@@ -2600,8 +2599,7 @@ namespace resource.goods
                 }
 
                 //[可以放任何品种] 空轨道，轨道没有库存
-                if (track.StockStatus == TrackStockStatusE.空砖
-                    && IsTrackStockEmpty(adt.track_id)
+                if (IsTrackStockEmpty(adt.track_id)
                     && IsTrackOkForGoods(adt.track_id, goodsid))
                 {
                     #region[出入轨道]
