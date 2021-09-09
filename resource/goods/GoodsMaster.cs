@@ -592,7 +592,7 @@ namespace resource.goods
             Stock stock = StockList.Find(c => c.track_id == trackid && c.PosType == StockPosE.头部);
             if (stock == null)
             {
-                CheckResetTrackTopStock(trackid);
+                ResetTrackStockPosType(trackid);
 
                 stock = CheckGetStockTop(trackid);
             }
@@ -665,6 +665,13 @@ namespace resource.goods
                     {
                         SetStockPosType(stocks[i], StockPosE.尾部);
                     }
+                }
+            }
+            else if(stocks.Count == 1)
+            {
+                if(stocks[0].PosType != StockPosE.头部)
+                {
+                    SetStockPosType(stocks[0], StockPosE.头部);
                 }
             }
         }
@@ -2196,26 +2203,6 @@ namespace resource.goods
                 }
             }
             return 0;
-        }
-
-
-        public void CheckResetTrackTopStock(uint trackid)
-        {
-            Stock stock = GetTrackTopStock(trackid);
-            if(stock != null)
-            {
-                List<Stock> stocks = StockList.FindAll(c => c.track_id == trackid);
-                if (stocks.Count > 0)
-                {
-                    stocks.Sort((x, y) => x.pos.CompareTo(y.pos));
-
-                    if(stocks[0].id != stock.id)
-                    {
-                        SetStockPosType(stock, StockPosE.中部);
-                        SetStockPosType(stocks[0], StockPosE.头部);
-                    }
-                }
-            }
         }
 
         public Stock CheckGetStockTop(uint trackid)
