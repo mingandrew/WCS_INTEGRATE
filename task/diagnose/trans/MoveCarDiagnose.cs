@@ -84,7 +84,7 @@ namespace task.diagnose.trans
                     ferrytype = DeviceTypeE.后摆渡;
                     break;
                 case TransTypeE.倒库任务:
-                case TransTypeE.上砖侧倒库:
+                case TransTypeE.上砖接力:
                     checktakegivetrack = false;
                     ferrytype = DeviceTypeE.前摆渡;
                     break;

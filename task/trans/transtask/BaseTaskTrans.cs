@@ -1085,7 +1085,7 @@ namespace task.trans.transtask
                 // 无缝上摆渡
                 if (car.IsStopNoOrder(out result))
                 {
-                    // 停止：摆渡到位 直接定位摆渡
+                    // 摆渡到位 直接定位摆渡
                     if (isFerryOK)
                     {
                         //至摆渡车
@@ -1097,17 +1097,29 @@ namespace task.trans.transtask
                         return;
                     }
 
-                    // 停止：摆渡未到位 先到轨道头
-                    if (!isFerryOK && Math.Abs(tosite - car.CurrentPoint) > 10)
+                    // 超过轨道头则不动
+                    if (tosite == carTrack.limit_point_up && car.CurrentPoint > tosite)
                     {
-                        // 移至轨道定位点
-                        MoveToLoc(carTrack.id, trans.carrier_id, trans.id, tosite);
-
-                        #region 【任务步骤记录】
-                        _M.LogForCarrierToTrack(trans, carTrack.id);
-                        #endregion
                         return;
                     }
+                    if (tosite == carTrack.limit_point && car.CurrentPoint < tosite)
+                    {
+                        return;
+                    }
+
+                    // 差距小也不动
+                    if (Math.Abs(tosite - car.CurrentPoint) <= 20)
+                    {
+                        return;
+                    }
+
+                    // 移至轨道定位点
+                    MoveToLoc(carTrack.id, trans.carrier_id, trans.id, tosite);
+
+                    #region 【任务步骤记录】
+                    _M.LogForCarrierToTrack(trans, carTrack.id);
+                    #endregion
+                    return;
                 }
                 else
                 {

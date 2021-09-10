@@ -51,7 +51,7 @@ namespace task.diagnose.trans
 
             #region[检查倒库任务, 暂停任务超时，回复倒库任务]
 
-            List<StockTrans> stopsort = _M.GetTransList()?.FindAll(c => c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
+            List<StockTrans> stopsort = _M.GetTransList()?.FindAll(c => c.InType(TransTypeE.倒库任务, TransTypeE.上砖接力)
                                        && c.IsInStatusOverTime(TransStatusE.倒库暂停, 60)) ?? null;
             if (stopsort != null && stopsort.Count > 0)
             {
@@ -81,7 +81,7 @@ namespace task.diagnose.trans
         private void StopSortTask(StockTrans trans, uint areaid, ushort line)
         {
             List<StockTrans> inoutsort = _M.GetTransList()?.FindAll(c => c.area_id == areaid && c.line == line && c.InType(TransTypeE.倒库任务)) ?? null;
-            List<StockTrans> outoutsort = _M.GetTransList()?.FindAll(c => c.area_id == areaid && c.line == line && c.InType(TransTypeE.上砖侧倒库)) ?? null;
+            List<StockTrans> outoutsort = _M.GetTransList()?.FindAll(c => c.area_id == areaid && c.line == line && c.InType(TransTypeE.上砖接力)) ?? null;
 
             if(inoutsort != null && inoutsort.Count > 0)
             {

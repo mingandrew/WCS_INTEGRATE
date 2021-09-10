@@ -1361,7 +1361,7 @@ namespace resource.goods
         /// <param name="trackid"></param>
         /// <param name="goodid"></param>
         /// <param name="transid"></param>
-        public uint AddStock(uint tile_id, uint trackid, uint goodid, byte fullqty, byte level, DateTime? producetime = null,byte priornum = 0)
+        public uint AddStock(uint tile_id, uint trackid, uint goodid, byte fullqty, byte level, DateTime? producetime = null, byte priornum = 0)
         {
             if (Monitor.TryEnter(_go, TimeSpan.FromSeconds(2)))
             {
@@ -1595,9 +1595,9 @@ namespace resource.goods
                     try
                     {
                         AddStockLog(string.Format("【删除库存】【删除失败，库存已绑定{3}运输车】- 库存[ {0} ], 轨道[ {1} ], 备注[ {2} ]",
-                            s.ToString(), 
-                            PubMaster.Track.GetTrackName(s.track_id), 
-                            memo, 
+                            s.ToString(),
+                            PubMaster.Track.GetTrackName(s.track_id),
+                            memo,
                             PubMaster.Device.GetDeviceName(carid)));
                     }
                     catch { }
@@ -2610,7 +2610,7 @@ namespace resource.goods
         #region[任务逻辑]
 
         #region[分配轨道]
-        
+
         /// <summary>
         /// 分配储砖轨道：根据区域/下砖设备/品种        
         /// 1、找同品种未满入轨道
@@ -2636,7 +2636,7 @@ namespace resource.goods
             List<uint> empty_in = new List<uint>();                 //[有] 出 - [空] 入
 
             List<uint> emptylist = new List<uint>();//所有空轨道列表
-          
+
             foreach (AreaDeviceTrack adt in list)
             {
                 Track track = PubMaster.Track.GetTrack(adt.track_id);
@@ -2648,7 +2648,7 @@ namespace resource.goods
 
                 //轨道满否
                 if (track.StockStatus == TrackStockStatusE.满砖) continue;
-                
+
                 //[可以放任何品种] 空轨道，轨道没有库存
                 if (track.StockStatus == TrackStockStatusE.空砖
                     && IsTrackStockEmpty(adt.track_id)
@@ -2663,7 +2663,7 @@ namespace resource.goods
                     }
                     #endregion
 
-                    #region[入库轨道】
+                    #region[入库轨道]
                     // 2、优先找出轨道同品种空的入轨道（不能连续两次下同一条轨道）
                     if (PubMaster.Goods.HaveGoodInTrack(track.brother_track_id, goodsid, level))
                     {
@@ -2684,7 +2684,7 @@ namespace resource.goods
 
                 //是否已存同品种并且未满
                 Stock lastStk = GetStockForIn(adt.track_id);
-                if (lastStk != null && lastStk.EqualGoodAndLevel(goodsid, level)||lastStk.prior_num==priornum)
+                if (lastStk != null && (lastStk.EqualGoodAndLevel(goodsid, level) || (priornum > 0 && lastStk.prior_num == priornum)))
                 {
                     // 1、找同品种未满入轨道
                     trackstores.Add(new TrackStoreCount()

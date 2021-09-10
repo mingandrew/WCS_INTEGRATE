@@ -190,7 +190,7 @@ namespace task.trans
                                     case TransTypeE.同向下砖:
                                         _sameSideInTrans.DoTrans(trans);
                                         break;
-                                    case TransTypeE.上砖侧倒库:
+                                    case TransTypeE.上砖接力:
                                         _out2outSortTrans.DoTrans(trans);
                                         break;
                                     case TransTypeE.反抛任务:
@@ -362,7 +362,7 @@ namespace task.trans
                             PubMaster.Track.GetTrackName(givetrackid, givetrackid + ""));
                         break;
                     case TransTypeE.倒库任务:
-                    case TransTypeE.上砖侧倒库:
+                    case TransTypeE.上砖接力:
                     case TransTypeE.库存整理:
                     case TransTypeE.中转倒库:
                         log = string.Format("标识[ {0} ], 任务[ {1} ], 状态[ {2} ], " +
@@ -980,7 +980,7 @@ namespace task.trans
 
                 return TransList.Exists(c => !c.finish
                             && c.InTrack(trackid)
-                            && (!ignoresort || c.NotInType(TransTypeE.上砖侧倒库))
+                            && (!ignoresort || c.NotInType(TransTypeE.上砖接力))
                             && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务))
                             && c.NotInType(TransTypeE.库存整理));
             }

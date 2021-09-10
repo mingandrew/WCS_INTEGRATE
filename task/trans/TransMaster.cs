@@ -331,7 +331,7 @@ namespace task.trans
             return TransList.Count(c => !c.finish
                                         && c.area_id == area
                                         && c.line == line
-                                        && c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库));
+                                        && c.InType(TransTypeE.倒库任务, TransTypeE.上砖接力));
         }
 
         /// <summary>
@@ -345,7 +345,7 @@ namespace task.trans
             return TransList.Count(c => !c.finish
                                         && c.area_id == area
                                         && c.line == line
-                                        && c.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库)
+                                        && c.InType(TransTypeE.倒库任务, TransTypeE.上砖接力)
                                         && c.NotInStatus(TransStatusE.倒库暂停));
         }
 
@@ -831,7 +831,7 @@ namespace task.trans
 
                 return TransList.Exists(c => !c.finish
                             && (c.stock_id == stockid || (c.InTrack(trackid) && c.NotInType(types)))
-                            && (!ignoresort || c.NotInType(TransTypeE.上砖侧倒库))
+                            && (!ignoresort || c.NotInType(TransTypeE.上砖接力))
                             && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务)));
             }
             catch (Exception)
@@ -889,8 +889,8 @@ namespace task.trans
                                     && c.TransStaus != TransStatusE.完成
                                     && c.InTrack(trans.take_track_id, trans.give_track_id)
                                     && (!ignoresort
-                                            || !(c.InType(TransTypeE.上砖侧倒库) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
-                                            || c.NotInType(TransTypeE.上砖侧倒库))
+                                            || !(c.InType(TransTypeE.上砖接力) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
+                                            || c.NotInType(TransTypeE.上砖接力))
                                     && (!inoutignoresort
                                             || !(c.InType(TransTypeE.倒库任务) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
                                             || c.NotInType(TransTypeE.倒库任务)));
@@ -1244,7 +1244,7 @@ namespace task.trans
                                 }
                                 break;
                             case TransTypeE.倒库任务:
-                            case TransTypeE.上砖侧倒库:
+                            case TransTypeE.上砖接力:
                                 SetStatus(trans, TransStatusE.取消, "手动取消任务");
                                 return true;
                             case TransTypeE.移车任务:
@@ -1346,7 +1346,7 @@ namespace task.trans
                     StockTrans trans = TransList.Find(c => c.id == id);
                     if (trans != null)
                     {
-                        if (trans.InType(TransTypeE.倒库任务, TransTypeE.上砖侧倒库, TransTypeE.中转倒库))
+                        if (trans.InType(TransTypeE.倒库任务, TransTypeE.上砖接力, TransTypeE.中转倒库))
                         {
                             result = "倒库任务不可以强制完成，建议执行取消任务操作";
                             return false;
@@ -1534,7 +1534,7 @@ namespace task.trans
         /// <returns></returns>
         internal bool CheckTrackCanDoSort(uint givetrackid, uint taketrackid, uint devid, out string result)
         {
-            StockTrans trans = TransList.Find(c => (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务) && c.take_track_id == taketrackid
+            StockTrans trans = TransList.Find(c => (c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.倒库任务) && c.take_track_id == taketrackid
                                 && c.give_track_id == givetrackid);
             if (trans != null)
             {
@@ -1547,7 +1547,7 @@ namespace task.trans
                 return true;
             }
 
-            List<StockTrans> othertrans = TransList.FindAll(c => c.NotInType(TransTypeE.上砖侧倒库, TransTypeE.倒库任务)
+            List<StockTrans> othertrans = TransList.FindAll(c => c.NotInType(TransTypeE.上砖接力, TransTypeE.倒库任务)
                                                                 && c.InTrack(givetrackid, taketrackid));
 
             if (othertrans.Count > 0)
@@ -1604,19 +1604,19 @@ namespace task.trans
 
             //3.如果已经有倒库任务则不发了
             if (TransList.Exists(c => !c.finish && c.take_track_id == track_id
-                && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.中转倒库)))
+                && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.中转倒库)))
             {
                 return false;
             }
 
             //4.判断轨道中是否已经有其他车在倒库了
-            if (PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.上砖侧倒库, track_id, carrier_id, out string result)) return false;
+            if (PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.上砖接力, track_id, carrier_id, out string result)) return false;
 
             //5.轨道的头部库存位置处于分割点后（分割点后不止一个库存）则生成接力任务
             if (PubMaster.Goods.IsTopStockBehindUpSplitPoint(track.id, track.up_split_point, out uint stockid)
                 && !PubMaster.Goods.IsOnlyOneWithStock(stockid))
             {
-                if (isAddTrans) AddTransWithoutLock(track.area, 0, TransTypeE.上砖侧倒库, goods_id, level, 0, track_id, track_id, TransStatusE.移车中, carrier_id, track.line);
+                if (isAddTrans) AddTransWithoutLock(track.area, 0, TransTypeE.上砖接力, goods_id, level, 0, track_id, track_id, TransStatusE.移车中, carrier_id, track.line);
                 return true;
             }
             return false;
@@ -1637,7 +1637,7 @@ namespace task.trans
                 Track track = PubMaster.Track.GetTrack(track_id);
                 if (PubMaster.Goods.ExistStockInTrack(track_id))
                 {
-                    AddTransWithoutLock(trans.area_id, 0, TransTypeE.上砖侧倒库, trans.goods_id, trans.level, 0, track_id, track_id, TransStatusE.倒库中, trans.carrier_id, track.line > 0 ? track.line : trans.line);
+                    AddTransWithoutLock(trans.area_id, 0, TransTypeE.上砖接力, trans.goods_id, trans.level, 0, track_id, track_id, TransStatusE.倒库中, trans.carrier_id, track.line > 0 ? track.line : trans.line);
                     return true;
                 }
             }
@@ -1690,7 +1690,7 @@ namespace task.trans
         {
             return TransList.Exists(c => c.give_track_id == trackid
                                 && c.InStatus(TransStatusE.小车回轨, TransStatusE.完成)
-                                && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
+                                && (c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.倒库任务));
         }
 
 
@@ -1702,7 +1702,7 @@ namespace task.trans
         public bool ExistSortTask(uint trackid)
         {
             return TransList.Exists(c => c.give_track_id == trackid
-                                && (c.TransType == TransTypeE.上砖侧倒库 || c.TransType == TransTypeE.倒库任务));
+                                && (c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.倒库任务));
         }
 
 
@@ -1785,7 +1785,7 @@ namespace task.trans
             //是否开启【出入倒库轨道可以同时上砖】
             bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
 
-            if (!isignoresorttask && IsTrasInTransWithType(trackid, TransTypeE.上砖侧倒库))
+            if (!isignoresorttask && IsTrasInTransWithType(trackid, TransTypeE.上砖接力))
             {
                 return false;
             }
@@ -1829,7 +1829,7 @@ namespace task.trans
                 //5.存在空闲小车停在轨道头
                 if (carrierid != 0
                     && PubTask.Carrier.IsFreeCarrierInTrackOut(carrierid, trackid, out uint carid)
-                    && !IsCarrierInTrans(carid, trackid, TransTypeE.上砖侧倒库, TransTypeE.倒库任务))
+                    && !IsCarrierInTrans(carid, trackid, TransTypeE.上砖接力, TransTypeE.倒库任务))
                 {
                     return false;
                 }
