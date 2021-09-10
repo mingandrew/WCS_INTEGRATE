@@ -767,15 +767,15 @@ namespace task.trans
         /// <param name="trans"></param>
         /// <param name="goodsid"></param>
         /// <param name="level"></param>
-        public void SetGoods(StockTrans trans, uint goodsid, byte level)
+        public void SetGoods(StockTrans trans, uint goodsid, byte level, string memo = "")
         {
             if (trans.goods_id != goodsid)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 更改品种[ {1}^{2} -> {3}^{4} ]]",
-                    trans.id, trans.goods_id, trans.level, goodsid, level));
+                mLog.Status(true, string.Format("任务[ {0} ], 更改品种[ {1}^{2} -> {3}^{4} ]；{5}",
+                    trans.id, trans.goods_id, trans.level, goodsid, level, memo));
 
-                SetStepLog(trans, true, 212, string.Format("更改品种[ {1}^{2} -> {3}^{4} ]]",
-                    trans.id, trans.goods_id, trans.level, goodsid, level));
+                SetStepLog(trans, true, 212, string.Format("更改品种[ {1}^{2} -> {3}^{4} ]；{5}；",
+                    trans.id, trans.goods_id, trans.level, goodsid, level, memo));
 
                 trans.goods_id = goodsid;
                 trans.level = level;
@@ -788,12 +788,12 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="stockid"></param>
-        public void SetStock(StockTrans trans, uint stockid)
+        public void SetStock(StockTrans trans, uint stockid, string memo = "")
         {
             if (trans.stock_id != stockid)
             {
-                mLog.Status(true, string.Format("任务[ {0} ], 更改库存[ {1} -> {2} ]]", trans.id, trans.stock_id, stockid));
-                SetStepLog(trans, true, 213, string.Format("更改库存[ {1} -> {2} ]]", trans.id, trans.stock_id, stockid));
+                mLog.Status(true, string.Format("任务[ {0} ], 更改库存[ {1} -> {2} ]；{3}", trans.id, trans.stock_id, stockid, memo));
+                SetStepLog(trans, true, 213, string.Format("更改库存[ {1} -> {2} ]；{3}；", trans.id, trans.stock_id, stockid, memo));
 
                 trans.stock_id = stockid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Stock);

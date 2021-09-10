@@ -342,16 +342,48 @@ namespace task.trans.transtask
                                 trans.IsLeaveTileLifter = true;
                             }
 
+                            // 非空闲则跳过
                             if (!isStopNoOrder) return;
 
-                            //1.计算轨道下一车坐标
-                            //2.卸货轨道状态是否运行放货                                    
-                            //3.是否有其他车在同轨道上
-                            if (CheckTrackFull(trans, trans.give_track_id, out ushort loc)
-                                || !PubMaster.Track.IsStatusOkToGive(trans.give_track_id)
-                                || PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
+                            #region  是否需要变更卸货轨道
+                            bool isUpdateGive = false;
+
+                            // 1.当前小车绑定库存与任务不符
+                            if (carrier.DevConfig.stock_id > 0 && carrier.DevConfig.stock_id != trans.stock_id)
                             {
-                                bool isWarn = false;
+                                Stock carStock = PubMaster.Goods.GetStock(carrier.DevConfig.stock_id);
+                                if (carStock != null && !carStock.EqualGoodAndLevel(trans.goods_id, trans.level))
+                                {
+                                    // 更新作业库存
+                                    _M.SetStock(trans, carStock.id, "小车载着与任务不符的砖-更新作业库存");
+                                    // 更新品种等级
+                                    _M.SetGoods(trans, carStock.goods_id, carStock.level, "小车载着与任务不符的砖-更新品种");
+                                    // 更新来源砖机
+                                    if (carStock.tilelifter_id > 0 && carStock.tilelifter_id != trans.tilelifter_id)
+                                    {
+                                        _M.SetTile(trans, carStock.tilelifter_id, "小车载着与任务不符的砖-更新来源砖机");
+                                    }
+
+                                    isUpdateGive = true;
+                                }
+                            }
+
+                            if (!isUpdateGive)
+                            {
+                                // 2.卸货轨道状态不满足放砖条件
+                                // 3.是否有其他车在同轨道上
+                                if (!PubMaster.Track.IsStatusOkToGive(trans.give_track_id) || 
+                                    PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
+                                {
+                                    isUpdateGive = true;
+                                }
+                            }
+                            #endregion
+
+                            // 计算轨道下一车坐标
+                            if (CheckTrackFull(trans, trans.give_track_id, out ushort loc) || isUpdateGive)
+                            {
+                                bool isNoWarn = false;
                                 byte priornum = PubMaster.Goods.GetStockPriorNum(trans.stock_id);
                                 if (PubMaster.Goods.AllocateGiveTrack(trans.area_id, trans.line, trans.tilelifter_id, trans.goods_id, out List<uint> traids, priornum))
                                 {
@@ -364,13 +396,13 @@ namespace task.trans.transtask
                                         {
                                             PubMaster.Track.UpdateRecentGood(trans.give_track_id, trans.goods_id);
                                             PubMaster.Track.UpdateRecentTile(trans.give_track_id, trans.tilelifter_id);
-                                            isWarn = true;
+                                            isNoWarn = true;
                                             break;
                                         }
                                     }
                                 }
 
-                                if (isWarn)
+                                if (isNoWarn)
                                 {
                                     PubMaster.Warn.RemoveTaskWarn(WarningTypeE.TransHaveNotTheGiveTrack, trans.id);
                                 }
