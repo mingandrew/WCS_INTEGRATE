@@ -148,8 +148,8 @@ namespace tool.appconfig
                     AreaId = areaid,
                     LineId = lineid,
                     FreeDownFerry = false,
-                    FreeUpFerry = false,
-                    UpTaskNewAllocate = false,
+                    FreeUpFerry = true,
+                    UpTaskNewAllocate = true,
                     InMoveWhenFull = false,
                     NotNeedSortToSplitUpPlace = true,
                     UserAutoBackDevVersion2 = false,
@@ -177,10 +177,26 @@ namespace tool.appconfig
     {
         public uint AreaId { set; get; }//区域
         public ushort LineId { set; get; }//线路
-        public bool FreeUpFerry { set; get; }//是否释放上砖摆渡车
-        public bool FreeDownFerry { set; get; }//是否释放下砖摆渡车
-        public bool UpTaskNewAllocate { set; get; }//上砖任务新分配逻辑
-        public bool InMoveWhenFull { set; get; }//出入库轨道，满砖移车
+
+        /// <summary>
+        /// 是否释放上砖摆渡车
+        /// </summary>
+        public bool FreeUpFerry { set; get; }
+
+        /// <summary>
+        /// 是否释放下砖摆渡车
+        /// </summary>
+        public bool FreeDownFerry { set; get; }
+
+        /// <summary>
+        /// 上砖任务新分配逻辑
+        /// </summary>
+        public bool UpTaskNewAllocate { set; get; }
+
+        /// <summary>
+        /// 出入库轨道，满砖移车
+        /// </summary>
+        public bool InMoveWhenFull { set; get; }
 
         /// <summary>
         /// 1.不需要接力运输车把库存放下才取<br/>
@@ -207,6 +223,6 @@ namespace tool.appconfig
         /// <summary>
         /// 上砖流程中是否执行 还车回轨 流程
         /// </summary>
-        public bool ReturnDevBackToTrack { set; get; } = true;
+        public bool ReturnDevBackToTrack { set; get; } = false;
     }
 }

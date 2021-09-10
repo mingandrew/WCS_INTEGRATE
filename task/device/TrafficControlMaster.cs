@@ -34,14 +34,14 @@ namespace task.device
             _out = new object();
             mTimer = new MTimer();
             TrafficCtlList = new List<TrafficControl>();
-            Init(); 
+            Init();
         }
 
         private void Init()
         {
             TrafficCtlList.Clear();
             // 只拿运输车交管摆渡车类型的
-            TrafficCtlList.AddRange(PubMaster.Mod.TrafficCtlSql.QueryTrafficCtlList().FindAll(c=>c.TrafficControlType == TrafficControlTypeE.运输车交管摆渡车));
+            TrafficCtlList.AddRange(PubMaster.Mod.TrafficCtlSql.QueryTrafficCtlList().FindAll(c => c.TrafficControlType == TrafficControlTypeE.运输车交管摆渡车));
         }
 
         public void Start()
@@ -191,8 +191,8 @@ namespace task.device
 
                         case TrafficControlTypeE.摆渡车交管摆渡车:
                             result = string.Format("{0}: 摆渡车[ {1} ], 移动[ {2} >> {3} ] - 被交管摆渡车[ {4} ]", result,
-                                PubMaster.Device.GetDeviceName(tc.control_id), 
-                                PubMaster.Track.GetTrackName(tc.from_track_id), 
+                                PubMaster.Device.GetDeviceName(tc.control_id),
+                                PubMaster.Track.GetTrackName(tc.from_track_id),
                                 PubMaster.Track.GetTrackName(tc.to_track_id),
                                 PubMaster.Device.GetDeviceName(tc.restricted_id));
 
@@ -536,12 +536,12 @@ namespace task.device
             FerryTask ferry = PubTask.Ferry.GetFerry(ferryid);
             if (!PubTask.Ferry.IsAllowToMove(ferry, trackid, out result))
             {
-                result = string.Format("[ ❌ ]摆渡车[ {0} - {1}]", PubMaster.Device.GetDeviceName(ferryid), result);
+                result = string.Format("[ ❌ ]摆渡车[ {0} - {1}]", ferry?.Device.name ?? "", result);
                 return false;
             }
             else
             {
-                result = string.Format("[ ✔ ]摆渡车[ {0} - 允许移动]", PubMaster.Device.GetDeviceName(ferryid));
+                result = string.Format("[ ✔ ]摆渡车[ {0} - 允许移动]", ferry.Device.name);
             }
 
             // 是否锁定任务 判断任务节点是否允许移动
@@ -553,7 +553,7 @@ namespace task.device
                     List<uint> Ftraids = ferry.GetFerryCurrentTrackIds();
                     if (Ftraids == null || Ftraids.Count == 0)
                     {
-                        result = string.Format("[ ❌ ]摆渡车[ {0} - 没有当前位置信息]", PubMaster.Device.GetDeviceName(ferryid));
+                        result = string.Format("[ ❌ ]摆渡车[ {0} - 没有当前位置信息]", ferry.Device.name);
                         return false;
                     }
 
@@ -561,8 +561,8 @@ namespace task.device
                     uint Ctraid = PubTask.Carrier.GetCarrierTrackID(trans.carrier_id);
                     if (Ftraids.Contains(Ctraid))
                     {
-                        result = string.Format("[ ❌ ]摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]", 
-                            PubMaster.Device.GetDeviceName(ferryid), trans.id,
+                        result = string.Format("[ ❌ ]摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
+                            ferry.Device.name, trans.id,
                             PubMaster.Device.GetDeviceName(trans.carrier_id));
                         return false;
                     }
@@ -570,80 +570,38 @@ namespace task.device
                     // 载车 - 在任务的对应位置 则不能移动
                     if (ferry.Load == DevFerryLoadE.载车)
                     {
-                        switch (trans.TransType)
+                        bool doNotMove = false;
+                        switch (trans.TransStaus)
                         {
-                            case TransTypeE.下砖任务:
-                            case TransTypeE.手动下砖:
-                            case TransTypeE.同向下砖:
-                                if (trans.TransStaus == TransStatusE.取砖流程 && Ftraids.Contains(trans.take_track_id))
-                                {
-                                    result = string.Format("[ ❌ ]自动任务取砖流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                        PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                        PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                    return false;
-                                }
-                                if (trans.TransStaus == TransStatusE.放砖流程 && Ftraids.Contains(trans.give_track_id))
-                                {
-                                    result = string.Format("[ ❌ ]自动任务放砖流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                        PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                        PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                    return false;
-                                }
-                                if (trans.TransStaus == TransStatusE.取消 && Ftraids.Contains(trans.give_track_id))
-                                {
-                                    result = string.Format("[ ❌ ]自动任务取消流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                        PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                        PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                    return false;
-                                }
+                            case TransStatusE.取砖流程:
+                                doNotMove = Ftraids.Contains(trans.take_track_id);
                                 break;
-                            case TransTypeE.上砖任务:
-                            case TransTypeE.手动上砖:
-                            case TransTypeE.同向上砖:
-                                if (trans.TransStaus == TransStatusE.取砖流程)
-                                {
-                                    // 运输车无货 需要取砖
-                                    if (PubTask.Carrier.IsNotLoad(trans.carrier_id) && Ftraids.Contains(trans.take_track_id))
-                                    {
-                                        result = string.Format("[ ❌ ]自动任务取砖流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                            PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                        return false;
-                                    }
-                                    // 运输车载货 需要放砖
-                                    if (PubTask.Carrier.IsLoad(trans.carrier_id) && Ftraids.Contains(trans.give_track_id))
-                                    {
-                                        result = string.Format("[ ❌ ]自动任务放砖流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                            PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                        return false;
-                                    }
-                                }
-                                if (trans.TransStaus == TransStatusE.还车回轨 && Ftraids.Contains(trans.finish_track_id))
-                                {
-                                    result = string.Format("[ ❌ ]自动任务还车回轨流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                            PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                    return false;
-                                }
-                                if (trans.TransStaus == TransStatusE.取消 && Ftraids.Contains(trans.take_track_id))
-                                {
-                                    result = string.Format("[ ❌ ]自动任务取消流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                            PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                    return false;
-                                }
+
+                            case TransStatusE.放砖流程:
+                                doNotMove = Ftraids.Contains(trans.give_track_id);
                                 break;
-                            case TransTypeE.倒库任务:
-                            case TransTypeE.移车任务:
-                                if (trans.TransStaus == TransStatusE.移车中 && Ftraids.Contains(trans.give_track_id))
-                                {
-                                    result = string.Format("[ ❌ ]自动任务移车流程中, 摆渡车[ {0} - 被任务[ {1} ]锁定, 等待运输车[ {2} ]作业]",
-                                            PubMaster.Device.GetDeviceName(ferryid), trans.id,
-                                            PubMaster.Device.GetDeviceName(trans.carrier_id));
-                                    return false;
-                                }
+
+                            case TransStatusE.还车回轨:
+                                doNotMove = Ftraids.Contains(trans.finish_track_id);
                                 break;
+
+                            case TransStatusE.移车中:
+                                doNotMove = Ftraids.Contains(trans.give_track_id) || Ftraids.Contains(trans.finish_track_id);
+                                break;
+
+                            case TransStatusE.取消:
+                                doNotMove = Ftraids.Contains(trans.take_track_id) || Ftraids.Contains(trans.give_track_id);
+                                break;
+                        }
+
+                        if (doNotMove)
+                        {
+                            result = string.Format("[ ❌ ]自动任务[ {0} ]中, 摆渡车[ {1} - 被任务[ {2} ]锁定, 等待运输车[ {3} ]作业]",
+                                trans.TransStaus, 
+                                ferry.Device.name, 
+                                trans.id,
+                                PubMaster.Device.GetDeviceName(trans.carrier_id));
+                            return false;
                         }
                     }
 
