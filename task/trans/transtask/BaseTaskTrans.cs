@@ -998,6 +998,41 @@ namespace task.trans.transtask
             ushort tosite = 0;
             switch (trans.AllocateFerryType)
             {
+                case DeviceTypeE.其他:
+                    #region 分配类型
+                    // 小车在储砖轨道
+                    if (carTrack.IsStoreTrack())
+                    {
+                        if (car.CurrentPoint >= carTrack.split_point || car.TargetPoint >= carTrack.split_point)
+                        {
+                            // 超过中间点  前进-脉冲最大的
+                            _M.SetAllocateFerryType(trans, DeviceTypeE.前摆渡);
+                            return;
+                        }
+                        else
+                        {
+                            // 超过中间点  后退-脉冲最小的
+                            _M.SetAllocateFerryType(trans, DeviceTypeE.后摆渡);
+                            return;
+                        }
+                    }
+
+                    // 上砖轨
+                    if (carTrack.Type == TrackTypeE.上砖轨道)
+                    {
+                        _M.SetAllocateFerryType(trans, DeviceTypeE.前摆渡);
+                        return;
+                    }
+
+                    // 下砖轨
+                    if (carTrack.Type == TrackTypeE.下砖轨道)
+                    {
+                        _M.SetAllocateFerryType(trans, DeviceTypeE.后摆渡);
+                        return;
+                    }
+                    #endregion
+                    return;
+
                 case DeviceTypeE.前摆渡:
                     if (carTrack.ferry_down_code > 400) // 前摆渡 401~499
                     {
@@ -1008,6 +1043,7 @@ namespace task.trans.transtask
                         tosite = carTrack.limit_point_up;
                     }
                     break;
+
                 case DeviceTypeE.后摆渡:
                     if (carTrack.ferry_down_code < 200) // 后摆渡 201~299
                     {
@@ -1049,7 +1085,7 @@ namespace task.trans.transtask
                 // 无缝上摆渡
                 if (car.IsStopNoOrder(out result))
                 {
-                    // 停止：直接定位摆渡
+                    // 停止：摆渡到位 直接定位摆渡
                     if (isFerryOK)
                     {
                         //至摆渡车
@@ -1061,7 +1097,7 @@ namespace task.trans.transtask
                         return;
                     }
 
-                    // 停止：摆渡到位前先到轨道头
+                    // 停止：摆渡未到位 先到轨道头
                     if (!isFerryOK && Math.Abs(tosite - car.CurrentPoint) > 10)
                     {
                         // 移至轨道定位点

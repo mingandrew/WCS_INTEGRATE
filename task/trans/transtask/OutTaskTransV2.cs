@@ -12,13 +12,8 @@ using tool.appconfig;
 namespace task.trans.transtask
 {
     /// <summary>
-    /// 新出库逻辑
-    /// 分配运输车逻辑：<br/>
-    /// 【a.查找砖机轨道上是否有运输车】<br/>
-    /// 【b.取货轨道是否有车，出入库轨道上砖侧】<br/>
-    /// 【c.查找其他砖机轨道有没有运输车】<br/>
-    /// 【d.查找其他轨道】<br/>
-    /// 完成任务： 在上砖轨道放砖后结束<br/>
+    /// 出库任务
+    /// 上砖-出库-流程（code- XX01）
     /// </summary>
     public class OutTaskTransV2 : BaseTaskTrans
     {

@@ -11,9 +11,8 @@ using tool.appconfig;
 namespace task.trans.transtask
 {
     /// <summary>
-    /// 库存整理
-    /// 1.单品种库存，转移轨道
-    /// 2.多品种库存，分开轨道
+    /// 库存转移任务
+    /// 转移库存轨道-流程（code- XX11）
     /// </summary>
     public class MoveStockTrans : BaseTaskTrans
     {

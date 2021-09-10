@@ -12,7 +12,8 @@ using tool.appconfig;
 namespace task.trans.transtask
 {
     /// <summary>
-    /// 中转库存（倒库？从当前轨道由中转摆渡移至其他轨道）
+    /// 中转库存（code- XX12）
+    /// 倒库？从当前轨道由中转摆渡移至其他轨道
     /// </summary>
     class TransitStockTrans : BaseTaskTrans
     {

@@ -12,7 +12,7 @@ namespace task.trans.transtask
 {
     /// <summary>
     /// 同向下砖（code- XX07）
-    /// 上砖机与下砖机在同一侧
+    /// 上砖机与下砖机在同一侧 - 以上砖为主
     /// </summary>
     public class SameSideInTrans : BaseTaskTrans
     {

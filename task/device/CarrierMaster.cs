@@ -1253,6 +1253,15 @@ namespace task.device
                         #region 后退至摆渡车
                         if (track.IsFerryTrack())
                         {
+                            // 显示摆渡但实际脉冲未到
+                            if (site > track.limit_point && (site - track.limit_point >= 100))
+                            {
+                                checkTra = track.ferry_down_code;
+                                overPoint = track.limit_point;
+                                order = DevCarrierOrderE.定位指令;
+                                break;
+                            }
+
                             result = "小车已经在摆渡车上了";
                             return false;
                         }
@@ -1291,6 +1300,15 @@ namespace task.device
                         #region 前进至摆渡车
                         if (track.IsFerryTrack())
                         {
+                            // 显示摆渡但实际脉冲未到
+                            if (track.limit_point_up > site && (track.limit_point_up - site >= 100))
+                            {
+                                checkTra = track.ferry_up_code;
+                                overPoint = track.limit_point_up;
+                                order = DevCarrierOrderE.定位指令;
+                                break;
+                            }
+
                             result = "小车已经在摆渡车上了";
                             return false;
                         }
@@ -1598,6 +1616,13 @@ namespace task.device
                         // 手动中连续不同类型指令 需要先终止
                         if (transid == 0 && !task.IsNotDoingTask && task.NotInTask(cao.Order))
                         {
+                            // 当前 取砖&放砖，不可终止
+                            if (task.DevStatus.CurrentOrder == DevCarrierOrderE.取砖指令 || 
+                                task.DevStatus.CurrentOrder == DevCarrierOrderE.放砖指令)
+                            {
+                                return;
+                            }
+
                             task.DoStop(transid, string.Format("【自动终止小车】, 触发[ {0} ], 指令[ {1} ], 备注[ {2} ]", "发送同指令", cao.Order, memo));
 
                             if (!autostop) return;
@@ -2100,7 +2125,7 @@ namespace task.device
                     }
 
                     CarrierTask car = GetOnlyCarrierInTrack(tra.id, isbig, false);
-                    if(car == null) continue;
+                    if (car == null) continue;
 
                     // 是否靠近摆渡坑
                     bool isNearFerry = isbig ? car.CurrentPoint >= tra.split_point : car.CurrentPoint <= tra.split_point;

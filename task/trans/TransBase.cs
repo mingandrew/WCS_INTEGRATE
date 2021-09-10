@@ -793,10 +793,27 @@ namespace task.trans
             if (trans.stock_id != stockid)
             {
                 mLog.Status(true, string.Format("任务[ {0} ], 更改库存[ {1} -> {2} ]]", trans.id, trans.stock_id, stockid));
-                SetStepLog(trans, true, 211, string.Format("更改库存[ {1} -> {2} ]]", trans.id, trans.stock_id, stockid));
+                SetStepLog(trans, true, 213, string.Format("更改库存[ {1} -> {2} ]]", trans.id, trans.stock_id, stockid));
 
                 trans.stock_id = stockid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.Stock);
+            }
+        }
+
+        /// <summary>
+        /// 设定摆渡分配类型（214）
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="stockid"></param>
+        public void SetAllocateFerryType(StockTrans trans, DeviceTypeE ferryType)
+        {
+            if (trans.AllocateFerryType != ferryType)
+            {
+                mLog.Status(true, string.Format("任务[ {0} ], 设定摆渡分配类型[ {1} -> {2} ]]", trans.id, trans.AllocateFerryType, ferryType));
+                SetStepLog(trans, true, 214, string.Format("设定摆渡分配类型[ {1} -> {2} ]]", trans.id, trans.AllocateFerryType, ferryType));
+
+                trans.AllocateFerryType = ferryType;
+                PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.FerryType);
             }
         }
 

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace task.trans.transtask
 {
     /// <summary>
-    /// 库存整理
+    /// 库存整理（code- XX10）
     /// 1.单品种库存，转移轨道
     /// 2.多品种库存，分开轨道
     /// </summary>

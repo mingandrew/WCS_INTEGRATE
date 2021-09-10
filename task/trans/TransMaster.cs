@@ -1045,7 +1045,7 @@ namespace task.trans
                 return false;
             }
 
-            //小车没有被其他任务占用
+            //小车被其他任务占用
             if (HaveCarrierInTrans(trans))
             {
                 #region 【任务步骤记录】

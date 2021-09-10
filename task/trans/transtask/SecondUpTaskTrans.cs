@@ -12,7 +12,8 @@ using tool.appconfig;
 namespace task.trans.transtask
 {
     /// <summary>
-    /// 反抛
+    /// 反抛任务
+    /// 上砖额外移砖-流程（code- XX09）
     /// </summary>
     public class SecondUpTaskTrans : BaseTaskTrans
     {

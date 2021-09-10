@@ -1,6 +1,7 @@
 ﻿using enums;
 using GalaSoft.MvvmLight;
 using module.device;
+using resource;
 using System.Windows.Media;
 
 namespace wcs.Data.View
@@ -16,6 +17,7 @@ namespace wcs.Data.View
         private string trackid;
         private DevWorkTypeE worktype;
         private string goodscount;
+        private string goodsname;
 
         private byte level;
         #region[逻辑字段]
@@ -45,6 +47,12 @@ namespace wcs.Data.View
         {
             get => goodsid;
             set => Set(ref goodsid, value);
+        }
+
+        public string GoodsName
+        {
+            get => goodsname;
+            set => Set(ref goodsname, value);
         }
 
         public string GoodsCount
@@ -264,6 +272,7 @@ namespace wcs.Data.View
             ConnStatus = conn;
             IsConnect = ConnStatus == SocketConnectStatusE.通信正常;
             GoodsId = gid;
+            GoodsName = PubMaster.Goods.GetGoodsName(GoodsId);
             GoodsCount = goodscount;
             InStrategy = instrategy;
             OutStrategy = outstrategy;
