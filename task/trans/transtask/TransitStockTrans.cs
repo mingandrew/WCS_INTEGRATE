@@ -54,10 +54,10 @@ namespace task.trans.transtask
             else
             {
                 // 已存在同品种中转则跳过
-                if (_M.ExistTaskSameGoods(trans.area_id, trans.line, trans.id, stk.goods_id, stk.level, TransTypeE.中转倒库))
+                if (_M.ExistTaskSameGoods(trans.area_id, trans.line, trans.id, stk.goods_id, stk.level, TransTypeE.中转倒库, TransTypeE.库存转移))
                 {
                     #region 【任务步骤记录】
-                    _M.SetStepLog(trans, false, 1112, string.Format("存在相同品种的中转任务"));
+                    _M.SetStepLog(trans, false, 1112, string.Format("存在相同品种的转移任务"));
                     #endregion
                     return;
                 }

@@ -1223,6 +1223,9 @@ namespace task.device
         {
             if (!task.IsWorking) return;
 
+            // 一台砖机只能生成一个任务
+            if (PubTask.Trans.HaveInTile(task.ID)) return;
+
             #region[工位1有需求]
 
             if (task.IsNeed_1 && need.left)
@@ -1267,7 +1270,7 @@ namespace task.device
                         if (task.DevConfig.goods_id == 0) return;
 
                         // 等待 5 秒再使用
-                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_1, 5, 1)) return;
+                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_1, 5, 5)) return;
 
                         gid = task.DevConfig.goods_id;
                     }
@@ -1438,7 +1441,7 @@ namespace task.device
                         if (task.DevConfig.goods_id == 0) return;
 
                         // 等待 5 秒再使用
-                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_2, 5, 1)) return;
+                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_2, 5, 5)) return;
 
                         gid = task.DevConfig.goods_id;
                     }

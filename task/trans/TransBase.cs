@@ -981,7 +981,7 @@ namespace task.trans
                 return TransList.Exists(c => !c.finish
                             && c.InTrack(trackid)
                             && (!ignoresort || c.NotInType(TransTypeE.上砖接力))
-                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务))
+                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.中转倒库))
                             && c.NotInType(TransTypeE.库存整理));
             }
             catch { }

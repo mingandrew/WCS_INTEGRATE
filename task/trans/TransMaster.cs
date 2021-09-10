@@ -946,6 +946,16 @@ namespace task.trans
         }
 
         /// <summary>
+        /// 判断砖机是否已有任务
+        /// </summary>
+        /// <param name="carrierid"></param>
+        /// <returns></returns>
+        internal bool HaveInTile(uint tiled)
+        {
+            return TransList.Exists(c => c.TransStaus != TransStatusE.完成 && c.tilelifter_id == tiled);
+        }
+
+        /// <summary>
         /// 是否允许继续分配运输车
         /// </summary>
         /// <returns></returns>

@@ -329,7 +329,7 @@ namespace resource.track
             });
 
             // 优先有砖轨道
-            List<Track> tracks1 = tracksTo.FindAll(c => c.StockStatus != TrackStockStatusE.空砖);
+            List<Track> tracks1 = tracksTo.FindAll(c => c.StockStatus == TrackStockStatusE.有砖);
             if (tracks1 != null && tracks1.Count > 0)
             {
                 foreach (Track traTo in tracks1)
@@ -738,13 +738,25 @@ namespace resource.track
         /// </summary>
         /// <param name="trackids"></param>
         /// <param name="tid"></param>
+        /// <param name="returnself"></param>
         /// <param name="checkType"></param>
         /// <returns></returns>
-        public List<Track> GetSortTracks(List<uint> trackids, uint tid, bool checkType = true)
+        public List<Track> GetSortTracks(List<uint> trackids, uint tid, bool returnself = false, bool checkType = true)
         {
-            List<Track> tracks = TrackList.FindAll(c => c.id != tid && trackids.Contains(c.id));
+            List<Track> tracks = null;
+            // 判断是否需要返回本身
+            if (returnself)
+            {
+                tracks = TrackList.FindAll(c => trackids.Contains(c.id));
+            }
+            else
+            {
+                tracks = TrackList.FindAll(c => c.id != tid && trackids.Contains(c.id));
+            }
+
             if (tracks == null || tracks.Count == 0) return null;
 
+            
             // 参考轨道
             Track tra = GetTrack(tid);
             if (tra == null) return null;
@@ -814,9 +826,9 @@ namespace resource.track
         /// <param name="tid">排序参照轨道</param>
         /// <param name="order">排序参照轨道order</param>
         /// <returns>返回一个以参考轨道为起点轨道id列表【越靠近参考轨道越前的】</returns>
-        public List<uint> SortTrackIdsWithOrder(List<uint> trackids, uint tid, bool checkType = true)
+        public List<uint> SortTrackIdsWithOrder(List<uint> trackids, uint tid, bool returnself = false, bool checkType = true)
         {
-            return GetSortTracks(trackids, tid, checkType)?.Select(c => c.id).ToList() ?? new List<uint>();
+            return GetSortTracks(trackids, tid, returnself, checkType)?.Select(c => c.id).ToList() ?? new List<uint>();
         }
 
         /// <summary>
@@ -2232,9 +2244,9 @@ namespace resource.track
         /// </summary>
         /// <param name="area_id"></param>
         /// <returns></returns>
-        public List<uint> GetUpTileTracks(uint area_id)
+        public List<uint> GetUpTileTracks(uint area_id, TrackTypeE tt)
         {
-            return TrackList.FindAll(c => c.area == area_id && c.Type == TrackTypeE.上砖轨道)?.Select(c => c.id).ToList();
+            return TrackList.FindAll(c => c.area == area_id && c.Type == tt)?.Select(c => c.id).ToList();
         }
 
         #endregion

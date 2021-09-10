@@ -2574,7 +2574,7 @@ namespace task.device
                 Track tiletrack = PubMaster.Track.GetTrack(tiletrackid);
                 if (tiletrack != null)
                 {
-                    List<uint> ids = PubMaster.Track.SortTrackIdsWithOrder(tracids, tiletrackid, false);
+                    List<uint> ids = PubMaster.Track.SortTrackIdsWithOrder(tracids, tiletrackid, true, false);
                     if (ids.Count > 0) return ids[0];
                 }
             }
@@ -2628,10 +2628,10 @@ namespace task.device
                 uint neartileferrytrackid = GetNearTileFerryOnTrack(ferryintrack, trans.give_track_id, trans.take_track_id);
 
                 //所有上砖轨道
-                List<uint> uptiletraids = PubMaster.Track.GetUpTileTracks(trans.area_id);
+                List<uint> uptiletraids = PubMaster.Track.GetUpTileTracks(trans.area_id, (ferrytype == DeviceTypeE.后摆渡 ? TrackTypeE.下砖轨道 : TrackTypeE.上砖轨道));
 
                 // 按靠近砖机的摆渡车所对轨道进行排序
-                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(uptiletraids, neartileferrytrackid, false);
+                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(uptiletraids, neartileferrytrackid, (uptiletraids.Contains(neartileferrytrackid)), false);
 
                 //能去这个取货/卸货轨道的所有配置的摆渡车信息
                 List<uint> ferryids = PubMaster.Area.GetWithTracksFerryIds(ferrytype, trans.take_track_id, trans.give_track_id);
@@ -2660,12 +2660,25 @@ namespace task.device
                                 continue;
                             }
 
-                            // 需要小车后退作业的，以最小脉冲为准
-                            if (dis == 0 || dis > item.CurrentPoint)
+                            if (trans.TransType == TransTypeE.同向上砖)
                             {
-                                tracar = item;
-                                dis = item.CurrentPoint;
+                                // 需要小车前进作业的，以最大脉冲为准
+                                if (dis == 0 || dis < item.CurrentPoint)
+                                {
+                                    tracar = item;
+                                    dis = item.CurrentPoint;
+                                }
                             }
+                            else
+                            {
+                                // 需要小车后退作业的，以最小脉冲为准
+                                if (dis == 0 || dis > item.CurrentPoint)
+                                {
+                                    tracar = item;
+                                    dis = item.CurrentPoint;
+                                }
+                            }
+
                         }
 
                         if (tracar == null || dis == 0) continue;
