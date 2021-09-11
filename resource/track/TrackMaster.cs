@@ -332,6 +332,9 @@ namespace resource.track
             List<Track> tracks1 = tracksTo.FindAll(c => c.StockStatus == TrackStockStatusE.有砖);
             if (tracks1 != null && tracks1.Count > 0)
             {
+                // 获取合适库存
+                List<Stock> stocks = new List<Stock>();
+
                 foreach (Track traTo in tracks1)
                 {
                     // 状态
@@ -346,8 +349,26 @@ namespace resource.track
                         continue;
                     }
 
-                    trackids.Add(traTo.id);
+                    stocks.Add(stockTo);
                 }
+
+                if (stocks != null && stocks.Count > 0)
+                {
+                    // 按尾砖时间排序（晚 到 早）
+                    stocks.Sort(
+                        (x, y) =>
+                        {
+                            if (x.produce_time is DateTime xtime && y.produce_time is DateTime ytime)
+                            {
+                                return ytime.CompareTo(xtime);
+                            }
+                            return 0;
+                        }
+                    );
+
+                    trackids.AddRange(stocks.Select(c => c.track_id));
+                }
+
             }
 
             // 再者无砖
