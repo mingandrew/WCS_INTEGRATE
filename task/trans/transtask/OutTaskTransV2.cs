@@ -400,8 +400,55 @@ namespace task.trans.transtask
             {
                 #region[小车在上砖轨道]
                 case TrackTypeE.上砖轨道:
+
+                    #region [判断是否还车回轨]
+                    // 更新剩余上砖数量
+                    if (isNotLoad && track.id == trans.give_track_id)
+                    {
+                        _M.SetUnLoadTime(trans);
+                        PubMaster.DevConfig.SubTileNowGoodQty(trans.tilelifter_id, trans.goods_id);
+                    }
+
+                    bool isback = false;
+                    // 1.剩余上砖数量 = 0 则回轨
+                    if (!isback && !PubMaster.DevConfig.IsTileNowGoodQtyOk(trans.tilelifter_id, trans.goods_id))
+                    {
+                        isback = true;
+                    }
+
+                    // 2.当前所有轨道出库头无可用库存
+                    if (!isback)
+                    {
+                        bool HaveStk = PubMaster.Goods.GetStock(trans.area_id, trans.line, trans.tilelifter_id, trans.goods_id, out List<Stock> allocatestocks);
+                        if (HaveStk)
+                        {
+                            // 有但无法使用
+                            foreach (Stock stock in allocatestocks)
+                            {
+                                //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
+                                if (PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id, TransTypeE.库存整理))
+                                {
+                                    isback = true;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // 无库存
+                            isback = true;
+                        }
+                    }
+
+                    // 3.配置还车回轨
+                    if (!isback && GlobalWcsDataConfig.BigConifg.IsReturnDevBackToTrack(trans.area_id, trans.line))
+                    {
+                        isback = true;
+                    }
+                    #endregion
+
                     //判断小车是否已上轨道，停在砖机工位地标，是则解锁摆渡车
-                    if (GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line))
+                    if (!isback && GlobalWcsDataConfig.BigConifg.IsFreeUpFerry(trans.area_id, trans.line))
                     {
                         if (track.id == trans.give_track_id)
                         {
@@ -449,14 +496,8 @@ namespace task.trans.transtask
                             trans.IsLeaveTileLifter = true;
                         }
 
-                        if (track.id == trans.give_track_id)
-                        {
-                            _M.SetUnLoadTime(trans);
-                            PubMaster.DevConfig.SubTileNowGoodQty(trans.tilelifter_id, trans.goods_id);
-                        }
-
                         // 判断是否执行回轨流程
-                        if (GlobalWcsDataConfig.BigConifg.IsReturnDevBackToTrack(trans.area_id, trans.line))
+                        if (isback)
                         {
                             _M.SetStatus(trans, TransStatusE.还车回轨);
                             return;

@@ -359,14 +359,22 @@ namespace task.trans.transtask
                         }
                         else
                         {
-                            // 倒库
-                            MoveToSort(track.id, trans.carrier_id, trans.id, takePoint, givePoint,
-                                string.Format("分界点[ {0} ], 取砖点[ {1} ], 放砖点[ {2} ]", splitP, takePoint, givePoint));
+                            // 暂时用取砖指令
+                            TakeInTarck(trans.stock_id, track.id, trans.carrier_id, trans.id, out string res);
 
                             #region 【任务步骤记录】
-                            _M.LogForCarrierSortRelay(trans, track.id);
+                            _M.LogForCarrierTake(trans, track.id, res);
                             #endregion
                             return;
+
+                            // 倒库
+                            //MoveToSort(track.id, trans.carrier_id, trans.id, takePoint, givePoint,
+                            //    string.Format("分界点[ {0} ], 取砖点[ {1} ], 放砖点[ {2} ]", splitP, takePoint, givePoint));
+
+                            //#region 【任务步骤记录】
+                            //_M.LogForCarrierSortRelay(trans, track.id);
+                            //#endregion
+                            //return;
                         }
 
                     }
