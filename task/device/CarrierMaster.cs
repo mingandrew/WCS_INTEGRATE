@@ -2279,7 +2279,8 @@ namespace task.device
             {
                 CarrierTask inCar = DevList.Find(c => c.CurrentTrackId == trans.take_track_id && c.DevConfig.IsUseGoodsSize(goodssizeID));
 
-                if (inCar.ConnStatus == SocketConnectStatusE.通信正常
+                if (inCar != null 
+                    && inCar.ConnStatus == SocketConnectStatusE.通信正常
                     && inCar.OperateMode == DevOperateModeE.自动
                     && inCar.InTask(DevCarrierOrderE.倒库指令))
                 {
