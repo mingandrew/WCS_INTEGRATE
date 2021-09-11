@@ -1418,6 +1418,26 @@ namespace resource.device
         {
             return ConfigCarrierList.Find(c => c.id == carrier_id)?.stock_id ?? 0;
         }
+
+        public List<uint> GetTileTracks(uint tileid)
+        {
+            List<uint> ids = new List<uint>();
+            ConfigTileLifter tile = GetTileLifter(tileid);
+            if (tile != null)
+            {
+                if(tile.left_track_id != 0)
+                {
+                    ids.Add(tile.left_track_id);
+                }
+
+                if(tile.right_track_id != 0)
+                {
+                    ids.Add(tile.right_track_id);
+                }
+            }
+
+            return ids;
+        }
         #endregion
     }
 }

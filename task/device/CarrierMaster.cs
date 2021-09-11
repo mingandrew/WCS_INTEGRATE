@@ -2643,7 +2643,20 @@ namespace task.device
                 List<CarrierTask> allocate_cars_1 = new List<CarrierTask>();
                 // 2：同侧载砖
                 List<CarrierTask> allocate_cars_2 = new List<CarrierTask>();
-                foreach (uint traid in tids)
+
+                List<uint> ntids = new List<uint>();
+                List<uint> tiletrasid = PubMaster.DevConfig.GetTileTracks(trans.tilelifter_id);
+
+                foreach (var item in tiletrasid)
+                {
+                    if (tids.Exists(c => c.Equals(item)))
+                    {
+                        ntids.Add(item);
+                    }
+                }
+                ntids.AddRange(tids);
+
+                foreach (uint traid in ntids)
                 {
                     List<CarrierTask> tasks = DevList.FindAll(c => c.CurrentTrackId == traid);
                     if (tasks.Count > 0)
