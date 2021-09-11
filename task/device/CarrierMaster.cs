@@ -2767,7 +2767,9 @@ namespace task.device
 
                         //在出轨道头空闲
                         if (CheckCarrierIsFree(trans, carrier, false, out carrierid, out result, out returnfalse)
-                            && carrier.CurrentPoint >= PubMaster.Track.GetCarrierPos(carrier.AreaId, CarrierPosE.轨道前侧复位点))
+                           // && ((trans.InType(TransTypeE.同向上砖) && carrier.CurrentPoint <= PubMaster.Track.GetCarrierPos(carrier.AreaId, CarrierPosE.轨道后侧复位点))
+                            //    ||  carrier.CurrentPoint >= PubMaster.Track.GetCarrierPos(carrier.AreaId, CarrierPosE.轨道前侧复位点))
+                           )
                         {
                             carrierid = carrier.ID;
                             return true;

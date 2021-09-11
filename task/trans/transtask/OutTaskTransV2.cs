@@ -293,7 +293,7 @@ namespace task.trans.transtask
                                         {
                                             if (_M.SetTakeSite(trans, t))
                                             {
-                                                _M.SetStatus(trans, TransStatusE.取消, "轨道内有其他运输车");
+                                                _M.SetStatus(trans, TransStatusE.取消, "轨道内有其他运输车"+ result);
                                             }
 
                                             return;
