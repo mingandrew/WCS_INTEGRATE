@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using task.task;
+using tool.appconfig;
 using tool.mlog;
 using tool.timer;
 
@@ -1235,6 +1236,12 @@ namespace task.device
         /// <returns></returns>
         public bool ResetPoint(uint id, DevFerryResetPosE resettype, string memo, out string result)
         {
+            if (!GlobalWcsDataConfig.DebugConfig.IsDebug)
+            {
+                result = "未启用调试模式！不可执行该指令";
+                return false;
+            }
+
             FerryTask task = DevList.Find(c => c.ID == id);
             if (!IsAllowToMove(task, 0, out result))
             {

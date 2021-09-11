@@ -493,7 +493,7 @@ namespace task.task
                 LockRefreshTime = DateTime.Now;
             }
 
-            if (LockRefreshTime is DateTime time && (DateTime.Now - time).TotalSeconds > 20)
+            if (LockRefreshTime is DateTime time && (DateTime.Now - time).TotalSeconds > 300)
             {
                 return true;
             }

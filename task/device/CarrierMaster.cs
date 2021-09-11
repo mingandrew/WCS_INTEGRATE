@@ -947,13 +947,24 @@ namespace task.device
         {
             try
             {
+                #region [调试指令判断]
+                List<DevCarrierTaskE> debugOrders = new List<DevCarrierTaskE>
+                {
+                    DevCarrierTaskE.前进寻复位标志点,
+                    DevCarrierTaskE.后退寻复位标志点,
+                    DevCarrierTaskE.测试上升,
+                    DevCarrierTaskE.测试下降
+                };
+                bool isdebug = debugOrders.Contains(carriertask);
+                if (isdebug && !GlobalWcsDataConfig.DebugConfig.IsDebug)
+                {
+                    result = "未启用调试模式！不可执行该指令";
+                    return false;
+                }
+                #endregion
+
                 Track track = GetCarrierTrack(devid);
-                if (carriertask != DevCarrierTaskE.终止
-                    && carriertask != DevCarrierTaskE.前进寻复位标志点
-                    && carriertask != DevCarrierTaskE.后退寻复位标志点
-                    && carriertask != DevCarrierTaskE.测试上升
-                    && carriertask != DevCarrierTaskE.测试下降
-                    && track == null)                                   // 不用管当前位置的指令
+                if (carriertask != DevCarrierTaskE.终止 && !isdebug && track == null) // 不用管当前位置的指令
                 {
                     result = "未能获取到小车位置相关信息！";
                     return false;
@@ -1842,6 +1853,13 @@ namespace task.device
             if (posList == null || posList.Count == 0 || posList.Exists(c => c.track_point == point && c.track_pos == 0))
             {
                 res = "没有复位点脉冲数据";
+                return false;
+            }
+
+            Track track = PubMaster.Track.GetTrackBySite((ushort)task.AreaId, code);
+            if (track != null && !IsAddTrafficControl(task, track, out string msg))
+            {
+                res = msg;
                 return false;
             }
 

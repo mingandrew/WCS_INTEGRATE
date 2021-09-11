@@ -403,7 +403,7 @@ namespace task.trans.transtask
 
                     #region [判断是否还车回轨]
                     // 更新剩余上砖数量
-                    if (isNotLoad && track.id == trans.give_track_id)
+                    if (isNotLoad && track.id == trans.give_track_id && trans.unload_time == null)
                     {
                         _M.SetUnLoadTime(trans);
                         PubMaster.DevConfig.SubTileNowGoodQty(trans.tilelifter_id, trans.goods_id);
