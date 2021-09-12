@@ -29,7 +29,7 @@ namespace module.goods
         /// <summary>
         /// 库存等级
         /// </summary>
-        public uint dtl_level { set; get; }
+        public byte dtl_level { set; get; }
 
         /// <summary>
         ///  取货轨道

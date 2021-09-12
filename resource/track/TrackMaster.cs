@@ -2530,7 +2530,7 @@ namespace resource.track
         public List<uint> GetTrackFreeEmptyTrackIds(uint id)
         {
             Track track = GetTrack(id);
-            List<Track> tracks = TrackList.FindAll(c => c.Type == track.Type && c.StockStatus == TrackStockStatusE.空砖 && c.TrackStatus == TrackStatusE.启用);
+            List<Track> tracks = TrackList.FindAll(c =>c.area == track.area && c.Type == track.Type && c.StockStatus == TrackStockStatusE.空砖 && c.TrackStatus == TrackStatusE.启用);
 
             List<TrackDis> tras = new List<TrackDis>();
             foreach (var item in tracks)

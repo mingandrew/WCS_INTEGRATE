@@ -86,7 +86,7 @@ namespace task.trans.transtask
                         break;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
             }

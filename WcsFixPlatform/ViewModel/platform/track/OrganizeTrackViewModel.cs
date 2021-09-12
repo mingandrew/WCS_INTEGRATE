@@ -257,7 +257,7 @@ namespace wcs.ViewModel
                     dtl_area_id = item.Area_Id,
                     DtlType = item.DtlType,
                     DtlStatus = item.DtlType == StockTransDtlTypeE.转移品种 ? StockTransDtlStatusE.整理中 : StockTransDtlStatusE.完成,
-                    dtl_level = (uint)item.Level,
+                    dtl_level = item.Level,
                 });
             }
 

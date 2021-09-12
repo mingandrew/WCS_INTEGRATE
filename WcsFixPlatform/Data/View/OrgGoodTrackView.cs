@@ -37,7 +37,7 @@ namespace wcs.Data.View
         private uint take_track_id;
         private uint give_track_id;
         private uint good_id;
-        private int level;
+        private byte level;
         private ushort all_qty;
         private ushort left_qty;
         private StockTransDtlTypeE dtl_type;
@@ -72,7 +72,7 @@ namespace wcs.Data.View
             set => Set(ref good_id, value);
         }
 
-        public int Level
+        public byte Level
         {
             get => level;
             set => Set(ref level, value);
@@ -113,7 +113,7 @@ namespace wcs.Data.View
             DtlType = dtl.DtlType;
             Give_Track_Id = dtl.dtl_give_track_id;
             DtlStatus = dtl.DtlStatus;
-            Level = (int)dtl.dtl_level;
+            Level = dtl.dtl_level;
         }
 
         public void SetDtlType(StockTransDtlTypeE type)
