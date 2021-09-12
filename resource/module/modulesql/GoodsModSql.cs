@@ -194,10 +194,10 @@ namespace resource.module.modulesql
         public bool AddStockTransDtl(StockTransDtl dtl)
         {
             string str = "INSERT INTO `stock_trans_dtl`(`dtl_id`, `dtl_p_id`, `dtl_trans_id`, `dtl_area_id`, `dtl_line_id`, `dtl_type`, `dtl_good_id`, " +
-                "`dtl_take_track_id`, `dtl_give_track_id`, `dtl_status`, `dtl_all_qty`, `dtl_left_qty`, `dtl_finish`) " +
-                " VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12})";
+                "`dtl_take_track_id`, `dtl_give_track_id`, `dtl_status`, `dtl_all_qty`, `dtl_left_qty`, `dtl_finish`, `level`) " +
+                " VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13})";
             string sql = string.Format(@str, dtl.dtl_id, dtl.dtl_p_id, dtl.dtl_trans_id, dtl.dtl_area_id, dtl.dtl_line_id, dtl.dtl_type, dtl.dtl_good_id,
-                dtl.dtl_take_track_id, dtl.dtl_give_track_id, dtl.dtl_status, dtl.dtl_all_qty, dtl.dtl_left_qty, dtl.dtl_finish);
+                dtl.dtl_take_track_id, dtl.dtl_give_track_id, dtl.dtl_status, dtl.dtl_all_qty, dtl.dtl_left_qty, dtl.dtl_finish, dtl.dtl_level);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

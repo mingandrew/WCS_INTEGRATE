@@ -1293,9 +1293,9 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <returns></returns>
-        public StockTransDtl GetTransDtlInTransGood(StockTrans trans, uint gid)
+        public StockTransDtl GetTransDtlInTransGood(StockTrans trans, uint gid, uint level)
         {
-            return TransDtlList.Find(c => c.dtl_p_id == trans.id && c.dtl_good_id == gid);
+            return TransDtlList.Find(c => c.dtl_p_id == trans.id && c.dtl_good_id == gid && c.dtl_level == level);
         }
 
         #endregion
@@ -1422,7 +1422,7 @@ namespace task.trans
         {
             if (dtl != null)
             {
-                dtl.dtl_left_qty = PubMaster.Goods.GetTrackGoodCount(dtl.dtl_take_track_id, dtl.dtl_good_id);
+                dtl.dtl_left_qty = PubMaster.Goods.GetTrackGoodCount(dtl.dtl_take_track_id, dtl.dtl_good_id, dtl.dtl_level);
                 mDtlLog.Status(true, string.Format("任务[ {0} ], 全部数量[ {1} ], 更新剩余数量[ {2} ]", dtl.dtl_id, dtl.dtl_all_qty, dtl.dtl_left_qty));
 
                 PubMaster.Mod.GoodSql.EditTransDtl(dtl, TransDtlUpdateE.Qty);
@@ -1616,18 +1616,18 @@ namespace task.trans
             uint dtlid = PubMaster.Dic.GenerateID(DicTag.NewTranDtlId);
             dtl.dtl_id = dtlid;
             dtl.dtl_p_id = transid;
-            dtl.dtl_all_qty = PubMaster.Goods.GetTrackGoodCount(dtl.dtl_take_track_id, dtl.dtl_good_id);
+            dtl.dtl_all_qty = PubMaster.Goods.GetTrackGoodCount(dtl.dtl_take_track_id, dtl.dtl_good_id, dtl.dtl_level);
             dtl.dtl_left_qty = dtl.dtl_all_qty;
             if (PubMaster.Mod.GoodSql.AddStockTransDtl(dtl))
             {
                 TransDtlList.Add(dtl);
                 SendDtlUpdateMsg(dtl, ActionTypeE.Add);
-                mDtlLog.Status(true, string.Format("细任务[ {0} ], 主任务[ {1} ], 状态[ {2} ], 类型[ {3} ], 货物[ {4} & {8} ], 取货轨道[ {5} ], " +
+                mDtlLog.Status(true, string.Format("细任务[ {0} ], 主任务[ {1} ], 状态[ {2} ], 类型[ {3} ], 货物[ {4}& 等级: {9} & {8}个 ], 取货轨道[ {5} ], " +
                     "卸货轨道[ {6} ], 全部数量[ {7} ] ", dtl.dtl_id, dtl.dtl_p_id, dtl.DtlStatus, dtl.DtlType, dtl.dtl_good_id,
                     PubMaster.Track.GetTrackName(dtl.dtl_take_track_id),
                     PubMaster.Track.GetTrackName(dtl.dtl_give_track_id),
                     dtl.dtl_all_qty,
-                    PubMaster.Goods.GetGoodsName(dtl.dtl_good_id)));
+                    PubMaster.Goods.GetGoodsName(dtl.dtl_good_id), dtl.dtl_level));
                 return true;
             }
             return false;

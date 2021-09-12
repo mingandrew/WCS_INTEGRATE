@@ -105,7 +105,7 @@ namespace task.trans.transtask
 
             if (top != null)
             {
-                if (dtl.dtl_good_id == top.goods_id
+                if (dtl.EqualGoodAndLevel(top.goods_id, top.level)
                     && dtl.dtl_trans_id == 0
                     && !_M.ExistTransWithTrackAndType(trans.take_track_id, TransTypeE.库存转移)
                     && !_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.库存整理))

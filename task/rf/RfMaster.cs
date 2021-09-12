@@ -2511,6 +2511,7 @@ namespace task.rf
                         dtl_take_track_id = item.taketrackid,
                         dtl_give_track_id = item.givetrackid,
                         dtl_all_qty = (ushort)item.allqty,
+                        dtl_level = item.level,
                     });
                 }
 
@@ -2565,11 +2566,12 @@ namespace task.rf
                         dtl_take_track_id = item.taketrackid,
                         dtl_give_track_id = item.givetrackid,
                         dtl_all_qty = (ushort)item.allqty,
+                        dtl_level = item.level,
                     });
                 }
                 string result = null;
                 PreSetOrganizePack newpack = new PreSetOrganizePack();
-                StockTransDtl dtl = dtls.Find(c => c.dtl_good_id == pack.GoodId);
+                StockTransDtl dtl = dtls.Find(c => c.dtl_good_id == pack.GoodId && c.dtl_level == pack.Level);
 
                 switch ((StockTransDtlTypeE)pack.DtlType)
                 {

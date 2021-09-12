@@ -8,5 +8,7 @@ namespace module.rf
         public uint GoodId { get; set; }
         public uint DtlType { get; set; }
         public List<RfStockTransDtl> PreSetList { get; set; }
+
+        public uint Level { set; get; }
     }
 }

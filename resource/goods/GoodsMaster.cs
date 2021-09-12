@@ -280,9 +280,9 @@ namespace resource.goods
         /// <param name="dtl_take_track_id"></param>
         /// <param name="dtl_good_id"></param>
         /// <returns></returns>
-        public ushort GetTrackGoodCount(uint trackid, uint goodid)
+        public ushort GetTrackGoodCount(uint trackid, uint goodid, uint level)
         {
-            return (ushort)StockList.Count(c => c.track_id == trackid && c.goods_id == goodid);
+            return (ushort)StockList.Count(c => c.track_id == trackid && c.EqualGoodAndLevel(goodid, (byte)level));
         }
 
         #endregion
