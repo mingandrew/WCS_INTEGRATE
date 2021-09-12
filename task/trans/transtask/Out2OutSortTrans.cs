@@ -232,12 +232,13 @@ namespace task.trans.transtask
                 #region 基础脉冲
                 // 安全距离
                 ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
-                // 极限位置
+                // 极限位置(放砖)
                 ushort limitP = track.is_take_forward ? track.limit_point : track.limit_point_up;
                 // 分界位置
                 ushort splitP = track.up_split_point;
-                // 结束位置
+                // 结束位置(取砖)
                 ushort overP = track.rfid_6;
+                if (overP == 0) overP = track.is_take_forward ? track.limit_point_up : track.limit_point;
                 #endregion
 
                 #region 载砖
@@ -570,13 +571,13 @@ namespace task.trans.transtask
                 #region 基础脉冲
                 // 安全距离
                 ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
-                // 极限位置
+                // 极限位置(放砖)
                 ushort limitP = track.is_take_forward ? track.limit_point : track.limit_point_up;
                 // 分界位置
                 ushort splitP = track.up_split_point;
-                // 结束位置
+                // 结束位置(取砖)
                 ushort overP = track.rfid_6;
-
+                if (overP == 0) overP = track.is_take_forward ? track.limit_point_up : track.limit_point;
                 #endregion
 
                 #region 载砖
@@ -994,10 +995,15 @@ namespace task.trans.transtask
             if (track.Type == TrackTypeE.储砖_出入 && isStopNoOrder)
             {
                 #region 基础脉冲
+                // 安全距离
+                ushort safe = PubMaster.Goods.GetStackSafe(trans.goods_id, trans.carrier_id);
+                // 极限位置(放砖)
+                ushort limitP = track.is_take_forward ? track.limit_point : track.limit_point_up;
                 // 分界位置
                 ushort splitP = track.up_split_point;
-                // 结束位置
+                // 结束位置(取砖)
                 ushort overP = track.rfid_6;
+                if (overP == 0) overP = track.is_take_forward ? track.limit_point_up : track.limit_point;
                 #endregion
 
                 // 判断是否开始接力
