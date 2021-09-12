@@ -400,6 +400,7 @@ namespace task.trans.transtask
             {
                 #region[小车在下砖轨道]
                 case TrackTypeE.下砖轨道:
+                    if (!isStopNoOrder) return;
 
                     #region [判断是否还车回轨]
                     // 更新剩余上砖数量
@@ -426,7 +427,7 @@ namespace task.trans.transtask
                             foreach (Stock stock in allocatestocks)
                             {
                                 //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
-                                if (PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id, TransTypeE.库存整理))
+                                if (PubTask.Trans.IsStockInTransButSortTask(trans.id, stock.id, stock.track_id, TransTypeE.库存整理, TransTypeE.库存转移))
                                 {
                                     isback = true;
                                     break;

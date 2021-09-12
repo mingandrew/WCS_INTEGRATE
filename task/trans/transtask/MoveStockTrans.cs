@@ -383,6 +383,9 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void FinishStockTrans(StockTrans trans)
         {
+            // 检测轨道存砖状态
+            PubMaster.Track.CheckTrackStockStatus(trans.give_track_id);
+
             PubMaster.Warn.RemoveTaskAllWarn(trans.id);
             _M.SetTransDtlTransFinish(trans.id);
             _M.SetFinish(trans);

@@ -986,7 +986,7 @@ namespace task.device
 
                 // 小车当前所在RF点
                 //ushort site = GetCurrentSite(devid);
-                ushort site = GetCurrentPoint(devid); // 改用脉冲
+                ushort carPoint = GetCurrentPoint(devid); // 改用脉冲
 
                 DevCarrierOrderE order = DevCarrierOrderE.终止指令;
                 ushort checkTra = 0;//校验轨道号
@@ -1031,14 +1031,7 @@ namespace task.device
                             result = "无目的轨道数据！";
                             return false;
                         }
-
-                        // 轨道类型是否允许后退取砖
-                        if (toTrack.is_take_forward)
-                        {
-                            result = "目的轨道无法执行后退取砖！";
-                            return false;
-                        }
-
+                        
                         if (track.IsFerryTrack() && toTrack.IsStoreTrack())
                         {
                             // 在摆渡车上，取储砖轨道  则获取库存脉冲
@@ -1056,11 +1049,18 @@ namespace task.device
                         }
                         else
                         {
+                            // 轨道类型是否允许后退取砖
+                            if (toTrack.is_take_forward)
+                            {
+                                result = "轨道无法执行后退取砖！";
+                                return false;
+                            }
+
                             // 轨道内改用靠光电取砖（ 1 -后退，65535 -前进 ）
                             toPoint = 1;
                         }
 
-                        if (site <= toPoint)
+                        if (carPoint <= toPoint)
                         {
                             result = "不能再后退了！";
                             return false;
@@ -1120,7 +1120,7 @@ namespace task.device
                             if (stkloc > 0) toPoint = stkloc;
                         }
 
-                        if (site <= toPoint)
+                        if (carPoint <= toPoint)
                         {
                             result = "不能再后退了！";
                             return false;
@@ -1160,13 +1160,6 @@ namespace task.device
                             return false;
                         }
 
-                        // 轨道类型是否允许前进取砖
-                        if (!toTrack.is_take_forward)
-                        {
-                            result = "目的轨道无法执行前进取砖！";
-                            return false;
-                        }
-
                         if (track.IsFerryTrack() && toTrack.IsStoreTrack())
                         {
                             // 在摆渡车上，取储砖轨道  则获取库存脉冲
@@ -1184,11 +1177,18 @@ namespace task.device
                         }
                         else
                         {
+                            // 轨道类型是否允许前进取砖
+                            if (!toTrack.is_take_forward)
+                            {
+                                result = "轨道无法执行前进取砖！";
+                                return false;
+                            }
+
                             // 改用靠光电取砖（ 1 -后退，65535 -前进 ）
                             toPoint = 65535;
                         }
 
-                        if (site >= toPoint)
+                        if (carPoint >= toPoint)
                         {
                             result = "不能再前进了！";
                             return false;
@@ -1248,7 +1248,7 @@ namespace task.device
                             if (stkloc > 0) toPoint = stkloc;
                         }
 
-                        if (site >= toPoint)
+                        if (carPoint >= toPoint)
                         {
                             result = "不能再前进了！";
                             return false;
@@ -1265,7 +1265,7 @@ namespace task.device
                         if (track.IsFerryTrack())
                         {
                             // 显示摆渡但实际脉冲未到
-                            if (site > track.limit_point && (site - track.limit_point >= 100))
+                            if (carPoint > track.limit_point && (carPoint - track.limit_point >= 100))
                             {
                                 checkTra = track.ferry_down_code;
                                 overPoint = track.limit_point;
@@ -1312,7 +1312,7 @@ namespace task.device
                         if (track.IsFerryTrack())
                         {
                             // 显示摆渡但实际脉冲未到
-                            if (track.limit_point_up > site && (track.limit_point_up - site >= 100))
+                            if (track.limit_point_up > carPoint && (track.limit_point_up - carPoint >= 100))
                             {
                                 checkTra = track.ferry_up_code;
                                 overPoint = track.limit_point_up;
@@ -1362,7 +1362,7 @@ namespace task.device
                             case TrackTypeE.下砖轨道:
                             case TrackTypeE.储砖_出:
                             case TrackTypeE.储砖_出入:
-                                if (Math.Abs(site - track.limit_point_up) <= 20) // 暂定（+-20）脉冲
+                                if (Math.Abs(carPoint - track.limit_point_up) <= 20) // 暂定（+-20）脉冲
                                 {
                                     result = "小车已经不能再前进了";
                                     return false;
@@ -1407,7 +1407,7 @@ namespace task.device
                             case TrackTypeE.下砖轨道:
                             case TrackTypeE.储砖_入:
                             case TrackTypeE.储砖_出入:
-                                if (Math.Abs(site - track.limit_point) <= 20) // 暂定（+-20）脉冲
+                                if (Math.Abs(carPoint - track.limit_point) <= 20) // 暂定（+-20）脉冲
                                 {
                                     result = "小车已经不能再后退了";
                                     return false;

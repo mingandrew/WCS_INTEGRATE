@@ -1270,7 +1270,7 @@ namespace task.device
                         if (task.DevConfig.goods_id == 0) return;
 
                         // 等待 5 秒再使用
-                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_1, 5, 5)) return;
+                        if (!mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_1, 5, 2)) return;
 
                         gid = task.DevConfig.goods_id;
                     }
@@ -1441,7 +1441,7 @@ namespace task.device
                         if (task.DevConfig.goods_id == 0) return;
 
                         // 等待 5 秒再使用
-                        if (mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_2, 5, 5)) return;
+                        if (!mTimer.IsOver(TimerTag.TileGoodsErr, task.ID, Site_2, 5, 2)) return;
 
                         gid = task.DevConfig.goods_id;
                     }
@@ -1915,7 +1915,7 @@ namespace task.device
                 foreach (Stock stock in allocatestocks)
                 {
                     //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
-                    if (PubTask.Trans.IsStockInTransButSortTask(stock.id, stock.track_id, TransTypeE.库存整理))
+                    if (PubTask.Trans.IsStockInTransButSortTask(0, stock.id, stock.track_id, TransTypeE.库存整理, TransTypeE.库存转移))
                     {
                         break;
                     }

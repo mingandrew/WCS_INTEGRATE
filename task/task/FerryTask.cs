@@ -308,7 +308,12 @@ namespace task.task
         /// <param name="memo"></param>
         internal void DoStop(uint transid, string memo, string purpose)
         {
-            DevTcp?.SendCmd(DevFerryCmdE.终止任务, 0, 0, 0);
+            // 摆渡车无执行则不发终止
+            if (!IsNotDoingTask || TargetTrackId > 0 || RecordTraId > 0)
+            {
+                DevTcp?.SendCmd(DevFerryCmdE.终止任务, 0, 0, 0);
+            }
+
             // 清除 记录目标点
             RecordTraId = 0;
             DevTcp.AddStatusLog(string.Format("任务[ {0} ], 终止[ {1} ], 目的[ {2} ]", transid, memo, purpose));
@@ -404,6 +409,25 @@ namespace task.task
         #region[锁定摆渡车]
 
         /// <summary>
+        /// 摆渡车是否被任务流程锁定
+        /// </summary>
+        /// <returns></returns>
+        public bool IsFerryLockTrans()
+        {
+            if (TransId == 0 && !IsLock)
+            {
+                return false;
+            }
+
+            if (Load == DevFerryLoadE.空 && IsLockOverTime())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// 摆渡车是否空闲
         /// </summary>
         /// <returns></returns>
@@ -493,7 +517,7 @@ namespace task.task
                 LockRefreshTime = DateTime.Now;
             }
 
-            if (LockRefreshTime is DateTime time && (DateTime.Now - time).TotalSeconds > 300)
+            if (LockRefreshTime is DateTime time && (DateTime.Now - time).TotalSeconds > 180)
             {
                 return true;
             }

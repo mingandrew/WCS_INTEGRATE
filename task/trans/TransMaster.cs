@@ -123,33 +123,33 @@ namespace task.trans
 
             #region 中转
             // 中转倒库 (出库轨道)
-            List<Track> tracksTo = tracks.FindAll(c => c.Type2 == TrackType2E.出库);
-            if (tracksTo != null && tracksTo.Count > 0)
-            {
-                foreach (Track traTo in tracksTo)
-                {
-                    // 状态
-                    if (traTo.TrackStatus == TrackStatusE.停用) continue;
-                    if (traTo.StockStatus == TrackStockStatusE.空砖) continue;
-                    // 已被任务使用
-                    if (ExistTransWithTracks(traTo.id)) continue;
+            //List<Track> tracksTo = tracks.FindAll(c => c.Type2 == TrackType2E.出库);
+            //if (tracksTo != null && tracksTo.Count > 0)
+            //{
+            //    foreach (Track traTo in tracksTo)
+            //    {
+            //        // 状态
+            //        if (traTo.TrackStatus == TrackStatusE.停用) continue;
+            //        if (traTo.StockStatus == TrackStockStatusE.空砖) continue;
+            //        // 已被任务使用
+            //        if (ExistTransWithTracks(traTo.id)) continue;
 
-                    Stock stock = PubMaster.Goods.GetStockForOut(traTo.id);
-                    if (stock == null) continue;
+            //        Stock stock = PubMaster.Goods.GetStockForOut(traTo.id);
+            //        if (stock == null) continue;
 
-                    // 检查本身是否需要倒库
-                    ushort safe = PubMaster.Goods.GetStackSafe(stock.goods_id);
-                    if (PubMaster.Track.ExistSpaceAwayFromOut(traTo, stock, safe, out int discountTop)
-                        || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(traTo, safe, out string result)))
-                    {
-                        // 生成倒库任务
-                        AddTransWithoutLock(traTo.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traTo.id, traTo.id
-                            , TransStatusE.检查轨道, 0, traTo.line, (traTo.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
-                        return;
-                    }
+            //        // 检查本身是否需要倒库
+            //        ushort safe = PubMaster.Goods.GetStackSafe(stock.goods_id);
+            //        if (PubMaster.Track.ExistSpaceAwayFromOut(traTo, stock, safe, out int discountTop)
+            //            || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(traTo, safe, out string result)))
+            //        {
+            //            // 生成倒库任务
+            //            AddTransWithoutLock(traTo.area, 0, TransTypeE.倒库任务, stock?.goods_id ?? 0, stock?.level ?? 0, 0, traTo.id, traTo.id
+            //                , TransStatusE.检查轨道, 0, traTo.line, (traTo.is_take_forward ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡));
+            //            return;
+            //        }
 
-                }
-            }
+            //    }
+            //}
 
             // 中转倒库 (入库轨道)
             List<Track> tracksFrom = tracks.FindAll(c => c.Type2 == TrackType2E.入库);
@@ -819,7 +819,7 @@ namespace task.trans
         /// <param name="stockid"></param>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool IsStockInTransButSortTask(uint stockid, uint trackid, params TransTypeE[] types)
+        internal bool IsStockInTransButSortTask(uint transid, uint stockid, uint trackid, params TransTypeE[] types)
         {
             try
             {
@@ -829,7 +829,7 @@ namespace task.trans
                 //是否开启【出入倒库轨道可以同时上砖】
                 bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
 
-                return TransList.Exists(c => !c.finish
+                return TransList.Exists(c => !c.finish && c.id != transid
                             && (c.stock_id == stockid || (c.InTrack(trackid) && c.NotInType(types)))
                             && (!ignoresort || c.NotInType(TransTypeE.上砖接力))
                             && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务)));

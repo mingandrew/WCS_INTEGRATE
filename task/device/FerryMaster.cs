@@ -1473,7 +1473,7 @@ namespace task.device
                 List<uint> fids = PubMaster.Area.GetFerryWithTrackInOut(ferrytype, trans.area_id, trans.take_track_id, trans.give_track_id, 0, false);
 
                 //3.2摆渡车上是否有车[空闲，无货]
-               have = DevList.Exists(c => fids.Contains(c.ID) && c.IsWorking && c.IsFerryFree() && CheckFerryStatusResult(c,out string _));
+               have = DevList.Exists(c => fids.Contains(c.ID) && c.IsWorking && !c.IsFerryLockTrans() && CheckFerryStatusResult(c,out string _));
                 ferryids.AddRange(fids);
 
             }catch(Exception e)
@@ -1725,9 +1725,9 @@ namespace task.device
                 return false;
             }
 
-            if (ferry.Load != DevFerryLoadE.空)
+            if (ferry.Load == DevFerryLoadE.异常 || ferry.Load == DevFerryLoadE.非空)
             {
-                result = "非空";
+                result = "载货异常/非空";
                 return false;
             }
             result = "";

@@ -255,11 +255,11 @@ namespace wcs.ViewModel
                         {
                             if (isdowntile && strategyrs.o2 is StrategyInE instrategy && strategyrs.o3 is DevWorkTypeE inworktype)
                             {
-                                if (inworktype == DevWorkTypeE.混砖作业)
-                                {
-                                    Growl.Warning("未开放混砖作业！");
-                                    return;
-                                }
+                                //if (inworktype == DevWorkTypeE.混砖作业)
+                                //{
+                                //    Growl.Warning("未开放混砖作业！");
+                                //    return;
+                                //}
 
                                 if (PubMaster.DevConfig.SetInStrategy(DeviceSelected.ID, instrategy, inworktype))
                                 {
@@ -271,11 +271,11 @@ namespace wcs.ViewModel
 
                             if (!isdowntile && strategyrs.o2 is StrategyOutE outstrategy && strategyrs.o3 is DevWorkTypeE worktype)
                             {
-                                if (worktype == DevWorkTypeE.混砖作业)
-                                {
-                                    Growl.Warning("未开放混砖作业！");
-                                    return;
-                                }
+                                //if (worktype == DevWorkTypeE.混砖作业)
+                                //{
+                                //    Growl.Warning("未开放混砖作业！");
+                                //    return;
+                                //}
 
                                 if ((DeviceSelected.OutStrategy != outstrategy
                                     || DeviceSelected.WorkType != worktype)

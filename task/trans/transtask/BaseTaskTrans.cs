@@ -598,7 +598,8 @@ namespace task.trans.transtask
         /// <param name="carrierID"></param>
         /// <param name="transID"></param>
         /// <param name="loc"></param>
-        public void MoveToTake(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "")
+        /// <param name="doNotBack">是否回轨道头</param>
+        public void MoveToTake(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "", bool doNotBack = false)
         {
             // 目的轨道
             Track toTrack = PubMaster.Track.GetTrack(trackID);
@@ -609,7 +610,7 @@ namespace task.trans.transtask
                 Order = DevCarrierOrderE.取砖指令,
                 CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
                 ToPoint = loc,
-                OverPoint = toTrack.is_take_forward ? toTrack.limit_point : toTrack.limit_point_up, // 前进取则后侧停，后退取则前侧停
+                OverPoint = doNotBack ? loc : (toTrack.is_take_forward ? toTrack.limit_point : toTrack.limit_point_up), // 前进取则后侧停，后退取则前侧停
                 ToTrackId = toTrack.id
             }, mes);
         }
@@ -621,7 +622,8 @@ namespace task.trans.transtask
         /// <param name="carrierID"></param>
         /// <param name="transID"></param>
         /// <param name="loc"></param>
-        public void MoveToGive(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "")
+        /// <param name="doNotBack">是否回轨道头</param>
+        public void MoveToGive(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "", bool doNotBack = false)
         {
             // 目的轨道
             Track toTrack = PubMaster.Track.GetTrack(trackID);
@@ -632,7 +634,7 @@ namespace task.trans.transtask
                 Order = DevCarrierOrderE.放砖指令,
                 CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
                 ToPoint = loc,
-                OverPoint = toTrack.is_give_back ? toTrack.limit_point_up : toTrack.limit_point, // 后退存则前侧停，前进存则后侧停
+                OverPoint = doNotBack ? loc : (toTrack.is_give_back ? toTrack.limit_point_up : toTrack.limit_point), // 后退存则前侧停，前进存则后侧停
                 ToTrackId = toTrack.id
             }, mes);
         }
@@ -671,7 +673,8 @@ namespace task.trans.transtask
         /// <param name="carrierID"></param>
         /// <param name="transID"></param>
         /// <param name="mes"></param>
-        public void TakeInTarck(uint stockID, uint trackID, uint carrierID, uint transID, out string mes)
+        /// <param name="doNotBack">是否回轨道头</param>
+        public void TakeInTarck(uint stockID, uint trackID, uint carrierID, uint transID, out string mes, bool doNotBack = false)
         {
             // 获取库存
             Stock stk = PubMaster.Goods.GetStock(stockID);
@@ -723,7 +726,24 @@ namespace task.trans.transtask
 
                 // 直接靠光电取砖 前-65535；后-1
                 mes = "无库存脉冲，尝试直接靠光电取砖";
-                MoveToTake(tra.id, carrierID, transID, (ushort)(tra.is_take_forward ? 65535 : 1));
+                ushort loc = (ushort)(tra.is_take_forward ? 65535 : 1);
+                ushort over = carloc;
+                if (tra.is_take_forward && over < tra.limit_point)
+                {
+                    over = tra.limit_point;
+                }
+                if (!tra.is_take_forward && over > tra.limit_point_up)
+                {
+                    over = tra.limit_point_up;
+                }
+                PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
+                {
+                    Order = DevCarrierOrderE.取砖指令,
+                    CheckTra = tra.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
+                    ToPoint = loc,
+                    OverPoint = over, 
+                    ToTrackId = tra.id
+                }, mes);
                 return;
             }
             else
@@ -747,7 +767,7 @@ namespace task.trans.transtask
 
                 // 取砖
                 mes = "执行取砖";
-                MoveToTake(tra.id, carrierID, transID, stk.location);
+                MoveToTake(tra.id, carrierID, transID, stk.location, mes, doNotBack);
                 return;
             }
 
@@ -761,7 +781,8 @@ namespace task.trans.transtask
         /// <param name="carrierID"></param>
         /// <param name="transID"></param>
         /// <param name="mes"></param>
-        public void GiveInTarck(ushort stkloc, uint trackID, uint carrierID, uint transID, out string mes)
+        /// <param name="doNotBack">是否回轨道头</param>
+        public void GiveInTarck(ushort stkloc, uint trackID, uint carrierID, uint transID, out string mes, bool doNotBack = false)
         {
             if (stkloc == 0)
             {
@@ -805,7 +826,7 @@ namespace task.trans.transtask
 
             // 放砖
             mes = "执行放砖";
-            MoveToGive(trackID, carrierID, transID, stkloc);
+            MoveToGive(trackID, carrierID, transID, stkloc, mes, doNotBack);
             return;
         }
 
