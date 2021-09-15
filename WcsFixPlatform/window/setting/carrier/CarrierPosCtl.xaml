@@ -58,7 +58,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding area_id, Converter={StaticResource AreaId2NameConverter}}" Header="区域" Width="*"/>
                 <DataGridTextColumn Binding="{Binding CarrierPosType}" Header="复位名称" Width="2*"/>
-                <DataGridTextColumn Binding="{Binding track_point}" Header="复位号码" Width="2*"/>
+                <DataGridTextColumn Binding="{Binding track_point}" Header="复位地标" Width="2*"/>
                 <DataGridTextColumn Binding="{Binding track_pos}" Header="复位脉冲" Width="2*"/>
             </DataGrid.Columns>
         </DataGrid>

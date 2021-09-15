@@ -159,6 +159,25 @@ namespace tool.appconfig
             SaveOrganizeConfig();
             #endregion
 
+            #region[砖机绑定品种]
+            if (File.Exists(TileBindGoodsConfig.SavePath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(TileBindGoodsConfig.SavePath);
+                    tileBindingGoodsConfig = (string.IsNullOrEmpty(json) ? new TileBindGoodsConfig() : JsonConvert.DeserializeObject<TileBindGoodsConfig>(json)) ?? new TileBindGoodsConfig();
+                }
+                catch
+                {
+                    tileBindingGoodsConfig = new TileBindGoodsConfig();
+                }
+            }
+            else
+            {
+                tileBindingGoodsConfig = new TileBindGoodsConfig();
+            }
+            SaveMysqlConfig();
+            #endregion
         }
 
         public static void SaveMysqlConfig()
@@ -192,6 +211,11 @@ namespace tool.appconfig
         {
             SaveJsonObj(OrganizeConfig, OrganizeConfig.Path, OrganizeConfig.SavePath);
         }
+        public static void SaveTileBindingGoodsConfig()
+        {
+            SaveJsonObj(tileBindingGoodsConfig, TileBindGoodsConfig.Path, TileBindGoodsConfig.SavePath);
+        }
+
 
         #region[保存配置文件]
         public static void SaveJsonObj(object obj, string dirpath, string savepath)
@@ -228,5 +252,6 @@ namespace tool.appconfig
         public static BigConifg BigConifg { get; set; }
         public static DevLightConfig AlertLightConfig { get; set; }
         public static OrganizeConfig OrganizeConfig { get; set; }
+        public static TileBindGoodsConfig tileBindingGoodsConfig { get; set; }
     }
 }

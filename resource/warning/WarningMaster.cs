@@ -224,7 +224,19 @@ namespace task
         }
         public void RemoveCarrierWarn(ushort devid, ushort alertidx)
         {
-            Warning warn = List.Find(c => c.dev_id == devid && !c.resolve && c.track_id == alertidx);
+            Warning warn = null;
+            try {
+            warn =List.Find(c => c.dev_id == devid && !c.resolve && c.track_id == alertidx);
+            } catch(Exception e)
+            {
+                mlog.Error(true, e.Message, e);
+            }
+            finally
+            {
+                Monitor.Exit(_obj);
+            }
+
+
             if (warn != null)
             {
                 RemoveWarning(warn);

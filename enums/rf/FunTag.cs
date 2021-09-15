@@ -29,6 +29,7 @@
         public const string QueryStock = nameof(QueryStock);
         public const string QueryTrack = nameof(QueryTrack);
         public const string QuerySingleTrack = nameof(QuerySingleTrack);
+        public const string QueryTileGoodsBinding = nameof(QueryTileGoodsBinding);
 
         public const string QueryTileGood = nameof(QueryTileGood);
         #endregion

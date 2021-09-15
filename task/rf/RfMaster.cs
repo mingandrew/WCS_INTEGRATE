@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Threading;
 using task.device;
 using task.task;
+using tool.appconfig;
 using tool.json;
 using tool.mlog;
 
@@ -372,7 +373,9 @@ namespace task.rf
                     case FunTag.QueryGoodSizes:
                         GetGoodSizesList(msg);
                         break;
-
+                    case FunTag.QueryTileGoodsBinding:
+                        QueryTileGoodsBinding(msg);
+                        break;
                     #endregion
 
                     #region[库存]
@@ -1373,6 +1376,28 @@ namespace task.rf
         #endregion
 
         #region[品种]
+        private void QueryTileGoodsBinding(RfMsgMod msg)
+        {
+            if(uint.TryParse(msg.Pack.Data, out uint tileid))
+            {
+                uint gid = GlobalWcsDataConfig.tileBindingGoodsConfig.GetTileBindingGoods(tileid);
+                if(gid > 0)
+                {
+                    Goods goods = PubMaster.Goods.GetGoods(gid);
+                    if (goods==null) {
+                        return; 
+                    }
+                     GoodSize goodSize= PubMaster.Goods.GetSize(goods.size_id);
+                    goods.good_size = goodSize;
+                    SendSucc2Rf(msg.MEID, FunTag.QueryTileGoodsBinding, JsonTool.Serialize(goods));
+                   
+                    return;
+                }
+            }
+            SendSucc2Rf(msg.MEID, FunTag.QueryTileGoodsBinding, "");
+        }
+
+
 
         private void GetGoodSizesList(RfMsgMod msg)
         {
@@ -1381,6 +1406,9 @@ namespace task.rf
 
             SendSucc2Rf(msg.MEID, FunTag.QueryGoodSizes, JsonTool.Serialize(gmsg));
         }
+
+
+       
 
         private void GetGoodsList(RfMsgMod msg)
         {
@@ -1403,6 +1431,8 @@ namespace task.rf
                     }
                     else
                     {
+                       
+                        GlobalWcsDataConfig.tileBindingGoodsConfig.SetTileBindingGoods(pack.Tile_Id, goodid);
                         SendGoodDic2ToAll();
                         SendSucc2Rf(msg.MEID, FunTag.UpdateGood, "");
                     }

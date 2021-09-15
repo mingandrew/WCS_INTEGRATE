@@ -10,6 +10,7 @@ namespace module.goods
         public string name { set; get; }
         public string color { set; get; }
         public uint size_id { set; get; }
+        public GoodSize good_size { set; get; }
         public ushort pieces { set; get; }
         public byte carriertype { set; get; }
         public string memo { set; get; }
@@ -25,5 +26,7 @@ namespace module.goods
         public DateTime? createtime { set; get; }
         public bool top { set; get; }
         public bool empty { set; get; }
+        public Goods() { }
+       
     }
 }

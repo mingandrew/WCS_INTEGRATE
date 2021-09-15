@@ -654,8 +654,14 @@ namespace resource.area
 
         public void AddAreaTrack(uint trackid, uint toareaid, Device dev)
         {
-            ushort prior = (ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == dev.id).Max(c => c.prior);
-            prior++;
+            ushort prior = 0;
+            try
+            {
+                prior =(ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == dev.id).Max(c => c.prior);
+            }
+            catch {
+                prior++;
+            }       
 
             if (AreaDevTraList.Exists(c => c.area_id == toareaid && c.device_id == dev.id && c.track_id == trackid))
             {

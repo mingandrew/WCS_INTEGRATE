@@ -111,7 +111,7 @@
       <Name>socket</Name>
     </ProjectReference>
     <ProjectReference Include="..\tool\tool.csproj">
-      <Project>{8C9E88C9-E187-4EEB-B104-AB7D317173CD}</Project>
+      <Project>{8c9e88c9-e187-4eeb-b104-ab7d317173cd}</Project>
       <Name>tool</Name>
     </ProjectReference>
   </ItemGroup>
