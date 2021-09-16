@@ -205,176 +205,122 @@ namespace task.trans.transtask
                     // 锁定摆渡车
                     if (!AllocateTakeFerry(trans, trans.AllocateFerryType, track)) return;
 
-                    // 取消任务
-                    if (!isTileEmptyNeed
-                        && isStopNoOrder
-                        && mTimer.IsTimeOutAndReset(TimerTag.TileNeedCancel, trans.id, 20))
+                    if (isLoad)
                     {
-                        // 优先回原轨道
-                        if (isLoad)
+                        if (PubTask.TileLifter.IsTrackEmtpy(trans.tilelifter_id, trans.give_track_id)
+                            || mTimer.IsOver(TimerTag.CarrierLoadNotInTileTrack, trans.give_track_id, 5, 5))
                         {
-                            if (!_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result)
-                            && !PubMaster.Goods.IsTrackHaveStockInTopPosition(trans.take_track_id)
-                            && !PubTask.Carrier.HaveCarrierMoveTopInTrackUpTop(trans.carrier_id, trans.take_track_id))
-                            {
-                                _M.SetStatus(trans, TransStatusE.取消, "工位非无货需求，取消任务，返回原轨道");
-                                return;
-                            }
-
+                            _M.SetLoadTime(trans);
+                            _M.SetStatus(trans, TransStatusE.放砖流程);
+                            return;
                         }
-
-                        // 再者到空轨道
-                        List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
-                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id);
-                        foreach (uint t in tids)
-                        {
-                            if (!_M.IsTraInTrans(t)
-                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t)
-                                && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
-                            {
-                                // 有货的话就只能找空轨道
-                                if (isLoad && !PubMaster.Track.IsEmtyp4Up(t))
-                                {
-                                    continue;
-                                }
-
-                                if (_M.SetTakeSite(trans, t))
-                                {
-                                    _M.SetStatus(trans, TransStatusE.取消, "工位非无货需求，取消任务，寻找空轨道");
-
-                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
-                                    return;
-                                }
-                            }
-                        }
-
-                        PubMaster.Warn.AddDevWarn(trans.area_id, trans.line, WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id, trans.id);
-
-                        #region 【任务步骤记录】
-                        _M.SetStepLog(trans, false, 1401, string.Format("砖机工位非无货需求，且运输车[ {0} ]无可回轨轨道，等待砖机工位重新需求或有合适轨道可回轨；",
-                            PubMaster.Device.GetDeviceName(trans.carrier_id)));
-                        #endregion
-                        return;
                     }
 
-                    if (isTileEmptyNeed)
+                    if (isNotLoad && isStopNoOrder)
                     {
-                        if (isLoad)
+                        if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
                         {
-                            if (PubTask.TileLifter.IsTrackEmtpy(trans.tilelifter_id, trans.give_track_id)
-                                || mTimer.IsOver(TimerTag.CarrierLoadNotInTileTrack, trans.give_track_id, 5, 5))
+                            Track takeTrack = PubMaster.Track.GetTrack(trans.take_track_id);
+
+                            #region[取砖轨道有车则找空轨道放]
+
+                            //1.不允许，则不可以有车
+                            //2.允许，则不可以有非倒库车
+                            if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result))
                             {
-                                _M.SetLoadTime(trans);
-                                _M.SetStatus(trans, TransStatusE.放砖流程);
-                                return;
-                            }
-                        }
-
-                        if (isNotLoad && isStopNoOrder)
-                        {
-                            if (PubTask.Ferry.IsLoad(trans.take_ferry_id))
-                            {
-                                Track takeTrack = PubMaster.Track.GetTrack(trans.take_track_id);
-
-                                #region[取砖轨道有车则找空轨道放]
-
-                                //1.不允许，则不可以有车
-                                //2.允许，则不可以有非倒库车
-                                if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result))
+                                // 优先移动到空轨道
+                                List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+                                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id);
+                                foreach (uint t in tids)
                                 {
-                                    // 优先移动到空轨道
-                                    List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
-                                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id);
-                                    foreach (uint t in tids)
+                                    if (!_M.IsTraInTrans(t)
+                                        && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t)
+                                        && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
                                     {
-                                        if (!_M.IsTraInTrans(t)
-                                            && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t)
-                                            && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                                        if (_M.SetTakeSite(trans, t))
                                         {
-                                            if (_M.SetTakeSite(trans, t))
-                                            {
-                                                _M.SetStatus(trans, TransStatusE.取消, "轨道内有其他运输车"+ result);
-                                            }
-
-                                            return;
+                                            _M.SetStatus(trans, TransStatusE.取消, "轨道内有其他运输车" + result);
                                         }
+
+                                        return;
                                     }
-
-                                    #region 【任务步骤记录】
-                                    _M.SetStepLog(trans, false, 1501, string.Format("取砖轨道[ {0} ]内有其他运输车，且运输车[ {1} ]无合适轨道可以回轨；",
-                                        PubMaster.Track.GetTrackName(trans.take_track_id),
-                                        PubMaster.Device.GetDeviceName(trans.carrier_id)));
-                                    #endregion
-
-                                    return;
                                 }
-
-                                #endregion
-
-                                //摆渡车 定位去 取货点
-                                //小车到达摆渡车后短暂等待再开始定位
-                                if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out uint ferryTraid, out string res))
-                                {
-                                    #region 【任务步骤记录】
-                                    _M.LogForFerryMove(trans, trans.take_ferry_id, trans.take_track_id, res);
-                                    #endregion
-                                    return;
-                                }
-
-                                // 不满足取砖条件 - 至点停
-                                if (PubMaster.Track.IsEmtpy(trans.take_track_id)
-                                    || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
-                                {
-                                    MoveToPos(trans.take_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
-
-                                    #region 【任务步骤记录】
-                                    _M.LogForCarrierToTrack(trans, trans.take_track_id);
-                                    #endregion
-                                    return;
-                                }
-
-                                #region [取砖判断]
-                                // 判断是否需要在库存在上砖分割点后,，待车入轨道再生成倒库任务
-                                if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id, trans.goods_id, trans.level, false))
-                                {
-                                    MoveToLoc(trans.take_track_id, trans.carrier_id, trans.id, takeTrack.up_split_point);
-
-                                    #region 【任务步骤记录】
-                                    _M.LogForCarrierToTrack(trans, trans.take_track_id, "移至接力点，准备进行接力倒库");
-                                    #endregion
-                                    return;
-                                }
-
-                                // 判断是否能执行取砖指令
-                                if (!_M.CheckStockIsableToTake(trans, trans.carrier_id, trans.take_track_id, trans.stock_id))
-                                {
-                                    #region 【任务步骤记录】
-                                    _M.LogForCarrierNoTake(trans, trans.take_track_id);
-                                    #endregion
-                                    return;
-                                }
-
-                                // 获取头部库存判断
-                                Stock takeStock = PubMaster.Goods.GetStockForOut(trans.take_track_id);
-                                if (takeStock == null || takeStock.goods_id != trans.goods_id)
-                                {
-                                    _M.SetStatus(trans, TransStatusE.取消, string.Format("[{0}]内的头部库存与任务所需不符", PubMaster.Track.GetTrackName(trans.take_track_id)));
-                                    return;
-                                }
-                                _M.SetStock(trans, takeStock.id);
-
-                                // 直接取砖
-                                TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
 
                                 #region 【任务步骤记录】
-                                _M.LogForCarrierTake(trans, trans.take_track_id, res);
+                                _M.SetStepLog(trans, false, 1501, string.Format("取砖轨道[ {0} ]内有其他运输车，且运输车[ {1} ]无合适轨道可以回轨；",
+                                    PubMaster.Track.GetTrackName(trans.take_track_id),
+                                    PubMaster.Device.GetDeviceName(trans.carrier_id)));
                                 #endregion
-                                return;
 
-                                #endregion
+                                return;
                             }
 
+                            #endregion
+
+                            //摆渡车 定位去 取货点
+                            //小车到达摆渡车后短暂等待再开始定位
+                            if (!_M.LockFerryAndAction(trans, trans.take_ferry_id, trans.take_track_id, track.id, out uint ferryTraid, out string res))
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForFerryMove(trans, trans.take_ferry_id, trans.take_track_id, res);
+                                #endregion
+                                return;
+                            }
+
+                            // 不满足取砖条件 - 至点停
+                            if (!isTileEmptyNeed 
+                                || PubMaster.Track.IsEmtpy(trans.take_track_id)
+                                || PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType))
+                            {
+                                MoveToPos(trans.take_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
+
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierToTrack(trans, trans.take_track_id);
+                                #endregion
+                                return;
+                            }
+
+                            #region [取砖判断]
+                            // 判断是否需要在库存在上砖分割点后,，待车入轨道再生成倒库任务
+                            if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id, trans.goods_id, trans.level, false))
+                            {
+                                MoveToLoc(trans.take_track_id, trans.carrier_id, trans.id, takeTrack.up_split_point);
+
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierToTrack(trans, trans.take_track_id, "移至接力点，准备进行接力倒库");
+                                #endregion
+                                return;
+                            }
+
+                            // 判断是否能执行取砖指令
+                            if (!_M.CheckStockIsableToTake(trans, trans.carrier_id, trans.take_track_id, trans.stock_id))
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierNoTake(trans, trans.take_track_id);
+                                #endregion
+                                return;
+                            }
+
+                            // 获取头部库存判断
+                            Stock takeStock = PubMaster.Goods.GetStockForOut(trans.take_track_id);
+                            if (takeStock == null || takeStock.goods_id != trans.goods_id)
+                            {
+                                _M.SetStatus(trans, TransStatusE.取消, string.Format("[{0}]内的头部库存与任务所需不符", PubMaster.Track.GetTrackName(trans.take_track_id)));
+                                return;
+                            }
+                            _M.SetStock(trans, takeStock.id);
+
+                            // 直接取砖
+                            TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierTake(trans, trans.take_track_id, res);
+                            #endregion
+                            return;
+
+                            #endregion
                         }
+
                     }
                     break;
                 #endregion
@@ -520,7 +466,60 @@ namespace task.trans.transtask
                     // 锁定摆渡车
                     if (!AllocateGiveFerry(trans, trans.AllocateFerryType, track)) return;
 
-                    if (isLoad && isStopNoOrder)
+                    #region 取消任务
+                    if (!isTileEmptyNeed
+                        && isStopNoOrder
+                        && mTimer.IsTimeOutAndReset(TimerTag.TileNeedCancel, trans.id, 20))
+                    {
+                        // 优先回原轨道
+                        if (isLoad)
+                        {
+                            if (!_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result)
+                            && !PubMaster.Goods.IsTrackHaveStockInTopPosition(trans.take_track_id)
+                            && !PubTask.Carrier.HaveCarrierMoveTopInTrackUpTop(trans.carrier_id, trans.take_track_id))
+                            {
+                                _M.SetStatus(trans, TransStatusE.取消, "工位非无货需求，取消任务，返回原轨道");
+                                return;
+                            }
+                        }
+
+                        // 再者到空轨道
+                        List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
+                        List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(trackids, trans.take_track_id);
+                        foreach (uint t in tids)
+                        {
+                            if (!_M.IsTraInTrans(t)
+                                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.take_ferry_id, t)
+                                && !PubTask.Carrier.HaveInTrack(t, trans.carrier_id))
+                            {
+                                // 有货的话就只能找空轨道
+                                if (isLoad && !PubMaster.Track.IsEmtyp4Up(t))
+                                {
+                                    continue;
+                                }
+
+                                if (_M.SetTakeSite(trans, t))
+                                {
+                                    _M.SetStatus(trans, TransStatusE.取消, "工位非无货需求，取消任务，寻找空轨道");
+
+                                    PubMaster.Warn.RemoveDevWarn(WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id);
+                                    return;
+                                }
+                            }
+                        }
+
+                        PubMaster.Warn.AddDevWarn(trans.area_id, trans.line, WarningTypeE.UpTileEmptyNeedAndNoBack, (ushort)trans.carrier_id, trans.id);
+
+                        #region 【任务步骤记录】
+                        _M.SetStepLog(trans, false, 1401, string.Format("砖机工位非无货需求，且运输车[ {0} ]无可回轨轨道，等待砖机工位重新需求或有合适轨道可回轨；",
+                            PubMaster.Device.GetDeviceName(trans.carrier_id)));
+                        #endregion
+                        return;
+                    }
+
+                    #endregion
+
+                    if (isTileEmptyNeed && isLoad && isStopNoOrder)
                     {
                         if (PubTask.Ferry.IsLoad(trans.give_ferry_id))
                         {
@@ -931,7 +930,7 @@ namespace task.trans.transtask
             bool isStopNoOrder = carrier.IsStopNoOrder(out string result);
             bool isTileEmptyNeed = PubTask.TileLifter.IsHaveEmptyNeed(trans.tilelifter_id, trans.give_track_id);
 
-            //有需求，取货了，回去取砖流程
+            //有需求，取货了，回去放砖流程
             if (!PubTask.TileLifter.IsTileCutover(trans.tilelifter_id)
                 && isLoad
                 && isStopNoOrder

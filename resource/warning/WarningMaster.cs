@@ -231,11 +231,6 @@ namespace task
             {
                 mlog.Error(true, e.Message, e);
             }
-            finally
-            {
-                Monitor.Exit(_obj);
-            }
-
 
             if (warn != null)
             {
