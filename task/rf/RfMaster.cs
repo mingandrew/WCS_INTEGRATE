@@ -33,7 +33,7 @@ namespace task.rf
         private RfServer mServer;
         private bool mIsServerStarting;
         private DictionPack mDicPack;
-        internal Log _mLog;
+        internal Log _mLog, _mPdaErrorLog;
         private object _obj;
         private bool isrunning = true;
         private Thread mTread;
@@ -50,10 +50,13 @@ namespace task.rf
         {
             _obj = new object();
             _mLog = (Log)new LogFactory().GetLog("RfAction", false);
+            _mPdaErrorLog = (Log)new LogFactory().GetLog("平板报错信息", false);
+
             mMsg = new MsgAction();
             mClient = new List<RfClient>();
             Messenger.Default.Register<RfMsgMod>(this, MsgToken.RfMsgUpdate, RfMsgUpdate);
             Messenger.Default.Register<string>(this, MsgToken.RefreshRfTrackPos, RefreshRfTrackPos);
+
         }
 
         public void Start()
@@ -619,6 +622,12 @@ namespace task.rf
                         break;
                     #endregion
 
+                    #region[平板报错日志记录]
+
+                    case FunTag.PdaErrorReceive:
+                        PdaErrorReceive(msg);
+                        break;
+                    #endregion
                 }
 
                 _mLog?.Cmd(true, msg?.MEID + " : " + msg?.Pack?.Function);
@@ -2751,6 +2760,19 @@ namespace task.rf
 
             SendSucc2Rf(msg.MEID, FunTag.DoCustomTask, "ok");
         }
+        #endregion
+
+        #region[平板错误日志记录]
+
+        private void PdaErrorReceive(RfMsgMod msg)
+        {
+            if (msg.IsPackHaveData())
+            {
+                _mPdaErrorLog.Error(true,msg.MEID + " ====== " + msg.Pack.Data);
+                SendSucc2Rf(msg.MEID, FunTag.PdaErrorReceive, "ok");
+            }
+        }
+
         #endregion
 
         #endregion

@@ -165,5 +165,11 @@
         public const string CheckIsBroTrack = nameof(CheckIsBroTrack);
         public const string DoCustomTask = nameof(DoCustomTask);
         #endregion
+
+        #region[平板报错日志记录]
+
+        public const string PdaErrorReceive = nameof(PdaErrorReceive);
+
+        #endregion
     }
 }
