@@ -1444,44 +1444,96 @@ namespace task.device
                         #endregion
                         break;
 
-                    case DevCarrierTaskE.倒库:
-                        #region 倒库 - 暂停用
-                        //if (track.NotInType(TrackTypeE.储砖_出)) //最大定位RFID
-                        //{
-                        //    result = "须在出库轨道上执行！";
-                        //    return false;
-                        //}
+                    case DevCarrierTaskE.出库方向倒库:
+                        #region 倒库
+                        if (!track.IsStoreTrack())
+                        {
+                            result = "只能在储砖轨道内执行！";
+                            return false;
+                        }
 
-                        //if (!PubMaster.Goods.ExistStockInTrack(track.brother_track_id))
-                        //{
-                        //    result = "对应的入库轨道并没有库存信息！";
-                        //    return false;
-                        //}
+                        if (carPoint == 0)
+                        {
+                            result = "运输车脉冲反馈异常！";
+                            return false;
+                        }
 
-                        //if (!PubMaster.Track.IsTrackFull(track.brother_track_id))
-                        //{
-                        //    result = "对应的入库轨道还没有满砖！";
-                        //    return false;
-                        //}
+                        #region 载砖
+                        if (IsLoad(devid))
+                        {
+                            // 获取出库方向上临近的库存
+                            Stock stk = PubMaster.Goods.GetStockInfrontStockPoint(track.id, carPoint);
+                            // 计算下一车位置
+                            if (!PubMaster.Goods.CalculateNextLocByStock(track.is_take_forward ? DevMoveDirectionE.前进 : DevMoveDirectionE.后退, stk, out toPoint, devid))
+                            {
+                                toPoint = track.is_take_forward ? track.limit_point : track.limit_point_up;
+                            }
 
-                        //if (!PubTask.Trans.CheckTrackCanDoSort(track.id, track.brother_track_id, devid, out result))
-                        //{
-                        //    return false;
-                        //}
+                            toTrackid = track.id;
+                            checkTra = track.ferry_up_code;
+                            order = DevCarrierOrderE.放砖指令;
+                            if ((track.is_take_forward && carPoint <= toPoint) ||
+                                (!track.is_take_forward && carPoint >= toPoint))
+                            {
+                                // 原地放砖
+                                memo = string.Format("{0}；倒库脉冲判断[ {1} > {2} ]-原地放砖", memo, carPoint, toPoint);
+                                toPoint = 0;
+                                overPoint = 0;
+                                break;
+                            }
+                            else
+                            {
+                                // 定位放砖
+                                memo = string.Format("{0}；倒库脉冲判断[ {1} > {2} ]-定位放砖", memo, carPoint, toPoint);
+                                overPoint = toPoint;
+                                break;
+                            }
 
-                        //order = DevCarrierOrderE.倒库指令;
-                        //checkTra = track.ferry_down_code;
-                        //moveCount = (byte)PubMaster.Goods.GetTrackStockCount(track.brother_track_id);
-
-                        //if (PubMaster.Goods.ExistStockInTrack(track.id))
-                        //{
-                        //    byte UpSortCount = (byte)PubMaster.Goods.GetTrackStockCount(track.id);
-                        //    moveCount += UpSortCount;
-                        //}
-
-                        //memo = string.Format("[ {0} ], 倒库数量[ {1} ]", memo, moveCount);
+                        }
                         #endregion
-                        break;
+
+                        #region 空砖
+                        if (IsNotLoad(devid))
+                        {
+                            // 按反方向加点距离，防止获取到当前顶上库存
+                            carPoint = (ushort)(track.is_take_forward ? (carPoint + 10) : (carPoint - 10));
+
+                            // 取砖库存
+                            Stock stkT = PubMaster.Goods.GetStockBehindStockPoint(track.id, carPoint);
+                            if (stkT == null || stkT.location == 0)
+                            {
+                                result = "小车当前位置范围内无可倒库的库存！";
+                                return false;
+                            }
+                            toPoint = stkT.location;
+
+                            // 获取出库方向上临近的库存
+                            Stock stkG = PubMaster.Goods.GetStockInfrontStockPoint(track.id, toPoint);
+                            // 计算下一车位置
+                            if (!PubMaster.Goods.CalculateNextLocByStock(track.is_take_forward ? DevMoveDirectionE.前进 : DevMoveDirectionE.后退, stkG, out overPoint, devid))
+                            {
+                                overPoint = track.is_take_forward ? track.limit_point : track.limit_point_up;
+                            }
+
+                            // 取放位置间距  ≈173CM
+                            ushort dis = 100;
+                            if (Math.Abs(toPoint - overPoint) <= dis)
+                            {
+                                result = "倒库间距小于 一米七！";
+                                return false;
+                            }
+
+                            toTrackid = track.id;
+                            checkTra = track.ferry_up_code;
+                            order = DevCarrierOrderE.倒库指令;
+                            memo = string.Format("{0}；倒库脉冲判断[ {1} > {2} ]-倒库指令", memo, carPoint, toPoint);
+                            break;
+                        }
+                        #endregion
+
+                        result = "运输车载货状态异常！";
+                        return false;
+                        #endregion
 
                     case DevCarrierTaskE.原地上升取砖:
                         #region 顶升取货

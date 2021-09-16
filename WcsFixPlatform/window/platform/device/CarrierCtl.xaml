@@ -90,7 +90,7 @@
                         </MenuItem>
 
                         <MenuItem Header="其他" Visibility="{Binding Admin,Converter={StaticResource Boolean2VisibilityConverter}}" >
-                            <!--<MenuItem Header="倒库" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />-->
+                            <MenuItem Header="出库方向倒库(1车)" Tag="2" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                             <MenuItem Header="清空信息" Tag="104" Command="{Binding SendCarrierTaskCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" />
                         </MenuItem>
                         
