@@ -257,7 +257,7 @@ namespace task.trans.transtask
                         bool isback = track.ferry_down_code > targetCode;
 
                         // 下一车库存脉冲
-                        bool canMove = PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, trans.carrier_id, trans.give_track_id, trans.stock_id, out ushort stkLoc);
+                        bool canMove = PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后 : DevMoveDirectionE.前, trans.carrier_id, trans.give_track_id, trans.stock_id, out ushort stkLoc);
 
                         #endregion
 

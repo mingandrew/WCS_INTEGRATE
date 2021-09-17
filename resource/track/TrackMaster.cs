@@ -1883,7 +1883,7 @@ namespace resource.track
             // 是否已到设定的库存数上限
             bool isLimit = PubMaster.Goods.IsMoreThanFullQty(track.area, track.line, track.id);
             // 是否可存下一车
-            bool isNext = PubMaster.Goods.CalculateNextLocByDir(track.is_give_back ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, 0, track.id, 0, out ushort stkLoc);
+            bool isNext = PubMaster.Goods.CalculateNextLocByDir(track.is_give_back ? DevMoveDirectionE.后 : DevMoveDirectionE.前, 0, track.id, 0, out ushort stkLoc);
 
             // 有砖判断
             if (track.StockStatus != TrackStockStatusE.有砖)
@@ -2295,7 +2295,7 @@ namespace resource.track
             ushort reset = 0;
             switch (md)
             {
-                case DevMoveDirectionE.前进:
+                case DevMoveDirectionE.前:
                     if (track.Type == TrackTypeE.下砖轨道 && track.ferry_up_code < 200)
                     {
                         reset = GetCarrierPos(track.area, CarrierPosE.下砖机复位点);
@@ -2318,7 +2318,7 @@ namespace resource.track
                     }
                     break;
 
-                case DevMoveDirectionE.后退:
+                case DevMoveDirectionE.后:
                     if (track.Type == TrackTypeE.上砖轨道 && track.ferry_up_code > 500)
                     {
                         reset = GetCarrierPos(track.area, CarrierPosE.上砖机复位点);

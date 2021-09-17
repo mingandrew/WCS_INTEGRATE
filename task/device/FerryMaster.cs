@@ -1205,7 +1205,7 @@ namespace task.device
                 return false;
             }
 
-            if (md != DevMoveDirectionE.前进 && md != DevMoveDirectionE.后退)
+            if (md != DevMoveDirectionE.前 && md != DevMoveDirectionE.后)
             {
                 res = "请选择指令方向";
                 return false;

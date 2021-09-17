@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using tool.appconfig;
 using tool.mlog;
 
 namespace resource.goods
@@ -2990,42 +2991,87 @@ namespace resource.goods
             Track track = PubMaster.Track.GetTrack(trackid);
             Stock stk; // 计算库存
             ushort safe = 0; // 安全间隔
-            ushort limit = 0; // 轨道尽头
+            bool isHalve = GlobalWcsDataConfig.BigConifg.IsHalveTrack(track.area, track.line); // 是否中分轨道
+
             switch (md)
             {
-                case DevMoveDirectionE.前进:
+                case DevMoveDirectionE.前:
                     stk = GetStockInLocMin(trackid, carstockid);
                     if (stk == null)
                     {
-                        location = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
+                        // 无库存时 - 判断第一车是否存中间
+                        if (isHalve)
+                        {
+                            location = track.split_point;
+                        }
+                        else
+                        {
+                            location = track.limit_point_up;
+                        }
+
                         return true;
                     }
-                    safe = GetStackSafe(stk.goods_id, carrierid);
-                    limit = (track.Type == TrackTypeE.储砖_出 ? track.split_point : track.limit_point);
-                    location = (ushort)(stk.location - safe);
-                    if (location < limit)
+                    else
                     {
-                        location = 0;
-                        return false;
-                    }
-                    return true;
+                        safe = GetStackSafe(stk.goods_id, carrierid);
+                        location = (ushort)(stk.location - safe);
+                        // 有库存时 - 判断下一车是否存中间
+                        if (isHalve)
+                        {
+                            if (location > track.split_point)
+                            {
+                                location = track.split_point;
+                                return true;
+                            }
+                        }
 
-                case DevMoveDirectionE.后退:
+                        if (location < track.limit_point)
+                        {
+                            location = 0;
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                case DevMoveDirectionE.后:
                     stk = GetStockInLocMax(trackid, carstockid);
                     if (stk == null)
                     {
-                        location = (track.Type == TrackTypeE.储砖_出 ? track.split_point : track.limit_point);
+                        // 无库存时 - 判断第一车是否存中间
+                        if (isHalve)
+                        {
+                            location = track.split_point;
+                        }
+                        else
+                        {
+                            location = track.limit_point;
+                        }
+
                         return true;
                     }
-                    safe = GetStackSafe(stk.goods_id, carrierid);
-                    limit = (track.Type == TrackTypeE.储砖_入 ? track.split_point : track.limit_point_up);
-                    location = (ushort)(stk.location + safe);
-                    if (location > limit)
+                    else
                     {
-                        location = 0;
-                        return false;
+                        safe = GetStackSafe(stk.goods_id, carrierid);
+                        location = (ushort)(stk.location + safe);
+                        // 有库存时 - 判断下一车是否存中间
+                        if (isHalve)
+                        {
+                            if (location < track.split_point)
+                            {
+                                location = track.split_point;
+                                return true;
+                            }
+                        }
+
+                        if (location > track.limit_point_up)
+                        {
+                            location = 0;
+                            return false;
+                        }
+
+                        return true;
                     }
-                    return true;
 
                 default:
                     location = 0;
@@ -3035,7 +3081,7 @@ namespace resource.goods
         }
 
         /// <summary>
-        /// 获取指定库存 前/后 下一车位坐标
+        /// 获取指定库存的 前面/后面 下一车位坐标
         /// </summary>
         /// <param name="md"></param>
         /// <param name="stk"></param>
@@ -3052,11 +3098,11 @@ namespace resource.goods
             ushort safe = GetStackSafe(stk.goods_id, carrierid); // 安全间隔
             switch (md)
             {
-                case DevMoveDirectionE.前进:
+                case DevMoveDirectionE.前:
                     location = (ushort)(stk.location + safe);
                     return true;
 
-                case DevMoveDirectionE.后退:
+                case DevMoveDirectionE.后:
                     location = (ushort)(stk.location - safe);
                     return true;
 

@@ -98,8 +98,8 @@
     public enum DevMoveDirectionE
     {
         无,
-        前进,
-        后退
+        前,
+        后
     }
 
     public enum LevelTypeE

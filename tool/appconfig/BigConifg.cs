@@ -16,10 +16,10 @@ namespace tool.appconfig
         /// 车辆转移服务检测超时任务时间
         /// </summary>
         public int MoveCarWaitOverTime { set; get; } = 60;
-        public int TileRefreshTime { set; get; } = 1000;
-        public int TileLiveTime { set; get; } = 1000;
-        public int TileInvaTime { set; get; } = 1000;
-        public int TileOtherTime { set; get; } = 1000;
+
+        /// <summary>
+        /// 砖机需求刷新时间
+        /// </summary>
         public int TileNeedRefreshTime { set; get; } = 1000;
 
         /// <summary>
@@ -171,6 +171,17 @@ namespace tool.appconfig
             return GetItem(areaid, lineid)?.ReturnDevBackToTrack ?? false;
         }
 
+        /// <summary>
+        /// 是否中分轨道
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="lineid"></param>
+        /// <returns></returns>
+        public bool IsHalveTrack(uint areaid, ushort lineid)
+        {
+            return GetItem(areaid, lineid)?.HalveTrack ?? false;
+        }
+
     }
 
     public class BigConfigItem
@@ -224,5 +235,10 @@ namespace tool.appconfig
         /// 上砖流程中是否执行 还车回轨 流程
         /// </summary>
         public bool ReturnDevBackToTrack { set; get; } = false;
+
+        /// <summary>
+        /// 是否中分轨道
+        /// </summary>
+        public bool HalveTrack { set; get; } = false;
     }
 }

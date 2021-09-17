@@ -213,7 +213,7 @@ namespace task.trans.transtask
             bool isback = PubMaster.Track.IsGiveBackTrack(trackID);
 
             // 判断下一车库存脉冲
-            if (!PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后退 : DevMoveDirectionE.前进, trans.carrier_id, trackID, trans.stock_id, out stkLoc))
+            if (!PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后 : DevMoveDirectionE.前, trans.carrier_id, trackID, trans.stock_id, out stkLoc))
             {
                 // 设满砖
                 PubMaster.Track.SetStockStatusAuto(trackID, TrackStockStatusE.满砖, "计算坐标值无法存入下一车");
@@ -910,7 +910,7 @@ namespace task.trans.transtask
             bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
             Stock stk = PubMaster.Goods.GetStockInfrontStockPoint(trackid, splitPoint);
             // 计算下一车位置
-            if (PubMaster.Goods.CalculateNextLocByStock(isforward ? DevMoveDirectionE.前进 : DevMoveDirectionE.后退, stk, out loc, carrierid))
+            if (PubMaster.Goods.CalculateNextLocByStock(isforward ? DevMoveDirectionE.前 : DevMoveDirectionE.后, stk, out loc, carrierid))
             {
                 // 判断是否超过分界点
                 if (isforward ? (loc > splitPoint) : (loc < splitPoint))

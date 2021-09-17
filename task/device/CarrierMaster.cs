@@ -1111,7 +1111,7 @@ namespace task.device
                         if (toTrack.IsStoreTrack())
                         {
                             carstkid = PubMaster.DevConfig.GetCarrierStockId(devid);
-                            if (!PubMaster.Goods.CalculateNextLocByDir(DevMoveDirectionE.后退, devid, toTrackid, carstkid, out stkloc))
+                            if (!PubMaster.Goods.CalculateNextLocByDir(DevMoveDirectionE.后, devid, toTrackid, carstkid, out stkloc))
                             {
                                 result = "无合适存砖坐标！";
                                 return false;
@@ -1239,7 +1239,7 @@ namespace task.device
                         if (toTrack.IsStoreTrack())
                         {
                             carstkid = PubMaster.DevConfig.GetCarrierStockId(devid);
-                            if (!PubMaster.Goods.CalculateNextLocByDir(DevMoveDirectionE.前进, devid, toTrackid, carstkid, out stkloc))
+                            if (!PubMaster.Goods.CalculateNextLocByDir(DevMoveDirectionE.前, devid, toTrackid, carstkid, out stkloc))
                             {
                                 result = "无合适存砖坐标！";
                                 return false;
@@ -1464,7 +1464,7 @@ namespace task.device
                             // 获取出库方向上临近的库存
                             Stock stk = PubMaster.Goods.GetStockInfrontStockPoint(track.id, carPoint);
                             // 计算下一车位置
-                            if (!PubMaster.Goods.CalculateNextLocByStock(track.is_take_forward ? DevMoveDirectionE.前进 : DevMoveDirectionE.后退, stk, out toPoint, devid))
+                            if (!PubMaster.Goods.CalculateNextLocByStock(track.is_take_forward ? DevMoveDirectionE.前 : DevMoveDirectionE.后, stk, out toPoint, devid))
                             {
                                 toPoint = track.is_take_forward ? track.limit_point : track.limit_point_up;
                             }
@@ -1510,7 +1510,7 @@ namespace task.device
                             // 获取出库方向上临近的库存
                             Stock stkG = PubMaster.Goods.GetStockInfrontStockPoint(track.id, toPoint);
                             // 计算下一车位置
-                            if (!PubMaster.Goods.CalculateNextLocByStock(track.is_take_forward ? DevMoveDirectionE.前进 : DevMoveDirectionE.后退, stkG, out overPoint, devid))
+                            if (!PubMaster.Goods.CalculateNextLocByStock(track.is_take_forward ? DevMoveDirectionE.前 : DevMoveDirectionE.后, stkG, out overPoint, devid))
                             {
                                 overPoint = track.is_take_forward ? track.limit_point : track.limit_point_up;
                             }
@@ -1889,7 +1889,7 @@ namespace task.device
                 return false;
             }
 
-            if (md != DevMoveDirectionE.前进 && md != DevMoveDirectionE.后退)
+            if (md != DevMoveDirectionE.前 && md != DevMoveDirectionE.后)
             {
                 res = "请选择指令方向";
                 return false;
@@ -1936,7 +1936,7 @@ namespace task.device
                 }
 
                 Thread.Sleep(500);
-                task.DoRenew(point, code, md == DevMoveDirectionE.前进 ? CarrierResetE.前进初始化 : CarrierResetE.后退初始化);
+                task.DoRenew(point, code, md == DevMoveDirectionE.前 ? CarrierResetE.前进初始化 : CarrierResetE.后退初始化);
             }
             finally
             {
