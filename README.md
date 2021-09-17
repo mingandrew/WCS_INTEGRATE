@@ -866,3 +866,14 @@ ALTER TABLE `stock`
 ADD COLUMN `prior_num` tinyint(3) UNSIGNED NULL COMMENT '砖机急单类型【不同急单数字分开即可】';
 ```
 
+
+
+
+
+## 2021.09.17 [2.1] 新增小车报警 - 标识码不符
+
+```mysql
+UPDATE `2021_wcs_xd`.`diction_dtl` SET `diction_id` = 3, `code` = 'WarningA4X6', `name` = '倒库时发送与接收的标识码不相等', `int_value` = NULL, `bool_value` = NULL, `string_value` = '倒库时发送与接收的标识码不相等：请尝试终止或重新连接通讯', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 130;
+
+```
+
