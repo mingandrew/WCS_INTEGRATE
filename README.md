@@ -716,7 +716,7 @@ UPDATE `diction_dtl` SET `string_value` = '小车倒库中但是小车有货，�
 UPDATE `diction_dtl` SET `name` = '取砖任务被中断，有砖光电未触发。请先检查有砖光电，确保取砖时能触发', `string_value` = '取砖任务被中断，有砖光电未触发。请先检查有砖光电，确保取砖时能触发' WHERE `code` = 'WarningA4X0';
 ```
 
-## 2021.09.2 [2.0] 砖机混砖作业时需要优先找空位
+## 2021.09.2 [2.0] 急单
 
 ```mysql
 ALTER TABLE `config_tilelifter` 
