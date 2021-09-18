@@ -2709,6 +2709,39 @@ namespace task.device
             return DevList.Exists(c => c.DevConfig.WorkMode == TileWorkModeE.下砖 && c.DevConfig.last_track_id == trackid && c.ConnStatus == SocketConnectStatusE.通信正常);
         }
 
+        /// <summary>
+        /// 砖机工位是否存在空砖需求
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsTileTrackEmptyNeed(uint trackid, ushort trackpoint, out string result)
+        {
+            if (trackpoint == 0)
+            {
+                result = "未配置砖机工位定位脉冲";
+                return false;
+            }
+
+            // 左
+            TileLifterTask leftT = DevList.Find(c => c.DevConfig.left_track_id == trackid && c.DevConfig.left_track_point == trackpoint);
+            if (leftT != null)
+            {
+                result = "需要工位有空砖需求";
+                return leftT.IsEmpty_1 && leftT.IsNeed_1;
+            }
+
+            // 右
+            TileLifterTask rightT = DevList.Find(c => c.DevConfig.right_track_id == trackid && c.DevConfig.right_track_point == trackpoint);
+            if (rightT != null)
+            {
+                result = "需要工位有空砖需求";
+                return rightT.IsEmpty_2 && rightT.IsNeed_2;
+            }
+
+            result = "无砖机工位数据";
+            return false;
+        }
+
         #endregion
 
         #region[更新品种信息]

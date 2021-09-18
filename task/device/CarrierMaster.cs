@@ -977,10 +977,14 @@ namespace task.device
                     return false;
                 }
 
-                // 上升/下降 不能发任何指令
-                if (carriertask != DevCarrierTaskE.终止 && IsLoadLifting(devid))
+                // 上升/下降 不能发指令
+                if (IsLoadLifting(devid)
+                    && carriertask != DevCarrierTaskE.原地上升取砖
+                    && carriertask != DevCarrierTaskE.原地下降放砖
+                    && carriertask != DevCarrierTaskE.测试上升
+                    && carriertask != DevCarrierTaskE.测试下降)
                 {
-                    result = "小车上升中/下降中，请确认或终止";
+                    result = "小车上升中/下降中";
                     return false;
                 }
 
@@ -1126,6 +1130,12 @@ namespace task.device
                             return false;
                         }
 
+                        // 砖机工位需要需求才可用
+                        if (toTrack.IsTileTrack() && !PubTask.TileLifter.IsTileTrackEmptyNeed(toTrack.id, toPoint, out result))
+                        {
+                            return false;
+                        }
+
                         checkTra = toTrack.ferry_up_code;
                         overPoint = toTrack.limit_point_up;
                         order = DevCarrierOrderE.放砖指令;
@@ -1251,6 +1261,12 @@ namespace task.device
                         if (carPoint >= toPoint)
                         {
                             result = "不能再前进了！";
+                            return false;
+                        }
+
+                        // 砖机工位需要需求才可用
+                        if (toTrack.IsTileTrack() && !PubTask.TileLifter.IsTileTrackEmptyNeed(toTrack.id, toPoint, out result))
+                        {
                             return false;
                         }
 

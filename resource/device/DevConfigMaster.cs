@@ -1150,6 +1150,9 @@ namespace resource.device
                 backup_dev.goods_id = need_dev.goods_id;
                 backup_dev.pre_goodid = need_dev.pre_goodid;
                 backup_dev.alter_dev_id = need_dev.id;
+                backup_dev.level = need_dev.level;
+                backup_dev.LevelType = need_dev.LevelType;
+                backup_dev.pre_level = need_dev.pre_level;
 
                 if (PubMaster.Mod.DevConfigSql.EditConfigTileLifter(backup_dev))
                 {
@@ -1376,7 +1379,11 @@ namespace resource.device
             else return false;
         }
 
-        //获取砖机显示的类型
+        /// <summary>
+        /// 获取砖机显示的类型
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <returns></returns>
         public LevelTypeE GetConfigLevelType(uint tileid)
         {
             return ConfigTileLifterList.Find(c => c.id == tileid)?.LevelType ?? LevelTypeE.TileLevel;
