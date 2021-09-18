@@ -204,7 +204,7 @@ can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, 
                     sql += string.Format("strategy_in = {0}, strategy_out = {1}, work_type = {2}", dev.strategy_in, dev.strategy_out, dev.work_type);
                     break;
                 case TileConfigUpdateE.Level:
-                    sql += string.Format("level = {0}", dev.level);
+                    sql += string.Format("level = {0}, level_type = {1}, pre_level = {2}", dev.level, dev.level_type, dev.pre_level);
                     break;
                 case TileConfigUpdateE.Prior:
                     sql += string.Format("prior = {0}", dev.prior);

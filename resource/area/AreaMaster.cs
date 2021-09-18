@@ -445,6 +445,34 @@ namespace resource.area
         }
 
         /// <summary>
+        /// 判断是否存在摆渡车同时满砖配置的轨道信息
+        /// </summary>
+        /// <param name="trackids"></param>
+        /// <returns></returns>
+        public bool ExistFerryWithTracks(params uint[] trackids)
+        {
+            bool isexist = false;
+
+            List<uint> ferryids = PubMaster.Device.GetDevIds(DeviceTypeE.前摆渡, DeviceTypeE.后摆渡);
+
+            foreach (var ferryid in ferryids)
+            {
+                foreach (var trackid in trackids)
+                {
+                    if(!AreaDevTraList.Exists(c => c.device_id == ferryid && c.track_id == trackid))
+                    {
+                        continue;
+                    }
+                }
+
+                isexist = true;
+                break;
+            }
+
+            return isexist;
+        }
+
+        /// <summary>
         /// 获取摆渡车ID或摆渡车轨道的ID
         /// </summary>
         /// <param name="trans"></param>

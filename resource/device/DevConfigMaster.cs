@@ -781,6 +781,7 @@ namespace resource.device
                 if (dev.WorkMode == TileWorkModeE.上砖)
                 {
                     dev.pre_level = (byte)level;
+                    PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Level);
                 }
 
                 PubMaster.Mod.DevConfigSql.EditConfigTileLifter(dev, TileConfigUpdateE.Goods);
@@ -1153,6 +1154,7 @@ namespace resource.device
                 backup_dev.level = need_dev.level;
                 backup_dev.LevelType = need_dev.LevelType;
                 backup_dev.pre_level = need_dev.pre_level;
+                PubMaster.Mod.DevConfigSql.EditConfigTileLifter(backup_dev, TileConfigUpdateE.Level);
 
                 if (PubMaster.Mod.DevConfigSql.EditConfigTileLifter(backup_dev))
                 {

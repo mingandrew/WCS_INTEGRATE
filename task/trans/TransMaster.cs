@@ -462,6 +462,12 @@ namespace task.trans
                 return false;
             }
 
+            if(!PubMaster.Area.ExistFerryWithTracks(fromtrackid, totrackid))
+            {
+                result = string.Format("当前没有摆渡车配置运输车所在轨道和卸车轨道");
+                return false;
+            }
+
             uint transid = AddTransWithoutLock(fromtrack.area, 0, TransTypeE.移车任务, 0, 0, 0, fromtrackid, totrackid, TransStatusE.移车中, carrierid, fromtrack.line);
 
             if (transid > 0)
@@ -545,6 +551,13 @@ namespace task.trans
                     result = string.Format("请选择卸货轨道对应的砖机");
                     return false;
                 }
+            }
+            
+
+            if (!PubMaster.Area.ExistFerryWithTracks(fromtrackid, totrackid))
+            {
+                result = string.Format("当前没有摆渡车配置取货轨道和卸货轨道");
+                return false;
             }
 
             TransStatusE transStatusE = TransStatusE.调度设备;
