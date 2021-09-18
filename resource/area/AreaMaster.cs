@@ -626,7 +626,7 @@ namespace resource.area
             List<uint> trackids = PubMaster.Track.GetAreaTrackIds(areaid, tracktype);
             trackids.AddRange(PubMaster.Track.GetAreaTrackIds(areaid, TrackTypeE.储砖_出入));
             trackids.AddRange(PubMaster.Track.GetAreaTrackIds(areaid, tiletrtype));
-            ushort prior = (ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == ferry.id).Max(c => c.prior);
+            ushort prior = (ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == ferry.id).Max(c => (uint?)c.prior).GetValueOrDefault(0);
             prior++;
             AreaDeviceTrack areatradev;
 
