@@ -528,7 +528,7 @@ namespace wcs.ViewModel
                      .Initialize<TrackSelectViewModel>((vm) =>
                      {
                          vm.SetAreaFilter(0, true);
-                         vm.QueryTrack(new List<TrackTypeE>() { TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 });
+                         vm.QueryTrack(TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
                      }).GetResultAsync<DialogResult>();
                     if (result.p1 is Track tra)
                     {

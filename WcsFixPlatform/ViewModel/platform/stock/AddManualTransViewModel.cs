@@ -6,11 +6,14 @@ using HandyControl.Tools.Extension;
 using module.device;
 using module.track;
 using module.window;
+using resource;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using task;
 using task.task;
+using wcs.Data.Model;
 using wcs.Dialog;
 
 namespace wcs.ViewModel
@@ -19,133 +22,95 @@ namespace wcs.ViewModel
     {
         public AddManualTransViewModel() : base("AddManualTrans")
         {
-
+            M_Stock_Take_Comb = new ObservableCollection<WcsComboBoxItem>();
+            M_Stock_Give_Comb = new ObservableCollection<WcsComboBoxItem>();
         }
 
         #region[字段]      
 
-        private Device in_dev, out_dev;
-        private uint in_goods_id,out_goods_id;
-        private uint in_take_track_id, out_take_track_id;
-        private uint in_give_track_id, out_give_track_id;
-        private uint in_tilelifter_id, out_tilelifter_id;
-        private bool is_in_double_track, is_out_double_track;
+        private Device m_car_car, m_stock_car;
 
-        private uint in_take_left_trackid, in_take_right_trackid;
-        private uint out_give_left_trackid, out_give_right_trackid;
+        private Track m_car_give_track, m_stock_take_track, m_stock_give_track;
 
-        private bool in_left_track_check, in_right_track_check;
-        private bool out_left_track_check, out_right_track_check;
+        private string m_car_car_name, m_stock_car_name, m_car_give_track_name, m_stock_take_track_name, m_stock_give_track_name, m_stock_tile_name;
+
+        private ObservableCollection<WcsComboBoxItem> m_stock_take_comb, m_stock_give_comb;
+        private WcsComboBoxItem m_stock_take_tile, m_stock_give_tile;
+        private bool m_stock_take_tile_show, m_stock_give_tile_show;
+
         #endregion
 
         #region[属性]
-
-        public uint In_Goods_id
+        public string M_Car_Car_Name
         {
-            get => in_goods_id;
-            set => Set(ref in_goods_id, value);
+            get => m_car_car_name;
+            set => Set(ref m_car_car_name, value);
         }
 
-        public uint Out_Goods_id
+        public string M_Stock_Car_Name
         {
-            get => out_goods_id;
-            set => Set(ref out_goods_id, value);
+            get => m_stock_car_name;
+            set => Set(ref m_stock_car_name, value);
         }
 
-        public uint In_Take_track_id
+        public string M_Car_Give_Track_Name
         {
-            get => in_take_track_id;
-            set => Set(ref in_take_track_id, value);
-        }
-        public uint Out_Take_track_id
-        {
-            get => out_take_track_id;
-            set => Set(ref out_take_track_id, value);
+            get => m_car_give_track_name;
+            set => Set(ref m_car_give_track_name, value);
         }
 
-        public uint In_Give_track_id
+        public string M_Stock_Take_Track_Name
         {
-            get => in_give_track_id;
-            set => Set(ref in_give_track_id, value);
+            get => m_stock_take_track_name;
+            set => Set(ref m_stock_take_track_name, value);
         }
 
-        public uint Out_Give_track_id
+        public string M_Stock_Give_Track_Name
         {
-            get => out_give_track_id;
-            set => Set(ref out_give_track_id, value);
+            get => m_stock_give_track_name;
+            set => Set(ref m_stock_give_track_name, value);
         }
 
-        public uint In_Tilelifter_id
+        public string M_Stock_Tile_Name
         {
-            get => in_tilelifter_id;
-            set => Set(ref in_tilelifter_id, value);
+            get => m_stock_tile_name;
+            set => Set(ref m_stock_tile_name, value);
         }
 
-        public uint Out_Tilelifter_id
+        public ObservableCollection<WcsComboBoxItem> M_Stock_Take_Comb
         {
-            get => out_tilelifter_id;
-            set => Set(ref out_tilelifter_id, value);
+            get => m_stock_take_comb;
+            set => Set(ref m_stock_take_comb, value);
         }
 
-        public bool Is_In_Double_Track
+        public ObservableCollection<WcsComboBoxItem> M_Stock_Give_Comb
         {
-            get => is_in_double_track;
-            set => Set(ref is_in_double_track, value);
+            get => m_stock_give_comb;
+            set => Set(ref m_stock_give_comb, value);
         }
 
-        public bool Is_Out_Double_Track
+        public WcsComboBoxItem M_Stock_Take_Tile
         {
-            get => is_out_double_track;
-            set => Set(ref is_out_double_track, value);
+            get => m_stock_take_tile;
+            set => Set(ref m_stock_take_tile, value);
         }
 
-        public uint In_Take_Left_TrackId
+        public WcsComboBoxItem M_Stock_Give_Tile
         {
-            get => in_take_left_trackid;
-            set => Set(ref in_take_left_trackid, value);
+            get => m_stock_give_tile;
+            set => Set(ref m_stock_give_tile, value);
         }
 
-        public uint In_Take_Right_TrackId
+        public bool M_Stock_Take_Tile_Show
         {
-            get => in_take_right_trackid;
-            set => Set(ref in_take_right_trackid, value);
+            get => m_stock_take_tile_show;
+            set => Set(ref m_stock_take_tile_show, value);
         }
 
-
-        public uint Out_Give_Left_TrackId
+        public bool M_Stock_Give_Tile_Show
         {
-            get => out_give_left_trackid;
-            set => Set(ref out_give_left_trackid, value);
-        }
-
-        public uint Out_Give_Right_TrackId
-        {
-            get => out_give_right_trackid;
-            set => Set(ref out_give_right_trackid, value);
-        }
-
-        public bool In_Left_Track_Check
-        {
-            get => in_left_track_check;
-            set => Set(ref in_left_track_check, value);
-        }
-
-        public bool In_Right_Track_Check
-        {
-            get => in_right_track_check;
-            set => Set(ref in_right_track_check, value);
-        }
-
-        public bool Out_Left_Track_Check
-        {
-            get => out_left_track_check;
-            set => Set(ref out_left_track_check, value);
-        }
-
-        public bool Out_Right_Track_Check
-        {
-            get => out_right_track_check;
-            set => Set(ref out_right_track_check, value);
+            get => m_stock_give_tile_show;
+            set => Set(ref m_stock_give_tile_show, value);
         }
         #endregion
 
@@ -159,255 +124,466 @@ namespace wcs.ViewModel
 
         private async void TaskAction(string tag)
         {
-            if(int.TryParse(tag, out int type))
+            switch (tag)
             {
-                switch (type)
-                {
-                    #region[添加手动入库]
+                #region[移车任务]
+                case "m_car_select"://移车运输车选择
+                    SelectCar(true, false, 0, 0);
+                    break;
+                case "m_car_give_track_select"://移车放车轨道选择
+                    SelectMoveCarGiveTrack();
+                    break;
+                case "m_car_clean"://清空信息
+                    CleanMoveCarInput();
+                    break;
+                case "m_car_add_task"://确认添加任务
+                    MoveCarAdd();
+                    break;
 
-                    case 1:
-                        #region[选择下砖机]
-                        DialogResult inresult = await HandyControl.Controls.Dialog.Show<DeviceSelectDialog>()
+                #endregion
+
+
+                #region[移砖任务]
+                case "m_stock_take_track_select":
+                    SelectMoveStockTakeTrack(true);
+                    break;
+                case "m_stock_give_track_select":
+                    SelectMoveStockTakeTrack(false);
+                    break;
+                case "m_stock_car_select":
+                    if (!CheckMoveStockGiveTrack()) return;
+                    SelectCar(false, true, m_stock_give_track.area, m_stock_give_track.line);
+                    break;
+                case "m_stock_clean"://清空信息
+                    CleanMoveStockInput();
+                    break;
+                case "m_stock_add_task"://确认添加任务
+                    MoveStockAdd();
+                    break;
+                default:
+                    break;
+                    #endregion
+            }
+        }
+
+
+        private async void SelectCar(bool selectmovecar, bool filterarea, uint areaid, ushort lineid)
+        {
+            DialogResult result = await HandyControl.Controls.Dialog.Show<DeviceSelectDialog>()
                            .Initialize<DeviceSelectViewModel>((vm) =>
                            {
-                               vm.FilterArea = false;
-                               vm.SetSelectType(DeviceTypeE.下砖机 , DeviceTypeE.砖机);
+                               vm.FilterArea = filterarea;
+                               vm.AreaId = areaid;
+                               vm.LineId = lineid;
+                               vm.SetSelectType(DeviceTypeE.运输车);
                            }).GetResultAsync<DialogResult>();
-                        if (inresult.p1 is bool rs && inresult.p2 is Device indev)
-                        {
-                            ClearInTaskInput();
-                            TileLifterTask inTile = PubTask.TileLifter.GetTileLifter(indev.id);
-                            if (inTile.DevConfig.goods_id == 0)
-                            {
-                                Growl.Warning("请先设置砖机品种！");
-                                return;
-                            }
-                            in_dev = indev;
-                            In_Tilelifter_id = indev.id;
-                            In_Goods_id = inTile.DevConfig.goods_id;
-
-                            if(indev.Type2 == DeviceType2E.单轨)
-                            {
-                                In_Take_track_id = inTile.DevConfig.left_track_id;
-                                Is_In_Double_Track = false;
-                            }
-                            else
-                            {
-                                In_Take_Left_TrackId = inTile.DevConfig.left_track_id;
-                                In_Take_Right_TrackId = inTile.DevConfig.right_track_id;
-                                Is_In_Double_Track = true;
-                            }
-                        }
-                        #endregion
-                        break;
-                    case 2://选择取砖轨道
-
-                        break;
-                    case 3://选择放砖轨道
-                        if (!CheckInDev()) return;
-                        DialogResult ingivetrars = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
-                        .Initialize<TrackSelectViewModel>((vm) =>
-                        {
-                            vm.SetAreaFilter(0, false);
-                            vm.QueryTileTrack(in_dev.area, in_dev.id);
-                        }).GetResultAsync<DialogResult>();
-                        if (ingivetrars.p1 is Track tra)
-                        {
-                            if(tra.StockStatus == TrackStockStatusE.满砖)
-                            {
-                                Growl.Warning("轨道满砖了，请选择其他轨道！");
-                                return;
-                            }
-                            In_Give_track_id = tra.id;
-                        }
-                        break;
-                    case 4://清空信息
-                        ClearInTaskInput();
-                        break;
-                    case 5://添加入库任务
-                        AddInTrans();
-                        break;
-
-                    #endregion
-
-                    #region[添加手动出库]
-
-                    case 6:
-                        #region[选择上砖机]
-                        DialogResult outresult = await HandyControl.Controls.Dialog.Show<DeviceSelectDialog>()
-                           .Initialize<DeviceSelectViewModel>((vm) =>
-                           {
-                               vm.FilterArea = false;
-                               vm.SetSelectType(DeviceTypeE.上砖机, DeviceTypeE.砖机 );
-                           }).GetResultAsync<DialogResult>();
-                        if (outresult.p1 is bool outrs && outresult.p2 is Device outdev)
-                        {
-                            ClearOutTaskInput();
-                            TileLifterTask outTile = PubTask.TileLifter.GetTileLifter(outdev.id);
-                            if(outTile.DevConfig.goods_id == 0)
-                            {
-                                Growl.Warning("请先设置砖机品种！");
-                                return;
-                            }
-                            out_dev = outdev;
-                            Out_Tilelifter_id = outdev.id;
-                            Out_Goods_id = outTile.DevConfig.goods_id;
-                            if(outdev.Type2 == DeviceType2E.单轨)
-                            {
-                                Out_Give_track_id = outTile.DevConfig.left_track_id;
-                                Is_Out_Double_Track = false;
-                            }
-                            else
-                            {
-                                Out_Give_Left_TrackId = outTile.DevConfig.left_track_id;
-                                Out_Give_Right_TrackId = outTile.DevConfig.right_track_id;
-                                Is_Out_Double_Track = true;
-                            }
-                        }
-                        #endregion
-                        break;
-                    case 7://选择取砖轨道
-                        if (!CheckOutDev()) return;
-                        DialogResult outtaketrars = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
-                        .Initialize<TrackSelectViewModel>((vm) =>
-                        {
-                            vm.SetAreaFilter(0, false);
-                            vm.QueryTileTrack(out_dev.area, out_dev.id);
-                        }).GetResultAsync<DialogResult>();
-                        if (outtaketrars.p1 is Track outtaketra)
-                        {
-                            Out_Take_track_id = outtaketra.id;
-                        }
-                        break;
-                    case 8://选择放砖轨道
-
-                        break;
-                    case 9://清空信息
-                        ClearOutTaskInput();
-                        break;
-                    case 10://添加出库任务
-                        AddOutTrans();
-                        break;
-
-                    #endregion
-                }
-            }
-        }
-
-        private void AddInTrans()
-        {
-            if (!CheckInDev()) return;
-            if(in_dev.Type2 == DeviceType2E.双轨)
+            if (result.p2 is Device dev)
             {
-                if(!In_Left_Track_Check && !In_Right_Track_Check)
+                if (selectmovecar)
                 {
-                    Growl.Warning("请选择取砖轨道！");
-                    return;
+                    SelectMoveCarCarrier(dev);
                 }
-            }
-
-            TileLifterTask tile = PubTask.TileLifter.GetTileLifter(in_dev.id);
-            uint taketracid = tile.DevConfig.left_track_id;
-            if(in_dev.Type2 == DeviceType2E.双轨 && In_Right_Track_Check) 
-            {
-                taketracid = tile.DevConfig.right_track_id;
-            }
-
-            if (!PubTask.Trans.AddManualTrans(in_dev.area, in_dev.line, in_dev.id, TransTypeE.手动下砖,
-                tile.DevConfig.goods_id, taketracid, in_give_track_id, TransStatusE.调度设备, out string result))
-            {
-                Growl.Warning(result);
-            }
-            else
-            {
-                Growl.Success("添加成功！");
-                ClearInTaskInput();
-            }
-        }
-
-        private void AddOutTrans()
-        {
-            if (!CheckOutDev()) return;
-            if (out_dev.Type2 == DeviceType2E.双轨)
-            {
-                if (!Out_Left_Track_Check && !Out_Right_Track_Check)
+                else
                 {
-                    Growl.Warning("请选择放砖轨道！");
-                    return;
+                    SelectMoveStockCar(dev);
                 }
-            }
-
-            TileLifterTask tile = PubTask.TileLifter.GetTileLifter(out_dev.id);
-            uint givetrack = tile.DevConfig.left_track_id;
-            if (out_dev.Type2 == DeviceType2E.双轨 && In_Right_Track_Check)
-            {
-                givetrack = tile.DevConfig.right_track_id;
-            }
-
-            if (!PubTask.Trans.AddManualTrans(out_dev.area, out_dev.line, out_dev.id, TransTypeE.手动上砖,
-                tile.DevConfig.goods_id, out_take_track_id, givetrack, TransStatusE.调度设备, out string result))
-            {
-                Growl.Warning(result);
-            }
-            else
-            {
-                Growl.Success("添加成功！");
-                ClearOutTaskInput();
             }
         }
 
-        private bool CheckInDev()
+        #region[移车任务]
+
+        private void CleanMoveCarInput()
         {
-            if(in_dev == null)
+            M_Car_Car_Name = "";
+            M_Car_Give_Track_Name = "";
+            m_car_car = null;
+            m_car_give_track = null;
+        }
+
+        private bool CheckSelectMoveCar()
+        {
+            if (m_car_car == null)
             {
-                Growl.Warning("请先选择下砖机!");
+                Growl.Warning("请先选择运输车！");
                 return false;
             }
+
+            Track cartrack = PubTask.Carrier.GetCarrierTrack(m_car_car.id);
+            if (cartrack == null)
+            {
+                Growl.Warning("运输车当前没有轨道位置信息！");
+                return false;
+            }
+
             return true;
         }
 
-        private bool CheckOutDev()
+        private void SelectMoveCarCarrier(Device dev)
         {
-            if(out_dev == null)
+            m_car_car = dev;
+            M_Car_Car_Name = dev.name;
+
+            m_car_give_track = null;
+            M_Car_Give_Track_Name = "";
+
+        }
+
+        private bool CheckSelectMoveGiveTrack()
+        {
+            if (m_car_give_track == null)
             {
-                Growl.Warning("请先选择上砖机!");
+                Growl.Warning("请先选择卸货轨道点！");
                 return false;
             }
+
             return true;
         }
 
-        private void ClearInTaskInput()
+        private async void SelectMoveCarGiveTrack()
         {
-            in_dev = null;
-            In_Tilelifter_id = 0;
-            In_Goods_id = 0;
-            In_Take_track_id = 0;
-            In_Give_track_id = 0;
-            In_Take_Left_TrackId = 0;
-            In_Take_Right_TrackId = 0;
-            In_Left_Track_Check = false;
-            In_Right_Track_Check = false;
+            if (!CheckSelectMoveCar()) return;
+            Track cartrack = PubTask.Carrier.GetCarrierTrack(m_car_car.id);
+            if (cartrack == null)
+            {
+                Growl.Warning("运输车当前没有轨道位置信息！");
+                return;
+            }
+
+            TrackTypeE[] types;
+            if (cartrack.InType(TrackTypeE.下砖轨道, TrackTypeE.后置摆渡轨道, TrackTypeE.储砖_入))
+            {
+                types = new TrackTypeE[] { TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入 };
+            }
+            else
+            {
+                types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
+            }
+
+
+            DialogResult ingivetrars = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
+                        .Initialize<TrackSelectViewModel>((vm) =>
+                        {
+                            vm.SetAreaFilter(0, false);
+                            vm.QueryAreaTrackType(cartrack.area, cartrack.line, types);
+                        }).GetResultAsync<DialogResult>();
+            if (ingivetrars.p1 is Track tra)
+            {
+                m_car_give_track = tra;
+                M_Car_Give_Track_Name = tra.name;
+            }
         }
 
-        private void ClearOutTaskInput()
+        /// <summary>
+        /// 添加移车任务
+        /// </summary>
+        private void MoveCarAdd()
         {
-            out_dev = null;
-            Out_Tilelifter_id = 0;
-            Out_Goods_id = 0;
-            Out_Take_track_id = 0;
-            Out_Give_track_id = 0;
-            Out_Give_Left_TrackId = 0;
-            Out_Give_Right_TrackId = 0;
-            Out_Left_Track_Check = false;
-            Out_Right_Track_Check = false;
+            if (!CheckSelectMoveCar()) return;
+
+            if (!CheckSelectMoveGiveTrack()) return;
+
+            Track cartrack = PubTask.Carrier.GetCarrierTrack(m_car_car.id);
+            if (!PubTask.Trans.AddMoveCarrierTask(cartrack.id, m_car_give_track.id, m_car_car.id, out string result))
+            {
+                Growl.Warning(result);
+                return;
+            }
+
+            Growl.Success("添加成功！");
+            CleanMoveCarInput();
         }
+        #endregion
+
+        #region[移砖任务]
+
+        /// <summary>
+        /// 清空所以移砖的信息
+        /// </summary>
+        private void CleanMoveStockInput()
+        {
+            M_Stock_Car_Name = "";
+
+            CleanMoveStockTakeInput();
+
+            CleanMoveStockGiveInput();
+        }
+
+        /// <summary>
+        /// 清空取货轨道信息
+        /// </summary>
+        private void CleanMoveStockTakeInput()
+        {
+            m_stock_take_track = null;
+            M_Stock_Take_Track_Name = "";
+            M_Stock_Take_Comb.Clear();
+            M_Stock_Take_Tile_Show = false;
+            M_Stock_Take_Tile = null;
+        }
+
+        /// <summary>
+        /// 清空放货轨道信息
+        /// </summary>
+        private void CleanMoveStockGiveInput()
+        {
+            m_stock_give_track = null;
+            M_Stock_Give_Track_Name = "";
+            M_Stock_Give_Comb.Clear();
+            M_Stock_Give_Tile_Show = false;
+            M_Stock_Give_Tile = null;
+        }
+
+        /// <summary>
+        /// 检测取货轨道信息
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckMoveStockTakeTrack()
+        {
+            if (m_stock_take_track == null)
+            {
+                Growl.Warning("请先选择取货轨道！");
+                return false;
+            }
+
+            Track track = PubMaster.Track.GetTrack(m_stock_take_track.id);
+            if (track.NotInType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
+            {
+                if (track.StockStatus == TrackStockStatusE.空砖)
+                {
+
+                    Growl.Warning("取货轨道无砖");
+                    return false;
+                }
+            }
+            else
+            {
+                if (M_Stock_Take_Tile == null)
+                {
+                    Growl.Warning("请选择取货轨道砖机！");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 检测卸货轨道信息
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckMoveStockGiveTrack()
+        {
+            if (m_stock_give_track == null)
+            {
+                Growl.Warning("请选择卸货轨道！");
+                return false;
+            }
+
+            if (m_stock_take_track.area != m_stock_give_track.area || m_stock_take_track.line != m_stock_give_track.line)
+            {
+                Growl.Warning("请选择同区域线路的卸货轨道！");
+                return false;
+            }
+
+            Track track = PubMaster.Track.GetTrack(m_stock_give_track.id);
+            if ((track.Type == TrackTypeE.储砖_入
+                || (track.Type == TrackTypeE.储砖_出入 && m_stock_take_track.Type == TrackTypeE.下砖轨道))
+                && track.StockStatus == TrackStockStatusE.满砖)
+            {
+                Growl.Warning(string.Format("[ {0} ]入轨道已经满砖，不能放砖！", track.name));
+                return false;
+            }
+
+            if (track.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
+            {
+                if (M_Stock_Give_Tile == null)
+                {
+                    Growl.Warning("请选择卸货轨道砖机！");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 选择轨道
+        /// </summary>
+        /// <param name="selecttake"></param>
+        private async void SelectMoveStockTakeTrack(bool selecttake)
+        {
+            if (!selecttake && !CheckMoveStockTakeTrack()) return;
+
+            TrackTypeE[] types = null;
+
+            //选择卸货轨道
+            if (!selecttake)
+            {
+                if (m_stock_take_track.InType(TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入))
+                {
+                    types = new TrackTypeE[] { TrackTypeE.储砖_出, TrackTypeE.上砖轨道, TrackTypeE.储砖_出入 };
+                }
+                else if (m_stock_take_track.InType(TrackTypeE.下砖轨道))
+                {
+                    types = new TrackTypeE[] { TrackTypeE.储砖_入, TrackTypeE.储砖_出入 };
+                }
+            }
+
+            DialogResult ingivetrars = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()
+                       .Initialize<TrackSelectViewModel>((vm) =>
+                       {
+                           vm.SetAreaFilter(0, false);
+                           vm.QueryTrack(types ?? new TrackTypeE[] { TrackTypeE.储砖_出, TrackTypeE.储砖_出入, TrackTypeE.上砖轨道, TrackTypeE.下砖轨道 });
+                       }).GetResultAsync<DialogResult>();
+            if (ingivetrars.p1 is Track tra)
+            {
+                if (selecttake)
+                {
+                    SetMoveStockTakeTrack(tra);
+                }
+                else
+                {
+                    SetMoveStockGiveTrack(tra);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 设置取货轨道，如果是砖机则设置砖机下拉框信息
+        /// </summary>
+        /// <param name="track"></param>
+        private void SetMoveStockTakeTrack(Track track)
+        {
+            m_stock_take_track = track;
+            M_Stock_Take_Track_Name = track.name;
+
+            M_Stock_Take_Comb.Clear();
+            if (track.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
+            {
+                List<uint> tileids = PubMaster.DevConfig.GetTileInTrack(track.id);
+                foreach (var item in tileids)
+                {
+                    M_Stock_Take_Comb.Add(new WcsComboBoxItem(item, PubMaster.Device.GetDeviceName(item)));
+                }
+
+                if (M_Stock_Take_Comb.Count == 1)
+                {
+                    M_Stock_Take_Tile = M_Stock_Take_Comb[0];
+                }
+            }
+            M_Stock_Take_Tile_Show = M_Stock_Take_Comb.Count > 0;
+
+            if (m_stock_give_track != null && m_stock_give_track.id == m_stock_take_track.id)
+            {
+                CleanMoveStockGiveInput();
+            }
+        }
+
+        /// <summary>
+        /// 设置卸货轨道，同时设置卸货砖机下拉框选择
+        /// </summary>
+        /// <param name="track"></param>
+        private void SetMoveStockGiveTrack(Track track)
+        {
+            if (m_stock_take_track.area != track.area || m_stock_take_track.line != track.line)
+            {
+                Growl.Warning("请选择同区域线路的卸货轨道！");
+                return;
+            }
+
+            m_stock_give_track = track;
+            M_Stock_Give_Track_Name = track.name;
+
+            M_Stock_Give_Comb.Clear();
+            if (track.InType(TrackTypeE.上砖轨道, TrackTypeE.下砖轨道))
+            {
+                List<uint> tileids = PubMaster.DevConfig.GetTileInTrack(track.id);
+                foreach (var item in tileids)
+                {
+                    M_Stock_Give_Comb.Add(new WcsComboBoxItem(item, PubMaster.Device.GetDeviceName(item)));
+                }
+
+                if (M_Stock_Give_Comb.Count == 1)
+                {
+                    M_Stock_Give_Tile = M_Stock_Give_Comb[0];
+                }
+            }
+            M_Stock_Give_Tile_Show = M_Stock_Give_Comb.Count > 0;
+
+            if (m_stock_give_track.id == m_stock_take_track.id)
+            {
+                Growl.Warning("请选择不同于取砖轨道！");
+                CleanMoveStockGiveInput();
+            }
+        }
+
+        /// <summary>
+        /// 选择移转运输车
+        /// </summary>
+        /// <param name="dev"></param>
+        private void SelectMoveStockCar(Device dev)
+        {
+            m_stock_car = null;
+            M_Stock_Car_Name = "";
+
+            if (PubTask.Trans.HaveCarrierInTrans(dev.id))
+            {
+                Growl.Warning(string.Format("[ {0} ]运输车有任务", dev.name));
+                return;
+            }
+            if (!PubTask.Carrier.IsCarrierFree(dev.id))
+            {
+                Growl.Warning(string.Format("[ {0} ]运输车当前状态不正确！", dev.name));
+                return;
+            }
+
+            m_stock_car = dev;
+            M_Stock_Car_Name = dev.name;
+        }
+
+        /// <summary>
+        /// 添加移砖任务
+        /// </summary>
+        private void MoveStockAdd()
+        {
+            if (!CheckMoveStockTakeTrack()) return;
+
+            if (!CheckMoveStockGiveTrack()) return;
+
+            uint tileid = 0;
+            if (m_stock_take_track.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
+            {
+                tileid = m_stock_take_tile.Id;
+            }
+
+            if (m_stock_give_track.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
+            {
+                tileid = m_stock_give_tile.Id;
+            }
+
+            if (!PubTask.Trans.AddMoveStockTask(m_stock_take_track.id, m_stock_give_track.id, tileid, m_car_car?.id ?? 0, out string result))
+            {
+                Growl.Warning(result);
+                return;
+            }
+
+            Growl.Success("添加成功！");
+            CleanMoveStockInput();
+
+        }
+        #endregion
 
         private void TabSelected(RoutedEventArgs orgs)
         {
-            //if (orgs != null && orgs.OriginalSource is System.Windows.Controls.TabControl pro && pro.SelectedItem is System.Windows.Controls.TabItem tab)
-            //{
-            //    Growl.Info(tab.Header.ToString());
-            //}
+            if (orgs != null && orgs.OriginalSource is System.Windows.Controls.TabControl pro && pro.SelectedItem is System.Windows.Controls.TabItem tab)
+            {
+                switch (tab.Tag.ToString())
+                {
+                    case "MOVECAR":
+                        break;
+                    case "MOVESTOCK":
+                        break;
+                }
+            }
         }
 
         #endregion

@@ -102,6 +102,13 @@ namespace resource.track
             return TrackList;
         }
 
+        public List<Track> GetTrackList(uint area_id, ushort line, params TrackTypeE[] types)
+        {
+            return TrackList.FindAll(c => c.area == area_id
+                                                    && c.line == line
+                                                    && c.InType(types));
+        }
+
         public List<Track> GetTrackList(List<uint> areaids)
         {
             return TrackList.FindAll(c => areaids.Contains(c.area));
@@ -182,12 +189,12 @@ namespace resource.track
             return TrackList.Find(c => c.id == track_id)?.type2 ?? 0;
         }
 
-        public List<Track> GetTracksInTypes(uint areaid, List<TrackTypeE> types)
+        public List<Track> GetTracksInTypes(uint areaid, TrackTypeE[] types)
         {
             return TrackList.FindAll(c => c.area == areaid && types.Contains(c.Type));
         }
 
-        public List<Track> GetTracksInTypes(List<TrackTypeE> types)
+        public List<Track> GetTracksInTypes(params TrackTypeE[] types)
         {
             return TrackList.FindAll(c => types.Contains(c.Type));
         }

@@ -17,16 +17,16 @@
                         <hc:EventToCommand Command="{Binding TabSelectedCmd}" PassEventArgsToCommand="True"/>
                     </hc:RoutedEventTrigger>
                 </hc:Interaction.Triggers>
-                <TabItem Header="手动入库" FontSize="22" Height="50" Tag="INTRANS">
+                <TabItem Header="移车任务" FontSize="22" Height="50" Tag="MOVECAR">
                     <Grid Margin="50" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
                             <RowDefinition />
                         </Grid.RowDefinitions>
-                        <Grid>
-                            <TextBlock Grid.Row="0" Text="添加入库任务" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" Margin="10"
+                        <WrapPanel Grid.Row="0" HorizontalAlignment="Center">
+                            <TextBlock Text="移车任务" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" Margin="10"
                                        FontSize="35"/>
-                        </Grid>
+                        </WrapPanel>
                         <Grid Grid.Row="1"  Background="White">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
@@ -36,75 +36,49 @@
                                 <RowDefinition/>
                                 <RowDefinition/>
                                 <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="下砖机:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                                <TextBlock Text="运输车:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20" FontSize="25"/>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="品种:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                                <TextBlock Text="卸货点:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20" FontSize="25"/>
                             </Border>
-                            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="取砖轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                            </Border>
-                            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="放砖轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                            </Border>
-                            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                                <TextBlock Text="操作:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                                <TextBlock Text="操作:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20" FontSize="25"/>
                             </Border>
                             <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
                                 <Grid>
-                                    <TextBlock Text="{Binding In_Tilelifter_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
+                                    <TextBlock Text="{Binding M_Car_Car_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
-                                    <Button Content="选择砖机" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
-                                            Tag="1" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    <Button Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
+                                            Tag="m_car_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
+
                             <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-                                <TextBlock Text="{Binding In_Goods_id,Converter={StaticResource GoodId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
-                            </Border>
-                            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
                                 <Grid>
-                                    <Grid Visibility="{Binding Is_In_Double_Track,Converter={StaticResource Boolean2BooleanReConverter}}"
-                                           VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding In_Take_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
-                                    </Grid>
-                                    <Grid Visibility="{Binding Is_In_Double_Track,Converter={StaticResource Boolean2VisibilityConverter}}"
-                                          VerticalAlignment="Center">
-                                        <hc:ButtonGroup Margin="10,0,10,0"  Style="{StaticResource ButtonGroupSolid}"
-                                                        VerticalAlignment="Center" Orientation="Horizontal">
-                                            <RadioButton Height="50" FontSize="30" Content="{Binding In_Take_Left_TrackId, Converter={StaticResource TrackId2NameConverter}}" IsChecked="{Binding In_Left_Track_Check,Mode=TwoWay}"/>
-                                            <RadioButton Height="50" FontSize="30" Content="{Binding In_Take_Right_TrackId, Converter={StaticResource TrackId2NameConverter}}" IsChecked="{Binding In_Right_Track_Check,Mode=TwoWay}"/>
-                                        </hc:ButtonGroup>
-                                    </Grid>
-                                </Grid>
-                            </Border>
-                            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-                                <Grid>
-                                    <TextBlock Text="{Binding In_Give_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
+                                    <TextBlock Text="{Binding M_Car_Give_Track_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
-                                    <Button Content="选择轨道" Style="{StaticResource MButton_Gray}" HorizontalAlignment="Right"  Margin="0,0,20,0"
-                                            Tag="3" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    <Button Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right"  Margin="0,0,20,0"
+                                            Tag="m_car_give_track_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
-                            <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
+                            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Content="清空" Style="{StaticResource MButton_Danger}" HorizontalAlignment="Center" 
-                                            Tag="4" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_car_clean" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                     <Button Grid.Column="1" Content="添加任务" Style="{StaticResource MButton_Success}" HorizontalAlignment="Center" 
-                                            Tag="5" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_car_add_task" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
                         </Grid>
                     </Grid>
                 </TabItem>
-                <TabItem Header="手动出库" FontSize="22" Height="50" Tag="OUTRANS">
+                <TabItem Header="移砖任务" FontSize="22" Height="50" Tag="MOVESTOCK">
 
                     <Grid Margin="50">
                         <Grid.RowDefinitions>
@@ -112,7 +86,7 @@
                             <RowDefinition />
                         </Grid.RowDefinitions>
                         <Grid>
-                            <TextBlock Grid.Row="0" Text="添加出库任务" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" Margin="10"
+                            <TextBlock Grid.Row="0" Text="移砖任务" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" Margin="10"
                                        FontSize="35"/>
                         </Grid>
                         <Grid Grid.Row="1"  Background="White">
@@ -125,68 +99,70 @@
                                 <RowDefinition/>
                                 <RowDefinition/>
                                 <RowDefinition/>
-                                <RowDefinition/>
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="上砖机:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                                <TextBlock Text="取货点:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20" FontSize="25"/>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="品种:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                                <TextBlock Text="卸货点:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20" FontSize="25"/>
                             </Border>
                             <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="取砖轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                                <TextBlock Text="运输车:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20" FontSize="25"/>
                             </Border>
-                            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                                <TextBlock Text="放砖轨道:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
-                            </Border>
-                            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                                <TextBlock Text="操作:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20"/>
+                            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
+                                <TextBlock Text="操作:" Style="{StaticResource TextBlockTitle}" HorizontalAlignment="Right" Margin="10,20,10,20" FontSize="25"/>
                             </Border>
                             <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
                                 <Grid>
-                                    <TextBlock Text="{Binding Out_Tilelifter_id,Converter={StaticResource DevId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="auto" MinWidth="170"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding M_Stock_Take_Track_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
-                                    <Button Content="选择砖机" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
-                                            Tag="6" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    <ComboBox Grid.Column="1" ItemsSource="{Binding M_Stock_Take_Comb}" DisplayMemberPath="Name" SelectedItem="{Binding M_Stock_Take_Tile}" Margin="10,0,20,0" Height="50"
+                                              Visibility="{Binding M_Stock_Take_Tile_Show,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+                                    <Button Grid.Column="2" Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
+                                            Tag="m_stock_take_track_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
                             <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-                                <TextBlock Text="{Binding Out_Goods_id,Converter={StaticResource GoodId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="auto" MinWidth="170"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding M_Stock_Give_Track_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
+
+                                    <ComboBox Grid.Column="1" ItemsSource="{Binding M_Stock_Give_Comb}" DisplayMemberPath="Name" SelectedItem="{Binding M_Stock_Give_Tile}" Margin="10,0,20,0" Height="50"
+                                              Visibility="{Binding M_Stock_Give_Tile_Show,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+
+                                    <Button Grid.Column="2" Content="选择" Style="{StaticResource MButton_Primary}" HorizontalAlignment="Right" Margin="0,0,20,0"
+                                            Tag="m_stock_give_track_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                </Grid>
                             </Border>
                             <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
                                 <Grid>
-                                    <TextBlock Text="{Binding Out_Take_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
 
-                                    <Button Content="选择轨道" Style="{StaticResource MButton_Gray}" HorizontalAlignment="Right" Margin="0,0,20,0"
-                                            Tag="7" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                    <TextBlock Text="{Binding M_Stock_Car_Name}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center" FontSize="30"/>
+
+                                    <Button Content="选择" Style="{StaticResource MButton_Gray}" HorizontalAlignment="Right" Margin="0,0,20,0"
+                                            Tag="m_stock_car_select" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
-                            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-                                <Grid>
-                                    <Grid Visibility="{Binding Is_Out_Double_Track,Converter={StaticResource Boolean2BooleanReConverter}}"
-                                           VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Out_Give_track_id,Converter={StaticResource TrackId2NameConverter}}" Style="{StaticResource TextBlockTitleBold}" HorizontalAlignment="Center"/>
-                                    </Grid>
-                                    <Grid Visibility="{Binding Is_Out_Double_Track,Converter={StaticResource Boolean2VisibilityConverter}}"
-                                          VerticalAlignment="Center">
-                                        <hc:ButtonGroup Margin="10,0,10,0"  Style="{StaticResource ButtonGroupSolid}"
-                                                        VerticalAlignment="Center" Orientation="Horizontal">
-                                            <RadioButton Height="50" FontSize="30" Content="{Binding Out_Give_Left_TrackId, Converter={StaticResource TrackId2NameConverter}}" IsChecked="{Binding Out_Left_Track_Check,Mode=TwoWay}"/>
-                                            <RadioButton Height="50" FontSize="30" Content="{Binding Out_Give_Right_TrackId, Converter={StaticResource TrackId2NameConverter}}" IsChecked="{Binding Out_Right_Track_Check,Mode=TwoWay}"/>
-                                        </hc:ButtonGroup>
-                                    </Grid>
-                                </Grid>
-                            </Border>
-                            <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
+                            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition/>
                                         <ColumnDefinition/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Content="清空" Style="{StaticResource MButton_Danger}" HorizontalAlignment="Center" 
-                                            Tag="9" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_stock_clean" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                     <Button Grid.Column="1" Content="添加任务" Style="{StaticResource MButton_Success}" HorizontalAlignment="Center" 
-                                            Tag="10" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                                            Tag="m_stock_add_task" Command="{Binding TaskActionCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
                                 </Grid>
                             </Border>
                         </Grid>

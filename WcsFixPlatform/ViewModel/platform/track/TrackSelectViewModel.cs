@@ -96,10 +96,10 @@ namespace wcs.ViewModel
         #endregion
 
         #region[方法]
-        private List<TrackTypeE> Types;
-        public bool IsTypeChange(List<TrackTypeE> types)
+        private TrackTypeE[] Types;
+        public bool IsTypeChange(params TrackTypeE[] types)
         {
-            if (Types.Count != types.Count) return true;
+            if (Types.Length != types.Length) return true;
 
             foreach (TrackTypeE typeE in types)
             {
@@ -125,7 +125,7 @@ namespace wcs.ViewModel
             });
         }
 
-        public void QueryTrack(List<TrackTypeE> types)
+        public void QueryTrack(params TrackTypeE[] types)
         {
             if (refreshtime is null 
                 || (refreshtime is DateTime time && (DateTime.Now-time).TotalSeconds > 60)
@@ -144,7 +144,7 @@ namespace wcs.ViewModel
             Types = types;
         }
 
-        public void QueryTrack(uint areaid, List<TrackTypeE> types)
+        public void QueryTrack(uint areaid,params TrackTypeE[] types)
         {
             if (refreshtime is null
                 || (refreshtime is DateTime time && (DateTime.Now - time).TotalSeconds > 60)
@@ -194,6 +194,24 @@ namespace wcs.ViewModel
                     TrackView.Refresh();
                 }
             }
+        }
+
+        /// <summary>
+        /// 过滤区域选定类型
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="types"></param>
+        public void QueryAreaTrackType(uint areaid, ushort lineid, params TrackTypeE[] types)
+        {
+            List<Track> tracks = PubMaster.Track.GetTrackList(areaid, lineid, types);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                TraList.Clear();
+                foreach (Track track in tracks)
+                {
+                    TraList.Add(track);
+                }
+            });
         }
 
         public void QueryAreaTrack(uint areaid)
