@@ -2729,32 +2729,81 @@ namespace task.rf
         private void DoCustomTask(RfMsgMod msg)
         {
             DoCustomTaskPack pack = JsonTool.Deserialize<DoCustomTaskPack>(msg.Pack.Data);
-            if (pack.carrierid == 0)
+
+            uint cartrackid = 0;
+            if(pack.carrierid > 0)
             {
-                SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "请选择运输车！");
-                return;
+                Track cartrack = PubTask.Carrier.GetCarrierTrack(pack.carrierid);
+                if (cartrack == null)
+                {
+                    SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "运输车当前没有轨道位置信息！");
+                    return;
+                }
+                cartrackid = cartrack.id;
             }
-            Track cartrack = PubTask.Carrier.GetCarrierTrack(pack.carrierid);
-            if (cartrack == null)
-            {
-                SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "运输车当前没有轨道位置信息！");
-                return;
-            }
+
             if (pack.givetrackid == 0)
             {
                 SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "请选择卸货轨道！");
                 return;
             }
+
             switch (pack.CustomTaskType)
             {
                 case CustomTasktype.移车任务:
-                    //if (PubTask.Trans.AddMoveCarrierTask(cartrack.id, pack.givetrackid, pack.carrierid, out string result))
-                    //{
-                    //    SendFail2Rf(msg.MEID, FunTag.DoCustomTask, result);
-                    //    return;
-                    //}
+                    if (pack.carrierid == 0)
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "请选择运输车！");
+                        return;
+                    }
+
+                    if (PubTask.Trans.AddMoveCarrierTask(cartrackid, pack.givetrackid, pack.carrierid, out string result))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoCustomTask, result);
+                        return;
+                    }
                     break;
                 case CustomTasktype.移砖任务:
+
+                    uint tileid = 0;
+                    Track taketrack = PubMaster.Track.GetTrack(pack.taketrackid);
+
+                    if(taketrack == null)
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "请选择取货轨道");
+                        return;
+                    }
+
+                    if (taketrack.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
+                    {
+                        tileid = pack.taketileid;
+                    }
+
+                    Track givetrack = PubMaster.Track.GetTrack(pack.taketrackid);
+
+                    if (givetrack == null)
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "请选择卸货轨道");
+                        return;
+                    }
+
+                    if (givetrack.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道))
+                    {
+                        tileid = pack.givetileid;
+                    }
+
+                    if((taketrack.Type == TrackTypeE.下砖轨道 && givetrack.Type == TrackTypeE.上砖轨道)
+                        || (taketrack.Type == TrackTypeE.上砖轨道 && givetrack.Type == TrackTypeE.下砖轨道))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoCustomTask, "取货轨道卸货轨道不能同时是砖机轨道");
+                        return;
+                    }
+
+                    if (!PubTask.Trans.AddMoveStockTask(pack.taketrackid, pack.givetrackid, tileid, pack.carrierid, out result))
+                    {
+                        SendFail2Rf(msg.MEID, FunTag.DoCustomTask, result);
+                        return;
+                    }
                     break;
             }
 
