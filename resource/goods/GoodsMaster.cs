@@ -30,6 +30,7 @@ namespace resource.goods
             _sm = new object();
             GoodsList = new List<Goods>();
             StockList = new List<Stock>();
+            TempStockList = new List<Stock>();
             GoodSizeList = new List<GoodSize>();
             mMsg = new MsgAction();
             _mlog = (Log)new LogFactory().GetLog("库存信息", false);
@@ -55,7 +56,7 @@ namespace resource.goods
                 StockList.Clear();
                 StockList.AddRange(PubMaster.Mod.GoodSql.QueryStockList());
             }
-
+            
             if (refr_4)
             {
                 GoodSizeList.Clear();
@@ -73,6 +74,7 @@ namespace resource.goods
         private readonly object _go, _so, _sm;
         private List<Goods> GoodsList { set; get; }
         private List<Stock> StockList { set; get; }
+        private List<Stock> TempStockList { set; get; }
         private List<GoodSize> GoodSizeList { set; get; }
         private MsgAction mMsg;
         private Log _mlog;
@@ -142,8 +144,9 @@ namespace resource.goods
         public List<Stock> GetStocks(uint traid)
         {
             //轨道库存更改品种前重新刷新获取List
-            Refresh(false, true, false, false);
-            return StockList.FindAll(c => c.track_id == traid);
+            TempStockList.Clear();
+            TempStockList.AddRange(PubMaster.Mod.GoodSql.QueryStockListById(traid));
+            return TempStockList;
         }
 
         /// <summary>
@@ -1127,8 +1130,9 @@ namespace resource.goods
                     if (oldcount != -1)
                     {
                         stocks.Clear();
-                        Refresh(false, true, false, false);
-                        stocks = StockList.FindAll(c => c.track_id == trackid);
+                        TempStockList.Clear();
+                        TempStockList.AddRange(PubMaster.Mod.GoodSql.QueryStockListById(trackid));
+                        stocks = TempStockList;
                         uint checkcount = 0;
                         foreach (Stock stock in stocks)
                         {

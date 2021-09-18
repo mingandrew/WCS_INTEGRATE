@@ -40,6 +40,16 @@ namespace resource.module.modulesql
             }
             return list;
         }
+        public List<Stock> QueryStockListById(uint trackid) {
+            List<Stock> list = new List<Stock>();
+            string sql = string.Format("SELECT t.* FROM stock AS t  where t.track_id={0} ", trackid);
+            DataTable dt = mSql.ExecuteQuery(@sql);
+            if (!mSql.IsNoData(dt))
+            {
+                list = dt.ToDataList<Stock>();
+            }
+            return list;
+        }
 
         public List<StockTrans> QueryStockTransList()
         {
