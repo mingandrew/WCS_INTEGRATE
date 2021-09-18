@@ -3688,7 +3688,7 @@ namespace resource.goods
         /// <returns></returns>
         public CarrierTypeE GetGoodsCarrierType(uint goods_id)
         {
-            return GoodsList.Find(c => c.id == goods_id).GoodCarrierType;
+            return GoodsList.Find(c => c.id == goods_id)?.GoodCarrierType ?? CarrierTypeE.窄车;
         }
 
         public List<uint> TrackUnionGood(uint trackid)

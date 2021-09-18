@@ -472,14 +472,30 @@ namespace task.trans
 
             if(fromtrack.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道) && tileid == 0)
             {
-                result = string.Format("请选择取货轨道对应的砖机");
-                return false;
+                List<uint> tileids = PubMaster.DevConfig.GetTileInTrack(fromtrack.id);
+                if(tileids.Count == 1)
+                {
+                    tileid = tileids[0];
+                }
+                else
+                {
+                    result = string.Format("请选择取货轨道对应的砖机");
+                    return false;
+                }
             }
 
             if(totrack.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道) && tileid == 0)
             {
-                result = string.Format("请选择卸货轨道对应的砖机");
-                return false;
+                List<uint> tileids = PubMaster.DevConfig.GetTileInTrack(totrack.id);
+                if (tileids.Count == 1)
+                {
+                    tileid = tileids[0];
+                }
+                else
+                {
+                    result = string.Format("请选择卸货轨道对应的砖机");
+                    return false;
+                }
             }
 
             TransStatusE transStatusE = TransStatusE.调度设备;
