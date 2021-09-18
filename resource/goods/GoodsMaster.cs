@@ -141,6 +141,8 @@ namespace resource.goods
         /// <returns></returns>
         public List<Stock> GetStocks(uint traid)
         {
+            //轨道库存更改品种前重新刷新获取List
+            Refresh(false, true, false, false);
             return StockList.FindAll(c => c.track_id == traid);
         }
 
@@ -1119,10 +1121,38 @@ namespace resource.goods
                         PubMaster.Mod.GoodSql.EditStock(stock, StockUpE.Goods);
                     }
 
-                    PubMaster.Sums.StockSumChangeGood(trackid, goodid, oldgoodid, level);
-                    PubMaster.Sums.SortSumList();
-                    PubMaster.Sums.SendTrackStockQtyChangeMsg(trackid);
-                    return true;
+                    //校验是否修改成功
+                    bool flag = false;
+                    int oldcount = stocks.Count();
+                    if (oldcount != -1)
+                    {
+                        stocks.Clear();
+                        Refresh(false, true, false, false);
+                        stocks = StockList.FindAll(c => c.track_id == trackid);
+                        uint checkcount = 0;
+                        foreach (Stock stock in stocks)
+                        {
+                            if (stock.goods_id.Equals(goodid))
+                            {
+                                checkcount++;
+                            }
+
+                        }
+                        if (oldcount == checkcount)
+                        {
+                            flag = true;
+                            PubMaster.Sums.StockSumChangeGood(trackid, goodid, oldgoodid, level);
+                            PubMaster.Sums.SortSumList();
+                            PubMaster.Sums.SendTrackStockQtyChangeMsg(trackid);
+                        }
+                        else
+                        {
+                            res = "更改品种操作出现异常,请重启app重试";
+                        }
+
+                    }
+
+                    return flag;
                 }
                 finally { Monitor.Exit(_so); }
             }
