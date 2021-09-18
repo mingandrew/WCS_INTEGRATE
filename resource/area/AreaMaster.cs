@@ -29,7 +29,7 @@ namespace resource.area
 
             mLog = (Log)new LogFactory().GetLog("线路信息", false);
             mConfig = (Log)new LogFactory().GetLog("区域配置", false);
-            
+
         }
 
         public void Start()
@@ -105,7 +105,7 @@ namespace resource.area
                 {
                     AreaID = area.id,
                     AreaName = area.name,
-                    AreaTag = area.id+""
+                    AreaTag = area.id + ""
                 }); ;
             }
 
@@ -161,16 +161,16 @@ namespace resource.area
 
         internal List<uint> GetAreaTileIds(uint areaid)
         {
-            return AreaDevList.FindAll(c => c.area_id == areaid 
+            return AreaDevList.FindAll(c => c.area_id == areaid
                                 && (c.DevType == DeviceTypeE.上砖机 || c.DevType == DeviceTypeE.下砖机 || c.DevType == DeviceTypeE.砖机))
-                                    .Select(c=>c.device_id).ToList();
+                                    .Select(c => c.device_id).ToList();
         }
 
         internal List<uint> GetAreaFerryIds(uint areaid)
         {
-            return AreaDevList.FindAll(c => c.area_id == areaid 
+            return AreaDevList.FindAll(c => c.area_id == areaid
                                 && (c.DevType == DeviceTypeE.前摆渡 || c.DevType == DeviceTypeE.后摆渡))
-                                    .Select(c=>c.device_id).ToList();
+                                    .Select(c => c.device_id).ToList();
         }
 
         public bool IsDeviceInArea(uint filterareaid, uint iD)
@@ -204,7 +204,7 @@ namespace resource.area
 
         public List<Area> GetAreaList(List<uint> ids)
         {
-            return AreaList.FindAll(c=>ids.Contains(c.id));
+            return AreaList.FindAll(c => ids.Contains(c.id));
         }
 
         public bool HaveArea(int id)
@@ -310,7 +310,7 @@ namespace resource.area
 
         public string GetName(uint id)
         {
-            return AreaList.Find(c => c.id == id)?.name ?? id+"";
+            return AreaList.Find(c => c.id == id)?.name ?? id + "";
         }
 
         /// <summary>
@@ -408,18 +408,18 @@ namespace resource.area
                 havealltrack = true;
                 foreach (uint traid in traids)
                 {
-                    if(!AreaDevTraList.Exists(c => c.track_id == traid && ferryid == c.device_id))
+                    if (!AreaDevTraList.Exists(c => c.track_id == traid && ferryid == c.device_id))
                     {
                         havealltrack = false;
                     }
-               }
+                }
 
                 if (havealltrack)
                 {
                     filterferryids.Add(ferryid);
                 }
             }
-             return filterferryids;
+            return filterferryids;
         }
 
         /// <summary>
@@ -449,27 +449,36 @@ namespace resource.area
         /// </summary>
         /// <param name="trackids"></param>
         /// <returns></returns>
-        public bool ExistFerryWithTracks(params uint[] trackids)
+        public bool ExistFerryWithTracks(DeviceTypeE type, params uint[] trackids)
         {
-            bool isexist = false;
-
-            List<uint> ferryids = PubMaster.Device.GetDevIds(DeviceTypeE.前摆渡, DeviceTypeE.后摆渡);
+            List<uint> ferryids = new List<uint>();
+            if (type == DeviceTypeE.其他)
+            {
+                ferryids = PubMaster.Device.GetDevIds(DeviceTypeE.前摆渡, DeviceTypeE.后摆渡);
+            }
+            else
+            {
+                ferryids = PubMaster.Device.GetDevIds(type);
+            }
 
             foreach (var ferryid in ferryids)
             {
+                // 获取摆渡所有轨道
+                List<AreaDeviceTrack>  ferryTracks = AreaDevTraList.FindAll(c => c.device_id == ferryid);
+                bool isAll = true;
                 foreach (var trackid in trackids)
                 {
-                    if(!AreaDevTraList.Exists(c => c.device_id == ferryid && c.track_id == trackid))
+                    if(!ferryTracks.Exists(c => c.track_id == trackid))
                     {
-                        continue;
+                        isAll = false;
+                        break;
                     }
                 }
 
-                isexist = true;
-                break;
+                if (isAll) return true;
             }
 
-            return isexist;
+            return false;
         }
 
         /// <summary>
@@ -485,7 +494,7 @@ namespace resource.area
 
             if (ferrys != null && ferrys.Count > 0)
             {
-                bool takematch, givematch,carmatch;
+                bool takematch, givematch, carmatch;
                 foreach (AreaDevice device in ferrys)
                 {
                     takematch = taketrackid == 0 || AreaDevTraList.Exists(c => c.device_id == device.device_id
@@ -503,7 +512,7 @@ namespace resource.area
                         if (istrackid)
                         {
                             uint trackid = PubMaster.DevConfig.GetFerryTrackId(device.device_id);
-                            if(trackid > 0)
+                            if (trackid > 0)
                                 list.Add(trackid);
                         }
                         else
@@ -620,7 +629,7 @@ namespace resource.area
 
             if (ferry.Type == DeviceTypeE.前摆渡)
             {
-                tracktype = TrackTypeE.储砖_出; 
+                tracktype = TrackTypeE.储砖_出;
                 tiletrtype = TrackTypeE.上砖轨道;
             }
             List<uint> trackids = PubMaster.Track.GetAreaTrackIds(areaid, tracktype);
@@ -633,7 +642,7 @@ namespace resource.area
             uint maxid = PubMaster.Mod.AreaSql.GetAreaDevTraMaxId();
             foreach (uint trackid in trackids)
             {
-                if (AreaDevTraList.Exists(c=>c.area_id == toareaid && c.device_id == ferry.id && c.track_id == trackid))
+                if (AreaDevTraList.Exists(c => c.area_id == toareaid && c.device_id == ferry.id && c.track_id == trackid))
                 {
                     continue;
                 }
@@ -685,11 +694,12 @@ namespace resource.area
             ushort prior = 0;
             try
             {
-                prior =(ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == dev.id).Max(c => c.prior);
+                prior = (ushort)AreaDevTraList.FindAll(c => c.area_id == toareaid && c.device_id == dev.id).Max(c => c.prior);
             }
-            catch {
+            catch
+            {
                 prior++;
-            }       
+            }
 
             if (AreaDevTraList.Exists(c => c.area_id == toareaid && c.device_id == dev.id && c.track_id == trackid))
             {
@@ -752,7 +762,7 @@ namespace resource.area
         /// <returns></returns>
         public Line GetLineById(ushort lineid)
         {
-            return LineList.Find(c => c.id  == lineid);
+            return LineList.Find(c => c.id == lineid);
         }
 
         public Line GetLine(uint areaid, ushort line)
@@ -790,7 +800,7 @@ namespace resource.area
 
             return LineList.Exists(c => c.area_id == area && c.line == line && count >= c.sort_task_qty);
         }
-        
+
         public bool IsUpTaskLimit(uint area, ushort line, int count)
         {
             if (line == 0)
@@ -887,7 +897,7 @@ namespace resource.area
 
         public bool IsSingleArea(out uint areaid)
         {
-            if(AreaList.Count == 1)
+            if (AreaList.Count == 1)
             {
                 areaid = AreaList[0].id;
                 return true;
@@ -898,7 +908,7 @@ namespace resource.area
 
         public bool IsSingleAreaLine(out uint areaid, out ushort lineid)
         {
-            if(LineList.Count == 1)
+            if (LineList.Count == 1)
             {
                 areaid = LineList[0].area_id;
                 lineid = LineList[0].line;
@@ -1028,7 +1038,7 @@ namespace resource.area
                 list.Add(new TaskSwitch()
                 {
                     id = line.id * 1000 + 3,
-                    code = line.id + ":" +((byte)OnOffTaskE.倒库),
+                    code = line.id + ":" + ((byte)OnOffTaskE.倒库),
                     name = line.name + "倒库开关",
                     onoff = line.onoff_sort
                 });
@@ -1058,7 +1068,7 @@ namespace resource.area
         public bool UpdateLineSwitch(ushort lineid, OnOffTaskE onofftype, bool onoff, string memo, out string result, bool isfromrf = false)
         {
             Line line = GetLineById(lineid);
-            if(line != null)
+            if (line != null)
             {
                 result = "开关没有改变";
                 switch (onofftype)

@@ -197,21 +197,6 @@ namespace task.trans.transtask
 
                     if (track.id == trans.take_track_id)
                     {
-                        //还没有分配摆渡
-                        if (trans.AllocateFerryType == DeviceTypeE.其他)
-                        {
-                            if (carrier.CurrentPoint >= track.split_point || carrier.TargetPoint >= track.split_point)
-                            {
-                                // 超过中间点  前进-脉冲最大的
-                                _M.SetAllocateFerryType(trans, DeviceTypeE.前摆渡);
-                            }
-                            else
-                            {
-                                // 超过中间点  后退-脉冲最小的
-                                _M.SetAllocateFerryType(trans, DeviceTypeE.后摆渡);
-                            }
-                        }
-
                         //摆渡车接车
                         MoveToFerrySeamless(trans, true);
                         return;

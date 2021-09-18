@@ -462,7 +462,7 @@ namespace task.trans
                 return false;
             }
 
-            if(!PubMaster.Area.ExistFerryWithTracks(fromtrackid, totrackid))
+            if (!PubMaster.Area.ExistFerryWithTracks(DeviceTypeE.其他, fromtrackid, totrackid))
             {
                 result = string.Format("当前没有摆渡车配置运输车所在轨道和卸车轨道");
                 return false;
@@ -492,10 +492,28 @@ namespace task.trans
         /// <returns></returns>
         public bool AddMoveStockTask(uint fromtrackid, uint totrackid, uint tileid, uint carrierid, out string result)
         {
-            if (carrierid != 0 && HaveCarrierInTrans(carrierid))
+            Track cartrack = null;
+            if (carrierid != 0)
             {
-                result = "运输车已经被分配任务中！";
-                return false;
+                if (HaveCarrierInTrans(carrierid))
+                {
+                    result = "运输车已经被分配任务中！";
+                    return false;
+                }
+
+                cartrack = PubTask.Carrier.GetCarrierTrack(carrierid);
+                if (cartrack == null)
+                {
+                    result = string.Format("获取不到运输车所在轨道信息");
+                    return false;
+                }
+
+                if (IsTraInTrans(cartrack.id))
+                {
+                    result = "运输车所在轨道当前被任务占用！";
+                    return false;
+                }
+
             }
 
             if (IsTraInTrans(fromtrackid))
@@ -515,20 +533,20 @@ namespace task.trans
 
             if (fromtrack == null)
             {
-                result = string.Format("获取不到运输车所在轨道信息[ {0} ]", fromtrackid);
+                result = string.Format("获取不到取货轨道信息[ {0} ]", fromtrackid);
                 return false;
             }
 
             if (totrack == null)
             {
-                result = string.Format("获取不到运输车前往轨道信息[ {0} ]", totrackid);
+                result = string.Format("获取不到卸货轨道信息[ {0} ]", totrackid);
                 return false;
             }
 
             if (fromtrack.InType(TrackTypeE.下砖轨道, TrackTypeE.上砖轨道) && tileid == 0)
             {
                 List<uint> tileids = PubMaster.DevConfig.GetTileInTrack(fromtrack.id);
-                if(tileids.Count == 1)
+                if (tileids.Count == 1)
                 {
                     tileid = tileids[0];
                 }
@@ -552,12 +570,24 @@ namespace task.trans
                     return false;
                 }
             }
-            
 
-            if (!PubMaster.Area.ExistFerryWithTracks(fromtrackid, totrackid))
+            DeviceTypeE ferrytype = GetAllocateFerryType(fromtrackid, totrackid);
+
+            if (cartrack == null)
             {
-                result = string.Format("当前没有摆渡车配置取货轨道和卸货轨道");
-                return false;
+                if (!PubMaster.Area.ExistFerryWithTracks(ferrytype, fromtrackid, totrackid))
+                {
+                    result = string.Format("当前没有[ {0} ]摆渡车同时配置了: [ {1} ], [ {2} ]", ferrytype, fromtrack.name, totrack.name);
+                    return false;
+                }
+            }
+            else
+            {
+                if (!PubMaster.Area.ExistFerryWithTracks(ferrytype, fromtrackid, totrackid, cartrack.id))
+                {
+                    result = string.Format("当前没有[ {0} ]摆渡车同时配置了: [ {1} ], [ {2} ], [ {3} ]", ferrytype, fromtrack.name, totrack.name, cartrack.name);
+                    return false;
+                }
             }
 
             TransStatusE transStatusE = TransStatusE.调度设备;
@@ -573,17 +603,7 @@ namespace task.trans
             {
                 stockid = stock.id;
                 goodid = stock.goods_id;
-                level = 0;
-            }
-
-            DeviceTypeE ferrytype;
-            if (fromtrack.InType(TrackTypeE.下砖轨道, TrackTypeE.储砖_入))
-            {
-                ferrytype = DeviceTypeE.后摆渡;
-            }
-            else
-            {
-                ferrytype = DeviceTypeE.前摆渡;
+                level = stock.level;
             }
 
             uint transid = AddTransWithoutLock(fromtrack.area, tileid, TransTypeE.库存转移, goodid, level, stockid, fromtrackid, totrackid, transStatusE, carrierid, fromtrack.line, ferrytype);
@@ -767,6 +787,62 @@ namespace task.trans
         #endregion
 
         #region[根据小车位置分配摆渡车]
+
+        /// <summary>
+        /// 获取分配摆渡类型
+        /// </summary>
+        /// <param name="fromTrackid"></param>
+        /// <param name="toTrackid"></param>
+        /// <param name="carPoint"></param>
+        /// <returns></returns>
+        public DeviceTypeE GetAllocateFerryType(uint fromTrackid, uint toTrackid, ushort carPoint = 0)
+        {
+            Track fromtrack = PubMaster.Track.GetTrack(fromTrackid);
+            Track totrack = PubMaster.Track.GetTrack(toTrackid);
+            if (fromtrack == null || totrack == null) return DeviceTypeE.其他;
+
+            if (fromtrack.Type == TrackTypeE.下砖轨道 || totrack.Type == TrackTypeE.下砖轨道)
+            {
+                return DeviceTypeE.后摆渡;
+            }
+
+            if (fromtrack.Type == TrackTypeE.上砖轨道 || totrack.Type == TrackTypeE.上砖轨道)
+            {
+                return DeviceTypeE.前摆渡;
+            }
+
+            if (fromtrack.IsStoreTrack() && totrack.IsStoreTrack())
+            {
+                // 优先依据小车当前位置判断
+                if (carPoint > 0)
+                {
+                    if (carPoint >= fromtrack.split_point || carPoint >= totrack.split_point)
+                    {
+                        // 超过中间点  前进-脉冲最大的
+                        return DeviceTypeE.前摆渡;
+                    }
+                    else
+                    {
+                        // 超过中间点  后退-脉冲最小的
+                        return DeviceTypeE.后摆渡;
+                    }
+                }
+
+                if (fromtrack.is_take_forward)
+                {
+                    // 前取  - 后摆渡
+                    return DeviceTypeE.后摆渡;
+                }
+                else
+                {
+                    // 后取 后放 - 前摆渡
+                    return DeviceTypeE.前摆渡;
+                }
+
+            }
+
+            return DeviceTypeE.前摆渡; // 优先
+        }
 
         /// <summary>
         /// 分配摆渡车

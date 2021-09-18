@@ -302,6 +302,7 @@ namespace wcs.ViewModel
         private void CleanMoveStockInput()
         {
             M_Stock_Car_Name = "";
+            m_stock_car = null;
 
             CleanMoveStockTakeInput();
 
@@ -560,7 +561,7 @@ namespace wcs.ViewModel
                 tileid = m_stock_give_tile.Id;
             }
 
-            if (!PubTask.Trans.AddMoveStockTask(m_stock_take_track.id, m_stock_give_track.id, tileid, m_car_car?.id ?? 0, out string result))
+            if (!PubTask.Trans.AddMoveStockTask(m_stock_take_track.id, m_stock_give_track.id, tileid, m_stock_car?.id ?? 0, out string result))
             {
                 Growl.Warning(result);
                 return;

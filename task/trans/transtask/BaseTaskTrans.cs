@@ -1020,38 +1020,9 @@ namespace task.trans.transtask
             switch (trans.AllocateFerryType)
             {
                 case DeviceTypeE.其他:
-                    #region 分配类型
-                    // 小车在储砖轨道
-                    if (carTrack.IsStoreTrack())
-                    {
-                        if (car.CurrentPoint >= carTrack.split_point || car.TargetPoint >= carTrack.split_point)
-                        {
-                            // 超过中间点  前进-脉冲最大的
-                            _M.SetAllocateFerryType(trans, DeviceTypeE.前摆渡);
-                            return;
-                        }
-                        else
-                        {
-                            // 超过中间点  后退-脉冲最小的
-                            _M.SetAllocateFerryType(trans, DeviceTypeE.后摆渡);
-                            return;
-                        }
-                    }
-
-                    // 上砖轨
-                    if (carTrack.Type == TrackTypeE.上砖轨道)
-                    {
-                        _M.SetAllocateFerryType(trans, DeviceTypeE.前摆渡);
-                        return;
-                    }
-
-                    // 下砖轨
-                    if (carTrack.Type == TrackTypeE.下砖轨道)
-                    {
-                        _M.SetAllocateFerryType(trans, DeviceTypeE.后摆渡);
-                        return;
-                    }
-                    #endregion
+                    ushort carP = trans.TransType == TransTypeE.移车任务 ? car.CurrentPoint : (ushort)0;
+                    DeviceTypeE type = _M.GetAllocateFerryType(trans.take_track_id, trans.give_track_id, carP);
+                    _M.SetAllocateFerryType(trans, type);
                     return;
 
                 case DeviceTypeE.前摆渡:
