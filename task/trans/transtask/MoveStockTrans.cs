@@ -208,7 +208,7 @@ namespace task.trans.transtask
                             ushort stkLoc = PubMaster.Goods.GetStockLocation(trans.stock_id);
 
                             // 取砖
-                            MoveToTake(trans.take_track_id, trans.carrier_id, trans.id, stkLoc, "", true);
+                            MoveToTake(trans.take_track_id, trans.carrier_id, trans.id, stkLoc, "", trans.AllocateFerryType);
 
                             // 直接取砖 - 停用
                             //TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
@@ -325,7 +325,7 @@ namespace task.trans.transtask
                                 //是否有小车在放货轨道
                                 if (CheckOtherCar) return;
 
-                                MoveToGive(trans.give_track_id, trans.carrier_id, trans.id, stkLoc, "", true);
+                                MoveToGive(trans.give_track_id, trans.carrier_id, trans.id, stkLoc, "", trans.AllocateFerryType);
 
                                 #region 【任务步骤记录】
                                 _M.LogForCarrierGive(trans, trans.give_track_id);

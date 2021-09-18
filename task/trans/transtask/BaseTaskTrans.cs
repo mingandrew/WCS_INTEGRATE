@@ -598,11 +598,30 @@ namespace task.trans.transtask
         /// <param name="carrierID"></param>
         /// <param name="transID"></param>
         /// <param name="loc"></param>
-        /// <param name="doNotBack">是否回轨道头</param>
-        public void MoveToTake(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "", bool doNotBack = false)
+        /// <param name="doNotBack">是否取砖后不移动</param>
+        public void MoveToTake(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "", DeviceTypeE ferryType = DeviceTypeE.其他, bool doNotBack = false)
         {
             // 目的轨道
             Track toTrack = PubMaster.Track.GetTrack(trackID);
+
+            // 取后 返回脉冲
+            ushort overP = loc;
+            if (!doNotBack)
+            {
+                switch (ferryType)
+                {
+                    case DeviceTypeE.前摆渡:
+                        if (toTrack.IsStoreTrack()) overP = toTrack.limit_point_up;
+                        break;
+                    case DeviceTypeE.后摆渡:
+                        if (toTrack.IsStoreTrack()) overP = toTrack.limit_point;
+                        break;
+                    default:
+                        // 前进取则后侧停，后退取则前侧停
+                        overP = toTrack.is_take_forward ? toTrack.limit_point : toTrack.limit_point_up;
+                        break;
+                }
+            }
 
             // 至指定脉冲取砖
             PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
@@ -610,7 +629,7 @@ namespace task.trans.transtask
                 Order = DevCarrierOrderE.取砖指令,
                 CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
                 ToPoint = loc,
-                OverPoint = doNotBack ? loc : (toTrack.is_take_forward ? toTrack.limit_point : toTrack.limit_point_up), // 前进取则后侧停，后退取则前侧停
+                OverPoint = overP,
                 ToTrackId = toTrack.id
             }, mes);
         }
@@ -622,11 +641,30 @@ namespace task.trans.transtask
         /// <param name="carrierID"></param>
         /// <param name="transID"></param>
         /// <param name="loc"></param>
-        /// <param name="doNotBack">是否回轨道头</param>
-        public void MoveToGive(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "", bool doNotBack = false)
+        /// <param name="doNotBack">是否存砖后不移动</param>
+        public void MoveToGive(uint trackID, uint carrierID, uint transID, ushort loc, string mes = "", DeviceTypeE ferryType = DeviceTypeE.其他, bool doNotBack = false)
         {
             // 目的轨道
             Track toTrack = PubMaster.Track.GetTrack(trackID);
+
+            // 卸后 返回脉冲
+            ushort overP = loc;
+            if (!doNotBack)
+            {
+                switch (ferryType)
+                {
+                    case DeviceTypeE.前摆渡:
+                        if (toTrack.IsStoreTrack()) overP = toTrack.limit_point_up;
+                        break;
+                    case DeviceTypeE.后摆渡:
+                        if (toTrack.IsStoreTrack()) overP = toTrack.limit_point;
+                        break;
+                    default:
+                        // 后退存则前侧停，前进存则后侧停
+                        overP = toTrack.is_give_back ? toTrack.limit_point_up : toTrack.limit_point;
+                        break;
+                }
+            }
 
             // 至指定脉冲放砖
             PubTask.Carrier.DoOrder(carrierID, transID, new CarrierActionOrder()
@@ -634,7 +672,7 @@ namespace task.trans.transtask
                 Order = DevCarrierOrderE.放砖指令,
                 CheckTra = toTrack.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
                 ToPoint = loc,
-                OverPoint = doNotBack ? loc : (toTrack.is_give_back ? toTrack.limit_point_up : toTrack.limit_point), // 后退存则前侧停，前进存则后侧停
+                OverPoint = overP,
                 ToTrackId = toTrack.id
             }, mes);
         }
@@ -674,7 +712,7 @@ namespace task.trans.transtask
         /// <param name="transID"></param>
         /// <param name="mes"></param>
         /// <param name="doNotBack">是否回轨道头</param>
-        public void TakeInTarck(uint stockID, uint trackID, uint carrierID, uint transID, out string mes, bool doNotBack = false)
+        public void TakeInTarck(uint stockID, uint trackID, uint carrierID, uint transID, out string mes, DeviceTypeE ferryType = DeviceTypeE.其他, bool doNotBack = false)
         {
             // 获取库存
             Stock stk = PubMaster.Goods.GetStock(stockID);
@@ -741,7 +779,7 @@ namespace task.trans.transtask
                     Order = DevCarrierOrderE.取砖指令,
                     CheckTra = tra.ferry_up_code, // 无所谓了 反正都是同一个轨道编号
                     ToPoint = loc,
-                    OverPoint = over, 
+                    OverPoint = over,
                     ToTrackId = tra.id
                 }, mes);
                 return;
@@ -767,7 +805,7 @@ namespace task.trans.transtask
 
                 // 取砖
                 mes = "执行取砖";
-                MoveToTake(tra.id, carrierID, transID, stk.location, mes, doNotBack);
+                MoveToTake(tra.id, carrierID, transID, stk.location, mes, ferryType, doNotBack);
                 return;
             }
 
@@ -782,7 +820,7 @@ namespace task.trans.transtask
         /// <param name="transID"></param>
         /// <param name="mes"></param>
         /// <param name="doNotBack">是否回轨道头</param>
-        public void GiveInTarck(ushort stkloc, uint trackID, uint carrierID, uint transID, out string mes, bool doNotBack = false)
+        public void GiveInTarck(ushort stkloc, uint trackID, uint carrierID, uint transID, out string mes, DeviceTypeE ferryType = DeviceTypeE.其他, bool doNotBack = false)
         {
             if (stkloc == 0)
             {
@@ -826,7 +864,7 @@ namespace task.trans.transtask
 
             // 放砖
             mes = "执行放砖";
-            MoveToGive(trackID, carrierID, transID, stkloc, mes, doNotBack);
+            MoveToGive(trackID, carrierID, transID, stkloc, mes, ferryType, doNotBack);
             return;
         }
 

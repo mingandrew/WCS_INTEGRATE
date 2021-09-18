@@ -257,7 +257,7 @@ namespace task.trans.transtask
                     }
 
                     // 直接放砖
-                    GiveInTarck(givePoint, trans.give_track_id, trans.carrier_id, trans.id, out string res, true);
+                    GiveInTarck(givePoint, trans.give_track_id, trans.carrier_id, trans.id, out string res, trans.AllocateFerryType, true);
 
                     #region 【任务步骤记录】
                     _M.LogForCarrierGive(trans, trans.give_track_id, res);
@@ -361,7 +361,7 @@ namespace task.trans.transtask
                         else
                         {
                             // 暂时用取砖指令
-                            TakeInTarck(trans.stock_id, track.id, trans.carrier_id, trans.id, out string res, true);
+                            TakeInTarck(trans.stock_id, track.id, trans.carrier_id, trans.id, out string res, trans.AllocateFerryType, true);
 
                             #region 【任务步骤记录】
                             _M.LogForCarrierTake(trans, track.id, res);
