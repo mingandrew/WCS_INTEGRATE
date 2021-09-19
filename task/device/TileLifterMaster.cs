@@ -1915,7 +1915,7 @@ namespace task.device
                 foreach (Stock stock in allocatestocks)
                 {
                     //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
-                    if (PubTask.Trans.IsStockInTransButSortTask(0, stock.id, stock.track_id, TransTypeE.库存整理, TransTypeE.库存转移))
+                    if (PubTask.Trans.IsStockInTransButSortTask(0, stock.id, stock.track_id, TransTypeE.库存整理))
                     {
                         break;
                     }

@@ -4023,10 +4023,8 @@ namespace task.device
                         case TransTypeE.下砖任务:
                         case TransTypeE.同向下砖:
                             carrier = DevList.Find(c => c.ID != carrierid
-                                                && c.CurrentTrackId == trackid
-                                                    //&& (c.CurrentSite == track.rfid_1
-                                                    //    || (c.CurrentSite == track.rfid_2 && c.InTask(DevCarrierOrderE.放砖指令)))
-                                                    );
+                                && c.CurrentTrackId == trackid
+                                && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid, TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移));
                             if (carrier != null)
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
@@ -4039,7 +4037,7 @@ namespace task.device
                             carrier = DevList.Find(c => c.ID != carrierid
                                && c.CurrentTrackId == track.id
                                && c.NotInTask(DevCarrierOrderE.倒库指令)
-                               && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid, TransTypeE.上砖接力, TransTypeE.倒库任务, TransTypeE.中转倒库));
+                               && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid, TransTypeE.上砖接力, TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移));
                             if (carrier != null)
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
@@ -4063,7 +4061,7 @@ namespace task.device
                             carrier = DevList.Find(c => c.ID != carrierid
                                                 && (c.CurrentTrackId == track.id || c.OnGoingTrackId == track.id)
                                                 && (c.InTask(DevCarrierOrderE.倒库指令)
-                                                         || PubTask.Trans.IsCarrierInTrans(c.ID, track.id, TransTypeE.上砖接力, TransTypeE.倒库任务, TransTypeE.中转倒库)));
+                                                         || PubTask.Trans.IsCarrierInTrans(c.ID, track.id, TransTypeE.上砖接力, TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移)));
                             if (carrier != null)
                             {
                                 result = string.Format("存在运输车[ {0} ]", carrier.Device.name);
@@ -4074,6 +4072,7 @@ namespace task.device
                             break;
                     }
                     break;
+
                 case TrackTypeE.储砖_出:
                 case TrackTypeE.储砖_入:
                     switch (type)

@@ -373,7 +373,7 @@ namespace task.trans.transtask
                                 // 2.卸货轨道状态不满足放砖条件
                                 // 3.是否有其他车在同轨道上
                                 if (!PubMaster.Track.IsStatusOkToGive(trans.give_track_id) || 
-                                    PubTask.Carrier.HaveInTrack(trans.give_track_id, trans.carrier_id))
+                                    PubTask.Trans.CheckHaveCarrierInTrackForDown(trans.carrier_id, trans.give_track_id, out result))
                                 {
                                     isUpdateGive = true;
                                 }
@@ -619,9 +619,6 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void FinishStockTrans(StockTrans trans)
         {
-            // 检测轨道存砖状态
-            PubMaster.Track.CheckTrackStockStatus(trans.give_track_id);
-
             PubMaster.Warn.RemoveTaskAllWarn(trans.id);
             _M.SetFinish(trans);
         }

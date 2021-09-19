@@ -1089,7 +1089,7 @@ namespace task.trans
                 return TransList.Exists(c => !c.finish && c.id != transid
                             && (c.stock_id == stockid || (c.InTrack(trackid) && c.NotInType(types)))
                             && (!ignoresort || c.NotInType(TransTypeE.上砖接力))
-                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务)));
+                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移)));
             }
             catch (Exception)
             {
@@ -1142,15 +1142,17 @@ namespace task.trans
             //是否开启【出入倒库轨道可以同时上砖】
             bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask);
 
-            return TransList.Exists(c => c.id != trans.id
+            StockTrans trans2 = TransList.Find(c => c.id != trans.id
                                     && c.TransStaus != TransStatusE.完成
                                     && c.InTrack(trans.take_track_id, trans.give_track_id)
                                     && (!ignoresort
-                                            || !(c.InType(TransTypeE.上砖接力) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
+                                            //|| !(c.InType(TransTypeE.上砖接力) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
                                             || c.NotInType(TransTypeE.上砖接力))
                                     && (!inoutignoresort
-                                            || !(c.InType(TransTypeE.倒库任务) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
-                                            || c.NotInType(TransTypeE.倒库任务)));
+                                            //|| !(c.InType(TransTypeE.倒库任务) && c.InStatus(TransStatusE.倒库中, TransStatusE.接力等待))
+                                            || c.NotInType(TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移)));
+
+            return trans2 != null;
         }
 
         /// <summary>
@@ -1912,13 +1914,13 @@ namespace task.trans
         }
 
         /// <summary>
-        /// 检查轨道是否有其他车辆
+        /// （上砖）检查轨道是否有其他车辆
         /// </summary>
         /// <param name="carrierid">运输车ID</param>
         /// <param name="trackid">轨道ID</param>
         /// <param name="result">检查结果</param>
         /// <returns></returns>
-        public bool CheckHaveCarrierInOutTrack(uint carrierid, uint trackid, out string result)
+        public bool CheckHaveCarrierInTrackForUp(uint carrierid, uint trackid, out string result)
         {
             result = "";
             //是否开启【接力倒库轨道可以同时上砖】
@@ -1945,6 +1947,35 @@ namespace task.trans
                 result = "轨道存在还车回轨的倒库任务";
                 return true;
             }
+            return false;
+        }
+
+        /// <summary>
+        /// （下砖）检查轨道是否有其他车辆
+        /// </summary>
+        /// <param name="carrierid">运输车ID</param>
+        /// <param name="trackid">轨道ID</param>
+        /// <param name="result">检查结果</param>
+        /// <returns></returns>
+        public bool CheckHaveCarrierInTrackForDown(uint carrierid, uint trackid, out string result)
+        {
+            result = "";
+            //是否开启【出入倒库轨道可以同时上砖】
+            bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.DownTaskIgnoreInoutSortTask);
+
+            //1.不允许，则不可以有车
+            //2.允许，则不可以有非倒库车
+            if (!inoutignoresort && PubTask.Carrier.HaveInTrackAndGetSingle(trackid, out CarrierTask othercarid, carrierid))
+            {
+                result = string.Format("存在运输车[ {0} ]", othercarid.Device.name);
+                return true;
+            }
+
+            if (inoutignoresort && PubTask.Carrier.CheckHaveCarInTrack(TransTypeE.下砖任务, trackid, carrierid, out result))
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -2021,10 +2052,10 @@ namespace task.trans
                 }
 
                 //4.判断是否存在运输车目标点是该轨道
-                if (PubTask.Carrier.ExistLocateTrack(carrierid, trackid))
-                {
-                    return false;
-                }
+                //if (PubTask.Carrier.ExistLocateTrack(carrierid, trackid))
+                //{
+                //    return false;
+                //}
             }
 
             return true;

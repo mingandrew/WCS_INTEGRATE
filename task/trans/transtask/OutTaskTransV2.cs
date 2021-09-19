@@ -226,7 +226,7 @@ namespace task.trans.transtask
 
                             //1.不允许，则不可以有车
                             //2.允许，则不可以有非倒库车
-                            if (_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result))
+                            if (_M.CheckHaveCarrierInTrackForUp(trans.carrier_id, trans.take_track_id, out result))
                             {
                                 // 优先移动到空轨道
                                 List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
@@ -373,7 +373,7 @@ namespace task.trans.transtask
                             foreach (Stock stock in allocatestocks)
                             {
                                 //判断是否轨道、库存是否已经有任务占用[忽略倒库任务]
-                                if (PubTask.Trans.IsStockInTransButSortTask(trans.id, stock.id, stock.track_id, TransTypeE.库存整理, TransTypeE.库存转移))
+                                if (PubTask.Trans.IsStockInTransButSortTask(trans.id, stock.id, stock.track_id, TransTypeE.库存整理))
                                 {
                                     isback = true;
                                     break;
@@ -474,7 +474,7 @@ namespace task.trans.transtask
                         // 优先回原轨道
                         if (isLoad)
                         {
-                            if (!_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result)
+                            if (!_M.CheckHaveCarrierInTrackForUp(trans.carrier_id, trans.take_track_id, out result)
                             && !PubMaster.Goods.IsTrackHaveStockInTopPosition(trans.take_track_id)
                             && !PubTask.Carrier.HaveCarrierMoveTopInTrackUpTop(trans.carrier_id, trans.take_track_id))
                             {
@@ -681,7 +681,7 @@ namespace task.trans.transtask
                                 //只要轨道没有空都去轨道取，直到空轨道
                                 if (!PubMaster.Track.IsEmtpy(trans.take_track_id)
                                     && !PubMaster.Track.IsStopUsing(trans.take_track_id, trans.TransType)
-                                    && !_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.take_track_id, out result)
+                                    && !_M.CheckHaveCarrierInTrackForUp(trans.carrier_id, trans.take_track_id, out result)
                                     && _M.CheckTrackStockStillCanUse(trans, trans.carrier_id, trans.take_track_id))
                                 {
                                     _M.SetFinishSite(trans, trans.take_track_id, "还车轨道分配轨道[1]");
@@ -698,7 +698,7 @@ namespace task.trans.transtask
                                                 trans.goods_id, PubTask.TileLifter.GetTileCurrentTake(trans.tilelifter_id), out uint trackid)
                                                 && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
                                                 && !_M.HaveInTrackButSortTaskForUp(trackid)
-                                                && !_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trackid, out result)
+                                                && !_M.CheckHaveCarrierInTrackForUp(trans.carrier_id, trackid, out result)
                                                 && _M.CheckTrackStockStillCanUse(trans, trans.carrier_id, trackid)
                                                 )
                                             {
@@ -714,7 +714,7 @@ namespace task.trans.transtask
                                                 {
                                                     if (!_M.HaveInTrackButSortTaskForUp(stock.track_id)
                                                         && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, stock.track_id)
-                                                        && !_M.CheckHaveCarrierInOutTrack(trans.carrier_id, stock.track_id, out string _)
+                                                        && !_M.CheckHaveCarrierInTrackForUp(trans.carrier_id, stock.track_id, out string _)
                                                         && _M.CheckTrackStockStillCanUse(trans, trans.carrier_id, stock.track_id))
                                                     {
                                                         _M.SetFinishSite(trans, stock.track_id, "还车轨道分配轨道[3]");
@@ -791,7 +791,7 @@ namespace task.trans.transtask
                                 // 轨道不满足
                                 if ((!PubMaster.Track.IsEmtpy(trans.finish_track_id)
                                     && !_M.CheckTrackStockStillCanUse(trans, trans.carrier_id, trans.finish_track_id))
-                                    || _M.CheckHaveCarrierInOutTrack(trans.carrier_id, trans.finish_track_id, out result))
+                                    || _M.CheckHaveCarrierInTrackForUp(trans.carrier_id, trans.finish_track_id, out result))
                                 {
                                     _M.SetFinishSite(trans, 0, "轨道不满足状态，重新分配; " + result);
                                     return;
