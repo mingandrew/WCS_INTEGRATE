@@ -63,6 +63,19 @@ namespace module.goods
             return Math.Abs(location - stocksite) <= difrange;
         }
 
+        /// <summary>
+        /// 判断库存是否在给定范围内
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public bool IsWithinRange(ushort min, ushort max)
+        {
+            if (location == 0) return false;
+            return min < location && location < max;
+        }
+
         public bool InTrack(params uint[] tracks)
         {
             return tracks.Contains(track_id);
@@ -81,6 +94,12 @@ namespace module.goods
                 PosType, pos);
         }
 
+        /// <summary>
+        /// 是否为相同的品种&等级
+        /// </summary>
+        /// <param name="gid"></param>
+        /// <param name="lvl"></param>
+        /// <returns></returns>
         public bool EqualGoodAndLevel(uint gid, byte lvl)
         {
             return goods_id == gid && level == lvl;

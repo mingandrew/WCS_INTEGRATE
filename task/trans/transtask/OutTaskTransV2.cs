@@ -697,7 +697,7 @@ namespace task.trans.transtask
                                             if (PubMaster.Track.HaveTrackInGoodFrist(trans.area_id, trans.tilelifter_id,
                                                 trans.goods_id, PubTask.TileLifter.GetTileCurrentTake(trans.tilelifter_id), out uint trackid)
                                                 && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, trackid)
-                                                && !_M.HaveInTrackButSortTask(trackid)
+                                                && !_M.HaveInTrackButSortTaskForUp(trackid)
                                                 && !_M.CheckHaveCarrierInOutTrack(trans.carrier_id, trackid, out result)
                                                 && _M.CheckTrackStockStillCanUse(trans, trans.carrier_id, trackid)
                                                 )
@@ -712,7 +712,7 @@ namespace task.trans.transtask
                                             {
                                                 foreach (Stock stock in allocatestocks)
                                                 {
-                                                    if (!_M.HaveInTrackButSortTask(stock.track_id)
+                                                    if (!_M.HaveInTrackButSortTaskForUp(stock.track_id)
                                                         && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, stock.track_id)
                                                         && !_M.CheckHaveCarrierInOutTrack(trans.carrier_id, stock.track_id, out string _)
                                                         && _M.CheckTrackStockStillCanUse(trans, trans.carrier_id, stock.track_id))

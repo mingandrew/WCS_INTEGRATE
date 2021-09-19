@@ -1409,8 +1409,17 @@ namespace task.device
                             return false;
                         }
 
-                        checkTra = track.IsFerryTrack() ? toTrack.ferry_up_code : toTrack.ferry_down_code;
                         overPoint = track.IsFerryTrack() ? toTrack.limit_point : toTrack.limit_point_up;
+                        // 车身前 100 >> 点位前 200 内不可有库存
+                        if (toTrack.IsStoreTrack()
+                            && IsLoad(devid)
+                            && PubMaster.Goods.IsStockWithinRange(toTrackid, (ushort)(carPoint + 100), (ushort)(overPoint + 200)))
+                        {
+                            result = "载货前进的方向上检测到有砖挡着！";
+                            return false;
+                        }
+
+                        checkTra = track.IsFerryTrack() ? toTrack.ferry_up_code : toTrack.ferry_down_code;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
                         break;
@@ -1454,8 +1463,17 @@ namespace task.device
                             return false;
                         }
 
-                        checkTra = track.IsFerryTrack() ? toTrack.ferry_down_code : toTrack.ferry_up_code;
                         overPoint = track.IsFerryTrack() ? toTrack.limit_point_up : toTrack.limit_point;
+                        // 车身后100 >> 点位后 200 内不可有库存
+                        if (toTrack.IsStoreTrack() 
+                            && IsLoad(devid) 
+                            && PubMaster.Goods.IsStockWithinRange(toTrackid, (ushort)(overPoint - 200), (ushort)(carPoint - 100)))
+                        {
+                            result = "载货后退的方向上检测到有砖挡着！";
+                            return false;
+                        }
+
+                        checkTra = track.IsFerryTrack() ? toTrack.ferry_down_code : toTrack.ferry_up_code;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
                         break;

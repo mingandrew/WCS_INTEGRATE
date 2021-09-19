@@ -877,3 +877,10 @@ UPDATE `2021_wcs_xd`.`diction_dtl` SET `diction_id` = 3, `code` = 'WarningA4X6',
 
 ```
 
+
+## 2021.09.19 [2.1] 新增开关 - 允许出入倒库时可以下砖
+
+```mysql
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (81, 8, 'DownTaskIgnoreInoutSortTask', '开关-允许出入倒库时可以下砖', NULL, b'0', '开关-允许出入倒库时可以下砖', NULL, NULL, NULL, NULL, NULL);
+
+```

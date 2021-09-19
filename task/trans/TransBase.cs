@@ -964,11 +964,11 @@ namespace task.trans
         }
 
         /// <summary>
-        /// 判断是否有任务使用了该轨道(但是不管倒库任务)
+        /// （上砖任务）判断是否有任务使用了该轨道除了倒库
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool HaveInTrackButSortTask(uint trackid)
+        internal bool HaveInTrackButSortTaskForUp(uint trackid)
         {
             try
             {
@@ -981,8 +981,29 @@ namespace task.trans
                 return TransList.Exists(c => !c.finish
                             && c.InTrack(trackid)
                             && (!ignoresort || c.NotInType(TransTypeE.上砖接力))
-                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.中转倒库))
+                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移))
                             && c.NotInType(TransTypeE.库存整理));
+            }
+            catch { }
+            return true;
+        }
+
+        /// <summary>
+        /// （下砖任务）判断是否有任务使用了该轨道除了倒库
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        internal bool HaveTrackButSortTransForDown(uint trackid)
+        {
+            try
+            {
+                //是否开启【出入倒库轨道可以同时下砖】
+                bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.DownTaskIgnoreInoutSortTask);
+
+                return TransList.Exists(c => !c.finish
+                            && c.InTrack(trackid)
+                            && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移))
+                            );
             }
             catch { }
             return true;

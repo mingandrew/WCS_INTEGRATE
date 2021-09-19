@@ -206,6 +206,11 @@
         /// </summary>
         public static string EnableSecondUpTask = nameof(EnableSecondUpTask);
 
+        /// <summary>
+        /// 开关-允许出入倒库时可以下砖
+        /// </summary>
+        public static string DownTaskIgnoreInoutSortTask = nameof(DownTaskIgnoreInoutSortTask);
+
         #endregion
 
         #region[分析服务开关]

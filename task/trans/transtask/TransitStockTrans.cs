@@ -62,6 +62,14 @@ namespace task.trans.transtask
                     return;
                 }
 
+                // 当前轨道非满砖 品种等级不一致 - 完成
+                if (!PubMaster.Track.IsTrackFull(trans.take_track_id) 
+                    && !stk.EqualGoodAndLevel(trans.goods_id, trans.level))
+                {
+                    _M.SetStatus(trans, TransStatusE.完成, "当前待作业库存品种等级与任务不一致");
+                    return;
+                }
+
                 _M.SetGoods(trans, stk.goods_id, stk.level);
 
                 DoMoveStock(trans, stk);

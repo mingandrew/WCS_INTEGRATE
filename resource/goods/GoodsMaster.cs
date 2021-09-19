@@ -1017,6 +1017,30 @@ namespace resource.goods
         }
 
         /// <summary>
+        /// 判断是否储砖库存在轨道的指定脉冲误差内
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <param name="point"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        public bool IsStockInLocation(uint track_id, ushort point, ushort limit)
+        {
+            return StockList.Exists(c => c.track_id == track_id && c.IsInLocation(point, limit));
+        }
+
+        /// <summary>
+        /// 判断是否储砖库存在轨道的指定范围脉冲内
+        /// </summary>
+        /// <param name="track_id"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public bool IsStockWithinRange(uint track_id, ushort min, ushort max)
+        {
+            return StockList.Exists(c => c.track_id == track_id && c.IsWithinRange(min, max));
+        }
+
+        /// <summary>
         /// 判断是否储砖库存在轨道的出库首位置
         /// </summary>
         /// <param name="finish_track_id"></param>
@@ -1024,7 +1048,7 @@ namespace resource.goods
         public bool IsTrackHaveStockInTopPosition(uint track_id)
         {
             Track track = PubMaster.Track.GetTrack(track_id);
-            return StockList.Exists(c => c.track_id == track_id && c.IsInLocation((track.is_take_forward ? track.limit_point : track.limit_point_up), 500));
+            return IsStockInLocation(track_id, (track.is_take_forward ? track.limit_point : track.limit_point_up), 500);
         }
 
         #endregion

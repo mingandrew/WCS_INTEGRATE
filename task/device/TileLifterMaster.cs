@@ -1636,7 +1636,7 @@ namespace task.device
             //TODO 是否还有其他不同品种的砖机要下这条轨道
             if (lasttrack != 0 && PubMaster.Track.IsStatusOkToGive(lasttrack))
             {
-                if (PubTask.Trans.IsTraInTransWithLock(lasttrack))
+                if (PubTask.Trans.HaveTrackButSortTransForDown(lasttrack))
                 {
                     PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.TileMixLastTrackInTrans, (ushort)tileid, 0, lasttrack);
                     return;
@@ -1848,7 +1848,7 @@ namespace task.device
             if (PubMaster.Track.HaveTrackInGoodFrist(areaid, tileid, goodid, currentid, out uint trackid))
             {
                 //判断是否轨道是否已经有任务占用[忽略倒库任务]
-                if (!PubTask.Trans.HaveInTrackButSortTask(trackid))
+                if (!PubTask.Trans.HaveInTrackButSortTaskForUp(trackid))
                 {
                     Stock stock = PubMaster.Goods.GetStockForOut(trackid);
                     //有库存但是不是砖机需要的品种
@@ -2796,6 +2796,13 @@ namespace task.device
             if (task != null)
             {
                 task.IsWorking = working;
+
+                // 停用则重置作业轨道
+                if (!working && task.DevConfig.last_track_id > 0)
+                {
+                    PubMaster.DevConfig.SetLastTrackId(devId, 0);
+                }
+
                 if (worktype != 255)
                     task.WorkType = (DevWorkTypeE)worktype;
                 MsgSend(task, task.DevStatus);
