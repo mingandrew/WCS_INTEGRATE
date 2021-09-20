@@ -346,8 +346,6 @@ namespace task.trans.transtask
             {
                 #region[小车在上砖轨道]
                 case TrackTypeE.上砖轨道:
-                    if (!isStopNoOrder) return;
-
                     #region [判断是否还车回轨]
                     // 更新剩余上砖数量
                     if (isNotLoad && track.id == trans.give_track_id && trans.unload_time == null)
@@ -403,6 +401,8 @@ namespace task.trans.transtask
                             RealseGiveFerry(trans);
                         }
                     }
+
+                    if (!isStopNoOrder) return;
 
                     if (isLoad)
                     {
