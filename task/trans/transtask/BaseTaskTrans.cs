@@ -1040,6 +1040,40 @@ namespace task.trans.transtask
         #region [无缝上摆渡]
 
         /// <summary>
+        /// 是否提前解锁摆渡车
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="track"></param>
+        /// <param name="carrier"></param>
+        public void UnlockTakeFerryFrist(StockTrans trans, Track track, CarrierTask carrier)
+        {
+            if (!trans.HaveTakeFerry) return;
+
+            // 解锁摆渡车
+            ushort limit = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.UnlockFerryLimit, 576); // 10M
+            switch (trans.AllocateFerryType)
+            {
+                case DeviceTypeE.前摆渡:
+                    int disBack = (track.limit_point_up - limit);
+                    if ((carrier.CurrentPoint > 0 && carrier.CurrentPoint <= disBack) ||
+                        (carrier.TargetPoint > 0 && carrier.TargetPoint <= disBack))
+                    {
+                        RealseTakeFerry(trans);
+                    }
+                    break;
+                case DeviceTypeE.后摆渡:
+                    int disFront = (track.limit_point + limit);
+                    if ((carrier.CurrentPoint > 0 && carrier.CurrentPoint >= disFront) ||
+                        (carrier.TargetPoint > 0 && carrier.TargetPoint >= disFront))
+                    {
+                        RealseTakeFerry(trans);
+                    }
+                    break;
+            }
+
+        }
+
+        /// <summary>
         /// 无缝上摆渡
         /// </summary>
         /// <param name="trans"></param>
@@ -1088,8 +1122,9 @@ namespace task.trans.transtask
             if (tosite == 0) return;
 
             string result = "";
-            // 离轨道头范围 ≈20M
-            if (Math.Abs(tosite - car.CurrentPoint) <= 1153)
+            // 离轨道头范围 ≈10M
+            ushort limit = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.UnlockFerryLimit, 576); // 10M
+            if (Math.Abs(tosite - car.CurrentPoint) <= limit)
             {
                 // 范围内
                 // 锁定摆渡  

@@ -146,6 +146,9 @@ namespace task.trans.transtask
                     {
                         if (trans.take_track_id == track.id)
                         {
+                            // 判断提前解锁摆渡车
+                            UnlockTakeFerryFrist(trans, track, carrier);
+
                             #region [取砖判断]
                             //判断是否需要在库存在上砖分割点后，是否需要接力
                             if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id, trans.goods_id, trans.level))

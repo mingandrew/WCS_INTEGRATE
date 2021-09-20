@@ -884,3 +884,11 @@ UPDATE `2021_wcs_xd`.`diction_dtl` SET `diction_id` = 3, `code` = 'WarningA4X6',
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (81, 8, 'DownTaskIgnoreInoutSortTask', '开关-允许出入倒库时可以下砖', NULL, b'0', '开关-允许出入倒库时可以下砖', NULL, NULL, NULL, NULL, NULL);
 
 ```
+
+
+## 2021.09.20 [2.1] 新增小车入轨道提前解锁摆渡车脉冲范围
+
+```mysql
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (82, 10, 'UnlockFerryLimit', '小车提前解锁摆渡距离', NULL, NULL, '', 576.000, NULL, NULL, NULL, NULL);
+
+```

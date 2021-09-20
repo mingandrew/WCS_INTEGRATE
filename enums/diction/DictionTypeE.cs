@@ -114,7 +114,13 @@
         /// <summary>
         /// 砖机窑位
         /// </summary>
-        public static string GoodSite = nameof(GoodSite);                           
+        public static string GoodSite = nameof(GoodSite);
+
+        /// <summary>
+        /// 小车提前解锁摆渡距离
+        /// </summary>
+        public static string UnlockFerryLimit = nameof(UnlockFerryLimit);
+
         #endregion
 
         #region[任务逻辑开关]

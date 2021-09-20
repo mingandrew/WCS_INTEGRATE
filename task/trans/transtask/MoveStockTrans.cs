@@ -110,27 +110,8 @@ namespace task.trans.transtask
                     {
                         if (trans.take_track_id == track.id)
                         {
-                            // 解锁摆渡车
-                            ushort limit = 1153; // ≈20M
-                            switch (trans.AllocateFerryType)
-                            {
-                                case DeviceTypeE.前摆渡:
-                                    int disBack = (track.limit_point_up - limit);
-                                    if ((carrier.CurrentPoint > 0 && carrier.CurrentPoint <= disBack) ||
-                                        (carrier.TargetPoint > 0 && carrier.TargetPoint <= disBack))
-                                    {
-                                        RealseTakeFerry(trans);
-                                    }
-                                    break;
-                                case DeviceTypeE.后摆渡:
-                                    int disFront = (track.limit_point + limit);
-                                    if ((carrier.CurrentPoint > 0 && carrier.CurrentPoint >= disFront) ||
-                                        (carrier.TargetPoint > 0 && carrier.TargetPoint >= disFront))
-                                    {
-                                        RealseTakeFerry(trans);
-                                    }
-                                    break;
-                            }
+                            // 判断提前解锁摆渡车
+                            UnlockTakeFerryFrist(trans, track, carrier);
 
                             if (isStopNoOrder)
                             {
