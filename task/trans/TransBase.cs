@@ -993,7 +993,7 @@ namespace task.trans
         /// </summary>
         /// <param name="trackid"></param>
         /// <returns></returns>
-        internal bool HaveTrackButSortTransForDown(uint trackid)
+        internal bool HaveTrackButSortTransForDown(uint trackid, uint transid)
         {
             try
             {
@@ -1001,6 +1001,7 @@ namespace task.trans
                 bool inoutignoresort = PubMaster.Dic.IsSwitchOnOff(DicTag.DownTaskIgnoreInoutSortTask);
 
                 return TransList.Exists(c => !c.finish
+                            && c.id != transid
                             && c.InTrack(trackid)
                             && (!inoutignoresort || c.NotInType(TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移))
                             );

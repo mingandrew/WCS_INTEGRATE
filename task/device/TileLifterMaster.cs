@@ -1636,7 +1636,7 @@ namespace task.device
             //TODO 是否还有其他不同品种的砖机要下这条轨道
             if (lasttrack != 0 && PubMaster.Track.IsStatusOkToGive(lasttrack))
             {
-                if (PubTask.Trans.HaveTrackButSortTransForDown(lasttrack))
+                if (PubTask.Trans.HaveTrackButSortTransForDown(lasttrack, 0))
                 {
                     PubMaster.Warn.AddDevWarn(areaid, line, WarningTypeE.TileMixLastTrackInTrans, (ushort)tileid, 0, lasttrack);
                     return;

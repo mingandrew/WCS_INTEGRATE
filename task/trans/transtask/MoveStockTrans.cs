@@ -405,7 +405,7 @@ namespace task.trans.transtask
                         //}
                         #endregion
 
-                        if (isNotLoad)
+                        if (isNotLoad && isStopNoOrder)
                         {
                             _M.SetUnLoadTime(trans);
                             // 检测轨道存砖状态
