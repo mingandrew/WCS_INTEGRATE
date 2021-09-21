@@ -1873,7 +1873,7 @@ namespace task.trans
 
             //3.如果已经有倒库任务则不发了
             if (TransList.Exists(c => !c.finish && c.take_track_id == track_id
-                && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.中转倒库)))
+                && (c.TransType == TransTypeE.倒库任务 || c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.库存转移)))
             {
                 return false;
             }
