@@ -2682,8 +2682,11 @@ namespace resource.track
             {
                 if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, btmstock.goods_id, btmstock.level, TileWorkModeE.下砖))
                 {
-                    SetTrackSortable(track, true, SORT_LEVEL_2, "无砖机正在下该品种");
-                    return;
+                    if (PubMaster.Dic.IsSwitchOnOff(DicTag.DownTaskIgnoreInoutSortTask))
+                    {
+                        SetTrackSortable(track, true, SORT_LEVEL_2, "无砖机正在下该品种");
+                        return;
+                    }
                 }
                 else
                 {

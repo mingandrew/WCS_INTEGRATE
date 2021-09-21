@@ -145,13 +145,13 @@ namespace task.trans.transtask
         /// <param name="trans"></param>
         public override void CancelStockTrans(StockTrans trans)
         {
-            if (_M.HaveTaskUsedTakeTrackId(trans))
-            {
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1312, string.Format("等待子任务完成"));
-                #endregion
-                return;
-            }
+            //if (_M.HaveTaskUsedTakeTrackId(trans))
+            //{
+            //    #region 【任务步骤记录】
+            //    _M.SetStepLog(trans, false, 1312, string.Format("等待子任务完成"));
+            //    #endregion
+            //    return;
+            //}
 
             _M.SetStatus(trans, TransStatusE.完成);
         }
