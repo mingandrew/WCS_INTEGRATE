@@ -189,6 +189,32 @@ namespace task.trans.transtask
                                 return;
                             }
 
+                            // 长时间无法取到砖
+                            if (!isStopNoOrder && carrier.InTask(DevCarrierOrderE.取砖指令))
+                            {
+                                // 取砖相关报警超20s
+                                if (carrier.DevAlert.CanNotActionForTaking() && mTimer.IsTimeUp(trans.carrier_id + "LoadError", 20))
+                                {
+                                    // 先解锁摆渡
+                                    if (trans.HaveTakeFerry)
+                                    {
+                                        RealseTakeFerry(trans, "运输车取砖出现异常，长时间无法完成取砖指令");
+                                        return;
+                                    }
+
+                                    // 再尝试终止运输车
+                                    if (carrier.DevStatus.DeviceStatus == DevCarrierStatusE.停止)
+                                    {
+                                        carrier.DoStop(trans.id, "取砖指令超时");
+
+                                        #region 【任务步骤记录】
+                                        _M.SetStepLog(trans, false, 1701, string.Format("[ {0} ]取砖指令超时, 尝试终止", carrier.Device.name));
+                                        #endregion
+                                        return;
+                                    }
+                                }
+                            }
+
                             #endregion
                             return;
                         }

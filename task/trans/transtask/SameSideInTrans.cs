@@ -259,7 +259,7 @@ namespace task.trans.transtask
                             if (!isStopNoOrder && carrier.InTask(DevCarrierOrderE.取砖指令))
                             {
                                 // 取砖相关报警超20s
-                                if (PubTask.Carrier.IsCarrierNotLoadInDownTileAlert(trans.carrier_id) && mTimer.IsTimeUp(trans.carrier_id + "LoadError", 20))
+                                if (carrier.DevAlert.CanNotActionForTaking() && mTimer.IsTimeUp(trans.carrier_id + "LoadError", 20))
                                 {
                                     // 先解锁摆渡
                                     if (trans.HaveTakeFerry)
