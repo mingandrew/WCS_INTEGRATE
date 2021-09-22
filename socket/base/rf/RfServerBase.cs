@@ -236,9 +236,20 @@ namespace socket.rf
                         DoRemoveClient(client);
                         return;
                     }
+
+
                     if (readData.Length > 8)
                     {
                         uint messageSize = BitConverter.ToUInt32(ShiftBytes(readData, 2, 4), 0);
+                        
+                        if(readData.Count() *10 < messageSize)
+                        { 
+                            //信息不准确，重新连接
+                            //DoRemoveClient(client);
+                            //return;
+                        }
+
+                        client.Log2File(string.Format("数据长度：{0}, 总长度：{1}，", messageSize, readData.Count()), readData);
 
                         if (readData.Count() >= messageSize)
                         {

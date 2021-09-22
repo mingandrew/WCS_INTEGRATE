@@ -8,7 +8,7 @@ namespace tool.mlog
     /// </summary>
     public class Log : ILog
     {
-        private string m_Name;
+        public string m_Name { set; get; }
 
         private const string m_MessageTemplate = "{0}-{1}: {2}";
 

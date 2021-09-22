@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using tool.mlog;
 
 namespace socket.rf
 {
@@ -11,6 +12,8 @@ namespace socket.rf
 
         public bool IsUpdateMEID { get; internal set; }
 
+        private Log mlog;
+
         public RfClientTcp(TcpClient client, byte[] buffer)
         {
             TcpClient = client ?? throw new ArgumentNullException("client");
@@ -19,6 +22,8 @@ namespace socket.rf
             IPEndPoint ip = (IPEndPoint)romote;
             IP_PORT = ip.Address.ToString() + ":" + ip.Port;
             MEID = IP_PORT;
+
+            mlog = (Log)new LogFactory().GetLog(MEID.Replace(".","").Replace(":",""));
         }
 
         public TcpClient TcpClient { get; private set; }
@@ -36,6 +41,7 @@ namespace socket.rf
 
         public void Close()
         {
+            this.Buffer = new byte[4096];
             TcpClient?.Close();
         }
 
@@ -54,6 +60,16 @@ namespace socket.rf
                 IsUpdateMEID = true;
             }
             MEID = meid;
+
+            if (!MEID.Equals(mlog.m_Name))
+            {
+                mlog = (Log)new LogFactory().GetLog(MEID);
+            }
+        }
+
+        public void Log2File(string msg, byte[] data)
+        {
+            mlog.Cmd(true, msg, data);
         }
     }
 }
