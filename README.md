@@ -676,7 +676,7 @@ UPDATE `diction_dtl` SET `name` = '任务被中断时，尚未升降到位，运
 
 
 
-## 2021.07.26 [ V2.0 ] 添加轨道倒库属性
+## 2021.07.26 [ V2.0 ] **[ V2.1 ]**添加轨道倒库属性
 
 ```mysql
 ALTER TABLE `track` 
