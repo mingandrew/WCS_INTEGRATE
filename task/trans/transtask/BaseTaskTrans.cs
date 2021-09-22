@@ -566,7 +566,7 @@ namespace task.trans.transtask
                 default:
                     break;
             }
-            PubTask.Carrier.DoOrder(carrierID, trackID, cao, mes);
+            PubTask.Carrier.DoOrder(carrierID, transID, cao, mes);
         }
 
         /// <summary>

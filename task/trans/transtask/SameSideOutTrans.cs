@@ -180,6 +180,15 @@ namespace task.trans.transtask
                                 }
                                 _M.SetStock(trans, takeStock.id);
 
+                                // 判断是否能执行取砖指令
+                                if (!_M.CheckStockIsableToTake(trans, trans.carrier_id, trans.take_track_id, trans.stock_id))
+                                {
+                                    #region 【任务步骤记录】
+                                    _M.LogForCarrierNoTake(trans, trans.take_track_id);
+                                    #endregion
+                                    return;
+                                }
+
                                 // 轨道内直接取砖
                                 TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out string res);
 
@@ -192,6 +201,15 @@ namespace task.trans.transtask
                             // 长时间无法取到砖
                             if (!isStopNoOrder && carrier.InTask(DevCarrierOrderE.取砖指令))
                             {
+                                // 是否终止
+                                bool isStop = false;
+
+                                // 已被其他任务暂用
+                                if (_M.IsStockInOtherTrans(trans.id, trans.stock_id))
+                                {
+                                    isStop = true;
+                                }
+
                                 // 取砖相关报警超20s
                                 if (carrier.DevAlert.CanNotActionForTaking() && mTimer.IsTimeUp(trans.carrier_id + "LoadError", 20))
                                 {
@@ -199,19 +217,20 @@ namespace task.trans.transtask
                                     if (trans.HaveTakeFerry)
                                     {
                                         RealseTakeFerry(trans, "运输车取砖出现异常，长时间无法完成取砖指令");
-                                        return;
                                     }
 
-                                    // 再尝试终止运输车
-                                    if (carrier.DevStatus.DeviceStatus == DevCarrierStatusE.停止)
-                                    {
-                                        carrier.DoStop(trans.id, "取砖指令超时");
+                                    isStop = true;
+                                }
 
-                                        #region 【任务步骤记录】
-                                        _M.SetStepLog(trans, false, 1706, string.Format("[ {0} ]取砖指令超时, 尝试终止", carrier.Device.name));
-                                        #endregion
-                                        return;
-                                    }
+                                // 再尝试终止运输车
+                                if (isStop)
+                                {
+                                    carrier.DoStop(trans.id, "取砖指令超时");
+
+                                    #region 【任务步骤记录】
+                                    _M.SetStepLog(trans, false, 1706, string.Format("[ {0} ]取砖指令超时, 尝试终止", carrier.Device.name));
+                                    #endregion
+                                    return;
                                 }
                             }
 

@@ -1083,6 +1083,25 @@ namespace task.trans
         }
 
         /// <summary>
+        /// 判断库存已被其他任务占用
+        /// </summary>
+        /// <param name="transid"></param>
+        /// <param name="stockid"></param>
+        /// <returns></returns>
+        internal bool IsStockInOtherTrans(uint transid, uint stockid)
+        {
+            try
+            {
+                return TransList.Exists(c => !c.finish && c.id != transid && c.stock_id == stockid);
+            }
+            catch (Exception)
+            {
+
+            }
+            return true;
+        }
+
+        /// <summary>
         /// 判断库存，作业轨道是否已经被任务占用[但是忽略倒库任务]
         /// </summary>
         /// <param name="stockid"></param>
@@ -2058,7 +2077,9 @@ namespace task.trans
 
                 //3.判断是否存在运输车绑定了该库存
                 if (!GlobalWcsDataConfig.BigConifg.IsNotNeedSortToSplitUpPlace(trans.area_id, trans.line)
-                    && PubTask.Carrier.ExistCarrierBindStock(carrierid, stockid))
+                    && (PubTask.Carrier.ExistCarrierBindStock(carrierid, stockid) ||
+                        IsStockInOtherTrans(trans.id, stockid))
+                    )
                 {
                     return false;
                 }
