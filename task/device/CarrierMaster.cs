@@ -4250,6 +4250,119 @@ namespace task.device
             return false;
         }
         #endregion
+
+        #region 小车防撞
+        public bool CanDoOrderSafe(uint carrerid, uint toTrackid, ushort toPoint, out string result, bool isavoid = true)
+        {
+            // 作业车
+            CarrierTask workCar = GetDevCarrier(carrerid);
+            if(workCar == null)
+            {
+                result = string.Format("无ID[ {0} ]的运输车数据", carrerid);
+                return false;
+            }
+
+            if (workCar.CurrentPoint == 0)
+            {
+                result = string.Format("无[ {0} ]的当前脉冲", workCar.Device.name);
+                return false;
+            }
+
+            // 作业轨道
+            Track toTrack = PubMaster.Track.GetTrack(toTrackid);
+            if (toTrack == null)
+            {
+                result = string.Format("无ID[ {0} ]的轨道数据", toTrackid);
+                return false;
+            }
+
+            if (!toTrack.IsStoreTrack())
+            {
+                result = string.Format("[ {0} ]非储砖轨道-不作防撞判断", toTrack.name);
+                return true;
+            }
+
+            if (DevList.Exists(c => c.CurrentTrackId == toTrackid && c.CurrentPoint == 0))
+            {
+                result = string.Format("[ {0} ]内存在当前脉冲为 0 的运输车", toTrack.name);
+                return false;
+            }
+
+            // 作业方向
+            bool isback = workCar.CurrentPoint > toPoint;
+            // 防撞距离
+            ushort limit = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.CarrierAvoidLimit, 576); // 10M
+            // 安全范围
+            ushort min, max, safe;
+            if (isback)
+            {
+                min = (ushort)(toPoint - limit);
+                if (min < toTrack.limit_point) min = toTrack.limit_point;
+
+                 max = workCar.CurrentPoint;
+
+                safe = min;
+            }
+            else
+            {
+                min = workCar.CurrentPoint;
+
+                max = (ushort)(toPoint + limit);
+                if (max > toTrack.limit_point_up) max = toTrack.limit_point_up;
+
+                safe = max;
+            }
+
+            // 获取作业范围内的其他运输车
+            List<CarrierTask> otherCars = DevList.FindAll(c => c.ID != carrerid &&
+                                                                    (c.CurrentTrackId == workCar.CurrentTrackId || c.CurrentTrackId == toTrackid) && 
+                                                                    (c.IsBiggerThanPoint(min) && c.IsSmallerThanPoint(max)));
+            if (otherCars != null && otherCars.Count > 0)
+            {
+                if (!isavoid)
+                {
+                    result = string.Format("[ {0} ]存在其他运输车阻碍作业", toTrack.name);
+                    return false;
+                }
+
+                #region 尝试避让
+                // 离作业车  从近到远排序
+                otherCars.Sort((x, y) => (
+                    isback ? (y.CurrentPoint.CompareTo(x.CurrentPoint)) : (x.CurrentPoint.CompareTo(y.CurrentPoint))
+                ));
+
+                // 只看最近的车
+                CarrierTask theOne = otherCars[0];
+                // 判断是否可指令
+                if (!theOne.CheckCarrierIsUsable(0, out result)) return false;
+                // 判断是否空闲
+                if (!theOne.IsNotDoingTask)
+                {
+                    result = string.Format("[ {0} ]正在执行指令[ {1} ]", theOne.Device.name, theOne.CurrentOrder);
+                    return false;
+                }
+                // 判断是否有阻碍
+                if (!CanDoOrderSafe(theOne.ID, toTrackid, safe, out result)) return false;
+
+                // 避让（定位指令 / 移车任务）
+                if (safe == toTrack.limit_point || safe == toTrack.limit_point_up)
+                {
+                    // 需要移到轨道头，那就干脆换轨道
+                }
+                else
+                {
+                    // 发送定位指令
+                    theOne.DoOrder(new CarrierActionOrder() {
+                    }, 0, string.Format("[ {0} ]需定位到[ {1} ],本车让路", workCar.Device.name, toPoint));
+                }
+                #endregion
+            }
+
+
+            result = "无运输车阻碍";
+            return true;
+        }
+        #endregion
     }
 
     /// <summary>

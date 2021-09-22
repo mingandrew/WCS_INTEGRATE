@@ -353,10 +353,12 @@ namespace resource.device
             {
                 try
                 {
-                    mLog.Status(true, string.Format("【品种修改2】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3} -> {4} ], 数量[ 不限 ]",
+                    mLog.Status(true, string.Format("【品种修改2】砖机[ {0} ], 品种[ {1} -> {2} ], 标识[ {3}^{4} -> {5}^{6} ], 数量[ 不限 ]",
                         PubMaster.Device.GetDeviceName(dev.id),
                         PubMaster.Goods.GetGoodsName(dev.goods_id),
-                        PubMaster.Goods.GetGoodsName(goodid), dev.goods_id, goodid));
+                        PubMaster.Goods.GetGoodsName(goodid), 
+                        dev.goods_id, dev.level,
+                        goodid, level));
                 }
                 catch { }
                 //手动设置品种，则重置砖机品种优先找空的属性

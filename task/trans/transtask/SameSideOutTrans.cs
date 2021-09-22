@@ -298,8 +298,15 @@ namespace task.trans.transtask
                             // 判断是否能执行取砖指令
                             if (!_M.CheckStockIsableToTake(trans, trans.carrier_id, trans.take_track_id, trans.stock_id))
                             {
+                                //#region 【任务步骤记录】
+                                //_M.LogForCarrierNoTake(trans, trans.take_track_id);
+                                //#endregion
+                                //return;
+
+                                MoveToPos(trans.take_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道后侧定位点);
+
                                 #region 【任务步骤记录】
-                                _M.LogForCarrierNoTake(trans, trans.take_track_id);
+                                _M.LogForCarrierToTrack(trans, trans.take_track_id);
                                 #endregion
                                 return;
                             }

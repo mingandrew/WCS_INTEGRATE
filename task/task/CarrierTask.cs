@@ -17,68 +17,19 @@ namespace task.device
     public class CarrierTask : TaskBase
     {
         #region[属性]
-        public ushort CurrentTrackLine { set; get; }
-        private uint currenttrackid;
         /// <summary>
-        /// 当前运输车所在轨道ID
+        /// 小车是否在线
         /// </summary>
-        public uint CurrentTrackId
+        public bool IsConnect
         {
-            get => currenttrackid;
-            set
-            {
-                if (currenttrackid != value)
-                {
-                    try
-                    {
-                        string log = string.Format("【切换轨道】源[ {0} ], 新[ {1} ], 当前[ {2}^{3} ]",
-                            PubMaster.Track.GetTrackLogInfo(currenttrackid),
-                            PubMaster.Track.GetTrackLogInfo(value),
-                            DevStatus?.CurrentSite,
-                            DevStatus?.CurrentPoint);
-                        DevTcp.AddStatusLog(log);
-                    }
-                    catch { }
-                    currenttrackid = value;
-                    CurrentTrackLine = PubMaster.Track.GetTrackLine(value);
-                }
-            }
+            get => DevTcp?.IsConnected ?? false;
         }
-
-        /// <summary>
-        /// 运输车目的轨道ID
-        /// </summary>
-        public uint TargetTrackId { set; get; }
-
-        /// <summary>
-        /// 即将前往的轨道ID
-        /// </summary>
-        public uint OnGoingTrackId
-        {
-            get => ongoingtrackid;
-            set
-            {
-                if (ongoingtrackid != value && value == 0)
-                {
-                    try
-                    {
-                        DevTcp.AddStatusLog("【到达目标轨道】");
-                    }
-                    catch { }
-                }
-                ongoingtrackid = value;
-            }
-        }
-        private uint ongoingtrackid;
-        /// <summary>
-        /// 上一次的摆渡车轨道id
-        /// </summary>
-        public uint LastTrackId { set; get; }
 
         /// <summary>
         /// 【地标需要转移】小车卸货在摆渡车轨道
         /// </summary>
         public bool IsUnloadInFerry { set; get; }
+
         /// <summary>
         /// 小车类型
         /// </summary>
@@ -167,39 +118,103 @@ namespace task.device
         }
 
         /// <summary>
-        /// 运输车正在执行的任务
+        /// 当运输车所在线路
         /// </summary>
-        public DevCarrierOrderE OnGoingOrder
+        public ushort CurrentTrackLine { set; get; }
+
+        private uint currenttrackid;
+        /// <summary>
+        /// 当前运输车所在轨道ID
+        /// </summary>
+        public uint CurrentTrackId
         {
-            get => _ongoingorder;
-            set => _ongoingorder = value;
+            get => currenttrackid;
+            set
+            {
+                if (currenttrackid != value)
+                {
+                    try
+                    {
+                        string log = string.Format("【切换轨道】源[ {0} ], 新[ {1} ], 当前[ {2}^{3} ]",
+                            PubMaster.Track.GetTrackLogInfo(currenttrackid),
+                            PubMaster.Track.GetTrackLogInfo(value),
+                            DevStatus?.CurrentSite,
+                            DevStatus?.CurrentPoint);
+                        DevTcp.AddStatusLog(log);
+                    }
+                    catch { }
+                    currenttrackid = value;
+                    CurrentTrackLine = PubMaster.Track.GetTrackLine(value);
+                }
+            }
         }
 
         /// <summary>
-        /// 更新运输车当前任务指令
+        /// 运输车目的轨道ID
         /// </summary>
-        /// <param name="order"></param>
-        /// <param name="transid"></param>
-        /// <param name="memo"></param>
-        public void SetOnGoingOrderWithMemo(DevCarrierOrderE order, uint transid, string memo = "")
+        public uint TargetTrackId { set; get; }
+
+        private uint ongoingtrackid;
+        /// <summary>
+        /// 即将前往的轨道ID
+        /// </summary>
+        public uint OnGoingTrackId
         {
-            if (_ongoingorder != order)
+            get => ongoingtrackid;
+            set
             {
-                if (order != DevCarrierOrderE.无)
+                if (ongoingtrackid != value && value == 0)
                 {
-                    DevTcp.AddStatusLog(string.Format("【发送任务】任务[ {0} ], 指令[ {1} ], 备注[ {2} ]", transid, order, memo));
+                    try
+                    {
+                        DevTcp.AddStatusLog("【到达目标轨道】");
+                    }
+                    catch { }
                 }
-                else
-                {
-                    DevTcp.AddStatusLog(string.Format("【完成重置】[ {0} ]", order));
-                }
+                ongoingtrackid = value;
             }
-            _ongoingorder = order;
         }
 
+        /// <summary>
+        /// 上一次的摆渡车轨道id
+        /// </summary>
+        public uint LastTrackId { set; get; }
 
+        /// <summary>
+        /// 当前指令定位坐标
+        /// </summary>
+        public ushort OnGoingToPoint { set; get; }
 
-        private DevCarrierOrderE _ongoingorder = DevCarrierOrderE.无;
+        /// <summary>
+        /// 当前指令结束坐标
+        /// </summary>
+        public ushort OnGoingOverPoint { set; get; }
+
+        /// <summary>
+        /// 比指定脉冲大
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool IsBiggerThanPoint(ushort point)
+        {
+            return (CurrentPoint > 0 && CurrentPoint > point) ||
+                        (TargetPoint > 0 && TargetPoint > point) ||
+                        (OnGoingToPoint > 0 && OnGoingToPoint > point) ||
+                        (OnGoingOverPoint > 0 && OnGoingOverPoint > point);
+        }
+
+        /// <summary>
+        /// 比指定脉冲小
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool IsSmallerThanPoint(ushort point)
+        {
+            return (CurrentPoint > 0 && CurrentPoint < point) ||
+                        (TargetPoint > 0 && TargetPoint < point) ||
+                        (OnGoingToPoint > 0 && OnGoingToPoint < point) ||
+                        (OnGoingOverPoint > 0 && OnGoingOverPoint < point);
+        }
 
         #endregion
 
@@ -269,6 +284,16 @@ namespace task.device
             get => DevStatus?.CurrentOrder ?? DevCarrierOrderE.异常;
         }
 
+        private DevCarrierOrderE _ongoingorder = DevCarrierOrderE.无;
+        /// <summary>
+        /// 运输车正在执行的任务
+        /// </summary>
+        public DevCarrierOrderE OnGoingOrder
+        {
+            get => _ongoingorder;
+            set => _ongoingorder = value;
+        }
+
         /// <summary>
         /// 判断运输车是否无执行的指令（空闲状态）
         /// </summary>
@@ -278,11 +303,48 @@ namespace task.device
                 && (CurrentOrder == DevCarrierOrderE.无 || CurrentOrder == DevCarrierOrderE.终止指令);
         }
 
-        public bool IsConnect
-        {
-            get => DevTcp?.IsConnected ?? false;
-        }
         #endregion
+
+        /// <summary>
+        /// 记录运输车执行信息
+        /// </summary>
+        /// <param name="order"></param>
+        /// <param name="transid"></param>
+        /// <param name="trackid"></param>
+        /// <param name="topoint"></param>
+        /// <param name="overpoint"></param>
+        /// <param name="memo"></param>
+        public void SetOnGoingOrderInfo(DevCarrierOrderE order, uint transid, uint trackid, ushort topoint, ushort overpoint, string memo = "")
+        {
+            if (OnGoingTrackId != trackid)
+            {
+                OnGoingTrackId = trackid;
+            }
+
+            if (OnGoingToPoint != topoint)
+            {
+                OnGoingToPoint = topoint;
+            }
+
+            if (OnGoingOverPoint != overpoint)
+            {
+                OnGoingOverPoint = overpoint;
+            }
+
+            if (OnGoingOrder != order)
+            {
+                if (order != DevCarrierOrderE.无)
+                {
+                    DevTcp.AddStatusLog(string.Format("【发送任务】任务[ {0} ], 指令[ {1} ], 备注[ {2} ]", transid, order, memo));
+                }
+                else
+                {
+                    DevTcp.AddStatusLog(string.Format("【完成重置】[ {0} ]", order));
+                }
+
+                OnGoingOrder = order;
+            }
+        }
 
         #endregion
 
@@ -339,6 +401,8 @@ namespace task.device
                 TargetTrackId = 0;
                 LastTrackId = 0;
                 OnGoingTrackId = 0;
+                OnGoingToPoint = 0;
+                OnGoingOverPoint = 0;
                 OnGoingOrder = DevCarrierOrderE.无;
             }
         }
@@ -371,8 +435,7 @@ namespace task.device
         {
             if (IsResetWriting) return;
 
-            OnGoingTrackId = cao.ToTrackId;
-            SetOnGoingOrderWithMemo(cao.Order, transid, memo);
+            SetOnGoingOrderInfo(cao.Order, transid, cao.ToTrackId, cao.ToPoint, cao.OverPoint, memo);
 
             if (cao.Order == DevCarrierOrderE.倒库指令)
             {
@@ -441,8 +504,7 @@ namespace task.device
         /// </summary>
         internal void DoStop(uint tranid, string memo)
         {
-            OnGoingTrackId = 0;
-            SetOnGoingOrderWithMemo(DevCarrierOrderE.终止指令, tranid, memo);
+            SetOnGoingOrderInfo(DevCarrierOrderE.终止指令, tranid, 0, 0, 0, memo);
 
             DevTcp?.SendCmd(DevCarrierCmdE.执行指令, (byte)DevCarrierOrderE.终止指令, 0, 0, 0, 0, 0, 0);
         }
@@ -471,12 +533,12 @@ namespace task.device
 
             //重置小车执行任务
             if (OnGoingOrder != DevCarrierOrderE.无
-                && ((Status == DevCarrierStatusE.停止 && CurrentOrder == DevCarrierOrderE.无) // ∵同类型会终止 ∴不会连续2个同指令
+                && ((OperateMode == DevOperateModeE.自动 && Status == DevCarrierStatusE.停止 && CurrentOrder == DevCarrierOrderE.无) // ∵同类型会终止 ∴不会连续2个同指令
                     || (OperateMode == DevOperateModeE.手动 && (CurrentOrder == DevCarrierOrderE.无 || CurrentOrder == DevCarrierOrderE.终止指令))) // 仅判断手动情况的终止
                 )
             {
-                OnGoingTrackId = 0;
-                OnGoingOrder = DevCarrierOrderE.无;
+                SetOnGoingOrderInfo(DevCarrierOrderE.无, 0, 0, 0, 0, "重置");
+                return;
             }
 
             if (CurrentTrackId == OnGoingTrackId)
@@ -489,6 +551,16 @@ namespace task.device
             {
                 OnGoingTrackId = 0;
             }
+
+            if (OnGoingToPoint > 0 && (CurrentPoint == OnGoingToPoint || TargetPoint == OnGoingToPoint))
+            {
+                OnGoingToPoint = 0;
+            }
+            if (OnGoingOverPoint > 0 && (CurrentPoint == OnGoingOverPoint || TargetPoint == OnGoingOverPoint))
+            {
+                OnGoingOverPoint = 0;
+            }
+
         }
 
         #endregion
@@ -1516,7 +1588,7 @@ namespace task.device
                 return false;
             }
 
-            if (!DevConfig.IsUseGoodsSize(gsize))
+            if (gsize > 0 && !DevConfig.IsUseGoodsSize(gsize))
             {
                 result = string.Format("{0}无法作业{1}的砖；", Device.name, PubMaster.Goods.GetSizeName(gsize));
                 return false;

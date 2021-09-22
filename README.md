@@ -901,3 +901,11 @@ INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool
 INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (82, 10, 'UnlockFerryLimit', '小车提前解锁摆渡距离', NULL, NULL, '', 576.000, NULL, NULL, NULL, NULL);
 
 ```
+
+## 2021.09.22 [2.1] 新增运输车避让安全脉冲范围
+
+```mysql
+INSERT INTO `diction_dtl`(`id`, `diction_id`, `code`, `name`, `int_value`, `bool_value`, `string_value`, `double_value`, `uint_value`, `order`, `updatetime`, `level`) VALUES (83, 5, 'CarrierAvoidLimit', '运输车(脉冲数)', 576, NULL, '', NULL, NULL, NULL, NULL, NULL);
+
+```
+

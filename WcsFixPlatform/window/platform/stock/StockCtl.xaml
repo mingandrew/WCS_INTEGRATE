@@ -97,11 +97,12 @@
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding goods_id,Converter={StaticResource GoodId2NameConverter}}" Header="品种"/>
+                    <DataGridTextColumn Binding="{Binding level, Converter={StaticResource LevelValue2NameConverter}}" Header="品种等级"/>
                     <DataGridTextColumn Binding="{Binding produce_time,Converter={StaticResource Date2StringLongConverter}}" Header="生产时间"/>
                     <DataGridTextColumn Binding="{Binding pos}" Header="序号"/>
                     <DataGridTextColumn Binding="{Binding PosType}" Header="位置"/>
                     <DataGridTextColumn Binding="{Binding location}" Header="实际坐标(脉冲)"/>
-                    <DataGridTextColumn Binding="{Binding level, Converter={StaticResource LevelValue2NameConverter}}" Header="品种等级"/>
+                    <DataGridTextColumn Binding="{Binding tilelifter_id, Converter={StaticResource DevId2NameConverter}}" Header="来源砖机"/>
                     <!--<DataGridTextColumn Binding="{Binding location_cal}" Header="虚拟坐标(脉冲)"/>-->
                 </DataGrid.Columns>
             </DataGrid>

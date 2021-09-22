@@ -321,6 +321,21 @@ namespace task.trans
         }
 
         /// <summary>
+        /// 获取指定类型任务数量
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public int GetTaskCount(uint area, ushort line, params TransTypeE[] types)
+        {
+            return TransList.Count(c => !c.finish
+                                        && c.area_id == area
+                                        && c.line == line
+                                        && c.InType(types));
+        }
+
+        /// <summary>
         /// 获取倒库数量
         /// </summary>
         /// <param name="area"></param>
@@ -328,10 +343,7 @@ namespace task.trans
         /// <returns></returns>
         public int GetAreaSortTaskCount(uint area, ushort line)
         {
-            return TransList.Count(c => !c.finish
-                                        && c.area_id == area
-                                        && c.line == line
-                                        && c.InType(TransTypeE.倒库任务, TransTypeE.上砖接力));
+            return GetTaskCount(area, line, TransTypeE.倒库任务, TransTypeE.上砖接力, TransTypeE.中转倒库);
         }
 
         /// <summary>
@@ -1337,7 +1349,7 @@ namespace task.trans
         {
             int overtime = PubMaster.Dic.GetDtlIntCode(DicTag.StepOverTime);
             // 倒库中的流程超时2小时，才报警
-            if (trans.InStatus(TransStatusE.倒库中, TransStatusE.整理中))
+            if (trans.InStatus(TransStatusE.倒库中, TransStatusE.整理中, TransStatusE.倒库暂停, TransStatusE.接力等待))
             {
                 overtime = PubMaster.Dic.GetDtlIntCode(DicTag.SortingStockStepOverTime);
                 if (trans.IsInStatusOverTime(trans.TransStaus, overtime))

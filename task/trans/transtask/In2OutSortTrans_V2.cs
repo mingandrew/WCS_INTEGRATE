@@ -309,6 +309,15 @@ namespace task.trans.transtask
                             SetStockForSort(trans);
                             return;
                         }
+                        // 完成倒库换作业库存
+                        if (carrier.FinishOrder == DevCarrierOrderE.倒库指令 || carrier.FinishOrder == DevCarrierOrderE.放砖指令)
+                        {
+                            carrier.DoStop(trans.id, "重置倒库");
+
+                            // 倒库前确定作业库存
+                            SetStockForSort(trans);
+                            return;
+                        }
 
                         // 取砖脉冲
                         ushort takePoint = workStock?.location ?? 0;
@@ -365,21 +374,21 @@ namespace task.trans.transtask
                         else
                         {
                             // 暂时用取砖指令
-                            TakeInTarck(trans.stock_id, track.id, trans.carrier_id, trans.id, out string res, trans.AllocateFerryType, true);
-
-                            #region 【任务步骤记录】
-                            _M.LogForCarrierTake(trans, track.id, res);
-                            #endregion
-                            return;
-
-                            // 倒库
-                            //MoveToSort(track.id, trans.carrier_id, trans.id, takePoint, givePoint,
-                            //    string.Format("分界点[ {0} ], 取砖点[ {1} ], 放砖点[ {2} ]", splitP, takePoint, givePoint));
+                            //TakeInTarck(trans.stock_id, track.id, trans.carrier_id, trans.id, out string res, trans.AllocateFerryType, true);
 
                             //#region 【任务步骤记录】
-                            //_M.LogForCarrierSortRelay(trans, track.id);
+                            //_M.LogForCarrierTake(trans, track.id, res);
                             //#endregion
                             //return;
+
+                            // 倒库
+                            MoveToSort(track.id, trans.carrier_id, trans.id, takePoint, givePoint,
+                                string.Format("分界点[ {0} ], 取砖点[ {1} ], 放砖点[ {2} ]", splitP, takePoint, givePoint));
+
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierSortRelay(trans, track.id);
+                            #endregion
+                            return;
                         }
 
                     }

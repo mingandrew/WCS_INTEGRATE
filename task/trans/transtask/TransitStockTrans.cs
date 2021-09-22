@@ -72,6 +72,14 @@ namespace task.trans.transtask
 
                 _M.SetGoods(trans, stk.goods_id, stk.level);
 
+                // 倒库任务数量过多
+                int count = _M.GetTaskCount(trans.area_id, trans.line, TransTypeE.倒库任务, TransTypeE.上砖接力, TransTypeE.库存转移);
+                if (PubMaster.Area.IsSortTaskLimit(trans.area_id, trans.line, count))
+                {
+                    _M.SetStatus(trans, TransStatusE.倒库暂停, "倒库任务过多");
+                    return;
+                }
+
                 DoMoveStock(trans, stk);
             }
         }
@@ -156,6 +164,23 @@ namespace task.trans.transtask
             _M.SetStatus(trans, TransStatusE.完成);
         }
 
+        /// <summary>
+        /// 倒库暂停
+        /// </summary>
+        /// <param name="trans"></param>
+        public override void SortTaskWait(StockTrans trans)
+        {
+            // 倒库任务数量还未饱和
+            int count = _M.GetTaskCount(trans.area_id, trans.line, TransTypeE.倒库任务, TransTypeE.上砖接力, TransTypeE.库存转移);
+            if (!PubMaster.Area.IsSortTaskLimit(trans.area_id, trans.line, count))
+            {
+                _M.SetStatus(trans, TransStatusE.整理中, "倒库任务还未饱和");
+                Organizing(trans);
+                return;
+            }
+
+        }
+
 
 
         #region[其他流程]
@@ -221,15 +246,7 @@ namespace task.trans.transtask
         {
 
         }
-        /// <summary>
-        /// 倒库暂停
-        /// </summary>
-        /// <param name="trans"></param>
-        public override void SortTaskWait(StockTrans trans)
-        {
-
-        }
-
+        
         /// <summary>
         /// 接力等待
         /// </summary>

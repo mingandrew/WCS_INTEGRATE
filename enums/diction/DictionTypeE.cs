@@ -121,6 +121,11 @@
         /// </summary>
         public static string UnlockFerryLimit = nameof(UnlockFerryLimit);
 
+        /// <summary>
+        /// 小车防撞安全间距
+        /// </summary>
+        public static string CarrierAvoidLimit = nameof(CarrierAvoidLimit);
+
         #endregion
 
         #region[任务逻辑开关]
