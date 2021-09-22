@@ -870,10 +870,19 @@ ADD COLUMN `prior_num` tinyint(3) UNSIGNED NULL COMMENT '砖机急单类型【�
 
 
 
-## 2021.09.17 [2.1] 新增小车报警 - 标识码不符
+## 2021.09.17  [2.1] 新增小车报警 - 标识码不符
+
 
 ```mysql
-UPDATE `2021_wcs_xd`.`diction_dtl` SET `diction_id` = 3, `code` = 'WarningA4X6', `name` = '倒库时发送与接收的标识码不相等', `int_value` = NULL, `bool_value` = NULL, `string_value` = '倒库时发送与接收的标识码不相等：请尝试终止或重新连接通讯', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 130;
+UPDATE `diction_dtl` SET `diction_id` = 3, `code` = 'WarningA4X6', `name` = '倒库时发送与接收的标识码不相等', `int_value` = NULL, `bool_value` = NULL, `string_value` = '倒库时发送与接收的标识码不相等：请尝试终止或重新连接通讯', `double_value` = NULL, `uint_value` = NULL, `order` = NULL, `updatetime` = NULL, `level` = NULL WHERE `id` = 130;
+
+```
+
+
+## 2021.09.18 [2.1]  平板手动任务-module
+
+```mysql
+INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (39, '手动任务', 1, 'MANUALTASK', 'com.keda.wcsfixplatformapp.screen.rfmanualtask.RfManualTaskScreen', NULL, 'manual_task.png', NULL, '平板-手动任务');
 
 ```
 
