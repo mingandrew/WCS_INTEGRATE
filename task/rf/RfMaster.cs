@@ -2683,10 +2683,10 @@ namespace task.rf
                 {
                     types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
                 }
-                //List<Track> tracks = PubMaster.Track.GetTrackList(cartrack.area, cartrack.line, types);
-                //TrackPack pack = new TrackPack();
-                //pack.AddTrackList(tracks);
-                //SendSucc2Rf(msg.MEID, FunTag.QueryMoveCarrierGiveTrack, JsonTool.Serialize(pack));
+                List<Track> tracks = PubMaster.Track.GetTrackList(cartrack.area, cartrack.line, types);
+                TrackPack pack = new TrackPack();
+                pack.AddTrackList(tracks);
+                SendSucc2Rf(msg.MEID, FunTag.QueryMoveCarrierGiveTrack, JsonTool.Serialize(pack));
             }
         }
 

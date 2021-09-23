@@ -34,6 +34,7 @@ namespace socket.rf
         }
 
         public byte[] Buffer { get; private set; }
+        public int Last_Count { set; get; }
         public NetworkStream NetworkStream
         {
             get { return TcpClient.GetStream(); }
@@ -51,6 +52,8 @@ namespace socket.rf
             {
                 Buffer[i] = d[i];
             }
+
+            Last_Count = d.Length;
         }
 
         internal void SetMEID(string meid)

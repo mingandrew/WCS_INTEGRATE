@@ -226,8 +226,8 @@ namespace socket.rf
                     }
 
                     // received byte and trigger event notification
-                    byte[] readData = new byte[numberOfReadBytes];
-                    Buffer.BlockCopy(client.Buffer, 0, readData, 0, numberOfReadBytes);
+                    byte[] readData = new byte[numberOfReadBytes + client.Last_Count];
+                    Buffer.BlockCopy(client.Buffer, 0, readData, 0, numberOfReadBytes + client.Last_Count);
 
                     uint headerKey = BitConverter.ToUInt16(ShiftBytes(readData, 0, 2), 0);
                     if (headerKey != P_HEAD) //43707
@@ -249,7 +249,7 @@ namespace socket.rf
                             //return;
                         }
 
-                        client.Log2File(string.Format("数据长度：{0}, 总长度：{1}，", messageSize, readData.Count()), readData);
+                        //client.Log2File(string.Format("数据长度：{0}, 总长度：{1}，", messageSize, readData.Count()), readData);
 
                         if (readData.Count() >= messageSize)
                         {
@@ -284,6 +284,7 @@ namespace socket.rf
                         }
                         else
                         {
+                            client.Last_Count = 0;
                             networkStream.BeginRead(client.Buffer, 0, client.Buffer.Length, HandleDatagramReceived, client);
                         }
                     }
