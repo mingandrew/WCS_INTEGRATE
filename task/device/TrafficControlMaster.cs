@@ -79,6 +79,13 @@ namespace task.device
                                         continue;
                                     }
 
+                                    // 取消 - 完成
+                                    if (ctl.TrafficControlStatus == TrafficControlStatusE.取消)
+                                    {
+                                        SetStatus(ctl, TrafficControlStatusE.已完成, "取消");
+                                        continue;
+                                    }
+
                                     switch (ctl.TrafficControlType)
                                     {
                                         case TrafficControlTypeE.运输车交管运输车:
@@ -226,6 +233,37 @@ namespace task.device
             }
 
             result = "稍后再试！";
+            return false;
+        }
+
+        /// <summary>
+        /// 取消交管
+        /// </summary>
+        /// <param name="tct"></param>
+        /// <param name="devid"></param>
+        /// <param name="memo"></param>
+        /// <returns></returns>
+        public bool CancelTrafficControl(TrafficControlTypeE tct, uint devid, string memo = "")
+        {
+            if (Monitor.TryEnter(_in, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    TrafficControl tc = TrafficCtlList.Find(c => c.TrafficControlType == tct && c.restricted_id == devid);
+                    if (tc != null) SetStatus(tc, TrafficControlStatusE.取消, memo);
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message, e);
+                }
+                finally
+                {
+                    Monitor.Exit(_in);
+                }
+            }
+
             return false;
         }
 

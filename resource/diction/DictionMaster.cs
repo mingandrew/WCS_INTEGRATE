@@ -152,9 +152,9 @@ namespace resource.diction
             return GetDtlIntName(valuedic.DictionID, (int)valuedic.Value);
         }
 
-        public int GetDtlIntCode(string code)
+        public int GetDtlIntCode(string code, int defaultvalue = 0)
         {
-            return DicDtlList.Find(c => c.code.Equals(code))?.int_value ?? 0;
+            return DicDtlList.Find(c => c.code.Equals(code))?.int_value ?? defaultvalue;
         }
 
         public string GetDtlStrCode(string code)

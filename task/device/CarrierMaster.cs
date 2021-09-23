@@ -963,6 +963,7 @@ namespace task.device
                 }
                 #endregion
 
+                #region 基础信息
                 Track track = GetCarrierTrack(devid);
                 if (carriertask != DevCarrierTaskE.终止 && !isdebug && track == null) // 不用管当前位置的指令
                 {
@@ -1005,6 +1006,8 @@ namespace task.device
 
                 uint carstkid = 0; //车上库存ID
                 ushort stkloc = 0; // 库存脉冲
+
+                #endregion
 
                 switch (carriertask)
                 {
@@ -1419,6 +1422,11 @@ namespace task.device
                             return false;
                         }
 
+                        if (!CanDoOrderSafe(devid, toTrackid, overPoint, out result, false))
+                        {
+                            return false;
+                        }
+
                         checkTra = track.IsFerryTrack() ? toTrack.ferry_up_code : toTrack.ferry_down_code;
                         order = DevCarrierOrderE.定位指令;
                         #endregion
@@ -1470,6 +1478,11 @@ namespace task.device
                             && PubMaster.Goods.IsStockWithinRange(toTrackid, (ushort)(overPoint - 200), (ushort)(carPoint - 100)))
                         {
                             result = "载货后退的方向上检测到有砖挡着！";
+                            return false;
+                        }
+
+                        if (!CanDoOrderSafe(devid, toTrackid, overPoint, out result, false))
+                        {
                             return false;
                         }
 
@@ -1637,11 +1650,11 @@ namespace task.device
 
                 }
 
-                if (toTrackid > 0 && HaveInTrack(toTrackid, devid))
-                {
-                    result = "目的轨道有其他运输车！";
-                    return false;
-                }
+                //if (toTrackid > 0 && HaveInTrack(toTrackid, devid))
+                //{
+                //    result = "目的轨道有其他运输车！";
+                //    return false;
+                //}
 
                 // 发送指令
                 DoOrder(devid, 0, new CarrierActionOrder()
@@ -4252,8 +4265,20 @@ namespace task.device
         #endregion
 
         #region 小车防撞
+
+        /// <summary>
+        /// 是否执行指令安全（位移过程无阻碍）
+        /// </summary>
+        /// <param name="carrerid"></param>
+        /// <param name="toTrackid"></param>
+        /// <param name="toPoint"></param>
+        /// <param name="result"></param>
+        /// <param name="isavoid">是否控制阻碍车进行避让</param>
+        /// <returns></returns>
         public bool CanDoOrderSafe(uint carrerid, uint toTrackid, ushort toPoint, out string result, bool isavoid = true)
         {
+            #region 前提判断
+
             // 作业车
             CarrierTask workCar = GetDevCarrier(carrerid);
             if(workCar == null)
@@ -4288,10 +4313,14 @@ namespace task.device
                 return false;
             }
 
+            #endregion
+
+            #region 脉冲范围
+
             // 作业方向
             bool isback = workCar.CurrentPoint > toPoint;
             // 防撞距离
-            ushort limit = (ushort)PubMaster.Dic.GetDtlDouble(DicTag.CarrierAvoidLimit, 576); // 10M
+            ushort limit = (ushort)PubMaster.Dic.GetDtlIntCode(DicTag.CarrierAvoidLimit, 576); // 10M
             // 安全范围
             ushort min, max, safe;
             if (isback)
@@ -4313,47 +4342,64 @@ namespace task.device
                 safe = max;
             }
 
+            #endregion
+
             // 获取作业范围内的其他运输车
             List<CarrierTask> otherCars = DevList.FindAll(c => c.ID != carrerid &&
                                                                     (c.CurrentTrackId == workCar.CurrentTrackId || c.CurrentTrackId == toTrackid) && 
                                                                     (c.IsBiggerThanPoint(min) && c.IsSmallerThanPoint(max)));
             if (otherCars != null && otherCars.Count > 0)
             {
+                // 结束返回，不控制避让
                 if (!isavoid)
                 {
                     result = string.Format("[ {0} ]存在其他运输车阻碍作业", toTrack.name);
                     return false;
                 }
 
-                #region 尝试避让
+                #region 控制避让
                 // 离作业车  从近到远排序
                 otherCars.Sort((x, y) => (
                     isback ? (y.CurrentPoint.CompareTo(x.CurrentPoint)) : (x.CurrentPoint.CompareTo(y.CurrentPoint))
                 ));
 
-                // 只看最近的车
+                // 只看距离最近的车
                 CarrierTask theOne = otherCars[0];
-                // 判断是否可指令
+
+                // 判断是否可执行指令
                 if (!theOne.CheckCarrierIsUsable(0, out result)) return false;
+
                 // 判断是否空闲
                 if (!theOne.IsNotDoingTask)
                 {
                     result = string.Format("[ {0} ]正在执行指令[ {1} ]", theOne.Device.name, theOne.CurrentOrder);
                     return false;
                 }
+
                 // 判断是否有阻碍
                 if (!CanDoOrderSafe(theOne.ID, toTrackid, safe, out result)) return false;
 
                 // 避让（定位指令 / 移车任务）
                 if (safe == toTrack.limit_point || safe == toTrack.limit_point_up)
                 {
+                    result = string.Format("生成[ {0} ]移车任务进行避让", theOne.Device.name);
                     // 需要移到轨道头，那就干脆换轨道
+                    DeviceTypeE ferrytype = isback ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡;
+                    PubTask.Trans.AddMoveCarrierTask(toTrack.id, theOne.ID, toTrack.Type, MoveTypeE.转移占用轨道, ferrytype);
+                    return false;
                 }
                 else
                 {
+                    result = string.Format("控制[ {0} ]定位到[ {1} ]进行避让", theOne.Device.name, safe);
                     // 发送定位指令
-                    theOne.DoOrder(new CarrierActionOrder() {
-                    }, 0, string.Format("[ {0} ]需定位到[ {1} ],本车让路", workCar.Device.name, toPoint));
+                    theOne.DoOrder(new CarrierActionOrder()
+                    {
+                        Order = DevCarrierOrderE.定位指令,
+                        ToTrackId = toTrack.id,
+                        CheckTra = toTrack.ferry_up_code,
+                        OverPoint = safe
+                    }, 0, result);
+                    return false;
                 }
                 #endregion
             }

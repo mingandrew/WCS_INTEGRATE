@@ -63,8 +63,11 @@ namespace task.trans.transtask
                         ReturnCarrrier(trans);
                         break;
                     case TransStatusE.完成:
-                        FinishStockTrans(trans);
-                        FinishAndReleaseFerry(trans);
+                        if (PubTask.Ferry.CancelFerryTrafficControlByTrans(trans.id))
+                        {
+                            FinishAndReleaseFerry(trans);
+                            FinishStockTrans(trans);
+                        }
                         break;
                     case TransStatusE.取消:
                         CancelStockTrans(trans);

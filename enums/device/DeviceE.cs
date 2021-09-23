@@ -83,6 +83,7 @@
         初始化,
         交管中,
         已完成,
+        取消
     }
 
     public enum TrafficControlUpdateE

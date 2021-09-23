@@ -197,10 +197,10 @@ namespace task.device
         /// <returns></returns>
         public bool IsBiggerThanPoint(ushort point)
         {
-            return (CurrentPoint > 0 && CurrentPoint > point) ||
-                        (TargetPoint > 0 && TargetPoint > point) ||
-                        (OnGoingToPoint > 0 && OnGoingToPoint > point) ||
-                        (OnGoingOverPoint > 0 && OnGoingOverPoint > point);
+            return (CurrentPoint > 0 && CurrentPoint >= point) ||
+                        (TargetPoint > 0 && TargetPoint >= point) ||
+                        (OnGoingToPoint > 0 && OnGoingToPoint >= point) ||
+                        (OnGoingOverPoint > 0 && OnGoingOverPoint >= point);
         }
 
         /// <summary>
@@ -210,10 +210,10 @@ namespace task.device
         /// <returns></returns>
         public bool IsSmallerThanPoint(ushort point)
         {
-            return (CurrentPoint > 0 && CurrentPoint < point) ||
-                        (TargetPoint > 0 && TargetPoint < point) ||
-                        (OnGoingToPoint > 0 && OnGoingToPoint < point) ||
-                        (OnGoingOverPoint > 0 && OnGoingOverPoint < point);
+            return (CurrentPoint > 0 && CurrentPoint <= point) ||
+                        (TargetPoint > 0 && TargetPoint <= point) ||
+                        (OnGoingToPoint > 0 && OnGoingToPoint <= point) ||
+                        (OnGoingOverPoint > 0 && OnGoingOverPoint <= point);
         }
 
         #endregion

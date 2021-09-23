@@ -2038,6 +2038,29 @@ namespace task.device
             return false;
         }
 
+        /// <summary>
+        /// 取消摆渡间交管（By 自动任务ID）
+        /// </summary>
+        /// <param name="transid"></param>
+        /// <returns></returns>
+       public bool CancelFerryTrafficControlByTrans(uint transid)
+        {
+            List<FerryTask> tasks = DevList.FindAll(c => c.TransId == transid);
+            if (tasks != null && tasks.Count > 0)
+            {
+                bool isOK = false;
+                foreach (FerryTask task in tasks)
+                {
+                    isOK = PubTask.TrafficControl.CancelTrafficControl(TrafficControlTypeE.摆渡车交管摆渡车, 
+                        task.ID, "自动任务流程结束，取消对应摆渡间交管");
+                }
+
+                return isOK;
+            }
+
+            return true;
+        }
+
         #endregion
 
         #region[启动/停止]
