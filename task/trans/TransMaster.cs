@@ -1339,7 +1339,7 @@ namespace task.trans
             }
 
             // 基础判断
-            if (carrier.CheckBaseInfo(out string result))
+            if (!carrier.CheckBaseInfo(out string result))
             {
                 #region 【任务步骤记录】
                 SetStepLog(trans, false, 51, result);
