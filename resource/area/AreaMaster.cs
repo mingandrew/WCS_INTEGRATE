@@ -561,6 +561,24 @@ namespace resource.area
         public void AddAreaTileTrackList(uint areaid, uint toareaid, Device tile)
         {
             TrackTypeE tracktype = TrackTypeE.储砖_入;
+            
+            //根据砖机类型判断是否可上或可下
+            bool canup = false ,candown = false;
+            switch (tile.Type)
+            {
+                case DeviceTypeE.上砖机:
+                    canup = true;
+                    break;
+                case DeviceTypeE.下砖机:
+                    candown = true;
+                    break;
+                case DeviceTypeE.砖机:
+                    canup = true;
+                    candown = true;
+                    break;
+                default:
+                    break;
+            }
 
             if (tile.Type == DeviceTypeE.上砖机)
             {
@@ -587,6 +605,8 @@ namespace resource.area
                     device_id = tile.id,
                     track_id = trackid,
                     prior = prior,
+                    can_down = candown,
+                    can_up = canup
                 };
                 PubMaster.Mod.AreaSql.AddAreaDeviceTrack(areatradev);
                 prior += 1;
