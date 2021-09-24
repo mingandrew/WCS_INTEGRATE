@@ -266,6 +266,15 @@ namespace task.trans.transtask
                 }
                 #endregion
 
+                // 避让判断
+                if (!PubTask.Carrier.CanDoOrderSafe(trans.carrier_id, track.id, overP, out result))
+                {
+                    #region 【任务步骤记录】
+                    _M.LogForCarrierTake(trans, track.id, "取砖前清空轨道内其他小车");
+                    #endregion
+                    return;
+                }
+
                 #region 无砖
                 if (isNotLoad)
                 {
@@ -988,6 +997,13 @@ namespace task.trans.transtask
                 return;
             }
 
+            // 本轨道空砖
+            if (track.StockStatus == TrackStockStatusE.空砖)
+            {
+                _M.SetStatus(trans, TransStatusE.小车回轨, "轨道无库存");
+                return;
+            }
+
             bool isLoad = carrier.IsLoad();
             bool isNotLoad = carrier.IsNotLoad();
             bool isStopNoOrder = carrier.IsStopNoOrder(out string result);
@@ -1053,11 +1069,11 @@ namespace task.trans.transtask
                 else
                 {
                     #region 小车回轨
-                    if (IsTransferOver(track.id, overP, splitP))
-                    {
-                        _M.SetStatus(trans, TransStatusE.小车回轨, "轨道无库存");
-                        return;
-                    }
+                    //if (IsTransferOver(track.id, overP, splitP))
+                    //{
+                    //    _M.SetStatus(trans, TransStatusE.小车回轨, "轨道无库存");
+                    //    return;
+                    //}
 
                     if (!PubMaster.DevConfig.IsHaveSameTileNowGood(track.area, trans.goods_id, trans.level, TileWorkModeE.上砖))
                     {

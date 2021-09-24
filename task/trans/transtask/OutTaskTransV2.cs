@@ -211,7 +211,7 @@ namespace task.trans.transtask
                                 }
 
                                 // 取砖相关报警超20s
-                                if (carrier.DevAlert.CanNotActionForTaking() && mTimer.IsTimeUp(trans.carrier_id + "LoadError", 20))
+                                if (carrier.DevAlert.CanNotActionForTaking() && mTimer.IsOver(trans.carrier_id + "LoadError", 20, 10))
                                 {
                                     // 先解锁摆渡
                                     if (trans.HaveTakeFerry)
@@ -274,7 +274,8 @@ namespace task.trans.transtask
 
                             //1.不允许，则不可以有车
                             //2.允许，则不可以有非倒库车
-                            if (_M.CheckHaveCarrierInTrackForUp(trans.carrier_id, trans.take_track_id, out result))
+                            //if (_M.CheckHaveCarrierInTrackForUp(trans.carrier_id, trans.take_track_id, out result))
+                            if (!PubTask.Carrier.CanDoOrderSafe(trans.carrier_id, trans.take_track_id, takeTrack.limit_point_up, out result, false)) // 判断是否能停到轨道前侧点
                             {
                                 // 优先移动到空轨道
                                 List<uint> trackids = PubMaster.Track.GetAreaSortOutTrack(trans.area_id, trans.line, TrackTypeE.储砖_出, TrackTypeE.储砖_出入);
@@ -332,6 +333,17 @@ namespace task.trans.transtask
                             // 判断是否需要在库存在上砖分割点后,，待车入轨道再生成倒库任务
                             if (_M.CheckTopStockAndSendSortTask(trans.id, trans.carrier_id, trans.take_track_id, trans.goods_id, trans.level, false))
                             {
+                                // 避让判断
+                                if (!PubTask.Carrier.CanDoOrderSafe(trans.carrier_id, trans.take_track_id, takeTrack.limit_point, out result))
+                                {
+                                    MoveToPos(trans.take_track_id, trans.carrier_id, trans.id, CarrierPosE.轨道前侧定位点);
+
+                                    #region 【任务步骤记录】
+                                    _M.LogForCarrierToTrack(trans, trans.take_track_id);
+                                    #endregion
+                                    return;
+                                }
+
                                 MoveToLoc(trans.take_track_id, trans.carrier_id, trans.id, takeTrack.up_split_point);
 
                                 #region 【任务步骤记录】
@@ -357,6 +369,15 @@ namespace task.trans.transtask
                                 return;
                             }
                             _M.SetStock(trans, takeStock.id);
+
+                            // 避让判断
+                            if (!PubTask.Carrier.CanDoOrderSafe(trans.carrier_id, trans.take_track_id, takeStock.location, out result))
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierNoTake(trans, trans.take_track_id, result);
+                                #endregion
+                                return;
+                            }
 
                             // 直接取砖
                             TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);

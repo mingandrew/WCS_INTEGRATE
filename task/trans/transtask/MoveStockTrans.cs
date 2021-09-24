@@ -128,7 +128,7 @@ namespace task.trans.transtask
                             if (!isStopNoOrder && carrier.InTask(DevCarrierOrderE.取砖指令))
                             {
                                 // 取砖相关报警超20s
-                                if (carrier.DevAlert.CanNotActionForTaking() && mTimer.IsTimeUp(trans.carrier_id + "LoadError", 20))
+                                if (carrier.DevAlert.CanNotActionForTaking() && mTimer.IsOver(trans.carrier_id + "LoadError", 20, 10))
                                 {
                                     // 先解锁摆渡
                                     if (trans.HaveTakeFerry)
@@ -193,8 +193,14 @@ namespace task.trans.transtask
                     // 锁定摆渡车
                     if (!AllocateTakeFerry(trans, trans.AllocateFerryType, track)) return;
 
-                    //是否有小车在取货轨道
-                    bool CheckOtherCar = CheckTrackAndAddMoveTask(trans, trans.take_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡);
+                    // 获取库存脉冲
+                    ushort stkLoc = PubMaster.Goods.GetStockLocation(trans.stock_id);
+
+                    //是否有小车在取货轨道 - 停用
+                    //bool CheckOtherCar = CheckTrackAndAddMoveTask(trans, trans.take_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡);
+
+                    // 判断是否有阻碍
+                    bool CheckOtherCar = !PubTask.Carrier.CanDoOrderSafe(trans.carrier_id, trans.take_track_id, stkLoc, out result);
 
                     if (isNotLoad && isStopNoOrder)
                     {
@@ -210,16 +216,19 @@ namespace task.trans.transtask
                             }
 
                             //是否有小车在取货轨道
-                            if (CheckOtherCar) return;
-
-                            // 获取库存脉冲
-                            ushort stkLoc = PubMaster.Goods.GetStockLocation(trans.stock_id);
-
-                            // 取砖
-                            MoveToTake(trans.take_track_id, trans.carrier_id, trans.id, stkLoc, "", trans.AllocateFerryType);
+                            if (CheckOtherCar)
+                            {
+                                #region 【任务步骤记录】
+                                _M.LogForCarrierNoTake(trans, trans.take_track_id, result);
+                                #endregion
+                                return;
+                            }
 
                             // 直接取砖 - 停用
                             //TakeInTarck(trans.stock_id, trans.take_track_id, trans.carrier_id, trans.id, out res);
+
+                            // 取砖
+                            MoveToTake(trans.take_track_id, trans.carrier_id, trans.id, stkLoc, "", trans.AllocateFerryType);
 
                             #region 【任务步骤记录】
                             _M.LogForCarrierTake(trans, trans.take_track_id, res);
@@ -254,9 +263,6 @@ namespace task.trans.transtask
                     // 锁定摆渡车
                     if (!AllocateGiveFerry(trans, trans.AllocateFerryType, track)) return;
 
-                    //是否有小车在放货轨道
-                    bool CheckOtherCar = CheckTrackAndAddMoveTask(trans, trans.give_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡);
-
                     if (isLoad && isStopNoOrder)
                     {
                         #region [根据摆渡车code比对卸货轨道code - 获取存砖脉冲]
@@ -267,58 +273,83 @@ namespace task.trans.transtask
                         // 下一车库存脉冲
                         bool canMove = PubMaster.Goods.CalculateNextLocByDir(isback ? DevMoveDirectionE.后 : DevMoveDirectionE.前, trans.carrier_id, trans.give_track_id, trans.stock_id, out ushort stkLoc);
 
+                        // 是否被任务占用
+                        if (canMove)
+                        {
+                            //是否开启【出入倒库轨道可以同时上砖】
+                            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask))
+                            {
+                                if (_M.ExistTransWithTrackButType(trans.give_track_id, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                                {
+                                    canMove = false;
+                                }
+                            }
+                            else
+                            {
+                                if (_M.ExistTransWithTrackButType(trans.give_track_id, TransTypeE.移车任务))
+                                {
+                                    canMove = false;
+                                }
+                            }
+                        }
+
                         #endregion
 
-                        #region 取消 - 暂用
+                        #region [重新分配轨道]
                         if (!canMove)
                         {
-                            _M.SetStatus(trans, TransStatusE.取消, "无合适存砖脉冲");
+                            bool isWarn = false;
+
+                            // 换轨道?
+                            List<uint> newTraIDs = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, trans.goods_id, trans.level);
+                            if (newTraIDs != null && newTraIDs.Count > 0)
+                            {
+                                foreach (uint traid in newTraIDs)
+                                {
+                                    if (!_M.ExistTransWithTracks(traid)
+                                        //&& !PubTask.Carrier.HaveInTrack(traid, trans.carrier_id)
+                                        && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, traid)
+                                        && _M.SetGiveSite(trans, traid))
+                                    {
+                                        isWarn = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (isWarn)
+                            {
+                                PubMaster.Warn.RemoveTaskWarn(WarningTypeE.TransHaveNotTheGiveTrack, trans.id);
+                            }
+                            else
+                            {
+                                // 超60s - 取消
+                                if (mTimer.IsOver(trans.carrier_id + "NotGiveSite", 60, 10))
+                                {
+                                    _M.SetStatus(trans, TransStatusE.取消, "超时 - 没有找到合适的轨道卸砖");
+                                    return;
+                                }
+
+                                PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.TransHaveNotTheGiveTrack, (ushort)trans.carrier_id, trans.id);
+
+                                #region 【任务步骤记录】
+                                _M.SetStepLog(trans, false, 1311, string.Format("没有找到合适的轨道卸砖，继续尝试寻找其他轨道；"));
+                                #endregion
+                            }
+
                             return;
                         }
-                        #endregion
-
-                        #region [重新分配轨道] - 停用
-                        //if (!canMove)
-                        //{
-                        //    bool isWarn = false;
-
-                        //    // 换轨道?
-                        //    List<uint> newTraIDs = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, trans.goods_id, trans.level);
-                        //    if (newTraIDs != null && newTraIDs.Count > 0)
-                        //    {
-                        //        foreach (uint traid in newTraIDs)
-                        //        {
-                        //            if (!_M.ExistTransWithTracks(traid)
-                        //                && !PubTask.Carrier.HaveInTrack(traid, trans.carrier_id)
-                        //                && PubMaster.Area.IsFerryWithTrack(trans.area_id, trans.give_ferry_id, traid)
-                        //                && _M.SetGiveSite(trans, traid))
-                        //            {
-                        //                isWarn = true;
-                        //                break;
-                        //            }
-                        //        }
-                        //    }
-
-                        //    if (isWarn)
-                        //    {
-                        //        PubMaster.Warn.RemoveTaskWarn(WarningTypeE.TransHaveNotTheGiveTrack, trans.id);
-                        //    }
-                        //    else
-                        //    {
-                        //        PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.TransHaveNotTheGiveTrack, (ushort)trans.carrier_id, trans.id);
-
-                        //        #region 【任务步骤记录】
-                        //        _M.SetStepLog(trans, false, 1311, string.Format("没有找到合适的轨道卸砖，继续尝试寻找其他轨道；"));
-                        //        #endregion
-                        //    }
-
-                        //    return;
-                        //}
                         #endregion
 
                         #region 卸砖
                         if (canMove)
                         {
+                            //是否有小车在放货轨道
+                            //bool CheckOtherCar = CheckTrackAndAddMoveTask(trans, trans.give_track_id, track.Type == TrackTypeE.前置摆渡轨道 ? DeviceTypeE.后摆渡 : DeviceTypeE.前摆渡);
+
+                            // 判断是否有阻碍
+                            bool CheckOtherCar = !PubTask.Carrier.CanDoOrderSafe(trans.carrier_id, trans.give_track_id, stkLoc, out result);
+
                             //小车在摆渡车上
                             if (PubTask.Ferry.IsLoad(trans.give_ferry_id))
                             {
@@ -331,7 +362,13 @@ namespace task.trans.transtask
                                 }
 
                                 //是否有小车在放货轨道
-                                if (CheckOtherCar) return;
+                                if (CheckOtherCar)
+                                {
+                                    #region 【任务步骤记录】
+                                    _M.LogForCarrierNoTake(trans, trans.give_track_id, result);
+                                    #endregion
+                                    return;
+                                }
 
                                 MoveToGive(trans.give_track_id, trans.carrier_id, trans.id, stkLoc, "", trans.AllocateFerryType);
 
@@ -481,7 +518,7 @@ namespace task.trans.transtask
                 case TrackTypeE.储砖_入:
                 case TrackTypeE.上砖轨道:
                 case TrackTypeE.下砖轨道:
-                    if (isNotLoad && isStopNoOrder)
+                    if (isStopNoOrder)
                     {
                         _M.SetStatus(trans, TransStatusE.完成);
                     }
