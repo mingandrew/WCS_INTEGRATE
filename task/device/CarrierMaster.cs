@@ -1755,6 +1755,12 @@ namespace task.device
                             }
                         }
 
+                        // 定位指令  PLC程序保底 3 脉冲才可移动
+                        if (Math.Abs(task.CurrentPoint - cao.OverPoint) <= 3)
+                        {
+                            cao.OverPoint = (ushort)((task.CurrentPoint > cao.OverPoint) ? (cao.OverPoint - 3) : (cao.OverPoint + 3));
+                        }
+
                         // 无轨道编号就以当前为准
                         if (cao.CheckTra == 0) cao.CheckTra = task.CurrentSite;
 
@@ -1950,13 +1956,54 @@ namespace task.device
             }
 
             List<CarrierPos> posList = PubMaster.Track.GetCarrierPosList(task.AreaId);
-            if (posList == null || posList.Count == 0 || posList.Exists(c => c.track_point == point && c.track_pos == 0))
+            if (posList == null || posList.Count == 0)
             {
                 res = "没有复位点脉冲数据";
                 return false;
             }
 
+            CarrierPos cp = posList.Find(c => c.track_point == point);
+            if (cp == null || cp.track_pos == 0)
+            {
+                res = cp.CarrierPosType + "：未配置";
+                return false;
+            }
+
             Track track = PubMaster.Track.GetTrackBySite((ushort)task.AreaId, code);
+            bool isOk = false;
+            switch (track.Type)
+            {
+                case TrackTypeE.储砖_入:
+                case TrackTypeE.储砖_出:
+                case TrackTypeE.储砖_出入:
+                    if (cp.InType(CarrierPosE.轨道前侧复位点, CarrierPosE.轨道后侧复位点))
+                    {
+                        isOk = true;
+                    }
+                    break;
+
+                case TrackTypeE.后置摆渡轨道:
+                    if (cp.CarrierPosType == CarrierPosE.后置摆渡复位点)
+                    {
+                        isOk = true;
+                    }
+                    break;
+                case TrackTypeE.前置摆渡轨道:
+                    if (cp.CarrierPosType == CarrierPosE.前置摆渡复位点)
+                    {
+                        isOk = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            if (!isOk)
+            {
+                res = "请选择与目的轨道相对应的复位点";
+                return false;
+            }
+
             if (track != null && !IsAddTrafficControl(task, track, out string msg))
             {
                 res = msg;
@@ -1984,7 +2031,8 @@ namespace task.device
                 }
 
                 Thread.Sleep(500);
-                task.DoRenew(point, code, md == DevMoveDirectionE.前 ? CarrierResetE.前进初始化 : CarrierResetE.后退初始化);
+                res = string.Format("初始化：[ {0} - {1} ]", code, point);
+                task.DoRenew(point, code, md == DevMoveDirectionE.前 ? CarrierResetE.前进初始化 : CarrierResetE.后退初始化, res);
             }
             finally
             {
@@ -4279,6 +4327,12 @@ namespace task.device
         public bool CanDoOrderSafe(uint carrerid, uint toTrackid, ushort toPoint, out string result, bool isavoid = true)
         {
             #region 前提判断
+            // 位置判断
+            if (toTrackid == 0 || toPoint == 0)
+            {
+                result = string.Format("轨道ID^脉冲[ {0}^{1} ]异常-不作防撞判断", toTrackid, toPoint);
+                return true;
+            }
 
             // 作业车
             CarrierTask workCar = GetDevCarrier(carrerid);
@@ -4404,7 +4458,6 @@ namespace task.device
                 }
                 #endregion
             }
-
 
             result = "无运输车阻碍";
             return true;

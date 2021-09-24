@@ -1211,11 +1211,11 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="memo"></param>
-        internal void LogForCarrierNoTake(StockTrans trans, uint trackid)
+        internal void LogForCarrierNoTake(StockTrans trans, uint trackid, string memo = "")
         {
-            SetStepLog(trans, false, 408, string.Format("判断运输车[ {0} ]暂时不可移至[ {1} ]取砖；",
+            SetStepLog(trans, false, 408, string.Format("判断运输车[ {0} ]暂时不可移至[ {1} ]取砖；[ {2} ]；",
                 PubMaster.Device.GetDeviceName(trans.carrier_id),
-                PubMaster.Track.GetTrackName(trackid)));
+                PubMaster.Track.GetTrackName(trackid), memo));
         }
 
         /// <summary>

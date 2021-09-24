@@ -249,15 +249,15 @@ namespace wcs.ViewModel
                 return;
             }
 
-            TrackTypeE[] types;
-            if (cartrack.InType(TrackTypeE.下砖轨道, TrackTypeE.后置摆渡轨道, TrackTypeE.储砖_入))
-            {
-                types = new TrackTypeE[] { TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入 };
-            }
-            else
-            {
-                types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
-            }
+            TrackTypeE[] types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
+            //if (cartrack.InType(TrackTypeE.下砖轨道, TrackTypeE.后置摆渡轨道, TrackTypeE.储砖_入))
+            //{
+            //    types = new TrackTypeE[] { TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入 };
+            //}
+            //else
+            //{
+            //    types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
+            //}
 
 
             DialogResult ingivetrars = await HandyControl.Controls.Dialog.Show<TrackSelectDialog>()

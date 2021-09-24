@@ -100,11 +100,24 @@ namespace task.trans.transtask
             uint trackid = 0;
             foreach (uint traid in trackids)
             {
-                if (!_M.ExistTransWithTrackButType(traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                //是否开启【出入倒库轨道可以同时上砖】
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask))
                 {
-                    trackid = traid;
-                    break;
+                    if (_M.ExistTransWithTrackButType(traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                    {
+                        continue;
+                    }
                 }
+                else
+                {
+                    if (_M.ExistTransWithTrackButType(traid, TransTypeE.移车任务))
+                    {
+                        continue;
+                    }
+                }
+
+                trackid = traid;
+                break;
             }
 
             if (trackid > 0)
@@ -118,17 +131,21 @@ namespace task.trans.transtask
             }
             else
             {
-                // 无轨道转移，则来源轨道执行轨道内的倒库
-                Track track = PubMaster.Track.GetTrack(trans.take_track_id);
-                ushort safe = PubMaster.Goods.GetStackSafe(top.goods_id);
-                if (PubMaster.Track.ExistSpaceAwayFromOut(track, top, safe, out int discountTop)
-                    || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(track, safe, out string result)))
+                //是否开启【出入倒库轨道可以同时下砖】
+                if (PubMaster.Dic.IsSwitchOnOff(DicTag.DownTaskIgnoreInoutSortTask))
                 {
-                    uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.倒库任务, top.goods_id, top.level, top.id,
-                        trans.take_track_id, trans.take_track_id, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
+                    // 无轨道转移，则来源轨道执行轨道内的倒库
+                    Track track = PubMaster.Track.GetTrack(trans.take_track_id);
+                    ushort safe = PubMaster.Goods.GetStackSafe(top.goods_id);
+                    if (PubMaster.Track.ExistSpaceAwayFromOut(track, top, safe, out int discountTop)
+                        || (GlobalWcsDataConfig.BigConifg.TrackSortMid && PubMaster.Track.ExistSpaceBetween(track, safe, out string result)))
+                    {
+                        uint transid = _M.AddTransWithoutLock(trans.area_id, 0, TransTypeE.倒库任务, top.goods_id, top.level, top.id,
+                            trans.take_track_id, trans.take_track_id, TransStatusE.检查轨道, 0, trans.line, trans.AllocateFerryType);
 
-                    _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖，生成轨道倒库任务 [ID：{0}]", transid));
-                    return;
+                        _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖，生成轨道倒库任务 [ID：{0}]", transid));
+                        return;
+                    }
                 }
 
                 _M.SetStatus(trans, TransStatusE.完成, string.Format("找不到合适轨道中转存砖"));

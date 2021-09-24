@@ -2674,15 +2674,15 @@ namespace task.rf
                     SendFail2Rf(msg.MEID, FunTag.QueryMoveCarrierGiveTrack, "运输车当前没有轨道位置信息！");
                     return;
                 }
-                TrackTypeE[] types;
-                if (cartrack.InType(TrackTypeE.下砖轨道, TrackTypeE.前置摆渡轨道, TrackTypeE.储砖_入))
-                {
-                    types = new TrackTypeE[] { TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入 };
-                }
-                else
-                {
-                    types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
-                }
+                TrackTypeE[] types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
+                //if (cartrack.InType(TrackTypeE.下砖轨道, TrackTypeE.前置摆渡轨道, TrackTypeE.储砖_入))
+                //{
+                //    types = new TrackTypeE[] { TrackTypeE.下砖轨道, TrackTypeE.储砖_入, TrackTypeE.储砖_出入 };
+                //}
+                //else
+                //{
+                //    types = new TrackTypeE[] { TrackTypeE.上砖轨道, TrackTypeE.储砖_出, TrackTypeE.储砖_出入 };
+                //}
                 List<Track> tracks = PubMaster.Track.GetTrackList(cartrack.area, cartrack.line, types);
                 TrackPack pack = new TrackPack();
                 pack.AddTrackList(tracks);

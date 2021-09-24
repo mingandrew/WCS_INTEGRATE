@@ -494,8 +494,10 @@ namespace task.device
         /// <param name="point">复位号码</param>
         /// <param name="Code">轨道编号</param>
         /// <param name="cr">复位操作</param>
-        internal void DoRenew(ushort point, ushort Code, CarrierResetE cr)
+        internal void DoRenew(ushort point, ushort Code, CarrierResetE cr, string memo)
         {
+            SetOnGoingOrderInfo(DevCarrierOrderE.初始化, 0, 0, 0, 0, memo);
+
             DevTcp?.SendCmd(DevCarrierCmdE.复位操作, (byte)cr, 0, Code, 0, 0, 0, (byte)point);
         }
 
@@ -1526,7 +1528,7 @@ namespace task.device
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        private bool CheckBaseInfo(out string result)
+        public bool CheckBaseInfo(out string result)
         {
             if (ConnStatus != SocketConnectStatusE.通信正常)
             {
@@ -1619,15 +1621,6 @@ namespace task.device
             if (!IsNotDoingTask)
             {
                 result = string.Format("{0}执行指令中-[当前指令: {1}], [记录指令: {2}]；", Device.name, CurrentOrder, OnGoingOrder);
-                return false;
-            }
-
-            Track track = PubMaster.Track.GetTrack(CurrentTrackId);
-            if (track != null 
-                && track.InType(TrackTypeE.后置摆渡轨道, TrackTypeE.前置摆渡轨道) 
-                && Position != DevCarrierPositionE.在摆渡上)
-            {
-                result = string.Format("{0}当前位于摆渡轨道，但设备没有反馈-在摆渡上；", Device.name);
                 return false;
             }
 
