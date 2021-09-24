@@ -1750,7 +1750,8 @@ namespace task.device
                         {
                             if (Math.Abs(cao.ToPoint - cao.OverPoint) <= 15) // ≈26CM
                             {
-                                cao.OverPoint = cao.ToPoint;
+                                //cao.OverPoint = cao.ToPoint;
+                                cao.OverPoint = 0;
                             }
                         }
 
