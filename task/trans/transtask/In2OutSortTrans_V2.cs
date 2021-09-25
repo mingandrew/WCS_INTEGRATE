@@ -65,6 +65,9 @@ namespace task.trans.transtask
             {
                 _M.SetCarrier(trans, carrierid);
                 _M.SetStatus(trans, TransStatusE.移车中);
+
+                // 直接先跑一次
+                if (trans.TransStaus == TransStatusE.移车中) MovingCarrier(trans);
                 return;
             }
 

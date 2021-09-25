@@ -1149,7 +1149,7 @@ namespace task.device
 
                 //没有需求但是介入状态 同时:轨道没有车/有车无货
                 if (task.IsInvo_1 && isOK
-                    && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_1, 15, 10))
+                    && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_1, 10, 5))
                 {
                     if (task.HaveBrother)
                     {
@@ -1195,7 +1195,7 @@ namespace task.device
                 }
                 //没有需求但是介入状态 同时:轨道没有车/有车无货
                 if (task.DevConfig.right_track_id == 0
-                    || (isOK && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_2, 15, 10)))
+                    || (isOK && mTimer.IsOver(TimerTag.TileInvoNotNeed, task.ID, Site_2, 10, 5)))
                 {
                     if (task.HaveBrother)
                     {

@@ -1440,6 +1440,11 @@ namespace resource.device
             return ConfigCarrierList.Find(c => c.id == carrier_id)?.stock_id ?? 0;
         }
 
+        /// <summary>
+        /// 获取砖机所有工位轨道
+        /// </summary>
+        /// <param name="tileid"></param>
+        /// <returns></returns>
         public List<uint> GetTileTracks(uint tileid)
         {
             List<uint> ids = new List<uint>();

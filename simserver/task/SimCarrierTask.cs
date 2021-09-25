@@ -277,7 +277,7 @@ namespace simtask
 
                     if (DevStatus.LoadStatus == DevCarrierLoadE.有货)
                     {
-                        if (DevStatus.CurrentSite == END_SITE && DevStatus.CurrentPoint == END_POINT)
+                        if (DevStatus.CurrentSite == END_SITE && (END_POINT == 0 || DevStatus.CurrentPoint == END_POINT))
                         {
                             FinishAndStop(DevCarrierOrderE.取砖指令);
                         }
@@ -312,7 +312,7 @@ namespace simtask
 
                     if (DevStatus.LoadStatus == DevCarrierLoadE.无货)
                     {
-                        if (DevStatus.CurrentSite == END_SITE && DevStatus.CurrentPoint == END_POINT)
+                        if (DevStatus.CurrentSite == END_SITE && (END_POINT == 0 || DevStatus.CurrentPoint == END_POINT))
                         {
                             FinishAndStop(DevCarrierOrderE.放砖指令);
                         }
@@ -338,7 +338,7 @@ namespace simtask
                     // 再放砖
                     if (DevStatus.LoadStatus == DevCarrierLoadE.有货)
                     {
-                        if (DevStatus.CurrentSite == END_SITE && DevStatus.CurrentPoint == END_POINT)
+                        if (DevStatus.CurrentSite == END_SITE && (END_POINT == 0 || DevStatus.CurrentPoint == END_POINT))
                         {
                             DevStatus.LoadStatus = DevCarrierLoadE.无货;
                             SetUnLoadSitePoint();
@@ -1448,13 +1448,13 @@ namespace simtask
             ushort dif = (ushort)Math.Abs(rs);
             if (rs > 0)
             {
-                DevStatus.CurrentPoint -= (ushort)(dif > 400 ? 400 : dif);
+                DevStatus.CurrentPoint -= (ushort)(dif > 300 ? 300 : dif);
                 DevStatus.DeviceStatus = DevCarrierStatusE.后退;
             }
             
             if(rs < 0)
             {
-                DevStatus.CurrentPoint += (ushort)(dif > 400 ? 400 : dif);
+                DevStatus.CurrentPoint += (ushort)(dif > 300 ? 300 : dif);
                 DevStatus.DeviceStatus = DevCarrierStatusE.前进;
             }
             

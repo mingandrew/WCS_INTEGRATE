@@ -76,12 +76,12 @@ namespace simtask.task
                 dir = TargetPos - NowPos;
                 if(dir > 0)
                 {
-                    NowPos += dir > 200 ? 200 : dir ;
+                    NowPos += dir > 500 ? 500 : dir ;
                     DevStatus.DeviceStatus = DevFerryStatusE.后退;
                 }
                 else
                 {
-                    NowPos += dir < -200 ? -200 : dir;
+                    NowPos += dir < -500 ? -500 : dir;
                     DevStatus.DeviceStatus = DevFerryStatusE.后退;
                 }
 

@@ -57,8 +57,8 @@ namespace task.trans
             if (GlobalWcsDataConfig.BigConifg.UseSortV2)
             {
                 // V2.0
-                CheckTrackSortV1();
-                CheckTrackSortV2();
+                //CheckTrackSortV1();
+                //CheckTrackSortV2();
             }
             else
             {
@@ -175,7 +175,7 @@ namespace task.trans
                     uint trackid = 0;
                     foreach (uint traid in trackids)
                     {
-                        if (!ExistTransWithTrackButType(traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                        if (!ExistTransWithTrackButType(0, traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
                         {
                             trackid = traid;
                             break;
@@ -851,7 +851,7 @@ namespace task.trans
                 }
                 else
                 {
-                    // 后取 后放 - 前摆渡
+                    // 后取 - 前摆渡
                     return DeviceTypeE.前摆渡;
                 }
 
@@ -1490,6 +1490,7 @@ namespace task.trans
 
         public bool CancelTask(uint transid, out string result)
         {
+            result = "请稍后再试";
             if (Monitor.TryEnter(_to, TimeSpan.FromSeconds(2)))
             {
                 try
@@ -1598,7 +1599,6 @@ namespace task.trans
                     Monitor.Exit(_to);
                 }
             }
-            result = "请稍后再试";
             return false;
         }
 

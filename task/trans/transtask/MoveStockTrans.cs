@@ -55,11 +55,33 @@ namespace task.trans.transtask
         public override void AllocateDevice(StockTrans trans)
         {
             //是否存在同卸货点的交易，如果有则等待该任务完成后，重新派送该车做新的任务
-            if (_M.HaveGiveInTrackId(trans))
+            //if (_M.HaveGiveInTrackId(trans))
+            //{
+            //    #region 【任务步骤记录】
+            //    _M.SetStepLog(trans, false, 1111, string.Format("存在相同作业轨道的任务，等待任务完成；"));
+            //    #endregion
+            //    return;
+            //}
+
+            //是否开启【出入倒库轨道可以同时上砖】
+            bool isCancel = false;
+            if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask))
             {
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1111, string.Format("存在相同作业轨道的任务，等待任务完成；"));
-                #endregion
+                if (_M.ExistTransWithTrackButType(trans.id, trans.give_track_id, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                {
+                    isCancel = true;
+                }
+            }
+            else
+            {
+                if (_M.ExistTransWithTrackButType(trans.id, trans.give_track_id, TransTypeE.移车任务))
+                {
+                    isCancel = true;
+                }
+            }
+            if (isCancel)
+            {
+                _M.SetStatus(trans, TransStatusE.取消, "卸货轨道的存在任务");
                 return;
             }
 
@@ -78,6 +100,9 @@ namespace task.trans.transtask
             {
                 _M.SetCarrier(trans, carrierid);
                 _M.SetStatus(trans, TransStatusE.取砖流程);
+
+                // 直接先跑一次
+                if (trans.TransStaus == TransStatusE.取砖流程) ToTakeTrackTakeStock(trans);
                 return;
             }
 
@@ -279,14 +304,14 @@ namespace task.trans.transtask
                             //是否开启【出入倒库轨道可以同时上砖】
                             if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask))
                             {
-                                if (_M.ExistTransWithTrackButType(trans.give_track_id, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                                if (_M.ExistTransWithTrackButType(trans.id, trans.give_track_id, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
                                 {
                                     canMove = false;
                                 }
                             }
                             else
                             {
-                                if (_M.ExistTransWithTrackButType(trans.give_track_id, TransTypeE.移车任务))
+                                if (_M.ExistTransWithTrackButType(trans.id, trans.give_track_id, TransTypeE.移车任务))
                                 {
                                     canMove = false;
                                 }

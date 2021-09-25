@@ -2268,13 +2268,13 @@ namespace resource.track
         }
 
         /// <summary>
-        /// 获取区域上砖机的所有轨道
+        /// 获取区域砖机的所有轨道
         /// </summary>
         /// <param name="area_id"></param>
         /// <returns></returns>
-        public List<uint> GetUpTileTracks(uint area_id, TrackTypeE tt)
+        public List<uint> GetTileTracks(uint area_id, ushort lineid)
         {
-            return TrackList.FindAll(c => c.area == area_id && c.Type == tt)?.Select(c => c.id).ToList();
+            return TrackList.FindAll(c => c.area == area_id && c.line == lineid && c.IsTileTrack() && c.TrackStatus == TrackStatusE.启用)?.Select(c => c.id).ToList();
         }
 
         #endregion

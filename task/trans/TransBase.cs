@@ -1460,9 +1460,9 @@ namespace task.trans
         /// <param name="area_id"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        internal bool ExistTransWithTrackAndType(uint trackid, params TransTypeE[] types)
+        internal bool ExistTransWithTrackAndType(uint butTransid, uint trackid, params TransTypeE[] types)
         {
-            return TransList.Exists(c => !c.finish && c.InTrack(trackid) && c.InType(types))
+            return TransList.Exists(c => !c.finish && c.id != butTransid && c.InTrack(trackid) && c.InType(types))
                 || ExistTrackInDtlUnFinish(trackid);
         }
 
@@ -1472,9 +1472,9 @@ namespace task.trans
         /// <param name="trackid"></param>
         /// <param name="types"></param>
         /// <returns></returns>
-        public bool ExistTransWithTrackButType(uint trackid, params TransTypeE[] types)
+        public bool ExistTransWithTrackButType(uint butTransid, uint trackid, params TransTypeE[] types)
         {
-            return TransList.Exists(c => !c.finish && c.InTrack(trackid) && c.NotInType(types)) 
+            return TransList.Exists(c => !c.finish && c.id != butTransid && c.InTrack(trackid) && c.NotInType(types)) 
                 || ExistTrackInDtlUnFinish(trackid);
         }
 

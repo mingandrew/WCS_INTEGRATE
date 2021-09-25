@@ -63,6 +63,9 @@ namespace task.trans.transtask
             {
                 _M.SetCarrier(trans, carrierid);
                 _M.SetStatus(trans, TransStatusE.移车中);
+
+                // 直接先跑一次
+                if (trans.TransStaus == TransStatusE.移车中) MovingCarrier(trans);
                 return;
             }
 
@@ -201,9 +204,10 @@ namespace task.trans.transtask
             bool isLoad = carrier.IsLoad();
             bool isNotLoad = carrier.IsNotLoad();
             bool isStopNoOrder = carrier.IsStopNoOrder(out string result);
+            bool isUpTaskIgnoreSortTask = PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask);
 
             // 【不允许接力 && 轨道有其他小车】
-            if (!PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreSortTask)
+            if (!isUpTaskIgnoreSortTask
                 && PubTask.Carrier.HaveInTrackButCarrier(trans.take_track_id, trans.give_track_id, trans.carrier_id, out uint carrierid))
             {
                 // 不接力 - 终止且报警
@@ -1041,20 +1045,6 @@ namespace task.trans.transtask
                 //轨道是否有干扰车
                 if (PubTask.Carrier.ExistLocateObstruct(trans.carrier_id, trans.give_track_id, carrier.CurrentPoint, track.is_take_forward, out CarrierTask otherCar))
                 {
-                    #region 移至待命点
-                    ushort topoint = GetTransferWaitPoint(track.id, trans.carrier_id, overP, splitP);
-                    // 是否移动
-                    if (Math.Abs(carrier.CurrentPoint - topoint) >= 100) // 100 脉冲范围
-                    {
-                        MoveToLoc(track.id, trans.carrier_id, trans.id, topoint);
-
-                        #region 【任务步骤记录】
-                        _M.LogForCarrierToTrack(trans, track.id, "接力待命");
-                        #endregion
-                        return;
-                    }
-                    #endregion
-
                     if (stkCountTo == 1)
                     {
                         Stock topstock = PubMaster.Goods.GetStockForOut(track.id);
@@ -1098,6 +1088,20 @@ namespace task.trans.transtask
                     _M.SetStatus(trans, TransStatusE.倒库中, res);
                     return;
                 }
+
+                #region 移至待命点
+                ushort topoint = GetTransferWaitPoint(track.id, trans.carrier_id, overP, splitP);
+                // 是否移动
+                if (Math.Abs(carrier.CurrentPoint - topoint) >= 100) // 100 脉冲范围
+                {
+                    MoveToLoc(track.id, trans.carrier_id, trans.id, topoint);
+
+                    #region 【任务步骤记录】
+                    _M.LogForCarrierToTrack(trans, track.id, "接力待命");
+                    #endregion
+                    return;
+                }
+                #endregion
 
             }
             #endregion

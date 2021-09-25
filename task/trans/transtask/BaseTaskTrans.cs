@@ -950,20 +950,44 @@ namespace task.trans.transtask
             // 获取分界点前 最后的库存
             bool isforward = PubMaster.Track.IsTakeForwardTrack(trackid);
             Stock stk = PubMaster.Goods.GetStockInfrontStockPoint(trackid, splitPoint);
-            // 计算下一车位置
-            if (PubMaster.Goods.CalculateNextLocByStock(isforward ? DevMoveDirectionE.前 : DevMoveDirectionE.后, stk, out loc, carrierid))
+            if (stk != null)
             {
+                // 参考库存当前被车载移动
+                CarrierTask carrier = PubTask.Carrier.GetCarrierByStockid(stk.id);
+                if (carrier != null && carrier.TargetPoint > 0 && (carrier.Status == DevCarrierStatusE.前进 || carrier.Status == DevCarrierStatusE.后退))
+                {
+                    ushort safe = PubMaster.Goods.GetStackSafe(stk.goods_id, carrierid); // 安全间隔
+                    safe = (ushort)(safe * 2); // 感觉2个比较稳妥
+
+                    // 运动过程中以目的脉冲为计算值
+                    loc = (ushort)(isforward ? (carrier.TargetPoint + safe) : (carrier.TargetPoint - safe));
+                }
+                else
+                {
+                    // 计算下一车位置
+                    if (!PubMaster.Goods.CalculateNextLocByStock(isforward ? DevMoveDirectionE.前 : DevMoveDirectionE.后, stk, out loc, carrierid))
+                    {
+                        return false;
+                    }
+                }
+
+                // 判断是否超过极限点
+                if (isforward ? (loc < limitPoint) : (loc > limitPoint))
+                {
+                    loc = (ushort)limitPoint;
+                }
+
                 // 判断是否超过分界点
                 if (isforward ? (loc > splitPoint) : (loc < splitPoint))
                 {
                     return false;
                 }
-            }
-            else
-            {
-                loc = (ushort)limitPoint;
+
+                return true;
             }
 
+            // 无库存就放极限位置
+            loc = (ushort)limitPoint;
             return loc > 0;
         }
 

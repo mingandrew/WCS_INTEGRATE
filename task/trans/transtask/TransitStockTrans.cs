@@ -94,7 +94,7 @@ namespace task.trans.transtask
         {
             if (top == null) return;
 
-            if (_M.ExistTransWithTrackButType(trans.take_track_id, TransTypeE.中转倒库)) return;
+            if (_M.ExistTransWithTrackButType(trans.id, trans.take_track_id, TransTypeE.中转倒库)) return;
 
             List<uint> trackids = PubMaster.Track.GetOutTrackIDByInTrack(trans.take_track_id, top.goods_id, top.level);
             uint trackid = 0;
@@ -103,14 +103,14 @@ namespace task.trans.transtask
                 //是否开启【出入倒库轨道可以同时上砖】
                 if (PubMaster.Dic.IsSwitchOnOff(DicTag.UpTaskIgnoreInoutSortTask))
                 {
-                    if (_M.ExistTransWithTrackButType(traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
+                    if (_M.ExistTransWithTrackButType(trans.id, traid, TransTypeE.移车任务, TransTypeE.上砖任务, TransTypeE.同向上砖))
                     {
                         continue;
                     }
                 }
                 else
                 {
-                    if (_M.ExistTransWithTrackButType(traid, TransTypeE.移车任务))
+                    if (_M.ExistTransWithTrackButType(trans.id, traid, TransTypeE.移车任务))
                     {
                         continue;
                     }

@@ -1462,7 +1462,13 @@ namespace task.device
         #endregion
 
         #region[分配-摆渡车]
-
+        /// <summary>
+        /// 获取空闲摆渡车ID集
+        /// </summary>
+        /// <param name="trans"></param>
+        /// <param name="ferrytype"></param>
+        /// <param name="ferryids"></param>
+        /// <returns></returns>
         public bool HaveFreeFerryInTrans(StockTrans trans, DeviceTypeE ferrytype, out List<uint> ferryids)
         {
             ferryids = new List<uint>();

@@ -445,6 +445,17 @@ namespace resource.goods
             return "";
         }
 
+        /// <summary>
+        /// 判断库存是否是对应的品种
+        /// </summary>
+        /// <param name="stockid">库存ID</param>
+        /// <param name="goodsId">品种ID</param>
+        /// <returns></returns>
+        public bool IsStockWithGood(uint stockid, uint goodsId, byte level)
+        {
+            return StockList.Exists(c => c.id == stockid && c.EqualGoodAndLevel(goodsId, level));
+        }
+
         #endregion
 
         #region[库存]
@@ -3761,17 +3772,6 @@ namespace resource.goods
             return true;
         }
         #endregion
-
-        /// <summary>
-        /// 判断库存是否是对应的品种
-        /// </summary>
-        /// <param name="stockid">库存ID</param>
-        /// <param name="goodsId">品种ID</param>
-        /// <returns></returns>
-        public bool IsStockWithGood(uint stockid, uint goodsId, byte level)
-        {
-            return StockList.Exists(c => c.id == stockid && c.EqualGoodAndLevel(goodsId, level));
-        }
 
     }
 }

@@ -72,7 +72,7 @@ namespace tool.appconfig
         /// <returns></returns>
         public bool IsUpTaskNewAllocate(uint areaid, ushort lineid)
         {
-            return GetItem(areaid, lineid)?.UpTaskNewAllocate ?? false;
+            return GetItem(areaid, lineid)?.UpTaskNewAllocate ?? true;
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace tool.appconfig
         /// <returns></returns>
         public bool IsUseUpTileLifterCar(uint areaid, ushort lineid)
         {
-            return GetItem(areaid, lineid)?.UseUpTileLifterCar ?? false;
+            return GetItem(areaid, lineid)?.UseUpTileLifterCar ?? true;
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace tool.appconfig
         /// <returns></returns>
         public bool IsReturnDevBackToTrack(uint areaid, ushort lineid)
         {
-            return GetItem(areaid, lineid)?.ReturnDevBackToTrack ?? false;
+            return GetItem(areaid, lineid)?.ReturnDevBackToTrack ?? true;
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace tool.appconfig
         /// <summary>
         /// 上砖流程中是否执行 还车回轨 流程
         /// </summary>
-        public bool ReturnDevBackToTrack { set; get; } = false;
+        public bool ReturnDevBackToTrack { set; get; } = true;
 
         /// <summary>
         /// 是否中分轨道

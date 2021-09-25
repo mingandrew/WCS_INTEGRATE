@@ -82,6 +82,9 @@ namespace task.trans.transtask
             {
                 _M.SetCarrier(trans, carrierid);
                 _M.SetStatus(trans, TransStatusE.取砖流程);
+
+                // 直接先跑一次
+                if (trans.TransStaus == TransStatusE.取砖流程) ToTakeTrackTakeStock(trans);
                 return;
             }
 
