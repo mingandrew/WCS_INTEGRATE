@@ -4,6 +4,8 @@ using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using HandyControl.Controls;
 using HandyControl.Tools.Extension;
+using module.device;
+using module.deviceconfig;
 using module.goods;
 using module.msg;
 using module.window;
@@ -35,6 +37,14 @@ namespace wcs.ViewModel
             GoodListView.Filter = new Predicate<object>(OnFilterMovie);
             CheckIsSingle();
 
+            #region [运输车]
+
+            CarrierSettingViewList = new ObservableCollection<CarrierSettingView>();
+            _currentcarrierlist = new List<CarrierSettingView>();
+
+            RefreshCarrierList();
+            #endregion
+
             InitSizeView();
         }
 
@@ -48,6 +58,13 @@ namespace wcs.ViewModel
 
         private ObservableCollection<GoodSize> _sizelist;
         private GoodSize _selectsize;
+
+        #region [运输车]
+        private CarrierSettingView _selectcarrier;
+        private List<CarrierSettingView> _currentcarrierlist { set; get; }
+
+        #endregion
+
         #endregion
 
         #region[属性]
@@ -91,11 +108,25 @@ namespace wcs.ViewModel
             set => Set(ref _selectsize, value);
         }
         #endregion
+
+        #region[运输车]
+
+        public ObservableCollection<CarrierSettingView> CarrierSettingViewList { set; get; }
+
+        public CarrierSettingView SelectCarrier
+        {
+            get => _selectcarrier;
+            set => Set(ref _selectcarrier, value);
+        }
+
+        #endregion
+
         #endregion
 
         #region[命令]
         public RelayCommand<string> GoodsEditeCmd => new Lazy<RelayCommand<string>>(() => new RelayCommand<string>(GoodsEdite)).Value;
         public RelayCommand<RoutedEventArgs> CheckRadioBtnCmd => new Lazy<RelayCommand<RoutedEventArgs>>(() => new RelayCommand<RoutedEventArgs>(CheckRadioBtn)).Value;
+        public RelayCommand GoodSizeSelectedCmd => new Lazy<RelayCommand>(() => new RelayCommand(GoodSizeSelected)).Value;
 
         #endregion
 
@@ -352,6 +383,79 @@ namespace wcs.ViewModel
             }
         }
 
+        #endregion
+
+        #region [运输车规格绑定]
+
+        /// <summary>
+        /// 刷新运输车及绑定的规格
+        /// </summary>
+        public void RefreshCarrierList()
+        {
+            List<Device> devs = PubMaster.Device.GetDevices(DeviceTypeE.运输车);
+            List<uint> devids = PubMaster.Device.GetDevIds(DeviceTypeE.运输车);
+
+            
+            List<ConfigCarrier> contiles = PubMaster.DevConfig.GetCarrierList(devids);
+
+            CarrierSettingViewList.Clear();
+            _currentcarrierlist.Clear();
+            for (int i = 0; i < devs.Count; i++)
+            {
+                Device dev = devs[i];
+                ConfigCarrier config = contiles[i];
+                CarrierSettingView t = new CarrierSettingView(dev, config);
+                CarrierSettingViewList.Add(t);
+                _currentcarrierlist.Add(t);
+            }
+        }
+
+        public async void GoodSizeSelected()
+        {
+            DialogResult result = await HandyControl.Controls.Dialog.Show<GoodSizeSelectDialog>()
+                .Initialize<GoodSizeSelectViewModel>((vm) =>
+                {
+                    vm.QuerySize(SelectCarrier.goods_size);
+                    vm.SetIsBatch(true);
+                }).GetResultAsync<DialogResult>();
+
+            if (result.p2 is List<string> goods_size_ids)
+            {
+                CarrierSettingView c = SelectCarrier;
+                
+                if (goods_size_ids.Count == 0)
+                {
+                    c.goods_size = "";
+                    c.GetSizeName();
+                }
+                else
+                {
+                    string ids = string.Join("#", goods_size_ids);
+                    c.goods_size = ids;
+                    c.GetSizeName();
+                }
+
+                int num = CarrierSettingViewList.IndexOf(SelectCarrier);
+                CarrierSettingViewList.Remove(SelectCarrier);
+                CarrierSettingViewList.Insert(num, c);
+                SaveCarrierSingle(c);
+            }
+        }
+
+        public bool SaveCarrierSingle(CarrierSettingView carrier)
+        {
+            bool success = false;
+
+            //转换成Device保存
+            Device dev = carrier.TransformIntoDevice();
+            success = PubMaster.Device.UpdateDevice(dev);
+
+            //转换成Config保存
+            ConfigCarrier config = carrier.TransformIntoConfigCarrier();
+            success = PubMaster.DevConfig.UpdateConfigCarrier(config);
+
+            return success;
+        }
         #endregion
     }
 }

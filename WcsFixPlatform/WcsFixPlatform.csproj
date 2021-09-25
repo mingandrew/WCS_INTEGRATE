@@ -119,6 +119,9 @@
     <Compile Include="Data\Model\TabItemModel.cs" />
     <Compile Include="Data\Model\WinCtlModel.cs" />
     <Compile Include="Data\MyResourceToken.cs" />
+    <Compile Include="Data\View\SynroTileView.cs" />
+    <Compile Include="Data\View\CarrierSettingView.cs" />
+    <Compile Include="Data\View\FerrySettingView.cs" />
     <Compile Include="Data\View\SettingAreaView.cs" />
     <Compile Include="Data\View\SettingMenuView.cs" />
     <Compile Include="Data\View\AreaLineView.cs" />
@@ -132,10 +135,14 @@
     <Compile Include="Data\View\sim\SimDeviceView.cs" />
     <Compile Include="Data\View\StockGoodSumView.cs" />
     <Compile Include="Data\View\StockSumView.cs" />
+    <Compile Include="Data\View\TileLifterSettingView.cs" />
     <Compile Include="Data\View\TileLifterView.cs" />
     <Compile Include="Data\View\TrackView.cs" />
     <Compile Include="Data\View\TransView.cs" />
     <Compile Include="Data\View\WarningView.cs" />
+    <Compile Include="Dialog\platform\device\DeviceCheckComboSelectDialog.xaml.cs">
+      <DependentUpon>DeviceCheckComboSelectDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialog\platform\device\ChangeStrategyDialog.xaml.cs">
       <DependentUpon>ChangeStrategyDialog.xaml</DependentUpon>
     </Compile>
@@ -159,6 +166,12 @@
     </Compile>
     <Compile Include="Dialog\platform\goods\GoodSizeEditDialog.xaml.cs">
       <DependentUpon>GoodSizeEditDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\setting\BatchAddTrackDialog.xaml.cs">
+      <DependentUpon>BatchAddTrackDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialog\platform\setting\BatchAddTileDialog.xaml.cs">
+      <DependentUpon>BatchAddTileDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialog\platform\stock\DeleteQtyDiaolog.xaml.cs">
       <DependentUpon>DeleteQtyDiaolog.xaml</DependentUpon>
@@ -257,6 +270,7 @@
     <Compile Include="ViewModel\platform\area\AreaSwitchViewModel.cs" />
     <Compile Include="ViewModel\platform\area\AreaViewModel.cs" />
     <Compile Include="ViewModel\platform\BindingProxy.cs" />
+    <Compile Include="ViewModel\platform\device\DeviceCheckComboSelectViewModel.cs" />
     <Compile Include="ViewModel\platform\device\CarrierViewModel.cs" />
     <Compile Include="ViewModel\platform\device\Carrier2TileLifterViewModel.cs" />
     <Compile Include="ViewModel\platform\device\DeviceBackupSelectViewModel.cs" />
@@ -302,7 +316,9 @@
     <Compile Include="ViewModel\setting\ferry\FerryCopyPosDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryAutoPosDialogViewModel.cs" />
     <Compile Include="ViewModel\setting\ferry\FerryPosViewModel.cs" />
+    <Compile Include="ViewModel\setting\init\BatchAddTileViewModel.cs" />
     <Compile Include="ViewModel\setting\init\InitSettingViewModel.cs" />
+    <Compile Include="ViewModel\setting\init\BatchAddTrackViewModel.cs" />
     <Compile Include="ViewModel\setting\menu\MenuSelectViewModel.cs" />
     <Compile Include="ViewModel\setting\menu\MenuViewModel.cs" />
     <Compile Include="ViewModel\setting\module\ModuleSelectViewModel.cs" />
@@ -405,6 +421,10 @@
     <Compile Include="window\simulation\SimulationWindow.xaml.cs">
       <DependentUpon>SimulationWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Dialog\platform\device\DeviceCheckComboSelectDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Dialog\platform\device\ChangeStrategyDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -434,6 +454,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialog\platform\goods\GoodSizeEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\setting\BatchAddTrackDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialog\platform\setting\BatchAddTileDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
