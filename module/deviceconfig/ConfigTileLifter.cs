@@ -220,5 +220,17 @@ namespace module.deviceconfig
         {
             return left_track_point == tracksite || right_track_point == tracksite;
         }
+
+        public void Update(ConfigTileLifter config)
+        {
+            brother_dev_id = config.brother_dev_id;
+            left_track_id = config.left_track_id;
+            left_track_point = config.left_track_point;
+            right_track_id = config.right_track_id;
+            right_track_point = config.right_track_point;
+            can_alter = config.can_alter;
+            can_cutover = config.can_cutover;
+            alter_ids = config.alter_ids;
+        }
     }
 }

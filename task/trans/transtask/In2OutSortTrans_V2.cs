@@ -464,6 +464,7 @@ namespace task.trans.transtask
                     {
                         topstock = PubMaster.Goods.GetTrackTopStock(trans.take_track_id);
                         count = PubMaster.Goods.GetTrackStockCount(trans.take_track_id);
+                        toempypoint = gtrack.limit_point_up;
                     }
                     else
                     {

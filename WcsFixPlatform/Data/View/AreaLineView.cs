@@ -74,7 +74,7 @@ namespace wcs.Data.View
             line = item.line;
             name = item.name;
             line_type = item.line_type;
-            HaveSort = LineType == LineTypeE.窑后;
+            HaveSort = LineType == LineTypeE.要倒库;
             Update(item);   
         }
 

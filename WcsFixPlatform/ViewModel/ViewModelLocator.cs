@@ -82,6 +82,11 @@ namespace wcs.ViewModel
 
             SimpleIoc.Default.Register<InitSettingViewModel>();
 
+            SimpleIoc.Default.Register<BatchAddTrackViewModel>();
+            SimpleIoc.Default.Register<BatchAddTileViewModel>();
+
+            SimpleIoc.Default.Register<DeviceCheckComboSelectViewModel>();
+
             GlobalWcsDataConfig.Init();
             PubMaster.Init();
             PubTask.Init();
@@ -174,6 +179,9 @@ namespace wcs.ViewModel
         #region[ÏµÍ³ÉèÖÃ]
 
         public InitSettingViewModel InitSetting => ServiceLocator.Current.GetInstance<InitSettingViewModel>();
+        public BatchAddTrackViewModel BatchAddTrack => ServiceLocator.Current.GetInstance<BatchAddTrackViewModel>();
+        public BatchAddTileViewModel BatchAddTile => ServiceLocator.Current.GetInstance<BatchAddTileViewModel>();
+        public DeviceCheckComboSelectViewModel DeviceCheckComboSelect => ServiceLocator.Current.GetInstance<DeviceCheckComboSelectViewModel>();
 
         #endregion
 

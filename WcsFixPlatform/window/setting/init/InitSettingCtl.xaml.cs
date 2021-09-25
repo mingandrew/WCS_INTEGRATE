@@ -1,4 +1,7 @@
-﻿using System;
+﻿using enums;
+using GalaSoft.MvvmLight.Messaging;
+using module.area;
+using System;
 using System.Windows.Controls;
 
 namespace wcs.window
@@ -11,11 +14,6 @@ namespace wcs.window
         public InitSettingCtl()
         {
             InitializeComponent();
-        }
-
-        private void V_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Console.WriteLine(1);
         }
     }
 }

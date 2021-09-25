@@ -1,0 +1,82 @@
+﻿<Border x:Class="wcs.Dialog.BatchAddTileDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wcs.Dialog"
+            xmlns:hc="https://handyorg.github.io/handycontrol"
+            CornerRadius="10" Width="800" MinHeight="500"
+            DataContext="{Binding BatchAddTile, Source={StaticResource Locator}}"
+            Background="{DynamicResource RegionBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+            <TextBlock Style="{StaticResource TextBlockLarge}" Text="批量新增-"/>
+            <TextBlock Style="{StaticResource TextBlockLarge}" Text="{Binding Title}" Foreground="Red"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="起始编号:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="起始IP:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LT}">
+                <TextBlock Text="新增数量:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}" Visibility="{Binding ShowCarLength,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="顶板长度:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}" Visibility="{Binding ShowType,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="设备类型:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}"  Visibility="{Binding ShowType2,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBlock Text="单双轨道:" Style="{StaticResource TextBlockLarge}"/>
+            </Border>
+
+            <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
+                <TextBox Text="{Binding StartNumber, Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
+                <TextBox Text="{Binding StartIP,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
+                <TextBox Text="{Binding AddCount,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" Visibility="{Binding ShowCarLength,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <TextBox Text="{Binding CarLength,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" Visibility="{Binding ShowType,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ComboBox FontSize="25" ItemsSource="{Binding DeviceTypeList}" 
+                          DisplayMemberPath="Type" SelectedIndex="0" Margin="10"
+                          SelectedItem="{Binding SelectDeviceType,Mode=TwoWay}"/>
+            </Border>
+            <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTRB}" Visibility="{Binding ShowType2,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <ComboBox FontSize="25" ItemsSource="{Binding Source={StaticResource DeviceType2E}}" 
+                           SelectedIndex="0" Margin="10"
+                          SelectedItem="{Binding SelectType2}"/>
+            </Border>
+        </Grid>
+        
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Width="120" Margin="0,0,55,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" IsCancel="True"/>
+            <Button Width="120" Margin="55,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="新增" IsDefault="True"/>
+        </StackPanel>
+    </Grid>
+</Border>

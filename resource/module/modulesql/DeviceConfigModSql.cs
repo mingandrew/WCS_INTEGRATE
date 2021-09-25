@@ -72,7 +72,8 @@ namespace resource.module.modulesql
 
         internal bool AddConfigCarrier(ConfigCarrier dev)
         {
-            string sql = string.Format("INSERT INTO config_carrier(id) VALUES({0})", dev.id);
+            string sql = string.Format("INSERT INTO `config_carrier`(`id`, `length`, `goods_size`) VALUES ({0}, {1}, '{2}')", 
+                dev.id, dev.length, dev.goods_size);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -83,7 +84,8 @@ namespace resource.module.modulesql
 
         internal bool AddConfigFerry(ConfigFerry dev)
         {
-            string sql = string.Format("INSERT INTO config_ferry(id, track_id) VALUES({0}, {1})", dev.id, dev.track_id);
+            string sql = string.Format("INSERT INTO config_ferry(id, track_id, track_point) VALUES({0}, {1}, {2})", 
+                dev.id, GetIntOrNull(dev.track_id), GetIntOrNull(dev.track_point));
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -96,12 +98,12 @@ namespace resource.module.modulesql
         {
             string sql = string.Format(@"INSERT INTO config_tilelifter(id, brother_dev_id, left_track_id, right_track_id, 
 strategy_in, strategy_out, work_type, last_track_id, old_goodid, goods_id, pre_goodid, do_shift, 
-can_cutover, work_mode, work_mode_next, do_cutover)
-VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15})",
+can_cutover, work_mode, work_mode_next, do_cutover, left_track_point, right_track_point)
+VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15}, {16}, {17})",
                 dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), 
                 dev.strategy_in, dev.strategy_out, dev.work_type, dev.last_track_id, 
                 dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift,
-                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover);
+                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, dev.left_track_point, dev.right_track_point);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -118,6 +120,14 @@ VALUES({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13},
         {
             string sql = string.Format(@"UPDATE config_carrier SET a_takemisstrack = {1}, a_givemisstrack = {2}, a_alert_track = {3}, stock_id = {4} 
 WHERE id = {0}", dev.id, dev.a_takemisstrack, dev.a_givemisstrack, dev.a_alert_track, GetIntOrNull(dev.stock_id));
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        public bool EditConfigCarrierBase(ConfigCarrier dev)
+        {
+            string sql = string.Format(@"UPDATE config_carrier SET length = {1}, goods_size = '{2}' WHERE id = {0}",
+                dev.id, dev.length, dev.goods_size);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -149,7 +159,7 @@ WHERE id = {0}", dev.id, dev.a_takemisstrack, dev.a_givemisstrack, dev.a_alert_t
 
         internal bool EditConfigFerry(ConfigFerry dev)
         {
-            string sql = string.Format(@"UPDATE config_ferry SET track_id = {1} WHERE id = {0}", dev.id, dev.track_id);
+            string sql = string.Format(@"UPDATE config_ferry SET track_id = {1}, track_point = {2} WHERE id = {0}", dev.id, dev.track_id, dev.track_point);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -160,12 +170,12 @@ WHERE id = {0}", dev.id, dev.a_takemisstrack, dev.a_givemisstrack, dev.a_alert_t
 
         internal bool EditConfigTileLifter(ConfigTileLifter dev)
         {
-            string sql = string.Format(@"UPDATE config_tilelifter SET brother_dev_id = {1}, left_track_id = {2}, right_track_id = {3}, strategy_in = {4}, strategy_out = {5}, 
-work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11},
-can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, alter_dev_id = {16} WHERE id = {0}",
+            string sql = string.Format(@"UPDATE config_tilelifter SET brother_dev_id = {1}, left_track_id = {2}, right_track_id = {3}, strategy_in = {4}, strategy_out = {5}, " + 
+                " work_type = {6}, last_track_id = {7}, old_goodid = {8}, goods_id = {9}, pre_goodid = {10}, do_shift = {11}," + 
+                " can_cutover = {12}, work_mode = {13}, work_mode_next = {14}, do_cutover = {15}, alter_dev_id = {16}, alter_ids = '{17}', can_alter = {18} WHERE id = {0}",
                 dev.id, dev.brother_dev_id, GetIntOrNull(dev.left_track_id), GetIntOrNull(dev.right_track_id), dev.strategy_in, dev.strategy_out, 
                 dev.work_type, dev.last_track_id, dev.old_goodid, GetIntOrNull(dev.goods_id), dev.pre_goodid, dev.do_shift,
-                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, dev.alter_dev_id);
+                dev.can_cutover, dev.work_mode, dev.work_mode_next, dev.do_cutover, dev.alter_dev_id, dev.alter_ids, dev.can_alter);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

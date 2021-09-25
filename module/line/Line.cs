@@ -33,6 +33,17 @@ namespace module.line
         public LineTypeE LineType
         {
             get => (LineTypeE)line_type;
+            set => line_type = (byte)value;
+        }
+
+        public void Update(Line l)
+        {
+            line = l.line;
+            name = l.name;
+            sort_task_qty = l.sort_task_qty;
+            up_task_qty = l.up_task_qty;
+            down_task_qty = l.down_task_qty;
+            full_qty = l.full_qty;
         }
     }
 }

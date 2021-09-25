@@ -114,6 +114,16 @@ namespace wcs.ViewModel
             GetDevce(types);
         }
 
+        /// <summary>
+        /// 设置展示内容，但不展示指定设备
+        /// </summary>
+        /// <param name="types"></param>
+        public void SetSelectTypeExceptSelf(uint devid, params DeviceTypeE[] types)
+        {
+            GetDevceExceptSelf(devid, types);
+        }
+
+
         public void ShowTileConfigAlertDevs(uint devid)
         {
             DevList.Clear();
@@ -176,6 +186,51 @@ namespace wcs.ViewModel
                     list.AddRange(PubMaster.Device.GetDevices(AreaId, types));
                 }
             }
+
+            lastquerytype = types;
+            DevList.Clear();
+            foreach (Device dev in list)
+            {
+                DevList.Add(dev);
+            }
+        }
+
+        /// <summary>
+        /// 获取指定设备
+        /// </summary>
+        /// <param name="types"></param>
+        private void GetDevceExceptSelf(uint devid, params DeviceTypeE[] types)
+        {
+            //if (DevList.Count > 0 && lastquerytype == type)
+            //{
+            //    return;
+            //}
+
+            if (FilterArea && AreaId == 0)
+            {
+                Growl.Warning("请选择区域");
+                return;
+            }
+
+            List<Device> list = new List<Device>();
+
+            if (!FilterArea)
+            {
+                list.AddRange(PubMaster.Device.GetDevices(types));
+            }
+            else
+            {
+                if(LineId > 0)
+                {
+                    list.AddRange(PubMaster.Device.GetDevices(AreaId, LineId, types));
+                }
+                else
+                {
+                    list.AddRange(PubMaster.Device.GetDevices(AreaId, types));
+                }
+            }
+
+            list.RemoveAll(c => c.id == devid);
 
             lastquerytype = types;
             DevList.Clear();

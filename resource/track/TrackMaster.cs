@@ -157,6 +157,11 @@ namespace resource.track
             return TrackList.FindAll(c => c.area == areaid);
         }
 
+        public List<Track> GetLineTracks(uint areaid, ushort lineid)
+        {
+            return TrackList.FindAll(c => c.area == areaid && c.line == lineid);
+        }
+
         /// <summary>
         /// 获取区域指定类型的轨道
         /// </summary>
@@ -251,6 +256,16 @@ namespace resource.track
                                                     && c.line == line
                                                     && c.InType(types));
         }
+
+        /// <summary>
+        /// 根据摆渡定位编码获取轨道
+        /// </summary>
+        /// <param name="ferry_code"></param>
+        /// <returns></returns>
+        public Track GetTrackByFerryCode(uint ferry_code)
+        {
+            return TrackList.Find(c => c.ferry_down_code == ferry_code);
+        }
         #endregion
 
         #region[获取属性]
@@ -274,6 +289,11 @@ namespace resource.track
         {
             if (site == 0) return 0;
             return GetTrackBySite(area, site)?.id ?? 0;
+        }
+
+        public uint GetTrackId(string name)
+        {
+            return TrackList.Find(c => c.name == name)?.id ?? 0;
         }
 
         /// <summary>
@@ -751,6 +771,88 @@ namespace resource.track
                 }
             }
             return 10000;
+        }
+        #endregion
+
+        #region[添加]
+
+        /// <summary>
+        /// 新增轨道
+        /// </summary>
+        /// <param name="tracklist"></param>
+        /// <returns></returns>
+        public bool AddTrack(Track track, out string rs)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    //判断是否已有相同的轨道
+                    if (TrackList.Exists(c => c.Type == track.Type && c.ferry_down_code == track.ferry_down_code && c.area == track.area))
+                    {
+                        rs = "已有相同的编号的轨道";
+                        return false;
+                    }
+
+                    List<Track> areatracks = TrackList.FindAll(c => c.area == track.area);
+                    uint newtrackid = 1;
+                    if (areatracks.Count > 0)
+                    {
+                        newtrackid = TrackList.Max(c => c.id) + 1;
+                    }
+                    track.id = newtrackid;
+
+                    //添加兄弟轨道brother_track_id
+                    Track brotrack = TrackList.Find(c => c.ferry_down_code == track.ferry_down_code);
+                    if (brotrack != null)
+                    {
+                        //相同的摆渡对位编号，而且一个入库轨道，一个出库轨道，则互为兄弟轨道
+                        if ((track.Type == TrackTypeE.储砖_入 && brotrack.Type == TrackTypeE.储砖_出)
+                            || (track.Type == TrackTypeE.储砖_出 && brotrack.Type == TrackTypeE.储砖_入))
+                        {
+                            track.brother_track_id = brotrack.id;
+                            brotrack.brother_track_id = track.id;
+                            PubMaster.Mod.TraSql.EditTrack(brotrack, TrackUpdateE.Track);
+                        }
+                    }
+
+                    //添加左轨道
+                    Track lefttrack = TrackList.Find(c => c.ferry_down_code == (track.ferry_down_code - 1) && c.Type == track.Type);
+                    if (lefttrack != null)
+                    {
+                        //相同的轨道类型，且摆渡对位编号少1，则一个为左轨道，一个为右轨道
+                        track.left_track_id = lefttrack.id;
+                        lefttrack.right_track_id = track.id;
+                        PubMaster.Mod.TraSql.EditTrack(lefttrack, TrackUpdateE.Track);
+                    }
+
+                    //添加右轨道
+                    Track righttrack = TrackList.Find(c => c.ferry_down_code == (track.ferry_down_code + 1) && c.Type == track.Type);
+                    if (righttrack != null)
+                    {
+                        //相同的轨道类型，且摆渡对位编号多1，则一个为左轨道，一个为右轨道
+                        track.right_track_id = righttrack.id;
+                        righttrack.left_track_id = track.id;
+                        PubMaster.Mod.TraSql.EditTrack(righttrack, TrackUpdateE.Track);
+                    }
+
+                    //添加进track表
+                    PubMaster.Mod.TraSql.AddTrack(track);
+                    TrackList.Add(track);
+
+                    //添加进area_track表
+                    PubMaster.Area.AddAreaTrack(track);
+
+                    rs = "";
+                    return true;
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            rs = "";
+            return false;
         }
         #endregion
 
@@ -1623,6 +1725,85 @@ namespace resource.track
                                                         && PubMaster.Goods.GetStocks(c.id).Count > 1);
         }
 
+        /// <summary>
+        /// 更新轨道信息
+        /// </summary>
+        /// <param name="track"></param>
+        /// <returns></returns>
+        public bool UpdateTrack(Track track)
+        {
+            Track t = TrackList.Find(c => c.id == track.id);
+            if (t != null)
+            {
+                PubMaster.Mod.TraSql.EditTrack(track, TrackUpdateE.UpdateSetting);
+                t.Update(track);
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region[删除]
+
+        /// <summary>
+        /// 删除单个轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool DeleteTrack(List<uint> tids)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    foreach (uint trackid in tids)
+                    {
+                        Track t = TrackList.Find(c => c.id == trackid);
+                        if (t == null)
+                        {
+                            continue;
+                        }
+
+                        //删除area_track表
+                        PubMaster.Area.DeleteAreaTrack(t);
+
+                        //兄弟轨道的brother_track_id设置为0
+                        Track bro = TrackList.Find(c => c.brother_track_id == t.id);
+                        if (bro != null)
+                        {
+                            bro.brother_track_id = 0;
+                            PubMaster.Mod.TraSql.EditTrack(t, TrackUpdateE.Track);
+                        }
+
+                        //左轨道的left_track_id设为0
+                        Track left = TrackList.Find(c => c.left_track_id == t.id);
+                        if (left != null)
+                        {
+                            left.left_track_id = 0;
+                            PubMaster.Mod.TraSql.EditTrack(t, TrackUpdateE.Track);
+                        }
+
+                        //右轨道的right_track_id设为0
+                        Track right = TrackList.Find(c => c.right_track_id == t.id);
+                        if (right != null)
+                        {
+                            right.right_track_id = 0;
+                            PubMaster.Mod.TraSql.EditTrack(t, TrackUpdateE.Track);
+                        }
+
+                        PubMaster.Mod.TraSql.DeleteTrack(t);
+                        TrackList.Remove(t);
+                    }
+                    return true;
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
 
         #endregion
 
@@ -2024,7 +2205,6 @@ namespace resource.track
         }
         #endregion
 
-
         /// <summary>
         /// 获取无任务，空闲轨道IDs
         /// </summary>
@@ -2049,7 +2229,6 @@ namespace resource.track
 
             return tras.Select(c => c.trackid)?.ToList() ?? new List<uint>();
         }
-
 
         #region[倒库轨道分析]
         /// <summary>
@@ -2426,6 +2605,21 @@ namespace resource.track
             return GetTrack(track_id)?.sort_able ?? false;
         }
         #endregion
+
+        #region[判断]
+
+        /// <summary>
+        /// 判断是否有轨道属于这条线
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public bool HaveTrackInLine(uint area, uint line)
+        {
+            return TrackList.Exists(c => c.area == area && c.line == line);
+        }
+        #endregion
+
     }
 
     class TrackDis

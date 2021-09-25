@@ -37,11 +37,21 @@
         </StackPanel>
         <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,0,0,0" FontSize="20" RowHeaderWidth="60"  hc:DataGridAttach.ShowRowNumber="True"
                       SelectedItem="{Binding SelectSize}" ItemsSource="{Binding ListView}"
-                      SelectionUnit="FullRow" SelectionMode="Single"
+                      SelectionUnit="FullRow" 
                       CanUserAddRows="False" CanUserResizeColumns="False"
                       CanUserDeleteRows="False" CanUserSortColumns="False"
                       CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="True" Style="{StaticResource CheckBoxBaseStyle}"/>
+
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Binding="{Binding name}" Header="名称" Width="*"/>
                 <DataGridTextColumn Binding="{Binding width}" Header="宽" Width="*"/>
                 <DataGridTextColumn Binding="{Binding length}" Header="长" Width="*"/>

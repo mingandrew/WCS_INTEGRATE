@@ -21,5 +21,12 @@ namespace module.area
             get => (CarrierTypeE)carriertype;
             set => carriertype = (byte)value;
         }
+
+        public void Update(Area a)
+        {
+            name = a.name;
+            up_car_count = a.up_car_count;
+            down_car_count = a.down_car_count;
+        }
     }
 }

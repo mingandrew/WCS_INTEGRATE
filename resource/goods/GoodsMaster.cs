@@ -412,6 +412,21 @@ namespace resource.goods
             }
             return "";
         }
+
+        /// <summary>
+        /// 根据规格id获取名称
+        /// </summary>
+        /// <param name="size_id"></param>
+        /// <returns></returns>
+        public string GetSizeName(uint size_id)
+        {
+            GoodSize size = GetSize(size_id);
+            if (size != null)
+            {
+                return size.name;
+            }
+            return "";
+        }
         #endregion
 
         #region[库存]
@@ -3600,7 +3615,7 @@ namespace resource.goods
 
         public uint GetMaxGoodSizeId()
         {
-            return GoodSizeList.Max(c => c.id);
+            return GoodSizeList.Count != 0 ? GoodSizeList.Max(c => c.id) : 0;
         }
 
         public bool CheckHaveGoodSize(uint id, ushort width, ushort lenght)

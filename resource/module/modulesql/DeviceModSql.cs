@@ -47,10 +47,10 @@ namespace resource.module.modulesql
 
         internal bool AddDevice(Device dev)
         {
-            string str = "INSERT INTO `device`( `name`, `ip`, `port`, `type`, `type2`, `enable`, `att1`, `att2`,`memo`, `area`, `do_work`)" +
-                " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}',{10})";
+            string str = "INSERT INTO `device`( `id`, `name`, `ip`, `port`, `type`, `type2`, `enable`, `att1`, `att2`,`memo`, `area`, `do_work`, `line`)" +
+                " VALUES({11}, '{0}', '{1}', '{2}', '{3}', '{4}', {5}, '{6}', '{7}', '{8}', '{9}',{10}, {12})";
             string sql = string.Format(@str, dev.name, dev.ip, dev.port, dev.type,
-                dev.type2, dev.enable, dev.att1, dev.att2, dev.memo, dev.area, dev.do_work);
+                dev.type2, dev.enable, dev.att1, dev.att2, dev.memo, dev.area, dev.do_work, dev.id, dev.line);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

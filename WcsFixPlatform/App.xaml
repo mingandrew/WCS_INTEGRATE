@@ -33,6 +33,9 @@
             <prov:EnumDataProvider x:Key="DevFerryAutoPosE" Type="enums:DevFerryAutoPosE"/>
             <prov:EnumDataProvider x:Key="TileWorkModeE" Type="enums:TileWorkModeE"/>
             <prov:EnumDataProvider x:Key="LineTypeE" Type="enums:LineTypeE"/>
+            <prov:EnumDataProvider x:Key="TrackTypeE" Type="enums:track.TrackTypeE"/>
+            <prov:EnumDataProvider x:Key="DeviceTypeE" Type="enums:DeviceTypeE"/>
+            <prov:EnumDataProvider x:Key="DeviceType2E" Type="enums:DeviceType2E"/>
 
             <!--//<langs:LangProvider x:Key="DemoLangs"/>-->
         </ResourceDictionary>

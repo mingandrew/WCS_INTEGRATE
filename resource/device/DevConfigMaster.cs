@@ -4,6 +4,7 @@ using module.deviceconfig;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using tool.mlog;
 
 namespace resource.device
@@ -98,6 +99,16 @@ namespace resource.device
             return ConfigCarrierList.Find(c => c.id == devid) ?? new ConfigCarrier();
         }
 
+        /// <summary>
+        /// 获取多个运输车配置信息
+        /// </summary>
+        /// <param name="devids"></param>
+        /// <returns></returns>
+        public List<ConfigCarrier> GetCarrierList(List<uint> devids)
+        {
+            List<ConfigCarrier> cts = ConfigCarrierList.FindAll(c => devids.Contains(c.id));
+            return cts;
+        }
         #endregion
 
         #region 摆渡车
@@ -121,6 +132,16 @@ namespace resource.device
             return ConfigFerryList.Find(c => c.id == devid) ?? new ConfigFerry();
         }
 
+        /// <summary>
+        /// 获取多个摆渡车配置信息
+        /// </summary>
+        /// <param name="devids"></param>
+        /// <returns></returns>
+        public List<ConfigFerry> GetFerryList(List<uint> devids)
+        {
+            List<ConfigFerry> cts = ConfigFerryList.FindAll(c => devids.Contains(c.id));
+            return cts;
+        }
 
         #endregion
 
@@ -169,6 +190,18 @@ namespace resource.device
             ConfigTileLifter conf = GetTileLifter(tileid);
            List<Device> devs = PubMaster.Device.GetTileLifters(area_id, DeviceTypeE.上砖机);
             return ConfigTileLifterList.Exists(c => devs.Exists(d => d.id == c.id) && conf.goods_id != c.goods_id);
+        }
+
+
+        /// <summary>
+        /// 获取多个砖机配置信息
+        /// </summary>
+        /// <param name="devids"></param>
+        /// <returns></returns>
+        public List<ConfigTileLifter> GetTileLifterList(List<uint> devids)
+        {
+            List<ConfigTileLifter> cts = ConfigTileLifterList.FindAll(c => devids.Contains(c.id));
+            return cts;
         }
         #endregion
 
@@ -242,6 +275,16 @@ namespace resource.device
         public uint GetFerryIdByFerryTrackId(uint ferrytrackid)
         {
             return ConfigFerryList.Find(c => c.track_id == ferrytrackid)?.id ?? 0;
+        }
+
+        /// <summary>
+        /// 判断是否有摆渡车配置了该轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsFerryHaveTrack(uint trackid)
+        {
+            return ConfigFerryList.Exists(c => c.track_id == trackid);
         }
 
         #endregion
@@ -1237,6 +1280,16 @@ namespace resource.device
             }
             else return false;
         }
+
+        /// <summary>
+        /// 判断是否有砖机配置了该轨道
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <returns></returns>
+        public bool IsTileHaveTrack(uint trackid)
+        {
+            return ConfigTileLifterList.Exists(c => c.left_track_id == trackid || c.right_track_id == trackid);
+        }
         
         #endregion
 
@@ -1268,6 +1321,206 @@ namespace resource.device
         public uint GetCarrierStockId(uint carrier_id)
         {
             return ConfigCarrierList.Find(c => c.id == carrier_id)?.stock_id ?? 0;
+        }
+        #endregion
+
+        #region[新增]
+        public bool AddConfigTile(ConfigTileLifter config)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (ConfigTileLifterList.Exists(c => c.id == config.id))
+                    {
+                        return false;
+                    }
+                    PubMaster.Mod.DevConfigSql.AddConfigTileLifter(config);
+                    ConfigTileLifterList.Add(config);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message + ";新增砖机设置失败：" + config.id);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
+
+        public bool AddConfigCarrier(ConfigCarrier config)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (ConfigCarrierList.Exists(c => c.id == config.id))
+                    {
+                        return false;
+                    }
+                    PubMaster.Mod.DevConfigSql.AddConfigCarrier(config);
+                    ConfigCarrierList.Add(config);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message + ";新增运输车设置失败：" + config.id);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
+
+        public bool AddConfigFerry(ConfigFerry config)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (ConfigFerryList.Exists(c => c.id == config.id))
+                    {
+                        return false;
+                    }
+                    PubMaster.Mod.DevConfigSql.AddConfigFerry(config);
+                    ConfigFerryList.Add(config);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message + ";新增摆渡车设置失败：" + config.id);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
+        #endregion
+
+        #region[修改]
+
+        public bool UpdateConfigTile(ConfigTileLifter config)
+        {
+            ConfigTileLifter t = ConfigTileLifterList.Find(c => c.id == config.id);
+            if (t == null)
+            {
+                return false;
+            }
+            PubMaster.Mod.DevConfigSql.EditConfigTileLifter(config);
+            t.Update(config);
+            return true;
+        }
+
+        public bool UpdateConfigCarrier(ConfigCarrier config)
+        {
+            ConfigCarrier t = ConfigCarrierList.Find(c => c.id == config.id);
+            if (t == null)
+            {
+                return false;
+            }
+            PubMaster.Mod.DevConfigSql.EditConfigCarrierBase(config);
+            t.Update(config);
+            return true;
+        }
+
+        public bool UpdateConfigFerry(ConfigFerry config)
+        {
+            ConfigFerry t = ConfigFerryList.Find(c => c.id == config.id);
+            if (t == null)
+            {
+                return false;
+            }
+            PubMaster.Mod.DevConfigSql.EditConfigFerry(config);
+            t.Update(config);
+            return true;
+        }
+
+        #endregion
+
+        #region[删除]
+        public bool DeleteConfigTile(ConfigTileLifter config)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (!ConfigTileLifterList.Exists(c => c.id == config.id))
+                    {
+                        return false;
+                    }
+                    PubMaster.Mod.DevConfigSql.DeleteConfigTileLifter(config);
+                    ConfigTileLifterList.RemoveAll(c => c.id == config.id);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message + ";删除砖机设置失败：" + config.id);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
+
+        public bool DeleteConfigCarrier(ConfigCarrier config)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (!ConfigCarrierList.Exists(c => c.id == config.id))
+                    {
+                        return false;
+                    }
+                    PubMaster.Mod.DevConfigSql.DeleteConfigCarrier(config);
+                    ConfigCarrierList.RemoveAll(c => c.id == config.id);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message + ";删除运输车设置失败：" + config.id);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
+
+        public bool DeleteConfigFerry(ConfigFerry config)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (!ConfigFerryList.Exists(c => c.id == config.id))
+                    {
+                        return false;
+                    }
+                    PubMaster.Mod.DevConfigSql.DeleteConfigFerry(config);
+                    ConfigFerryList.RemoveAll(c => c.id == config.id);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    mLog.Error(true, e.Message + ";删除摆渡车设置失败：" + config.id);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
         }
         #endregion
     }

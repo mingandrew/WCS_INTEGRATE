@@ -264,5 +264,21 @@ namespace module.track
         {
             return !status.Contains(StockStatus);
         }
+
+        public void Update(Track t)
+        {
+            name = t.name;
+            Type = t.Type;
+            width = t.width;
+            left_distance = t.left_distance;
+            right_distance = t.right_distance;
+            ferry_up_code = t.ferry_up_code;
+            ferry_down_code = t.ferry_down_code;
+            rfid_1 = t.rfid_1;
+            rfid_2 = t.rfid_2;
+            rfids = t.rfids;
+            order = t.order;
+            GetAllRFID();
+        }
     }
 }

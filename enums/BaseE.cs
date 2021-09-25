@@ -81,8 +81,8 @@
 
     public enum LineTypeE
     {
-        窑后,
-        包装前
+        要倒库,
+        不倒库
     }
 
     public enum OnOffTaskE

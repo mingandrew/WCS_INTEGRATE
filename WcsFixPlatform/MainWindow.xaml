@@ -17,7 +17,7 @@
            WindowStartupLocation="CenterScreen"
            d:DesignHeight="800"  d:DesignWidth="1400"
            DataContext="{Binding Main,Source={StaticResource Locator}}"
-           Icon="/Resources/apps_dconf.png" Closing="Window_Closing" Loaded="Window_Loaded">
+           Icon="/Resources/apps_dconf.png" Closing="Window_Closing" Loaded="Window_Loaded" WindowState="Maximized">
     <Grid>
         <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="1"
               Background="{StaticResource BorderBrush}">

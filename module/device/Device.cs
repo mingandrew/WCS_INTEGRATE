@@ -59,5 +59,14 @@ namespace module.device
         {
             return !types.Contains(Type);
         }
+
+        public void Update(Device dev)
+        {
+            name = dev.name;
+            ip = dev.ip;
+            port = dev.port;
+            Type = dev.Type;
+            Type2 = dev.Type2;
+        }
     }
 }

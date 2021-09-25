@@ -7,6 +7,7 @@ using module.device;
 using module.goods;
 using module.line;
 using module.rf;
+using module.track;
 using module.window;
 using System;
 using System.Collections.Generic;
@@ -173,6 +174,13 @@ namespace resource.area
                                     .Select(c=>c.device_id).ToList();
         }
 
+        internal List<uint> GetAreaCarrierIds(uint areaid)
+        {
+            return AreaDevList.FindAll(c => c.area_id == areaid 
+                                && c.DevType == DeviceTypeE.运输车)
+                                    .Select(c=>c.device_id).ToList();
+        }
+
         public bool IsDeviceInArea(uint filterareaid, uint iD)
         {
             return AreaDevList.Exists(c => c.area_id == filterareaid && c.device_id == iD);
@@ -207,6 +215,15 @@ namespace resource.area
             return AreaList.FindAll(c=>ids.Contains(c.id));
         }
 
+        /// <summary>
+        /// 根据区域号获取线
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <returns></returns>
+        public List<Line> GetLineList(uint areaid)
+        {
+            return LineList.FindAll(c => c.area_id == areaid);
+        }
         public List<Line> GetLineList(List<uint> areaids)
         {
             return LineList.FindAll(c => areaids.Contains(c.area_id));
@@ -792,9 +809,253 @@ namespace resource.area
             return AreaList.Find(c => c.id == area)?.down_car_count ?? 0;
         }
 
+        /// <summary>
+        /// 判断区域下是否有线路，设备，轨道的信息
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public bool IsAreaUsedOther(uint areaid, out string msg)
+        {
+            if (LineList.Exists(c => c.area_id == areaid))
+            {
+                msg = "该区域下还有线路信息，请先删除线路信息";
+                return true;
+            }
+            if (AreaTraList.Exists(c => c.area_id == areaid))
+            {
+                msg = "该区域下还有轨道信息，请先删除轨道";
+                return true;
+            }
+            if (AreaDevList.Exists(c => c.area_id == areaid))
+            {
+                msg = "该区域下还有设备信息，请先删除设备";
+                return true;
+            }
+            msg = "";
+            return false;
+        }
+
+        /// <summary>
+        /// 判断区域下是否有线路，设备，轨道的信息
+        /// </summary>
+        /// <param name="areaid"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public bool IsLineUsedOther(uint areaid, uint line, out string msg)
+        {
+            bool isDeviceUsed = PubMaster.Device.HaveDeviceInLine(areaid, line);
+            bool isTrackUsed = PubMaster.Track.HaveTrackInLine(areaid, line);
+            if (isDeviceUsed)
+            {
+                msg = "请先删除线下的设备！";
+                return true;
+            }
+            if (isTrackUsed)
+            {
+                msg = "请先删除线下的轨道！";
+                return true;
+            }
+            msg = "";
+            return false;
+        }
+
+        /// <summary>
+        /// 判断轨道是否已经被使用
+        /// </summary>
+        /// <param name="trackid"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public bool IsTrackUsedOther(uint trackid, out string msg)
+        {
+            //判断设备是否配置了该轨道（砖机，摆渡车）
+            if (AreaDevTraList.Exists(c => c.track_id == trackid))
+            {
+                msg = "已有设备配置了该轨道，请先删除设备配置的轨道！";
+                return true;
+            }
+            if (PubMaster.Goods.ExistStockInTrack(trackid))
+            {
+                msg = "该轨道上有库存，请先删除轨道库存！";
+                return true;
+            }
+            if (PubMaster.DevConfig.IsTileHaveTrack(trackid))
+            {
+                msg = "这是砖机轨道，请先删除砖机信息！";
+                return true;
+            }
+            if (PubMaster.DevConfig.IsFerryHaveTrack(trackid))
+            {
+                msg = "这是摆渡轨道，请先删除摆渡信息！";
+                return true;
+            }
+            msg = "";
+            return false;
+        }
+
+        /// <summary>
+        /// 判断设备是否在使用
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="tileid"></param>
+        /// <returns></returns>
+        public bool IsHaveInAreaDevTra(uint area, uint tileid)
+        {
+            return AreaDevTraList.Exists(c => c.area_id == area && c.device_id == tileid);
+        }
+
+        #endregion
+
+        #region[新增]
+
+        public bool AddArea(Area area)
+        {
+            if (area == null || area.id != 0)
+            {
+                return false;
+            }
+            PubMaster.Mod.AreaSql.AddArea(area);
+            Refresh(true, false, false, false, false);
+            return true;
+        }
+
+        public bool AddLine(Line line)
+        {
+            if (line == null || line.id != 0)
+            {
+                return false;
+            }
+            PubMaster.Mod.AreaSql.AddLine(line);
+            Refresh(false, false, false, false, true);
+            return true;
+        }
+
+        public bool AddAreaTrack(Track track)
+        {
+            if (track == null)
+            {
+                return false;
+            }
+            AreaTrack ar = new AreaTrack()
+            {
+                area_id = track.area,
+                track_id = track.id,
+                TrackType = track.Type,
+            };
+            PubMaster.Mod.AreaSql.AddAreaTrack(ar);
+            Refresh(false, false, true, false, false);
+            return true;
+        }
+
         #endregion
 
         #region[更改]
+
+        /// <summary>
+        /// 更新区域列表
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool UpdateArea(Area area)
+        {
+            Area a = AreaList.Find(c => c.id == area.id);
+            if (a != null)
+            {
+                PubMaster.Mod.AreaSql.EditArea(area);
+                a.Update(area);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 更新线路列表
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool UpdateLine(Line line)
+        {
+            Line l = LineList.Find(c => c.id == line.id);
+            if (l != null)
+            {
+                PubMaster.Mod.AreaSql.EditLine(line);
+                l.Update(line);
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region[删除]
+
+        /// <summary>
+        /// 删除区域
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool DeleteArea(uint areaid)
+        {
+            Area area = AreaList.Find(c => c.id == areaid);
+            if (area == null)
+            {
+                return false;
+            }
+            PubMaster.Mod.AreaSql.DeleteArea(area);
+            Refresh(true, false, false, false, false);
+            return true;
+        }
+
+        /// <summary>
+        /// 批量删除线
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool BatchDeleteArea(List<uint> areaids)
+        {
+            if (areaids == null || areaids.Count == 0)
+            {
+                return false;
+            }
+            string areas = string.Join(",", areaids);
+            PubMaster.Mod.AreaSql.BatchDeleteArea(areas);
+            Refresh(true, false, false, false, false);
+            return true;
+        }
+
+        /// <summary>
+        /// 删除区域
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool DeleteLine(uint lineid)
+        {
+            Line line = LineList.Find(c => c.id == lineid);
+            if (line == null)
+            {
+                return false;
+            }
+            PubMaster.Mod.AreaSql.DeleteLine(line);
+            Refresh(false, false, false, false, true);
+            return true;
+        }
+
+        /// <summary>
+        /// 批量删除线
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool BatchDeleteLine(List<uint> lineids)
+        {
+            if (lineids == null || lineids.Count == 0)
+            {
+                return false;
+            }
+            string lines = string.Join(",", lineids);
+            PubMaster.Mod.AreaSql.BatchDeleteLine(lines);
+            Refresh(false, false, false, false, true);
+            return true;
+        }
 
         #endregion
 
@@ -832,7 +1093,7 @@ namespace resource.area
         private uint _areadevnextid = 1;
         private uint GetAreaDevMaxId()
         {
-            if (_areadevnextid == 1)
+            if (_areadevnextid == 1 && AreaDevList.Count > 0)
             {
                 _areadevnextid = AreaDevList.Max(c => c.id);
             }
@@ -888,6 +1149,28 @@ namespace resource.area
             }
             return true;
         }
+
+        public bool DeleteAreaDevice(uint areaid, uint devid)
+        {
+            AreaDevice areadev = AreaDevList.Find(c => c.area_id == areaid && c.device_id == devid);
+            if (areadev != null)
+            {
+                bool isdelete = PubMaster.Mod.AreaSql.DeleteAreaDevice(areadev);
+                AreaDevList.Remove(areadev);
+            }
+            return true;
+        }
+
+        public bool DeleteAreaTrack(Track track)
+        {
+            AreaTrack area = AreaTraList.Find(c => c.area_id == track.area && c.track_id == track.id);
+            if (area != null)
+            {
+                bool isdelete = PubMaster.Mod.AreaSql.DeleteAreaTrack(area);
+                AreaTraList.Remove(area);
+            }
+            return true;
+        }
         #endregion
 
         #region[线管理]
@@ -938,7 +1221,7 @@ namespace resource.area
                 onoff = line.onoff_down
             });
 
-            if (line.LineType == LineTypeE.窑后)
+            if (line.LineType == LineTypeE.要倒库)
             {
                 list.Add(new TaskSwitch()
                 {
@@ -1067,7 +1350,7 @@ namespace resource.area
                 }
 
                 //倒库开关报警/消除
-                if (!line.onoff_sort && line.LineType == LineTypeE.窑后)
+                if (!line.onoff_sort && line.LineType == LineTypeE.要倒库)
                 {
                     PubMaster.Warn.AddLineWarn(WarningTypeE.SortTaskSwitchClosed, (ushort)line.area_id, line.line);
                 }

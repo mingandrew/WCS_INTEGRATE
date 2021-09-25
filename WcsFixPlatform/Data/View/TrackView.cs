@@ -8,6 +8,8 @@ namespace wcs.Data.View
 {
     public class TrackView : ViewModelBase
     {
+        public TrackView() { }
+
         public TrackView(Track track)
         {
             Id = track.id;

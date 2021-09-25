@@ -737,3 +737,9 @@ ADD COLUMN `prior_num` tinyint(3) UNSIGNED NULL COMMENT '砖机急单类型【�
 UPDATE `diction_dtl` SET `name` = '倒库或放砖指令，减速光电未触发，存砖光电已触发', `string_value` = '倒库或放砖指令，存砖减速光电未被触发，但是存砖定位光电已检测到障碍物。请清理存砖定位电眼上方异物，任务会继续进行。（期间请不要人为触发存砖减速电眼，否则会放砖）' WHERE `code` = 'WarningA4X1';
 ```
 
+## 2021.09.25 [2.0] 系统初始化设置
+
+```mysql
+INSERT INTO `wcs_module`(`id`, `name`, `type`, `key`, `entity`, `brush`, `geometry`, `winctlname`, `memo`) VALUES (37, '系统设置', 0, 'SystemSetting', NULL, 'DarkPrimaryBrush', 'ConfigGeometry', 'InitSettingCtl', '系统设置');
+```
+

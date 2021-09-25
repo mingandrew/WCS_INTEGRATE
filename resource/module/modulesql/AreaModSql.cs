@@ -159,9 +159,18 @@ namespace resource.module.modulesql
 
         public bool EditArea(Area area)
         {
-            string sql = "UPDATE `area` set name = '{0}', `enable` = {1}, `devautorun` = {2}," +
-                " `memo` = '{3}', `full_qty` = '{4}', `up_car_count` = '{6}' , `down_car_count` = '{7}'  where id = '{5}'";
-            sql = string.Format(sql, area.name, area.enable, area.devautorun, area.memo, area.full_qty, area.id, area.up_car_count, area.down_car_count);
+            string sql = "UPDATE `area` SET `name` = '{0}', `memo` = '{1}', `up_car_count` = {2}, `down_car_count` = {3}" +
+                " WHERE `id` = {4}";
+            sql = string.Format(sql, area.name, area.memo, area.up_car_count, area.down_car_count, area.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        public bool EditLine(Line line)
+        {
+            string sql = "UPDATE `line` SET `area_id` = {0}, `line` = {1}, `name` = '{2}', `sort_task_qty` = {3}, `up_task_qty` = {4}, " +
+                "`down_task_qty` = {5},  `line_type` = {6}  WHERE `id` = {7};";
+            sql = string.Format(sql, line.area_id, line.line, line.name, line.sort_task_qty, line.up_task_qty, line.down_task_qty, line.line_type, line.id);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }
@@ -219,6 +228,26 @@ namespace resource.module.modulesql
         internal bool DeleteArea(Area area)
         {
             string sql = string.Format("DELETE FROM `area` where id = '{0}'", area.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        internal bool BatchDeleteArea(string areas)
+        {
+            string sql = string.Format("DELETE FROM `area` where id in ({0})", areas);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+        internal bool DeleteLine(Line line)
+        {
+            string sql = string.Format("DELETE FROM `line` where id = '{0}'", line.id);
+            int row = mSql.ExcuteSql(sql);
+            return row >= 1;
+        }
+
+        internal bool BatchDeleteLine(string lines)
+        {
+            string sql = string.Format("DELETE FROM `line` where id in ({0})", lines);
             int row = mSql.ExcuteSql(sql);
             return row >= 1;
         }

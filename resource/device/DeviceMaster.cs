@@ -84,7 +84,7 @@ namespace resource.device
         {
             return DeviceList.FindAll(c => c.area == areaid && c.line == lineid && types.Contains(c.Type));
         }
-        internal List<uint> GetDevIds(params DeviceTypeE[] types)
+        public List<uint> GetDevIds(params DeviceTypeE[] types)
         {
             return DeviceList.FindAll(c => c.InType(types))?.Select(c => c.id).ToList();
         }
@@ -107,6 +107,12 @@ namespace resource.device
         public List<Device> GetTileLifters(uint areaid)
         {
             List<uint> devids = PubMaster.Area.GetAreaTileIds(areaid);
+            return DeviceList.FindAll(c => devids.Contains(c.id));
+        }
+
+        public List<Device> GetCarriers(uint areaid)
+        {
+            List<uint> devids = PubMaster.Area.GetAreaCarrierIds(areaid);
             return DeviceList.FindAll(c => devids.Contains(c.id));
         }
 
@@ -139,6 +145,21 @@ namespace resource.device
         public bool IsDevType(uint devid, DeviceTypeE type)
         {
             return DeviceList.Exists(c => c.id == devid && c.Type == type);
+        }
+
+        /// <summary>
+        /// 根据区域获取设备
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public List<Device> GetDeviceList(uint area)
+        {
+            List<Device> d = DeviceList.FindAll(c => c.area == area);
+            if (d != null)
+            {
+                return d;
+            }
+            return new List<Device>();
         }
 
         #endregion
@@ -233,7 +254,100 @@ namespace resource.device
         {
             return GetDevice(devid)?.line ?? 0;
         }
+
+        /// <summary>
+        /// 判断是否有设备是这条线的
+        /// </summary>
+        /// <param name="area"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
+        public bool HaveDeviceInLine(uint area, uint line)
+        {
+            return DeviceList.Exists(c => c.area == area && c.line == line);
+        }
         #endregion
 
+        #region[新增]
+        public bool AddDevice(Device dev, out uint id)
+        {
+            id = 0;
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (DeviceList.Exists(c => c.area == dev.area && c.ip == dev.ip))
+                    {
+                        return false;
+                    }
+                    List<Device> areadevs = DeviceList.FindAll(c => c.area == dev.area);
+                    uint newid = 1;
+                    if (areadevs.Count > 0)
+                    {
+                        newid = DeviceList.Max(c => c.id) + 1;
+                    }
+                    dev.id = newid;
+                    id = newid;
+                    PubMaster.Mod.DevSql.AddDevice(dev);
+                    DeviceList.Add(dev);
+                    return true;
+                }
+                catch (Exception e)
+                {
+
+                    mLog.Error(true, e.Message + "新增失败：" + dev.name);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
+        #endregion
+
+        #region[修改]
+
+        public bool UpdateDevice(Device dev)
+        {
+            Device d = DeviceList.Find(c => c.id == dev.id);
+            if (d == null)
+            {
+                return false;
+            }
+            PubMaster.Mod.DevSql.EditDevice(dev);
+            d.Update(dev);
+            return true;
+        }
+
+        #endregion
+
+        #region[删除]
+        public bool DeleteDevice(Device dev)
+        {
+            if (Monitor.TryEnter(_obj, TimeSpan.FromSeconds(1)))
+            {
+                try
+                {
+                    if (!DeviceList.Exists(c => c.area == dev.area && c.ip == dev.ip))
+                    {
+                        return false;
+                    }
+                    PubMaster.Mod.DevSql.DeleteDevice(dev);
+                    DeviceList.RemoveAll(c => c.area == dev.area && c.ip == dev.ip && c.id == dev.id);
+                    return true;
+                }
+                catch (Exception e)
+                {
+
+                    mLog.Error(true, e.Message + "删除失败：" + dev.name);
+                }
+                finally
+                {
+                    Monitor.Exit(_obj);
+                }
+            }
+            return false;
+        }
+        #endregion
     }
 }

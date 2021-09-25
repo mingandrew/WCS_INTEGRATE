@@ -10,298 +10,465 @@
              MinWidth="800" MinHeight="600">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition/>
         </Grid.RowDefinitions>
-        
-        <!--<hc:TransitioningContentControl Grid.Column="0" Grid.Row="0">
-            <TreeView Width="200" Margin="10" ItemsSource="{Binding SettingMenuList}" HorizontalAlignment="Left">
-                <TreeView.Resources>
-                </TreeView.Resources>
-                <hc:Interaction.Triggers>
-                    <hc:RoutedEventTrigger RoutedEvent="TreeView.SelectedItemChanged">
-                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
-                    </hc:RoutedEventTrigger>
-                    <hc:RoutedEventTrigger RoutedEvent="TreeView.MouseDoubleClick">
-                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
-                    </hc:RoutedEventTrigger>
-                </hc:Interaction.Triggers>
-                <TreeView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="新增区域" Tag="AddArea" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="编辑区域" Tag="EditArea" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="新增线" Tag="AddLine" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                        <MenuItem Header="编辑线" Tag="EditLine" Command="{Binding SettingBtnCmd}" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                    </ContextMenu>
-                </TreeView.ContextMenu>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding childlist}">
-                        <TextBlock Text="{Binding name}"/>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </hc:TransitioningContentControl>-->
 
+        <!--<hc:TransitioningContentControl Grid.Column="0" Grid.Row="0">-->
+        <TreeView Grid.Column="0" Grid.Row="0" Width="200" Margin="10" ItemsSource="{Binding SettingMenuList}" HorizontalAlignment="Left">
+            <TreeView.Resources>
+            </TreeView.Resources>
+            <hc:Interaction.Triggers>
+                <hc:RoutedEventTrigger RoutedEvent="TreeView.SelectedItemChanged">
+                    <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
+                </hc:RoutedEventTrigger>
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Border Grid.Row="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTR}">
-                <TextBlock Text="区域信息" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            </Border>
-            <hc:TransitioningContentControl Grid.Column="0" Grid.Row="1">
-                <ListBox Width="auto" ItemsSource="{Binding AreaList}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding name}" FontSize="20"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </hc:TransitioningContentControl>
-
-            <Border Style="{StaticResource MBorder_LTB}" Grid.Column="1" Grid.Row="1">
-
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
-                        <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding AREAACTIONNAME, Mode=TwoWay}"/>
-                        <TextBlock Style="{StaticResource TextBlockLarge}" Text="区域"/>
+            </hc:Interaction.Triggers>
+            <TreeView.ItemTemplate>
+                <HierarchicalDataTemplate ItemsSource="{Binding childlist}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding name}" FontSize="15"/>
                     </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+        <!--</hc:TransitioningContentControl>-->
 
-                    <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" MinWidth="60"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_T}">
-                            <TextBlock Text="名称:" Style="{StaticResource TextBlockLarge}"/>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_T}">
-                            <StackPanel VerticalAlignment="Center" Margin="10">
-                                <TextBlock Text="上砖侧运输车：" Style="{StaticResource TextBlockLarge}"/>
-                                <TextBlock Text="(可选）" Style="{StaticResource TextBlockLarge}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_TB}">
-                            <StackPanel VerticalAlignment="Center" Margin="10">
-                                <TextBlock Text="下砖侧运输车：" Style="{StaticResource TextBlockLarge}"/>
-                                <TextBlock Text="(可选）" Style="{StaticResource TextBlockLarge}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_TR}">
-                            <TextBox x:Name="AutoPostBack" Text="{Binding AreaName,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_TR}">
-                            <TextBox Text="{Binding UpCar,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                        </Border>
-
-                        <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_TRB}">
-                            <TextBox Text="{Binding DownCar,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                        </Border>
-                    </Grid>
-
-                    <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,20">
-                        <Button Width="120" Margin="0,0,55,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" IsCancel="True"/>
-                        <Button Width="120" Margin="55,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="保存" IsDefault="True"
-                              Tag="ComfirmArea"   CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Grid>
-        
-
-
-        <!--<hc:TransitioningContentControl Grid.Column="2" Grid.Row="0">
-            <TreeView Width="200" Margin="10" ItemsSource="{Binding SettingMenuList}" HorizontalAlignment="Left">
-                <TreeView.Resources>
-                </TreeView.Resources>
-                <hc:Interaction.Triggers>
-                    <hc:RoutedEventTrigger RoutedEvent="TreeView.SelectedItemChanged">
-                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
-                    </hc:RoutedEventTrigger>
-                    <hc:RoutedEventTrigger RoutedEvent="TreeView.MouseDoubleClick">
-                        <hc:EventToCommand Command="{Binding MenuTreeViewChangeCmd}" PassEventArgsToCommand="True"/>
-                    </hc:RoutedEventTrigger>
-                </hc:Interaction.Triggers>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding childlist}">
-                        <TextBlock Text="{Binding name}"/>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </hc:TransitioningContentControl>-->
-        
-
-        <Grid Grid.Column="2" Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Border Grid.Row="0" Style="{StaticResource MBorder_LTR}">
-                <TextBlock Text="线列表" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            </Border>
-            <hc:TransitioningContentControl Grid.Row="1">
-                <ListBox Width="auto" ItemsSource="{Binding LineList}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding name}" FontSize="20"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </hc:TransitioningContentControl>
-        </Grid>
-
-        <Grid  Grid.Column="3" Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                <TextBlock Style="{StaticResource TextBlockLargeBold}" Text="{Binding AREAACTIONNAME}"/>
-                <TextBlock Style="{StaticResource TextBlockLarge}" Text="线路" FontSize="20"/>
-            </StackPanel>
-
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-
-                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MBorder_LT}">
-                    <TextBlock Text="线名:" Style="{StaticResource TextBlockLarge}"/>
-                </Border>
-
-                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MBorder_LT}">
-                    <TextBlock Text="线号:" Style="{StaticResource TextBlockLarge}"/>
-                </Border>
-
-                <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                    <TextBlock Text="倒库任务数量上限:" Style="{StaticResource TextBlockLarge}"/>
-                </Border>
-
-                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                    <TextBlock Text="上砖任务数量上限:" Style="{StaticResource TextBlockLarge}"/>
-                </Border>
-
-                <Border Grid.Row="3" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                    <TextBlock Text="下砖任务数量上限:" Style="{StaticResource TextBlockLarge}"/>
-                </Border>
-
-                <Border Grid.Row="4" Grid.Column="0" Style="{StaticResource MBorder_LTB}">
-                    <TextBlock Text="是否需要倒库:" Style="{StaticResource TextBlockLarge}"/>
-                </Border>
-
-                <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource MBorder_LTB}">
-                    <StackPanel VerticalAlignment="Center" Margin="10">
-                        <TextBlock Text="下砖轨道满砖上限：" Style="{StaticResource TextBlockLarge}"/>
-                        <TextBlock Text="(可选）" Style="{StaticResource TextBlockLarge}"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource MBorder_LTR}">
-                    <TextBox Text="{Binding LineName,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                </Border>
-
-                <Border Grid.Row="0" Grid.Column="3" Style="{StaticResource MBorder_LTR}">
-                    <TextBox Text="{Binding LineNum,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                </Border>
-
-                <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
-                    <TextBox Text="{Binding SortCount,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                </Border>
-
-                <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
-                    <TextBox Text="{Binding UpCount,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                </Border>
-
-                <Border Grid.Row="3" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
-                    <TextBox Text="{Binding DownCount,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                </Border>
-
-                <Border Grid.Row="4" Grid.Column="1" Style="{StaticResource MBorder_LTRB}">
-                    <ComboBox ItemsSource="{Binding Source={StaticResource LineTypeE}}" Margin="10"
-                                    SelectedItem="{Binding LineType,Mode=TwoWay}" FontSize="25"/>
-                </Border>
-
-                <Border Grid.Row="5" Grid.Column="2" Style="{StaticResource MBorder_LTRB}">
-                    <TextBox Text="{Binding FullQty,Mode=TwoWay}" BorderThickness="1" Margin="10" FontSize="25"/>
-                </Border>
-            </Grid>
-
-            <StackPanel Grid.Row="2" HorizontalAlignment="Center" Orientation="Horizontal" Margin="0,10,0,20">
-                <Button Width="120" Margin="0,0,55,0" Command="{Binding CancelCmd}" Style="{StaticResource ButtonDanger}" Content="取消" IsCancel="True"/>
-                <Button Width="120" Margin="55,0,0,0" Command="{Binding ComfirmCmd}" Style="{StaticResource ButtonPrimary}" Content="保存" IsDefault="True"
-                              Tag="ComfirmLine"   CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
-            </StackPanel>
-        </Grid>
-
-        <!--<TabControl Grid.Column="2" Style="{StaticResource TabControlInLine}">
+        <TabControl Grid.Column="1" Grid.Row="0" Margin="0,5,0,0">
             <hc:Interaction.Triggers>
                 <hc:RoutedEventTrigger RoutedEvent="TabControl.SelectionChanged">
                     <hc:EventToCommand Command="{Binding TabSelectedCmd}" PassEventArgsToCommand="True"/>
                 </hc:RoutedEventTrigger>
             </hc:Interaction.Triggers>
-            <TabItem Visibility="Hidden"></TabItem>
-            <TabItem Tag="area" Header="区域" Visibility="{Binding ShowArea, Converter={StaticResource Boolean2VisibilityConverter}}" IsSelected="{Binding ShowArea}">
-                
+            <TabItem Tag="area" Header="区域" Height="40" Width="100" FontSize="20">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="刷新区域" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionCmd}"   Margin="10,10,0,10" FontSize="16"  Height="30"
+                                    Tag="RefreshArea" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="新增区域"  VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="AddArea" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存全部区域" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="SaveArea" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="ComfirmArea" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="删除" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="DeleteArea" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border   Margin="0,0,0,10" Grid.Row="1" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource BorderBrush}" 
+                              Background="{DynamicResource RegionBrush}" CornerRadius="0,0,4,4">
+
+                        <DataGrid hc:DataGridAttach.ShowRowNumber="True" HeadersVisibility="All" RowHeaderWidth="60" FontSize="15"
+                          AutoGenerateColumns="False" ItemsSource="{Binding AreaList}" SelectedItem="{Binding SelectArea}" FrozenColumnCount ="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding name,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Header="区域名"/>
+                                <DataGridTextColumn Binding="{Binding up_car_count,UpdateSourceTrigger=PropertyChanged}" Header="上砖侧运输车"/>
+                                <DataGridTextColumn Binding="{Binding down_car_count,UpdateSourceTrigger=PropertyChanged}" Header="下砖侧运输车"/>
+                                <!--<DataGridTemplateColumn x:Name="UserAction" Header="操作" Width="160">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Button Content="保存" HorizontalAlignment="Center"  FontSize="14" Tag="ComfirmArea"
+                        Command="{Binding DataContext.ComfirmCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                         CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="0, 0, 0, 0"/>
+                                                    <Button Content="删除" HorizontalAlignment="Center"  FontSize="14" Tag="DeleteArea"
+                        Command="{Binding DataContext.ComfirmCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                         CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" Margin="10, 0, 0, 0"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>-->
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
             </TabItem>
 
-            <TabItem Tag="line" Header="线路" IsSelected="{Binding ShowLine}"
-                     Visibility="{Binding ShowLine, Converter={StaticResource Boolean2VisibilityConverter}}">
-                
+            <TabItem Header="线路" Tag="line" Height="40" Width="100" FontSize="20">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="刷新线路" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionCmd}"   Margin="10,10,0,10" FontSize="16"  Height="30"
+                                    Tag="RefreshLine" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="新增线路"  VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="AddLine" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存全部线路" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="SaveLine" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="ComfirmLine" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="删除" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="DeleteLine" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Margin="0,0,0,10" Grid.Row="1" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource BorderBrush}" 
+                              Background="{DynamicResource RegionBrush}" CornerRadius="0,0,4,4">
+                        <DataGrid hc:DataGridAttach.ShowRowNumber="True" HeadersVisibility="All" RowHeaderWidth="60" FontSize="15"
+                                AutoGenerateColumns="False" ItemsSource="{Binding LineList}" SelectedItem="{Binding SelectLine}" FrozenColumnCount ="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding name,UpdateSourceTrigger=PropertyChanged}" Header="线名"/>
+                                <DataGridTextColumn Binding="{Binding line,UpdateSourceTrigger=PropertyChanged}" Header="线号"/>
+                                <DataGridTextColumn Binding="{Binding sort_task_qty,UpdateSourceTrigger=PropertyChanged}" Header="倒库上限"/>
+                                <DataGridTextColumn Binding="{Binding up_task_qty,UpdateSourceTrigger=PropertyChanged}" Header="上砖上限"/>
+                                <DataGridTextColumn Binding="{Binding down_task_qty,UpdateSourceTrigger=PropertyChanged}" Header="下砖上限"/>
+                                <!--<DataGridTextColumn Binding="{Binding line_type,UpdateSourceTrigger=PropertyChanged}" Header="是否倒库"/>-->
+                                <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource LineTypeE}}" Width="100" CanUserResize="False" 
+                                                SelectedValueBinding="{Binding LineType, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Header="是否倒库"/>
+                                <DataGridTextColumn Binding="{Binding full_qty,UpdateSourceTrigger=PropertyChanged}" Header="下轨满数"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                </Grid>
             </TabItem>
 
-            <TabItem Header="轨道" Tag="track"  Visibility="{Binding ShowTrack, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
+            <TabItem Header="轨道" Tag="track" Height="40" Width="100" FontSize="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="刷新轨道" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionCmd}"   Margin="10,10,0,10" FontSize="16"  Height="30"
+                                    Tag="RefreshTrack" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="新增轨道"  VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="AddTrack" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存全部轨道" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="SaveTrack" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="批量新增轨道" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="BatchAddTrack" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="ComfirmTrack" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="删除" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="DeleteTrack" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource BorderBrush}" 
+                            Background="{DynamicResource RegionBrush}" CornerRadius="0,0,4,4" Margin="0,0,0,10" >
+                        <DataGrid hc:DataGridAttach.ShowRowNumber="True" HeadersVisibility="All" RowHeaderWidth="60" FontSize="15"
+                          AutoGenerateColumns="False" ItemsSource="{Binding TrackList}" SelectedItem="{Binding SelectTrack}" FrozenColumnCount ="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding name,UpdateSourceTrigger=PropertyChanged}" Header="名称"/>
+                                <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource TrackTypeE}}" Width="140" CanUserResize="False" 
+                                                SelectedValueBinding="{Binding Type, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Header="类型"/>
+                                <DataGridTextColumn Binding="{Binding width,UpdateSourceTrigger=PropertyChanged}" Header="轨道外宽"/>
+                                <DataGridTextColumn Binding="{Binding left_distance,UpdateSourceTrigger=PropertyChanged}" Header="轨道左间距"/>
+                                <DataGridTextColumn Binding="{Binding right_distance,UpdateSourceTrigger=PropertyChanged}" Header="轨道右间距"/>
+                                <DataGridTextColumn Binding="{Binding ferry_up_code,UpdateSourceTrigger=PropertyChanged}" Header="摆渡车对位编码"/>
+                                <DataGridTextColumn Binding="{Binding rfid_1,UpdateSourceTrigger=PropertyChanged}" Header="入定位地标"/>
+                                <DataGridTextColumn Binding="{Binding rfid_2,UpdateSourceTrigger=PropertyChanged}" Header="出定位地标"/>
+                                <DataGridTextColumn Binding="{Binding rfids,UpdateSourceTrigger=PropertyChanged}" Header="地标集合(#隔开)"/>
+                                <DataGridTextColumn Binding="{Binding order,UpdateSourceTrigger=PropertyChanged}" Header="位置顺序"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                </Grid>
             </TabItem>
 
-            <TabItem Header="运输车"  Tag="carrier" Visibility="{Binding ShowCarrier, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
-               
-                
+            <TabItem Header="砖机" Tag="tilelifter" Height="40" Width="100" FontSize="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="刷新砖机" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionCmd}"   Margin="10,10,0,10" FontSize="16"  Height="30"
+                                    Tag="RefreshTile" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="新增砖机"  VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="AddTile" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存全部砖机" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="SaveTile" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="批量新增砖机" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="BatchAddTile" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="ComfirmTile" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="删除" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="DeleteTile" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource BorderBrush}" 
+                            Background="{DynamicResource RegionBrush}" CornerRadius="0,0,4,4" Margin="0,0,0,10" >
+                        <DataGrid hc:DataGridAttach.ShowRowNumber="True" HeadersVisibility="All" RowHeaderWidth="60" FontSize="15"
+                          AutoGenerateColumns="False" ItemsSource="{Binding TileLifterSettingViewList}" SelectedItem="{Binding SelectTileLifter}" 
+                                  FrozenColumnCount ="2">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding id,UpdateSourceTrigger=PropertyChanged}" Header="ID" Visibility="Hidden"/>
+                                <DataGridTextColumn Binding="{Binding name,UpdateSourceTrigger=PropertyChanged}" Header="名称"/>
+                                <DataGridTextColumn Binding="{Binding ip,UpdateSourceTrigger=PropertyChanged}" Header="IP"/>
+                                <DataGridTextColumn Binding="{Binding port,UpdateSourceTrigger=PropertyChanged}" Header="端口"/>
+                                <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DeviceTypeE}}" Width="100" CanUserResize="False" 
+                                                SelectedValueBinding="{Binding Type, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Header="设备类型"/>
+                                <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DeviceType2E}}" Width="100" CanUserResize="False" 
+                                                SelectedValueBinding="{Binding Type2, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Header="单双轨"/>
+                                <!--<DataGridTextColumn Binding="{Binding brother_dev_id,Converter={StaticResource DevId2NameConverter},UpdateSourceTrigger=PropertyChanged}" Header="兄弟砖机"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="兄弟砖机"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center" Tag="Tile" 
+                                                    Command="{Binding DataContext.DeviceSelectedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" >
+                                                <TextBlock Block.TextAlignment="Center" Text="{Binding brother_dev_id,Mode=TwoWay,Converter={StaticResource DevId2NameConverter},UpdateSourceTrigger=PropertyChanged}"
+                                                        Foreground="Black" FontSize="15" MinWidth="60"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <!--<DataGridTextColumn Binding="{Binding left_track_id,Converter={StaticResource TrackId2NameConverter},UpdateSourceTrigger=PropertyChanged}" Header="砖机左轨道"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="砖机左轨道"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center" Tag="left" 
+                                                    Command="{Binding DataContext.TrackSelectedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" >
+                                                <TextBlock Block.TextAlignment="Center" Text="{Binding left_track_id,Mode=TwoWay,Converter={StaticResource TrackId2NameConverter},UpdateSourceTrigger=PropertyChanged}"
+                                                        Foreground="Black" FontSize="14" MinWidth="60"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding left_track_point,UpdateSourceTrigger=PropertyChanged}" Header="左轨道定位地标"/>
+                                <!--<DataGridTextColumn Binding="{Binding right_track_id,Converter={StaticResource TrackId2NameConverter},UpdateSourceTrigger=PropertyChanged}" Header="砖机右轨道"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="砖机右轨道"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center" Tag="right" 
+                                                    Command="{Binding DataContext.TrackSelectedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" >
+                                                <TextBlock Block.TextAlignment="Center" Text="{Binding right_track_id,Mode=TwoWay,Converter={StaticResource TrackId2NameConverter},UpdateSourceTrigger=PropertyChanged}"
+                                                        Foreground="Black" FontSize="14" MinWidth="60"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding right_track_point,UpdateSourceTrigger=PropertyChanged}" Header="右轨道定位地标"/>
+                                <!--<DataGridTextColumn Binding="{Binding can_cutover,UpdateSourceTrigger=PropertyChanged}" Header="能否换模式"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="能否换模式"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ToggleButton IsChecked="{Binding can_cutover,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <!--<DataGridTextColumn Binding="{Binding can_alter,UpdateSourceTrigger=PropertyChanged}" Header="是否备用"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="是否备用"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ToggleButton IsChecked="{Binding can_alter,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" Height="30" Width="50" Style="{StaticResource ToggleButtonSwitch}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <!--<DataGridTextColumn Binding="{Binding alter_ids,UpdateSourceTrigger=PropertyChanged}" Header="备用砖机集合(，隔开)"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="能备用的砖机"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center" Tag="Tile" 
+                                                    Command="{Binding DataContext.DeviceCheckSelectedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}"
+                                                    CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}" >
+                                                <TextBlock Block.TextAlignment="Center" Text="{Binding AlterNames,UpdateSourceTrigger=PropertyChanged}"
+                                                        Foreground="Black" FontSize="15" MinWidth="60"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                </Grid>
             </TabItem>
 
-            <TabItem Header="摆渡车"  Tag="ferry" Visibility="{Binding ShowFerry, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
-                
+            <TabItem Header="运输车"  Tag="carrier" Height="40" Width="100" FontSize="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" >
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="刷新运输车" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionCmd}"   Margin="10,10,0,10" FontSize="16"  Height="30"
+                                    Tag="RefreshCarrier" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="新增运输车"  VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="AddCarrier" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存全部运输车" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="SaveCarrier" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="批量新增运输车" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="BatchAddCarrier" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="ComfirmCarrier" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="删除" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="DeleteCarrier" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </StackPanel>
+                    </Border>
+
+
+
+                    <Border Grid.Row="1" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource BorderBrush}" 
+                            Background="{DynamicResource RegionBrush}" CornerRadius="0,0,4,4">
+                        <DataGrid hc:DataGridAttach.ShowRowNumber="True" HeadersVisibility="All" RowHeaderWidth="60" FontSize="15"
+                          AutoGenerateColumns="False" ItemsSource="{Binding CarrierSettingViewList}" SelectedItem="{Binding SelectCarrier}" FrozenColumnCount ="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding id,UpdateSourceTrigger=PropertyChanged}" Header="ID" Visibility="Hidden"/>
+                                <DataGridTextColumn Binding="{Binding name,UpdateSourceTrigger=PropertyChanged}" Header="名称"/>
+                                <DataGridTextColumn Binding="{Binding ip,UpdateSourceTrigger=PropertyChanged}" Header="IP"/>
+                                <DataGridTextColumn Binding="{Binding port,UpdateSourceTrigger=PropertyChanged}" Header="端口"/>
+                                <DataGridTextColumn Binding="{Binding length,UpdateSourceTrigger=PropertyChanged}" Header="顶板长度"/>
+                                <!--<DataGridTextColumn Binding="{Binding goods_size,UpdateSourceTrigger=PropertyChanged}" Header="负责规格(#隔开)"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="负责规格(#隔开)"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center" Tag="Tile" 
+                                                    Command="{Binding DataContext.GoodSizeSelectedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}">
+                                                <TextBlock Block.TextAlignment="Center" Text="{Binding goods_size_name,UpdateSourceTrigger=PropertyChanged}"
+                                                        Foreground="Black" FontSize="15" MinWidth="100"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                </Grid>
+
             </TabItem>
 
-            <TabItem Header="砖机" Tag="tilelifter" Visibility="{Binding ShowTilelifter, Converter={StaticResource BooleanToSpaceVisibilityConverter}}">
-                
+            <TabItem Header="摆渡车"  Tag="ferry" Height="40" Width="100" FontSize="20">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Button Content="刷新摆渡车" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource ButtonPrimary}" 
+                            Command="{Binding ActionCmd}"   Margin="10,10,0,10" FontSize="16"  Height="30"
+                                    Tag="RefreshFerry" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="新增摆渡车"  VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="AddFerry" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存全部摆渡车" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="SaveFerry" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="批量新增摆渡车" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ActionCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="BatchAddFerry" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="保存" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonSuccess}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="ComfirmFerry" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                            <Button Content="删除" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource ButtonDanger}" 
+                            Command="{Binding ComfirmCmd}"   Margin="30,10,0,10" FontSize="16"  Height="30"
+                                    Tag="DeleteFerry" CommandParameter="{Binding Tag,RelativeSource={RelativeSource Self}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1" BorderThickness="1,0,1,1" BorderBrush="{DynamicResource BorderBrush}" 
+                            Background="{DynamicResource RegionBrush}" CornerRadius="0,0,4,4" Margin="0,0,0,10" >
+                        <DataGrid hc:DataGridAttach.ShowRowNumber="True" HeadersVisibility="All" RowHeaderWidth="60" FontSize="15"
+                          AutoGenerateColumns="False" ItemsSource="{Binding FerrySettingViewList}" SelectedItem="{Binding SelectFerry}" FrozenColumnCount ="1">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding id,UpdateSourceTrigger=PropertyChanged}" Header="ID" Visibility="Hidden"/>
+                                <DataGridTextColumn Binding="{Binding name,UpdateSourceTrigger=PropertyChanged}" Header="名称"/>
+                                <DataGridTextColumn Binding="{Binding ip,UpdateSourceTrigger=PropertyChanged}" Header="IP"/>
+                                <DataGridTextColumn Binding="{Binding port,UpdateSourceTrigger=PropertyChanged}" Header="端口"/>
+                                <DataGridComboBoxColumn ItemsSource="{Binding Source={StaticResource DeviceTypeE}}" Width="100" CanUserResize="False" 
+                                                SelectedValueBinding="{Binding Type, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Header="设备类型"/>
+                                <!--<DataGridTextColumn Binding="{Binding track_id,Converter={StaticResource TrackId2NameConverter},UpdateSourceTrigger=PropertyChanged}" Header="摆渡轨道"/>-->
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.Header>
+                                        <TextBlock Text="摆渡轨道"/>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button  Background="{Binding TrackBrush}" HorizontalAlignment="Center"  VerticalAlignment="Center" 
+                                                    Command="{Binding DataContext.FerryTrackSelectedCmd, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGrid}}" >
+                                                <TextBlock Block.TextAlignment="Center" Text="{Binding track_id,Mode=TwoWay,Converter={StaticResource TrackId2NameConverter},UpdateSourceTrigger=PropertyChanged}"
+                                                        Foreground="Black" FontSize="14" MinWidth="60"/>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding track_point,UpdateSourceTrigger=PropertyChanged}" Header="摆渡定位地标"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+
+                </Grid>
             </TabItem>
-        </TabControl>-->
+        </TabControl>
     </Grid>
-    
+
 </UserControl>

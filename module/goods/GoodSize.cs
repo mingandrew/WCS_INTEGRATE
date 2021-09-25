@@ -17,6 +17,16 @@
         /// 砖与砖最小间距（脉冲）
         /// </summary>
         public ushort car_space { set; get; }
-        
+
+        /// <summary>
+        /// 被选中
+        /// </summary>
+        public bool IsSelected { set; get; }
+
+        /// <summary>
+        /// 被全部选中
+        /// </summary>
+        public bool IsSelectAll { set; get; }
+
     }
 }

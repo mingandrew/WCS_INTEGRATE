@@ -49,5 +49,11 @@
 
             return goods_size.Contains(sizeID.ToString());
         }
+
+        public void Update(ConfigCarrier config)
+        {
+            length = config.length;
+            goods_size = config.goods_size;
+        }
     }
 }
