@@ -1205,11 +1205,11 @@ namespace task.trans
         /// </summary>
         /// <param name="trans"></param>
         /// <param name="memo"></param>
-        internal void LogForCarrierSortRelay(StockTrans trans, uint trackid)
+        internal void LogForCarrierSortRelay(StockTrans trans, uint trackid, string memo = "")
         {
-            SetStepLog(trans, true, 407, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库/接力；",
+            SetStepLog(trans, true, 407, string.Format("控制运输车[ {0} ]移至[ {1} ]倒库/接力；[ {2} ]",
                 PubMaster.Device.GetDeviceName(trans.carrier_id),
-                PubMaster.Track.GetTrackName(trackid)));
+                PubMaster.Track.GetTrackName(trackid), memo));
         }
 
         /// <summary>
