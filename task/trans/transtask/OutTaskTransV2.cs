@@ -64,17 +64,8 @@ namespace task.trans.transtask
                 return;
             }
 
-            //是否有空闲的摆渡车
-            if (!PubTask.Ferry.HaveFreeFerryInTrans(trans, DeviceTypeE.前摆渡, out List<uint> ferryids))
-            {
-                #region 【任务步骤记录】
-                _M.SetStepLog(trans, false, 1301, string.Format("当前没有空闲的摆渡车"));
-                #endregion
-                return;
-            }
-
             //分配运输车
-            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result, ferryids)
+            if (PubTask.Carrier.AllocateCarrier(trans, out uint carrierid, out string result)
                 && !_M.HaveInCarrier(carrierid))
             {
                 _M.SetCarrier(trans, carrierid);
@@ -280,7 +271,7 @@ namespace task.trans.transtask
                         {
                             Track takeTrack = PubMaster.Track.GetTrack(trans.take_track_id);
 
-                            #region[取砖轨道有车则找空轨道放]
+                            #region[取砖轨道有车则找空轨道放] - 停用
 
                             //1.不允许，则不可以有车
                             //2.允许，则不可以有非倒库车

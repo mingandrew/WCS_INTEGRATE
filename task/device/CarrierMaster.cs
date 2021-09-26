@@ -2144,7 +2144,7 @@ namespace task.device
             CarrierTask carrier = null;
 
             #region 1. 直接取摆渡上的小车
-            if (carrier == null)
+            if (carrier == null && HaveFreeFerry)
             {
                 //1. 获取能到达[取货/卸货]轨道的摆渡车的ID
                 List<uint> ferrytrackids = PubMaster.Area.GetFerryWithTrackInOut(trans.AllocateFerryType, trans.area_id, trans.take_track_id, trans.give_track_id, 0, true);
@@ -2200,7 +2200,7 @@ namespace task.device
             #endregion
 
             #region 2. 取砖机里面的小车
-            if (trans.tilelifter_id > 0 && carrier == null)
+            if (trans.tilelifter_id > 0 && carrier == null && HaveFreeFerry)
             {
                 // 1：同侧无砖
                 List<CarrierTask> TileList_1 = new List<CarrierTask>();
@@ -2275,15 +2275,23 @@ namespace task.device
                 carrier = GetOnlyCarrierInTrack(trans.take_track_id, isbig);
                 if (carrier != null)
                 {
-                    result = string.Format("取货轨道上有运输车{0}：", carrier.Device.name);
-                    if (!carrier.CheckCarrierIsUsable(goodssizeID, out string mes))
+                    // 倒库任务的车跳过判断
+                    if (PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.倒库任务, TransTypeE.上砖接力))
                     {
-                        result += mes;
-                        return false;
+                        carrier = null;
                     }
+                    else
+                    {
+                        result = string.Format("取货轨道上有运输车{0}：", carrier.Device.name);
+                        if (!carrier.CheckCarrierIsUsable(goodssizeID, out string mes))
+                        {
+                            result += mes;
+                            return false;
+                        }
 
-                    carrierid = carrier.ID;
-                    return true;
+                        carrierid = carrier.ID;
+                        return true;
+                    }
                 }
 
             }
@@ -2295,22 +2303,30 @@ namespace task.device
                 carrier = GetOnlyCarrierInTrack(trans.give_track_id, isbig);
                 if (carrier != null)
                 {
-                    result = string.Format("卸货轨道上有运输车{0}：", carrier.Device.name);
-                    if (!carrier.CheckCarrierIsUsable(goodssizeID, out string mes))
+                    // 倒库任务的车跳过判断
+                    if (PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.倒库任务, TransTypeE.上砖接力))
                     {
-                        result += mes;
-                        return false;
+                        carrier = null;
                     }
+                    else
+                    {
+                        result = string.Format("卸货轨道上有运输车{0}：", carrier.Device.name);
+                        if (!carrier.CheckCarrierIsUsable(goodssizeID, out string mes))
+                        {
+                            result += mes;
+                            return false;
+                        }
 
-                    carrierid = carrier.ID;
-                    return true;
+                        carrierid = carrier.ID;
+                        return true;
+                    }
                 }
 
             }
             #endregion
 
             #region 5. 其他储砖轨道
-            if (carrier == null)
+            if (carrier == null && HaveFreeFerry)
             {
                 // 1. 其他轨道靠近摆渡坑的 无货车
                 List<CarrierTask> List_1 = new List<CarrierTask>();
@@ -4158,6 +4174,7 @@ namespace task.device
                             //除了倒库任务的运输车
                             carrier = DevList.Find(c => c.ID != carrierid
                                && c.CurrentTrackId == track.id
+                               && (track.is_take_forward ? (c.CurrentPoint < track.split_point) : (c.CurrentPoint > track.split_point))
                                && c.NotInTask(DevCarrierOrderE.倒库指令)
                                && !PubTask.Trans.IsCarrierInTrans(c.ID, trackid, TransTypeE.上砖接力, TransTypeE.倒库任务, TransTypeE.中转倒库, TransTypeE.库存转移));
                             if (carrier != null)

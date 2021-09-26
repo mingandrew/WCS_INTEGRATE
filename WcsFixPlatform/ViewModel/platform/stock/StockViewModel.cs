@@ -264,34 +264,40 @@ namespace wcs.ViewModel
         /// </summary>
         private void RefreshStockList()
         {
-            if (!CheckSelectTrack()) return;
-
-            List.Clear();
-            BriefList.Clear();
-
-            StockList = PubMaster.Goods.GetStocks(_selecttrack.id);
-            StockList.Sort((x, y) => x.pos.CompareTo(y.pos));
-
-            StockSumStocks sum = null;
-
-            foreach (Stock stock in StockList)
+            try
             {
-                List.Add(stock);
+                if (!CheckSelectTrack()) return;
 
-                if (sum != null && !sum.AddToSum(stock))
+                List.Clear();
+                BriefList.Clear();
+
+                StockList = PubMaster.Goods.GetStocks(_selecttrack.id);
+                StockList.Sort((x, y) => x.pos.CompareTo(y.pos));
+
+                StockSumStocks sum = null;
+
+                foreach (Stock stock in StockList)
+                {
+                    List.Add(stock);
+
+                    if (sum != null && !sum.AddToSum(stock))
+                    {
+                        BriefList.Add(sum);
+                        sum = null;
+                    }
+
+                    if (sum == null)
+                    {
+                        sum = new StockSumStocks(stock, PubMaster.Track.GetTrackType2ForByte(stock.track_id));
+                    }
+                }
+                if (sum != null)
                 {
                     BriefList.Add(sum);
-                    sum = null;
-                }
-
-                if (sum == null)
-                {
-                    sum = new StockSumStocks(stock, PubMaster.Track.GetTrackType2ForByte(stock.track_id));
                 }
             }
-            if (sum != null)
+            catch (Exception)
             {
-                BriefList.Add(sum);
             }
         }
 

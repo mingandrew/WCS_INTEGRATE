@@ -675,12 +675,14 @@ namespace task.trans
         {
             if (trans.take_track_id != traid)
             {
+                string old = PubMaster.Track.GetTrackName(trans.take_track_id);
                 string traname = PubMaster.Track.GetTrackName(traid);
-                mLog.Status(true, string.Format("任务[ {0} ], 取货轨道[ {1} ]", trans.id, traname));
+
+                mLog.Status(true, string.Format("任务[ {0} ], 取货轨道[ {1} -> {2} ]", trans.id, old, traname));
+                SetStepLog(trans, true, 207, string.Format("重新分配取货轨道[ {1} -> {2} ]", trans.id, old, traname));
+
                 trans.take_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.TakeSite);
-                //SendMsg(trans);
-                SetStepLog(trans, true, 207, string.Format("重新分配取货轨道[ {0} ]；", traname));
                 return true;
             }
             return false;
@@ -696,12 +698,14 @@ namespace task.trans
         {
             if (trans.give_track_id != traid)
             {
+                string old = PubMaster.Track.GetTrackName(trans.give_track_id);
                 string traname = PubMaster.Track.GetTrackName(traid);
-                mLog.Status(true, string.Format("任务[ {0} ], 卸货轨道[ {1} ]", trans.id, traname));
+
+                mLog.Status(true, string.Format("任务[ {0} ], 卸货轨道[ {1} -> {2} ]", trans.id, old, traname));
+                SetStepLog(trans, true, 202, string.Format("重新分配卸货轨道[ {1} -> {2} ]", trans.id, old, traname));
+
                 trans.give_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.GiveSite);
-                //SendMsg(trans);
-                SetStepLog(trans, true, 208, string.Format("重新分配卸货轨道[ {0} ]；", traname));
                 return true;
             }
             return false;
@@ -718,12 +722,14 @@ namespace task.trans
         {
             if (trans.finish_track_id != traid)
             {
+                string old = PubMaster.Track.GetTrackName(trans.finish_track_id);
                 string traname = PubMaster.Track.GetTrackName(traid);
-                mLog.Status(true, string.Format("任务[ {0} ], 完成轨道[ {1} ], 备注[ {2} ]", trans.id, traname, memo));
+
+                mLog.Status(true, string.Format("任务[ {0} ], 完成轨道[ {1} -> {2} ], 备注[ {3} ]", trans.id, old, traname, memo));
+                SetStepLog(trans, true, 209, string.Format("重新分配结束回轨轨道[ {1} -> {2} ], 备注[ {3} ]", trans.id, old, traname, memo));
+
                 trans.finish_track_id = traid;
                 PubMaster.Mod.GoodSql.EditStockTrans(trans, TransUpdateE.FinsihSite);
-                //SendMsg(trans);
-                SetStepLog(trans, true, 209, string.Format("重新分配结束回轨轨道[ {0} ]；{1}；", traname, memo));
                 return true;
             }
             return false;

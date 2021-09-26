@@ -276,7 +276,7 @@ namespace task.trans.transtask
                     #region 【任务步骤记录】
                     _M.LogForCarrierTake(trans, track.id, "取砖前清空轨道内其他小车");
                     #endregion
-                    return;
+                    //return;  // 先不管，看看能不能取砖先
                 }
 
                 #region 无砖
@@ -363,6 +363,15 @@ namespace task.trans.transtask
                         {
                             // 倒库前确定作业库存
                             SetStockForSort(trans);
+                            return;
+                        }
+
+                        // 避让判断
+                        if (!PubTask.Carrier.CanDoOrderSafe(trans.carrier_id, track.id, takePoint, out result))
+                        {
+                            #region 【任务步骤记录】
+                            _M.LogForCarrierTake(trans, track.id, result);
+                            #endregion
                             return;
                         }
 

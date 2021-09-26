@@ -952,15 +952,16 @@ namespace task.trans.transtask
             Stock stk = PubMaster.Goods.GetStockInfrontStockPoint(trackid, splitPoint);
             if (stk != null)
             {
-                // 参考库存当前被车载移动
+                // 参考库存当前被车载
                 CarrierTask carrier = PubTask.Carrier.GetCarrierByStockid(stk.id);
-                if (carrier != null && carrier.TargetPoint > 0 && (carrier.Status == DevCarrierStatusE.前进 || carrier.Status == DevCarrierStatusE.后退))
+                if (carrier != null && (carrier.CurrentPoint > 0 || carrier.TargetPoint > 0))
                 {
                     ushort safe = PubMaster.Goods.GetStackSafe(stk.goods_id, carrierid); // 安全间隔
                     safe = (ushort)(safe * 2); // 感觉2个比较稳妥
 
-                    // 运动过程中以目的脉冲为计算值
-                    loc = (ushort)(isforward ? (carrier.TargetPoint + safe) : (carrier.TargetPoint - safe));
+                    // 参考脉冲
+                    ushort point = carrier.TargetPoint == 0 ? carrier.CurrentPoint : carrier.TargetPoint;
+                    loc = (ushort)(isforward ? (point + safe) : (point - safe));
                 }
                 else
                 {
