@@ -2200,66 +2200,53 @@ namespace task.device
             #endregion
 
             #region 2. 取砖机里面的小车
-            if (trans.tilelifter_id > 0 && carrier == null && HaveFreeFerry)
+            if (trans.tilelifter_id > 0 && carrier == null)
             {
-                // 1：同侧无砖
-                List<CarrierTask> TileList_1 = new List<CarrierTask>();
-                // 2：同侧载砖
-                List<CarrierTask> TileList_2 = new List<CarrierTask>();
-
                 // 获取任务砖机所有工位轨道 (优先)
                 List<uint> TileTraids = PubMaster.DevConfig.GetTileTracks(trans.tilelifter_id);
-
-                // 所有砖机轨道
-                List<uint> AllTileTraids = PubMaster.Track.GetTileTracks(trans.area_id, trans.line);
-                // 参考轨道
-                uint referTraid = AllTileTraids.Contains(trans.take_track_id) ? trans.take_track_id : trans.give_track_id;
-                // 轨道排序
-                List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(AllTileTraids, referTraid, true, false);
-
-                // 所有判断砖机轨道
-                List<uint> AllTids = new List<uint>();
-                if(TileTraids != null && TileTraids.Count > 0) AllTids.AddRange(TileTraids);
-                if(tids != null && tids.Count > 0)
+                if (TileTraids != null && TileTraids.Count > 0)
                 {
-                    tids.RemoveAll(c => AllTids.Contains(c));
-                    AllTids.AddRange(tids);
-                }
-
-                foreach (uint traid in AllTids)
-                {
-                    // 是否有能够到达该轨道的摆渡车
-                    if (!PubMaster.Area.ExistFerryWithTrack(ferryids, traid))
+                    // 一台砖机只能入一辆车
+                    foreach (uint traid in TileTraids)
                     {
-                        continue;
-                    }
-
-                    // 获取轨道内的运输车（只拿一车）
-                    CarrierTask traCar = GetOnlyCarrierInTrack(traid, isbig);
-                    if (traCar == null) continue;
-
-                    if (traCar.IsNotLoad())
-                    {
-                        TileList_1.Add(traCar);
-                    }
-                    else
-                    {
-                        TileList_2.Add(traCar);
-                    }
-
-                }
-
-                // 总计
-                List<CarrierTask> totalList = new List<CarrierTask>();
-                if (TileList_1 != null && TileList_1.Count > 0) totalList.AddRange(TileList_1);
-                if (TileList_2 != null && TileList_2.Count > 0) totalList.AddRange(TileList_2);
-                if (totalList != null && totalList.Count > 0)
-                {
-                    foreach (CarrierTask car in totalList)
-                    {
-                        if (car.CheckCarrierIsUsable(goodssizeID, out result))
+                        // 是否有能够到达该轨道的摆渡车
+                        if (!PubMaster.Area.ExistFerryWithTrack(ferryids, traid))
                         {
-                            carrierid = car.ID;
+                            continue;
+                        }
+
+                        // 获取轨道内的运输车（只拿一车）
+                        CarrierTask traCar = GetOnlyCarrierInTrack(traid, isbig);
+                        if (traCar == null) continue;
+
+                        if (traCar.CheckCarrierIsUsable(goodssizeID, out result))
+                        {
+                            carrierid = traCar.ID;
+                            return true;
+                        }
+                    }
+
+                    result = string.Format("砖机内存在运输车：{0}", result);
+                    // 非串联砖机则结束分配
+                    if(!PubMaster.DevConfig.IsInSeries(trans.tilelifter_id)) return false;
+                }
+                else
+                {
+                    // 所有砖机轨道
+                    List<uint> AllTileTraids = PubMaster.Track.GetTileTracks(trans.area_id, trans.line);
+                    // 参考轨道
+                    uint referTraid = AllTileTraids.Contains(trans.take_track_id) ? trans.take_track_id : trans.give_track_id;
+                    // 轨道排序
+                    List<uint> tids = PubMaster.Track.SortTrackIdsWithOrder(AllTileTraids, referTraid, true, false);
+                    foreach (uint tid in tids)
+                    {
+                        // 获取轨道内的运输车（只拿一车）
+                        CarrierTask traCar = GetOnlyCarrierInTrack(tid, isbig);
+                        if (traCar == null) continue;
+
+                        if (traCar.CheckCarrierIsUsable(goodssizeID, out result))
+                        {
+                            carrierid = traCar.ID;
                             return true;
                         }
                     }
@@ -2276,7 +2263,7 @@ namespace task.device
                 if (carrier != null)
                 {
                     // 倒库任务的车跳过判断
-                    if (PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.倒库任务, TransTypeE.上砖接力))
+                    if (PubTask.Trans.IsCarrierInTrans(carrier.ID, TransStatusE.小车回轨, TransTypeE.倒库任务, TransTypeE.上砖接力))
                     {
                         carrier = null;
                     }
@@ -2304,7 +2291,7 @@ namespace task.device
                 if (carrier != null)
                 {
                     // 倒库任务的车跳过判断
-                    if (PubTask.Trans.IsCarrierInTrans(carrier.ID, trans.take_track_id, TransTypeE.倒库任务, TransTypeE.上砖接力))
+                    if (PubTask.Trans.IsCarrierInTrans(carrier.ID, TransStatusE.小车回轨, TransTypeE.倒库任务, TransTypeE.上砖接力))
                     {
                         carrier = null;
                     }
@@ -2326,15 +2313,15 @@ namespace task.device
             #endregion
 
             #region 5. 其他储砖轨道
-            if (carrier == null && HaveFreeFerry)
+            if (carrier == null)
             {
                 // 1. 其他轨道靠近摆渡坑的 无货车
                 List<CarrierTask> List_1 = new List<CarrierTask>();
                 // 2. 其他轨道靠近摆渡坑的 有货车
                 List<CarrierTask> List_2 = new List<CarrierTask>();
 
-                // 3. 卸货轨道远离摆渡坑的车
-                CarrierTask car3 = GetOnlyCarrierInTrack(trans.give_track_id, isbig, false);
+                // 3. 取货轨道远离摆渡坑的车
+                CarrierTask car3 = GetOnlyCarrierInTrack(trans.take_track_id, isbig, false);
 
                 // 4. 其他轨道远离摆渡坑的 无货车
                 List<CarrierTask> List_4 = new List<CarrierTask>();
@@ -2347,8 +2334,8 @@ namespace task.device
                 // 获取判断轨道
                 bool isup = trans.InType(TransTypeE.上砖任务, TransTypeE.手动上砖, TransTypeE.同向上砖);
                 List<uint> trackids = PubMaster.Track.GetAreaLineAndTileTrack(trans.area_id, trans.line, trans.tilelifter_id, isup, TrackTypeE.储砖_出入);
-                // 按离卸货点排序
-                List<Track> tids = PubMaster.Track.GetSortTracks(trackids, trans.give_track_id);
+                // 按离取货点排序
+                List<Track> tids = PubMaster.Track.GetSortTracks(trackids, trans.take_track_id);
 
                 foreach (Track tra in tids)
                 {

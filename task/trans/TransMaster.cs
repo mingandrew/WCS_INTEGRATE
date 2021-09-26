@@ -983,7 +983,7 @@ namespace task.trans
             {
                 PubMaster.Warn.RemoveTaskWarn(WarningTypeE.FailAllocateFerry, trans.id);
             }
-            else if (ferryid == 0 && mTimer.IsOver(TimerTag.FailAllocateFerry, trans.take_track_id, 10, 5))
+            else if (ferryid == 0 && mTimer.IsOver(TimerTag.FailAllocateFerry, trans.id, 10, 5))
             {
                 result = string.Format("{0},{1}货摆渡车", result, allotogiveferry ? "卸" : "取");
                 PubMaster.Warn.AddTaskWarn(trans.area_id, trans.line, WarningTypeE.FailAllocateFerry, (ushort)trans.tilelifter_id, trans.id, result);
@@ -1206,13 +1206,14 @@ namespace task.trans
         public bool HaveCarrierInTrans(StockTrans trans)
         {
             return TransList.Exists(c => c.id != trans.id
+                                    && !c.finish
                                     && c.TransStaus != TransStatusE.完成
                                     && c.carrier_id == trans.carrier_id);
         }
 
         public bool HaveCarrierInTrans(uint carrrierid)
         {
-            return TransList.Exists(c => c.TransStaus != TransStatusE.完成 && c.carrier_id == carrrierid);
+            return TransList.Exists(c => !c.finish && c.TransStaus != TransStatusE.完成 && c.carrier_id == carrrierid);
         }
 
         private bool HaveTakeFerryInTrans(StockTrans trans)
@@ -1236,7 +1237,7 @@ namespace task.trans
         /// <returns></returns>
         internal bool HaveInCarrier(uint carrierid)
         {
-            return TransList.Exists(c => c.TransStaus != TransStatusE.完成 && c.carrier_id == carrierid);
+            return TransList.Exists(c => !c.finish && c.TransStaus != TransStatusE.完成 && c.carrier_id == carrierid);
         }
 
         /// <summary>
@@ -2061,20 +2062,6 @@ namespace task.trans
                                 && (c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.倒库任务));
         }
 
-
-        /// <summary>
-        /// 是否存在倒库任务状态为还车回轨的任务
-        /// </summary>
-        /// <param name="trackid"></param>
-        /// <returns></returns>
-        public bool ExistSortTask(uint trackid)
-        {
-            return TransList.Exists(c => c.give_track_id == trackid
-                                && (c.TransType == TransTypeE.上砖接力 || c.TransType == TransTypeE.倒库任务));
-        }
-
-
-
         /// <summary>
         /// 判断轨道的库存是否能够发送小车执行取砖指令
         /// </summary>
@@ -2229,6 +2216,18 @@ namespace task.trans
         {
             return TransList.Exists(c => c.carrier_id == carrier && types.Contains(c.TransType));
         }
+
+        /// <summary>
+        /// 判断小车是否在任务中
+        /// </summary>
+        /// <param name="carrier"></param>
+        /// <param name="types"></param>
+        /// <returns></returns>
+        public bool IsCarrierInTrans(uint carrier, TransStatusE Nostatus, params TransTypeE[] types)
+        {
+            return TransList.Exists(c => c.carrier_id == carrier && c.NotInStatus(Nostatus) && types.Contains(c.TransType));
+        }
+
         #endregion
     }
 }

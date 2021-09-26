@@ -592,6 +592,16 @@ namespace resource.device
         }
 
         /// <summary>
+        /// 判断是否属于串联砖机
+        /// </summary>
+        /// <param name="devid"></param>
+        /// <returns></returns>
+        public bool IsInSeries(uint devid)
+        {
+            return ConfigTileLifterList.Exists(c => c.brother_dev_id == devid || (c.id == devid && c.HaveBrother));
+        }
+
+        /// <summary>
         /// 判断是否有兄弟砖机
         /// </summary>
         /// <param name="devid"></param>
