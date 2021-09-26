@@ -880,7 +880,11 @@ namespace task.trans.transtask
                 {
                     Stock btmstock = PubMaster.Goods.GetTrackButtomStock(trans.give_track_id);
                     ushort safe = PubMaster.Goods.GetStackSafe(0, 0);
-                    if (btmstock != null && carpoint.CurrentPoint >= (btmstock.location - (ushort)(safe * 3)))
+
+                    //如果有尾部库存，且运输车在尾部库存的前面超过10个脉冲的位置
+                    //则需要后退
+                    int discount = carpoint.CurrentPoint - (btmstock.location - (ushort)(safe * 3));
+                    if (btmstock != null && discount >= 10)
                     {
                         ushort tpoint = (ushort)(btmstock.location - safe * 3);
                         if (tpoint <= gtrack.split_point)
